@@ -1,0 +1,20 @@
+{
+  "reference": {
+    "version": "SignalLab HP Prime 5.0",
+    "review_date": "2026-10-21",
+    "sha256": "9EC7E69183AC50303A4EF0FDFAFD4B585F33D75D2164AE725E95574A75033DCB"
+  },
+  "cases": [
+    {"id":"EXP-01","input":"cos(pi*x/4), n=-2..2","expected":[[0,0],[0.7071067811865476,0],[1,0],[0.7071067811865476,0],[0,0]],"convention":"radianes; índices enteros; salida compleja","pc":"implemented; verify with test_first_flow.py","hp":"reference behavior from guide; no new HP run"},
+    {"id":"LIST-01","input":"1, 0, 1+2i, -3; n0=-1","expected":{"values":[[1,0],[0,0],[1,2],[-3,0]],"origin":-1,"step":1,"units":"n"},"convention":"los valores complejos y el índice inicial se conservan","pc":"implemented; verify with test_first_flow.py","hp":"not re-executed"},
+    {"id":"EDIT-01","input":"sequence [1,0,-1], edit row 1 to 2+3i","expected":{"values":[[1,0],[2,3],[-1,0]],"axis":[0,1,2]},"convention":"editar muestras no cambia el eje","pc":"implemented; verify with test_first_flow.py","hp":"not applicable to PC UI edit flow"},
+    {"id":"JSON-01","input":"complex samples [1+2i,-3i], origin=-2, step=1, units=n","expected":"load(save(signal)) preserves exact complex values and metadata","convention":"nativo SignalLab JSON schema v1","pc":"implemented; verify with test_first_flow.py","hp":"not a direct HP format"},
+    {"id":"CSV-01","input":"samples [1+2i,3], axis -1,0","expected":"CSV columns axis, real, imag; metadata in header","convention":"CSV is tabular exchange and retains both complex components","pc":"implemented; manual round-trip parser still pending","hp":"not a direct HP format"},
+    {"id":"SEQ-INVALID-01","input":"x**2 + __import__('os')","expected":"reject unsupported syntax; no code execution","convention":"restricted expression language","pc":"implemented guard; verify with test_first_flow.py","hp":"no cross-platform equivalence claim"},
+    {"id":"DFT-01","input":"x=[1,2,3,4,5,6,7,8], N=4","expected":"X[0]=10; input is truncated to first N samples for this DFT; input signal is unchanged","convention":"forward DFT is unnormalized; DFT output has integer bin axis k","pc":"implemented; tests/test_migrated_operations.py covers explicit padding/truncation and no mutation","hp":"documented pending in source project's Prime checklist"},
+    {"id":"CONV-01","input":"x=[1,2], h=[1,1], nx=-2, nh=1","expected":{"values":[1,3,2],"origin":-1},"convention":"linear discrete convolution; negative index origin retained","pc":"implemented; tests/test_migrated_operations.py","hp":"documented as concrete regression in HP review notes"},
+    {"id":"DIRAC-01","input":"delta[n], n=-2..2","expected":{"values":[0,0,1,0,0],"window_energy":1,"window_power":0.2},"convention":"Kronecker impulse, not continuous Dirac","pc":"supported by finite_measures; test coverage uses a complex-valued finite record","hp":"Prime confirmation pending per HP review notes"},
+    {"id":"BIL-01","input":"H(s)=1/(s+1), T=1","expected":"H(z)=(z+1)/(3z-1), algebraically equivalent forms accepted","convention":"bilinear transform with numeric sampling period T","pc":"pending","hp":"previous HP example documented; recheck according to HP source notes"},
+    {"id":"ALIAS-01","input":"tone f=7 Hz, fs=10 Hz","expected":"alias frequency folded into [0, fs/2] with explicit phase/sign convention","convention":"Hz and rad/s must not be conflated","pc":"pending; choose an independently derived exact case before implementation","hp":"pending"}
+  ]
+}

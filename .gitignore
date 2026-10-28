@@ -1,0 +1,29 @@
+# Dependencies and generated files
+.venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage*
+htmlcov/
+build/
+dist/
+work/
+outputs/
+releases/
+*.exe
+*.pkg
+*.spec
+*.log
+# Local configuration and credentials
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+.codex/
+.agents/
+# Course documents stay local; they are not application sources.
+*.pdf
+*.doc
+*.docx

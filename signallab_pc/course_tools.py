@@ -1,0 +1,315 @@
+"""Herramientas generales de diseño y análisis para Sistemas y Señales."""
+import numpy as np
+from scipy import signal as sp
+from .model import Signal
+from .filters import Transfer
+from .fourier import dtft
+from .resources import ensure_working_set
+from .jobs import checkpoint
+
+def bundle(report,signals=(),systems=()):
+    return dict(report=report,signals=list(signals),systems=list(systems))
+
+def frequency_response(system,count=2049):
+    w=np.linspace(0,np.pi,count) if system.domain=='digital' else np.geomspace(.01,100,count)
+    h=system.response(w)
+    return w,h
+
+def window_fft(x,length,nfft,window,beta,points):
+    if x.domain!='discrete':raise ValueError('Se requiere una secuencia discreta.')
+    if not 2<=length<=x.values.size:raise ValueError('La longitud de ventana debe estar entre 2 y la cantidad de muestras de entrada.')
+    if nfft<length:raise ValueError('NFFT debe ser al menos la longitud de ventana; no se recorta la señal silenciosamente.')
+    if points<2:raise ValueError('Usá al menos dos frecuencias para la DTFT.')
+    if beta<0:raise ValueError('β debe ser no negativo.')
+    ensure_working_set(int(nfft+points+length),live_arrays=14)
+    weights=sp.get_window(('kaiser',beta) if window=='kaiser' else window,length,fftbins=False)
+    w=Signal(weights,x.origin,1,'n','Ventana '+window,'discrete')
+    v=Signal(x.values[:length]*weights,x.origin,1,'n','Señal enventanada','discrete')
+    raw=np.fft.fft(v.values,nfft)
+    omega=np.fft.fftshift(np.fft.fftfreq(nfft))*2*np.pi
+    spectrum=np.fft.fftshift(raw)*np.exp(-1j*omega*float(x.origin))
+    if abs(x.origin)>2**53:raise ValueError('El origen excede la precisión disponible para calcular la fase.')
+    fft=Signal(spectrum,float(omega[0]),2*np.pi/nfft,'rad/muestra','DFT de la señal enventanada','frequency','',{'operation':'DFT','nfft':nfft,'window_length':length,'window':window,'kaiser_beta':beta if window=='kaiser' else None,'input_origin':x.origin})
+    dense=dtft(v,-np.pi,np.pi,points)
+    window_spectrum=dtft(w,-np.pi,np.pi,points)
+    coeff=Signal(raw,0,1,'k','Coeficientes DFT para inversión','discrete','',{'operation':'DFT','source_origin':x.origin,'nfft':nfft})
+    energy=float(np.sum(abs(v.values)**2));spectral=float(np.sum(abs(raw)**2)/nfft)
+    return bundle(f'Ventanas y resolución espectral\n\nLongitud observada: {length}\nNFFT: {nfft}\nCeros agregados: {nfft-length}\nSeparación entre bins: {2*np.pi/nfft:.9g} rad/muestra\nVentana: {window}, simétrica\nGanancia coherente: {np.mean(weights):.9g}\n\nEnergía temporal: {energy:.12g}\nSuma |X[k]|²/NFFT: {spectral:.12g}\n\nLa FFT no se normaliza hacia adelante. Su fase en rad/muestra respeta el origen de la entrada. La DFT invertible usa índices desde cero; al invertirla, el eje empieza en cero. La DTFT usa los índices originales.\n\nAgregar ceros densifica la rejilla, pero no mejora la resolución física. Aumentar la duración y cambiar la ventana modifica el ancho del lóbulo y la fuga. Se usan las primeras L muestras; no se supone que aumentar NFFT agrega información.',[fft,dense,v,w,window_spectrum,coeff])
+
+def bands(wp,ws):
+    wp=np.asarray(wp,float);ws=np.asarray(ws,float)
+    if not np.all(np.isfinite(wp)) or not np.all(np.isfinite(ws)):raise ValueError('Los bordes deben ser finitos.')
+    if wp.size!=ws.size or wp.size not in (1,2) or np.any(wp<=0) or np.any(ws<=0) or np.any(wp>=np.pi) or np.any(ws>=np.pi):raise ValueError('Ingresá uno o dos bordes por banda, estrictamente entre 0 y π.')
+    if wp.size==1:
+        if wp[0]==ws[0]:raise ValueError('La transición debe tener ancho positivo.')
+        kind='lowpass' if wp[0]<ws[0] else 'highpass'
+    elif ws[0]<wp[0]<wp[1]<ws[1]:kind='bandpass'
+    elif wp[0]<ws[0]<ws[1]<wp[1]:kind='bandstop'
+    else:raise ValueError('Bordes inválidos. Pasabanda: ws1<wp1<wp2<ws2. Rechazabanda: wp1<ws1<ws2<wp2.')
+    return wp,ws,kind
+
+def spec_report(system,wp,ws,kind,dp,ds,pass_upper=None):
+    base=np.linspace(0,np.pi,32769);edges=np.r_[wp,ws]
+    if system.sos is None:
+        _,hbase=sp.freqz(system.b,system.a,worN=32769,include_nyquist=True);_,hedges=sp.freqz(system.b,system.a,worN=edges)
+    else:hbase=system.response(base);hedges=system.response(edges)
+    order=np.argsort(np.r_[base,edges]);w=np.r_[base,edges][order];h=abs(np.r_[hbase,hedges][order])
+    if kind=='lowpass':pm=w<=wp[0];sm=w>=ws[0]
+    elif kind=='highpass':pm=w>=wp[0];sm=w<=ws[0]
+    elif kind=='bandpass':pm=(w>=wp[0])&(w<=wp[1]);sm=(w<=ws[0])|(w>=ws[1])
+    else:pm=(w<=wp[0])|(w>=wp[1]);sm=(w>=ws[0])&(w<=ws[1])
+    if not np.all(np.isfinite(h)):return 'La evaluación presenta puntos no finitos; revisá el orden y la condición numérica.'
+    error=float(np.max(abs(h[pm]-1)));stop=float(np.max(h[sm]))
+    if pass_upper is not None:
+        minimum=float(np.min(h[pm]));maximum=float(np.max(h[pm]))
+        excess=max((1-dp)-minimum,maximum-pass_upper,stop-ds)
+        verdict='dentro de tolerancias.' if excess<=0 else 'al límite numérico (exceso de hasta 1e-12 en amplitud); no se certifica cumplimiento estricto.' if excess<=1e-12 else 'fuera de tolerancias; ajustá el diseño.'
+        return f'Mínimo |H| en paso: {minimum:.12g} (mínimo permitido {1-dp:.12g})\nMáximo |H| en paso: {maximum:.12g} (máximo permitido {pass_upper:.12g})\nMáximo |H| en rechazo: {stop:.12g} (límite {ds:.12g})\nExceso máximo sobre límites: {max(0,excess):.6g}\nResultado sobre la rejilla: '+verdict+'\nEvaluación sobre 32769 frecuencias y bordes. No prueba cumplimiento entre frecuencias ni orden mínimo global.'
+
+    return f'Desviación máxima de |H| respecto de 1 en paso: {error:.9g} (límite {dp:g})\nMáximo |H| en rechazo: {stop:.9g} (límite {ds:g})\nResultado sobre la rejilla: '+('dentro de tolerancias.' if error<=dp and stop<=ds else 'fuera de tolerancias; ajustá el diseño.')+'\nEvaluación numérica sobre 32769 frecuencias más los bordes. No prueba un máximo continuo ni un orden mínimo global.'
+
+def design_filter(wp,ws,dp,ds,method,period=1,taps=0,window="kaiser",search=0):
+    wp,ws,kind=bands(wp,ws)
+    if not 0<dp<1 or not 0<ds<1:raise ValueError('Las tolerancias lineales δp y δs deben estar entre 0 y 1.')
+    if not np.isfinite(period) or period<=0:raise ValueError('T debe ser positivo y finito.')
+    if method not in ('kaiser','butter','cheby1','cheby2','ellip','bilinear','impulse'):raise ValueError('Método de diseño no admitido.')
+    extra=[]
+    if method=='kaiser':
+        attenuation=-20*np.log10(min(dp,ds));width=float(np.min(abs(wp-ws)))
+        estimated,beta=sp.kaiserord(attenuation,width/np.pi)
+        if window not in {'boxcar','hann','hamming','blackman','kaiser','bartlett'}:raise ValueError('Ventana no admitida.')
+        if search<0:raise ValueError('La cota de búsqueda debe ser no negativa.')
+        if window!='kaiser' and not taps and not search:raise ValueError('Para esta ventana indicá longitud o una cota de búsqueda; la estimación automática corresponde a Kaiser.')
+        chosen_window=('kaiser',beta) if window=='kaiser' else window
+        if taps<0:raise ValueError('La longitud debe ser no negativa.')
+        count=int(taps) if taps else int(estimated)
+        searched=False
+        if search:
+            if search<2:raise ValueError('La búsqueda necesita al menos dos coeficientes como cota.')
+            ensure_working_set(int(search),live_arrays=18)
+            found=None;cutoff=(wp+ws)/2
+            for candidate in range(2,int(search)+1):
+                checkpoint(candidate/search)
+                if kind in ('highpass','bandstop') and candidate%2==0:continue
+                trial=sp.firwin(candidate,cutoff if cutoff.size==2 else cutoff[0],window=chosen_window,pass_zero=kind,fs=2*np.pi,scale=True)
+                trial_system=Transfer(trial,[1])
+                if 'dentro de tolerancias.' in spec_report(trial_system,wp,ws,kind,dp,ds):found=candidate;break
+            if found is None:raise ValueError('No se encontró una longitud que cumpla en la rejilla hasta la cota indicada. Aumentá la cota o cambiá la ventana/tolerancias.')
+            count=found;searched=True
+        if count<2:raise ValueError('Usá al menos dos coeficientes.')
+        if kind in ('highpass','bandstop') and count%2==0:
+            if taps:raise ValueError('Con ganancia no nula en π, un FIR simétrico requiere longitud impar.')
+            count+=1
+        ensure_working_set(count,live_arrays=16)
+        cutoff=(wp+ws)/2
+        b=sp.firwin(count,cutoff if cutoff.size==2 else cutoff[0],window=chosen_window,pass_zero=kind,fs=2*np.pi,scale=True)
+        result=Transfer(b,[1],name='FIR '+window+' por especificaciones')
+        ideal=sp.firwin(count,cutoff if cutoff.size==2 else cutoff[0],window='boxcar',pass_zero=kind,fs=2*np.pi,scale=False)
+        extra=[Signal(ideal,name='Respuesta ideal truncada'),Signal(sp.get_window(chosen_window,count,fftbins=False),name='Ventana '+window),Signal(b,name='Respuesta FIR h[n]')]
+        summary=f'Método: ventana {window}\nLongitud estimada: {estimated}\nLongitud usada: {count}\nOrden: {count-1}\nβ: {beta:.9g}\nRetardo de grupo: {(count-1)/2:g} muestras (salvo ceros de la respuesta)\n\nLa fórmula de Kaiser estima la longitud; no demuestra la mínima. El filtro ideal se trunca y se normaliza al diseñar. Podés fijar otra longitud y examinarla.'
+        if window!='kaiser':summary=summary.replace(f'β: {beta:.9g}', 'β: no corresponde a esta ventana').replace('La fórmula de Kaiser estima la longitud; no demuestra la mínima.', 'La estimación indicada corresponde a Kaiser como referencia, no a la ventana elegida.')
+        if searched:summary+='\nBúsqueda exhaustiva de longitudes desde 2 hasta la primera aceptada en la rejilla y familia elegidas. No demuestra el mínimo entre todos los métodos ni el cumplimiento entre frecuencias evaluadas.'
+        systems=[result]
+    else:
+        gp=-20*np.log10(1-dp);gs=-20*np.log10(ds)
+        if gs<=gp:raise ValueError('La atenuación de rechazo debe superar la pérdida permitida en paso.')
+        if method in ('butter','cheby1','cheby2','ellip'):
+            names={'butter':'Butterworth','cheby1':'Chebyshev I','cheby2':'Chebyshev II','ellip':'Elíptico (Cauer)'}
+            selectors={'butter':sp.buttord,'cheby1':sp.cheb1ord,'cheby2':sp.cheb2ord,'ellip':sp.ellipord}
+            notes={'butter':'Respuesta de módulo máximamente plana en paso, sin ondulación en ambas bandas.',
+                   'cheby1':'Ondulación uniforme en paso y rechazo monótono. Revisá también la fase y el transitorio.',
+                   'cheby2':'Paso monótono y ondulación uniforme en rechazo, con ceros de transmisión.',
+                   'ellip':'Ondulación uniforme en paso y rechazo. Una transición abrupta puede acompañarse de mayor oscilación temporal.'}
+            order,cutoff=selectors[method](wp,ws,gp,gs,fs=2*np.pi)
+            ensure_working_set(int((2*order+1)**2),live_arrays=16)
+            sections=sp.iirfilter(order,cutoff,rp=gp,rs=gs,btype=kind,ftype=method,fs=2*np.pi,output='sos')
+            result=Transfer.from_sos(sections,name=names[method]+' digital')
+            effective_order=int(order)*(2 if kind in ('bandpass','bandstop') else 1)
+            systems=[result];summary=f'Método: {names[method]} digital\nOrden del prototipo: {order}\nOrden del filtro: {effective_order}\nPérdida máxima en paso: {gp:.9g} dB\nAtenuación mínima en rechazo: {gs:.9g} dB\n\n'+notes[method]+'\nEl orden se selecciona para la familia y las especificaciones indicadas; no implica optimalidad entre todas las clases de filtros.'
+        else:
+            prewarp=method=='bilinear'
+            ap=2/period*np.tan(wp/2) if prewarp else wp/period
+            astop=2/period*np.tan(ws/2) if prewarp else ws/period
+            order,cutoff=sp.buttord(ap,astop,gp,gs,analog=True)
+            ensure_working_set(int((2*order+1)**2),live_arrays=18)
+            b,a=sp.butter(order,cutoff,btype=kind,analog=True);prototype=Transfer(b,a,'analog','Prototipo Butterworth analógico')
+            if prewarp:
+                z,p,k=sp.butter(order,cutoff,btype=kind,analog=True,output='zpk')
+                z,p,k=sp.bilinear_zpk(z,p,k,fs=1/period)
+                result=Transfer.from_sos(sp.zpk2sos(z,p,k),name='Butterworth por bilineal',sample_period_s=period)
+            else:result=convert_system(prototype,period,'impulse')['systems'][0]
+            systems=[result,prototype]
+            summary=f'Método: {method}\nOrden del prototipo: {order}\nT: {period:g} s\nBordes de paso analógicos: {ap}\nBordes de rechazo analógicos: {astop}\n\n'+('La bilineal predeforma los bordes: Ω=(2/T)tan(ω/2).' if prewarp else 'La invarianza al impulso usa h[n]=T·hc(nT). Puede introducir aliasing: las especificaciones del prototipo no garantizan las digitales. Requiere prototipo estrictamente propio; no admite un paso alto con término directo.')
+        summary+='\nLa especificación IIR usa ganancia entre 1−δp y 1 en paso, y como máximo δs en rechazo. Las transferencias de orden alto pueden estar mal condicionadas en forma polinómica.'
+    if result.sos is not None:
+        summary+=f'\n\nRealización: {len(result.sos)} secciones de segundo orden. La respuesta en frecuencia y el filtrado desde reposo usan la cascada. Los coeficientes expandidos se conservan para edición y operaciones algebraicas.'
+        summary+='\nCada fila contiene b0, b1, b2; a0, a1, a2:\n'+'\n'.join(f'Sección {i+1}: '+', '.join(f'{v:.12g}' for v in row) for i,row in enumerate(result.sos))
+    output=bundle(summary+'\n\n'+spec_report(result,wp,ws,kind,dp,ds,None if method=='kaiser' else 1),extra,systems)
+    output['specifications']={'wp':wp.tolist(),'ws':ws.tolist(),'kind':kind,'dp':float(dp),'ds':float(ds),'pass_upper':float(1+dp if method=='kaiser' else 1)}
+    if method in ('butter','cheby1','cheby2','ellip'):output['filter_order']=effective_order
+    return output
+
+def compare_iir(wp,ws,dp,ds):
+    designs=[]
+    for index,method in enumerate(('butter','cheby1','cheby2','ellip')):
+        checkpoint(index/4)
+        designs.append(design_filter(wp,ws,dp,ds,method))
+    checkpoint(1)
+    systems=[item['systems'][0] for item in designs]
+    rows=[f"{system.name}: orden {item['filter_order']}; {len(system.sos)} secciones" for system,item in zip(systems,designs)]
+    report='Comparación de familias IIR\n\nMismos bordes y tolerancias para las cuatro familias. Frecuencias en rad/muestra.\n\n'+'\n'.join(rows)+'\n\nEl menor orden no determina por sí solo la elección: compará ondulación, fase, retardo y respuesta temporal. El selector identifica el filtro que se exporta o reutiliza.\n\n'+'\n\n'.join(item['report'] for item in designs)
+    output=bundle(report,systems=systems);output['specifications']=designs[0]['specifications'];output['comparison']=True
+    return output
+
+def convert_system(system,period,method):
+    if not np.isfinite(period) or period<=0:raise ValueError('T debe ser positivo y finito.')
+    ensure_working_set(int((max(len(system.a),len(system.b))+1)**2),live_arrays=18)
+    if method in ('impulse','bilinear'):
+        if system.domain!='analog':raise ValueError('Se requiere H(s) continua.')
+        b=np.trim_zeros(system.b,'f');b=b if b.size else np.array([0j])
+        if np.any(b.imag) or np.any(system.a.imag):raise ValueError('La conversión requiere coeficientes reales.')
+        if method=='impulse':
+            if len(b)>=len(system.a):raise ValueError('Invarianza al impulso requiere H(s) estrictamente propia, sin término de Dirac directo.')
+            num,den,_=sp.cont2discrete((b.real,system.a.real),period,method='impulse');num=num.reshape(-1)
+            note='h[n] = T · hc(nT). La respuesta puede sufrir aliasing. Los polos se mapean como z=exp(sT); la transformación inversa no es única.'
+        else:
+            num,den=sp.bilinear(b.real,system.a.real,fs=1/period)
+            note='s = (2/T) · (z−1)/(z+1). Ω = (2/T)tan(ω/2). No hay aliasing por el mapeo, pero sí deformación de frecuencia.'
+        result=Transfer(num,den,'digital','Conversión '+method,sample_period_s=period)
+    elif method=='impulse_inverse':
+        if system.domain!='digital':raise ValueError('La reconstrucción por invarianza requiere H(z).')
+        residues,poles,direct=sp.residuez(system.b,system.a,tol=1e-10)
+        if np.any(abs(direct)>1e-10):raise ValueError('Esta reconstrucción requiere fracciones simples sin parte polinómica directa; los términos de impulso necesitan un tratamiento distributivo.')
+        if np.any(abs(poles)<1e-12):raise ValueError('Un polo nulo no tiene logaritmo finito en el mapeo exponencial.')
+        if any(abs(poles[i]-poles[j])<1e-9*max(1,abs(poles[i])) for i in range(len(poles)) for j in range(i)):
+            raise ValueError('La reconstrucción actual admite polos simples separados; no polos múltiples o numéricamente coincidentes.')
+        candidates=[]
+        real_system=not np.any(system.b.imag) and not np.any(system.a.imag)
+        for branch in (0,1):
+            analog_poles=[];analog_residues=[]
+            for r,pole in zip(residues,poles):
+                if real_system and abs(pole.imag)<1e-10 and abs(r.imag)<1e-10:
+                    decay=np.log(abs(pole))/period;frequency=(0 if pole.real>0 else np.pi)+2*np.pi*branch
+                    if frequency==0:analog_poles.append(decay);analog_residues.append(r.real/period)
+                    else:
+                        analog_poles.extend([decay+1j*frequency/period,decay-1j*frequency/period]);analog_residues.extend([r.real/(2*period)]*2)
+                else:
+                    shift=branch*(1 if np.angle(pole)>=0 else -1)
+                    analog_poles.append((np.log(complex(pole))+2j*np.pi*shift)/period);analog_residues.append(r/period)
+            num,den=sp.invres(np.asarray(analog_residues),np.asarray(analog_poles),[])
+            if real_system:num=np.real_if_close(num,tol=1000);den=np.real_if_close(den,tol=1000)
+            candidates.append(Transfer(num,den,'analog','Candidato analógico · rama '+str(branch)))
+        return bundle('Inversa de invarianza al impulso: candidatos\n\nh[n]=T·hc(nT). Para r/(1−p z⁻¹), un término continuo compatible tiene residuo r/T y polo (log(p)+j2πk)/T.\n\nSe muestran dos elecciones de ramas. Para polos y residuos reales se construyen pares conjugados cuando hace falta: tienen las mismas muestras, pero distinta evolución entre ellas. La respuesta no es única.\n\nAlcance: polos simples separados y sin parte polinómica directa significativa. La descomposición usa tolerancia numérica 1e−10; no es una equivalencia algebraica exacta. En n=0 se interpreta el valor por la derecha de hc.',systems=candidates)
+    else:
+        if system.domain!='digital':raise ValueError('La bilineal inversa requiere H(z) discreta.')
+        degree=max(len(system.a),len(system.b))-1
+        def substitute(v):
+            values=np.pad(v,(0,degree+1-len(v)));out=np.poly1d([0j]);plus=np.poly1d([period/2,1]);minus=np.poly1d([-period/2,1])
+            for i,c in enumerate(values):out=out+complex(c)*(minus**i)*(plus**(degree-i))
+            return out.c
+        result=Transfer(substitute(system.b),substitute(system.a),'analog','Bilineal inversa')
+        note='z = (1+sT/2)/(1−sT/2). Para un T fijado la sustitución racional es única. El resultado puede ser impropio y no tener una respuesta temporal ordinaria.'
+    return bundle('Conversión de sistemas\n\n'+note+'\nT: '+str(period)+' s',systems=[result])
+
+def normalize_gain(system,omega,target):
+    if target<=0:raise ValueError('El módulo objetivo debe ser positivo.')
+    value=system.response(np.array([omega]))[0];magnitude=abs(value)
+    if not np.isfinite(magnitude) or magnitude==0:raise ValueError('No se puede normalizar sobre un cero o un punto singular.')
+    if system.sos is not None:
+        sections=system.sos.copy();sections[0,:3]*=target/magnitude
+        result=Transfer.from_sos(sections,'Sistema normalizado',sample_period_s=system.sample_period_s)
+    else:result=Transfer(system.b*(target/magnitude),system.a,system.domain,'Sistema normalizado',advance=system.advance,sample_period_s=system.sample_period_s)
+    result.advance=system.advance
+    return bundle(f'Normalización de ganancia\n\nFrecuencia angular: {omega:g}\nMódulo previo: {magnitude:.12g}\nMódulo objetivo: {target:g}\nFactor aplicado: {target/magnitude:.12g}\n\nSe modifica sólo la ganancia; la fase y las posiciones de polos y ceros se conservan.',systems=[result])
+
+def phase_structure(system):
+    if system.domain!='digital':raise ValueError('Este análisis requiere H(z).')
+    b=np.trim_zeros(system.b,'b');a=np.trim_zeros(system.a,'b')
+    if not b.size:raise ValueError('La transferencia nula no tiene fase ni inversa definidas.')
+    delay=int(np.flatnonzero(b!=0)[0]);active=b[delay:]
+    ensure_working_set(int(max(len(a),len(b))**2),live_arrays=12)
+    zeros=np.roots(active);poles=np.roots(a);near=np.any(np.isclose(abs(zeros),1,rtol=1e-8,atol=1e-10))
+    outside=abs(zeros)>1;reflected=zeros.copy();reflected[outside]=1/np.conj(zeros[outside])
+    gain=active[0]*np.prod(abs(zeros[outside]));minimum=Transfer(gain*np.atleast_1d(np.poly(reflected)),a,name='Factor con ceros reflejados',sample_period_s=system.sample_period_s)
+    allpass=Transfer(b,minimum.b,name='Factor paso todo y retardo',sample_period_s=system.sample_period_s)
+    lines=['Fase mínima y fase lineal',f'Retardo explícito: {delay} muestras',f'Ceros fuera del círculo unidad: {int(np.count_nonzero(outside))}',f'Polos fuera o sobre el círculo: {int(np.count_nonzero(abs(poles)>=1))}']
+    strict=(delay==0 and not near and np.all(abs(zeros)<1) and np.all(abs(poles)<1))
+    lines+=['Fase mínima estricta (interpretación causal, sin cancelaciones): '+('compatible con los polos y ceros numéricos.' if strict else 'no se puede afirmar con esta representación.')]
+    bb=np.convolve(b,np.conj(b[::-1]));aa=np.convolve(a,np.conj(a[::-1]));size=max(bb.size,aa.size)
+    def center(v):return np.pad(v,((size-v.size)//2,(size-v.size)//2))
+    gain_squared=float(np.sum(abs(b)**2)/np.sum(abs(a)**2))
+    constant=np.allclose(center(bb),gain_squared*center(aa),rtol=1e-9,atol=1e-12)
+    lines+=['Módulo constante en el círculo, salvo singularidades: '+(f'compatible con {np.sqrt(gain_squared):.9g} (comparación polinómica numérica).' if constant else 'no detectado.')]
+    lines+=['La factorización conserva H=Hmin·Hap en precisión numérica; refleja z₀ exterior a 1/conj(z₀) y compensa la ganancia.']
+    if near:lines+=['Hay ceros sobre o muy próximos al círculo unidad: no se afirma fase mínima estricta ni inversa estable.']
+    if np.any(abs(poles)>=1):lines+=['El sistema causal tiene polos no estables; reflejar ceros no estabiliza sus polos.']
+    if len(a)==1 and not np.any(b.imag):
+        symmetric=np.allclose(active,active[::-1],rtol=1e-9,atol=1e-12);antisymmetric=np.allclose(active,-active[::-1],rtol=1e-9,atol=1e-12)
+        kind=('I' if len(active)%2 else 'II') if symmetric else ('III' if len(active)%2 else 'IV') if antisymmetric else None
+        lines+=[('FIR de fase lineal generalizada, tipo '+kind+f'. Retardo: {delay+(len(active)-1)/2:g} muestras.' if kind else 'El FIR no presenta simetría ni antisimetría dentro de la tolerancia usada.')]
+    lines+=['La clasificación usa coeficientes y raíces numéricos; no cancela polos y ceros por proximidad. La estabilidad interna y los casos degenerados requieren análisis algebraico. El retardo de grupo no está definido donde H es cero.']
+    return bundle('\n\n'.join(lines),systems=[minimum,allpass])
+
+def inverse_z_contour(system,mode,radius,start,count,points):
+    if system.domain!='digital':raise ValueError('Se requiere una transferencia discreta.')
+    if count<1 or points<2*count:raise ValueError('Usá N≥1 y al menos 2N puntos de contorno.')
+    ensure_working_set(int(points+count),live_arrays=14)
+    zeros,poles=system.poles_zeros();radii=abs(poles)
+    if mode=='causal':radius=max(1.,float(np.max(radii)) if radii.size else 0)*1.2
+    elif mode=='anticausal':
+        if not radii.size or np.any(radii==0):raise ValueError('No hay un disco interior no nulo compatible; revisá polos en cero y términos de avance/retardo.')
+        radius=float(np.min(radii))*.8
+    elif mode=='stable':radius=1.
+    if radius<=0 or not np.isfinite(radius):raise ValueError('El radio debe ser positivo y finito.')
+    if np.any(np.isclose(radii,radius,rtol=1e-9,atol=1e-12)):raise ValueError('El contorno coincide con un polo; elegí un radio dentro de una ROC abierta.')
+    if max(abs(start),abs(start+count-1))>=points//2:raise ValueError('Aumentá los puntos de contorno para que |n| sea menor que la mitad de ellos.')
+    theta=2*np.pi*np.arange(points)/points;q=np.exp(-1j*theta)/radius
+    h=np.polyval(system.b[::-1],q)/np.polyval(system.a[::-1],q)
+    if system.advance:h*=q**(-system.advance)
+    coeff=np.fft.ifft(h);indices=np.arange(start,start+count)
+    with np.errstate(over='ignore',invalid='ignore'):values=coeff[indices%points]*np.power(radius,indices.astype(float))
+    if not np.all(np.isfinite(values)):raise ValueError('La aproximación excede el rango numérico; acercá el radio a 1 o acortá el intervalo.')
+    lower=max([0.]+[float(r) for r in radii if r<radius]);upper=min([float('inf')]+[float(r) for r in radii if r>radius])
+    signal=Signal(values,start,1,'n','Z inversa por contorno','discrete','',{'operation':'inverse_z_contour','radius':radius,'contour_points':points,'roc_inner':lower,'roc_outer':None if np.isinf(upper) else upper})
+    return bundle(f'Z inversa bilateral numérica\n\nROC elegida entre radios: {lower:g} < |z| < {upper:g}\nRadio de integración: {radius:g}\nPuntos del contorno: {points}\n\nh[n] ≈ rⁿ · IFFT(H(r·exp(jθ)))[n]\n\nEl radio selecciona una expansión de Laurent. El contorno exterior corresponde a la expansión causal de una representación causal; el interior puede incluir términos finitos en índices no negativos. El círculo unidad selecciona la interpretación estable si no hay polos sobre él.\n\nEs una aproximación con aliasing circular de coeficientes, especialmente cerca de polos. Aumentá puntos y compará radios dentro de la misma ROC para estudiar convergencia. No es una inversión algebraica exacta; valores muy pequeños pueden ser error de redondeo.',[signal])
+
+def band_energy(spectrum,low,high):
+    if spectrum.domain!='frequency' or spectrum.units not in ('rad/s','rad/muestra'):raise ValueError('Se requiere un espectro X(ω) en rad/s o rad/muestra, no una densidad ya elevada al cuadrado.')
+    if spectrum.metadata.get('distribution') or spectrum.metadata.get('operation') in ('energy_density','spectral_density','welch','periodogram','continuous_fourier_series','discrete_fourier_series'):raise ValueError('Ingresá X(ω), no una densidad espectral.')
+    x=spectrum.axis
+    if spectrum.step<=0 or not x[0]<=low<high<=x[-1]:raise ValueError('La banda debe estar contenida en el eje creciente del espectro.')
+    axis=np.r_[low,x[(x>low)&(x<high)],high];power=np.interp(axis,x,abs(spectrum.values)**2)
+    value=float(np.trapezoid(power,axis)/(2*np.pi));total=float(np.trapezoid(abs(spectrum.values)**2,x)/(2*np.pi))
+    if not np.isfinite(value) or not np.isfinite(total):raise ValueError('La energía excede el rango numérico.')
+    return bundle(f'Energía espectral por banda\n\nE = (1/(2*pi)) integral |X(ω)|² dω\nBanda: [{low:g}, {high:g}] {spectrum.units}\nEnergía en la banda: {value:.12g}\nEnergía del intervalo disponible: {total:.12g}\n\nIntegración trapezoidal de una densidad interpolada. La banda es exactamente la indicada: no se duplica una banda positiva. Para una señal continua, el intervalo espectral finito sólo aproxima la energía total. Para una secuencia, Parseval integra un período completo de 2π. No usar coeficientes de serie ni PSD de una señal periódica como si fueran un espectro continuo.')
+
+def periodic_lines(coefficients,period):
+    if coefficients.domain!='discrete':raise ValueError('Ingresá los coeficientes c[k] de la serie, con k entero.')
+    if coefficients.metadata.get('operation')=='discrete_fourier_series':raise ValueError('Esta herramienta interpreta una serie de tiempo continuo. Usá coeficientes de serie continua o ingresalos manualmente.')
+    period=float(coefficients.metadata.get('period_s',period))
+    if not np.isfinite(period) or period<=0:raise ValueError('El período debe ser positivo y finito.')
+    powers=abs(coefficients.values)**2;omega0=2*np.pi/period
+    weights=Signal(2*np.pi*powers,coefficients.origin*omega0,omega0,'rad/s','Pesos de líneas de potencia','frequency','',{'operation':'continuous_fourier_series','distribution':'Dirac weights, not finite density heights','period_s':period})
+    power=float(np.sum(powers))
+    return bundle(f'Potencia de una señal periódica\n\nSx(ω) = 2π Σ |c[k]|² δ(ω−kω₀)\nω₀: {omega0:.12g} rad/s\nPeríodo: {period:g} s\nPotencia de los armónicos disponibles: {power:.12g}\n\nCada tallo representa el peso de una delta, no su altura ni una densidad finita. Parseval da P=Σ|c[k]|². Si faltan armónicos o los coeficientes se estimaron por cuadratura, el resultado sólo aproxima la potencia total. No se deben integrar los tallos con trapecios.',[weights])
+
+def frequency_mapping(omega,analog,period,method,direction,branch):
+    if not np.isfinite(period) or period<=0:raise ValueError('T debe ser positivo y finito.')
+    if method not in ('kaiser','butter','cheby1','cheby2','ellip','bilinear','impulse'):raise ValueError('Método de diseño no admitido.')
+    if method=='bilinear':
+        if direction!='to_digital' and not -np.pi<omega<np.pi:raise ValueError('La bilineal requiere −π<ω<π para frecuencia analógica finita.')
+        if direction=='to_digital':result=2*np.arctan(analog*period/2);unit='rad/muestra'
+        elif direction=='to_analog':result=2/period*np.tan(omega/2);unit='rad/s'
+        else:
+            if analog==0:raise ValueError('Ω debe ser distinta de cero para determinar T.')
+            result=2*np.tan(omega/2)/analog;unit='s'
+        explanation='Ω=(2/T)tan(ω/2); ω=2 atan(ΩT/2). Para T fijado es un mapeo uno a uno entre Ω real y −π<ω<π.'
+    else:
+        if direction=='to_digital':result=(analog*period+np.pi)%(2*np.pi)-np.pi;unit='rad/muestra'
+        elif direction=='to_analog':result=(omega+2*np.pi*branch)/period;unit='rad/s'
+        else:
+            if analog==0:raise ValueError('Ω debe ser distinta de cero para determinar T.')
+            result=(omega+2*np.pi*branch)/analog;unit='s'
+        explanation='ω≡ΩT (módulo 2π). La inversa tiene ramas Ω=(ω+2πk)/T: no es única. Para señales reales también deben considerarse las frecuencias conjugadas. Este mapeo no elimina el aliasing de espectros superpuestos.'
+    if not np.isfinite(result) or (direction=='period' and result<=0):raise ValueError('La combinación no produce un valor finito válido; T debe ser positivo.')
+    return bundle(f'Mapeo de frecuencia\n\nResultado: {result:.12g} {unit}\nRama k: {branch}\n\n'+explanation)

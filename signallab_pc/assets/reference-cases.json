@@ -1,0 +1,12 @@
+{
+  "format": "signallab-reference-cases",
+  "schema_version": 1,
+  "scope": "Casos de regresión transferibles. No equivalen a auditoría completa ni se ejecutó HP.",
+  "cases": [
+    {"id":"dft.stored-offset.complex.v1","operation":"dft","capability_id":"tool.basic.dft","convention_id":"transform.dft.v1","input":{"values":[[1,0],[0,1]],"origin":-3},"expected":{"values":[[1,1],[1,-1]],"origin":0},"tolerance":{"absolute":1e-12,"relative":1e-12},"hp_status":"not_run","derivation":"N=2: X[0]=1+j, X[1]=1-j; el origen global no añade fase a la DFT de posiciones."},
+    {"id":"idft.normalization.complex.v1","operation":"idft","capability_id":"tool.basic.idft","convention_id":"transform.dft.v1","input":{"values":[[1,1],[1,-1]],"origin":0},"expected":{"values":[[1,0],[0,1]],"origin":0},"tolerance":{"absolute":1e-12,"relative":1e-12},"hp_status":"not_run","derivation":"x[0]=(X0+X1)/2=1; x[1]=(X0-X1)/2=j."},
+    {"id":"convolution.origins.complex.v1","operation":"convolve","capability_id":"tool.basic.convolve","convention_id":"signal.finite.complex.v1","input":{"values":[[1,0],[0,1]],"origin":-1},"second":{"values":[[2,0],[3,0]],"origin":2},"expected":{"values":[[2,0],[3,2],[0,3]],"origin":1},"tolerance":{"absolute":1e-12,"relative":1e-12},"hp_status":"not_run","derivation":"Producto de polinomios (1+j q)(2+3q); origen=-1+2=1."},
+    {"id":"correlation.conjugation.v1","operation":"correlate","capability_id":"tool.correlation.0","convention_id":"correlation.complex.v1","input":{"values":[[1,0],[0,1]],"origin":-1},"second":{"values":[[0,1]],"origin":2},"expected":{"values":[[0,-1],[1,0]],"origin":-3},"tolerance":{"absolute":1e-12,"relative":1e-12},"hp_status":"not_run","derivation":"Conj(j)=-j: salidas -j y 1; retardos -1-2=-3 y 0-2=-2."},
+    {"id":"transfer.pure-delay.v1","operation":"impulse","capability_id":"tool.systems.5","convention_id":"system.transfer.v1","input":{"b":[[0,0],[1,0]],"a":[[1,0]],"count":4},"expected":{"values":[[0,0],[1,0],[0,0],[0,0]],"origin":0},"tolerance":{"absolute":1e-12,"relative":1e-12},"hp_status":"not_run","derivation":"H(z)=z^-1: y[n]=delta[n-1]."}
+  ]
+}
