@@ -23,3 +23,5 @@ El Explorador puede sumar varias veces el tamaño lógico de estos archivos aunq
 Los históricos verificados pasan a releases del repositorio privado Tincho1286/SignalLab-PC. Localmente se retienen el portable actual, el anterior y el primero. El código y las referencias de trabajo siguen disponibles sin descargar todos los ejecutables; .gitignore excluye los portables y los temporales. Ver RELEASES_GITHUB.md.
 
 Migración realizada el 28 de octubre de 2026: 112 ejecutables distintos comprimidos y verificados en un archivo de unos 222 MiB, publicado en GitHub privado. Se retiraron 212 rutas locales históricas después de verificar los adjuntos remotos. Se recuperaron otros 11,88 GiB y el disco quedó con aproximadamente 36,12 GiB libres. Los recibos de publicación y limpieza quedan en work/remote-release y work/github-storage-prune.json, fuera de Git.
+
+Entrega 0.99.9: publicada y verificada en GitHub; copias locales actuales 0.99.9 y 0.99.8, más v0.1.0. La 0.99.7 se retiró después de comprobar su correspondencia con el respaldo histórico remoto. El compilador eliminó sus intermedios al terminar.

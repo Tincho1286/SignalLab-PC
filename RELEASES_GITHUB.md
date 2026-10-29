@@ -28,6 +28,8 @@ Los programas de la materia, documentos personales, entorno Python, temporales y
 
 ## Publicaciones disponibles
 
+- [0.99.9 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.9): carga continua y presentación de pesos Dirac, notas y SHA-256.
+
 - [0.99.8 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.8): ejecutable, notas y SHA-256.
 - [Archivo histórico y primera versión](https://github.com/Tincho1286/SignalLab-PC/releases/tag/archivo-historico-2026-10-28): 112 ejecutables distintos en 222 MiB, primer portable y fuentes originales de v0.1.0. El archivo contiene también la 0.99.8 como parte de la foto histórica.
 
