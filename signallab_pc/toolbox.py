@@ -42,7 +42,7 @@ def signal_destinations(value,items):
 
 def system_destinations(value,items):
     keys={('system_analysis',0),('interconnection',0),('systems',9),('systems',6),('course_tools','convert'),('course_tools','gain')}
-    if value.domain=='digital':keys|={('course_tools','phase'),('course_tools','inverse_z'),('sampling',5)}
+    if value.domain=='digital':keys|={('course_tools','phase'),('course_tools','inverse_z'),('sampling',5),('random_model','model')}
     if value.advance:keys={('system_analysis',0),('systems',6),('course_tools','inverse_z'),('course_tools','gain'),('interconnection',0)}
     return [item for item in items if item[1:3] in keys]
 
@@ -389,6 +389,9 @@ class ToolPage(QWidget):
         if kind=='time_transform':
             from .time_transform_panel import TimeTransformPanel
             self.panel=TimeTransformPanel(window,index);root.addWidget(self.panel);return
+        if kind=='random_model':
+            from .random_model_panel import RandomModelPanel
+            self.panel=RandomModelPanel(window,index);root.addWidget(self.panel);return
         if kind=='random_correlation':
             from .random_correlation_panel import RandomCorrelationPanel
             self.panel=RandomCorrelationPanel(window);root.addWidget(self.panel);return
@@ -925,7 +928,7 @@ class ToolboxWindow(SignalLabWindow):
     def send_system(self,value,key,item):
         from .systems_panel import list_text
         self.open_tool(item);page=self.stack.currentWidget();panel=page.panel
-        if item[1]=='course_tools' or item[1:3]==('sampling',5):
+        if item[1] in ('course_tools','random_model') or item[1:3]==('sampling',5):
             panel.set_system(value,key)
             self.statusBar().showMessage('Sistema copiado. Revisá los parámetros y calculá.');return
         if item[1]=='interconnection':

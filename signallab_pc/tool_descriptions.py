@@ -1,5 +1,7 @@
 """Orientación de herramientas compartida por menús, búsqueda y encabezados."""
 DETAILS = {
+ ('random_model','model'): 'Modelo AR/MA/ARMA y ruido blanco → estadísticas teóricas, espectro y realización estacionaria.',
+ ('random_model','fit'): 'Registro y orden p → modelo AR por Yule–Walker, espectro paramétrico y residuo.',
  ('state_space','analysis'): 'Matrices A, B, C y D → estabilidad, controlabilidad y observabilidad.',
  ('state_space','simulation'): 'Matrices y entradas u(t) → evolución de estados x(t) y salidas y(t).',
  ('state_space','frequency'): 'Matrices A, B, C y D → respuesta de cada canal según la frecuencia.',

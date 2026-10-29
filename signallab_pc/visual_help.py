@@ -60,6 +60,11 @@ def _diagrams_for(section):
         caption='Azul: parte ordinaria de la señal. Verde: posición y peso del impulso ideal. La flecha indica área, no una altura finita ni una muestra de la rejilla.' if section['illustration']=='dirac' else 'Esquema de la función elemental. Los tallos representan muestras independientes.'
         return [('Representación',reference_diagram(section['illustration']),caption)]
     route=section['route']
+    if route and route[1] in ('random_model','random_correlation'):
+        from .random_model_help import model_image
+        cross=route[1]=='random_correlation';fit=route[2]=='fit'
+        caption='Azul: x[n]. Verde: y[n]. Se comparan sólo índices observados en ambos registros. El retardo k indica qué muestra de x se multiplica por y; la correlación cruzada no tiene por qué ser par.' if cross else 'Azul: entrada o registro. Ámbar: modelo o ecuaciones de estimación. Verde: proceso y estadísticas obtenidas. El ejemplo AR(1) aclara el signo de a[1]; no reemplaza tus datos.'
+        return [('Correlación de dos registros' if cross else 'Leer el modelo y sus coeficientes',model_image(cross=cross,fit=fit),caption)]
     if route and ((route[1]=='basic' and route[2] in ('shift','reverse','scale','parity')) or route[1]=='time_transform'):
         from .transform_help import transform_help_image
         operation=route[2] if route[1]=='basic' else {0:'affine',1:'shift',2:'reverse',3:'scale',4:'parity'}[route[2]]

@@ -37,7 +37,9 @@ FAMILIES=[
  ('Cuantización y representación','Cuantización de amplitud, formatos, coeficientes y ejecución con precisión finita.',('Operación',),[
  (('sampling',4),('Cuantizar y medir SNR',)),(('sampling',5),('Formatos y ejecución',))]),
  ('Realizaciones y estadística','Generar registros, medir sus estadísticas y estimar autocorrelación o autocovarianza.',('Operación',),[
- (('random','generate'),('Generar realización',)),(('random','statistics'),('Estadísticas',)),(('random_correlation',0),('Autocorrelación',))]),
+ (('random','generate'),('Generar realización',)),(('random','statistics'),('Estadísticas',)),(('random_correlation',0),('Correlación y covarianza',))]),
+ ('Modelos de procesos','Analizar un modelo AR, MA o ARMA, generar realizaciones estacionarias o estimar un AR desde datos.',('Operación',),[
+ (('random_model','model'),('Modelo conocido',)),(('random_model','fit'),('Estimar AR desde un registro',))]),
 ]
 
 # Presentation metadata keeps a family's choices meaningful without new routes.

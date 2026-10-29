@@ -17,7 +17,8 @@ MENUS['Señales'][2:2]=[('Energía algebraica por intervalo','expression_measure
 
 MENUS['Señales aleatorias']=[('Generar ruido y realizaciones','random','generate',None),('Estadísticas e histograma','random','statistics','discrete')]
 
-MENUS['Señales aleatorias'].append(('Autocorrelación y autocovarianza','random_correlation',0,'discrete'))
+MENUS['Señales aleatorias'].append(('Correlación y covarianza de registros','random_correlation',0,'discrete'))
+MENUS['Señales aleatorias'] += [('Analizar modelo AR, MA o ARMA','random_model','model',None),('Estimar modelo AR desde un registro','random_model','fit','discrete')]
 
 MENUS['Señales'].insert(2,('Transformar una señal continua','time_transform',0,'continuous'))
 MENUS['Señales'] += [(title,'time_transform',index,'continuous') for index,title in [(1,'Desplazar señal continua'),(2,'Invertir señal continua'),(3,'Escalar amplitud continua'),(4,'Partes par e impar continuas')]]

@@ -1,12 +1,12 @@
-# SignalLab PC 1.0.2
+# SignalLab PC 1.1.0
 
-Laboratorio portable para Windows de Sistemas y Señales I y II, desarrollado en Python. Versión estable de mantenimiento de la línea 1.0.
+Laboratorio portable para Windows de Sistemas y Señales I y II, desarrollado en Python. Versión estable 1.1: primera ampliación de Señales Aleatorias.
 
 ## Descargar y empezar
 
-[Descargar SignalLab PC 1.0.2](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.0.2). El repositorio es privado: necesitás una cuenta con acceso para ver sus versiones y archivos.
+[Descargar SignalLab PC 1.1.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.0). El repositorio es privado: necesitás una cuenta con acceso para ver sus versiones y archivos.
 
-Abrí SignalLab-PC-1.0.2.exe. Incluye Python y las dependencias; no necesitás instalarlos para usar el portable. La copia local está en outputs/SignalLab-PC-1.0.2.exe.
+Abrí SignalLab-PC-1.1.0.exe. Incluye Python y las dependencias; no necesitás instalarlos para usar el portable. La copia local está en outputs/SignalLab-PC-1.1.0.exe.
 
 Elegí el problema desde Inicio, el explorador o Buscar (Ctrl+K). Cada herramienta tiene sus entradas y resultados propios. Podés cargar fórmulas o tramos, pegar muestras, importar un archivo o reutilizar un resultado compatible. Calcular (Ctrl+Enter) produce un resultado; editar los datos después no cambia silenciosamente esa salida.
 
@@ -14,7 +14,7 @@ Los gráficos se abren en ventanas independientes. F1 o Ayuda abre la página de
 
 ## Herramientas
 
-La navegación reúne 29 problemas y 80 variantes, más la hoja CAS.
+La navegación reúne 30 problemas y 82 variantes, más la hoja CAS.
 
 | Área | Qué reúne |
 |---|---|
@@ -31,8 +31,9 @@ La calculadora CAS trabaja con expresiones, ecuaciones, matrices, supuestos y re
 ## Alcance de esta versión
 
 - [Alcance y convenciones de 1.0](ALCANCE_1.0.md).
-- [Notas de 1.0.2](VERSION_1.0.2.md).
+- [Notas de 1.1.0](VERSION_1.1.0.md).
 - [Notas de la primera estable](VERSION_1.0.0.md).
+- [Cobertura de Señales Aleatorias](COBERTURA_SENALES_ALEATORIAS.md).
 - [Cobertura de Sistemas y Señales I/II](COBERTURA_SYS_I_II_ACTUAL.md).
 - [Cierre y evidencia](CIERRE_1.0.md).
 

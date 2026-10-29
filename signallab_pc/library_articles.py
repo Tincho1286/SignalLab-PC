@@ -275,6 +275,19 @@ add(('random_correlation',0),'La autocorrelación estima cómo se relaciona un r
 'En datos complejos se utiliza la conjugación indicada en el informe. Los retardos grandes usan menos pares, de modo que sus estimaciones suelen fluctuar más.',
 'Dividir por el número de pares no garantiza eliminar el sesgo si la media también se estimó con el mismo registro. La curva finita no demuestra estacionariedad ni independencia del proceso.')
 
+add(('random_model','model'),'Un modelo AR, MA o ARMA relaciona una entrada de ruido blanco con un proceso cuya evolución depende de coeficientes conocidos. Esta herramienta obtiene las estadísticas del modelo y permite generar una realización gaussiana estacionaria.',
+'Elegí AR, MA o ARMA y cargá los coeficientes por potencias de z⁻¹. Para AR, b es 1; para MA, a es 1. Definí la media y la desviación del ruido, los retardos de interés y la rejilla espectral. También podés cargar un sistema digital desde archivo o Resultados.',
+'El informe muestra la recurrencia, H(z), media, varianza y potencia del proceso. El selector ofrece autocovarianza, autocorrelación, densidad de potencia y la realización opcional. Cada salida se guarda por separado en Resultados; H(z) puede analizarse como cualquier otro sistema.',
+'Se requiere un modelo real causal y estable. La inicialización usa la covarianza estacionaria, no reposo. El espectro continuo representa x−media; una media no nula agrega una línea ideal en cero que no se representa como una muestra finita.')
+add(('random_model','fit'),'La estimación AR busca un modelo autorregresivo de orden elegido a partir de un registro. Permite describir su dependencia temporal y obtener un espectro paramétrico.',
+'Cargá un registro discreto real y elegí p, menor que su cantidad de muestras. El cálculo resta la media muestral, estima la autocovarianza con divisor N y resuelve las ecuaciones de Yule–Walker. Las opciones de generación crean una realización nueva del modelo estimado.',
+'La salida incluye H(z), los coeficientes AR, la varianza estimada de innovación, la autocorrelación y la densidad teóricas del modelo. También entrega el residuo válido: se omiten los primeros p índices porque no tienen todos sus antecedentes observados.',
+'El orden elegido cambia el resultado. Las curvas son las del modelo ajustado; no son la densidad exacta del proceso desconocido. La varianza de innovación de Yule–Walker y el promedio cuadrático del residuo pueden diferir en un registro finito. No se certifican blancura ni independencia.')
+add(('random_correlation',0),'Esta herramienta estima la relación de un registro con sí mismo o de dos registros entre sí. Al restar sus medias se obtiene covarianza en lugar de correlación.',
+'Elegí Auto o Cruzada. En cruzada cargá x[n] e y[n] con sus índices reales: se usa el intervalo observado en ambos. Luego elegí retardo máximo, divisor N o N−|k| y normalización opcional. El programa no inventa datos en regiones sin observación.',
+'Se representa Rxy[k]=promedio de x[n+k]·conj(y[n]). Un k positivo compara una muestra posterior de x con y. La autocorrelación en cero estima potencia; al centrar, varianza. La cruzada en cero no es una potencia y puede ser compleja; tampoco tiene por qué ser par.',
+'La normalización cruzada divide por √(Px·Py) del intervalo común, o por el producto de desviaciones si se restaron medias. Con divisor N−|k|, la magnitud normalizada puede superar 1 en retardos grandes. No se demuestra independencia ni estacionariedad a partir de una curva finita.')
+
 def article_blocks(route):
     # Missing authorship is an error during development, not generic prose in UI.
     blocks=list(ARTICLES[tuple(route[1:3])])

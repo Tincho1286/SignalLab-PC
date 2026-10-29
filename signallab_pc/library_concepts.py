@@ -64,7 +64,7 @@ TOPICS=[
 'Una distribución describe probabilidades, mientras que una muestra generada es un resultado concreto de ese modelo. Esa diferencia permite entender por qué dos registros válidos pueden tener estadísticas diferentes.',
 'Modelo → realizaciones → estimaciones del registro',
 'Por ejemplo, la media de una gaussiana es un parámetro del modelo. La media calculada con un registro finito es una estimación que cambia con la realización. La semilla permite repetir los datos y comparar métodos sobre la misma entrada.',
-'La app conserva generación, estadísticas y autocorrelación. La ampliación de Señales Aleatorias está postergada; estas opciones no representan una cobertura completa de la materia.'),
+'La app permite generar realizaciones, medir estadísticas y correlación auto/cruzada, analizar modelos AR/MA/ARMA reales estables y estimar un AR por Yule–Walker. Cada modelo separa sus curvas teóricas de las estimaciones de un registro. Markov, detección y Wiener/Kalman todavía requieren herramientas específicas; la cobertura de la materia sigue en ampliación.'),
 ('Espacio de estados: qué representan las matrices','Sistemas y Señales I',
 'El estado reúne variables internas que permiten predecir la evolución del sistema junto con sus entradas. En un circuito pueden ser tensiones y corrientes; en una realización matemática pueden ser las salidas de integradores o retardos.',
 'Continuo: dq/dt = A·q+B·u\nDiscreto: q[n+1] = A·q[n]+B·u[n]\nSalida: y = C·q+D·u',
