@@ -240,6 +240,9 @@ def diagrams_for(section):
     if route:
         from .tool_catalog import locate
         entry=locate(route)
+        if entry and entry['title']=='Diseñar filtro':
+            from .filter_design_help import filter_design_image
+            diagrams=[('Elegir cómo diseñar',filter_design_image(),'Cada entrada describe un problema diferente: bandas y tolerancias, respuesta FIR, raíces o parámetros de un modelo. Todos generan un filtro reutilizable. Cambiar de método conserva sus datos; no convierte automáticamente una definición en otra. El análisis de un filtro existente está en Analizar un sistema.')]+diagrams
         if entry and entry['title']=='Transformada de Fourier':
             from .fourier_choice_help import fourier_choice_image
             diagrams=[('Elegir transformada y dirección',fourier_choice_image(),'DFT: coeficientes de un registro. DTFT: curva periódica de una secuencia. Continua: tiempo en segundos y frecuencia en rad/s. Directa va de señal a espectro; Inversa recorre el camino contrario. FFT calcula la DFT, no define otra transformada.')]+diagrams

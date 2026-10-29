@@ -39,4 +39,5 @@ class ResultState(QLabel):
     def refresh(self,*_):
         changed=self.completed is not None and self.snapshot()!=self.completed
         self.button.setText('Recalcular' if changed else self.default_button)
+        self.setVisible(self.completed is not None)
         self.setText('Datos modificados · resultado anterior. Recalculá para actualizarlo.' if changed else 'Resultado actualizado.' if self.completed is not None else 'Completá los datos para calcular.')

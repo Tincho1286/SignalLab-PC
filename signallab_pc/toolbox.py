@@ -283,13 +283,13 @@ class ResultView(QWidget):
             self.send_menu_refs.append(root)
             root.addAction('Calculadora CAS',lambda checked=False,v=value:send_to_cas(window,window.published_signal_id(v),value=v))
             root.addSeparator()
-            from .tool_catalog import compact_destinations,AREA_BY_ID
+            from .tool_catalog import compact_destinations,AREA_BY_ID,destination_label
             groups={}
             candidates=signal_destinations(value,[item for items in MENUS.values() for item in items])
             for entry,item in compact_destinations(candidates):
                 area=entry['area']
                 if area not in groups:groups[area]=root.addMenu(AREA_BY_ID[area][1]);self.send_menu_refs.append(groups[area])
-                self.send_action_refs.append(groups[area].addAction(entry['title'],lambda checked=False,it=item,v=value,key=self.result_ids[index]:window.send_signal(v,key,it)))
+                self.send_action_refs.append(groups[area].addAction(destination_label(entry,item),lambda checked=False,it=item,v=value,key=self.result_ids[index]:window.send_signal(v,key,it)))
             self.send_action_refs.extend(root.actions())
         self.send_action_refs.extend(self.send_menu.actions())
     def export(self):
@@ -494,6 +494,8 @@ class ToolPage(QWidget):
                 fields['q'].setToolTip('Controla la resonancia o el ancho de banda. En el pasabanda implementado, la ganancia de pico es Q.')
             else:
                 self.panel.kind.removeItem(3);self.panel.kind.removeItem(2)
+                task_note=form.parentWidget().findChild(QLabel,'taskDescription')
+                if task_note is not None:form.setRowVisible(task_note,False)
                 rc_mode=QComboBox();rc_mode.addItems(['Conozco R y C','Quiero calcular un componente desde la frecuencia de corte']);form.insertRow(0,'Cómo definir el circuito',rc_mode)
                 rc_note=QLabel();rc_note.setWordWrap(True);form.insertRow(1,rc_note)
                 rc_buttons=self.panel.findChildren(QPushButton)
@@ -552,13 +554,19 @@ class ToolPage(QWidget):
             def show_alias(value):alias_view.show_alias(value);self.result_tabs.setCurrentIndex(0)
             self.context.on_alias=show_alias
         if kind=='systems' and index in (0,1,2,3,6,7,8,10):
-            for legacy_button in self.panel.findChildren(QPushButton):
-                if legacy_button.text()=='Guardar filtro…':form.setRowVisible(legacy_button,False)
+            for legacy_button in form.parentWidget().findChildren(QPushButton):
+                if action_title(legacy_button).strip().rstrip('.…') in ('Guardar filtro','Cargar filtro','Exportar respuesta CSV'):
+                    form.setRowVisible(legacy_button,False)
             from .coefficient_editor import CoefficientRows
             from PySide6.QtWidgets import QTableView,QAbstractItemView,QHeaderView
-            result_bar=QHBoxLayout();result_note=QLabel('Completá el diseño para ver el resultado y sus coeficientes.');result_note.setWordWrap(True);result_bar.addWidget(result_note,1)
+            result_bar=QHBoxLayout();result_note=QLabel('Completá el diseño para ver el resultado y sus coeficientes.');result_note.setWordWrap(True);result_note.hide();result_bar.addWidget(result_note,1)
             from .system_result_actions import SystemResultActions
             self.system_actions=SystemResultActions(window);result_bar.addWidget(self.system_actions);self.system_actions.hide()
+            if index!=6:
+                export_button=self.system_actions.export_button;export_button.clicked.disconnect();export_button.setText('Exportar…')
+                export_menu=QMenu(export_button);export_button.setMenu(export_menu);self.design_export_menu=export_menu
+                export_menu.addAction('Filtro JSON…',lambda:window.export_transfer(self.system_actions.system) if self.system_actions.system is not None else None)
+                self.design_response_export=export_menu.addAction('Respuesta en frecuencia CSV…',self.panel.export_response);self.design_response_export.setEnabled(False)
             send_filter=self.system_actions.reuse;export_filter=self.system_actions.export_button
             root.insertLayout(0,result_bar)
             coefficient_tabs=QTabWidget();self.design_rows={}
@@ -571,6 +579,8 @@ class ToolPage(QWidget):
                 from .systems_panel import list_text
                 for name,model in self.design_rows.items():
                     model.beginResetModel();model.digital=system.domain=='digital';model.values=[list_text([v]) for v in getattr(system,name)];model.endResetModel()
+                result_note.show()
+                if index!=6:self.design_response_export.setEnabled(self.panel.last_response is not None)
                 result_note.setText(f'{system.name} listo · {len(system.b)} coeficientes b · {len(system.a)} coeficientes a')
                 self.system_actions.set_result(system,getattr(self.context,'last_system_id',None));self.system_actions.show();send_filter.setEnabled(True);export_filter.setEnabled(True);self.result_tabs.setCurrentIndex(1 if show_plot else self.result_tabs.count()-1)
             self.context.on_design_dirty=lambda: (self.system_actions.setEnabled(False),send_filter.setEnabled(False),export_filter.setEnabled(False),result_note.setText('Diseño modificado: actualizá el sistema para reutilizarlo.'))
@@ -1050,7 +1060,7 @@ class ToolboxWindow(SignalLabWindow):
         row=self.project_list.currentRow()
         if not 0<=row<len(self.visible_records):return
         key=self.visible_records[row]['id'];value=self.project.get(key)
-        from .tool_catalog import compact_destinations,AREA_BY_ID
+        from .tool_catalog import compact_destinations,AREA_BY_ID,destination_label
         items=[item for entries in MENUS.values() for item in entries]
         expression=self.project.expression(key)
         if expression is not None:
@@ -1084,7 +1094,7 @@ class ToolboxWindow(SignalLabWindow):
                 submenu=groups[area].addMenu(entry['title']);self.reuse_groups.append(submenu)
                 for destination,labels in variants:
                     self.reuse_actions.append(submenu.addAction(' · '.join(labels),lambda checked=False,destination=destination,send=send:send(destination=destination)))
-            else:self.reuse_actions.append(groups[area].addAction(entry['title'],send))
+            else:self.reuse_actions.append(groups[area].addAction(destination_label(entry,item),send))
 
     def export_selected(self):
         from pathlib import Path

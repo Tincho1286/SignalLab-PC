@@ -42,6 +42,12 @@ def prepare_inputs(source,target):
                 for src,dst in zip(a.inputs[domain],b.inputs[domain]):copy_local_input(src,dst)
                 b.input_tabs[domain].setCurrentIndex(a.input_tabs[domain].currentIndex())
             return InputCopy([arithmetic],'Se copiaron las dos entradas y su dominio. Las opciones y el último resultado de esta operación se conservan; calculá para actualizarlo.')
+    from .tool_catalog import locate
+    source_entry=locate(source.tool_item);target_entry=locate(target.tool_item)
+    design_pair=source_entry is not None and target_entry is not None and source_entry is target_entry and source_entry['title']=='Diseñar filtro'
+    shared_specs=a is not None and b is not None and hasattr(a,'band_edges') and hasattr(b,'band_edges')
+    if design_pair and not shared_specs:
+        return InputCopy(note='Cada método conserva sus datos. Para usar un filtro calculado, abrí Usar filtro en….')
     if a is not None and b is not None and hasattr(a,'band_edges') and hasattr(b,'band_edges'):
         if a.band_edges.analog!=b.band_edges.analog:return InputCopy(note='Se conserva la entrada de este dominio: rad/s y rad/muestra no se convierten automáticamente.')
         actions.append(lambda:b.band_edges.kind.setCurrentIndex(b.band_edges.kind.findData(a.band_edges.kind.currentData())))

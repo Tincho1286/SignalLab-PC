@@ -86,7 +86,8 @@ class PoleZeroEditor(QWidget):
             angle=np.linspace(0,2*np.pi,361)
             if self.panel.domain.currentIndex()==0:axis.plot(angle,np.ones_like(angle),'--',color='#667b97',label='Círculo unidad')
             axis.xaxis.set_major_formatter(FuncFormatter(_pi_label));axis.set_title('Plano polar · radio = módulo · ángulo en radianes',pad=24)
-            axis.set_ylim(0,max([1.5]+[abs(z)*1.25 for values in data for z in values]));axis.grid(alpha=.3);axis.legend()
+            axis.set_ylim(0,max([1.5]+[abs(z)*1.25 for values in data for z in values]));axis.grid(alpha=.3)
+            if axis.get_legend_handles_labels()[0]:axis.legend()
             axis.format_coord=lambda theta,r:f'r = {r:.6g} · θ = {_pi_label(theta)} rad · {r*np.exp(1j*theta):.6g}'
             if limits:axis.set_xlim(limits[0]);axis.set_ylim(limits[1])
             self.panel.figure.tight_layout();self.panel.canvas.draw_idle();return
@@ -94,7 +95,8 @@ class PoleZeroEditor(QWidget):
         if self.panel.domain.currentIndex()==0:
             angle=np.linspace(0,2*np.pi,361);axis.plot(np.cos(angle),np.sin(angle),'--',color='#667b97')
         axis.axvline(0,color='#667b97',linewidth=.7);axis.axhline(0,color='#667b97',linewidth=.7)
-        axis.set_xlabel('Parte real');axis.set_ylabel('Parte imaginaria');axis.set_aspect('equal',adjustable='box');axis.grid(alpha=.2);axis.legend()
+        axis.set_xlabel('Parte real');axis.set_ylabel('Parte imaginaria');axis.set_aspect('equal',adjustable='box');axis.grid(alpha=.2)
+        if axis.get_legend_handles_labels()[0]:axis.legend()
         if limits:axis.set_xlim(limits[0]);axis.set_ylim(limits[1])
         else:
             extent=max([1.5]+[max(abs(z.real),abs(z.imag))*1.25 for values in data for z in values]);axis.set_xlim(-extent,extent);axis.set_ylim(-extent,extent)

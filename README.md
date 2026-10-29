@@ -1,10 +1,10 @@
 # SignalLab PC
 
-Aplicación Python portable para Sistemas y Señales I y II. Desarrollo actual: **0.99.10**, en consolidación hacia 1.0. Señales Aleatorias conserva sus herramientas existentes como área visible junto a las demás; su ampliación queda para más adelante. Modulación y demodulación están excluidas por indicación del usuario.
+Aplicación Python portable para Sistemas y Señales I y II. Desarrollo actual: **0.99.11**, en consolidación hacia 1.0. Señales Aleatorias conserva sus herramientas existentes como área visible junto a las demás; su ampliación queda para más adelante. Modulación y demodulación están excluidas por indicación del usuario.
 
 ## Usar la aplicación
 
-Descargá el portable desde [SignalLab PC 0.99.10](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.10) con tu cuenta autorizada para el repositorio privado. La copia local actual está en outputs/SignalLab-PC-0.99.10-preview.exe. El portable incluye Python y sus dependencias. Las versiones anteriores se conservan; la primera está en `releases/v0.1.0`.
+Descargá el portable desde [SignalLab PC 0.99.11](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.11) con tu cuenta autorizada para el repositorio privado. La copia local actual está en outputs/SignalLab-PC-0.99.11-preview.exe. El portable incluye Python y sus dependencias. Las versiones anteriores se conservan; la primera está en `releases/v0.1.0`.
 
 El escritorio usa azul noche, superficies de trabajo diferenciadas, bordes redondeados y acentos azules, menta y violeta. Los campos numéricos son monoespaciados y los informes conservan tipografía matemática. Fórmulas, ayudas ilustradas, figuras y documentos exportados comparten la paleta oscura.
 
@@ -58,6 +58,7 @@ Las realizaciones SOS se preservan en los recorridos documentados de cálculo y 
 ## Estado y evidencia
 
 - [Cierre vigente hacia 1.0](CIERRE_1.0.md): alcance, evidencia y trabajo abierto.
+- [Cambios de 0.99.11: diseño unificado y formularios despejados](DESARROLLO_0.99.11.md).
 - [Cambios de 0.99.10: elección de Fourier y búsqueda por variante](DESARROLLO_0.99.10.md).
 - [Cambios de 0.99.9: entrada continua y pesos Dirac](DESARROLLO_0.99.9.md).
 - [Cambios de 0.99.8: resultados al CAS y Z inversa por propiedades](DESARROLLO_0.99.8.md).

@@ -15,7 +15,12 @@ def choose_variant(entry,current_key,index,value,history):
     candidates=[(key,values) for key,values in entry['variants'] if values[:index+1]==prefix]
     if not candidates:raise ValueError('La opción no corresponde a una variante de esta herramienta.')
     def score(candidate):
-        return tuple(a==b for a,b in zip(candidate[1][index+1:],old[index+1:]))
+        result=[]
+        for position in range(index+1,len(old)):
+            options={values[position] for _,values in entry['variants'] if values[:position]==old[:position]}
+            forced=position in entry.get('restore_fixed_fields',()) and len(options)<2
+            result.append(not forced and candidate[1][position]==old[position])
+        return tuple(result)
     best=max(map(score,candidates));pool=[candidate for candidate in candidates if score(candidate)==best]
     common=[]
     for position in range(len(old)):

@@ -107,7 +107,7 @@ class SystemsPanel(QWidget):
             self._button(form, label, action)
         f=self.fields;c=self.control_fields
         self.task_selector=install_tasks(form,[
-            ("Filtro FIR", "Diseñá un filtro por ventanas. Las frecuencias se expresan en ciclos por muestra.",
+            ("Filtro FIR", "Diseñá un filtro por ventanas. Las frecuencias se expresan en rad/muestra.",
              [self.kind,f["taps"],f["f1"],f["f2"],self.window,f["beta"]], ["Diseñar FIR"]),
             ("Filtro IIR · biquad", "Ajustá la frecuencia central y el factor Q del filtro.",
              [self.kind,f["f1"],f["q"]],["Diseñar biquad"]),

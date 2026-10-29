@@ -12,13 +12,14 @@ FAMILIES=[
  (('correlation',0),('Discreta','Numérico')),(('correlation',1),('Continua','Numérico')),(('correlation_algebra',0),('Continua','Algebraico'))]),
  ('Espacio de estados','Analizar, simular, discretizar y obtener transferencias desde A, B, C y D.',('Estudio',),[
  (('state_space','analysis'),('Estructura y estabilidad',)),(('state_space','simulation'),('Respuesta temporal',)),(('state_space','frequency'),('Respuesta en frecuencia',)),(('state_space','discretize'),('Discretización',)),(('state_space','transfer'),('Función de transferencia',))]),
- ('Diseñar filtro','FIR e IIR: bandas, tolerancias, ventanas o coeficientes de segundo orden.',('Estructura','Dominio','Definir por'),[
- (('course_tools','fir'),('FIR','Digital','Bandas y tolerancias')),(('systems',0),('FIR','Digital','Cortes y longitud')),(('fir_window',0),('FIR','Digital','h[n] propia')),
- (('course_tools','iir'),('IIR','Digital','Bandas y tolerancias')),(('systems',1),('IIR','Digital','Sección biquad')),(('course_tools','analog'),('IIR','Analógico','Bandas y tolerancias'))]),
+ ('Diseñar filtro','Bandas, respuesta FIR, polos y ceros, biquad o modelos analógicos en un mismo documento.',('Diseñar por','Dominio','Estructura'),[
+ (('course_tools','fir'),('Bandas y tolerancias','Digital','FIR')),(('course_tools','iir'),('Bandas y tolerancias','Digital','IIR')),(('course_tools','analog'),('Bandas y tolerancias','Analógico','IIR')),
+ (('systems',0),('Respuesta FIR','Digital','Cortes y longitud')),(('fir_window',0),('Respuesta FIR','Digital','h[n] propia')),
+ (('systems',6),('Polos y ceros','Analógico / digital','Raíces')),
+ (('systems',1),('Segundo orden','Digital','Frecuencia y Q')),(('systems',8),('Segundo orden','Analógico','Frecuencia y amortiguamiento')),
+ (('systems',2),('Circuito RC','Analógico','R y C'))]),
  ('Analizar un sistema','Frecuencia, raíces, realización con retardos/integradores y respuesta temporal.',('Respuesta',),[
  (('system_analysis',0),('Frecuencia y polos / ceros',)),(('systems',9),('Temporal',))]),
- ('Modelos de filtros','Modelos RC y de segundo orden desde sus parámetros físicos.',('Modelo',),[
- (('systems',2),('Circuito RC',)),(('systems',8),('Segundo orden',))]),
  ('Ajustar ganancia y fase','Normalizar ganancia, separar factores, compensar o reconstruir módulo/fase bajo hipótesis de fase mínima.',('Ajuste',),[
  (('course_tools','gain'),('Ganancia',)),(('course_tools','phase'),('Fase y compensación',))]),
  ('Transformada de Fourier','DFT/FFT, DTFT y Fourier continua; elegir transformada, dirección y cálculo.',('Transformada','Dirección','Cálculo'),[
@@ -41,6 +42,27 @@ FAMILIES=[
 
 # Presentation metadata keeps a family's choices meaningful without new routes.
 PRESENTATION={
+ 'Diseñar filtro':{
+    'restore_fixed_fields':(2,),
+    'destination_labels':{('systems',6):'Diseñar filtro · Polos y ceros',('fir_window',0):'Diseñar filtro · h[n] propia'},
+    'dimension_labels':{(2,'Respuesta FIR','Digital'):'Definir h[n]'},
+    'search_models':{'rc':'Circuito RC','biquad':'Segundo orden','polos':'Polos y ceros','ceros':'Polos y ceros'},
+    'variant_tags':{
+        ('systems',2):'modelos filtros físicos circuito resistencia capacitancia',
+        ('systems',8):'modelos filtros físicos frecuencia natural amortiguamiento',
+        ('systems',6):'diseño interactivo raíces mouse ratón',
+    },
+    'choice_hints':{
+        'Bandas y tolerancias':'Definí qué frecuencias deben pasar o rechazarse y cuánto puede variar la amplitud.',
+        'Respuesta FIR':'Partí de cortes y longitud o de una h[n] propia; elegí una ventana.',
+        'Polos y ceros':'Ubicá raíces y ganancia en el editor; elegí allí plano s o z. El análisis de un filtro existente está en Analizar un sistema.',
+        'Segundo orden':'Digital: sección biquad por frecuencia, Q y tipo. Analógico: frecuencia natural, amortiguamiento y ganancia.',
+        'Circuito RC':'Diseñá el modelo analógico desde resistencia, capacitancia o frecuencia de corte.',
+        'Digital':'Trabaja en z; las frecuencias angulares se expresan en rad/muestra.',
+        'Analógico':'Trabaja en s; las frecuencias angulares se expresan en rad/s.',
+    },
+ },
+
  'Transformada de Fourier':{
     'dimension_labels':{(2,'DFT / FFT','Directa'):'Estudio'},
     'search_models':{'dtft':'DTFT','dft':'DFT / FFT','fft':'DFT / FFT','continua':'Fourier continua','ctft':'Fourier continua'},

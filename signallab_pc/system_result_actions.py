@@ -28,7 +28,7 @@ class SystemResultActions(QWidget):
         from .cas_transfer import send_to_cas
         self.reuse_menu.addAction('Calculadora CAS',lambda:send_to_cas(self.owner,self.key,value=self.system));self.reuse_menu.addSeparator()
         from .toolbox import system_destinations
-        from .tool_catalog import compact_destinations,AREA_BY_ID,normalized_key
+        from .tool_catalog import compact_destinations,AREA_BY_ID,normalized_key,destination_label
         from .navigation import MENUS
         groups={};self.menu_refs=[]
         items=[item for item in system_destinations(self.system,[item for group in MENUS.values() for item in group]) if item[1:3] not in self.reuse_excluded]
@@ -41,5 +41,5 @@ class SystemResultActions(QWidget):
                 submenu=groups[area].addMenu(entry['title']);self.menu_refs.append(submenu)
                 for route,values in variants:submenu.addAction(' · '.join(values),lambda checked=False,target=route:self.owner.send_system(self.system,self.key,target))
             else:
-                label='Respuesta temporal' if item[1:3]==('systems',9) else entry['title']
+                label='Respuesta temporal' if item[1:3]==('systems',9) else destination_label(entry,item)
                 groups[area].addAction(label,lambda checked=False,route=item:self.owner.send_system(self.system,self.key,route))

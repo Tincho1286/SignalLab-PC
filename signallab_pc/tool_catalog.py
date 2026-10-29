@@ -182,3 +182,7 @@ def compact_destinations(items):
             key=entry['key'] if entry['key'] in compatible else compatible[0]
             result.append((entry,candidates[key]))
     return result
+
+
+def destination_label(entry,item):
+    return entry.get('destination_labels',{}).get(normalized_key(item),entry['title'])

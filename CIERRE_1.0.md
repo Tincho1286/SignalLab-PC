@@ -1,12 +1,12 @@
 # Cierre de SignalLab 1.0 · estado vigente
 
-Actualización: 28/10/2026, base de desarrollo 0.99.10. Objetivo activo: acercar la primera estable con herramientas fáciles de encontrar, datos locales, resultados útiles y agrupación por problema. No se declara 1.0 terminada.
+Actualización: 28/10/2026, base de desarrollo 0.99.11. Objetivo activo: acercar la primera estable con herramientas fáciles de encontrar, datos locales, resultados útiles y agrupación por problema. No se declara 1.0 terminada.
 
 ## Requisitos y evidencia actual
 
 | Requisito | Estado respaldado por la evidencia | Evidencia y límite |
 |---|---|---|
-| Organización sin menús repetidos por caso | Siete áreas principales, 31 problemas especializados con 80 variantes y una hoja CAS general; cada problema conserva su documento | Catálogo/rutas vigentes; recorridos 0.68–0.71. Aleatorias vuelve al acceso principal en 0.74; se conservan las 72 variantes. |
+| Organización sin menús repetidos por caso | Siete áreas principales, 29 problemas especializados con 80 variantes y una hoja CAS general; cada problema conserva su documento | Catálogo/rutas vigentes; recorridos 0.68–0.71. Aleatorias vuelve al acceso principal en 0.74; se conservan las 72 variantes. |
 | Carga independiente y reutilización opcional | Fórmula/tramos, muestras, archivo y resultado; transferencia por fórmula o coeficientes | Recorridos 0.69–0.72 y 0.75: editor con aplicación conjunta de valores/eje, salida directa, exportación CSV/JSON y envío a Fourier comprobados. |
 | Resultados comprensibles | Informes matemáticos, estado tras cambios, controles que aparecen cuando hay datos; acciones comunes de filtros | 0.70–0.73. La presencia de un informe no demuestra por sí sola exactitud de todo cálculo. |
 | Figuras y ejes | Ventanas externas, tallos discretos, marcas/cursor por índice, unidades angulares y superposiciones compatibles | Revisiones dirigidas 0.61–0.64 y pantallas 0.71–0.73. Mantener atención a errores concretos que aparezcan. |
@@ -133,3 +133,5 @@ Almacenamiento y releases: repositorio privado Tincho1286/SignalLab-PC con códi
 0.99.9: carga temporal continua por parte ordinaria y pesos Dirac, común a las entradas existentes; panel y tabla distinguen muestras de pesos, ayuda ilustrada y límites explícitos. Se integra el trabajo Dirac108 que antes estaba pendiente, preservando CAS/conversión. Evidencia focalizada y alcance en DESARROLLO_0.99.9.md. No se declara completa la meta 1.0.
 
 0.99.10: Fourier separa transformada y dirección, conserva Inversa cuando existe en el modelo elegido y recuerda el estudio por rama. Búsqueda por una variante válida, priorización del nombre/modelo pedido y ayuda ilustrada comparativa. Se mantienen 31 problemas y 80 variantes. Evidencia focalizada en DESARROLLO_0.99.10.md; el objetivo 1.0 permanece abierto.
+
+0.99.11: diseño unificado en nueve definiciones, RC/segundo orden/raíces integrados en Diseñar filtro y análisis separado. Formularios independientes, exportaciones junto al resultado, mensajes iniciales redundantes retirados y avisos de datos modificados conservados. Catálogo: 29 problemas/80 variantes. Alcance y evidencia dirigida en DESARROLLO_0.99.11.md; no se declara cerrado 1.0.
