@@ -104,7 +104,7 @@ def ctft(x, start, stop, count):
     omega = grid(start, stop, count)
     from .distributions import dirac_terms
     impulses=dirac_terms(x)
-    values = _sum(x.values, x.axis, omega)*x.step
+    values = _sum(x.values, x.axis, omega)*x.step if np.any(x.values) else np.zeros(omega.size,dtype=complex)
     for position,weight in impulses:values+=weight*np.exp(-1j*omega*position)
     return _frequency_signal(_finite_output(values, "La CTFT"), omega, f"CTFT_{x.name}", "rad/s",
         {"operation": "CTFT_rectangle", "input_start": x.origin, "input_step": x.step,
@@ -113,6 +113,8 @@ def ctft(x, start, stop, count):
 
 
 def ictft(spectrum, start, stop, count):
+    from .distributions import regular_only
+    regular_only(spectrum,'La Fourier inversa numérica de muestras; usá la inversa algebraica para distribuciones')
     if spectrum.domain != "frequency" or spectrum.units != "rad/s" or spectrum.step <= 0:
         raise ValueError("La inversa requiere un espectro con eje uniforme en rad/s y paso positivo.")
     time = grid(start, stop, count)
@@ -136,13 +138,18 @@ def continuous_series(expression, start, period, samples, harmonics):
     time = start+(np.arange(samples)+.5)*(period/samples)
     if not np.all(np.isfinite(time)) or (samples > 1 and np.any(np.diff(time) <= 0)):
         raise ValueError("Los centros de celda no se distinguen con la precisión disponible.")
-    values = evaluate_expression(expression, time)
+    from .continuous_expression import sample_continuous
+    from .distributions import dirac_terms
+    source=sample_continuous(expression,float(time[0]),period/samples,samples,support=(start,start+period),right_open=True)
+    time=source.axis;values=source.values;impulses=dirac_terms(source)
     k = np.arange(-harmonics, harmonics+1, dtype=np.int64)
-    coeff = _sum(values, time, k*(2*np.pi/period))/samples
+    coeff = _sum(values, time, k*(2*np.pi/period))/samples if np.any(values) else np.zeros(k.size,dtype=complex)
+    for position,weight in impulses:coeff+=weight*np.exp(-1j*k*(2*np.pi/period)*position)/period
     return Signal(coeff, -harmonics, 1, "k", "Coeficientes_FS", "discrete", expression,
                   {"operation": "continuous_fourier_series", "period_s": period, "period_start_s": start,
                    "cells": samples, "harmonics_each_side": harmonics,
-                   "convention": "Midpoint quadrature over one period; c[k]=(1/T) integral x(t) exp(-j*k*w0*t) dt"})
+                   "input_dirac_terms":[[t,[float(w.real),float(w.imag)]] for t,w in impulses],
+                   "convention": "Midpoint quadrature of the ordinary part on one period plus exact Dirac weights; impulses use [start,start+T). c[k]=(1/T) integral x(t) exp(-j*k*w0*t) dt"})
 
 
 def synthesize_continuous(coefficients, start, stop, count):
@@ -206,6 +213,8 @@ def spectral_density(x, rate, *, method="welch", segment=256, overlap=128,
 
 
 def energy_density(spectrum):
+    from .distributions import regular_only
+    regular_only(spectrum,'La densidad de energía de valores de X(ω)')
     if spectrum.domain != "frequency":raise ValueError("La densidad espectral requiere un espectro, no un registro temporal.")
     if spectrum.units not in {'rad/s','rad/muestra'}:raise ValueError('Definí el eje del espectro en rad/s o rad/muestra.')
     if spectrum.metadata.get('distribution') or spectrum.metadata.get('operation') in {'continuous_fourier_series','discrete_fourier_series'}:

@@ -132,8 +132,10 @@ class FourierPanel(QWidget):
         expression = self.expression.text(); start, stop, count = self._time_args()
         def calculate():
             times = fourier.grid(start, stop, count+1)[:-1]
-            return Signal(evaluate_expression(expression, times), start, (stop-start)/count, "s", "x(t)", "continuous", expression,
-                          {"operation": "time_record", "convention": "Left rectangle samples on [t0,t1)"})
+            from .continuous_expression import sample_continuous
+            result=sample_continuous(expression,start,(stop-start)/count,count)
+            result.metadata.update(operation='time_record',convention='Ordinary samples on the stored interval; ideal impulses by position and area')
+            return result
         self._job(calculate)
 
     def continuous_series(self):

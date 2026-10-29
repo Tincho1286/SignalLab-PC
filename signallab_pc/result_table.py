@@ -43,14 +43,19 @@ class ResultTable(QWidget):
         layout.addLayout(bar);search_bar=QHBoxLayout();self.search_mode=QComboBox();self.search_mode.addItems(['Número de fila','Valor del eje']);self.search_mode.setAccessibleName('Buscar por fila o por coordenada')
         for item in (self.search_mode,self.position,jump,self.copy):search_bar.addWidget(item)
         layout.addLayout(search_bar);self.coordinate_note=QLabel();self.coordinate_note.setWordWrap(True);layout.addWidget(self.coordinate_note);self.search_mode.currentIndexChanged.connect(self.update_search_hint)
-        note=QLabel('Consulta sin editar · 500 filas por página · La fase es principal y no está definida para módulo cero. Copiar página incluye encabezados y todas sus filas.');note.setWordWrap(True);layout.addWidget(note)
+        self.note_text='Consulta sin editar · 500 filas por página · La fase es principal y no está definida para módulo cero. Copiar página incluye encabezados y todas sus filas.';self.note=QLabel(self.note_text);self.note.setWordWrap(True);layout.addWidget(self.note)
         self.previous.clicked.connect(lambda:self.change(-1));self.next.clicked.connect(lambda:self.change(1));jump.clicked.connect(self.jump);self.position.returnPressed.connect(self.jump);self.copy.clicked.connect(self.copy_page);self.update_status()
     def set_signals(self,signals):
         self.signals=list(signals);self.selector.blockSignals(True);self.selector.clear()
         for signal in self.signals:self.selector.addItem(signal.name)
         self.selector.blockSignals(False);self.selector.setVisible(len(self.signals)>1);self.select(self.selector.currentIndex())
     def select(self,index):
-        self.model.set_source(self.signals[index] if 0<=index<len(self.signals) else None);self.coordinate_note.clear();self.update_status();self.update_search_hint()
+        source=self.signals[index] if 0<=index<len(self.signals) else None
+        self.model.set_source(source);self.coordinate_note.clear();self.update_status();self.update_search_hint()
+        from .distributions import dirac_terms
+        terms=dirac_terms(source) if source is not None else []
+        prefix='Parte ordinaria: los '+str(len(terms))+' impulsos Dirac se consultan por posición y peso en Informe y en el gráfico. ' if terms else ''
+        self.note.setText(prefix+self.note_text)
     def update_status(self):
         source=self.model.source;active=source is not None;start=self.model.offset;end=start+self.model.rowCount()
         self.previous.setEnabled(active and start>0);self.next.setEnabled(active and end<source.values.size);self.copy.setEnabled(active)

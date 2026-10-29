@@ -108,7 +108,10 @@ def signal_summary(value,operation=None):
         if reading or formulas:sections.append(Section('Cómo leer el resultado',paragraphs=reading,formulas=formulas))
         from .distributions import dirac_terms
         terms=dirac_terms(signal)
-        if terms:sections.append(Section('Impulsos ideales',paragraphs=['La señal incluye '+str(len(terms))+' términos Dirac. Cada impulso se conserva por su posición y peso; no es una muestra de altura finita. Las posiciones y pesos completos permanecen en los datos del cálculo y en la exportación.']))
+        if terms:
+            rows=[('Posición '+('ω' if signal.domain=='frequency' else 't')+' = '+number(t)+' '+signal.units,'Peso '+number(w)) for t,w in terms[:12]]
+            sections.append(Section('Impulsos ideales',rows=rows,paragraphs=['La señal incluye '+str(len(terms))+' términos Dirac. Los valores de la tabla son la parte ordinaria. Los impulsos se conservan por posición y peso; no son muestras de altura finita. El panel Peso Dirac representa sus pesos. Las posiciones y pesos completos permanecen en los datos y en la exportación.']))
+        if meta.get('excluded_dirac_positions'):sections.append(Section('Intervalo observado',paragraphs=[str(len(meta['excluded_dirac_positions']))+' posiciones Dirac quedaron fuera del intervalo elegido y no forman parte de este registro. Ampliá el intervalo para incluirlas.']))
     sections.append(Section('Lectura y exportación',paragraphs=['Los valores completos están en Valores y en la exportación de la señal. Los índices enteros se muestran completos; las demás coordenadas se presentan con hasta 12 cifras significativas y sus unidades.']))
     return Summary(operation_label(operation) if operation else 'Resumen del resultado',sections)
 

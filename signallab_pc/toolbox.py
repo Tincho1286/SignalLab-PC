@@ -67,6 +67,7 @@ class LocalInput(QGroupBox):
         form.addRow(interval)
         if kind=='frequency':
             self.frequency_units=QComboBox();self.frequency_units.addItems(['rad/s','rad/muestra']);form.addRow('Unidad del eje de frecuencia',self.frequency_units)
+        if kind=='continuous':self.expression.setToolTip('Usá t en segundos. DiracDelta(t-a), dirac(t-a) e impulse(t-a) conservan posición y peso, incluso entre puntos. La última coordenada es inicio+(cantidad−1)·paso; los impulsos fuera de ese intervalo se informan aparte.')
         self.origin.setToolTip('Primer índice o coordenada del registro; no es la cantidad de valores.')
         self.count.setToolTip('Cantidad entera positiva. Última coordenada = inicio + (cantidad−1)·paso.')
         self.step.setToolTip('Separación positiva entre puntos. No es la frecuencia de muestreo.')
@@ -167,6 +168,9 @@ class LocalInput(QGroupBox):
                 from .resources import ensure_working_set
                 ensure_working_set(count)
                 if count<1:raise ValueError('La cantidad debe ser positiva.')
+                from .continuous_expression import sample_continuous,has_dirac
+                if self.kind=='continuous':return sample_continuous(self.expression.text(),origin,step,count)
+                if has_dirac(self.expression.text()):raise ValueError('Un impulso en frecuencia es una distribución. Usá Fourier algebraica o sus series; esta entrada numérica requiere valores ordinarios de X(ω).')
                 values=evaluate_expression(self.expression.text(),origin+step*np.arange(count))
             else:values=sequence_from_values(self.samples.text(),0).values
             return Signal(values,origin,step,self.frequency_units.currentText() if self.kind=='frequency' else 's','X(ω)' if self.kind=='frequency' else 'x(t)',self.kind,self.expression.text() if mode==0 else '')
@@ -226,7 +230,9 @@ class ResultView(QWidget):
         if not isinstance(signals[0],Signal):return
         self.figure.clear();polar=self.plot_mode.currentIndex()==0
         delay_view=polar and all(v.metadata.get('operation')=='frequency_filter' for v in signals)
-        axes=self.figure.subplots(3 if delay_view else 2,1,sharex=True)
+        from .distributions import dirac_terms
+        ideal_view=any(dirac_terms(source) for source in signals)
+        axes=self.figure.subplots(2+int(delay_view)+int(ideal_view),1,sharex=True)
         density=all(source.metadata.get('operation') in {'spectral_density','energy_density'} for source in signals)
         self.plot_mode.setItemText(0,'Densidad y dB' if density else 'Módulo y fase')
         for index,source in enumerate(signals):
@@ -251,9 +257,12 @@ class ResultView(QWidget):
             from .distributions import dirac_terms
             impulses=dirac_terms(source)
             if impulses:
-                description='; '.join(f'{weight:g} δ(t−{position:g})' for position,weight in impulses[:3])
-                if len(impulses)>3:description+=f'; y {len(impulses)-3} más'
-                axes[0].set_title('Parte regular · términos ideales: '+description,fontsize=8,wrap=True)
+                positions=np.array([position for position,weight in impulses]);weights=np.array([weight for position,weight in impulses])
+                weight_axis=axes[-1]
+                plot_samples(weight_axis,positions,weights.real,discrete=True,label=name+' · peso real')
+                if np.any(weights.imag):plot_samples(weight_axis,positions,weights.imag,discrete=True,label=name+' · peso imaginario')
+                weight_axis.set_ylabel('Peso Dirac');weight_axis.set_title('Impulsos ideales · peso (área)',fontsize=9)
+                axes[0].set_title('Parte ordinaria · los impulsos se muestran por separado',fontsize=9)
         if any(SignalLabWindow._plot_indices(v.values).size<v.values.size for v in signals):axes[0].set_title('Vista reducida: consultá Valores o exportá para ver todas las muestras',fontsize=9)
         axes[0].set_ylabel('Densidad' if polar and density else 'Módulo' if polar else 'Parte real');axes[1].set_ylabel('Densidad (dB)' if polar and density else 'Fase (rad)' if polar else 'Parte imaginaria');configure_signal_axis(axes[-1],signals[0])
         for axis in axes:

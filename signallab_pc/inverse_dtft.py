@@ -8,6 +8,8 @@ from .operations import _finite_output
 from .jobs import checkpoint
 
 def inverse_dtft(spectrum,start,count):
+    from .distributions import regular_only
+    regular_only(spectrum,'La DTFT inversa numérica de muestras; usá la inversa algebraica para distribuciones')
     if spectrum.domain!='frequency' or spectrum.units!='rad/muestra':raise ValueError('La DTFT inversa necesita X(ω) en rad/muestra. No usa frecuencias en rad/s ni Hz.')
     if isinstance(start,bool) or int(start)!=start:raise ValueError('El primer índice n debe ser entero.')
     start=int(start);count=positive_integer(count,'Cantidad de muestras');last=start+count-1

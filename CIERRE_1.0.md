@@ -1,6 +1,6 @@
 # Cierre de SignalLab 1.0 · estado vigente
 
-Actualización: 28/10/2026, base de desarrollo 0.99.8. Objetivo activo: acercar la primera estable con herramientas fáciles de encontrar, datos locales, resultados útiles y agrupación por problema. No se declara 1.0 terminada.
+Actualización: 28/10/2026, base de desarrollo 0.99.9. Objetivo activo: acercar la primera estable con herramientas fáciles de encontrar, datos locales, resultados útiles y agrupación por problema. No se declara 1.0 terminada.
 
 ## Requisitos y evidencia actual
 
@@ -129,3 +129,5 @@ Durante la entrega 0.99.7 se recuperó espacio al eliminar 58 directorios de com
 0.99.8: reutilización de resultados en CAS con celdas rN, condiciones de origen y hoja conservada. La inversa Z reconoce pares geométricos antes de la descomposición general y conserva la forma exponencial exacta. Alcance y evidencia dirigida en DESARROLLO_0.99.8.md; la meta 1.0 sigue abierta.
 
 Almacenamiento y releases: repositorio privado Tincho1286/SignalLab-PC con código 0.99.8 y herramientas de publicación. Portables como adjuntos de releases, fuera de Git; archivo histórico verificado de 112 ejecutables y primer portable con su ZIP de fuentes original. Se conservan localmente actual/anterior/primero y los borradores de trabajo, incluido Dirac108 pendiente. No cambia el cálculo ni declara alcanzada 1.0. Véanse RELEASES_GITHUB.md y ALMACENAMIENTO.md.
+
+0.99.9: carga temporal continua por parte ordinaria y pesos Dirac, común a las entradas existentes; panel y tabla distinguen muestras de pesos, ayuda ilustrada y límites explícitos. Se integra el trabajo Dirac108 que antes estaba pendiente, preservando CAS/conversión. Evidencia focalizada y alcance en DESARROLLO_0.99.9.md. No se declara completa la meta 1.0.

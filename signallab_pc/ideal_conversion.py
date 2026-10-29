@@ -9,6 +9,8 @@ from .operations import _finite_output
 
 
 def convert_response(expression,period,method,count=2049,support=None):
+    from .continuous_expression import has_dirac
+    if has_dirac(expression):raise ValueError('La conversión de H(jΩ) por una rejilla requiere una respuesta ordinaria. Los impulsos ideales en frecuencia deben trabajarse como distribuciones en Fourier algebraica; no son valores de un filtro.')
     if not np.isfinite(period) or period<=0:raise ValueError('T debe ser positivo y finito, en segundos.')
     if isinstance(count,bool) or int(count)!=count or count<3:raise ValueError('Usá al menos tres puntos de frecuencia.')
     count=int(count);ensure_working_set(count,live_arrays=12)

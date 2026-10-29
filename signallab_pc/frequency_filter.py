@@ -5,6 +5,8 @@ from .fourier import dtft,ctft,_sum
 from .resources import ensure_working_set
 
 def analyze(response,domain,start,count,step,source=None):
+    from .distributions import regular_only
+    regular_only(response,'El filtro definido por valores de H(ω)')
     if response.domain!='frequency' or response.step<=0 or response.values.size<2:
         raise ValueError('H requiere al menos dos frecuencias crecientes con paso uniforme.')
     unit='rad/muestra' if domain=='discrete' else 'rad/s'

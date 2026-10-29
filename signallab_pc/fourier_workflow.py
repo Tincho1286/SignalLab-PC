@@ -60,13 +60,14 @@ def prepare_fourier_inputs(source,target):
             first=real_field(field.origin);step=real_field(field.step);last=first+(count-1)*step
             if count<2 or step<=0 or not math.isfinite(last) or last<=first:raise ValueError('El intervalo numérico requiere al menos dos puntos y un paso positivo que distinga sus extremos.')
         text=to_symbolic(field.expression.text());conditions=list(_numeric_conditions(field))
-        # Numeric impulse(t) is a sample value, not a Dirac distribution.
-        calls={node.func.id.lower() for node in ast.walk(ast.parse(text)) if isinstance(node,ast.Call) and isinstance(node.func,ast.Name)}
-        if not discrete and 'impulse' in calls:
-            return InputCopy(note='El impulso de una rejilla numérica no fija el área de un Dirac. Se conserva la entrada algebraica; definí allí el impulso ideal con su peso.')
         if not discrete:
             start=field.origin.text();stop='('+start+')+('+field.count.text()+'-1)*('+field.step.text()+')';variable='w' if inverse else 't'
-            text='Piecewise((('+text+'), ('+variable+'>=('+start+')) and ('+variable+'<=('+stop+'))), (0, True))'
+            from .continuous_expression import has_dirac,finite_definition
+            if has_dirac(field.expression.text()):
+                if inverse:return InputCopy(note='Esta entrada numérica requiere un espectro ordinario. Para impulsos ideales en frecuencia, definí X(ω) directamente en la Fourier inversa algebraica.')
+                text=finite_definition(field.expression.text(),first,last)
+                conditions.append('Las posiciones y pesos de Dirac se conservaron en precisión numérica, incluidos los impulsos de los extremos, sin multiplicarlos por una ventana ambigua.')
+            else:text='Piecewise((('+text+'), ('+variable+'>=('+start+')) and ('+variable+'<=('+stop+'))), (0, True))'
             conditions.append('La definición se limita al intervalo de entrada '+start+' … '+stop+'. Dentro se integra la fórmula; el método numérico usa una cuadratura de sus muestras.')
         def copy_to_algebraic():
             dst.expression.setText(text)

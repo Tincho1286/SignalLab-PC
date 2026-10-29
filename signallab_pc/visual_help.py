@@ -57,7 +57,8 @@ def flow_image(route,purpose):
 def diagrams_for(section):
     if section.get('illustration'):
         from .function_reference import reference_diagram
-        return [('Representación',reference_diagram(section['illustration']),'Esquema de la función elemental. Los tallos representan muestras independientes.')]
+        caption='Azul: parte ordinaria de la señal. Verde: posición y peso del impulso ideal. La flecha indica área, no una altura finita ni una muestra de la rejilla.' if section['illustration']=='dirac' else 'Esquema de la función elemental. Los tallos representan muestras independientes.'
+        return [('Representación',reference_diagram(section['illustration']),caption)]
     route=section['route']
     if route and ((route[1]=='basic' and route[2] in ('shift','reverse','scale','parity')) or route[1]=='time_transform'):
         from .transform_help import transform_help_image

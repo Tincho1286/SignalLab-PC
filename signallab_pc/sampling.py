@@ -27,6 +27,8 @@ def positive_finite(value, label):
 
 
 def sample_expression(expression, start, rate, count, name="x[n]"):
+    from .continuous_expression import has_dirac
+    if has_dirac(expression):raise ValueError('Una Dirac ideal tiene peso, no un valor puntual finito. Para muestrear, definí un pulso de duración finita o una señal ordinaria; impulse(n) se usa directamente como secuencia discreta.')
     rate = positive_finite(rate, "Fs")
     count = positive_integer(count, "N")
     start = float(start)

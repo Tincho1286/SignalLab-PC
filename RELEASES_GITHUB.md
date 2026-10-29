@@ -11,7 +11,7 @@ Las versiones se publican en https://github.com/Tincho1286/SignalLab-PC/releases
 3. Publicar desde la raíz con el Python del proyecto:
 
 ```powershell
-.\.venv\Scripts\python.exe -B tools\github_release.py --tag v0.99.8 --title "SignalLab PC 0.99.8" --notes DESARROLLO_0.99.8.md --file outputs\SignalLab-PC-0.99.8-preview.exe
+.\.venv\Scripts\python.exe -B tools\github_release.py --tag v0.99.9 --title "SignalLab PC 0.99.9" --notes DESARROLLO_0.99.9.md --file outputs\SignalLab-PC-0.99.9-preview.exe
 ```
 
 Cambiar versión, título, notas y archivo para cada entrega. La herramienta usa la sesión de Git existente; no guarda tokens en el proyecto. Comprueba que el repositorio sea privado y que main remoto coincida con el commit local, publica primero un borrador y verifica tamaño y SHA-256 de cada adjunto antes de mostrar la versión. Por defecto publica como preliminar; --stable queda reservado para una versión estable real. Un nombre existente con contenido distinto se rechaza, no se reemplaza.
@@ -24,7 +24,7 @@ El archivo de versiones del 28 de octubre de 2026 guarda los ejecutables anterio
 
 El historial Git comienza con el código 0.99.8. El archivo de ejecutables no inventa commits de código para versiones antiguas: sus fuentes sólo están disponibles cuando existía un respaldo original. Las etiquetas del archivo histórico señalan el momento del respaldo, no la implementación de todos los ejecutables incluidos.
 
-Los programas de la materia, documentos personales, entorno Python, temporales y borradores externos permanecen locales y fuera del repositorio. La ampliación continua con Dirac preparada en otra carpeta de trabajo sigue pendiente y no se mezcla con main.
+Los programas de la materia, documentos personales, entorno Python, temporales y borradores externos permanecen locales y fuera del repositorio. El trabajo continuo con Dirac que se preparó en otra carpeta se integró, después de revisarlo sobre la base actual, en la versión 0.99.9. Los borradores históricos externos permanecen fuera de main.
 
 ## Publicaciones disponibles
 

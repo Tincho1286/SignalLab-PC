@@ -78,7 +78,7 @@ def latex(source):
             elif name.lower() in ('diracdelta','dirac'):
                 result=r'\delta'+(r'^{('+visit(n.args[1])+')}' if len(n.args)==2 else '')+wrapped(visit(n.args[0]))
             elif name.lower() in ('heaviside','step','impulse'):
-                discrete=name.lower()=='impulse' or any(isinstance(v,ast.Name) and v.id in ('n','k') for v in ast.walk(n.args[0]))
+                discrete=any(isinstance(v,ast.Name) and v.id.lower() in ('n','k') for v in ast.walk(n.args[0])) or (name.lower()=='impulse' and not any(isinstance(v,ast.Name) and v.id.lower() in ('t','x','w') for v in ast.walk(n.args[0])))
                 edge=visit(n.args[1]) if len(n.args)==2 else '1' if name.lower() in ('step','impulse') else r'\frac{1}{2}'
                 default='1' if discrete else r'\frac{1}{2}'
                 symbol=r'\delta' if name.lower()=='impulse' else 'u'+('_{'+edge+'}' if edge!=default else '')

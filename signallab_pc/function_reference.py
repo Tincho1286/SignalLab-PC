@@ -13,7 +13,7 @@ def function_sections():
     add('Abs, Re, Im y Conj · números complejos',[('Lectura','')],None)
     add('Sign, Floor, Ceil y Ceiling',[('Lectura','')],None)
     add('Where y condiciones · funciones por tramos',[('Lectura','')],None)
-    add('DiracDelta y Heaviside · cálculo simbólico',[('Lectura','')],None)
+    add('DiracDelta · impulso continuo por posición y peso',[('Lectura','')],'dirac')
     add('Coeficientes · constantes, pi y notación científica',[('Lectura','')],None)
     from .library_concepts import FUNCTION_BLOCKS
     if len(pages)!=len(FUNCTION_BLOCKS):raise ValueError("Revisar correspondencia de páginas de funciones.")
@@ -22,6 +22,9 @@ def function_sections():
 
 
 def reference_diagram(kind):
+    if kind=='dirac':
+        from .dirac_help import dirac_help_image
+        return dirac_help_image()
     import numpy as np
     from PySide6.QtCore import Qt,QRectF,QPointF,QLineF
     from PySide6.QtGui import QImage,QPainter,QColor,QPen,QFont,QPainterPath
