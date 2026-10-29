@@ -28,6 +28,8 @@ Los programas de la materia, documentos personales, entorno Python, temporales y
 
 ## Publicaciones disponibles
 
+- [1.0.1 estable](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.0.1): aclaración de transiciones especificadas y corrección del retardo FIR.
+
 - [1.0.0 estable](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.0.0): primera estable, corrección del estado de resultados, alcance y SHA-256.
 
 - [0.99.11 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.11): diseño unificado, formularios despejados y exportaciones junto al resultado.

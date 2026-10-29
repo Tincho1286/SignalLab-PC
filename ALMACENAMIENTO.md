@@ -31,3 +31,5 @@ Entrega 0.99.10: publicación por la herramienta de releases del proyecto y veri
 Entrega 0.99.11: publicación por la herramienta de releases del proyecto y verificación de adjuntos. Se conservan 0.99.11, 0.99.10 y el primer portable; 0.99.9 se retiró tras verificar su release individual. Sin intermedios de compilación acumulados.
 
 Entrega estable 1.0.0: publicada como última estable en GitHub privado y verificados sus cinco adjuntos. Retención local 1.0.0, 0.99.11 y v0.1.0; 0.99.10 se retiró tras comprobar su release. Los intermedios de la compilación estable se limpiaron automáticamente.
+
+Entrega estable 1.0.1: publicada como última estable en GitHub privado, con sus cinco adjuntos verificados. Se conservan localmente 1.0.1, 1.0.0 y v0.1.0. La copia de 0.99.11 en la carpeta de entrega quedó pendiente de limpieza porque Windows impidió eliminarla mientras la versión anterior seguía en ejecución; no se interrumpió la aplicación. Su hash y ubicación se registran en work/remote-release/1.0.1/pending-cleanup.json. Los intermedios de compilación se limpiaron automáticamente.
