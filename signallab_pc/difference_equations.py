@@ -41,6 +41,8 @@ def segments(value,lower,upper):
             except (NotImplementedError,ValueError,TypeError) as exc:raise NoRationalTransform('Condición de tramo no reducible a intervalos.') from exc
             region=(valid-covered).intersect(sp.Interval(lower,upper));covered=covered.union(valid)
             for l,u in intervals(region):result.extend(segments(amplitude,l,u))
+        if intervals(sp.Interval(lower,upper)-covered):
+            raise ValueError('La entrada por tramos deja índices sin definir desde n₀. Agregá un tramo final que complete f[n].')
         return result
     if value.func in (sp.Heaviside,sp.KroneckerDelta):
         argument=value.args[0] if value.func==sp.Heaviside else value.args[0]-value.args[1]

@@ -13,7 +13,7 @@ La herramienta Ecuaciones lineales reúne ahora Continuo · diferencial y Discre
 
 ## Método y alcance
 
-Se usan la Z unilateral, la superposición y propiedades racionales. La inversión de X(z)/z con desplazamiento de un índice evita introducir deltas y tramos artificiales en exponenciales simples. Los escalones y tramos conservan sus límites; la solución sólo se aplica desde n₀, sin suponer una historia infinita anterior. La fuente f[n] mantiene su índice global cuando cambia n₀.
+Se usan la Z unilateral, la superposición y propiedades racionales. La inversión de X(z)/z con desplazamiento de un índice evita introducir deltas y tramos artificiales en exponenciales simples. Los tramos deben definir la entrada en todos los índices desde n₀: no se completan huecos con cero silenciosamente. Los escalones y tramos conservan sus límites; la solución sólo se aplica desde n₀, sin suponer una historia infinita anterior. La fuente f[n] mantiene su índice global cuando cambia n₀.
 
 Para entradas que no se reducen a la familia polinómico-exponencial, se conserva una solución exacta como suma finita de convolución y se declara que no se obtuvo forma cerrada. Los parámetros sin asignar impiden producir muestras, pero no obligan a perder la expresión. Si la recurrencia numérica desborda dentro de la ventana, se conserva la fórmula y se informa por qué no se muestran esas muestras.
 
