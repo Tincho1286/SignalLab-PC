@@ -1,0 +1,1658 @@
+{
+  "format": 1,
+  "description": "Portables históricos de SignalLab PC hasta 0.99.8. No representa un historial completo de fuentes.",
+  "entries": [
+    {
+      "archive_path": "outputs/SignalLab-PC-0.10-dev.exe",
+      "bytes": 111251226,
+      "sha256": "5eb108fdbb79abef3bcc7b62c6cacb9e49d5cdc8e631e49ec8f62b9560daf2eb",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.10-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.10-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.11-dev.exe",
+      "bytes": 111298714,
+      "sha256": "af3f0818ba431065a2550caf69df03e40a4488f7ff98ebb9da8ec2ba5cdba9da",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.11-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.11-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.12-dev.exe",
+      "bytes": 111315793,
+      "sha256": "aa0cbf4cee2240c868df71b118212962433548d049187abb9b89b1d28a5f0bc7",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.12-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.12-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.13-dev.exe",
+      "bytes": 111331267,
+      "sha256": "5bfc8f40d289f6ddaeef37cd67c7f81bbc3dfdb7314c9a2c3efd26e38369d746",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.13-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.13-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.13.1-dev.exe",
+      "bytes": 111336340,
+      "sha256": "4ce293ddcd4aea2c636bf7b21870666daf69d288da466fa63ed4fe71c923f0ff",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.13.1-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.13.1-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.13.2-dev.exe",
+      "bytes": 111340118,
+      "sha256": "0e7dbc8dcc4b0c007166fe1a45f3abe90fc3f02f75644fdc63d87afff314575f",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.13.2-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.13.2-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.13.3-dev.exe",
+      "bytes": 111351527,
+      "sha256": "cce647520b4e492f9eba0d2c791260634737c263d19c217c8ba537fbe8e2084e",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.13.3-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.13.3-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.14-dev.exe",
+      "bytes": 111373855,
+      "sha256": "40bf6a3d9c108b6557f44ec435833bab453c3c2347cca2044970840ec33aca0f",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.14-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.14-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.15-dev.exe",
+      "bytes": 111378419,
+      "sha256": "7226102a91b5065c314c93f96c96f0659e62f8345543e3aef4f9dc0a4800207e",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.15-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.15-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.16-dev.exe",
+      "bytes": 111388520,
+      "sha256": "ffddcea921af74ff9a8ab32e23fcd478dea7c217a863cf2513c84c4389dcfcdb",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.16-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.16-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.17-dev.exe",
+      "bytes": 111389372,
+      "sha256": "ca11c5bea2ebeb73e9a2201973334018350a1ade54dcb5572ad3dad2e8856525",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.17-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.17-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.18-dev.exe",
+      "bytes": 111392742,
+      "sha256": "f4af04e8b63d7b8b6ca5280ee4f1905c0276757a18657bf4945300b2ffaa58dc",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.18-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.18-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.19-dev.exe",
+      "bytes": 111398658,
+      "sha256": "940c64f7d78f93983cf9b43034a3e074a5352d0bffd289e069c217454c62e1ce",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.19-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.19-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.2.1-dev.exe",
+      "bytes": 111121141,
+      "sha256": "6d431b17c0162313c814b520f124b2c194492fa5bdb707e9647d05292edc5c0f",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.2.1-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.20-dev.exe",
+      "bytes": 111403522,
+      "sha256": "6174db59bffe1f994b7e822ffb6b70ab8da7059324e84a715ec0298ec6370059",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.20-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.20-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.21-dev.exe",
+      "bytes": 111414948,
+      "sha256": "e5164542adf5c48621a750c47daa99b0d6c067425c7c541685f6ee98276119ca",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.21-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.21-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.22-dev.exe",
+      "bytes": 111426351,
+      "sha256": "c1bb73d70d3b19e4d0336f3495f7d7655fa07619d21112040cc916e203766d22",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.22-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.22-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.23-dev.exe",
+      "bytes": 111431294,
+      "sha256": "aee5f04eaa6a01db7491964801130d09071535985dc19f8aa01f74b10b9806ff",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.23-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.23-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.24-dev.exe",
+      "bytes": 111445763,
+      "sha256": "c49633e869473b8e13ce3edb6e107acaa32c1a40d55439836b0825c696a53c7f",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.24-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.24-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.25-dev.exe",
+      "bytes": 111455493,
+      "sha256": "aab23718afefc7c36ebf1ae134afc4cbf77a7942ea16b1495b873f968b82ed05",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.25-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.25-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.26-dev.exe",
+      "bytes": 111496577,
+      "sha256": "639210d89c4d2aa5ae1b134f915139c089ac0b16f610a42db421c6747b0e007c",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.26-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.26-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.27-dev.exe",
+      "bytes": 111502129,
+      "sha256": "11f5ea93303a54d2491ef69878a8de3ec4edc46d52468af8fa2460e35827d67e",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.27-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.27-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.28-dev.exe",
+      "bytes": 111510127,
+      "sha256": "ce633d91ee9d66f360b4a16351c16f3128a03789f6b5c7e2c6f628b9860a5477",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.28-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.28-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.29-dev.exe",
+      "bytes": 111513015,
+      "sha256": "2040ec38b253ad5783446498e3fabad49b21d4ef6c855404f574e986ec0b5b15",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.29-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.29-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.3-dev.exe",
+      "bytes": 111137015,
+      "sha256": "d60a991b0ff2ab1d62cadfc017a4187906987918cd747d13cfef7f423d505e84",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.3-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.3-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.30-dev.exe",
+      "bytes": 111521368,
+      "sha256": "999b4b2b47af7bf33cf3217a637232833ccadb6be7cc8f74a077e52431eed6f5",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.30-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.30-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.31-dev.exe",
+      "bytes": 111524707,
+      "sha256": "41515eb5fc22c8dbf9f92c99374d6a35d755a050f3965d12c40de5a962a35c58",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.31-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.31-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.32-dev.exe",
+      "bytes": 111534339,
+      "sha256": "949f74f597458a6590ba76fbce8c6206fe6ab8f6af52c6e54e8f20b1d4e78aaa",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.32-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.32-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.33-dev.exe",
+      "bytes": 111537212,
+      "sha256": "c281c8ba476054873cf9025a004745b9977059e898f456193a20511fb6688302",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.33-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.33.1-dev.exe",
+      "bytes": 111536272,
+      "sha256": "45f6af5139bc86c88ecd2accebb5827573824122944e90c2c7d63042a20f987e",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.33.1-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.33.1-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.34-dev.exe",
+      "bytes": 111541793,
+      "sha256": "c4d51fc9f177b9e7a24c3321d79e3b1063aee9e9b4cc52d7a1ffc7b16cccc782",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.34-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.34-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.35-dev.exe",
+      "bytes": 111542912,
+      "sha256": "553c6e8c4a819951d976dc37f4f000359e97bb4cbb4b0c0a76a8707f6890ae4d",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.35-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.35-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.36-dev.exe",
+      "bytes": 111546014,
+      "sha256": "592cc67eead636fbabece476117088ddccb64996b154a11a2eb10a0b36fc43ba",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.36-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.36-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.37-dev.exe",
+      "bytes": 111545523,
+      "sha256": "4aec33ec4691d75a78900c41912123235d982432b5c904940dbc7bf4562e68a3",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.37-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.37-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.38-dev.exe",
+      "bytes": 111546059,
+      "sha256": "ba381866235f8acddf34b4b1146b16caeb1a986fb0dd4e5fe457378d30a43e0c",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.38-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.38-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.39-dev.exe",
+      "bytes": 111547474,
+      "sha256": "cf3e6ee824e49e4a9c5a9614f964be228594357ebb653e2bf9c67ae2764642d0",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.39-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.4-dev.exe",
+      "bytes": 111141207,
+      "sha256": "9cde4501cc1930670aa2c21b1b13888fe1276b4214a413ba9338846a20c50743",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.4-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.4-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.40-dev.exe",
+      "bytes": 111568700,
+      "sha256": "f70c9ca6ff15d34bbeb9c7beb7c2ff18eee39735f7fb01b32141b02cb40c97d8",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.40-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.40-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.41-dev.exe",
+      "bytes": 111587155,
+      "sha256": "0467f158230cb7a0c17bbb1323bc87c974269692fb4799ad42d69fa06148bda5",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.41-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.41-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.42-dev.exe",
+      "bytes": 111590028,
+      "sha256": "e0390539629412ed6256681da3899d2a603fe00067dc1aab0f7e8ca0e03ee11a",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.42-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.42-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.43-dev.exe",
+      "bytes": 111611007,
+      "sha256": "9ae61f5aa1775c11a2ae411176bb38eef113113c03443d99bb793182efdfff12",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.43-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.43-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.5-dev.exe",
+      "bytes": 111158465,
+      "sha256": "d923e1abd8db3c7885222a6e3504d42e9727b5905bb54d24bf64f21cbfb803e6",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.5-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.5-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.50-preview.exe",
+      "bytes": 111630465,
+      "sha256": "8c8e8271bd467dc11e34d0c34c0ac6bf7a231f122fc01f4cd41e44d83a749e7b",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.50-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.50-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.51-preview.exe",
+      "bytes": 111628948,
+      "sha256": "5b842927881e7ef931e9ac28c7e8618df2a1f804dca9147fa5745e5e5b10305c",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.51-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.51-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.52-preview.exe",
+      "bytes": 111642064,
+      "sha256": "e0dc4d7600ca6c5dc4a7efa49f61981238b514d50f9891a78ff6780f444aefde",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.52-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.52-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.53-preview.exe",
+      "bytes": 111646070,
+      "sha256": "b592fde89ca76556d655f1b871be2aba5a6879fe1ccc1f4c8fd56eeca71798c0",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.53-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.53-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.54-preview.exe",
+      "bytes": 111667242,
+      "sha256": "6f2141aecbb62f3acd8c7d4c848fa54e018957afee378c23dc3a8cb3146cdfa5",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.54-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.54-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.55-preview.exe",
+      "bytes": 111674539,
+      "sha256": "3b48c159949090d2daea1dfd3ce97dff383fc0247af5c082818904ea78fdb435",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.55-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.55-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.56-preview.exe",
+      "bytes": 111683906,
+      "sha256": "5e12adf1dd78ac6d5d494cc97292b5e446dab3a5bcaa8cabc0019b631442d8eb",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.56-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.56-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.57-preview.exe",
+      "bytes": 115875029,
+      "sha256": "15223888194cc6f72f151640c67ce4c9e67575c40ea08c4e8f9c2b5c2683742e",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.57-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.57-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.58-preview.exe",
+      "bytes": 115876819,
+      "sha256": "81b0f7e7076ec21cbe5e573992446a01647aca06b668d2d95d270a6ac6f71085",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.58-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.58-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.59-preview.exe",
+      "bytes": 115878868,
+      "sha256": "08af887d9b6a69cd35444668277f73cc79245c8566a7ccf2d0ed913019d5de8f",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.59-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.59-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.6-dev.exe",
+      "bytes": 111181692,
+      "sha256": "1211e0438c470704656bd943fd3605eaf75a2b27b878bd41fd9adc34e76d9ade",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.6-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.6-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.60-preview.exe",
+      "bytes": 115881210,
+      "sha256": "9353ac8288142200a2fa2366f3de46a408fa4bed086d1156c063b7edc74b44ae",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.60-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.60-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.61-preview.exe",
+      "bytes": 115893330,
+      "sha256": "d48052b8be9df406612331cb74b8070eca9a096fbe6d723356b703a6612d38dd",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.61-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.61-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.62-preview.exe",
+      "bytes": 115894546,
+      "sha256": "0161865b8660fb504c517d9d3e69992fb75def549db28af7f1ffd15c67572f2a",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.62-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.62-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.63-preview.exe",
+      "bytes": 115895038,
+      "sha256": "3b0647c9181afd5ebf08482c4f19f0448cd5c60ef98246712f077c60f2696ab5",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.63-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.63-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.64-preview.exe",
+      "bytes": 115906386,
+      "sha256": "20643f8ab86f3c298df225c7263c55dc175671f9510a4e9e3e9b97ddff5d69ba",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.64-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.64-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.65-preview.exe",
+      "bytes": 115939536,
+      "sha256": "54dfa744c3fa3801801b5d6bddc5afed3fc0357a1c3577e0299127dae771c7bb",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.65-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.65-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.66-preview.exe",
+      "bytes": 115956807,
+      "sha256": "8db6bfa67b5aca195cff9e5cba4876a6c1607ff4a28722359e887b3abb84158f",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.66-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.66-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.67-preview.exe",
+      "bytes": 115978164,
+      "sha256": "f02bf9ef6881154cce000defd6882eedca17aa9ccf8fd4b43b707f73a744307e",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.67-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.67-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.68-preview.exe",
+      "bytes": 115994510,
+      "sha256": "fe820aa6ddba956efda7d1a6e80464e8b2d9de073804893f93cc3a98b063615e",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.68-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.68-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.69-preview.exe",
+      "bytes": 115995698,
+      "sha256": "9e28849c4a78dfbc5da0bfbbcda50668f71fb6a2f110150897e7a8eed2ee5bca",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.69-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.69-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.7-dev.exe",
+      "bytes": 111193916,
+      "sha256": "9ef2e122081058e783b5b194495d7f387d6da80d1198f9566c91f4979b4b295e",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.7-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.7-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.70-preview.exe",
+      "bytes": 116012205,
+      "sha256": "cffe10e5fa206301a6dc957b026b54e96ee1f75f9e4ddf0c97a87cf2997345ec",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.70-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.70-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.71-preview.exe",
+      "bytes": 116027415,
+      "sha256": "17fe6bf077679f7d3c83338327ab9aefc6cf9a0521c63751548c1e79d39b50fe",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.71-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.71-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.72-preview.exe",
+      "bytes": 116038992,
+      "sha256": "02ae6a9418eb45f6ffb87dfb96f73ebdda0a714877b6133b940e22d8a23d280d",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.72-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.72-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.73-preview.exe",
+      "bytes": 116046082,
+      "sha256": "c6ce269ff40f563d9005333c62b0fca320e99ea9c9b5631e084ea9f2bb96e023",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.73-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.73-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.73.1-preview.exe",
+      "bytes": 116047171,
+      "sha256": "20bc51ac67eca7f84644ec571ac8c67b796d9961f67b776448e1ec5b04925d5d",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.73.1-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.73.1-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.74-preview.exe",
+      "bytes": 116048852,
+      "sha256": "4f4295e30cea4df9952f831d7ef5a9abf312444b15eed75abaf1ca3a2407911f",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.74-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.74-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.75-preview.exe",
+      "bytes": 116052433,
+      "sha256": "ff26ee16ebf03aaa956e0b6c402d1c52a813e507715489948151a06d031b7fd4",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.75-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.75-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.76-preview.exe",
+      "bytes": 116053910,
+      "sha256": "4ebe88bd2fb5e2edde7eb078ac728f2b0472bd9efd6617f3b7ef753923ffa4c1",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.76-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.76-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.77-preview.exe",
+      "bytes": 116077534,
+      "sha256": "5f6f8d3b9bde040a685c05d9a38281f8787f33e948fc72caadb4339164379735",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.77-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.77-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.78-preview.exe",
+      "bytes": 116125217,
+      "sha256": "05cafb4f5ea8e3314ff9eed5706e0492ad6f36acc8ebc17d6e757f0d0ba9e147",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.78-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.78-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.78.1-preview.exe",
+      "bytes": 116130488,
+      "sha256": "0550024932487fc75f35042a3c0a0a6a11cd7bbf9b24d690de909e256e5a8999",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.78.1-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.78.1-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.78.2-preview.exe",
+      "bytes": 116134727,
+      "sha256": "7fe6eef4cd1f9f815fcc2e80a49069d6d47872513e9e5e394ba7bb2c7c9451a2",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.78.2-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.78.2-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.79-preview.exe",
+      "bytes": 116146179,
+      "sha256": "74115da96a05a8732ae03489a0a30cae3e0bce071b5ba132cc3977988e4f9b19",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.79-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.79-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.8-dev.exe",
+      "bytes": 111205093,
+      "sha256": "4d18533589a34656fa612abc680f6253aa4632bd7ff0369b733ce5d580cb31fd",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.8-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.8-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.80-preview.exe",
+      "bytes": 116168067,
+      "sha256": "21901c351ea8d0cc0de0fa00404f1f8b25d9bbe37d377a5d5d998a5c7306f860",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.80-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.80-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.81-preview.exe",
+      "bytes": 116173185,
+      "sha256": "480933d4f2fb774f1bf1f3254348805477f858726e42de6fb2b8350fcf739013",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.81-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.81-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.82-preview.exe",
+      "bytes": 116190255,
+      "sha256": "69e719fa8304fd86d974ad589090970f9cdd501bad625c2f1b69bb32d22163c7",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.82-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.82-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.83-preview.exe",
+      "bytes": 116198488,
+      "sha256": "b1ec3d4fb495b18fb3bdba981bcdc6554b9bda21c55aec0df9f7466cc8a2376b",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.83-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.83-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.84-preview.exe",
+      "bytes": 116228432,
+      "sha256": "b0fb880166d3545bc6d010240b9aec4d7f53e83093419351b1032eb4037ee6a6",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.84-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.84-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.85-preview.exe",
+      "bytes": 116246650,
+      "sha256": "973aaa1d1fd74c5c65b06a7920cd351ccf9b0074f736a1ed0625c6d4be65ba5c",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.85-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.85-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.86-preview.exe",
+      "bytes": 116268928,
+      "sha256": "8513eecce7a82f5de98d4704de14fbe12a7b1ddbe1697e3a911b1d1188799c76",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.86-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.86-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.87-preview.exe",
+      "bytes": 116281420,
+      "sha256": "d5abdaf59074e7ea5086c285ec2b2ba296e26641a0e22da98fe8438998685a8e",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.87-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.87-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.88-preview.exe",
+      "bytes": 116302288,
+      "sha256": "eff3092d827334de7a72056b624251ab05a03f5a0535020fb47be0915bb35308",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.88-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.88-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.89-preview.exe",
+      "bytes": 116320936,
+      "sha256": "34c36c96e0781b65bcb898b22e6d75e2f32f4e9651fe7617189b41a84e4e0f04",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.89-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.89-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.9-dev.exe",
+      "bytes": 111221090,
+      "sha256": "5644a0b623bbad5dda30df92176798adaa6ea3a8d811f68f860bd13072cb25bb",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.9-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.9-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.9.1-dev.exe",
+      "bytes": 111248641,
+      "sha256": "cef619187f9a7ca499c3418175439b659722410ea5732d8fbbb4b386fe77b2b1",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.9.1-dev.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.9.1-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.90-preview.exe",
+      "bytes": 116326854,
+      "sha256": "1e467e6d3b09d6e314afc91dad50cecef130ae50ddd3f6d4ac2b6b9b8a5758b3",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.90-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.90-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.91-preview.exe",
+      "bytes": 116356307,
+      "sha256": "a605e12f44aad2e50dd05bba85151169c90d2912a0ee34ca264d1bc08cfdf74b",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.91-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.91-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.92-preview.exe",
+      "bytes": 116377433,
+      "sha256": "6f407f5ddce5e5ad9b32080f56e90519825e3cd889392998c17492ed46a7f203",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.92-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.92-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.93-preview.exe",
+      "bytes": 116400303,
+      "sha256": "325d5d6f5358d46cffb55ae501c75433ab82d5237918fa8ce732d091b60759e1",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.93-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.93-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.94-preview.exe",
+      "bytes": 116398888,
+      "sha256": "9c20af4414e0db287c041efb76f69ad6f64bb353a8bd9a0f404c9d4997681a2d",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.94-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.94-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.95-preview.exe",
+      "bytes": 116422139,
+      "sha256": "f0b91b4a4045c6f52fbfedc989947e2d3cd2e705991716158e029c4af46fd0f8",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.95-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.95-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.96-preview.exe",
+      "bytes": 116434830,
+      "sha256": "4431d332cfef170c2c579f3f96dd72651649008e2ca022fe8276cdb791349c30",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.96-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.96-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.97-preview.exe",
+      "bytes": 116442643,
+      "sha256": "8390061f0c412189255ac984d5da55bfb84aff35a7a797bdd275537cfd917dfa",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.97-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.97-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.98-preview.exe",
+      "bytes": 116450394,
+      "sha256": "1964f54096ad78cf88a363d27e47d6463d4a1feede8153c8e7434c1943f8c247",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.98-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.98-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.99-preview.exe",
+      "bytes": 116459471,
+      "sha256": "56995b0b7ce2389967b24c6291dd637a33132f32cf4b8cf19d0ff091e3f426ef",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.99-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.99-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.99.1-preview.exe",
+      "bytes": 116465363,
+      "sha256": "695280efb86589effc8d3388d65d2f6bb48c76b79c512c71994140883665c095",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.99.1-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.99.1-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.99.2-preview.exe",
+      "bytes": 116471141,
+      "sha256": "59da9d0b5af32f5108ccc379a3bb0473f273d3735706b0337ac67024ed3e4c93",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.99.2-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.99.2-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.99.3-preview.exe",
+      "bytes": 116486611,
+      "sha256": "1749a7226dbed69e0fa799c78ae421618c9e3a142de1e736d48f082cb4cc4075",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.99.3-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.99.3-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.99.4-preview.exe",
+      "bytes": 116502951,
+      "sha256": "b64c59c8c7f3ac94eddab6d65c09adcbbb52f088bd3c9fc4c9d0ae0ff5225f5a",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.99.4-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.99.4-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.99.5-preview.exe",
+      "bytes": 116517821,
+      "sha256": "1b5431d03787097973fdf7b3ef2799a00f551390d8e46a63e36fc27303f30db7",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.99.5-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.99.5-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.99.6-preview.exe",
+      "bytes": 116524388,
+      "sha256": "ec8d72cf5a1481f6a2088643aac5e56cd9cee15126daa35a6624d3ae439fabd3",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.99.6-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.99.6-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.99.7-preview.exe",
+      "bytes": 116540749,
+      "sha256": "1077c12a6ca6846b5ae57d4d28a4e86f4b12856f8943222e82233bef1c48c50c",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.99.7-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.99.7-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-0.99.8-preview.exe",
+      "bytes": 116562934,
+      "sha256": "14b76d37e95644761470c87d1e6ce9f8d21c7073d5ea19a405efa1ee67f0ed8f",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-0.99.8-preview.exe"
+        },
+        {
+          "location": "delivery",
+          "path": "SignalLab-PC-0.99.8-preview.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "outputs/SignalLab-PC-dev.exe",
+      "bytes": 111120924,
+      "sha256": "d26681e3afc434c0199b643abea4ca8ad24d5aaf57c9c225d2c7e39d39053b42",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "outputs/SignalLab-PC-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "releases/v0.1.0/SignalLab-PC-v0.1.0.exe",
+      "bytes": 111045554,
+      "sha256": "624322729de2dfc8f2e43311efb572808c63c725b38b2d228ee0b419864793a0",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "releases/v0.1.0/SignalLab-PC-v0.1.0.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "dist/SignalLab-PC-dev.exe",
+      "bytes": 111045554,
+      "sha256": "64c35d7c3d275c4d92f69f30666b46bf812735a0a07b6f4377ace32dc38cbfe9",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "dist/SignalLab-PC-dev.exe"
+        }
+      ]
+    },
+    {
+      "archive_path": "work/portable-check/SignalLab-PC-dev.exe",
+      "bytes": 128577328,
+      "sha256": "af50dafa1b1ab704b9f3ed9bc1564d0007016943323fbc17f2f2cda99bc8385d",
+      "local_paths": [
+        {
+          "location": "project",
+          "path": "work/portable-check/SignalLab-PC-dev.exe"
+        }
+      ]
+    }
+  ]
+}

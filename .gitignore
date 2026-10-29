@@ -6,11 +6,11 @@ __pycache__/
 .pytest_cache/
 .coverage*
 htmlcov/
-build/
-dist/
-work/
-outputs/
-releases/
+/build/
+/dist/
+/work/
+/outputs/
+/releases/
 *.exe
 *.pkg
 *.spec

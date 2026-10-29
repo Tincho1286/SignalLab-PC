@@ -25,3 +25,10 @@ El archivo de versiones del 28 de octubre de 2026 guarda los ejecutables anterio
 El historial Git comienza con el código 0.99.8. El archivo de ejecutables no inventa commits de código para versiones antiguas: sus fuentes sólo están disponibles cuando existía un respaldo original. Las etiquetas del archivo histórico señalan el momento del respaldo, no la implementación de todos los ejecutables incluidos.
 
 Los programas de la materia, documentos personales, entorno Python, temporales y borradores externos permanecen locales y fuera del repositorio. La ampliación continua con Dirac preparada en otra carpeta de trabajo sigue pendiente y no se mezcla con main.
+
+## Publicaciones disponibles
+
+- [0.99.8 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.8): ejecutable, notas y SHA-256.
+- [Archivo histórico y primera versión](https://github.com/Tincho1286/SignalLab-PC/releases/tag/archivo-historico-2026-10-28): 112 ejecutables distintos en 222 MiB, primer portable y fuentes originales de v0.1.0. El archivo contiene también la 0.99.8 como parte de la foto histórica.
+
+Los enlaces, tamaños y huellas de los adjuntos están en docs/releases/index.json. El manifiesto histórico en esa misma carpeta enumera las versiones y las ubicaciones duplicadas que tenían antes de retirarse del disco. Para recuperar una versión, descargar el TAR.ZST y extraerlo; Windows en este equipo incluye tar con Zstandard. La guía completa está adjunta a la publicación histórica.
