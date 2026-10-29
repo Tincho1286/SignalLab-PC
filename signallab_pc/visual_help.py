@@ -60,6 +60,9 @@ def _diagrams_for(section):
         caption='Azul: parte ordinaria de la señal. Verde: posición y peso del impulso ideal. La flecha indica área, no una altura finita ni una muestra de la rejilla.' if section['illustration']=='dirac' else 'Esquema de la función elemental. Los tallos representan muestras independientes.'
         return [('Representación',reference_diagram(section['illustration']),caption)]
     route=section['route']
+    if route and route[1:3]==('systems',6):
+        from .root_entry_help import root_entry_image
+        return [('Cargar una raíz exacta',root_entry_image(),'Azul: parte real e imaginaria. Ámbar: el mismo punto por módulo y ángulo en radianes. Verde: conjugado opcional. Agregar incorpora filas; Calcular actualiza el sistema. El selector de ejes del gráfico no cambia el formato del formulario.')]
     if route and route[1]=='difference_equation':
         from .difference_help import difference_image
         return [('Coeficientes, historial y solución',difference_image(),'Azul: ecuación y comienzo n₀. Ámbar: valores anteriores conocidos. Verde: valores calculados. La primera condición es y[n₀−1], no y[n₀]. La longitud del gráfico no limita la solución algebraica.')]
@@ -248,7 +251,7 @@ def diagrams_for(section):
     if route:
         from .tool_catalog import locate
         entry=locate(route)
-        if entry and entry['title']=='Diseñar filtro':
+        if entry and entry['title']=='Diseñar filtro' and route[1:3]!=('systems',6):
             from .filter_design_help import filter_design_image
             diagrams=[('Elegir cómo diseñar',filter_design_image(),'Cada entrada describe un problema diferente: bandas y tolerancias, respuesta FIR, raíces o parámetros de un modelo. Todos generan un filtro reutilizable. Cambiar de método conserva sus datos; no convierte automáticamente una definición en otra. El análisis de un filtro existente está en Analizar un sistema.')]+diagrams
         if entry and entry['title']=='Transformada de Fourier':

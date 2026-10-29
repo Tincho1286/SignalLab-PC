@@ -614,6 +614,11 @@ class ToolPage(QWidget):
                 frequency_tab=self.result_tabs.addTab(self.design_frequency,'Respuesta en frecuencia');self.result_tabs.setTabText(0,'Plano de diseño')
                 self.result_tabs.currentChanged.connect(lambda index:self.design_frequency.open_plot() if index==frequency_tab else None)
                 self.pole_editor=PoleZeroEditor(self.panel,self.context);plot_box.insertWidget(0,self.pole_editor)
+                from .root_entry import RootEntry
+                self.root_entry=RootEntry(self.pole_editor);self.panel.root_entry=self.root_entry
+                entry_row,_=form.getWidgetPosition(self.panel.fields['zeros'])
+                form.insertRow(entry_row,self.root_entry)
+                for key in ('zeros','poles'):form.setRowVisible(self.panel.fields[key],False)
                 def ready_roots(system):
                     selected=self.result_tabs.currentWidget();designed(system);self.result_tabs.setCurrentWidget(selected);self.pole_editor.redraw();self.pole_editor.note.setText('Sistema actualizado. Respuesta en frecuencia muestra módulo, fase y retardo; Usar filtro en permite llevarlo a Análisis de sistemas.')
                 def dirty_roots():

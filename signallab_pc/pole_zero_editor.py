@@ -23,7 +23,17 @@ class PoleZeroEditor(QWidget):
         if callback:callback()
     def data(self):return [list(parse_list(self.panel.fields[key].text(),True)) for key in ('zeros','poles')]
     def write(self,data):
-        for key,values in zip(('zeros','poles'),data):self.panel.fields[key].setText(list_text(values))
+        from .coefficient_editor import split_coefficients
+        for key,values in zip(('zeros','poles'),data):
+            # Keep exact source text for every root the mouse did not change.
+            old=split_coefficients(self.panel.fields[key].text());used=set();output=[]
+            try:numbers=list(parse_list(self.panel.fields[key].text(),True))
+            except ValueError:numbers=[]
+            for value in values:
+                index=next((i for i,previous in enumerate(numbers) if i not in used and previous==value),None)
+                if index is None:output.append(list_text([value]))
+                else:used.add(index);output.append(old[index])
+            self.panel.fields[key].setText(', '.join(output))
     def busy(self):return bool(self.context.window._workers)
     def active(self,event):
         toolbar=getattr(self.panel.canvas,'toolbar',None)
