@@ -260,9 +260,14 @@ class SystemsPanel(QWidget):
         known = "resistance" if self.known.currentIndex() == 0 else "capacitance"
         value = self.number("r" if known == "resistance" else "c")
         args = self.selected_kind(), self.number("fc"), known, value
+        mode=getattr(self,'rc_mode',None);known_widget=self.fields['r' if known=='resistance' else 'c'];unknown_widget=self.fields['c' if known=='resistance' else 'r']
+        def definition():
+            return self.kind.currentIndex(),self.known.currentIndex(),self.fields['fc'].text(),known_widget.text(),mode.currentIndex() if mode is not None else None
+        original_definition=definition();original_unknown=unknown_widget.text()
         def accept(result):
             system, r, c, response = result
-            self.fields["r"].setText(str(r)); self.fields["c"].setText(str(c))
+            if definition()==original_definition and unknown_widget.text()==original_unknown:
+                unknown_widget.setText(str(c if known=='resistance' else r))
             self._show_filter_design((system,response))
             self.report.appendPlainText(f"R = {r:.12g} Ω; C = {c:.12g} F; fc = {args[1]:.12g} Hz.")
         def compute():

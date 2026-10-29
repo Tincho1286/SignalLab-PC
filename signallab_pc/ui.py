@@ -413,7 +413,7 @@ class SignalLabWindow(QMainWindow):
             return
         if module == "Acerca de":
             detail = {
-                "Estado de desarrollo": "SignalLab PC: entorno de señales, sistemas y aprendizaje en desarrollo. Consultá la biblioteca de ayuda para conocer los datos, resultados y alcance de cada herramienta.",
+                "Acerca de SignalLab": "SignalLab PC: laboratorio de señales, sistemas y aprendizaje. Consultá la biblioteca de ayuda para conocer los datos, resultados y alcance de cada herramienta.",
                 "Dependencias y distribución": "PySide6, NumPy, SciPy, SymPy y Matplotlib. Revisá docs/DEPENDENCIAS.md. Existe una compilación portable de desarrollo. La paridad completa y la validación del ejecutable siguen pendientes.",
             }.get(option, "")
             self.page_subtitle.setText("Estado y vínculo de referencia")
@@ -431,7 +431,7 @@ class SignalLabWindow(QMainWindow):
             elif module == "Fourier" and option == "Fourier discreta: DFT y DTFT": self._show_dft()
             else: self.tabs.setCurrentIndex(0)
             return
-        self.page_subtitle.setText("Estado: en desarrollo")
+        self.page_subtitle.setText("Laboratorio de señales y sistemas")
         QMessageBox.information(self, "En desarrollo",
             f"{module} → {option}\n\nEsta herramienta aún no está disponible. No se generó ningún resultado.")
 

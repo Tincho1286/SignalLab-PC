@@ -19,7 +19,7 @@ from .cas_reference import CAS_ROUTE,CAS_SEARCH
 
 class WorkbenchWindow(ToolboxWindow):
     def __init__(self):
-        QMainWindow.__init__(self);self.setWindowTitle('SignalLab · Escritorio de señales y sistemas');self.resize(1440,900);self.setMinimumSize(640,420)
+        QMainWindow.__init__(self);self.setWindowTitle('SignalLab '+__version__+' · Escritorio de señales y sistemas');self.resize(1440,900);self.setMinimumSize(640,420)
         self.project=Project();self._published_signals={};self._workers=[];self._thread_pool=QThreadPool(self);self._thread_pool.setMaxThreadCount(1)
         self.current_operation=None;self.pages={};self.views={};self.category='Inicio';self.active_route=None;configure_theme();configure_desktop()
         self.setWindowIcon(QIcon(str(Path(__file__).parent/'assets'/'signallab.ico')));self.setStyleSheet(DESKTOP_STYLE)
@@ -128,12 +128,22 @@ class WorkbenchWindow(ToolboxWindow):
             for entry in [e for e in ENTRIES if e['area']==area]:menu.addAction(entry['title'],lambda checked=False,value=entry:self.open_workflow(value))
         view=self.menuBar().addMenu('Vista');view.addAction(self.explorer_dock.toggleViewAction());view.addAction(self.workspace_dock.toggleViewAction());view.addSeparator();view.addAction('Concentrarse en el documento',self.focus_document,'F11');view.addAction('Restablecer distribución',self.reset_layout)
         help_menu=self.menuBar().addMenu('Ayuda');help_menu.addAction('Ayuda de la herramienta',self.open_help,'F1');help_menu.addAction('Biblioteca',lambda:self.show_menu('Biblioteca'));help_menu.addAction('Funciones de las fórmulas…',self.show_function_help)
+        help_menu.addSeparator();help_menu.addAction('Acerca de SignalLab…',self.about)
         bar=QToolBar('Acciones');bar.setObjectName('mainToolbar');bar.setMovable(False);bar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon);bar.setIconSize(QSize(18,18));self.addToolBar(bar)
         action=bar.addAction(icon('home'),'Inicio');action.triggered.connect(self.show_home)
         action=bar.addAction(icon('table',C['green']),'Importar MATLAB');action.triggered.connect(self.import_matlab)
         action=bar.addAction(icon('calculator',C['purple']),'CAS');action.triggered.connect(self.open_cas)
         spacer=QWidget();spacer.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Preferred);bar.addWidget(spacer);action=bar.addAction(icon('search',C['accent']),'Buscar');action.setShortcut('Ctrl+K');action.triggered.connect(self.focus_tool_search)
         action=bar.addAction(icon('table'),'Resultados');action.triggered.connect(lambda:self.show_menu('Proyecto'));action=bar.addAction(icon('book'),'Biblioteca');action.triggered.connect(lambda:self.show_menu('Biblioteca'))
+
+    def about(self):
+        from PySide6.QtWidgets import QMessageBox
+        message=QMessageBox(self);message.setWindowTitle('Acerca de SignalLab')
+        message.setIconPixmap(self.windowIcon().pixmap(64,64))
+        message.setTextFormat(Qt.TextFormat.RichText)
+        message.setText('<h2>SignalLab PC '+__version__+'</h2><p>Laboratorio de Sistemas y Señales.</p>')
+        message.setInformativeText('Señales, sistemas, filtros, Fourier, Laplace, Z y calculadora CAS.\n\nF1 abre la ayuda de la herramienta. Los métodos numéricos y simbólicos conservan sus unidades, condiciones y límites documentados.')
+        message.setStandardButtons(QMessageBox.StandardButton.Ok);message.exec()
 
     def show_home(self):
         from .tool_browser import ToolBrowser

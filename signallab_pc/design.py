@@ -63,11 +63,14 @@ def install_tasks(form, tasks, common=()):
             item=form.itemAt(row,role)
             if item and item.widget() and item.widget() not in widgets:widgets.append(item.widget())
         rows.append((row,widgets))
+    task_fields={field for _,_,fields,_ in tasks for field in fields}|set(common)
     selector=QComboBox();selector.setObjectName('taskSelector');selector.addItems([task[0] for task in tasks])
     description=QLabel();description.setWordWrap(True);description.setObjectName('taskDescription')
     form.insertRow(0,selector);form.insertRow(1,description)
     def select(index):
         _, text, fields, actions=tasks[index]
+        active=set(fields)|set(common)
+        for field in task_fields:field.setProperty('calculationInput',field in active)
         description.setText(text)
         primary=next((title for title in actions if not title.startswith(('Guardar','Cargar','Exportar','Leer','Usar'))),None)
         for row,widgets in rows:

@@ -24,9 +24,21 @@ class ResultState(QLabel):
         if button is self.button:return
         self.button.setText(self.default_button);self.button=button;self.default_button=button.property('actionTitle') or button.text();self.refresh()
 
+    @staticmethod
+    def is_input(widget):
+        # A hidden selector can still be the value behind visible choice buttons.
+        # Use semantic task roles, not visibility, to exclude derived controls.
+        current=widget
+        while current is not None:
+            role=current.property('calculationInput')
+            if role is not None:return bool(role)
+            current=current.parentWidget()
+        return True
+
     def snapshot(self):
         values=[]
         for widget in self.widgets:
+            if not self.is_input(widget):values.append(None);continue
             if isinstance(widget,QComboBox):values.append(widget.currentIndex())
             elif isinstance(widget,QCheckBox):values.append(widget.isChecked())
             else:values.append(widget.text())

@@ -496,13 +496,15 @@ class ToolPage(QWidget):
                 self.panel.kind.removeItem(3);self.panel.kind.removeItem(2)
                 task_note=form.parentWidget().findChild(QLabel,'taskDescription')
                 if task_note is not None:form.setRowVisible(task_note,False)
-                rc_mode=QComboBox();rc_mode.addItems(['Conozco R y C','Quiero calcular un componente desde la frecuencia de corte']);form.insertRow(0,'Cómo definir el circuito',rc_mode)
+                rc_mode=QComboBox();self.panel.rc_mode=rc_mode;rc_mode.addItems(['Conozco R y C','Quiero calcular un componente desde la frecuencia de corte']);form.insertRow(0,'Cómo definir el circuito',rc_mode)
                 rc_note=QLabel();rc_note.setWordWrap(True);form.insertRow(1,rc_note)
                 rc_buttons=self.panel.findChildren(QPushButton)
                 def update_rc_fields(*_):
                     solve=rc_mode.currentIndex()==1;known_r=self.panel.known.currentIndex()==0
                     form.setRowVisible(fields['r'],not solve or known_r);form.setRowVisible(fields['c'],not solve or not known_r)
                     form.setRowVisible(fields['fc'],solve);form.setRowVisible(self.panel.known,solve);form.setRowVisible(fields['stages'],not solve)
+                    for field,used in ((fields['r'],not solve or known_r),(fields['c'],not solve or not known_r),(fields['fc'],solve),(self.panel.known,solve),(fields['stages'],not solve)):
+                        field.setProperty('calculationInput',used)
                     for button in rc_buttons:
                         if action_title(button)=='Diseñar RC':form.setRowVisible(button,not solve);button.setProperty('primaryAction',not solve)
                         elif action_title(button)=='Calcular componente RC desde fc':form.setRowVisible(button,solve);button.setProperty('primaryAction',solve)

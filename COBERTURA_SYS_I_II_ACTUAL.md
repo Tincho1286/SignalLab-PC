@@ -1,8 +1,8 @@
 # Cobertura de Sistemas y Señales I y II · revisión vigente
 
-Revisión: 28/10/2026, revisión de contenidos sobre 0.73, actualizada con capacidades de 0.99.11. Se contrastaron los contenidos analíticos de los programas originales con el catálogo público y los motores actuales. Se revisaron las páginas 6–14 del programa I y los ejes 1–8 del II. La presencia de una herramienta indica una capacidad implementada, no una demostración de todos los teoremas ni una validación de todos los ejercicios.
+Revisión: 28/10/2026, revisión de contenidos sobre 0.73, actualizada y congelada para 1.0.0. Se contrastaron los contenidos analíticos de los programas originales con el catálogo público y los motores actuales. Se revisaron las páginas 6–14 del programa I y los ejes 1–8 del II. La presencia de una herramienta indica una capacidad implementada, no una demostración de todos los teoremas ni una validación de todos los ejercicios.
 
-Fuentes: [Programa SyS1.pdf](Programa%20SyS1.pdf), [Programa SyS2.pdf](Programa%20SyS2.pdf). Autoridad de ubicación: `tool_catalog.py` y `workflow_catalog.py`. Los detalles de validación se conservan en las notas DESARROLLO de cada versión; esta matriz no los reemplaza.
+Fuentes: programas de SyS I y II disponibles localmente durante la revisión; esos documentos de la materia no se distribuyen con el repositorio. Autoridad de ubicación: `tool_catalog.py` y `workflow_catalog.py`. Los detalles de validación se conservan en las notas DESARROLLO de cada versión; esta matriz no los reemplaza.
 
 ## Sistemas y Señales I
 
@@ -104,3 +104,5 @@ En 0.99.7, la conversión analógico/digital presenta mapeos s/z, transferencias
 0.99.10: se aclaran DFT/FFT, DTFT y Fourier continua dentro de una misma herramienta, separando Directa/Inversa y el cálculo. La ayuda distingue registro finito, secuencia y tiempo continuo. La búsqueda respeta combinaciones de variantes y no amplía los motores matemáticos ni la cobertura curricular.
 
 0.99.11: modelos RC y de segundo orden, editor de raíces y FIR/IIR se encuentran dentro de Diseñar filtro. Las 80 variantes se conservan con 29 accesos por problema; no se cambia el alcance matemático por agrupar la interfaz. Analizar un sistema conserva la consulta de raíces y respuestas.
+
+Primera estable 1.0.0: consolida las 29 herramientas y 80 variantes implementadas, sin ampliar sus alcances por cambiar la etiqueta de versión. ALCANCE_1.0.md fija las convenciones y límites publicados. La corrección final distingue entradas activas de campos derivados y conserva ediciones hechas durante un cálculo.

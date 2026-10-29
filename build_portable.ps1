@@ -1,6 +1,6 @@
 ﻿param(
     [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]*$')]
-    [string]$Name = "SignalLab-PC-0.99.11-preview",
+    [string]$Name = "SignalLab-PC-1.0.0",
     [switch]$KeepBuildFiles
 )
 $ErrorActionPreference = 'Stop'
@@ -45,7 +45,7 @@ try {
             }
         }
     }
-    Write-Host "Generado outputs\$Name.exe. Compilación de desarrollo."
+    Write-Host "Generado outputs\$Name.exe."
 }
 finally {
     $env:PATH = $originalPath
