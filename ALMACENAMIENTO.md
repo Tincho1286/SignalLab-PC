@@ -25,3 +25,5 @@ Los históricos verificados pasan a releases del repositorio privado Tincho1286/
 Migración realizada el 28 de octubre de 2026: 112 ejecutables distintos comprimidos y verificados en un archivo de unos 222 MiB, publicado en GitHub privado. Se retiraron 212 rutas locales históricas después de verificar los adjuntos remotos. Se recuperaron otros 11,88 GiB y el disco quedó con aproximadamente 36,12 GiB libres. Los recibos de publicación y limpieza quedan en work/remote-release y work/github-storage-prune.json, fuera de Git.
 
 Entrega 0.99.9: publicada y verificada en GitHub; copias locales actuales 0.99.9 y 0.99.8, más v0.1.0. La 0.99.7 se retiró después de comprobar su correspondencia con el respaldo histórico remoto. El compilador eliminó sus intermedios al terminar.
+
+Entrega 0.99.10: publicación por la herramienta de releases del proyecto y verificación de adjuntos. Se conservan 0.99.10, 0.99.9 y el primer portable; 0.99.8 se retiró tras verificar su release individual. Sin intermedios de compilación acumulados.

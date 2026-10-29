@@ -28,6 +28,8 @@ Los programas de la materia, documentos personales, entorno Python, temporales y
 
 ## Publicaciones disponibles
 
+- [0.99.10 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.10): elección de Fourier, dirección conservada y búsqueda por variante.
+
 - [0.99.9 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.9): carga continua y presentación de pesos Dirac, notas y SHA-256.
 
 - [0.99.8 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.8): ejecutable, notas y SHA-256.
