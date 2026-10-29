@@ -29,3 +29,5 @@ Entrega 0.99.9: publicada y verificada en GitHub; copias locales actuales 0.99.9
 Entrega 0.99.10: publicación por la herramienta de releases del proyecto y verificación de adjuntos. Se conservan 0.99.10, 0.99.9 y el primer portable; 0.99.8 se retiró tras verificar su release individual. Sin intermedios de compilación acumulados.
 
 Entrega 0.99.11: publicación por la herramienta de releases del proyecto y verificación de adjuntos. Se conservan 0.99.11, 0.99.10 y el primer portable; 0.99.9 se retiró tras verificar su release individual. Sin intermedios de compilación acumulados.
+
+Entrega estable 1.0.0: publicada como última estable en GitHub privado y verificados sus cinco adjuntos. Retención local 1.0.0, 0.99.11 y v0.1.0; 0.99.10 se retiró tras comprobar su release. Los intermedios de la compilación estable se limpiaron automáticamente.
