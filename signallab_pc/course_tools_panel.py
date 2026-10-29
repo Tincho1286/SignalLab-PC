@@ -404,7 +404,7 @@ class CourseToolsPanel(QWidget):
             w=np.unique(np.r_[w,spec['wp'],spec['ws']])
         plotted=self.items if self.comparing_systems and self.show_all_systems.isChecked() else [value]
         magnitude_label='|H| · amplitud' if linear else 'Módulo (dB)'
-        labels=(magnitude_label,'Fase (rad)','Retardo de grupo (muestras)' if value.domain=='digital' else 'Retardo de grupo (s)') if mode==0 else (magnitude_label,) if mode in (1,3) else ('Retardo (muestras)' if value.domain=='digital' else 'Retardo (s)',)
+        labels=(magnitude_label,'Fase (rad)','Retardo de grupo\n(muestras)' if value.domain=='digital' else 'Retardo de grupo\n(s)') if mode==0 else (magnitude_label,) if mode in (1,3) else ('Retardo (muestras)' if value.domain=='digital' else 'Retardo (s)',)
         palette=['#68c7b4','#e8b56b','#91a5f6','#dd8baf']
         for curve_index,system in enumerate(plotted):
             h=system.response(w)
@@ -443,7 +443,7 @@ class CourseToolsPanel(QWidget):
         lower=convert(1-spec['dp']);upper=convert(spec.get('pass_upper',1+spec['dp']));stop=convert(spec['ds'])
         transitions=sorted((min(p,s),max(p,s)) for p,s in zip(wp,ws))
         for i,(left,right) in enumerate(transitions):
-            axis.axvspan(left,right,color='#91a5f6',alpha=.15,label='Transición (sin restricciones)' if i==0 else None)
+            axis.axvspan(left,right,color='#91a5f6',alpha=.15,label='Transición especificada (entre bordes)' if i==0 else None)
         widths=' · '.join(('Izquierda' if i==0 else 'Derecha')+f': Δω = {right-left:.6g} {unit}' for i,(left,right) in enumerate(transitions)) if len(transitions)==2 else f'Δω = {transitions[0][1]-transitions[0][0]:.6g} {unit}'
         axis.set_xscale('log' if analog else 'linear');axis.set_xlim(low,high)
         for i,(left,right) in enumerate(passing):
@@ -454,7 +454,7 @@ class CourseToolsPanel(QWidget):
             axis.axvspan(left,right,color='#efb56c',alpha=.06)
             axis.plot([left,right],[stop,stop],color='#efb56c',linestyle='--',linewidth=1,label='Máximo en rechazo' if i==0 else None)
         for edge in wp+ws:axis.axvline(edge,color='#8194ae',linestyle=':',linewidth=.6)
-        axis.set_title('Especificaciones · escala '+('logarítmica' if analog else 'lineal')+'\n'+widths,fontsize=9)
+        axis.set_title('Bandas especificadas · escala '+('logarítmica' if analog else 'lineal')+'\n'+widths,fontsize=9)
         axis.legend(fontsize=8,loc='lower center' if not linear else 'best')
     def pin_spectrum(self):
         if self.action!='fft' or len(self.items)<2:return

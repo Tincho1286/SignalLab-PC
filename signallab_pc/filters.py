@@ -223,6 +223,12 @@ class Transfer:
                 np.divide(derivative,value,out=quotient,where=valid)
             return quotient
         result=(logarithmic(self.b)-logarithmic(self.a)).real*(1 if digital else -1)
+        # Exact real FIR symmetry gives an exact linear-phase delay. Keep the
+        # existing undefined/ill-conditioned mask; never flatten an almost
+        # symmetric filter or an IIR that merely looks flat on this grid.
+        if digital and not np.any(self.a[1:]) and np.all(self.b.imag==0):
+            if np.array_equal(self.b,self.b[::-1]) or np.array_equal(self.b,-self.b[::-1]):
+                result=np.where(np.isfinite(result),(len(self.b)-1)/2,np.nan)
         return np.where(np.isfinite(result),result-self.advance,np.nan)
 
     def apply(self, x: Signal, previous_inputs=(), previous_outputs=()):

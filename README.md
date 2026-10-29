@@ -1,12 +1,12 @@
-# SignalLab PC 1.0.0
+# SignalLab PC 1.0.1
 
-Laboratorio portable para Windows de Sistemas y Señales I y II, desarrollado en Python. Primera versión estable.
+Laboratorio portable para Windows de Sistemas y Señales I y II, desarrollado en Python. Versión estable de mantenimiento de la línea 1.0.
 
 ## Descargar y empezar
 
-[Descargar SignalLab PC 1.0.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.0.0). El repositorio es privado: necesitás una cuenta con acceso para ver sus versiones y archivos.
+[Descargar SignalLab PC 1.0.1](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.0.1). El repositorio es privado: necesitás una cuenta con acceso para ver sus versiones y archivos.
 
-Abrí SignalLab-PC-1.0.0.exe. Incluye Python y las dependencias; no necesitás instalarlos para usar el portable. La copia local está en outputs/SignalLab-PC-1.0.0.exe.
+Abrí SignalLab-PC-1.0.1.exe. Incluye Python y las dependencias; no necesitás instalarlos para usar el portable. La copia local está en outputs/SignalLab-PC-1.0.1.exe.
 
 Elegí el problema desde Inicio, el explorador o Buscar (Ctrl+K). Cada herramienta tiene sus entradas y resultados propios. Podés cargar fórmulas o tramos, pegar muestras, importar un archivo o reutilizar un resultado compatible. Calcular (Ctrl+Enter) produce un resultado; editar los datos después no cambia silenciosamente esa salida.
 
@@ -31,6 +31,7 @@ La calculadora CAS trabaja con expresiones, ecuaciones, matrices, supuestos y re
 ## Alcance de esta versión
 
 - [Alcance y convenciones de 1.0](ALCANCE_1.0.md).
+- [Notas de 1.0.1](VERSION_1.0.1.md).
 - [Notas de la primera estable](VERSION_1.0.0.md).
 - [Cobertura de Sistemas y Señales I/II](COBERTURA_SYS_I_II_ACTUAL.md).
 - [Cierre y evidencia](CIERRE_1.0.md).

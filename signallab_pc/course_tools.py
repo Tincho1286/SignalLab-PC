@@ -107,6 +107,12 @@ def design_filter(wp,ws,dp,ds,method,period=1,taps=0,window="kaiser",search=0):
         ideal=sp.firwin(count,cutoff if cutoff.size==2 else cutoff[0],window='boxcar',pass_zero=kind,fs=2*np.pi,scale=False)
         extra=[Signal(ideal,name='Respuesta ideal truncada'),Signal(sp.get_window(chosen_window,count,fftbins=False),name='Ventana '+window),Signal(b,name='Respuesta FIR h[n]')]
         summary=f'Método: ventana {window}\nLongitud estimada: {estimated}\nLongitud usada: {count}\nOrden: {count-1}\nβ: {beta:.9g}\nRetardo de grupo: {(count-1)/2:g} muestras (salvo ceros de la respuesta)\n\nLa fórmula de Kaiser estima la longitud; no demuestra la mínima. El filtro ideal se trunca y se normaliza al diseñar. Podés fijar otra longitud y examinarla.'
+        widths=np.abs(wp-ws)
+        width_text='; '.join(('izquierda' if i==0 else 'derecha')+f' = {value:.9g}' for i,value in enumerate(widths)) if len(widths)==2 else f'{widths[0]:.9g}'
+        summary+='\n\nTransiciones especificadas (rad/muestra): '+width_text
+        summary+=f'\nAncho usado para estimar longitud: {width:.9g} rad/muestra\nTolerancia usada en estimación Kaiser: {min(dp,ds):.9g}'
+        summary+='\nCortes del ideal (rad/muestra): '+', '.join(f'{value:.9g}' for value in cutoff)
+        summary+='\n\nLas franjas del gráfico son los intervalos permitidos entre los bordes, no una medición del ancho efectivo de la curva. La estimación usa la transición más estrecha y la tolerancia menor. Una sola ventana fija la suavidad de ambos cortes; no obliga a ocupar toda una transición especificada más ancha.'
         if window!='kaiser':summary=summary.replace(f'β: {beta:.9g}', 'β: no corresponde a esta ventana').replace('La fórmula de Kaiser estima la longitud; no demuestra la mínima.', 'La estimación indicada corresponde a Kaiser como referencia, no a la ventana elegida.')
         if searched:summary+='\nBúsqueda exhaustiva de longitudes desde 2 hasta la primera aceptada en la rejilla y familia elegidas. No demuestra el mínimo entre todos los métodos ni el cumplimiento entre frecuencias evaluadas.'
         systems=[result]

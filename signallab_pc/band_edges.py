@@ -99,6 +99,6 @@ class BandEdgesEditor(QWidget):
         if self.loading:return
         self.saved[self.current]=[edit.text() for edit in self.edits[:len(KINDS[self.current][1])]];self.diagram.kind=self.current
         try:
-            f=self.frequencies();self.diagram.edges=[v/(f[-1]*1.25 if self.analog else np.pi) for v in f];self.status.setText('Ancho de transición: '+f'{f[1]-f[0]:.6g} {self.unit}'+(f' (izquierda) y {f[3]-f[2]:.6g} {self.unit} (derecha).' if len(f)==4 else '.'))
+            f=self.frequencies();self.diagram.edges=[v/(f[-1]*1.25 if self.analog else np.pi) for v in f];self.status.setText('Transición especificada: '+f'{f[1]-f[0]:.6g} {self.unit}'+(f' (izquierda) y {f[3]-f[2]:.6g} {self.unit} (derecha).' if len(f)==4 else '.'))
         except ValueError as exc:self.diagram.edges=None;self.status.setText(str(exc)+' El dibujo muestra un ejemplo hasta que corrijas los datos.')
         self.diagram.update();self.textChanged.emit(self.text())
