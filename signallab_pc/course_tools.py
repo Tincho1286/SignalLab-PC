@@ -152,6 +152,12 @@ def design_filter(wp,ws,dp,ds,method,period=1,taps=0,window="kaiser",search=0):
         summary+='\nCada fila contiene b0, b1, b2; a0, a1, a2:\n'+'\n'.join(f'Sección {i+1}: '+', '.join(f'{v:.12g}' for v in row) for i,row in enumerate(result.sos))
     output=bundle(summary+'\n\n'+spec_report(result,wp,ws,kind,dp,ds,None if method=='kaiser' else 1),extra,systems)
     output['specifications']={'wp':wp.tolist(),'ws':ws.tolist(),'kind':kind,'dp':float(dp),'ds':float(ds),'pass_upper':float(1+dp if method=='kaiser' else 1)}
+    if method=='kaiser':
+        from .fir_formula import design_summary
+        raw=ideal*extra[1].values.real
+        gain=float(np.dot(raw,b)/np.dot(raw,raw))
+        output['fir_summary']=design_summary(kind,count,cutoff,window,beta,gain,output['report'],result.name)
+        output['report']=output['fir_summary'].plain_text()
     if method in ('butter','cheby1','cheby2','ellip'):output['filter_order']=effective_order
     return output
 

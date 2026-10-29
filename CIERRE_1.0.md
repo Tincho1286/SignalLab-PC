@@ -1,6 +1,6 @@
 # Cierre de SignalLab 1.0
 
-Base: 1.0.1 · 29/10/2026. La primera estable consolida el alcance implementado y documentado; las revisiones futuras son mantenimiento y ampliación.
+Base: 1.0.2 · 29/10/2026. La primera estable consolida el alcance implementado y documentado; las revisiones futuras son mantenimiento y ampliación.
 
 | Requisito de entrega | Evidencia de la base |
 |---|---|
@@ -20,3 +20,5 @@ Los límites matemáticos declarados se mantienen como límites del método, no 
 El registro completo hasta 0.99.11 se conserva en docs/CIERRE_HASTA_0.99.11.md y el historial de código de GitHub. Los planes anteriores son referencias históricas, no listas vigentes de bloqueos.
 
 Mantenimiento 1.0.1: etiquetas e informe distinguen transiciones especificadas de la curva obtenida; retardo exacto para FIR reales exactamente simétricos/antisimétricos, con máscara de ceros conservada. El caso reportado mantiene idénticos coeficientes. Alcance y comprobación dirigida en VERSION_1.0.1.md.
+
+Mantenimiento 1.0.2: fórmulas del ideal infinito, ventana simétrica y FIR con desplazamiento y ganancia reales, en diseños por cortes y por especificaciones. Comprobación dirigida: cuatro tipos y seis ventanas, longitudes pares permitidas, coeficientes del caso reportado sin cambios y presentación en el panel real.

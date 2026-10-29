@@ -213,7 +213,10 @@ class SystemsPanel(QWidget):
         def accept(result):
             system,response=result
             self._accept_system(system);self._show_response(response)
-            self.report.setPlainText(f'Filtro FIR diseñado: {len(system.b)} coeficientes · orden {len(system.b)-1}\n\nTipo: {args[0]}\nVentana: {args[4]}\n\nLa respuesta en frecuencia muestra módulo, ganancia en dB y fase. El rango va de 0 a π rad/muestra; π es el límite de Nyquist.\n\nLos coeficientes b[n] son la respuesta al impulso del FIR; el denominador es 1. Podés consultarlos en la pestaña Coeficientes.\n\nUsá «Usar filtro en…» para copiarlo a otra herramienta o «Exportar filtro…» para guardarlo en un archivo.')
+            from .fir_formula import design_summary
+            cuts=np.array(args[2:4] if args[0] in ('bandpass','bandstop') else [args[2]])*2*np.pi
+            summary=design_summary(args[0],args[1],cuts,args[4],args[5],title=system.name)
+            self.report.set_readable(summary)
             callback=getattr(self.owner,'on_system_designed',None)
             if callback:callback(system)
         self._job("Diseñando FIR y calculando su respuesta…",compute,accept)

@@ -300,6 +300,7 @@ class CourseToolsPanel(QWidget):
                 if self.conversion_info is not None:
                     from .conversion_details import conversion_summary
                     self.report.set_readable(conversion_summary(self.conversion_info))
+                elif result.get('fir_summary') is not None:self.report.set_readable(result['fir_summary'])
                 else:self.report.setPlainText(result['report'])
                 self.selector.blockSignals(True);self.selector.clear()
                 for value in self.items:self.selector.addItem(value.name)
