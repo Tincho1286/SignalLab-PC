@@ -24,7 +24,7 @@ La navegación reúne 30 problemas y 82 variantes, más la hoja CAS.
 | Fourier y espectros | DFT/FFT, DTFT, Fourier continua, directas e inversas, series, energía espectral, PSD, Hilbert y STFT. |
 | Muestreo y A/D | Muestreo, aliasing, reconstrucción, cambio de tasa, cuantización y representación numérica. |
 | Laplace y Z | Transformadas directas/inversas con condiciones y ROC, y ecuaciones diferenciales. |
-| Señales aleatorias | Funciones existentes de generación, estadísticas y autocorrelación; su ampliación queda para otra etapa. |
+| Señales aleatorias | Generación y estadísticas; correlación auto/cruzada; modelos AR/MA/ARMA y estimación AR por Yule–Walker. |
 
 La calculadora CAS trabaja con expresiones, ecuaciones, matrices, supuestos y resultados reutilizables. El software mantiene su paleta oscura, tipografía matemática vectorial y logo propio.
 
