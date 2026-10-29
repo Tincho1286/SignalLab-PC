@@ -1,52 +1,52 @@
 {
   "repository": "https://github.com/Tincho1286/SignalLab-PC",
   "current": {
-    "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.1",
-    "tag": "v1.1.1",
-    "commit": "e25af210e9da6935484a2e8c242356691366e81e",
+    "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.2",
+    "tag": "v1.1.2",
+    "commit": "dce1e70a626bd09012f4774782f9f5fdb7135d56",
     "stable": true,
     "assets": [
       {
-        "id": 689198360,
+        "id": 689800347,
         "name": "ALCANCE_1.0.md",
         "size": 3438,
         "digest": "sha256:8daf57157960de336309b9ae755006988748645da2fd50c30c04086e07528a2c",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.1/ALCANCE_1.0.md"
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.2/ALCANCE_1.0.md"
       },
       {
-        "id": 689198503,
+        "id": 689800671,
         "name": "COBERTURA_SENALES_ALEATORIAS.md",
         "size": 6504,
         "digest": "sha256:29d4c60af3e83dcafed3ad286009f97876e1639823070bbd741e7bdca35bf03f",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.1/COBERTURA_SENALES_ALEATORIAS.md"
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.2/COBERTURA_SENALES_ALEATORIAS.md"
       },
       {
-        "id": 689198424,
+        "id": 689800565,
         "name": "COBERTURA_SYS_I_II_ACTUAL.md",
         "size": 23425,
         "digest": "sha256:760574ea41f5b4db3410163ddcb14a4a3417b2f39ddefafc91dc6d66ea691e30",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.1/COBERTURA_SYS_I_II_ACTUAL.md"
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.2/COBERTURA_SYS_I_II_ACTUAL.md"
       },
       {
-        "id": 689198603,
-        "name": "SHA256SUMS-1.1.1.txt",
+        "id": 689800776,
+        "name": "SHA256SUMS-1.1.2.txt",
         "size": 451,
-        "digest": "sha256:ef111d6b565e24bc109009ca5a5ec820c6cfaffac3f443d4a310c7debfda9cf6",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.1/SHA256SUMS-1.1.1.txt"
+        "digest": "sha256:8516f78ec1d9e364d1d385a5695da6e757f503a458e3ef2d7a275a5fba3b8eb0",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.2/SHA256SUMS-1.1.2.txt"
       },
       {
-        "id": 689197771,
-        "name": "SignalLab-PC-1.1.1.exe",
-        "size": 116660085,
-        "digest": "sha256:5e03b0376faef0b311ed14b302d43744ba79ba8fe56b38e4d8cf7b07407fdab9",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.1/SignalLab-PC-1.1.1.exe"
+        "id": 689799477,
+        "name": "SignalLab-PC-1.1.2.exe",
+        "size": 116674707,
+        "digest": "sha256:bd7a2a3f7fb8b8c01c65e8e556b2ad82ce8d35a77ce367fd4391ddac7aa81405",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.2/SignalLab-PC-1.1.2.exe"
       },
       {
-        "id": 689198300,
-        "name": "VERSION_1.1.1.md",
-        "size": 3216,
-        "digest": "sha256:facb1a10000002acf90e0c76318fc216035ae9bc3f0b10cfdf7cf49233693661",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.1/VERSION_1.1.1.md"
+        "id": 689800173,
+        "name": "VERSION_1.1.2.md",
+        "size": 2085,
+        "digest": "sha256:60059535e226a70ceed6ba96e3395ce3c5ae645458eab06139a5bf2a2ce29e06",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.2/VERSION_1.1.2.md"
       }
     ]
   },
@@ -101,52 +101,52 @@
     ]
   },
   "previous": {
-    "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.0",
-    "tag": "v1.1.0",
-    "commit": "00adb3f238fc33cae0beb1301b608522d114a3c8",
+    "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.1",
+    "tag": "v1.1.1",
+    "commit": "e25af210e9da6935484a2e8c242356691366e81e",
     "stable": true,
     "assets": [
       {
-        "id": 689053105,
+        "id": 689198360,
         "name": "ALCANCE_1.0.md",
         "size": 3438,
         "digest": "sha256:8daf57157960de336309b9ae755006988748645da2fd50c30c04086e07528a2c",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.0/ALCANCE_1.0.md"
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.1/ALCANCE_1.0.md"
       },
       {
-        "id": 689053290,
+        "id": 689198503,
         "name": "COBERTURA_SENALES_ALEATORIAS.md",
         "size": 6504,
         "digest": "sha256:29d4c60af3e83dcafed3ad286009f97876e1639823070bbd741e7bdca35bf03f",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.0/COBERTURA_SENALES_ALEATORIAS.md"
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.1/COBERTURA_SENALES_ALEATORIAS.md"
       },
       {
-        "id": 689053199,
+        "id": 689198424,
         "name": "COBERTURA_SYS_I_II_ACTUAL.md",
-        "size": 22373,
-        "digest": "sha256:1708404c79c233b38369366cd364a9cfdb207d7497c1d0da8a61ba3a35175771",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.0/COBERTURA_SYS_I_II_ACTUAL.md"
+        "size": 23425,
+        "digest": "sha256:760574ea41f5b4db3410163ddcb14a4a3417b2f39ddefafc91dc6d66ea691e30",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.1/COBERTURA_SYS_I_II_ACTUAL.md"
       },
       {
-        "id": 689053365,
-        "name": "SHA256SUMS-1.1.0.txt",
+        "id": 689198603,
+        "name": "SHA256SUMS-1.1.1.txt",
         "size": 451,
-        "digest": "sha256:d723bd93844f2964119ed33a9e213797a6fa1b4b61bbe06f2cb0bc139eb087bb",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.0/SHA256SUMS-1.1.0.txt"
+        "digest": "sha256:ef111d6b565e24bc109009ca5a5ec820c6cfaffac3f443d4a310c7debfda9cf6",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.1/SHA256SUMS-1.1.1.txt"
       },
       {
-        "id": 689052437,
-        "name": "SignalLab-PC-1.1.0.exe",
-        "size": 116632201,
-        "digest": "sha256:ae73fcba8b2a51970bf822ec759f5feb8929a627aa15a711e142d5914bff31aa",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.0/SignalLab-PC-1.1.0.exe"
+        "id": 689197771,
+        "name": "SignalLab-PC-1.1.1.exe",
+        "size": 116660085,
+        "digest": "sha256:5e03b0376faef0b311ed14b302d43744ba79ba8fe56b38e4d8cf7b07407fdab9",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.1/SignalLab-PC-1.1.1.exe"
       },
       {
-        "id": 689053005,
-        "name": "VERSION_1.1.0.md",
-        "size": 1762,
-        "digest": "sha256:7d21a12bfba4a60d46ca5268dafe8230e29e42ef03cc5f4f8223b8c40e2dd24b",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.0/VERSION_1.1.0.md"
+        "id": 689198300,
+        "name": "VERSION_1.1.1.md",
+        "size": 3216,
+        "digest": "sha256:facb1a10000002acf90e0c76318fc216035ae9bc3f0b10cfdf7cf49233693661",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.1/VERSION_1.1.1.md"
       }
     ]
   }
