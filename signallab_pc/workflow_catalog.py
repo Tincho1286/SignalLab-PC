@@ -21,9 +21,10 @@ FAMILIES=[
  (('systems',2),('Circuito RC',)),(('systems',8),('Segundo orden',))]),
  ('Ajustar ganancia y fase','Normalizar ganancia, separar factores, compensar o reconstruir módulo/fase bajo hipótesis de fase mínima.',('Ajuste',),[
  (('course_tools','gain'),('Ganancia',)),(('course_tools','phase'),('Fase y compensación',))]),
- ('Transformada de Fourier','DFT, DTFT y Fourier continua; directa e inversa, muestras o expresiones.',('Dominio','Operación','Cálculo'),[
- (('fourier',0),('Discreta','DTFT','Numérico')),(('dtft_symbolic',0),('Discreta','DTFT','Algebraico')),(('inverse_dtft',0),('Discreta','DTFT inversa','Numérico')),(('dtft_symbolic',1),('Discreta','DTFT inversa','Algebraico')),(('basic','dft'),('Discreta','DFT','Numérico')),(('basic','idft'),('Discreta','DFT inversa','Numérico')),(('course_tools','fft'),('Discreta','FFT y ventanas','Numérico')),
- (('fourier',1),('Continua','Directa','Numérico')),(('fourier_symbolic',0),('Continua','Directa','Algebraico')),(('fourier',3),('Continua','Inversa','Numérico')),(('fourier_symbolic',1),('Continua','Inversa','Algebraico'))]),
+ ('Transformada de Fourier','DFT/FFT, DTFT y Fourier continua; elegir transformada, dirección y cálculo.',('Transformada','Dirección','Cálculo'),[
+ (('fourier',0),('DTFT','Directa','Numérico')),(('dtft_symbolic',0),('DTFT','Directa','Algebraico')),(('inverse_dtft',0),('DTFT','Inversa','Numérico')),(('dtft_symbolic',1),('DTFT','Inversa','Algebraico')),
+ (('basic','dft'),('DFT / FFT','Directa','Transformada')),(('course_tools','fft'),('DFT / FFT','Directa','Ventanas y resolución')),(('basic','idft'),('DFT / FFT','Inversa','Numérico')),
+ (('fourier',1),('Fourier continua','Directa','Numérico')),(('fourier_symbolic',0),('Fourier continua','Directa','Algebraico')),(('fourier',3),('Fourier continua','Inversa','Numérico')),(('fourier_symbolic',1),('Fourier continua','Inversa','Algebraico'))]),
  ('Series de Fourier y líneas espectrales','Coeficientes, síntesis periódica y potencia en armónicos.',('Estudio','Dominio'),[
  (('fourier',4),('Serie','Continua')),(('fourier',5),('Serie','Discreta')),(('course_tools','lines'),('Líneas de potencia','Continua'))]),
  ('Energía espectral','Densidad de energía desde una señal o energía integrada en una banda.',('Calcular',),[
@@ -37,3 +38,23 @@ FAMILIES=[
  ('Realizaciones y estadística','Generar registros, medir sus estadísticas y estimar autocorrelación o autocovarianza.',('Operación',),[
  (('random','generate'),('Generar realización',)),(('random','statistics'),('Estadísticas',)),(('random_correlation',0),('Autocorrelación',))]),
 ]
+
+# Presentation metadata keeps a family's choices meaningful without new routes.
+PRESENTATION={
+ 'Transformada de Fourier':{
+    'dimension_labels':{(2,'DFT / FFT','Directa'):'Estudio'},
+    'search_models':{'dtft':'DTFT','dft':'DFT / FFT','fft':'DFT / FFT','continua':'Fourier continua','ctft':'Fourier continua'},
+    'model_tags':{'DTFT':'rad/muestra secuencia espectro periódico continuo','DFT / FFT':'rad/muestra coeficientes bins registro finito','Fourier continua':'rad/s tiempo segundos'},
+    'variant_tags':{('basic','dft'):'numérico muestras',('course_tools','fft'):'numérico muestras',('fourier',0):'comparar superponer comparación'},
+
+    'choice_hints':{
+        'DTFT':'Transformada de una secuencia x[n]. X(ω) es continua y periódica cada 2π, en rad/muestra.',
+        'DFT / FFT':'DFT de un registro finito: N coeficientes X[k]. FFT es un algoritmo para calcular esa misma DFT.',
+        'Fourier continua':'Transformada de x(t). El eje angular Ω se expresa en rad/s.',
+        'Directa':'De la señal a su transformada. La entrada de la inversa se conserva por separado.',
+        'Inversa':'De la transformada a la señal. Para usar una salida ya calculada, elegila en Resultados.',
+        'Transformada':'DFT de las muestras del registro; conserva N coeficientes complejos para su inversión.',
+        'Ventanas y resolución':'Ventanas, relleno con ceros y comparación con DTFT; sigue calculando la DFT mediante FFT.',
+    },
+ },
+}

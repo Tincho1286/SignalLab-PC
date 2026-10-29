@@ -150,22 +150,24 @@ class WorkbenchWindow(ToolboxWindow):
         self.navigation_area=area;self._render_tools(self.search.text())
     def route_for_key(self,key):return ROUTES[key]
     def open_workflow(self,entry,query=''):
-        from .tool_catalog import DETAILS_BY_KEY,matches
+        from .tool_catalog import search_variant
         key=self.variant_strip.memory.get(entry['key'],entry['key'])
         if query:
-            match=next((candidate for candidate,_ in entry['variants'] if matches(DETAILS_BY_KEY[candidate],query)),None)
+            match=search_variant(entry,query,key)
             if match is not None:key=match
         self.open_tool(ROUTES[key])
     def operation_changed(self,item):
-        from .tool_catalog import locate,AREA_BY_ID,ENTRIES
+        from .tool_catalog import locate,AREA_BY_ID,ENTRIES,normalized_key
         entry=locate(item)
         if entry is None:return
+        from .workflow_choices import values_for
+        detail_label=' · '.join((entry['title'],*values_for(entry,normalized_key(item))))
         view=self.views.get(getattr(self,'active_route',None))
         if view is not None and self.stack.currentWidget() is view:
             page=getattr(view,'active_page',view.widget())
             if locate(page.tool_item) is entry:
                 for index in range(self.documents.count()):
-                    if self.documents.tabData(index)==self.active_route:self.documents.setTabText(index,entry['title']);self.documents.setTabToolTip(index,entry['title'])
+                    if self.documents.tabData(index)==self.active_route:self.documents.setTabText(index,entry['title']);self.documents.setTabToolTip(index,detail_label)
         self.current_operation=tuple(item);self.variant_strip.set_entry(entry,item)
         self.current_entry=entry;self.title.setText(entry['title']);self.subtitle.setText(AREA_BY_ID[entry['area']][1]+'  ›  '+entry['section']);self.category=AREA_BY_ID[entry['area']][1];self._sync_navigation();self.help.show()
         self.operation_menu.hide();page=self.pages.get(tuple(item));self.current_calculate=None

@@ -110,13 +110,14 @@ for entry in ENTRIES:
 # Keep the detailed operation index for contextual help and precise searches.
 DETAIL_ENTRIES=ENTRIES
 DETAILS_BY_KEY={entry['key']:entry for entry in DETAIL_ENTRIES}
-from .workflow_catalog import FAMILIES
+from .workflow_catalog import FAMILIES,PRESENTATION
 _members={key for _,_,_,variants in FAMILIES for key,_ in variants}
 if sum(len(variants) for _,_,_,variants in FAMILIES)!=len(_members):raise RuntimeError('Una variante pertenece a más de una herramienta.')
 ENTRIES=[];_family_for={}
 for title,summary,dimensions,variants in FAMILIES:
     first=DETAILS_BY_KEY[variants[0][0]]
     entry=dict(first,title=title,summary=summary,dimensions=dimensions,variants=variants)
+    entry.update(PRESENTATION.get(title,{}))
     if title=='Transformada de Fourier':entry['section']='Transformadas'
     entry['tags']=' '.join(' '.join((DETAILS_BY_KEY[key]['title'],DETAILS_BY_KEY[key]['summary'],DETAILS_BY_KEY[key]['tags'],*values)) for key,values in variants)
     for key,_ in variants:_family_for[key]=entry
@@ -133,9 +134,34 @@ BY_KEY={key:entry for entry in ENTRIES for key,_ in entry['variants']}
 AREA_BY_ID={area[0]:area for area in AREAS}
 
 def normalize(text):return ''.join(c for c in unicodedata.normalize('NFKD',text.casefold()) if not unicodedata.combining(c))
+def _variant_search_record(entry,key,values):
+    detail=DETAILS_BY_KEY[key]
+    extra=' '.join((*values,entry.get('variant_tags',{}).get(key,''),entry.get('model_tags',{}).get(values[0] if values else '', '')))
+    return dict(detail,title=entry['title']+' '+detail['title'],tags=detail['tags']+' '+extra)
+
+
 def matches(entry,query):
+    if entry.get('variants'):
+        # Match one valid combination, rather than words from unrelated variants.
+        return any(matches(_variant_search_record(entry,key,values),query) for key,values in entry['variants'])
     text=normalize(' '.join((entry['title'],entry['section'],entry['summary'],entry['tags'],AREA_BY_ID[entry['area']][1])))
     return all(word in text for word in normalize(query).split())
+
+
+def search_variant(entry,query,current_key=None):
+    import re
+    words=set(re.findall(r'\w+',normalize(query)))
+    desired=next((model for token,model in entry.get('search_models',{}).items() if token in words),None)
+    candidates=[]
+    for key,values in entry['variants']:
+        if not matches(_variant_search_record(entry,key,values),query):continue
+        title_words=set(re.findall(r'\w+',normalize(DETAILS_BY_KEY[key]['title'])))
+        score=(words==title_words,bool(desired and values and values[0]==desired),key==current_key,len(words & title_words))
+        candidates.append((score,key))
+    if not candidates:return None
+    # max by score alone keeps catalog order as the final, predictable default.
+    return max(candidates,key=lambda candidate:candidate[0])[1]
+
 def normalized_key(item):
     key=tuple(item[1:3])
     from .filter_lab import ALIASES

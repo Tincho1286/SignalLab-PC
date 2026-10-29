@@ -42,7 +42,11 @@ def _support(panel):
 def prepare_fourier_inputs(source,target):
     from .workflow_inputs import InputCopy
     a=signature(source);b=signature(target)
-    if a is None or b is None:return None
+    if a is None or b is None:
+        keys=[tuple(page.tool_item[1:3]) for page in (source,target)]
+        if ('basic','idft') in keys and (a is not None or b is not None):
+            return InputCopy(note='La inversa DFT recibe N coeficientes X[k]; la inversa DTFT y la continua reciben X(ω). Se conservó la entrada propia de esta vista. Para invertir una salida calculada, elegila desde Resultados.')
+        return None
     discrete,inverse,symbolic,field=a;other_discrete,other_inverse,other_symbolic,dst=b
     if discrete!=other_discrete:return InputCopy(note='Se conservó la entrada de este dominio. Una señal continua y una secuencia discreta requieren una operación de muestreo, no un cambio de método.')
     if inverse!=other_inverse:return InputCopy(note='Directa recibe la señal e Inversa recibe su espectro. Cada operación conserva su entrada; para usar una salida calculada, elegila desde Resultados.')

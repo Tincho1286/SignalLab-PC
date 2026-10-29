@@ -54,7 +54,7 @@ def flow_image(route,purpose):
             p.setPen(QPen(QColor('#79c4ad'),2));p.drawLine(QLineF(x+290,115,x+315,115));p.drawLine(QLineF(x+308,109,x+315,115));p.drawLine(QLineF(x+308,121,x+315,115))
     p.end();return image
 
-def diagrams_for(section):
+def _diagrams_for(section):
     if section.get('illustration'):
         from .function_reference import reference_diagram
         caption='Azul: parte ordinaria de la señal. Verde: posición y peso del impulso ideal. La flecha indica área, no una altura finita ni una muestra de la rejilla.' if section['illustration']=='dirac' else 'Esquema de la función elemental. Los tallos representan muestras independientes.'
@@ -233,3 +233,14 @@ def roc_image():
         p.setPen(QColor(color));p.setFont(QFont('Segoe UI',17));p.drawText(QRectF(left+15,310,280,42),Qt.AlignmentFlag.AlignCenter,condition)
         p.setPen(QColor('#e1e7ee'));p.setFont(QFont('Segoe UI',12));p.drawText(QRectF(left+18,360,275,50),Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextWordWrap,['Términos derechos','Términos izquierdos','Combinación bilateral'][i])
     p.end();return image
+
+
+def diagrams_for(section):
+    diagrams=_diagrams_for(section);route=section.get('route')
+    if route:
+        from .tool_catalog import locate
+        entry=locate(route)
+        if entry and entry['title']=='Transformada de Fourier':
+            from .fourier_choice_help import fourier_choice_image
+            diagrams=[('Elegir transformada y dirección',fourier_choice_image(),'DFT: coeficientes de un registro. DTFT: curva periódica de una secuencia. Continua: tiempo en segundos y frecuencia en rad/s. Directa va de señal a espectro; Inversa recorre el camino contrario. FFT calcula la DFT, no define otra transformada.')]+diagrams
+    return diagrams

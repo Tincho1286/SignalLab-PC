@@ -11,7 +11,7 @@ Las versiones se publican en https://github.com/Tincho1286/SignalLab-PC/releases
 3. Publicar desde la raíz con el Python del proyecto:
 
 ```powershell
-.\.venv\Scripts\python.exe -B tools\github_release.py --tag v0.99.9 --title "SignalLab PC 0.99.9" --notes DESARROLLO_0.99.9.md --file outputs\SignalLab-PC-0.99.9-preview.exe
+.\.venv\Scripts\python.exe -B tools\github_release.py --tag v0.99.10 --title "SignalLab PC 0.99.10" --notes DESARROLLO_0.99.10.md --file outputs\SignalLab-PC-0.99.10-preview.exe
 ```
 
 Cambiar versión, título, notas y archivo para cada entrega. La herramienta usa la sesión de Git existente; no guarda tokens en el proyecto. Comprueba que el repositorio sea privado y que main remoto coincida con el commit local, publica primero un borrador y verifica tamaño y SHA-256 de cada adjunto antes de mostrar la versión. Por defecto publica como preliminar; --stable queda reservado para una versión estable real. Un nombre existente con contenido distinto se rechaza, no se reemplaza.

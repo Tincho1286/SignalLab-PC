@@ -1,6 +1,6 @@
 # Cobertura de Sistemas y Señales I y II · revisión vigente
 
-Revisión: 28/10/2026, revisión de contenidos sobre 0.73, actualizada con capacidades de 0.99.9. Se contrastaron los contenidos analíticos de los programas originales con el catálogo público y los motores actuales. Se revisaron las páginas 6–14 del programa I y los ejes 1–8 del II. La presencia de una herramienta indica una capacidad implementada, no una demostración de todos los teoremas ni una validación de todos los ejercicios.
+Revisión: 28/10/2026, revisión de contenidos sobre 0.73, actualizada con capacidades de 0.99.10. Se contrastaron los contenidos analíticos de los programas originales con el catálogo público y los motores actuales. Se revisaron las páginas 6–14 del programa I y los ejes 1–8 del II. La presencia de una herramienta indica una capacidad implementada, no una demostración de todos los teoremas ni una validación de todos los ejercicios.
 
 Fuentes: [Programa SyS1.pdf](Programa%20SyS1.pdf), [Programa SyS2.pdf](Programa%20SyS2.pdf). Autoridad de ubicación: `tool_catalog.py` y `workflow_catalog.py`. Los detalles de validación se conservan en las notas DESARROLLO de cada versión; esta matriz no los reemplaza.
 
@@ -100,3 +100,5 @@ En 0.99.7, la conversión analógico/digital presenta mapeos s/z, transferencias
 0.99.8: el CAS recibe resultados matemáticos de las herramientas y de la biblioteca. La inversa Z aplica pares geométricos, desplazamiento y linealidad cuando reconoce esa estructura, respetando la ROC; mantiene el método general para los demás casos. No amplía el catálogo de temas.
 
 0.99.9: los campos continuos admiten sumas finitas de Dirac de orden cero con argumentos lineales, conservadas por posición y peso. CTFT y series tratan sus áreas por separado de la cuadratura ordinaria; la presentación y la ayuda distinguen esas distribuciones de muestras discretas. No extiende las medidas ordinarias ni el muestreo puntual a distribuciones, ni afirma una transformada universal.
+
+0.99.10: se aclaran DFT/FFT, DTFT y Fourier continua dentro de una misma herramienta, separando Directa/Inversa y el cálculo. La ayuda distingue registro finito, secuencia y tiempo continuo. La búsqueda respeta combinaciones de variantes y no amplía los motores matemáticos ni la cobertura curricular.
