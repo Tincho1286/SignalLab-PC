@@ -288,6 +288,11 @@ add(('random_correlation',0),'Esta herramienta estima la relación de un registr
 'Se representa Rxy[k]=promedio de x[n+k]·conj(y[n]). Un k positivo compara una muestra posterior de x con y. La autocorrelación en cero estima potencia; al centrar, varianza. La cruzada en cero no es una potencia y puede ser compleja; tampoco tiene por qué ser par.',
 'La normalización cruzada divide por √(Px·Py) del intervalo común, o por el producto de desviaciones si se restaron medias. Con divisor N−|k|, la magnitud normalizada puede superar 1 en retardos grandes. No se demuestra independencia ni estacionariedad a partir de una curva finita.')
 
+add(('difference_equation',0),'Esta herramienta resuelve ecuaciones lineales en diferencias de coeficientes constantes. En lugar de derivadas usa valores anteriores de la salida: a₀y[n]+a₁y[n−1]+…+aₚy[n−p]=f[n].',
+'Cargá los coeficientes por retardos y escribí f[n] como fórmula o por tramos. Elegí el primer índice n₀. Si el sistema no estaba en reposo, desactivá Reposo y cargá y[n₀−1], y[n₀−2], …: son p valores anteriores, no las primeras p salidas que debe calcular el programa.',
+'El informe presenta la solución en función de n y separa entrada cero de estado cero. La tabla y el gráfico muestran N valores desde n₀; aumentar N no cambia la fórmula. La solución y su transferencia con condiciones nulas quedan en Resultados y pueden enviarse al CAS u otras herramientas.',
+'Se impone la ecuación sólo desde n₀ y no se inventa una historia infinita anterior. Para entradas polinómicas, exponenciales, senoidales y sus tramos de intervalos se utilizan propiedades de la Z unilateral. Cuando no se obtiene una forma cerrada para la entrada, se conserva la solución exacta como una suma finita de convolución y se informa ese alcance. Los parámetros sin asignar permiten conservar una fórmula, pero impiden generar muestras numéricas.')
+
 def article_blocks(route):
     # Missing authorship is an error during development, not generic prose in UI.
     blocks=list(ARTICLES[tuple(route[1:3])])

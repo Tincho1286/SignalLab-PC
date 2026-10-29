@@ -28,6 +28,12 @@ def latex(source):
     tree=ast.parse(source,mode='eval')
     if sum(1 for _ in ast.walk(tree))>180:raise ValueError('Formula extensa')
     def wrapped(value):return r'\left('+value+r'\right)'
+    def unsigned_negative(node):
+        if isinstance(node,ast.UnaryOp) and isinstance(node.op,ast.USub):return node.operand
+        if isinstance(node,ast.BinOp) and isinstance(node.op,(ast.Mult,ast.Div)):
+            left=unsigned_negative(node.left)
+            if left is not None:return ast.BinOp(left=left,op=node.op,right=node.right)
+        return None
     def visit(n,parent=0):
         priority=100
         if isinstance(n,ast.Constant) and isinstance(n.value,(int,float,complex)):
@@ -44,11 +50,8 @@ def latex(source):
         elif isinstance(n,ast.UnaryOp) and isinstance(n.op,(ast.USub,ast.UAdd)):
             priority=30;result=('-' if isinstance(n.op,ast.USub) else '+')+visit(n.operand,priority)
         elif isinstance(n,ast.BinOp):
-            if isinstance(n.op,ast.Add) and isinstance(n.right,ast.UnaryOp) and isinstance(n.right.op,ast.USub):
-                return visit(ast.BinOp(left=n.left,op=ast.Sub(),right=n.right.operand),parent)
-            if isinstance(n.op,ast.Add) and isinstance(n.right,ast.BinOp) and isinstance(n.right.op,ast.Mult) and isinstance(n.right.left,ast.UnaryOp) and isinstance(n.right.left.op,ast.USub):
-                positive=ast.BinOp(left=n.right.left.operand,op=ast.Mult(),right=n.right.right)
-                return visit(ast.BinOp(left=n.left,op=ast.Sub(),right=positive),parent)
+            positive=unsigned_negative(n.right) if isinstance(n.op,ast.Add) else None
+            if positive is not None:return visit(ast.BinOp(left=n.left,op=ast.Sub(),right=positive),parent)
             if isinstance(n.op,ast.Div):result=r'\frac{'+visit(n.left)+'}{'+visit(n.right)+'}'
             elif isinstance(n.op,ast.Pow):
                 priority=40;base=visit(n.left,41)

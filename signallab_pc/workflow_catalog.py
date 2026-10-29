@@ -1,6 +1,8 @@
 """One public tool per problem; variants describe choices inside that tool."""
 # title, summary, dimensions, [(route key, dimension values)]
 FAMILIES=[
+ ('Ecuaciones lineales','Resolver ecuaciones diferenciales o en diferencias con coeficientes constantes y condiciones iniciales.',('Dominio',),[
+ (('symbolic',4),('Continuo · diferencial',)),(('difference_equation',0),('Discreto · diferencias',))]),
  ('Sumar o multiplicar señales','Combinar dos señales independientes, discretas o continuas.',('Operación',),[(('basic','sum'),('Suma',)),(('signal_product',0),('Producto',))]),
  ('Transformar una señal','Desplazamiento, inversión, amplitud y componentes par/impar.',('Dominio','Operación'),[
  (('basic','shift'),('Discreta','Desplazar')),(('basic','reverse'),('Discreta','Invertir')),(('basic','scale'),('Discreta','Amplitud')),(('basic','parity'),('Discreta','Par e impar')),(('time_transform',1),('Continua','Desplazar')),(('time_transform',2),('Continua','Invertir')),(('time_transform',3),('Continua','Amplitud')),(('time_transform',4),('Continua','Par e impar')),(('time_transform',0),('Continua','Transformación afín'))]),

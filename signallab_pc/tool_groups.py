@@ -28,7 +28,7 @@ GROUPS={
 'states':('Sistemas','Espacio de estados','states',[
  ('Modelo', [('Analizar estabilidad y estructura',('state_space','analysis')),('Simular estados y salidas',('state_space','simulation')),('Respuesta en frecuencia MIMO',('state_space','frequency')),('Discretizar modelo',('state_space','discretize')),('Obtener función de transferencia',('state_space','transfer'))])]),
 'laplace':('Transformadas','Laplace y ecuaciones','laplace',[
- ('Operación', [('Transformada directa e inversa',('transform_lab','laplace')),('Resolver ecuación diferencial',('symbolic',4))])]),
+ ('Operación', [('Transformada directa e inversa',('transform_lab','laplace')),('Resolver ecuación diferencial',('symbolic',4)),('Resolver ecuación en diferencias',('difference_equation',0))])]),
 'random':('Aleatorias','Realizaciones y estadística','random',[
  ('Operación', [('Generar realización',('random','generate')),('Estadísticas e histograma',('random','statistics')),('Correlación y covarianza',('random_correlation',0)),('Modelo AR / MA / ARMA',('random_model','model')),('Estimar modelo AR',('random_model','fit'))])]),
 }

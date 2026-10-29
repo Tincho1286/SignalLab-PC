@@ -106,3 +106,10 @@ En 0.99.7, la conversión analógico/digital presenta mapeos s/z, transferencias
 0.99.11: modelos RC y de segundo orden, editor de raíces y FIR/IIR se encuentran dentro de Diseñar filtro. Las 80 variantes se conservan con 29 accesos por problema; no se cambia el alcance matemático por agrupar la interfaz. Analizar un sistema conserva la consulta de raíces y respuestas.
 
 Primera estable 1.0.0: consolida las 29 herramientas y 80 variantes implementadas, sin ampliar sus alcances por cambiar la etiqueta de versión. ALCANCE_1.0.md fija las convenciones y límites publicados. La corrección final distingue entradas activas de campos derivados y conserva ediciones hechas durante un cálculo.
+
+
+## Ampliación 1.1.1: ecuaciones en diferencias
+
+Ecuaciones lineales reúne la EDO existente y la nueva recurrencia discreta de coeficientes constantes. El usuario define a₀y[n]+…+aₚy[n−p]=f[n], el primer índice n₀ y p valores anteriores, o reposo. La solución algebraica se separa en entrada cero y estado cero. Las muestras desde n₀ conservan su índice y no definen la extensión infinita de la fórmula. H(z), bajo condiciones iniciales nulas, se guarda por separado de y[n] y puede enviarse a análisis de sistemas o CAS.
+
+Hay formas cerradas mediante propiedades de Z para las entradas polinómicas, exponenciales, senoidales, escalones, impulsos y sus tramos de intervalos admitidos. En otros casos se presenta la convolución finita exacta, identificada como representación sin forma cerrada. No se declaran resueltas recurrencias con coeficientes variables ni sistemas de recurrencias. Las condiciones iniciales siguen el orden y[n₀−1], y[n₀−2], …, distinto del orden por derivadas que corresponde a una EDO.

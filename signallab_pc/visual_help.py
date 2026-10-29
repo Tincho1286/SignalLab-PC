@@ -60,6 +60,9 @@ def _diagrams_for(section):
         caption='Azul: parte ordinaria de la señal. Verde: posición y peso del impulso ideal. La flecha indica área, no una altura finita ni una muestra de la rejilla.' if section['illustration']=='dirac' else 'Esquema de la función elemental. Los tallos representan muestras independientes.'
         return [('Representación',reference_diagram(section['illustration']),caption)]
     route=section['route']
+    if route and route[1]=='difference_equation':
+        from .difference_help import difference_image
+        return [('Coeficientes, historial y solución',difference_image(),'Azul: ecuación y comienzo n₀. Ámbar: valores anteriores conocidos. Verde: valores calculados. La primera condición es y[n₀−1], no y[n₀]. La longitud del gráfico no limita la solución algebraica.')]
     if route and route[1] in ('random_model','random_correlation'):
         from .random_model_help import model_image
         cross=route[1]=='random_correlation';fit=route[2]=='fit'

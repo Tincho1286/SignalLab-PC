@@ -64,6 +64,9 @@ def parse(expression):
 
 def execute(request):
     operation = request["operation"]
+    if operation=="difference_equation":
+        from .difference_equations import solve
+        return solve(request)
     if operation=='cas_import':
         from .cas_import import import_result
         return import_result(request)

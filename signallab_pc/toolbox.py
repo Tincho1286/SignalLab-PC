@@ -389,6 +389,9 @@ class ToolPage(QWidget):
         if kind=='time_transform':
             from .time_transform_panel import TimeTransformPanel
             self.panel=TimeTransformPanel(window,index);root.addWidget(self.panel);return
+        if kind=='difference_equation':
+            from .difference_panel import DifferencePanel
+            self.panel=DifferencePanel(window);root.addWidget(self.panel);return
         if kind=='random_model':
             from .random_model_panel import RandomModelPanel
             self.panel=RandomModelPanel(window,index);root.addWidget(self.panel);return

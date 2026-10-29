@@ -90,6 +90,7 @@ for key,title,summary,section in [
 add('transforms','Transformadas',('transform_lab','laplace'),'Transformada de Laplace','Directa e inversa, unilateral o bilateral con ROC.','unilateral bilateral causal inversa s roc izquierda derecha')
 add('transforms','Transformadas',('transform_lab','z'),'Transformada Z','Directa, inversa con ROC y muestras finitas.','region convergencia bilateral secuencia inversa')
 add('transforms','Ecuaciones',('symbolic',4),'Ecuaciones diferenciales','Solución algebraica y condiciones iniciales.','edo')
+add('transforms','Ecuaciones',('difference_equation',0),'Ecuaciones en diferencias','Solución en n, condiciones iniciales y respuesta forzada.','recurrencia discreta edd recursiva ecuacion historial entrada estado cero')
 for key,title,summary in [
  (('random','generate'),'Generar realización','Distribución y semilla.'),
  (('random','statistics'),'Estadísticas e histograma','Media, varianza, RMS e histograma.'),
