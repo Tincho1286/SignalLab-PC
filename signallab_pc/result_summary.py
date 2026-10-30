@@ -35,6 +35,7 @@ def number(value):
     return format(z.real,'.12g')+(' + ' if z.imag>=0 else ' − ')+format(abs(z.imag),'.12g')+'i'
 
 OPERATIONS={
+ 'window_generation':'Generar ventana',
  'generate':'Crear una señal','measures':'Energía, potencia y RMS','shift':'Desplazar una secuencia','time_shift':'Desplazar una secuencia','reverse':'Invertir una secuencia','time_reversal':'Invertir una secuencia','scale':'Escalar amplitud','sum':'Suma de señales','parity':'Partes par e impar','even_odd_decomposition':'Partes par e impar','convolve':'Convolución lineal','linear_convolution':'Convolución lineal','circular':'Convolución circular','circular_convolution':'Convolución circular','correlate':'Correlación lineal','linear_cross_correlation':'Correlación lineal','correlation':'Correlación','continuous_convolve':'Convolución continua','continuous_convolution':'Convolución continua','continuous_correlation':'Correlación continua','continuous_time_transform':'Transformación temporal continua','dft':'DFT','DFT':'DFT','idft':'DFT inversa','IDFT':'DFT inversa',
  'dtft_expression':'DTFT algebraica','fourier_angular':'Fourier continua algebraica','inverse_fourier_angular':'Fourier inversa algebraica','inverse_dtft_expression':'DTFT inversa algebraica',
  'laplace':'Laplace directa','inverse_laplace':'Laplace inversa','z_expression':'Transformada Z','z_finite':'Transformada Z finita','z_inverse_expression':'Z inversa con región de convergencia','system_analysis':'Análisis de sistema','system_formula':'Definición de sistema','ode':'Ecuación diferencial'}

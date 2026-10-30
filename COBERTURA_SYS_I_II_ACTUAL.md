@@ -113,3 +113,8 @@ Primera estable 1.0.0: consolida las 29 herramientas y 80 variantes implementada
 Ecuaciones lineales reúne la EDO existente y la nueva recurrencia discreta de coeficientes constantes. El usuario define a₀y[n]+…+aₚy[n−p]=f[n], el primer índice n₀ y p valores anteriores, o reposo. La solución algebraica se separa en entrada cero y estado cero. Las muestras desde n₀ conservan su índice y no definen la extensión infinita de la fórmula. H(z), bajo condiciones iniciales nulas, se guarda por separado de y[n] y puede enviarse a análisis de sistemas o CAS.
 
 Hay formas cerradas mediante propiedades de Z para las entradas polinómicas, exponenciales, senoidales, escalones, impulsos y sus tramos de intervalos admitidos. En otros casos se presenta la convolución finita exacta, identificada como representación sin forma cerrada. No se declaran resueltas recurrencias con coeficientes variables ni sistemas de recurrencias. Las condiciones iniciales siguen el orden y[n₀−1], y[n₀−2], …, distinto del orden por derivadas que corresponde a una EDO.
+
+
+## Ampliación 1.1.3: ventanas independientes
+
+Crear una señal incluye Ventana: rectangular, Hann, Hamming, Blackman, Bartlett y Kaiser simétricas. Se eligen L, origen o centrado y β cuando corresponde. El resultado se exporta como señal discreta y puede analizarse con DTFT, DFT/FFT o Z finita, o multiplicarse por otra señal. La longitud L se expresa como cantidad total de muestras. La recepción en Z selecciona Muestras finitas y conserva los índices, también si son negativos.

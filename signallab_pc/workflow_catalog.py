@@ -1,6 +1,8 @@
 """One public tool per problem; variants describe choices inside that tool."""
 # title, summary, dimensions, [(route key, dimension values)]
 FAMILIES=[
+ ('Crear una señal','Generar una señal por fórmula, muestras o una ventana de longitud elegida.',('Definición',),[
+ (('basic','generate'),('Fórmula o muestras',)),(('window_signal',0),('Ventana',))]),
  ('Ecuaciones lineales','Resolver ecuaciones diferenciales o en diferencias con coeficientes constantes y condiciones iniciales.',('Dominio',),[
  (('symbolic',4),('Continuo · diferencial',)),(('difference_equation',0),('Discreto · diferencias',))]),
  ('Sumar o multiplicar señales','Combinar dos señales independientes, discretas o continuas.',('Operación',),[(('basic','sum'),('Suma',)),(('signal_product',0),('Producto',))]),

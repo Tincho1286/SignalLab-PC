@@ -14,6 +14,7 @@ ENTRIES=[]
 def add(area,section,key,title,summary,tags=''):
     ENTRIES.append(dict(area=area,section=section,key=key,route=ROUTES[key],title=title,summary=summary,tags=tags))
 add('signals','Crear y editar',('basic','generate'),'Crear una señal','Fórmula, muestras o archivo; gráfico y tabla.','generar graficar impulso escalon seno coseno tramos matlab')
+add('signals','Crear y editar',('window_signal',0),'Generar ventanas','Rectangular, Hann, Hamming, Blackman, Bartlett o Kaiser como secuencia independiente.','ventana window longitud L M kaiser beta transformada fourier z fft enventanar')
 add('signals','Crear y editar',('signal_editor',0),'Editar muestras','Editar valores y eje; exportar o reutilizar la salida.','tabla datos continuo discreto')
 for key,title,summary in [
  ('shift','Desplazar','Trasladar una secuencia en índices enteros.'),('reverse','Invertir','Reflejar una secuencia respecto de n = 0.'),('scale','Escalar amplitud','Multiplicar los valores por un factor.'),('parity','Partes par e impar','Separar las dos componentes de una secuencia.'),('sum','Sumar señales','Sumar dos señales discretas o continuas sobre su intervalo conjunto.')]:add('signals','Transformar',('basic',key),title,summary)

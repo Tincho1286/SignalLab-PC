@@ -38,7 +38,7 @@ from .signal_plot import plot_samples
 from .signal_plot import configure_signal_axis, is_discrete_plot, validate_overlay
 
 def signal_destinations(value,items):
-    return [item for item in items if (item[1]=='basic' and item[2] in ('generate','measures') and value.domain in {'continuous','discrete'}) or (item[1]=='dsp_extensions' and item[2] in ('hilbert','stft') and value.domain in {'continuous','discrete'}) or (item[1]=='frequency_filter' and value.domain in {'discrete','continuous','frequency'} and (value.domain!='frequency' or value.units in {'rad/s','rad/muestra'})) or item[3] in ({'discrete','pair'} if value.domain=='discrete' else {'continuous','continuous_pair'} if value.domain=='continuous' else set()) or (item[1]=='systems' and item[2]==9 and value.domain in {'discrete','continuous'}) or (item[1]=='course_tools' and item[2]=='band' and value.domain=='frequency' and value.units in {'rad/s','rad/muestra'}) or (item[1]=='correlation' and value.domain==('continuous' if item[2] else 'discrete')) or (item[1]=='signal_editor' and value.domain in {'discrete','continuous'}) or (item[1]=='rational_resampling' and value.domain=='discrete') or (item[1:3]==('sampling',5) and value.domain=='discrete') or (item[1:3]==('fourier',6) and value.domain in {'discrete','continuous','frequency'}) or (item[1]=='fourier' and item[2] in (3,6) and value.domain=='frequency' and (item[2]!=3 or value.units=='rad/s')) or (item[1]=='inverse_dtft' and value.domain=='frequency' and value.units=='rad/muestra') or ((item[1]=='signal_product' or item[1:3]==('basic','sum')) and value.domain in {'discrete','continuous'}) or (item[1:3]==('state_space','simulation') and value.domain in {'discrete','continuous'})]
+    return [item for item in items if (item[1:3]==('transform_lab','z') and value.domain=='discrete') or (item[1]=='basic' and item[2] in ('generate','measures') and value.domain in {'continuous','discrete'}) or (item[1]=='dsp_extensions' and item[2] in ('hilbert','stft') and value.domain in {'continuous','discrete'}) or (item[1]=='frequency_filter' and value.domain in {'discrete','continuous','frequency'} and (value.domain!='frequency' or value.units in {'rad/s','rad/muestra'})) or item[3] in ({'discrete','pair'} if value.domain=='discrete' else {'continuous','continuous_pair'} if value.domain=='continuous' else set()) or (item[1]=='systems' and item[2]==9 and value.domain in {'discrete','continuous'}) or (item[1]=='course_tools' and item[2]=='band' and value.domain=='frequency' and value.units in {'rad/s','rad/muestra'}) or (item[1]=='correlation' and value.domain==('continuous' if item[2] else 'discrete')) or (item[1]=='signal_editor' and value.domain in {'discrete','continuous'}) or (item[1]=='rational_resampling' and value.domain=='discrete') or (item[1:3]==('sampling',5) and value.domain=='discrete') or (item[1:3]==('fourier',6) and value.domain in {'discrete','continuous','frequency'}) or (item[1]=='fourier' and item[2] in (3,6) and value.domain=='frequency' and (item[2]!=3 or value.units=='rad/s')) or (item[1]=='inverse_dtft' and value.domain=='frequency' and value.units=='rad/muestra') or ((item[1]=='signal_product' or item[1:3]==('basic','sum')) and value.domain in {'discrete','continuous'}) or (item[1:3]==('state_space','simulation') and value.domain in {'discrete','continuous'})]
 
 def system_destinations(value,items):
     keys={('system_analysis',0),('interconnection',0),('systems',9),('systems',6),('course_tools','convert'),('course_tools','gain')}
@@ -389,6 +389,9 @@ class ToolPage(QWidget):
         if kind=='time_transform':
             from .time_transform_panel import TimeTransformPanel
             self.panel=TimeTransformPanel(window,index);root.addWidget(self.panel);return
+        if kind=='window_signal':
+            from .window_signal_panel import WindowSignalPanel
+            self.panel=WindowSignalPanel(window);root.addWidget(self.panel);return
         if kind=='difference_equation':
             from .difference_panel import DifferencePanel
             self.panel=DifferencePanel(window);root.addWidget(self.panel);return
@@ -892,6 +895,12 @@ class ToolboxWindow(SignalLabWindow):
         return entry[1] if entry and entry[0]() is value else None
     def send_signal(self,value,key,item):
         self.open_tool(item)
+        if item[1:3] in (('transform_lab','z'),('symbolic',2)):
+            if value.domain!='discrete':raise ValueError('La Z finita requiere una secuencia discreta.')
+            panel=self.stack.currentWidget().panel;panel.mode.setCurrentIndex(2)
+            if key is None:key=self.publish(value,operation='Secuencia enviada a Z finita')
+            panel.source.set_source(self.project.get(key),key)
+            self.statusBar().showMessage('Secuencia cargada en Transformada Z · Muestras finitas, conservando sus índices.');return
         if item[1]=='frequency_filter':
             panel=self.stack.currentWidget().panel
             if value.domain=='frequency':panel.receive_response(value)

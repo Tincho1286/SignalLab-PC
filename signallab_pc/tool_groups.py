@@ -1,7 +1,7 @@
 """Public documents and the operations they contain; no implicit data sharing."""
 GROUPS={
 'signals':('Señales','Señales','signal',[
- ('Crear y editar', [('Generar y graficar',('basic','generate')),('Editar muestras',('signal_editor',0))]),
+ ('Crear y editar', [('Generar y graficar',('basic','generate')),('Generar ventana',('window_signal',0)),('Editar muestras',('signal_editor',0))]),
  ('Transformar', [('Desplazar secuencia',('basic','shift')),('Invertir secuencia',('basic','reverse')),('Escalar amplitud',('basic','scale')),('Partes par e impar',('basic','parity')),('Transformar señal continua',('time_transform',0)),('Desplazar señal continua',('time_transform',1)),('Invertir señal continua',('time_transform',2)),('Escalar amplitud continua',('time_transform',3)),('Partes par e impar continuas',('time_transform',4)),('Sumar señales',('basic','sum')),('Multiplicar señales',('signal_product',0))])]),
 'measures':('Señales','Energía, potencia y RMS','measure',[
  ('Medidas', [('Registro de muestras',('basic','measures')),('Expresión en un intervalo',('expression_measures','interval')),('Expresión en todo el eje',('expression_measures','global')),('Expresión periódica',('expression_measures','periodic'))])]),

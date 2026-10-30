@@ -13,6 +13,7 @@ MENUS={
 MENUS['Operaciones']=[('Correlación continua algebraica','correlation_algebra',0,None),('Correlación discreta y autocorrelación','correlation',0,None),('Correlación continua y periódica','correlation',1,None)]+[item for item in MENUS['Operaciones'] if item[2] not in ('correlate','continuous_correlate','continuous_normalized','continuous_auto')]
 
 
+MENUS['Señales'].insert(1,('Generar ventanas','window_signal',0,None))
 MENUS['Señales'][2:2]=[('Energía algebraica por intervalo','expression_measures','interval',None),('Energía y potencia globales','expression_measures','global',None),('Energía y potencia periódicas','expression_measures','periodic',None)]
 
 MENUS['Señales aleatorias']=[('Generar ruido y realizaciones','random','generate',None),('Estadísticas e histograma','random','statistics','discrete')]
