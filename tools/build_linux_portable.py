@@ -69,7 +69,7 @@ def main():
     os.replace(temporary,archive)
     provenance['archive_sha256']=sha256(archive);provenance['archive_name']=name
     (outputs/'build-provenance-linux.json').write_text(json.dumps(provenance,indent=2)+'\n',encoding='utf-8')
-    (outputs/'SHA256SUMS-linux-'+version+'.txt').write_text(provenance['archive_sha256']+'  '+name+'\n',encoding='ascii')
+    (outputs/('SHA256SUMS-linux-'+version+'.txt')).write_text(provenance['archive_sha256']+'  '+name+'\n',encoding='ascii')
     source=outputs/('SignalLab-PC-'+version+'-linux-source-GPL.zip')
     subprocess.run(['git','archive','--format=zip','--output',str(source),commit],cwd=ROOT,check=True)
     # Only remove generated paths whose final location was checked above.
