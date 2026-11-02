@@ -33,7 +33,11 @@ class PoleZeroAnalysis(QWidget):
         if origin:lines.append(origin)
         if not np.any(system.b):lines+=['H es nula: no se definen ceros aislados. Se muestran los polos del denominador cargado.']
         else:
-            lines+=['Ubicación de los polos: '+system.stability(poles), 'Región estable: |z| < 1.' if system.domain=='digital' else 'Región estable: Re(s) < 0.']
+            lines+=['Criterio causal por ubicación de polos: '+system.stability(poles), 'Región estable: |z| < 1.' if system.domain=='digital' else 'Región estable: Re(s) < 0.']
+        if system.domain=='digital' and system.roc is not None:
+            from .transfer_plane import convergence
+            information=convergence(system)
+            lines+=['ROC seleccionada: '+information['text'],'Estabilidad BIBO de la transferencia bilateral: '+('compatible con el círculo unitario dentro de la ROC.' if information['unit'] else 'el círculo unitario no pertenece a la ROC.')+' Esto no prueba estabilidad interna de una realización con cancelaciones.']
         if system.domain=='analog' and len(np.trim_zeros(system.b,'f'))>len(np.trim_zeros(system.a,'f')):
             lines+=['Transferencia analógica impropia: la ubicación de sus polos finitos no basta para afirmar estabilidad BIBO.']
         if advance:lines+=['La expresión tiene un avance de '+str(advance)+' muestras; no representa un filtro causal. El plano corresponde a la fórmula completa, incluido ese avance.']

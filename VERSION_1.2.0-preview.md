@@ -83,3 +83,4 @@ No se ejecutaron pruebas de funcionamiento, casos matemáticos de prueba, valida
 - `signallab_pc/visual_help.py`
 - `signallab_pc/z_algebra.py`
 - `signallab_pc/z_plane.py`
+- `signallab_pc/pole_zero_analysis.py`

@@ -102,6 +102,8 @@ def extend_removable(expression):
     for point in points:
         checkpoint()
         if point.is_finite is not True:continue
+        assigned=expression.subs(variable,point)
+        if assigned.is_finite is True:continue
         try:
             value=finite_extension(expression,variable,point)
         except (ValueError,TypeError,NotImplementedError):continue

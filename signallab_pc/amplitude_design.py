@@ -96,7 +96,7 @@ def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitu
                 if evaluate_spec(trial,spec)[0]:found=length;break
             if found is None:raise ValueError('Ninguna longitud de la familia elegida satisface la rejilla hasta la cota indicada. Aumentá la cota o cambiá ventana/tolerancias.')
             count=found
-        result,ideal,window_values=candidate(count)
+        result,ideal,window_values=candidate(count);result.roc={'mode':'right'}
         signals=[Signal(ideal,name='Respuesta ideal truncada'),Signal(window_values,name='Ventana '+window),Signal(result.b,name='Respuesta FIR h[n]')]
         from .fir_formula import kernel as formula_kernel,window_expression
         from .result_summary import Summary,Section,Formula,number
@@ -119,6 +119,8 @@ def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitu
     elif method=='compare':output=compare_iir(wp,ws,normalized_dp,normalized_ds)
     else:output=design_filter(wp,ws,normalized_dp,normalized_ds,method,period,taps,window,search)
     output['systems']=[scale_system(value,gain) for value in output['systems']];output['specifications']=spec
+    for system in output['systems']:
+        if system.domain=='digital':system.roc={'mode':'right'}
     reports=[];accepted=[]
     for system in output['systems']:
         if system.domain!=('analog' if analog else 'digital'):continue

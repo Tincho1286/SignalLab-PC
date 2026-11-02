@@ -40,7 +40,10 @@ def convergence(system):
     specification=validate_roc(system.roc,system.domain)
     if specification is None:return {'known':False,'unit':None,'text':'ROC no especificada. La expresión racional por sí sola no determina el soporte de h[n].'}
     zeros,poles=system.poles_zeros();radii=np.abs(poles);radii=radii[radii>0]
+    from fractions import Fraction
+    endpoint_pole=any(sum((Fraction(float(c.real))*(q**i) for i,c in enumerate(system.a)),Fraction(0))==0 and sum((Fraction(float(c.imag))*(q**i) for i,c in enumerate(system.a)),Fraction(0))==0 for q in (1,-1))
     mode=specification['mode'];radius=specification.get('radius')
+    if mode=='radius' and radius==1 and endpoint_pole:raise ValueError('El radio 1 atraviesa un polo exacto en z=1 o z=−1; no es interior a una ROC.')
     if mode=='right':inner=float(radii.max(initial=0));outer=np.inf
     elif mode=='left':inner=0.;outer=float(radii.min()) if radii.size else np.inf
     else:
@@ -48,7 +51,7 @@ def convergence(system):
             raise ValueError('El radio elegido coincide numéricamente con un polo. Elegí un punto interior a la ROC.')
         inner=float(radii[radii<radius].max(initial=0));above=radii[radii>radius];outer=float(above.min()) if above.size else np.inf
     # A numerical root very close to the unit circle cannot certify inclusion.
-    boundary=bool(np.any(np.isclose(radii,1,rtol=64*np.finfo(float).eps,atol=0)))
+    boundary=bool(endpoint_pole or np.any(np.isclose(radii,1,rtol=64*np.finfo(float).eps,atol=0)))
     unit=bool(inner<1<outer and not boundary)
     zero_included=inner==0 and bool(np.isfinite(evaluate_plane(system,np.array([0j]))[0]))
     text=f'{inner:.12g} '+('≤' if zero_included else '<')+' |z| < '+('∞' if np.isinf(outer) else f'{outer:.12g}')
