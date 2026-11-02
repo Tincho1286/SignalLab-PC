@@ -77,7 +77,7 @@ class LocalInput(QGroupBox):
             form.setRowVisible(self.expression,index==0);form.setRowVisible(self.samples,index==1)
             form.setRowVisible(interval,index!=2);form.setRowVisible(self.file_note,index==2)
             if hasattr(self,'frequency_units'):form.setRowVisible(self.frequency_units,index!=2)
-            axis_widgets[self.count].setVisible(index==0);form.setRowVisible(load,index==2 and self.entry_modes.view==2)
+            axis_widgets[self.count].setVisible(index==0);form.setRowVisible(load,index==2)
             if hasattr(self,'recent'):form.setRowVisible(self.recent,index==2 and self.entry_modes.view==3);form.setRowVisible(self.browse_results,index==2 and self.entry_modes.view==3)
         self.entry_modes.viewChanged.connect(lambda:update(self.mode.currentIndex()))
         self.mode.currentIndexChanged.connect(update);self.mode.setCurrentIndex(2 if kind=='import' else 0);update(self.mode.currentIndex())
@@ -89,24 +89,11 @@ class LocalInput(QGroupBox):
         self.coordinate_labels[self.origin].setText('Primer armónico k₀' if coefficients else 'Inicio')
         self.coordinate_labels[self.count].setText('Coeficientes' if coefficients else 'Cantidad')
     def open_file(self):
-        path,_=QFileDialog.getOpenFileName(self,'Datos de esta herramienta','','Señales (*.json *.csv *.tsv *.mat *.m)')
-        if path:
-            try:
-                from pathlib import Path
-                if Path(path).suffix.lower() in ('.csv','.tsv'):
-                    from .storage import load_csv
-                    with Path(path).open(encoding='utf-8-sig') as stream:own=stream.readline(100).startswith('# SignalLab CSV v1')
-                    if own:self.set_source(load_csv(path))
-                    else:
-                        from .csv_import_dialog import CsvImportDialog
-                        dialog=CsvImportDialog(path,self.kind,self)
-                        if dialog.exec():self.set_source(dialog.result_signal)
-                elif Path(path).suffix.lower() in ('.mat','.m'):
-                    from .matlab_import_dialog import MatlabImportDialog
-                    dialog=MatlabImportDialog(path,self.kind,self)
-                    if dialog.exec():self.set_source(dialog.result_signal)
-                else:self.set_source(load_json(path))
-            except Exception as exc:QMessageBox.warning(self,'No se pudo abrir',str(exc))
+        try:
+            from .data_import import load_signal
+            value=load_signal(self,self.kind)
+            if value is not None:self.set_source(value)
+        except Exception as exc:QMessageBox.warning(self,'No se pudo importar',str(exc))
     def set_source(self,source,reference_id=None):
         if self.kind in ('continuous','discrete','frequency') and source.domain!=self.kind:
             raise ValueError('Esta entrada requiere '+('un espectro.' if self.kind=='frequency' else 'una señal continua.' if self.kind=='continuous' else 'una secuencia discreta.'))
@@ -117,7 +104,7 @@ class LocalInput(QGroupBox):
     def bind_project(self,window):
         self.project_window=window
         self.recent=QComboBox();self.recent.setAccessibleName('Señales recientes compatibles');self.recent.activated.connect(self.use_recent);self.layout().addRow('Reutilizar señal',self.recent)
-        button=QPushButton('Explorar resultados anteriores…');self.browse_results=button;button.clicked.connect(self.choose_project);self.layout().addRow(button)
+        button=QPushButton('Explorar resultados o importar…');self.browse_results=button;button.clicked.connect(self.choose_project);self.layout().addRow(button)
         self.layout().setRowVisible(self.recent,self.mode.currentIndex()==2 and self.entry_modes.view==3);self.layout().setRowVisible(button,self.mode.currentIndex()==2 and self.entry_modes.view==3)
         self.refresh_recent()
     def refresh_recent(self):
@@ -897,10 +884,10 @@ class ToolboxWindow(SignalLabWindow):
         self.open_tool(item)
         if item[1:3] in (('transform_lab','z'),('symbolic',2)):
             if value.domain!='discrete':raise ValueError('La Z finita requiere una secuencia discreta.')
-            panel=self.stack.currentWidget().panel;panel.mode.setCurrentIndex(2)
+            panel=self.stack.currentWidget().panel;panel.use_finite_input()
             if key is None:key=self.publish(value,operation='Secuencia enviada a Z finita')
             panel.source.set_source(self.project.get(key),key)
-            self.statusBar().showMessage('Secuencia cargada en Transformada Z · Muestras finitas, conservando sus índices.');return
+            self.statusBar().showMessage('Secuencia cargada en Z directa, conservando todos sus índices.');return
         if item[1]=='frequency_filter':
             panel=self.stack.currentWidget().panel
             if value.domain=='frequency':panel.receive_response(value)

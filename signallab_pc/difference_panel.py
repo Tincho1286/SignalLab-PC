@@ -18,6 +18,8 @@ class DifferencePanel(QWidget):
         self.coefficients=QLineEdit('1, -0.5');form.addRow('Coeficientes a₀, a₁, …, aₚ',self.coefficients)
         self.coefficients.setToolTip('Orden por retardos: a₀ multiplica y[n], a₁ multiplica y[n−1]. Se admiten pi, fracciones y 10^(-3). a₀ debe ser distinto de cero.')
         self.expression=ExpressionEditor('1');self.expression.symbolic=True;form.addRow('Entrada f[n]',self.expression)
+        from .expression_import import install_expression_import
+        install_expression_import(self.expression,window,['n'])
         self.start=QLineEdit('0');form.addRow('Resolver desde n₀',self.start)
         self.rest=QCheckBox('Reposo antes de n₀');self.rest.setChecked(True);form.addRow(self.rest)
         self.initial=QLineEdit('0');form.addRow('Valores anteriores de y',self.initial)
@@ -62,10 +64,12 @@ class DifferencePanel(QWidget):
     def calculate(self):
         try:
             request={'operation':'difference_equation','expression':self.expression.text(),'coefficients':split_coefficients(self.coefficients.text()),'initial':split_coefficients(self.initial.text()) if not self.rest.isChecked() else [],'rest':self.rest.isChecked(),'start':integer_field(self.start),'count':integer_field(self.count)}
+            from .expression_import import expression_context
+            parents,conditions=expression_context(self.expression);request['input_conditions']=conditions
             snapshot=self.state.snapshot()
             def accept(result):
                 from .difference_equations import summary
-                self.result={'request':request,'result':result};self.result_key=self.window.publish(self.result,title='Solución de ecuación en diferencias',operation='Ecuación en diferencias')
+                self.result={'request':request,'result':result};self.result_key=self.window.publish(self.result,title='Solución de ecuación en diferencias',operation='Ecuación en diferencias',parents=parents)
                 transfer={'request':{'operation':'difference_equation_transfer','domain':'digital'},'result':{'operation':'Transferencia de ecuación en diferencias','result':result['system_expression'],'output_variable':'z','evaluated':True,'scope':'Transferencia desde f[n] hacia y[n] bajo condiciones iniciales nulas; no incluye la respuesta del historial.'}}
                 self.transfer_key=self.window.publish(transfer,title='H(z) de ecuación en diferencias',operation='Transferencia desde f[n]',parents=[self.result_key])
                 self.report.set_readable(summary(request,result));self.use_button.setEnabled(True)

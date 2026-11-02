@@ -10,7 +10,7 @@ from .resources import ensure_working_set
 
 
 _BIN = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
-        ast.Div: operator.truediv, ast.Pow: lambda a, b: np.power(np.asarray(a, dtype=np.complex128), b), ast.Mod: operator.mod}
+        ast.Div: np.divide, ast.Pow: lambda a, b: np.power(np.asarray(a, dtype=np.complex128), b), ast.Mod: operator.mod}
 _UNARY = {ast.UAdd: operator.pos, ast.USub: operator.neg}
 _FUNCS = {"sin": np.sin, "cos": np.cos, "tan": np.tan, "exp": np.exp,
           "sqrt": lambda v: np.sqrt(np.asarray(v, dtype=np.complex128)),
@@ -36,18 +36,23 @@ def evaluate_expression(expression: str, x: np.ndarray) -> np.ndarray:
     if not source:
         raise ExpressionError("Escribí una expresión, por ejemplo cos(pi*x/4).")
     try:
+        from .math_source import normalize
+        source=normalize(source)
         tree = ast.parse(source, mode="eval")
         node_count = sum(1 for _ in ast.walk(tree))
         coordinates = np.asarray(x, dtype=float)
         ensure_working_set(coordinates.size, live_arrays=max(4, node_count + 3))
-        result = _visit(tree.body, coordinates)
+        with np.errstate(all="ignore"):
+            result = _visit(tree.body, coordinates)
         arr = np.asarray(result, dtype=np.complex128)
         if arr.ndim == 0:
             arr = np.full(np.asarray(x).shape, arr, dtype=np.complex128)
         if arr.shape != np.asarray(x).shape:
             arr = np.broadcast_to(arr, np.asarray(x).shape).astype(np.complex128)
         if np.any(~np.isfinite(arr)):
-            raise ExpressionError("La expresión produce valores no finitos en la ventana elegida.")
+            from .singularities import numeric_expression,repair_values
+            exact,variable=numeric_expression(source)
+            arr=repair_values(exact,variable,coordinates,arr)
         return arr
     except ExpressionError:
         raise

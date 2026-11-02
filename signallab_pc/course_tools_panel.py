@@ -62,12 +62,31 @@ class CourseToolsPanel(QWidget):
             self.band_edges=BandEdgesEditor(analog=action=="analog");self.fields['band_edges']=self.band_edges;form.addRow(self.band_edges)
             def hint(text):
                 self._last_field.setToolTip(text)
-            field('dp','Variación permitida en paso δp (amplitud)','0.05')
+            field('amplitude_low','Amplitud deseada en paso','1')
+            field('amplitude_high','Amplitud de paso superior','1')
+            choice('tolerance_units','Tolerancias',[('Absolutas · amplitud','absolute'),('Relativas · fracción de referencia','relative'),('Decibelios · ±rizado / atenuación','db')])
+            self.amplitude_note=QLabel();self.amplitude_note.setObjectName('muted');self.amplitude_note.setWordWrap(True);form.addRow(self.amplitude_note)
+            field('dp','Variación permitida en paso δp','0.05')
             hint('Ingresá un valor entre 0 y 1. Ejemplo: 0.05 permite un módulo entre 0.95 y '+('1.05.' if action=='fir' else '1.')+' No se ingresa en dB ni como porcentaje.')
-            field('ds','Máximo permitido en rechazo δs (amplitud)','0.01')
+            field('ds','Máximo permitido en rechazo δs','0.01')
             hint('Ingresá un valor entre 0 y 1. Ejemplo: 0.01 permite como máximo el 1 % de amplitud (−40 dB). Un valor menor exige más rechazo.')
+            self._tolerance_mode='absolute'
+            def update_amplitudes(*_):
+                bandstop=self.band_edges.kind.currentData()=='bandstop'
+                form.setRowVisible(self.fields['amplitude_high'],bandstop);self.fields['amplitude_high'].setProperty('calculationInput',bandstop)
+                form.labelForField(self.fields['amplitude_low']).setText('Amplitud de paso inferior' if bandstop else 'Amplitud deseada en paso')
+                unit=self.fields['tolerance_units'].currentData()
+                self.amplitude_note.setText({'absolute':'Paso: A−δp ≤ |H| ≤ A+δp en cada banda. Rechazo: |H| ≤ δs.', 'relative':'Paso: A(1−δp) ≤ |H| ≤ A(1+δp). Rechazo: |H| ≤ Aref·δs; Aref es la mayor amplitud de paso.', 'db':'Paso: A·10^(−rp/20) ≤ |H| ≤ A·10^(rp/20). Rechazo: |H| ≤ Aref·10^(−As/20); Aref es la mayor amplitud de paso.'}[unit]+(' Las amplitudes inferior y superior son independientes en FIR. Las familias IIR clásicas requieren que sean iguales.' if bandstop else ''))
+                form.labelForField(self.fields['dp']).setText('Rizado respecto de A (±dB)' if unit=='db' else 'Variación de paso (fracción de A)' if unit=='relative' else 'Variación absoluta de paso δp')
+                form.labelForField(self.fields['ds']).setText('Atenuación de rechazo As (dB)' if unit=='db' else 'Máximo en rechazo (fracción de Aref)' if unit=='relative' else 'Máximo absoluto en rechazo δs')
+                if unit!=self._tolerance_mode:
+                    self._tolerance_mode=unit
+                    if self.fields['dp'].text() in ('0.05','0.45'):self.fields['dp'].setText('0.45' if unit=='db' else '0.05')
+                    if self.fields['ds'].text() in ('0.01','40'):self.fields['ds'].setText('40' if unit=='db' else '0.01')
+                self.fields['dp'].setToolTip(self.amplitude_note.text());self.fields['ds'].setToolTip(self.amplitude_note.text())
+            self.band_edges.kind.currentIndexChanged.connect(update_amplitudes);self.fields['tolerance_units'].currentIndexChanged.connect(update_amplitudes);update_amplitudes()
             if action=='fir':
-                choice('window','Ventana',[(name,name) for name in ('kaiser','boxcar','hann','hamming','blackman','bartlett')]);field('taps','Cantidad de coeficientes (0 = estimar Kaiser)','0');field('search','Buscar menor longitud hasta (0 = sin búsqueda)','0')
+                choice('window' ,'Ventana',[(name,name) for name in ('kaiser','boxcar','hann','hamming','blackman','bartlett')]);field('taps','Cantidad de coeficientes (0 = estimar Kaiser)','0');field('search','Buscar menor longitud hasta (0 = sin búsqueda)','0')
                 hint('Coeficientes: 51 significa orden 50. Cero estima con Kaiser. Buscar hasta: cero desactiva la búsqueda; otro entero fija la mayor longitud a probar con la ventana elegida.')
             else:
                 choice('method','Método',[('Butterworth digital','butter'),('Chebyshev I digital','cheby1'),('Chebyshev II digital','cheby2'),('Elíptico (Cauer) digital','ellip'),('Comparar las cuatro familias digitales','compare'),('Butterworth + bilineal con predeformación','bilinear'),('Butterworth + invarianza al impulso','impulse')]);field('period','T de la transformación (s)','1')
@@ -83,7 +102,7 @@ class CourseToolsPanel(QWidget):
                         'ellip':'Elíptico: ondulación en ambas bandas. Compará también la fase y la respuesta temporal.',
                         'bilinear':'Prototipo Butterworth con bordes predeformados; conserva el prototipo analógico.',
                         'impulse':'Prototipo Butterworth por invarianza al impulso; el aliasing puede alterar las tolerancias digitales.'}
-                    self.family_note.setText(descriptions[self.fields['method'].currentData()].replace('digitales','analógicas' if action=='analog' else 'digitales')+' En IIR, la banda de paso se diseña entre 1−δp y 1.')
+                    self.family_note.setText(descriptions[self.fields['method'].currentData()].replace('digitales','analógicas' if action=='analog' else 'digitales')+' Los límites de amplitud se muestran para cada banda.')
                 self.fields['method'].currentIndexChanged.connect(explain_family);explain_family()
 
         elif action=='bandpass_sampling':
@@ -99,6 +118,8 @@ class CourseToolsPanel(QWidget):
             taken=form.takeRow(self.fields['definition']);form.insertRow(0,taken.labelItem.widget(),self.fields['definition'])
             from .expression_editor import ExpressionEditor
             self.ideal_expression=ExpressionEditor('where(abs(w)<=1,1,0)');self.ideal_expression.mode.setCurrentIndex(1)
+            from .expression_import import install_expression_import
+            install_expression_import(self.ideal_expression,window,['w'],['rad/s'])
             self.fields['ideal_expression']=self.ideal_expression;form.addRow('Ha(jΩ): w representa Ω en rad/s',self.ideal_expression)
             choice('ideal_method','Conversión de la respuesta',[('Bilineal: Ω = (2/T) tan(ω/2)','bilinear'),('Invarianza al impulso, soporte finito','impulse')])
             field('ideal_support','Ωmáx (rad/s); fuera de ±Ωmáx, Ha = 0','1')
@@ -240,12 +261,15 @@ class CourseToolsPanel(QWidget):
                 from .bandpass_sampling import analyze
                 args=(self.scalar('low'),self.scalar('high'),self.scalar('candidate') if self.fields['candidate'].text().strip() else None);job=lambda:analyze(*args)
             elif action=='analog':
-                from .analog_design import design
-                wp,ws=self.band_edges.bands();args=(wp,ws,self.scalar('dp'),self.scalar('ds'),self.fields['method'].currentData());job=lambda:design(*args)
+                from .amplitude_design import design
+                wp,ws=self.band_edges.bands();amplitudes=[self.scalar('amplitude_low')]+([self.scalar('amplitude_high')] if self.band_edges.kind.currentData()=='bandstop' else []);units=self.fields['tolerance_units'].currentData()
+                args=(wp,ws,self.scalar('dp'),self.scalar('ds'),self.fields['method'].currentData());job=lambda:design(*args,amplitudes=amplitudes,units=units,analog=True)
             elif action in ('fir','iir'):
                 wp,ws=self.band_edges.bands()
                 args=(wp,ws,self.scalar('dp'),self.scalar('ds'),'kaiser' if action=='fir' else self.fields['method'].currentData(),self.scalar('period') if action=='iir' and self.fields['method'].currentData() in ('bilinear','impulse') else 1,self.integer('taps') if action=='fir' else 0,self.fields['window'].currentData() if action=='fir' else 'kaiser',self.integer('search') if action=='fir' else 0);job=lambda:calc.design_filter(*args)
-                if action=='iir' and self.fields['method'].currentData()=='compare':job=lambda:calc.compare_iir(*args[:4])
+                from .amplitude_design import design
+                amplitudes=[self.scalar('amplitude_low')]+([self.scalar('amplitude_high')] if self.band_edges.kind.currentData()=='bandstop' else []);units=self.fields['tolerance_units'].currentData()
+                job=lambda:design(*args,amplitudes=amplitudes,units=units)
             elif action=='convert':
                 if ideal_conversion:
                     from .ideal_conversion import windowed_conversion
@@ -281,14 +305,22 @@ class CourseToolsPanel(QWidget):
                 references=self.vector('analog_cutoffs') if conversion_method in ('bilinear','impulse') and self.fields['analog_cutoffs'].text().strip() else []
                 conversion_source=None if ideal_conversion else system;conversion_expression=self.ideal_expression.text() if ideal_conversion else None
                 job=lambda:enrich_conversion(conversion_job(),conversion_source,conversion_period,conversion_method,references,input_expression=conversion_expression)
+            if ideal_conversion:
+                from .expression_import import expression_context
+                imported_parents,imported_conditions=expression_context(self.ideal_expression);parents.extend(imported_parents)
             calculated_inputs=self.result_state.snapshot()
             def accept(result):
                 self.view.show_content();self.view.actions.setVisible(bool(result['systems']+result['signals']))
+                if not hasattr(self,'specification_status'):
+                    self.specification_status=QLabel();self.specification_status.setWordWrap(True);self.tabs.parentWidget().layout().insertWidget(0,self.specification_status)
+                status=result.get('specification_met');self.specification_status.setVisible(status is not None)
+                self.specification_status.setText('Dentro de tolerancias en la rejilla calculada.' if status else 'FUERA DE TOLERANCIAS · este diseño no satisface los límites solicitados. Revisá el informe.')
+                self.specification_status.setStyleSheet('color:'+('#68c7b4' if status else '#efb56c')+';')
                 if hasattr(self,'comparison_controls'):self.comparison_controls.show()
                 self.comparing_systems=result.get('comparison',False);self.show_all_systems.setVisible(self.comparing_systems)
                 self.items=result['systems']+result['signals'];self.records=[];self.specifications=result.get('specifications')
                 for value in self.items:self.records.append(self.window.publish(value,operation=TITLES[action],parents=parents))
-                self.window.publish({'report':result['report'],'specifications':self.specifications},title=TITLES[action],operation='Informe de '+TITLES[action],parents=parents)
+                self.window.publish({'report':result['report'],'specifications':self.specifications,**({'input_conditions':imported_conditions} if ideal_conversion else {})},title=TITLES[action],operation='Informe de '+TITLES[action],parents=parents)
                 if action=='phase':
                     self.phase_input=system;self.phase_report=result['report'];self._phase_report_value=None;self.compensation_data=result.get('compensation');self.reconstruction_data=result.get('reconstruction')
                     self.compensation_export.setText('Exportar reconstrucción CSV…' if self.reconstruction_data is not None else 'Exportar comparación CSV…');self.compensation_export.setVisible(self.compensation_data is not None or self.reconstruction_data is not None)
@@ -441,17 +473,20 @@ class CourseToolsPanel(QWidget):
         elif kind=='bandpass':passing=[(wp[0],wp[1])];stopping=[(low,ws[0]),(ws[1],high)]
         else:passing=[(low,wp[0]),(wp[1],high)];stopping=[(ws[0],ws[1])]
         convert=(lambda x:x) if linear else (lambda x:20*np.log10(x))
-        lower=convert(1-spec['dp']);upper=convert(spec.get('pass_upper',1+spec['dp']));stop=convert(spec['ds'])
+        lowers=spec.get('pass_lower',[1-spec['dp']]*len(passing));uppers=spec.get('pass_upper_bands',[spec.get('pass_upper',1+spec['dp'])]*len(passing));amplitudes=spec.get('amplitudes',[1]*len(passing));stop=convert(spec.get('stop_upper',spec['ds']))
         transitions=sorted((min(p,s),max(p,s)) for p,s in zip(wp,ws))
         for i,(left,right) in enumerate(transitions):
             axis.axvspan(left,right,color='#91a5f6',alpha=.15,label='Transición especificada (entre bordes)' if i==0 else None)
         widths=' · '.join(('Izquierda' if i==0 else 'Derecha')+f': Δω = {right-left:.6g} {unit}' for i,(left,right) in enumerate(transitions)) if len(transitions)==2 else f'Δω = {transitions[0][1]-transitions[0][0]:.6g} {unit}'
         axis.set_xscale('log' if analog else 'linear');axis.set_xlim(low,high)
         for i,(left,right) in enumerate(passing):
+            lower=convert(lowers[i]);upper=convert(uppers[i]);ideal=convert(amplitudes[i])
+            axis.plot([left,right],[ideal,ideal],color='#91a5f6',linestyle='-.',linewidth=1.3,label='Respuesta ideal' if i==0 else None)
             axis.axvspan(left,right,color='#68c7b4',alpha=.08)
             axis.plot([left,right],[lower,lower],color='#68c7b4',linestyle='--',linewidth=1,label='Límites de paso' if i==0 else None)
             axis.plot([left,right],[upper,upper],color='#68c7b4',linestyle='--',linewidth=1)
         for i,(left,right) in enumerate(stopping):
+            if linear:axis.plot([left,right],[0,0],color='#91a5f6',linestyle='-.',linewidth=1)
             axis.axvspan(left,right,color='#efb56c',alpha=.06)
             axis.plot([left,right],[stop,stop],color='#efb56c',linestyle='--',linewidth=1,label='Máximo en rechazo' if i==0 else None)
         for edge in wp+ws:axis.axvline(edge,color='#8194ae',linestyle=':',linewidth=.6)

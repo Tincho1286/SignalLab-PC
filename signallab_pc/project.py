@@ -17,7 +17,7 @@ def encode(value):
             domain=value.domain,expression=value.expression,metadata=deepcopy(value.metadata))
     if isinstance(value, Transfer):
         return 'system', dict(b=[[float(v.real),float(v.imag)] for v in value.b],
-            a=[[float(v.real),float(v.imag)] for v in value.a],domain=value.domain,name=value.name,sos=value.sos.tolist() if value.sos is not None else None,advance=value.advance,sample_period_s=value.sample_period_s)
+            a=[[float(v.real),float(v.imag)] for v in value.a],domain=value.domain,name=value.name,sos=value.sos.tolist() if value.sos is not None else None,advance=value.advance,sample_period_s=value.sample_period_s,roc=deepcopy(value.roc))
     if isinstance(value,StateModel):
         data={'dt':value.dt,'name':value.name}
         for key in ('A','B','C','D'):

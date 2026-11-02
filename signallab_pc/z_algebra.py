@@ -12,6 +12,8 @@ def direct(request):
     if upper!=sp.oo and not isinstance(upper,sp.Integer):raise ValueError('Final entero u oo.')
     if lower>upper:raise ValueError('El índice final debe ser mayor o igual al inicial.')
     if lower.is_finite and upper.is_finite:ensure_working_set(int(upper-lower+1),bytes_per_sample=1024,live_arrays=8)
+    from .singularities import resolve_finite_support
+    expression=resolve_finite_support(expression,N,lower,upper)
     result=sp.summation(sp.simplify(expression*Z**(-N)),(N,lower,upper))
     # Never simplify the whole Piecewise: SymPy can turn a complex-plane
     # modulus condition into inequalities on a real z.
@@ -43,4 +45,12 @@ def direct(request):
 
 def inverse(request):
     from .z_inverse import inverse as rational_inverse
+    if request.get('complete_finite'):
+        value=sp.cancel(parse(request['expression']))
+        if not value.is_rational_function(Z):raise ValueError('El soporte finito completo requiere un polinomio de Laurent en z.')
+        num,den=map(lambda v:sp.Poly(v,Z),sp.fraction(value))
+        if len(den.terms())!=1:raise ValueError('X(z) no es un polinomio de Laurent finito. Elegí un intervalo de muestras para esta secuencia infinita.')
+        power=den.monoms()[0][0]
+        support=[power-m[0] for m,c in num.terms() if c!=0]
+        request=dict(request,start=min(support) if support else 0,count=max(support)-min(support)+1 if support else 1,include_samples=True)
     return rational_inverse(request)

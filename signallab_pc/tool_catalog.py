@@ -89,7 +89,7 @@ for key,title,summary,section in [
  (('sampling',4),'Cuantizar y medir SNR','Niveles de amplitud y error de cuantización.','Cuantización'),
  (('sampling',5),'Precisión numérica','Punto fijo, IEEE 754, coeficientes y ejecución: redondeo, saturación, acumuladores, memorias y ciclos límite.','Cuantización')]:add('sampling',section,key,title,summary)
 add('transforms','Transformadas',('transform_lab','laplace'),'Transformada de Laplace','Directa e inversa, unilateral o bilateral con ROC.','unilateral bilateral causal inversa s roc izquierda derecha')
-add('transforms','Transformadas',('transform_lab','z'),'Transformada Z','Directa, inversa con ROC y muestras finitas.','region convergencia bilateral secuencia inversa')
+add('transforms','Transformadas',('transform_lab','z'),'Transformada Z','Directa por fórmula o muestras; inversa con ROC e intervalo o soporte finito completo.','region convergencia bilateral secuencia inversa')
 add('transforms','Ecuaciones',('symbolic',4),'Ecuaciones diferenciales','Solución algebraica y condiciones iniciales.','edo')
 add('transforms','Ecuaciones',('difference_equation',0),'Ecuaciones en diferencias','Solución en n, condiciones iniciales y respuesta forzada.','recurrencia discreta edd recursiva ecuacion historial entrada estado cero')
 for key,title,summary in [

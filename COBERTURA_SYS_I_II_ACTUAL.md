@@ -118,3 +118,8 @@ Hay formas cerradas mediante propiedades de Z para las entradas polinómicas, ex
 ## Ampliación 1.1.3: ventanas independientes
 
 Crear una señal incluye Ventana: rectangular, Hann, Hamming, Blackman, Bartlett y Kaiser simétricas. Se eligen L, origen o centrado y β cuando corresponde. El resultado se exporta como señal discreta y puede analizarse con DTFT, DFT/FFT o Z finita, o multiplicarse por otra señal. La longitud L se expresa como cantidad total de muestras. La recepción en Z selecciona Muestras finitas y conserva los índices, también si son negativos.
+
+
+## 1.2.0 preliminar · 2026-11-02
+
+Z directa/inversa integran registros finitos; transferencia racional en plano z y ROC explícita; FIR con amplitudes por banda y tolerancias absolutas/relativas/dB; importación compatible compartida. No se declara ampliación curricular ni estabilidad comprobada: esta entrega no ejecutó pruebas por pedido del usuario. Las familias IIR clásicas conservan una ganancia común de paso. Ver VERSION_1.2.0-preview.md.

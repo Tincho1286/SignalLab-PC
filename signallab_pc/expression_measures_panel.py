@@ -26,6 +26,8 @@ class ExpressionMeasuresPanel(QWidget):
             'periodic':'Se comprueba que la expresión se repita con el periodo indicado. La potencia se obtiene promediando un periodo.'}
         note=QLabel(descriptions[mode]);note.setWordWrap(True);form.addRow(note)
         choose=QPushButton('Reutilizar una definición de señal…');choose.clicked.connect(self.choose);form.addRow(choose)
+        from .expression_import import install_expression_import
+        install_expression_import(self.expression,window,lambda:['t' if self.domain.currentIndex()==0 else 'n'],receiver=self.load_expression)
         self._expression_origin=None;self._input_conditions=()
         self.source_note=QLabel();self.source_note.setWordWrap(True);self.source_note.setObjectName('muted');form.addRow(self.source_note);self.source_note.hide();self.expression.textChanged.connect(self.refresh_origin)
         self.calculate_button=QPushButton('Calcular energía y potencia');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);form.addRow(self.calculate_button)

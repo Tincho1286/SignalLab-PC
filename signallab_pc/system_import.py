@@ -22,7 +22,7 @@ class SystemImporter:
             try:button.clicked.disconnect()
             except RuntimeError:pass
         button.setText('Cargar sistema…');button.setToolTip('Abrir un sistema JSON o reutilizar sistemas y expresiones H(s)/H(z) guardados en Resultados.');menu=QMenu(button);button.setMenu(menu);self.menu=menu
-        menu.addAction('Usar un resultado anterior…',lambda checked=False:self.choose_result());menu.addAction('Abrir archivo de sistema JSON…',lambda:self.open_file())
+        menu.addAction('Usar un resultado o importar archivo compatible…',lambda checked=False:self.choose_result());menu.addAction('Abrir archivo de sistema JSON…',lambda:self.open_file())
         button._system_importer=self
     def constraints(self):
         domains=self.domains() if callable(self.domains) else self.domains
@@ -58,7 +58,10 @@ class SystemImporter:
             if domains is not None and domain not in domains:raise ValueError('La expresión corresponde a otro dominio. No se transforma automáticamente entre s y z.')
             def convert():
                 system=formula_system(text,domain,'H('+expression.variable+') desde expresión',allow_advance=advance)
-                if domain=='digital':system.sample_period_s=self.window.project.sample_period(key)
+                if domain=='digital':
+                    system.sample_period_s=self.window.project.sample_period(key)
+                    from .transform_context import result_roc
+                    system.roc=result_roc(source)
                 return system
             def accept(system):
                 self.validate(system)

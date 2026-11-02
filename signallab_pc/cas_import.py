@@ -45,6 +45,7 @@ def _value(data,notices):
         digital=data['domain']=='digital';v=sp.Symbol('z' if digital else 's')
         def polynomial(coefficients):return sp.Add(*[_complex(c)*v**(-index if digital else len(coefficients)-index-1) for index,c in enumerate(coefficients)])
         notices.append('Transferencia con los coeficientes numéricos almacenados; no se inventa una representación racional exacta de sus decimales.')
+        if data.get('roc') is not None:notices.append('ROC registrada del sistema: '+str(data['roc'])+'. Forma parte de su interpretación; la expresión CAS sola no impone el soporte.')
         if data.get('period') is not None:notices.append('Período físico del sistema: T='+str(data['period'])+' s.')
         return (v**data.get('advance',0) if digital else 1)*polynomial(data['b'])/polynomial(data['a'])
     if kind=='samples':

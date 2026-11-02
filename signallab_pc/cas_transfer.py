@@ -34,7 +34,7 @@ def payload(value,window=None,seen=None):
         if 'calculated_data' in value:return payload(value['calculated_data'],window,seen)
     def pairs(values):return [[float(complex(v).real),float(complex(v).imag)] for v in values]
     if isinstance(value,Transfer):
-        return {'kind':'system','b':pairs(value.b),'a':pairs(value.a),'domain':value.domain,'advance':value.advance,'period':value.sample_period_s}
+        return {'kind':'system','b':pairs(value.b),'a':pairs(value.a),'domain':value.domain,'advance':value.advance,'period':value.sample_period_s,'roc':value.roc}
     if isinstance(value,Signal):
         ensure_working_set(int(value.values.size),bytes_per_sample=2048,live_arrays=4)
         from .distributions import dirac_terms

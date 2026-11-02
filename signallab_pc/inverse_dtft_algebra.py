@@ -52,8 +52,9 @@ def sample_expression(request):
     expression=read(result['result'],('n',))
     if expression.free_symbols-{N}:raise ValueError('Asigná valores a los parámetros antes de generar muestras.')
     if expression.has(sp.DiracDelta,sp.Integral):raise ValueError('Esta expresión no admite muestras finitas ordinarias.')
-    function=sp.lambdify(N,expression,modules=['scipy','numpy']);indices=np.arange(count,dtype=np.int64)+start
-    with np.errstate(all='ignore'):values=np.asarray(function(indices),dtype=complex)
+    from .singularities import sample_symbolic
+    indices=np.arange(count,dtype=np.int64)+start
+    values=sample_symbolic(expression,N,indices)
     if values.ndim==0:values=np.full(count,values,dtype=complex)
     if values.shape!=(count,) or not np.isfinite(values).all():raise ValueError('La expresión no tiene un valor finito en todos los índices pedidos.')
     return {'samples':[[float(v.real),float(v.imag)] for v in values],'origin':start}

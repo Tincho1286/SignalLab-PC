@@ -26,13 +26,22 @@ class ProjectPicker(QDialog):
         self.plot_mode=QComboBox();self.plot_mode.addItems(['Módulo y fase','Parte real e imaginaria']);box.addWidget(self.plot_mode);self.plot_mode.currentIndexChanged.connect(lambda _:self.preview(self.items.currentRow()))
         self.figure=Figure(figsize=(6,3));self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumSize(0,150);box.addWidget(self.canvas,1)
         footer=QHBoxLayout();self.note=QLabel('');footer.addWidget(self.note,1);cancel=QPushButton('Cancelar');cancel.clicked.connect(self.reject);footer.addWidget(cancel)
+        self.import_button=QPushButton('Importar archivo…');self.import_button.clicked.connect(self.import_file);footer.insertWidget(0,self.import_button)
         self.use=QPushButton('Cargar selección');self.use.setObjectName('primary');self.use.clicked.connect(self.accept_selection);footer.addWidget(self.use);root.addLayout(footer)
-        headers=self.project.headers() if kind in ('system_source','temporal_expression') else self.project.headers(kind)
+        headers=self.project.headers() if kind in ('system_source','temporal_expression','cas_source') else self.project.headers(kind)
         self.records=[];self.descriptions={};self.visible=[]
         for record in reversed(headers):
             info=source_info(self.project,record['id'],kind)
             if compatible(info,**self.constraints):self.records.append(record);self.descriptions[record['id']]=info
         self.search.textChanged.connect(self.filter);self.items.currentRowChanged.connect(self.preview);self.items.itemDoubleClicked.connect(lambda _:self.accept_selection());self.filter('')
+    def import_file(self):
+        from PySide6.QtWidgets import QMessageBox
+        try:
+            from .data_import import load_results
+            key=load_results(self,self.kind,self.constraints)
+            if not key:return
+            self.selected_id=key;self.accept()
+        except Exception as exc:QMessageBox.warning(self,'No se pudo importar',str(exc))
     def filter(self,text):
         import unicodedata
         norm=lambda s:''.join(c for c in unicodedata.normalize('NFKD',s.casefold()) if not unicodedata.combining(c))

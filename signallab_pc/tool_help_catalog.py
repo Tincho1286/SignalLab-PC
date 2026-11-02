@@ -239,3 +239,30 @@ GUIDES['systems',6]['parameters'] += [
 GUIDES['systems',6]['reading'] += ' La carga exacta conserva las expresiones en las listas; las operaciones numéricas usan la precisión disponible. Los múltiplos exactos de pi/2 en la carga polar se ubican sobre los ejes sin residuos imaginarios artificiales.'
 
 add('window_signal',0,'Tipo, longitud e índices|Ventana simétrica finita|w[n] para exportar o analizar','Ventana: Elegí rectangular, Hann, Hamming, Blackman, Bartlett o Kaiser. Son las variantes simétricas usadas en filtros FIR.\nLongitud L: Cantidad total de muestras, entero positivo. Si el origen es n₀, el último índice es n₀+L−1. En un FIR de esa longitud, M=L−1 es el orden nominal.\nÍndice inicial: Entero que ubica la primera muestra; puede ser negativo. No cambia los valores de la ventana.\nCentrar: Usa n₀=−floor(L/2). Con L impar el centro es 0; con L par queda en −1/2 y las muestras siguen en índices enteros.\nβ: Parámetro no negativo de Kaiser; sólo interviene en esa ventana.\nExportar o reutilizar: El resultado es una señal discreta con muestras e índices, lista para JSON/CSV, Fourier, Z finita o producto con otra señal.','L no es la semilongitud ni el orden M. No se normaliza el pico, la suma ni la energía después de generar. La simetría no obliga a que exista una muestra central cuando L es par. Fuera del intervalo se usa cero; la ventana no se convierte en una secuencia periódica.')
+
+
+# Shared conventions introduced in 1.2.0.
+GUIDES['transform_lab','z']['parameters']=[
+ ('Directa','Elegí Expresión x[n] con soporte inclusivo, o Secuencia finita. La secuencia tiene su propio origen y permite Fórmula, Muestras, Archivo o Resultado.'),
+ ('Inversa','Ingresá X(z) y elegí la ROC. Para una secuencia infinita pedí un intervalo; para un polinomio de Laurent elegí Soporte finito completo: se recuperan todos los índices no nulos, incluidos negativos.'),
+ ('ROC','Exterior, interior o anillo deciden el soporte de los términos. El radio debe quedar dentro de un anillo libre de polos; no fija sus bordes.'),
+ ('Enviar a CAS','Envía el resultado matemático del flujo activo, con sus condiciones. En la directa es X(z); en la inversa es x[n].'),
+ ('Analizar X(z) como H(z)','En la directa usa X(z) calculada; en la inversa usa la X(z) ingresada. Conserva el reloj disponible y una ROC compatible cuando se puede inferir. El análisis separa H(z) en el plano y H(e^{jω}).'),
+ ('Archivos','Cargar expresión importa un resultado algebraico JSON compatible. Secuencia finita permite CSV, MATLAB y JSON. No se interpreta una lista finita como una fórmula de soporte infinito.')]
+GUIDES['system_analysis',0]['parameters'] += [
+ ('H(z) · plano complejo','Mapa de 20 log10|H(z)|, polos, ceros y círculo unitario. El semiancho controla ambos ejes por igual. La expresión racional puede evaluarse fuera de su ROC, pero allí no representa la suma convergente de h[n].'),
+ ('ROC de H(z)','Elegí secuencia derecha, izquierda, un anillo por radio o ROC no especificada. La fórmula racional sola no decide la ROC. La vista de frecuencia se habilita sólo cuando todo el círculo unitario queda dentro de la región abierta.')]
+for _task in ('fir','iir','analog'):
+ _guide=GUIDES['course_tools',_task]
+ _guide['parameters']=[(name,meaning) for name,meaning in _guide['parameters'] if not any(word in name.lower() for word in ('tolerancia','variación','pérdida','rechazo δ','δp','δs'))]
+ _guide['parameters'] += [
+  ('Amplitudes de paso','A positiva por banda. En rechazabanda hay amplitud inferior y superior independientes; FIR construye la suma de un ideal pasa bajos y otro pasa altos con la ganancia de cada banda.'),
+  ('Tolerancias absolutas','Paso entre A−δp y A+δp; rechazo hasta δs. δp debe dejar un límite inferior positivo.'),
+  ('Tolerancias relativas','δp es fracción de la amplitud A de cada banda. δs es fracción de Aref, la mayor amplitud de paso. 0.05 significa 5 %.'),
+  ('Tolerancias en dB','El rizado es ±rp dB respecto de A: A·10^(−rp/20) a A·10^(rp/20). La atenuación As da un máximo Aref·10^(−As/20).'),
+  ('Compatibilidad del algoritmo','Las familias IIR clásicas requieren igual amplitud en todas las bandas de paso. Dos amplitudes diferentes en rechazabanda se diseñan con FIR; no se aplica una ganancia global que ignore una banda.'),
+  ('Resultado y límites','Las curvas muestran ideal, límites por banda y respuesta obtenida. Fuera de tolerancias queda indicado expresamente. La comprobación interna sobre una rejilla forma parte del cálculo y no certifica máximos entre puntos.')]
+ _guide['reading']='Compará la respuesta obtenida con el objetivo y los límites de cada banda. En FIR, Kaiser estima la longitud usando la transición más estrecha y el menor error absoluto referido a la mayor amplitud; la estimación no garantiza cumplimiento. El informe evalúa las bandas originales y declara si la respuesta queda fuera de tolerancias.'
+for _key,_guide in GUIDES.items():
+ if _key[0] in ('basic','signal_product','fourier','inverse_dtft','fir_window','random','random_correlation','random_model','sampling','correlation'):
+  _guide['parameters'].append(('Importar o reutilizar','Cada entrada tiene su propio origen: Archivo abre CSV, MATLAB o JSON; Resultado permite elegir una salida anterior y también importar allí un archivo compatible. Se conservan índices, complejos, unidades y reloj registrado. No se cambian dominios ni tasas automáticamente.'))

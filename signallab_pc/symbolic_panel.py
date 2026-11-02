@@ -19,6 +19,8 @@ class SymbolicPanel(QWidget):
         self.operation=QComboBox(); self.operation.addItems(["Laplace directa unilateral", "Laplace inversa causal", "Z del registro finito cargado", "Z inversa racional (rama derecha)", "EDO lineal de coeficientes constantes"])
         form.addRow("Operación",self.operation)
         self.expression=ExpressionEditor("exp(-t)"); self.expression.symbolic=True; form.addRow("Expresión",self.expression)
+        from .expression_import import install_expression_import
+        install_expression_import(self.expression,owner.window if hasattr(owner,'window') and not callable(owner.window) else owner,lambda:[['t','s','n','z','t'][self.operation.currentIndex()]])
         self.count=QLineEdit("64"); form.addRow("Términos de la Z inversa",self.count)
         self.coefficients=QLineEdit("1, 1"); form.addRow("EDO: a0, a1, …, am",self.coefficients)
         self.initial=QLineEdit("0"); form.addRow("EDO: y(0), y′(0), …",self.initial)

@@ -16,6 +16,9 @@ def temporal_expression(project, key):
 
 def source_info(project, key, kind):
     record = project.describe(key)
+    if kind == 'cas_source':
+        from .cas_transfer import can_send
+        return {**record,'label':'Resultado para CAS'} if can_send(project.get(key)) else None
     if kind == 'system_source':
         if record['kind'] == 'system':
             return {**record, 'label': 'Sistema', 'definition': 'system'}

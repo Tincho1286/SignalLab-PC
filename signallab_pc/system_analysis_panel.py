@@ -48,6 +48,10 @@ class SystemAnalysisPanel(QWidget):
         self.margin_note=QLabel('H se interpreta como L, con realimentación negativa unitaria. Se buscan cruces dentro del intervalo, no un certificado global de estabilidad.');self.margin_note.setWordWrap(True);self.margin_note.setObjectName('muted');form.addRow(self.margin_note);self.margin_note.hide()
         self.margins.toggled.connect(self.margin_note.setVisible)
 
+        self.roc_choice=QComboBox();self.roc_choice.addItems(['Secuencia derecha · exterior a polos','Secuencia izquierda · interior a polos','Anillo que contiene un radio','ROC no especificada']);form.addRow('ROC de H(z)',self.roc_choice)
+        self.roc_radius=QLineEdit('1');form.addRow('Radio dentro de la ROC',self.roc_radius)
+        self.roc_choice.currentIndexChanged.connect(lambda *_:form.setRowVisible(self.roc_radius,self.domain.currentIndex()==1 and self.roc_choice.currentIndex()==2))
+        self._form=form
         self.impulse=QCheckBox('Calcular también h(t) causal');form.addRow(self.impulse)
         choose=QPushButton('Copiar un sistema anterior…');choose.clicked.connect(self.choose);form.addRow(choose)
         from .system_import import install_system_import
@@ -60,7 +64,7 @@ class SystemAnalysisPanel(QWidget):
         # marks it stale, and every action uses its captured Transfer and record id.
         self.calculate_button=QPushButton('Analizar sistema');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);form.insertRow(0,self.calculate_button)
         from .result_state import ResultState
-        self.result_state=ResultState([self.domain,self.definition_mode,self.b,self.a,self.transfer_formula,self.w0,self.w1,self.count,self.frequency_scale,self.margins,self.impulse],self.calculate_button);form.insertRow(1,self.result_state)
+        self.result_state=ResultState([self.domain,self.definition_mode,self.b,self.a,self.transfer_formula,self.w0,self.w1,self.count,self.frequency_scale,self.margins,self.impulse,self.roc_choice,self.roc_radius],self.calculate_button);form.insertRow(1,self.result_state)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);root.addWidget(right,2)
         layout.addWidget(self.result_actions);self.frequency_export=QPushButton('Exportar respuesta…');self.frequency_export.clicked.connect(self.export_response);self.frequency_export.setEnabled(False);self.result_actions.layout().addWidget(self.frequency_export);self.result_actions.hide()
@@ -75,6 +79,9 @@ class SystemAnalysisPanel(QWidget):
         self.roots_view=PoleZeroAnalysis();self.result_tabs.addTab(self.roots_view,'Polos y ceros');self.result_tabs.setTabVisible(2,False)
         from .realization_panel import RealizationPanel
         self.realization_view=RealizationPanel(window);self.result_tabs.addTab(self.realization_view,'Realización');self.result_tabs.setTabVisible(3,False)
+        from .z_plane import ZPlaneView
+        self.z_view=ZPlaneView();self.z_index=self.result_tabs.addTab(self.z_view,'H(z) · plano complejo');self.result_tabs.setTabVisible(self.z_index,False)
+        self.domain.currentIndexChanged.connect(lambda *_:self._form.setRowVisible(self.roc_choice,self.domain.currentIndex()==1));self.domain.currentIndexChanged.connect(lambda *_:self._form.setRowVisible(self.roc_radius,self.domain.currentIndex()==1 and self.roc_choice.currentIndex()==2));self._form.setRowVisible(self.roc_choice,False);self._form.setRowVisible(self.roc_radius,False)
         self.result_tabs.currentChanged.connect(self._result_tab_changed);self.result_tabs.tabBar().tabBarClicked.connect(self._result_tab_changed)
         self.empty=QLabel('El análisis aparecerá después de calcular.');self.empty.setObjectName('muted');layout.addWidget(self.empty);self.result_tabs.hide()
     def inspect_system_roots(self,system,key=None):
@@ -86,10 +93,15 @@ class SystemAnalysisPanel(QWidget):
         self.report.set_readable(transfer_summary(system));self.result_state.accept(self.result_state.snapshot())
         self.result_state.setText('Plano del filtro copiado. Analizar sistema calcula también su respuesta en frecuencia.')
         self.result_actions.set_result(self.system,self.input_id);self.result_actions.setEnabled(True)
+        self.result_tabs.setTabVisible(self.z_index,system.domain=='digital')
         self.show_poles_zeros()
     def _result_tab_changed(self,index):
         if index==2:self.show_poles_zeros()
         elif index==3:self.show_realization()
+        elif index==self.z_index and self.analyzed_system is not None:
+            self.z_view.set_system(self.analyzed_system)
+            from .plot_view import enlarge_plot
+            enlarge_plot(self.z_view.canvas,self.z_view)
     def show_realization(self):
         if self.analyzed_system is None:return
         self.realization_view.set_system(self.analyzed_system,self.analysis_advance,self.input_id if not self.analysis_advance else None)
@@ -130,6 +142,9 @@ class SystemAnalysisPanel(QWidget):
         from .transfer_input import remember_system
         self.definition_mode.setCurrentIndex(0);self.domain.setCurrentIndex(0 if system.domain=='analog' else 1)
         self.b.setText(list_text(system.b));self.a.setText(list_text(system.a));self.input_id=key;remember_system(self,system)
+        if system.domain=='digital':
+            spec=system.roc;self.roc_choice.setCurrentIndex({'right':0,'left':1,'radius':2}.get(spec.get('mode'),3) if spec else 3)
+            if spec and 'radius' in spec:self.roc_radius.setText(str(spec['radius']))
     def choose(self):
         key=self.window.choose_record('system')
         if not key:return
@@ -157,6 +172,8 @@ class SystemAnalysisPanel(QWidget):
             logarithmic=self.frequency_scale.currentIndex()==1;with_margins=self.margins.isChecked()
             from .system_clock import editor_period,apply_period
             period=editor_period(self)
+            roc_spec=({'mode':['right','left','radius'][self.roc_choice.currentIndex()],**({'radius':real_field(self.roc_radius)} if self.roc_choice.currentIndex()==2 else {})} if request['domain']=='digital' and self.roc_choice.currentIndex()<3 else None)
+            request['roc_spec']=roc_spec
             parent=self.input_id;calculated_inputs=self.result_state.snapshot()
             def compute():
                 omega_grid=frequency_grid(start,stop,count,logarithmic)
@@ -167,9 +184,15 @@ class SystemAnalysisPanel(QWidget):
                 else:exact=run_request(request)
                 system=None;data=None
                 if 'numeric_b' in exact:
-                    system=preserved or Transfer([complex(*v) for v in exact['numeric_b']],[complex(*v) for v in exact['numeric_a']],request['domain'],'Sistema analizado',advance=exact.get('advance',0))
+                    from copy import deepcopy
+                    system=deepcopy(preserved) if preserved is not None else Transfer([complex(*v) for v in exact['numeric_b']],[complex(*v) for v in exact['numeric_a']],request['domain'],'Sistema analizado',advance=exact.get('advance',0))
                     system=apply_period(system,period)
-                    data=analyze_frequency(system,omega_grid,logarithmic=logarithmic,margins=with_margins)
+                    system.roc=roc_spec
+                    from .transfer_plane import convergence
+                    information=convergence(system) if system.domain=='digital' else None
+                    if information is not None:exact['roc']=information['text']
+                    if information is None or information['unit'] is True:data=analyze_frequency(system,omega_grid,logarithmic=logarithmic,margins=with_margins)
+                    else:exact['frequency_notice']='No se calcula H(e^{jω}): '+information['text']+' Elegí una ROC que contenga el círculo unitario para definir su respuesta DTFT.'
                 return exact,system,data
             def accept(result):
                 exact,system,data=result
@@ -179,15 +202,19 @@ class SystemAnalysisPanel(QWidget):
                 if system is not None:
                     self.system=system
                     if self.system is not None:self.input_id=self.window.publish(system,operation='Aproximación numérica de la definición',parents=[definition])
-                    self.draw_frequency()
+                    if data is not None:self.draw_frequency()
                 else:
                     self.figure.clear();empty=self.figure.add_subplot(111);empty.set_axis_off();empty.text(.5,.5,'Asigná valores a los parámetros para obtener la respuesta numérica.',ha='center',va='center',wrap=True,transform=empty.transAxes);self.canvas.draw_idle()
                 self.result_actions.set_result(self.system,self.input_id);self.result_actions.setEnabled(True)
                 message=('El sistema conserva '+str(system.advance)+' muestras de avance. Podés exportarlo o reutilizarlo para análisis y Z inversa con ROC. La simulación causal no reemplaza ese avance por un retardo.' if system is not None and system.advance else 'La fórmula conserva parámetros libres. Asignales valores para exportar o reutilizar un sistema numérico.' if system is None else '')
                 self.reuse_note.setText(message);self.reuse_note.setVisible(bool(message))
-                self.empty.hide();self.result_tabs.show();self.result_actions.show();self.result_tabs.setTabVisible(1,system is not None);self.result_tabs.setTabVisible(2,system is not None);self.result_tabs.setTabEnabled(2,system is not None);self.result_tabs.setTabVisible(3,system is not None)
+                self.empty.hide();self.result_tabs.show();self.result_actions.show();self.result_tabs.setTabVisible(1,data is not None);self.result_tabs.setTabVisible(self.z_index,system is not None and system.domain=='digital');self.result_tabs.setTabVisible(2,system is not None);self.result_tabs.setTabEnabled(2,system is not None);self.result_tabs.setTabVisible(3,system is not None)
                 self.result_tabs.setCurrentIndex(0)
                 summary=frequency_summary(exact,data)
+                from .result_summary import Section
+                if system is not None and system.domain=='digital':
+                    from .transfer_plane import convergence
+                    summary.sections.append(Section('ROC de H(z)',paragraphs=[convergence(system)['text']]))
                 if system is not None and system.sample_period_s is not None:
                     from .result_summary import Section,number
                     summary.sections.insert(0,Section('Reloj físico',rows=[('Período T (s)',number(system.sample_period_s))],paragraphs=['La frecuencia digital permanece en rad/muestra. El reloj se conserva al exportar o reutilizar el sistema.']))

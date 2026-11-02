@@ -3,7 +3,8 @@ import ast
 
 
 def translate(source, *, symbolic):
-    tree=ast.parse(source.replace('^','**'),mode='eval')
+    from .math_source import normalize
+    tree=ast.parse(normalize(source),mode='eval')
     if sum(1 for _ in ast.walk(tree))>1000:
         raise ValueError('La expresión es demasiado extensa para copiar su definición.')
     class Converter(ast.NodeTransformer):

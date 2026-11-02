@@ -8,6 +8,17 @@ from .model import Signal
 from .resources import ensure_working_set
 
 
+def validate_roc(specification,domain='digital'):
+    from copy import deepcopy
+    if specification is None:return None
+    if domain!='digital' or not isinstance(specification,dict) or specification.get('mode') not in ('right','left','radius'):raise ValueError('ROC digital inválida.')
+    result=deepcopy(specification)
+    if result['mode']=='radius':
+        radius=result.get('radius')
+        if type(radius) not in (int,float) or not np.isfinite(radius) or radius<=0:raise ValueError('El radio de la ROC debe ser positivo y finito.')
+    return result
+
+
 def coefficients(values):
     result = np.asarray(values, dtype=np.complex128).reshape(-1)
     if not result.size or not np.all(np.isfinite(result)):
@@ -37,8 +48,10 @@ class Transfer:
     sos: np.ndarray | None = None
     advance: int = 0
     sample_period_s: float | None = None
+    roc: dict | None = None
 
     def __post_init__(self):
+        self.roc=validate_roc(self.roc,self.domain)
         from .system_clock import validate_period
         self.sample_period_s=validate_period(self.sample_period_s,self.domain)
         if isinstance(self.advance,bool) or int(self.advance)!=self.advance or self.advance<0 or self.domain!='digital' and self.advance:raise ValueError('El avance debe ser un entero no negativo de un sistema discreto.')
@@ -87,11 +100,12 @@ class Transfer:
         return cls([1],[1],'digital',name,sections,sample_period_s=sample_period_s)
 
     def to_document(self):
-        result={'format':'signallab-transfer','version':3 if self.sample_period_s is not None else 2 if self.advance else 1,'domain':self.domain,'name':self.name,
+        result={'format':'signallab-transfer','version':4 if self.roc is not None else 3 if self.sample_period_s is not None else 2 if self.advance else 1,'domain':self.domain,'name':self.name,
                 'b':[[float(v.real),float(v.imag)] for v in self.b],
                 'a':[[float(v.real),float(v.imag)] for v in self.a]}
+        if self.roc is not None:result['roc']=dict(self.roc)
         if self.sos is not None:result['sos']=self.sos.tolist()
-        if self.advance or self.sample_period_s is not None:result['advance']=self.advance
+        if self.advance or self.sample_period_s is not None or self.roc is not None:result['advance']=self.advance
         if self.sample_period_s is not None:result['sample_period_s']=self.sample_period_s
         return result
 
@@ -100,9 +114,9 @@ class Transfer:
         """Validate the complete transfer document before touching an editor."""
         if not isinstance(document,dict) or document.get('format')!='signallab-transfer':raise ValueError('El archivo no es una función de transferencia SignalLab.')
         version=document.get('version')
-        if type(version) is not int or version not in (1,2,3):raise ValueError('Versión de archivo de sistema no compatible; se admiten 1, 2 y 3.')
+        if type(version) is not int or version not in (1,2,3,4):raise ValueError('Versión de archivo de sistema no compatible; se admiten 1 a 4.')
         advance=document.get('advance',0)
-        if version in (2,3) and 'advance' not in document:raise ValueError('Los formatos 2 y 3 deben indicar advance; no se supone que el avance sea cero.')
+        if version in (2,3,4) and 'advance' not in document:raise ValueError('Los formatos 2 y 3 deben indicar advance; no se supone que el avance sea cero.')
         if type(advance) is not int or advance<0 or version==1 and advance:raise ValueError('El avance debe ser un entero no negativo y requiere formato 2 o 3 si es distinto de cero.')
         domain=document.get('domain');name=document.get('name','Sistema importado')
         if domain not in ('digital','analog') or domain=='analog' and advance:raise ValueError('El dominio debe ser analog o digital; un avance sólo corresponde a un sistema digital.')
@@ -118,9 +132,12 @@ class Transfer:
             return result[:,0]+1j*result[:,1]
         period=document.get('sample_period_s')
         if version==3 and type(period) not in (int,float):raise ValueError('El formato 3 debe registrar sample_period_s como número positivo y finito.')
-        if version!=3 and period is not None:raise ValueError('El período de un archivo de transferencia requiere formato 3.')
+        if version not in (3,4) and period is not None:raise ValueError('El período de un archivo de transferencia requiere formato 3.')
+        roc=document.get('roc')
+        if version==4 and roc is None:raise ValueError('El formato 4 debe incluir la definición de ROC.')
+        if version!=4 and roc is not None:raise ValueError('La ROC requiere formato 4.')
         b,a=vector('b'),vector('a');sos=document.get('sos')
-        if sos is None:return cls(b,a,domain,name,advance=advance,sample_period_s=period)
+        if sos is None:return cls(b,a,domain,name,advance=advance,sample_period_s=period,roc=roc)
         if not isinstance(sos,list) or not sos or any(not isinstance(row,list) or len(row)!=6 or any(type(value) not in (int,float) for value in row) for row in sos):raise ValueError('SOS requiere seis números reales por sección.')
         ensure_working_set(len(sos)*6,live_arrays=8)
         reference=cls(b,a,domain,name);stored=cls(b,a,domain,name,sos)
@@ -130,7 +147,7 @@ class Transfer:
             one=np.pad(one,(0,size-len(one)));two=np.pad(two,(0,size-len(two)))
             scale=max(float(np.max(abs(one.real),initial=0)),float(np.max(abs(one.imag),initial=0)),float(np.max(abs(two.real),initial=0)),float(np.max(abs(two.imag),initial=0)))
             if scale and np.max(abs(one/scale-two/scale),initial=0)>1e-11:raise ValueError('Los coeficientes '+key+' no coinciden con las SOS del archivo. No se elige una definición contradictoria.')
-        return cls(b,a,domain,name,sos,advance,sample_period_s=period)
+        return cls(b,a,domain,name,sos,advance,sample_period_s=period,roc=roc)
 
     def poles_zeros(self):
         if self.sos is not None:

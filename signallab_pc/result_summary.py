@@ -146,6 +146,8 @@ def transfer_summary(value):
     if value.sample_period_s is not None:rows.append(('Período físico T (s)',number(value.sample_period_s)))
     if value.sos is not None:rows.append(('Realización','Cascada de '+str(len(value.sos))+' secciones de segundo orden'))
     if value.advance:rows.append(('Avance temporal conservado',str(value.advance)+' muestras; H(z)=z^('+str(value.advance)+') B(z^(-1))/A(z^(-1))'))
+    if digital and value.roc is not None:
+        mode=value.roc['mode'];rows.append(('ROC registrada',{'right':'Exterior a los polos no cancelados','left':'Interior a los polos no cancelados','radius':'Anillo que contiene r='+str(value.roc.get('radius',''))}[mode]))
     sections=[Section('Definición',rows=rows)]
     from .phase_summary import transfer_formula
     formula,compact=transfer_formula(value)

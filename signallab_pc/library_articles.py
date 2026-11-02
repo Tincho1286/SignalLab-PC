@@ -381,3 +381,20 @@ for kind,index,operation in [('basic','shift','shift'),('basic','reverse','rever
     reading='El informe muestra la relación matemática, el intervalo y el paso finales. La salida queda en Resultados y puede exportarse o enviarse a otra herramienta. Par e impar entrega dos señales; su suma recupera el registro sobre la rejilla usada. La pestaña Original se dibuja al abrirla para comparar sin generar otra figura en cada cálculo.'
     scope='Fuera del registro se considera cero. En continuo, Par e impar usa interpolación lineal sobre una rejilla simétrica; entre muestras sigue siendo una aproximación y los pesos Dirac se conservan aparte. Las otras transformaciones continuas cambian las coordenadas sin interpolar. Los parámetros son constantes y la escala temporal debe ser real no nula. Cambiar los campos no altera el resultado anterior hasta recalcular.'
     add((kind,index),explanation,load,reading,scope)
+
+
+add(('transform_lab','z'),
+ 'Directa e Inversa reúnen los cálculos de Z. Las secuencias finitas son una forma de entrada de la directa, sin un menú independiente.',
+ 'En Directa elegí Expresión o Secuencia finita; cada registro conserva su primer índice. En Inversa cargá X(z), elegí una ROC y pedí un intervalo o el soporte finito completo cuando X sea un polinomio de Laurent.',
+ 'Enviar a CAS conserva el resultado activo: X(z) en la directa y x[n] en la inversa. Analizar X(z) como H(z) usa la transformada, conserva el reloj disponible y traslada una ROC cuando puede determinarse.',
+ 'La ROC decide la secuencia. Una lista finita no se prolonga periódicamente ni se convierte en una señal infinita. El soporte completo se refiere al intervalo entre el primer y último coeficiente no nulo; los ceros exteriores no se pueden deducir de X(z).')
+add(('course_tools','fir'),
+ 'Diseñá un FIR por bandas, amplitudes y tolerancias. Un rechazabanda puede conservar las frecuencias bajas con amplitud 1 y las altas con amplitud 2.',
+ 'Ingresá los bordes en orden y una amplitud positiva por banda de paso. Elegí tolerancias absolutas, relativas o en dB. En relativas y rechazo en dB, Aref es la mayor amplitud de paso.',
+ 'El ideal, los límites y el filtro calculado aparecen juntos. El informe muestra h_ideal[n], la ventana, h[n], longitud y evaluación de cada banda. Las dos bandas del rechazabanda se construyen con sus ganancias propias antes de aplicar la ventana.',
+ 'Kaiser estima la longitud, pero no garantiza cumplimiento. Si la respuesta queda fuera de tolerancias, se indica expresamente. La búsqueda de longitud usa la familia y la rejilla elegidas; no demuestra un mínimo universal.')
+add(('system_analysis',0),
+ 'Analizá H(s) o H(z) sin confundir la función racional del plano complejo con su respuesta en frecuencia.',
+ 'Ingresá fórmula o coeficientes. En digital elegí también la ROC: secuencia derecha, izquierda, anillo por radio o no especificada. Los sistemas importados conservan su ROC registrada.',
+ 'H(z) · plano complejo muestra módulo por colores, raíces, círculo unitario y expresión asociada. La respuesta en frecuencia y su fase se calculan por separado sobre z=exp(jω), cuando el círculo unitario pertenece a la ROC.',
+ 'La expresión racional puede evaluarse fuera de la ROC sin que esa evaluación sea la transformada convergente de h[n]. La fórmula sola no define una ROC. Los bordes con polos están excluidos y una raíz numéricamente sobre el círculo impide certificar su inclusión.')

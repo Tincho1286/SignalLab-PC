@@ -29,7 +29,8 @@ class ExpressionEditor(QWidget):
         self.setText(value)
     def variable(self):
         try:
-            tree=ast.parse(self.text().replace('^','**'),mode='eval')
+            from .math_source import normalize
+            tree=ast.parse(normalize(self.text()),mode='eval')
             names={node.id for node in ast.walk(tree) if isinstance(node,ast.Name)}
             return next((name for name in ('n','k','t','w','s','z','x') if name in names),'t')
         except SyntaxError:return 't'
@@ -74,6 +75,10 @@ class ExpressionEditor(QWidget):
         source=self.text()
         self.preview.setPlainText(source)
         # Incluso una constante sola merece notación matemática en este editor.
+        from .math_source import normalize
+        try:source=normalize(source)
+        except Exception:
+            return
         rendered=self.preview._render_formula(source)
         if rendered:self.preview.setHtml('<html><body style="color:#dce4ef">'+rendered+'</body></html>')
     def changed(self,*args):

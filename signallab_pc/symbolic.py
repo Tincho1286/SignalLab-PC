@@ -13,7 +13,7 @@ W = sp.Symbol("w", real=True)
 TAU = sp.Symbol("tau", real=True)
 SYMBOLS = {"t": T, "x": T, "s": S, "z": Z, "n": N, "w": W, "omega": W, "tau": TAU, "pi": sp.pi, "e": sp.E,
            "i": sp.I, "j": sp.I, "oo": sp.oo, "infinity": sp.oo, "true": sp.true, "false": sp.false}
-FUNCTIONS = {"sin": sp.sin, "cos": sp.cos, "tan": sp.tan, "exp": sp.exp, "log": sp.log,
+FUNCTIONS = {"sinc": lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x)/(sp.pi*x),True)), "ceil":sp.ceiling, "ceiling":sp.ceiling, "floor":sp.floor, "sign":sp.sign,"sin": sp.sin, "cos": sp.cos, "tan": sp.tan, "exp": sp.exp, "log": sp.log,
              "ln": sp.log, "erf": sp.erf, "erfc": sp.erfc, "sqrt": sp.sqrt, "abs": sp.Abs, "sinh": sp.sinh, "cosh": sp.cosh,
              "heaviside": sp.Heaviside, "diracdelta": sp.DiracDelta, "dirac": sp.DiracDelta,
              "step": lambda x:sp.Heaviside(x,1), "impulse": lambda x:sp.KroneckerDelta(x,0) if x.has(N) else sp.DiracDelta(x), "kroneckerdelta":sp.KroneckerDelta, "piecewise": sp.Piecewise, "conj": sp.conjugate, "re": sp.re, "im": sp.im}
@@ -22,6 +22,8 @@ FUNCTIONS = {"sin": sp.sin, "cos": sp.cos, "tan": sp.tan, "exp": sp.exp, "log": 
 def parse(expression):
     source = expression.strip().replace("π", "pi").replace("−", "-").replace("^", "**")
     source = re.sub(r"(?<=[0-9.)])\s*[iIjJ]\b", "*i", source)
+    from .math_source import normalize
+    source=normalize(source)
     tree = ast.parse(source, mode="eval")
     nodes = sum(1 for _ in ast.walk(tree))
     ensure_working_set(nodes, bytes_per_sample=1024, live_arrays=8)
@@ -57,9 +59,14 @@ def parse(expression):
             if type(node.ops[0]) in functions: return functions[type(node.ops[0])](left,right)
         if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and not node.keywords:
             fn = FUNCTIONS.get(node.func.id.lower())
-            if fn is not None: return fn(*(visit(arg) for arg in node.args))
+            if fn is not None:
+                args=tuple(visit(arg) for arg in node.args)
+                if fn in (sp.sin,sp.cos,sp.tan):return fn(*args,evaluate=False)
+                return fn(*args)
         raise ValueError("Sintaxis no admitida. Use fórmulas matemáticas; no se admiten atributos, índices ni código Python.")
-    return visit(tree.body)
+    result=visit(tree.body)
+    from .singularities import extend_removable
+    return extend_removable(result)
 
 
 def execute(request):
@@ -148,8 +155,8 @@ def execute(request):
         ensure_working_set(count,live_arrays=16)
         grid=np.linspace(start,stop,count)
         if np.any(np.diff(grid)<=0):raise ValueError('La rejilla no se distingue con la precisión disponible.')
-        function=sp.lambdify(variable,value,modules=['scipy','numpy'])
-        with np.errstate(all='ignore'):values=np.asarray(function(grid),dtype=np.complex128)
+        from .singularities import sample_symbolic
+        values=sample_symbolic(value,variable,grid)
         if values.ndim==0:values=np.full(count,values,dtype=np.complex128)
         if values.shape!=(count,):raise ValueError('La expresión no produjo un valor por punto.')
         values=_finite_output(values,'La evaluación de la expresión')

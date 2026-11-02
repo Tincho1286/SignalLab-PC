@@ -37,7 +37,7 @@ def draw_bands(p,rect,kind,edges=None,analog=False):
     for i,x in enumerate(positions[1:-1]):
         p.setPen(QPen(QColor('#778493'),1,Qt.PenStyle.DashLine));p.drawLine(QLineF(x,y0,x,y1))
         cy=y1+15+(i%2)*17;p.setBrush(QColor('#222831'));p.setPen(QColor('#8ab6df'));p.drawEllipse(QRectF(x-9,cy-9,18,18));p.drawText(QRectF(x-9,cy-9,18,18),Qt.AlignmentFlag.AlignCenter,str(i+1))
-    p.setPen(QColor('#e1e7ee'));p.drawText(QRectF(x0-25,y0,22,24),Qt.AlignmentFlag.AlignCenter,'1');p.drawText(QRectF(x0-25,y1-22,22,24),Qt.AlignmentFlag.AlignCenter,'0')
+    p.setPen(QColor('#e1e7ee'));p.drawText(QRectF(x0-25,y0,22,24),Qt.AlignmentFlag.AlignCenter,'A');p.drawText(QRectF(x0-25,y1-22,22,24),Qt.AlignmentFlag.AlignCenter,'0')
     p.drawText(QRectF(x0-10,y1+4,20,20),Qt.AlignmentFlag.AlignCenter,'0');p.drawText(QRectF(x1-10,y1+4,20,20),Qt.AlignmentFlag.AlignCenter,'→' if analog else 'π')
     p.drawText(QRectF(x0,rect.bottom()-23,x1-x0,20),Qt.AlignmentFlag.AlignCenter,'Ω (rad/s) · esquema' if analog else 'ω (rad/muestra) · esquema')
 

@@ -45,6 +45,8 @@ class FourierPanel(QWidget):
         self._button(form, "Densidad de energía del último espectro", self.energy_density)
         self._section(form, "Expresión y rejilla temporal")
         self.expression = ExpressionEditor("cos(2*pi*t)"); form.addRow("x(t)", self.expression)
+        from .expression_import import install_expression_import
+        install_expression_import(self.expression,owner.window if hasattr(owner,'window') and not callable(owner.window) else owner,['t'])
         self.t0 = self._field(form, "t inicial (s)", "0")
         self.t1 = self._field(form, "t final (s)", "1")
         self.nt = self._field(form, "Puntos / celdas temporales", "1024")

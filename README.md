@@ -1,12 +1,14 @@
-# SignalLab PC 1.1.3
+# SignalLab PC 1.2.0-preview
 
 Laboratorio portable para Windows de Sistemas y Señales I y II, desarrollado en Python. Versión estable 1.1: modelos aleatorios y ecuaciones lineales continuas/discretas.
+
+La entrega 1.2.0 preliminar integra Z, extensiones por límite, plano complejo de H(z), amplitudes por banda e importación compartida. No se ejecutaron pruebas de funcionamiento ni regresión por indicación del usuario. [Descargar preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.0-preview) · [Resumen técnico](VERSION_1.2.0-preview.md). La última estable sigue siendo 1.1.3.
 
 ## Descargar y empezar
 
 [Descargar SignalLab PC 1.1.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.3). El repositorio es privado: necesitás una cuenta con acceso para ver sus versiones y archivos.
 
-Abrí SignalLab-PC-1.1.3.exe. Incluye Python y las dependencias; no necesitás instalarlos para usar el portable. La copia local está en outputs/SignalLab-PC-1.1.3.exe.
+Abrí SignalLab-PC-1.1.3.exe. Incluye Python y las dependencias; no necesitás instalarlos para usar el portable. La preliminar local está en outputs/SignalLab-PC-1.2.0-preview.exe y la estable se conserva por separado.
 
 Elegí el problema desde Inicio, el explorador o Buscar (Ctrl+K). Cada herramienta tiene sus entradas y resultados propios. Podés cargar fórmulas o tramos, pegar muestras, importar un archivo o reutilizar un resultado compatible. Calcular (Ctrl+Enter) produce un resultado; editar los datos después no cambia silenciosamente esa salida.
 

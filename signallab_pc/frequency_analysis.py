@@ -37,6 +37,11 @@ class FrequencyData:
 
 
 def analyze_frequency(system,omega,*,advance=0,logarithmic=False,margins=False):
+    from .transfer_plane import effective_system
+    system=effective_system(system)
+    if system.domain=='digital' and system.roc is not None:
+        from .transfer_plane import convergence
+        if convergence(system)['unit'] is not True:raise ValueError('El círculo unitario no pertenece a la ROC; H(e^{jω}) no define la DTFT del sistema.')
     response=system.response(omega)*np.exp(1j*omega*advance)
     with np.errstate(all='ignore'):magnitude=np.abs(response);db=20*np.log10(magnitude)
     phase=np.full(response.shape,np.nan);valid=np.isfinite(response)&np.isfinite(magnitude)&(magnitude>0)
@@ -152,7 +157,7 @@ def frequency_summary(exact,data):
     if exact.get('factored')!=exact['transfer']:sections.append(Section('Forma factorizada',formulas=[Formula(exact['factored'],exact['factored'])]))
     if 'causal_impulse' in exact:sections.append(Section('Respuesta causal al impulso',formulas=[Formula('h(t) = '+exact['causal_impulse'],'h(t) = '+exact['causal_impulse'])]))
     if data is None:
-        sections.append(Section('Vista numérica pendiente',paragraphs=['Asigná valores a '+', '.join(exact.get('parameters',[]))+'.']))
+        sections.append(Section('Vista numérica',paragraphs=[exact['frequency_notice']] if exact.get('frequency_notice') else ['Asigná valores a '+', '.join(exact.get('parameters',[]))+'.']))
         return Summary('Análisis del sistema',sections)
     sections.append(Section('Respuesta en frecuencia',rows=[('Intervalo',number(data.omega[0])+' a '+number(data.omega[-1])+' '+data.units),
         ('Frecuencias evaluadas',str(data.omega.size)),('Distribución','Logarítmica' if data.logarithmic else 'Lineal'),

@@ -23,6 +23,8 @@ class SamplingPanel(QWidget):
         root.addWidget(self.report, 1)
         self._section(form, "Muestrear una expresión")
         self.expression = ExpressionEditor("cos(2*pi*10*t)"); form.addRow("x(t)", self.expression)
+        from .expression_import import install_expression_import
+        install_expression_import(self.expression,owner.window if hasattr(owner,'window') and not callable(owner.window) else owner,['t'])
         self.rate = self._field(form, "Fs (muestras/s)", "100")
         self.start = self._field(form, "Tiempo de la primera muestra (s)", "0")
         self.count = self._field(form, "Cantidad de muestras", "101")

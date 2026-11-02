@@ -64,17 +64,23 @@ def send_expression(window,key,destination):
     elif destination in ('direct','inverse'):
         if destination=='direct' and expression.numerical_source:text=expression.numerical_source
         route=ROUTES['transform_lab','z' if v in ('n','z') else 'laplace'];window.open_tool(route);panel=window.pages[window.current_operation].panel
-        panel.mode.setCurrentIndex(1 if destination=='inverse' else 0);panel.expression.setText(text)
+        panel.mode.setCurrentIndex(1 if destination=='inverse' else 0)
+        if destination=='direct' and v=='n':panel.direct_input.setCurrentIndex(0)
+        panel.expression.setText(text)
         if v=='n':panel.lower.setText('-oo');panel.upper.setText('oo')
         if v in ('s','t'):
             stored=window.project.get(key);request=stored.get('request',{}) if isinstance(stored,dict) else {};result=stored.get('result',{}) if isinstance(stored,dict) else {}
             panel.load_laplace_context({'interpretation':'bilateral'} if v=='t' else request,result,inverse=v=='s')
         if v=='z':
             stored=window.project.get(key).get('result',{});panel.roc.setCurrentIndex(1 if stored.get('inverse_roc_hint')=='left' else 0)
-        panel._library_source=(text,key)
+        panel._library_source=(text,key);panel._library_conditions=tuple(expression.conditions)
         panel.set_copy_note('Expresión cargada desde Resultados.'+(' Condiciones: '+'; '.join(expression.conditions) if expression.conditions else ''))
     elif destination=='system':
         window.open_tool(ROUTES['system_analysis',0]);panel=window.pages[window.current_operation].panel;panel.domain.setCurrentIndex(0 if v=='s' else 1);panel.transfer_formula.setText(text);panel.definition_mode.setCurrentIndex(1);panel.input_id=key
+        if v=='z':
+            from .transform_context import result_roc
+            spec=result_roc(window.project.get(key));panel.roc_choice.setCurrentIndex({'right':0,'left':1,'radius':2}[spec['mode']] if spec else 3)
+            if spec and 'radius' in spec:panel.roc_radius.setText(str(spec['radius']))
     elif destination=='transform_signal':
         window.open_tool(ROUTES['basic','shift'] if v=='n' else ROUTES['time_transform',0]);panel=window.pages[window.current_operation].panel;field=panel.source
         prepared=signal_source(expression.numerical_source or text);field.mode.setCurrentIndex(0);field.expression.setText(prepared);field._expression_origin=(field.expression.text(),key)

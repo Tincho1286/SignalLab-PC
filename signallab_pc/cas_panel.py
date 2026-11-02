@@ -65,8 +65,16 @@ class CasWorksheet(QWidget):
         self.input.evaluateRequested.connect(self.calculate);self.input.historyRequested.connect(self.recall)
         hint=QLabel('Enter: evaluar · Shift+Enter: nueva línea · Ctrl+↑/↓: historial · F1: ayuda');hint.setObjectName('muted');hint.setWordWrap(True);root.addWidget(hint)
         from PySide6.QtWidgets import QPushButton
+        load=QPushButton('Cargar resultado o archivo…');load.clicked.connect(self.choose_source);root.addWidget(load)
         self.calculate_button=QPushButton('Evaluar');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);root.addWidget(self.calculate_button)
         self.timer=QTimer(self);self.timer.setInterval(200);self.timer.timeout.connect(self.check_pending);self.timer.start();self.render()
+
+    def choose_source(self):
+        if not self._ready():return
+        key=self.window.choose_record('cas_source')
+        if key:
+            from .cas_transfer import send_to_cas
+            send_to_cas(self.window,key)
 
     @staticmethod
     def _empty():return {'version':1,'variables':{},'functions':{},'results':{},'ans':None,'assumptions':{}}

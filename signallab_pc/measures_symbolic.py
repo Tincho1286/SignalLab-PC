@@ -108,8 +108,8 @@ def sample_measure_expression(request):
         if not np.isfinite([start,stop]).all() or stop<=start or count<2:raise ValueError('La ventana debe ser finita y creciente, con al menos dos puntos.')
         ensure_working_set(count,live_arrays=16);grid=np.linspace(start,stop,count);step=(stop-start)/(count-1)
         if np.any(np.diff(grid)<=0):raise ValueError('La rejilla excede la precisión temporal disponible.')
-    function=sp.lambdify(variable,value,modules=[{'sqrt':np.emath.sqrt,'log':np.emath.log},'scipy','numpy'])
-    with np.errstate(all='ignore'):samples=np.asarray(function(grid.astype(float)),dtype=complex)
+    from .singularities import sample_symbolic
+    samples=sample_symbolic(value,variable,grid)
     if samples.ndim==0:samples=np.full(count,samples,dtype=complex)
     if samples.shape!=(count,) or not np.isfinite(samples).all():raise ValueError('La ventana incluye valores no finitos; no se sustituyen por cero.')
     with np.errstate(all='ignore'):

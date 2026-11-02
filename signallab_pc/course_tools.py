@@ -232,6 +232,8 @@ def normalize_gain(system,omega,target):
         result=Transfer.from_sos(sections,'Sistema normalizado',sample_period_s=system.sample_period_s)
     else:result=Transfer(system.b*(target/magnitude),system.a,system.domain,'Sistema normalizado',advance=system.advance,sample_period_s=system.sample_period_s)
     result.advance=system.advance
+    from copy import deepcopy
+    result.roc=deepcopy(system.roc)
     return bundle(f'Normalización de ganancia\n\nFrecuencia angular: {omega:g}\nMódulo previo: {magnitude:.12g}\nMódulo objetivo: {target:g}\nFactor aplicado: {target/magnitude:.12g}\n\nSe modifica sólo la ganancia; la fase y las posiciones de polos y ceros se conservan.',systems=[result])
 
 def phase_structure(system):
