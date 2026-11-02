@@ -4,7 +4,7 @@ SignalLab PC permite estudiar señales, sistemas y filtros mediante cálculos nu
 
 | Quiero… | Guía |
 | --- | --- |
-| Empezar a usar el portable | [Primeros pasos](getting-started.md) |
+| Empezar a usar el portable | [Primeros pasos](getting-started.md) · [Linux](linux.md) |
 | Encontrar una operación | [Herramientas](tools.md) |
 | Importar o exportar datos | [Formatos de archivos](file-formats.md) |
 | Entender índices, frecuencias y ROC | [Convenciones matemáticas](conventions.md) |

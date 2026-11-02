@@ -2,6 +2,12 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.2.0**.
 
+## Distribución Linux · 2026-11-02
+
+- Portable nativo Linux x86_64 incorporado a la versión estable 1.2.0.
+- Paquete TAR con ejecutable, licencias, instrucciones y procedencia; no requiere instalar Python.
+- Construcciones Windows y Linux en GitHub Actions por defecto, con dependencias específicas de plataforma.
+
 ## Documentación y licencia · 2026-11-02
 
 - Publicación del código y los recursos originales bajo GPL-3.0-or-later.

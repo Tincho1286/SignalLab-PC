@@ -4,7 +4,7 @@
 
 ## Compilación verificable
 
-El flujo [Build portable and request signing](../../.github/workflows/portable.yml) utiliza Windows y Python 3.12.10 en GitHub Actions. Puede iniciarse manualmente desde `main` o una etiqueta `v…`. Conserva el commit, la versión, el checksum y el enlace de ejecución en un archivo de procedencia. No ejecuta la aplicación ni pruebas de funcionamiento.
+El flujo [Build portables and request Windows signing](../../.github/workflows/portable.yml) utiliza Python 3.12.10 en GitHub Actions. Genera Windows y Linux por defecto; puede elegirse una sola plataforma. La solicitud Authenticode pertenece únicamente al trabajo Windows. Puede iniciarse manualmente desde `main` o una etiqueta `v…`. Conserva el commit, la versión, el checksum y el enlace de ejecución en un archivo de procedencia. No ejecuta la aplicación ni pruebas de funcionamiento.
 
 `request_signing=false` sólo construye y sube el portable sin firma. Es el modo disponible mientras la solicitud al proveedor no esté aprobada. Ninguno de los modos reemplaza automáticamente las descargas de Releases.
 

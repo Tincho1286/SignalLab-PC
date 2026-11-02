@@ -14,6 +14,12 @@ El resultado se guarda en `outputs/`. La compilación usa un directorio intermed
 
 Las siguientes compilaciones incluyen la licencia del proyecto y los avisos originales de terceros dentro del portable. En Releases se publica también el código fuente correspondiente y una copia accesible de esos avisos. Una actualización de licencia y documentación puede acompañar un portable existente sin alterar su ejecutable.
 
+## Portable Linux
+
+`build_portable_linux.sh` usa `.venv/bin/python` y genera un ejecutable nativo x86_64 en un paquete `.tar.gz`, con licencias y procedencia. Se construye en Linux; PyInstaller no convierte el ejecutable Windows en un ELF. El flujo de GitHub permite elegir `both`, `windows` o `linux` y tiene ambas plataformas como valor por defecto. La solicitud de firma sólo afecta al trabajo Windows.
+
+[Uso y construcción en Linux](../linux.md). Para incorporar otra plataforma a una versión ya publicada se adjuntan su binario, fuente, procedencia y checksums; se conserva el ejecutable Windows y la etiqueta original. El commit de cada plataforma queda identificado por separado.
+
 ## Notas de publicación
 
 Las notas describen el comportamiento de la versión: funciones incorporadas, correcciones, compatibilidad y límites conocidos. El catálogo está en [docs/releases/catalog.json](../releases/catalog.json); las páginas de versión se encuentran en [Notas de versiones](../releases/README.md).

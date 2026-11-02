@@ -1,9 +1,18 @@
-name: Build portable and request signing
+name: Build portables and request Windows signing
 run-name: Portable from ${{ github.ref_name }} · signing ${{ inputs.request_signing }}
 
 on:
   workflow_dispatch:
     inputs:
+      platform:
+        description: Platforms to build
+        type: choice
+        required: true
+        default: both
+        options:
+          - both
+          - windows
+          - linux
       request_signing:
         description: Request SignPath signing after building (requires approved account and manual approval)
         type: boolean
@@ -20,7 +29,7 @@ concurrency:
 
 jobs:
   portable:
-    if: github.repository == 'Tincho1286/SignalLab-PC' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    if: github.repository == 'Tincho1286/SignalLab-PC' && inputs.platform != 'linux' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
     runs-on: windows-2022
     timeout-minutes: 85
     defaults:
@@ -135,6 +144,54 @@ jobs:
         with:
           name: SignalLab-PC-signed-${{ github.run_id }}
           path: signed-output/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+  portable_linux:
+    if: github.repository == 'Tincho1286/SignalLab-PC' && inputs.platform != 'windows' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check out the exact build commit
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+
+      - name: Install graphical runtime libraries for packaging
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libgl1 libegl1 libxkbcommon0 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 libxcb-shape0 libxcb-sync1 libdbus-1-3 libfontconfig1 libfreetype6 libglib2.0-0 patchelf
+
+      - name: Install locked build dependencies
+        run: |
+          python -m venv .venv
+          .venv/bin/python -B -m pip install --disable-pip-version-check -r requirements-lock.txt
+
+      - name: Build the Linux portable and source archive
+        env:
+          BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: bash build_portable_linux.sh
+
+      - name: Upload the Linux distribution
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: SignalLab-PC-linux-x86_64-${{ github.run_id }}
+          path: |
+            outputs/*-linux-x86_64.tar.gz
+            outputs/*-linux-source-GPL.zip
+            outputs/build-provenance-linux.json
+            outputs/SHA256SUMS-linux-*.txt
           if-no-files-found: error
           compression-level: 0
           retention-days: 7

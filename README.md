@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.2.0" src="https://img.shields.io/badge/estable-1.2.0-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
-  <img alt="Windows portable" src="https://img.shields.io/badge/Windows-portable-8ab6df?style=flat-square&amp;labelColor=172632">
+  <img alt="Windows y Linux portables" src="https://img.shields.io/badge/Windows%20%2B%20Linux-portables-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Desarrollado con Python" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
 </p>
 
@@ -28,8 +28,10 @@ Está pensado para estudiar Sistemas y Señales, desarrollar cálculos y explora
 
 ## Descargar y empezar
 
-1. Descargá **[SignalLab-PC-1.2.0.exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/SignalLab-PC-1.2.0.exe)** desde la versión estable.
-2. Guardá el ejecutable en una carpeta y abrilo. El portable incluye Python y sus dependencias.
+1. Elegí la descarga de tu sistema desde la versión estable:
+   - **Windows:** [SignalLab-PC-1.2.0.exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/SignalLab-PC-1.2.0.exe).
+   - **Linux x86_64:** [SignalLab-PC-1.2.0-linux-x86_64.tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/SignalLab-PC-1.2.0-linux-x86_64.tar.gz), base Ubuntu 22.04 / glibc 2.35 o posterior.
+2. En Windows abrí el `.exe`; en Linux descomprimí el archivo y ejecutá `SignalLab-PC` dentro de su carpeta. Ambos incluyen Python y las dependencias de la aplicación. [Uso y requisitos de Linux](docs/linux.md).
 3. Buscá una herramienta, cargá una fórmula, muestras o un archivo y presioná **Calcular**. **F1** abre su ayuda.
 
 Los gráficos se abren en ventanas independientes. Desde **Resultados** podés consultar, exportar y reutilizar las salidas. [Primeros pasos →](docs/getting-started.md)

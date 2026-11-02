@@ -4,7 +4,7 @@
 
 ## Abrir el laboratorio
 
-Descargá el archivo `.exe` de la [última versión estable](https://github.com/Tincho1286/SignalLab-PC/releases/latest), guardalo en una carpeta y ejecutalo. No hace falta instalar Python. Los archivos de datos y resultados se guardan en la ubicación que elijas al exportarlos.
+En la [última versión estable](https://github.com/Tincho1286/SignalLab-PC/releases/latest), elegí el `.exe` para Windows o el `.tar.gz` para Linux x86_64. En Windows abrí el ejecutable; en Linux descomprimí y ejecutá `SignalLab-PC` dentro de la carpeta. [Instrucciones y compatibilidad de Linux](linux.md). No hace falta instalar Python. Los archivos de datos y resultados se guardan en la ubicación que elijas al exportarlos.
 
 ## Resolver un problema
 

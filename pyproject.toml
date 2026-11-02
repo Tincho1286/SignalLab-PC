@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "signallab-pc"
 dynamic = ["version"]
-description = "Laboratorio de Sistemas y Señales para Windows"
+description = "Laboratorio de Sistemas y Señales para Windows y Linux"
 license = "GPL-3.0-or-later"
 license-files = ["LICENSE", "NOTICE.md", "THIRD_PARTY_NOTICES.md", "LICENSES/**/*"]
 requires-python = ">=3.12,<3.13"
