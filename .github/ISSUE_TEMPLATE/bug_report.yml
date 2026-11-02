@@ -41,5 +41,5 @@ body:
   - type: input
     id: screen
     attributes:
-      label: Pantalla y Windows
-      description: Para problemas de interfaz, indicá resolución y escala de pantalla.
+      label: Sistema operativo y pantalla
+      description: Indicá Windows o distribución Linux y su versión. Para la interfaz, añadí resolución y escala de pantalla.

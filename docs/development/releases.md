@@ -2,6 +2,8 @@
 
 [← Desarrollo](README.md)
 
+Desde 1.2.0, cada nueva entrega debe publicar portables para **Windows x86_64 y Linux x86_64**, con sus fuentes y checksums. La elección de una sola plataforma en el flujo sirve para reconstruir o incorporar esa plataforma a una entrega existente.
+
 ## Compilar el portable
 
 Desde la raíz del proyecto, con el entorno preparado:
@@ -36,6 +38,7 @@ Guardá el código y las notas en un commit y subí `main`. Después, publicá e
   --title "SignalLab PC 1.2.0 · Transferencias H(s)/H(z)" `
   --notes docs\releases\v1.2.0.md `
   --file outputs\SignalLab-PC-1.2.0.exe `
+  --file outputs\SignalLab-PC-1.2.0-linux-x86_64.tar.gz `
   --stable `
   --allow-public
 ```
