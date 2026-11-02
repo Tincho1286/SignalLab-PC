@@ -51,8 +51,10 @@ def evaluate_expression(expression: str, x: np.ndarray) -> np.ndarray:
             arr = np.broadcast_to(arr, np.asarray(x).shape).astype(np.complex128)
         if np.any(~np.isfinite(arr)):
             from .singularities import numeric_expression,repair_values
-            exact,variable=numeric_expression(source)
-            arr=repair_values(exact,variable,coordinates,arr)
+            from .calculation_notes import expression_source
+            with expression_source(source):
+                exact,variable=numeric_expression(source)
+                arr=repair_values(exact,variable,coordinates,arr)
         return arr
     except ExpressionError:
         raise
@@ -141,8 +143,11 @@ def sequence_from_expression(expression: str, origin: int, count: int, *, name="
         raise ValueError("El eje excede el rango de índices enteros de 64 bits.")
     ensure_working_set(count, live_arrays=6)
     indices = np.arange(origin, origin + count, dtype=np.int64)
-    values = evaluate_expression(expression, indices)
-    return Signal(values, origin, 1.0, "n", name, "discrete", expression)
+    from .calculation_notes import capture
+    with capture() as records:values = evaluate_expression(expression, indices)
+    result=Signal(values, origin, 1.0, "n", name, "discrete", expression)
+    if records:result.metadata["calculation_notes"]=list(records.values())
+    return result
 
 
 def sequence_from_values(text: str, origin: int, *, name="x") -> Signal:

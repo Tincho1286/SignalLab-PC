@@ -16,6 +16,7 @@ class ExpressionEditor(QWidget):
         self.method_buttons=ChoiceButtons(self.mode);box.addWidget(self.method_buttons)
         self.field=QLineEdit();self.field.setPlaceholderText('Ingresá la expresión de la señal');box.addWidget(self.field)
         self.preview=ReportView();self.preview.setMinimumHeight(80);self.preview.setMaximumHeight(220);box.addWidget(self.preview)
+        self.continuity_note=QLabel('Indeterminaciones removibles: se completa por límite bilateral finito. El informe registra los casos; el criterio se explica en Ayuda (F1).');self.continuity_note.setWordWrap(True);self.continuity_note.setObjectName('muted');box.addWidget(self.continuity_note)
         self.replace_button=QPushButton('Reemplazar por otra fórmula…');self.replace_button.clicked.connect(self.replace_formula);box.addWidget(self.replace_button)
         self.table=QTableWidget(0,2);self.table.setHorizontalHeaderLabels(['Valor','Cuando']);self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch);self.table.setMinimumHeight(180);box.addWidget(self.table)
         self.other_label=QLabel('En los demás casos');box.addWidget(self.other_label)

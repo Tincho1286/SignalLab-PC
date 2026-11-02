@@ -314,7 +314,12 @@ class WorkbenchWindow(ToolboxWindow):
     def _run_operation(self,message,function,on_success):
         from .result_journal import ResultJournal
         journal=ResultJournal(self,message)
-        return super()._run_operation(message,function,lambda result:journal.accept(result,on_success))
+        from .calculation_notes import capture
+        def calculate():
+            with capture() as records:result=function()
+            journal.calculation_notes=list(records.values())
+            return result
+        return super()._run_operation(message,calculate,lambda result:journal.accept(result,on_success))
     def send_system(self,value,key,item):
         from .navigation import FILTER_KEYS,TRANSFORM_ALIASES
         if item[1:3] in FILTER_KEYS or item[1:3] in TRANSFORM_ALIASES:

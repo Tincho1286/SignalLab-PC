@@ -17,7 +17,7 @@ SignalLab PC permite estudiar señales, sistemas y filtros mediante cálculos nu
 
 ## Versiones
 
-La [versión estable 1.2.0](https://github.com/Tincho1286/SignalLab-PC/releases/latest) es la descarga principal. Las [notas de la versión](releases/v1.2.0.md) detallan sus novedades y restricciones. [Alertas de Windows al abrir el portable](windows-downloads.md).
+La [versión estable 1.2.1](https://github.com/Tincho1286/SignalLab-PC/releases/latest) es la descarga principal. Las [notas de la versión](releases/v1.2.1.md) detallan sus novedades y restricciones. [Alertas de Windows al abrir el portable](windows-downloads.md).
 
 ## Biblioteca dentro de la aplicación
 

@@ -23,7 +23,13 @@ def run_request(request):
             checkpoint()
             if not destination.exists(): raise RuntimeError("El proceso simbólico terminó sin un resultado; revisá la expresión y los recursos disponibles.")
             result=json.loads(destination.read_text(encoding="utf-8"))
+            notes=result.pop('_calculation_notes',[])
             if "error" in result: raise ValueError(result["error"])
+            if notes:
+                from .calculation_notes import merge,plain_text
+                merge(notes)
+                if request.get('operation') in ('cas_worksheet','cas_import'):
+                    result.setdefault('notices',[]).append(plain_text(notes));result['calculation_notes']=notes
             return result
         finally:
             if process.poll() is None:
@@ -35,7 +41,9 @@ def run_request(request):
 def worker(source, destination):
     try:
         from .symbolic import execute
-        result=execute(json.loads(Path(source).read_text(encoding="utf-8")))
+        from .calculation_notes import capture
+        with capture() as records:result=execute(json.loads(Path(source).read_text(encoding="utf-8")))
+        if records and isinstance(result,dict) and 'error' not in result:result['_calculation_notes']=list(records.values())
     except Exception as exc:
         result={"error":str(exc)}
     Path(destination).write_text(json.dumps(result,ensure_ascii=False),encoding="utf-8")

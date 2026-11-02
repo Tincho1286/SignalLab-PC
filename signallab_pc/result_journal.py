@@ -60,8 +60,19 @@ class ResultJournal:
         self.origin={'title':route[0] if route else message,'route':list(route) if route else []}
         self.title=self.origin['title'];self.records=[];self.values=[];self.references=set();self.result=None;self.whole_result_stored=False
         page=window.pages.get(route);panel=getattr(page,'panel',None)
-        self.reports={view:view.toPlainText() for view in (getattr(page,'report',None),getattr(panel,'report',None)) if view is not None}
+        from .report_view import ReportView
+        self.page=page;self.calculation_notes=[]
+        views=list(page.findChildren(ReportView)) if page is not None else []
+        views.extend(view for view in (getattr(page,'report',None),getattr(panel,'report',None)) if view is not None)
+        self.reports={view:view.toPlainText() for view in views}
+        self.report_versions={view:getattr(view,'_report_revision',0) for view in self.reports}
     def enrich(self,value):
+        from .calculation_notes import plain_text
+        if self.calculation_notes:
+            if isinstance(value,Signal):value.metadata['calculation_notes']=self.calculation_notes
+            elif isinstance(value,dict):
+                value={**value,'calculation_notes':self.calculation_notes}
+                if isinstance(value.get('report'),str) and 'Levantamiento de indeterminaciones' not in value['report']:value['report']=plain_text(self.calculation_notes)+'\n\n'+value['report']
         if isinstance(value,dict) and isinstance(value.get('report'),str) and 'calculated_data' not in value:
             self.whole_result_stored=True
             return {**value,'calculated_data':snapshot(self.result,self.window)}
@@ -76,7 +87,15 @@ class ResultJournal:
             except Exception:
                 self.collect(result)
                 raise
+            self.window._last_calculation_notes=self.calculation_notes
+            from .report_view import ReportView
+            views=list(self.page.findChildren(ReportView)) if self.page is not None else []
+            for view in set([*self.reports,*views]):
+                if getattr(view,'_raw','') and getattr(view,'_report_revision',0)!=self.report_versions.get(view,-1) and hasattr(view,'set_calculation_notes'):view.set_calculation_notes(self.calculation_notes)
             self.collect(result)
+            if self.calculation_notes:
+                from .calculation_notes import plain_text
+                self.window.publish({'report':plain_text(self.calculation_notes),'calculation_notes':self.calculation_notes},title='Indeterminaciones · '+self.title,operation='Levantamiento de indeterminaciones',parents=self.records[:])
         finally:
             self.window._result_journal=previous
             if previous is None:self.window.refresh_project()

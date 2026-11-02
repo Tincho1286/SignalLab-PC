@@ -2,6 +2,13 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.2.0**.
 
+## 1.2.1 · 2026-11-02
+
+- Aviso visible en el editor y explicación en la ayuda de cada herramienta.
+- Informe con puntos y valores exactos de las indeterminaciones removibles completadas por continuidad; indicación en la barra de estado.
+- Conservación del detalle en Resultados y exportación de informes, con traslado de los avisos desde el proceso simbólico.
+- Portables Windows y Linux; se conserva el criterio matemático existente y los valores definidos por tramos.
+
 ## Distribución Linux · 2026-11-02
 
 - Portable nativo Linux x86_64 incorporado a la versión estable 1.2.0.

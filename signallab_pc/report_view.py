@@ -80,11 +80,21 @@ def report_html(text,render=None,body_only=False):
     return '<html><body style="font-family:Segoe UI;font-size:11pt;color:#dce4ef;margin:18px">'+''.join(body)+'</body></html>'
 class ReportView(QTextBrowser):
     def __init__(self,parent=None):
-        super().__init__(parent);self._raw='';self.setOpenExternalLinks(False);self.setOpenLinks(False);self.setObjectName('resultReport')
+        super().__init__(parent);self._calculation_notes=[];self._base_html='';self._report_revision=0;self._raw='';self.setOpenExternalLinks(False);self.setOpenLinks(False);self.setObjectName('resultReport')
         self._math_resources={};self._formula_number=0;self._math_handler=MathImageHandler(self.document(),self._math_resources)
     def setHtml(self,text):
+        self._base_html=str(text);self._report_revision+=1
+        if self._calculation_notes:
+            from .calculation_notes import callout_html
+            from .vector_math import render_latex
+            def render(value):return self.vector_math_html(render_latex(value,size=15))
+            callout=callout_html(self._calculation_notes,render)
+            text=re.sub(r'(<body[^>]*>)',lambda match:match.group(1)+callout,str(text),count=1,flags=re.I) if re.search(r'<body[^>]*>',str(text),re.I) else callout+str(text)
         super().setHtml(paper_html(text))
         self._math_handler.prune({html.unescape(value) for value in re.findall(r'src="([^"]+)"',str(text))})
+    def set_calculation_notes(self,records):
+        self._calculation_notes=[dict(record) for record in records]
+        self.setHtml(self._base_html)
     def vector_math_html(self,formula,source='',width=None):
         self._formula_number+=1;name='formula:'+str(self._formula_number)
         self._math_resources[name]=formula
@@ -205,7 +215,10 @@ class ReportView(QTextBrowser):
             return self.vector_math_html(formula_vector(source,leading_dot),source)
         except Exception:return None
     def appendPlainText(self,text):self.setPlainText(self._raw+'\n\n'+str(text))
-    def toPlainText(self):return self._raw
+    def toPlainText(self):
+        from .calculation_notes import plain_text
+        notes=plain_text(self._calculation_notes)
+        return self._raw+('\n\n'+notes if notes else '')
     def clear(self):self.setPlainText('')
 
     def export_document(self,formatted=True):
@@ -215,7 +228,7 @@ class ReportView(QTextBrowser):
         if not path:return
         if not Path(path).suffix:path+='.'+suffix
         try:
-            text=self._raw
+            text=self.toPlainText()
             if formatted:
                 # Incrustar las imágenes para que el informe sea un único archivo portable.
                 def embed(match):

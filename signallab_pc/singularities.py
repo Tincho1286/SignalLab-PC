@@ -14,6 +14,8 @@ def finite_extension(expression, variable, point):
     right=sp.limit(value,real,coordinate,dir='+')
     if left.is_finite is not True or right.is_finite is not True or sp.simplify(left-right)!=0:
         raise ValueError('La expresión tiene un polo, una divergencia o límites laterales distintos en '+str(point)+'.')
+    from .calculation_notes import record_extension
+    record_extension(expression,variable,coordinate,left)
     return left
 
 

@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.2.0" src="https://img.shields.io/badge/estable-1.2.0-71d7c4?style=flat-square&amp;labelColor=172632"></a>
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.2.1" src="https://img.shields.io/badge/estable-1.2.1-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
   <img alt="Windows y Linux portables" src="https://img.shields.io/badge/Windows%20%2B%20Linux-portables-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Desarrollado con Python" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
@@ -29,14 +29,14 @@ Está pensado para estudiar Sistemas y Señales, desarrollar cálculos y explora
 ## Descargar y empezar
 
 1. Elegí la descarga de tu sistema desde la versión estable:
-   - **Windows:** [SignalLab-PC-1.2.0.exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/SignalLab-PC-1.2.0.exe).
-   - **Linux x86_64:** [SignalLab-PC-1.2.0-linux-x86_64.tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/SignalLab-PC-1.2.0-linux-x86_64.tar.gz), base Ubuntu 22.04 / glibc 2.35 o posterior.
+   - **Windows:** [SignalLab-PC-1.2.1.exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.1/SignalLab-PC-1.2.1.exe).
+   - **Linux x86_64:** [SignalLab-PC-1.2.1-linux-x86_64.tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.1/SignalLab-PC-1.2.1-linux-x86_64.tar.gz), base Ubuntu 22.04 / glibc 2.35 o posterior.
 2. En Windows abrí el `.exe`; en Linux descomprimí el archivo y ejecutá `SignalLab-PC` dentro de su carpeta. Ambos incluyen Python y las dependencias de la aplicación. [Uso y requisitos de Linux](docs/linux.md).
 3. Buscá una herramienta, cargá una fórmula, muestras o un archivo y presioná **Calcular**. **F1** abre su ayuda.
 
 Los gráficos se abren en ventanas independientes. Desde **Resultados** podés consultar, exportar y reutilizar las salidas. [Primeros pasos →](docs/getting-started.md)
 
-> **Nuevo en 1.2.0:** transferencias H(s)/H(z) con mallas de módulo/ángulo o real/imaginaria, Z integrada, amplitudes por banda e importación compartida. [Ver novedades →](docs/releases/v1.2.0.md)
+> **Nuevo en 1.2.1:** aclaración visible de indeterminaciones removibles, con puntos y valores por límite en el informe, la ayuda y Resultados. [Ver novedades →](docs/releases/v1.2.1.md)
 
 ¿Windows muestra una alerta al abrir el portable? [Firma, reputación y descargas →](docs/windows-downloads.md)
 
@@ -87,4 +87,4 @@ SignalLab PC se publica bajo **GNU GPL versión 3 o posterior**. Podés usarlo, 
 
 ## Code signing policy
 
-La 1.2.0 publicada sigue sin firma digital. Se solicitó la incorporación al servicio de SignPath Foundation el 2 de noviembre de 2026, con una compilación verificable en GitHub. La evaluación del proveedor sigue pendiente; todavía no hay un certificado concedido. [Política de firma y responsables](docs/code-signing.md) · [Privacidad](docs/privacy.md).
+La 1.2.1 publicada sigue sin firma digital. Se solicitó la incorporación al servicio de SignPath Foundation el 2 de noviembre de 2026, con una compilación verificable en GitHub. La evaluación del proveedor sigue pendiente; todavía no hay un certificado concedido. [Política de firma y responsables](docs/code-signing.md) · [Privacidad](docs/privacy.md).

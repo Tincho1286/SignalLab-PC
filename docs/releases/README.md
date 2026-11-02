@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.2.1](v1.2.1.md) | Aclaración visible de indeterminaciones, puntos y valores por límite | Estable |
 | [1.2.0](v1.2.0.md) | H(s)/H(z) y gráficas por componentes | Estable |
 | [1.2.0-preview](v1.2.0-preview.md) | Z integrada, plano complejo y amplitudes por banda | Preliminar |
 | [1.1.3](v1.1.3.md) | Ventanas como señales independientes | Estable |

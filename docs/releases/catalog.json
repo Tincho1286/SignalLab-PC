@@ -1,6 +1,26 @@
 {
   "releases": [
     {
+      "tag": "v1.2.1",
+      "title": "Indeterminaciones y valores por continuidad visibles",
+      "channel": "stable",
+      "summary": "Aclaración del criterio, puntos y valores completados por límite en el informe y la ayuda.",
+      "changes": [
+        "Aviso breve en el editor de fórmulas.",
+        "Detalle de las extensiones por continuidad en informes, barra de estado y Resultados.",
+        "Portables Windows y Linux."
+      ],
+      "limits": [
+        "Sólo se completan límites bilaterales finitos coincidentes; no se eliminan polos ni se reemplazan valores explícitos.",
+        "La firma Windows sigue pendiente de aprobación del proveedor."
+      ],
+      "platforms": [
+        "windows-x86_64",
+        "linux-x86_64"
+      ],
+      "notes": "docs/releases/v1.2.1.md"
+    },
+    {
       "tag": "v1.2.0",
       "title": "Transferencias H(s)/H(z) y vistas por componentes",
       "channel": "stable",

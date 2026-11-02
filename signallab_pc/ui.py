@@ -691,7 +691,8 @@ class SignalLabWindow(QMainWindow):
             return
         try:
             worker.on_success(result)
-            self.statusBar().showMessage("Cálculo finalizado.")
+            count=len(getattr(self,'_last_calculation_notes',[]))
+            self.statusBar().showMessage("Cálculo finalizado · Indeterminaciones levantadas: "+str(count)+". Ver informe." if count else "Cálculo finalizado.")
         except Exception as exc:
             QMessageBox.warning(self, "No se pudo presentar el resultado", str(exc))
 
