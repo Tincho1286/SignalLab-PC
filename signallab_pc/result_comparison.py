@@ -131,7 +131,7 @@ class ComparisonDialog(QDialog):
             configure_signal_axis(axes[-1],self.data['signals'][0])
         else:
             for letter,values,system in zip(('A','B'),self.data['responses'],self.data['systems']):
-                phase=np.where(abs(values)>0,np.angle(values),np.nan)
+                phase=np.where(np.isfinite(values)&(abs(values)>0),np.angle(values),np.nan)
                 for axis,curve in zip(axes,(abs(values),phase) if polar else (values.real,values.imag)):plot_samples(axis,self.data['omega'],curve,label=letter+' · '+system.name,phase=polar and axis is axes[1])
             configure_axis(axes[-1],units=self.data['units'],label='Frecuencia angular ('+self.data['units']+')')
         for axis,label in zip(axes,('Módulo','Fase (rad)') if polar else ('Parte real','Parte imaginaria')):axis.set_ylabel(label);axis.grid(alpha=.25);axis.legend()

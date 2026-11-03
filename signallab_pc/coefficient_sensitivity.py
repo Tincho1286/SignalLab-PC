@@ -27,7 +27,7 @@ def diagnose(original,stored,poles,quantized,sections):
     distance=float(np.min(abs(abs(poles)-1))) if len(poles) else None
     after=float(np.min(abs(abs(quantized)-1))) if len(quantized) else None
     warnings=[]
-    if len(poles) and np.max(abs(poles))<1 and np.max(abs(quantized))>=1:warnings.append('La cuantización llevó al menos un polo a la frontera o fuera del círculo unidad. Bajo hipótesis causal, el modelo cuantizado deja de ser estrictamente BIBO estable.')
+    if len(poles) and np.max(abs(poles))<1 and np.max(abs(quantized))>=1:warnings.append('La cuantización llevó al menos un polo a la frontera o fuera del círculo unidad. El criterio de ubicación de polos para una realización causal deja de cumplirse. La estabilidad entrada–salida requiere considerar la ROC y las cancelaciones.')
     if amplification is not None and amplification>10:warnings.append('En esta conversión los polos variaron mucho respecto del cambio relativo del denominador. Compará más bits y una cascada de secciones de segundo orden.')
     if len(original.a)>5 and not sections:warnings.append('Los polinomios de orden alto pueden ser sensibles. Si el filtro dispone de SOS, compará la opción de conservarlas antes de aumentar el orden o reducir bits.')
     return {'denominator_relative_change':change,'matched_pole_shift':displacement,'observed_amplification':amplification,'distance_to_unit_circle_before':distance,'distance_to_unit_circle_after':after,'warnings':warnings,

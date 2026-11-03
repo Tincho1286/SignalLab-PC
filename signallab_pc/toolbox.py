@@ -245,7 +245,7 @@ class ResultView(QWidget):
                 delay=np.full(source.values.size,np.nan);valid_full=np.abs(source.values)>0
                 for segment in np.split(np.flatnonzero(valid_full),np.flatnonzero(np.diff(np.flatnonzero(valid_full))>1)+1):
                     if segment.size>2:delay[segment[1:-1]]=-np.gradient(np.unwrap(np.angle(source.values[segment])),source.step)[1:-1]
-                axes[2].plot(source.axis[shown],delay[shown],label=name);axes[2].set_ylabel('Retardo aprox. (muestras)' if source.units=='rad/muestra' else 'Retardo aprox. (s)')
+                delay_line=axes[2].plot(source.axis[shown],delay[shown],label=name)[0];delay_line._signallab_probe_values=(source.origin,source.step,delay);axes[2].set_ylabel('Retardo aprox. (muestras)' if source.units=='rad/muestra' else 'Retardo aprox. (s)')
                 axes[2].set_title('Derivada numérica de fase; no definida en ceros o discontinuidades',fontsize=8)
             from .distributions import dirac_terms
             impulses=dirac_terms(source)

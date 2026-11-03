@@ -30,6 +30,10 @@ class Trace:
     def key(self):return id(self.artist)
 
     def point(self,x,y=None):
+        complete=getattr(self.artist,'_signallab_probe_values',None)
+        if complete is not None:
+            origin,step,values=complete;index=min(max(int(np.floor((x-origin)/step+.5)),0),len(values)-1)
+            return float(origin+index*step),float(values[index])
         full=getattr(self.artist,'_signallab_probe_source',None)
         if full is not None:
             source,component=full
