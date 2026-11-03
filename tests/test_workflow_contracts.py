@@ -55,6 +55,7 @@ class WorkflowContracts(unittest.TestCase):
         self.assertIsNone(panel.system);self.assertIsNone(panel.analyzed_system)
         self.assertFalse(panel.result_tabs.isTabVisible(2));self.assertFalse(panel.result_tabs.isTabVisible(3))
         self.assertFalse(panel.expression_actions.isHidden());self.assertEqual(len(self.host.project.headers('system')),0)
+        self.assertTrue(panel.roc_choice.isHidden());self.assertIsNone(self.host.project.get(panel._definition_id)['request']['roc_spec'])
         data=panel.frequency_data;self.assertTrue(np.isfinite(data.response[0]));self.assertTrue(np.isnan(data.response[30]));self.assertTrue(np.isfinite(data.delay[10]))
         saved=self.host.project.get(panel._definition_id);self.assertEqual(saved['result']['model_kind'],'expression');self.assertEqual(saved['request']['source_calculation']['request']['expression'],SOURCE)
         self.assertEqual(self.host.project.records()[:len(before)],before)
@@ -96,7 +97,7 @@ class WorkflowContracts(unittest.TestCase):
         panel.load_expression(ExpressionResult('z^2/(z-1/2)','z'));panel.count.setText('21');panel.calculate();self.assertEqual(self.warnings,[])
         self.assertIsInstance(panel.system,Transfer);self.assertEqual(panel.system.advance,1)
         z=np.exp(1j*panel.frequency_data.omega);assert_allclose(panel.frequency_data.response,z*z/(z-.5),atol=2e-13)
-        self.assertTrue(panel.expression_actions.isHidden());self.assertTrue(panel.result_tabs.isTabVisible(2))
+        self.assertTrue(panel.expression_actions.isHidden());self.assertTrue(panel.result_tabs.isTabVisible(2));self.assertFalse(panel.roc_choice.isHidden())
 
 
 if __name__=='__main__':unittest.main()

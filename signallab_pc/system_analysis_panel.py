@@ -47,6 +47,7 @@ class SystemAnalysisPanel(QWidget):
         self.log_note=QLabel('El eje logarítmico requiere frecuencias positivas.');self.log_note.setObjectName('muted');self.log_note.setWordWrap(True);form.addRow(self.log_note);self.log_note.hide()
         self.frequency_scale.currentIndexChanged.connect(lambda index:self.log_note.setVisible(index==1))
         self.margins=QCheckBox('Calcular cruces y márgenes de lazo abierto');form.addRow(self.margins)
+        self.transfer_formula.textEdited.connect(lambda *_:self.set_definition_capabilities(True))
         self.margin_note=QLabel('H se interpreta como L, con realimentación negativa unitaria. Se buscan cruces dentro del intervalo, no un certificado global de estabilidad.');self.margin_note.setWordWrap(True);self.margin_note.setObjectName('muted');form.addRow(self.margin_note);self.margin_note.hide()
         self.margins.toggled.connect(self.margin_note.setVisible)
 
@@ -151,8 +152,15 @@ class SystemAnalysisPanel(QWidget):
         else:self.note.setText('b y a en potencias ascendentes de z⁻¹. Frecuencia en rad/muestra.' if digital else 'b y a en potencias descendentes de s. Frecuencia en rad/s.')
         if changed and hasattr(self,'w1'):self.w1.setText('pi' if digital else '10')
         if hasattr(self,'impulse'):
-            self.impulse.setVisible(not digital)
+            if self.definition_mode.currentIndex()==0:self.set_definition_capabilities(True)
+            self.impulse.setVisible(not digital and getattr(self,'_definition_rational',True))
             if digital:self.impulse.setChecked(False)
+    def set_definition_capabilities(self,rational):
+        self._definition_rational=bool(rational)
+        if not hasattr(self,'_form'):return
+        self._form.setRowVisible(self.roc_choice,rational)
+        self._form.setRowVisible(self.roc_radius,rational and self.roc_choice.currentIndex()==2)
+        self.impulse.setVisible(rational and self.domain.currentIndex()==0)
     def load_expression(self,expression,key=None,record=None,roc_spec=None):
         from copy import deepcopy
         from .transform_context import result_roc
@@ -164,6 +172,8 @@ class SystemAnalysisPanel(QWidget):
         if spec and ('radius' in spec or 'sigma' in spec):self.roc_radius.setText(str(spec.get('radius',spec.get('sigma'))))
         from .system_clock import remember_period
         remember_period(self,self.window.project.sample_period(key) if key else None)
+        from .symbolic import parse,S,Z
+        self.set_definition_capabilities(bool(parse(expression.source).is_rational_function(S if expression.variable=='s' else Z)))
         self.note.setText('Fórmula cargada para análisis. Se conservan sus condiciones y soporte de origen; no se fuerza una conversión a coeficientes.')
     def prepare_expression_reuse(self):
         self.expression_menu.clear()
@@ -238,6 +248,7 @@ class SystemAnalysisPanel(QWidget):
                     if not information['known'] or information['unit'] is True:data=analyze_frequency(system,omega_grid,logarithmic=logarithmic,margins=with_margins)
                     else:exact['frequency_notice']='La ROC no contiene la frontera de Fourier. Se conservan la expresión y el análisis en el plano complejo: '+information['text']
                 elif exact.get('model_kind')=='expression':
+                    request['roc_spec']=None;request['impulse']=False
                     from .analytic_frequency import analyze_expression
                     from .system_clock import UNSET
                     exact,data=analyze_expression(exact,request,omega_grid,period=None if period is UNSET else period,logarithmic=logarithmic,margins=with_margins)
@@ -246,6 +257,7 @@ class SystemAnalysisPanel(QWidget):
                 exact,system,data=result
                 definition=self.window.publish({'request':request,'result':exact},title='Definición algebraica del sistema',operation='Análisis numérico y algebraico',parents=[parent] if parent else [])
                 self._definition_id=definition;analytic=exact.get('model_kind')=='expression'
+                self.set_definition_capabilities(not analytic)
                 self.system=None;self.analyzed_system=system;self.analysis_advance=0;self._roots_cache=None;self.realization_view.clear_result();self.result_tabs.setTabEnabled(2,False)
                 self.frequency_data=data;self.frequency_export.setEnabled(data is not None)
                 if system is not None:
