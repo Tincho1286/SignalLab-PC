@@ -17,7 +17,7 @@ def expression_result(value):
         if not source and cas.get('encoded_value') is not None:source=cas.get('text')
         if not source:return None
         known=[v for v in symbols if v in ('n','t','s','z','w')]
-        variable=known[0] if len(known)==1 else symbols[0] if len(symbols)==1 else None
+        variable=known[0] if len(known)==1 else 'mixed' if len(known)>1 else symbols[0] if len(symbols)==1 else None
         return ExpressionResult(source,variable,tuple('Supuesto '+str(k)+': '+str(v) for k,v in cas.get('assumptions',[])))
     result=value.get('result');request=value.get('request',{})
     if not isinstance(result,dict) or result.get('evaluated') is False:return None
