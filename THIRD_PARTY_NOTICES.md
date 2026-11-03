@@ -40,3 +40,9 @@ Qt/PySide6 ofrece alternativas de licencia: SignalLab utiliza la distribución d
 Las versiones están fijadas en [requirements-lock.txt](requirements-lock.txt); [setup_windows.ps1](setup_windows.ps1) reconstruye el entorno con las distribuciones públicas originales, sin parches locales a estas bibliotecas. Las instrucciones de [compilación](docs/development/releases.md) permiten reconstruir el portable con dependencias modificadas; no se requiere una firma privada para ejecutar una construcción propia.
 
 Los archivos de licencia remiten a sus titulares y proyectos originales. Las condiciones de cada componente siguen siendo las de esos textos. Las bibliotecas pueden incluir componentes adicionales con avisos propios dentro del mismo archivo.
+
+## Qt y PySide6: alternativa de código abierto
+
+La distribución instalada de PySide6 6.10.0 declara LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only. Para SignalLab bajo GPLv3 se utiliza la alternativa GPLv3, sin licencia comercial. Se conservan los textos comunes [GPLv3](LICENSES/Qt/GPL-3.0-only.txt), [LGPLv3](LICENSES/Qt/LGPL-3.0-only.txt) y [GPLv2](LICENSES/Qt/GPL-2.0-only.txt), además de los avisos originales del paquete.
+
+Fuentes oficiales de la versión: [Qt 6.10.0](https://download.qt.io/archive/qt/6.10/6.10.0/single/) y [PySide6 6.10.0](https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-6.10.0-src/). Los archivos de terceros en estas fuentes conservan sus propias licencias. Estas referencias complementan el código de SignalLab y sus instrucciones de construcción.
