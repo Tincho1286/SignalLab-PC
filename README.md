@@ -6,7 +6,7 @@ La entrega 1.2.0 preliminar integra Z, extensiones por límite, plano complejo d
 
 ## Descargar y empezar
 
-[Descargar SignalLab PC 1.1.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.3). El repositorio es privado: necesitás una cuenta con acceso para ver sus versiones y archivos.
+[Descargar SignalLab PC 1.1.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.3). El repositorio y las descargas son públicos.
 
 Abrí SignalLab-PC-1.1.3.exe. Incluye Python y las dependencias; no necesitás instalarlos para usar el portable. La preliminar local está en outputs/SignalLab-PC-1.2.0-preview.exe y la estable se conserva por separado.
 
@@ -43,7 +43,7 @@ Las condiciones, aproximaciones numéricas y límites de cada método siguen vis
 
 ## Código, compilación y versiones
 
-El código está en este repositorio privado. Los portables se adjuntan a Releases, fuera del historial Git. La primera versión y los ejecutables anteriores están respaldados en el archivo histórico.
+El código está en este repositorio público. Los portables se adjuntan a Releases, fuera del historial Git. La primera versión y los ejecutables anteriores están respaldados en el archivo histórico.
 
 Para desarrollo, setup_windows.ps1 prepara el entorno Python y build_portable.ps1 genera el ejecutable y limpia sus intermedios al terminar correctamente. [Publicar versiones](RELEASES_GITHUB.md) · [Almacenamiento](ALMACENAMIENTO.md).
 

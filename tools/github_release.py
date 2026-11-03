@@ -1,4 +1,4 @@
-"""Publish private SignalLab releases using Git's existing GitHub session."""
+"""Publish SignalLab releases with an explicit public-repository opt-in using Git's existing GitHub session."""
 from pathlib import Path
 import argparse,hashlib,http.client,json,os,subprocess,urllib.request,urllib.error,urllib.parse
 
@@ -40,10 +40,15 @@ class GitHub:
         with self.opener.open(request,timeout=60) as response:
             raw=response.read();return json.loads(raw) if raw else None
 
-    def require_private(self):
+    def require_repository(self,allow_public=False):
         repo=self.api('GET','/repos/'+self.repository)
-        if repo.get('private') is not True:raise RuntimeError('La publicación está limitada al repositorio privado configurado.')
+        if repo.get('full_name','').casefold()!=self.repository.casefold():raise RuntimeError('GitHub devolvió otro repositorio; no se publica.')
+        if repo.get('private') is not True and not (allow_public and repo.get('visibility')=='public'):
+            raise RuntimeError('La publicación pública requiere autorización explícita mediante --allow-public.')
         return repo
+
+    def require_private(self):
+        return self.require_repository()
 
     def assets(self,release):
         result=[];page=1
@@ -91,8 +96,8 @@ class GitHub:
         result=self.verify(asset,path,expected)
         print('Verified:',path.name,expected,flush=True);return result
 
-    def publish(self,tag,title,notes,paths,target,prerelease=True):
-        self.require_private();base='/repos/'+self.repository
+    def publish(self,tag,title,notes,paths,target,prerelease=True,allow_public=False):
+        self.require_repository(allow_public);base='/repos/'+self.repository
         try:release=self.api('GET',base+'/releases/tags/'+urllib.parse.quote(tag,safe=''))
         except urllib.error.HTTPError as exc:
             if exc.code!=404:raise
@@ -108,12 +113,13 @@ def main():
     parser.add_argument('--tag',required=True);parser.add_argument('--title',required=True)
     parser.add_argument('--notes',type=Path,required=True);parser.add_argument('--file',type=Path,action='append',required=True)
     parser.add_argument('--repository',default=REPOSITORY);parser.add_argument('--stable',action='store_true')
+    parser.add_argument('--allow-public',action='store_true',help='Autorizar explícitamente la publicación en el repositorio público configurado.')
     args=parser.parse_args();root=Path(__file__).resolve().parents[1]
     if subprocess.run(['git','diff','--quiet','HEAD','--'],cwd=root).returncode:raise SystemExit('Guardá los cambios en Git antes de publicar.')
     target=subprocess.check_output(['git','rev-parse','HEAD'],cwd=root,text=True).strip()
     remote=subprocess.check_output(['git','ls-remote','origin','refs/heads/main'],cwd=root,text=True).split()
     if not remote or remote[0]!=target:raise SystemExit('Subí el commit a origin/main antes de publicar.')
-    GitHub(args.repository).publish(args.tag,args.title,args.notes.read_text(encoding='utf-8'),args.file,target,not args.stable)
+    GitHub(args.repository).publish(args.tag,args.title,args.notes.read_text(encoding='utf-8'),args.file,target,not args.stable,allow_public=args.allow_public)
 
 
 if __name__=='__main__':main()

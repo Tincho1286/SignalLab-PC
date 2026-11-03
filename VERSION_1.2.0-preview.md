@@ -84,3 +84,7 @@ No se ejecutaron pruebas de funcionamiento, casos matemáticos de prueba, valida
 - `signallab_pc/z_algebra.py`
 - `signallab_pc/z_plane.py`
 - `signallab_pc/pole_zero_analysis.py`
+
+## Publicación pública autorizada
+
+El usuario confirmó mantener público Tincho1286/SignalLab-PC y autorizó publicar este portable. tools/github_release.py incorpora --allow-public como opción explícita; conserva la protección por defecto, la comprobación del repositorio configurado, la coincidencia con main y la verificación de integridad de adjuntos. La visibilidad del repositorio no se modificó. Este cambio del publicador no modifica el código incluido en el ejecutable.
