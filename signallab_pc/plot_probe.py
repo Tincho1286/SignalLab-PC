@@ -29,7 +29,7 @@ class PlotProbe:
         self.canvas=canvas;self.toolbar=toolbar;self.traces=[];self.signature=None;self.background=None
         self.a=None;self.b=None;self.live={};self.active_axis=None;self.artists=[];self.last_motion=0.;self.enabled=True;self.exporting=False
         self.widget=QWidget();box=QVBoxLayout(self.widget);box.setContentsMargins(4,2,4,2);box.setSpacing(2)
-        row=QHBoxLayout();self.hint=QLabel('Mové el mouse: lectura de puntos. Clic fija A; otro clic fija B.');self.hint.setWordWrap(True);row.addWidget(self.hint,1)
+        row=QHBoxLayout();self.hint=QLabel('Editor de diseño: los clics editan; usá Fijar A/B para medir.' if getattr(canvas,'_signallab_editable',False) else 'Mové el mouse: lectura de puntos. Clic fija A; otro clic fija B.');self.hint.setWordWrap(True);row.addWidget(self.hint,1)
         self.pin_a=QPushButton('Fijar A');self.pin_b=QPushButton('Fijar B');self.reset=QPushButton('Seguir');self.pin_b.setEnabled(False)
         self.copy=QPushButton('Copiar');self.copy.setToolTip('Copiar las lecturas con toda la precisión disponible, como tabla.');self.copy.clicked.connect(self.copy_values)
         for button in (self.pin_a,self.pin_b,self.reset,self.copy):row.addWidget(button)
@@ -130,6 +130,7 @@ class PlotProbe:
         if self.active_axis is not None:
             label=self.active_axis.get_xlabel() or next((axis.get_xlabel() for axis in self.active_axis.get_shared_x_axes().get_siblings(self.active_axis) if axis.get_xlabel()),'')
             if label:self.hint.setText(self.hint.text()+' Eje: '+label+'.')
+        if getattr(self.canvas,'_signallab_editable',False):self.hint.setText('Editor de diseño: los clics cambian polos/ceros. Usá Fijar A/B y Seguir para medir sin editar.')
         self.paint()
 
     def paint(self):
