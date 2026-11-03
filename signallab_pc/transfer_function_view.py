@@ -31,7 +31,7 @@ class TransferFunctionView(QWidget):
         self.system=system;self._grid=None;digital=system.domain=='digital';symbol='z' if digital else 's'
         from .phase_summary import transfer_formula
         from .result_summary import Summary,Section
-        information=convergence(system) if digital else {'text':'ROC de Laplace no especificada. La fracción racional por sí sola no determina el soporte temporal.'}
+        information=convergence(system)
         self.formula.set_readable(Summary('Función de transferencia H('+symbol+')',[Section('Definición',formulas=[transfer_formula(system,digits=12)[0]]),Section('Región de convergencia',paragraphs=[information['text']])]))
         zeros,poles=plane_roots(system);radius=float(max(np.max(abs(zeros),initial=0),np.max(abs(poles),initial=0)))
         extent=max(1.5,1.25*radius) if digital else 1.25*radius if radius>0 else 1.5
@@ -84,7 +84,7 @@ class TransferFunctionView(QWidget):
                     theta=np.linspace(0,2*np.pi,361);real=np.cos(theta);imag=np.sin(theta);inside=(real>=x0)&(real<=x1)&(imag>=y0)&(imag<=y1)
                     axis.plot(np.where(inside,real,np.nan),np.where(inside,imag,np.nan),np.zeros(theta.shape),linestyle='--',color='#8194ae',linewidth=.7)
                 elif x0<=0<=x1:axis.plot([0,0],[y0,y1],[0,0],linestyle='--',color='#8194ae',linewidth=.7)
-            description=convergence(self.system)['text'] if digital else 'ROC de Laplace no especificada.'
+            description=convergence(self.system)['text']
             self.note.setText(description+' Dos gráficas de malla muestran '+('módulo lineal y ángulo principal en radianes.' if polar else 'las partes real e imaginaria, con igual escala vertical.')+' Se interrumpe el trazado en polos y en saltos del ángulo. La línea discontinua indica '+('el círculo unitario.' if digital else 'el eje imaginario s=jΩ.')+' La fracción puede evaluarse fuera de su ROC; la respuesta en frecuencia se consulta por separado.')
             self.figure.set_layout_engine('constrained');self.canvas.draw_idle()
         except Exception as exc:QMessageBox.warning(self,'No se pudo representar la transferencia',str(exc))

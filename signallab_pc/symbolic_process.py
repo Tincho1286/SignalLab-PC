@@ -42,7 +42,11 @@ def worker(source, destination):
     try:
         from .symbolic import execute
         from .calculation_notes import capture
-        with capture() as records:result=execute(json.loads(Path(source).read_text(encoding="utf-8")))
+        request=json.loads(Path(source).read_text(encoding='utf-8'))
+        with capture() as records:result=execute(request)
+        if isinstance(result,dict) and 'error' not in result and request.get('operation') in ('z_expression','z_finite','z_inverse_expression','laplace','inverse_laplace'):
+            from .transform_steps import build
+            result['derivation']=build(request,result)
         if records and isinstance(result,dict) and 'error' not in result:result['_calculation_notes']=list(records.values())
     except Exception as exc:
         result={"error":str(exc)}

@@ -46,7 +46,20 @@ class CoefficientEditor(QWidget):
         self.inline.setText(self.text());self.textChanged.emit(self.text())
     def fit_table(self):self.table.setFixedHeight(48+30*min(max(1,len(self.model.values)),5))
     def text(self):return ', '.join(self.model.values)
-    def coefficients(self):return list(self.model.values)
+    def coefficients(self):
+        import sympy as sp
+        from .symbolic import parse,T,S,N,Z,W
+        from .numeric_input import field_name
+        from .validation import invalid
+        for index,value in enumerate(self.model.values):
+            try:
+                expression=parse(value)
+                if expression.has(T,S,N,Z,W):raise ValueError('El coeficiente debe ser constante respecto de los ejes t, s, n, z y w.')
+                if expression.has(sp.zoo,sp.nan,sp.oo):raise ValueError('El coeficiente debe ser finito.')
+            except Exception as exc:
+                invalid(self.inline,'coeficiente '+str(index+1)+' incorrecto: '+str(exc),'Se admiten pi, 10^(-3), 1e-3, fracciones y complejos; separá los coeficientes con comas.',name=field_name(self))
+        if not self.model.values:invalid(self.inline,'la lista está vacía.','Ingresá al menos un coeficiente; por ejemplo 1, 0, pi/4.',name=field_name(self))
+        return list(self.model.values)
     def setText(self,value):
         values=split_coefficients(str(value))
         self.model.beginResetModel();self.model.values=values;self.model.endResetModel();self.fit_table();self.model_changed()

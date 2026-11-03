@@ -153,6 +153,8 @@ def transfer_summary(value):
     formula,compact=transfer_formula(value)
     sections.append(Section('Función de transferencia',formulas=[formula],paragraphs=['La suma finita usa los coeficientes b[k] y a[k] indicados, sin omitir términos.'] if compact else []))
     sections.append(Section('Cómo interpretarlo',paragraphs=['b y a están ordenados por potencias ascendentes de z⁻¹.' if digital else 'b y a están ordenados por potencias descendentes de s.','El informe presenta hasta 12 cifras significativas. La exportación conserva los coeficientes almacenados y las secciones, si existen. La transferencia sola no fija una región de convergencia ni demuestra la estabilidad interna de una realización con cancelaciones.']))
+    from .system_conditions import section
+    sections.insert(0,section(value))
     return Summary(value.name,sections)
 
 def alias_summary(value):
@@ -189,7 +191,7 @@ def transform_summary(request,result):
         terms=result.get('display_terms',[]);lines=[]
         if len(terms)>1:lines=[lhs+' = '+terms[0],*[(term if term.startswith('-') else '+'+term) for term in terms[1:]]]
         sections.append(Section('Integral de definición' if result.get('convergence_empty') else 'Expresión numérica obtenida' if result.get('display_numeric') else 'Expresión obtenida' if result.get('evaluated',True) else 'Expresión sin resolver',paragraphs=['Vista redondeada a 6 cifras significativas para facilitar la lectura. Copiar texto y Guardar texto conservan al menos 17 cifras; este redondeo visual no interviene en los cálculos.' ] if result.get('display_numeric') else [],formulas=[Formula(expression,expression,lines,numeric=bool(result.get('display_numeric')))]))
-    rows=[]
+    rows=[('Dominio','Discreto · índices n enteros' if z else 'Continuo · tiempo t'),('Interpretación','Transformada inversa con ROC' if inverse and z else 'Suma sobre el soporte indicado' if z else 'Bilateral' if request.get('interpretation')=='bilateral' else 'Unilateral / causal')]
     for key,label in [('convergence','Convergencia'),('condition','Condición adicional'),('roc','Región de convergencia'),('roc_finite_plane','ROC en el plano finito')]:
         if key in result and result[key]!='True':
             displayed=result[key]

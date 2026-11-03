@@ -1,6 +1,24 @@
 {
   "releases": [
     {
+      "tag": "v1.2.2-preview",
+      "title": "Condiciones, desarrollo y precisión de filtros",
+      "channel": "preview",
+      "summary": "ROC analógica reutilizable, extremos refinados y entradas claras.",
+      "changes": [
+        "Condiciones de validez reunidas.",
+        "Desarrollo opcional de Z y Laplace.",
+        "Frecuencias de extremos y margen frente a tolerancias.",
+        "Errores vinculados al campo ingresado."
+      ],
+      "limits": [
+        "Refinamiento numérico local, sin certificación global.",
+        "Desarrollo según los pasos registrados por cada ruta.",
+        "Publicación preliminar; estable 1.2.1."
+      ],
+      "notes": "docs/releases/v1.2.2-preview.md"
+    },
+    {
       "tag": "v1.2.1",
       "title": "Indeterminaciones y valores por continuidad visibles",
       "channel": "stable",

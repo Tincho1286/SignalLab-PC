@@ -34,6 +34,7 @@ class SystemAnalysisPanel(QWidget):
         self.note=QLabel();self.note.setWordWrap(True);form.addRow(self.note)
         self.domain.currentIndexChanged.connect(self.update_note);self.definition_mode.currentIndexChanged.connect(self.update_note);self.update_note()
         self.w0=QLineEdit('0');self.w1=QLineEdit('10');self.count=QLineEdit('1001')
+        self.w0.setAccessibleName('Frecuencia inicial');self.w1.setAccessibleName('Frecuencia final');self.count.setAccessibleName('Cantidad de frecuencias')
         
         frequency_range=QWidget();frequency_range.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed);range_row=QHBoxLayout(frequency_range);range_row.setContentsMargins(0,0,0,0)
         for label,field in [('Desde',self.w0),('Hasta',self.w1),('Puntos',self.count)]:
@@ -48,9 +49,9 @@ class SystemAnalysisPanel(QWidget):
         self.margin_note=QLabel('H se interpreta como L, con realimentación negativa unitaria. Se buscan cruces dentro del intervalo, no un certificado global de estabilidad.');self.margin_note.setWordWrap(True);self.margin_note.setObjectName('muted');form.addRow(self.margin_note);self.margin_note.hide()
         self.margins.toggled.connect(self.margin_note.setVisible)
 
-        self.roc_choice=QComboBox();self.roc_choice.addItems(['Secuencia derecha · exterior a polos','Secuencia izquierda · interior a polos','Anillo que contiene un radio','ROC no especificada']);form.addRow('ROC de H(z)',self.roc_choice)
+        self.roc_choice=QComboBox();self.roc_choice.addItems(['Secuencia derecha · exterior a polos','Secuencia izquierda · interior a polos','Anillo que contiene un radio','ROC no especificada']);form.addRow('Región de convergencia (ROC)',self.roc_choice)
         self.roc_radius=QLineEdit('1');form.addRow('Radio dentro de la ROC',self.roc_radius)
-        self.roc_choice.currentIndexChanged.connect(lambda *_:form.setRowVisible(self.roc_radius,self.domain.currentIndex()==1 and self.roc_choice.currentIndex()==2))
+        self.roc_choice.currentIndexChanged.connect(lambda *_:form.setRowVisible(self.roc_radius,self.roc_choice.currentIndex()==2))
         self._form=form
         self.impulse=QCheckBox('Calcular también h(t) causal');form.addRow(self.impulse)
         choose=QPushButton('Copiar un sistema anterior…');choose.clicked.connect(self.choose);form.addRow(choose)
@@ -82,7 +83,15 @@ class SystemAnalysisPanel(QWidget):
         self.realization_view=RealizationPanel(window);self.result_tabs.addTab(self.realization_view,'Realización');self.result_tabs.setTabVisible(3,False)
         from .transfer_function_view import TransferFunctionView
         self.transfer_view=TransferFunctionView();self.transfer_index=self.result_tabs.addTab(self.transfer_view,'Función de transferencia');self.result_tabs.setTabVisible(self.transfer_index,False)
-        self.domain.currentIndexChanged.connect(lambda *_:self._form.setRowVisible(self.roc_choice,self.domain.currentIndex()==1));self.domain.currentIndexChanged.connect(lambda *_:self._form.setRowVisible(self.roc_radius,self.domain.currentIndex()==1 and self.roc_choice.currentIndex()==2));self._form.setRowVisible(self.roc_choice,False);self._form.setRowVisible(self.roc_radius,False)
+        def update_roc(*_):
+            digital=self.domain.currentIndex()==1
+            labels=['Secuencia derecha · exterior a polos','Secuencia izquierda · interior a polos','Anillo que contiene un radio','ROC no especificada'] if digital else ['A la derecha de todos los polos','A la izquierda de todos los polos','Franja que contiene una línea σ','ROC no especificada']
+            for index,label in enumerate(labels):self.roc_choice.setItemText(index,label)
+            self._form.labelForField(self.roc_radius).setText('Radio dentro de la ROC' if digital else 'Parte real σ dentro de la ROC')
+            self._form.setRowVisible(self.roc_radius,self.roc_choice.currentIndex()==2)
+            if getattr(self,'_roc_domain',None)!=digital:self.roc_choice.setCurrentIndex(3)
+            self._roc_domain=digital
+        self.domain.currentIndexChanged.connect(update_roc);update_roc()
         self.result_tabs.currentChanged.connect(self._result_tab_changed);self.result_tabs.tabBar().tabBarClicked.connect(self._result_tab_changed)
         self.empty=QLabel('El análisis aparecerá después de calcular.');self.empty.setObjectName('muted');layout.addWidget(self.empty);self.result_tabs.hide()
     def inspect_system_roots(self,system,key=None):
@@ -143,9 +152,8 @@ class SystemAnalysisPanel(QWidget):
         from .transfer_input import remember_system
         self.definition_mode.setCurrentIndex(0);self.domain.setCurrentIndex(0 if system.domain=='analog' else 1)
         self.b.setText(list_text(system.b));self.a.setText(list_text(system.a));self.input_id=key;remember_system(self,system)
-        if system.domain=='digital':
-            spec=system.roc;self.roc_choice.setCurrentIndex({'right':0,'left':1,'radius':2}.get(spec.get('mode'),3) if spec else 3)
-            if spec and 'radius' in spec:self.roc_radius.setText(str(spec['radius']))
+        spec=system.roc;self.roc_choice.setCurrentIndex({'right':0,'left':1,'radius':2,'line':2}.get(spec.get('mode'),3) if spec else 3)
+        if spec and ('radius' in spec or 'sigma' in spec):self.roc_radius.setText(str(spec.get('radius',spec.get('sigma'))))
     def choose(self):
         key=self.window.choose_record('system')
         if not key:return
@@ -166,14 +174,17 @@ class SystemAnalysisPanel(QWidget):
     def calculate(self):
         try:
             request=dict(operation='system_analysis',domain='analog' if self.domain.currentIndex()==0 else 'digital',
-                b=self.b.coefficients(),a=self.a.coefficients(),impulse=self.impulse.isChecked())
+                b=self.b.coefficients() if self.definition_mode.currentIndex()==0 else [],a=self.a.coefficients() if self.definition_mode.currentIndex()==0 else [],impulse=self.impulse.isChecked())
             if self.definition_mode.currentIndex()==1:request=dict(operation='system_formula',expression=self.transfer_formula.text(),domain=request['domain'],impulse=self.impulse.isChecked())
             preserved=getattr(self,'_preserved_system',None) if (self.definition_mode.currentIndex()==0 and (self.b.text(),self.a.text(),self.domain.currentIndex())==getattr(self,'_preserved_definition',None)) or (self.definition_mode.currentIndex()==1 and (self.transfer_formula.text(),self.domain.currentIndex())==getattr(self,'_preserved_formula',None)) else None
-            start,stop,count=real_field(self.w0),real_field(self.w1),integer_field(self.count)
+            start,stop,count=real_field(self.w0),real_field(self.w1),integer_field(self.count,minimum=2)
             logarithmic=self.frequency_scale.currentIndex()==1;with_margins=self.margins.isChecked()
+            from .validation import ordered_interval
+            ordered_interval(self.w0,self.w1,start,stop,logarithmic=logarithmic)
             from .system_clock import editor_period,apply_period
             period=editor_period(self)
-            roc_spec=({'mode':['right','left','radius'][self.roc_choice.currentIndex()],**({'radius':real_field(self.roc_radius)} if self.roc_choice.currentIndex()==2 else {})} if request['domain']=='digital' and self.roc_choice.currentIndex()<3 else None)
+            digital=request['domain']=='digital'
+            roc_spec=({'mode':['right','left','radius' if digital else 'line'][self.roc_choice.currentIndex()],**({('radius' if digital else 'sigma'):real_field(self.roc_radius,minimum=0 if digital else None,strict=digital)} if self.roc_choice.currentIndex()==2 else {})} if self.roc_choice.currentIndex()<3 else None)
             request['roc_spec']=roc_spec
             parent=self.input_id;calculated_inputs=self.result_state.snapshot()
             def compute():
@@ -190,10 +201,11 @@ class SystemAnalysisPanel(QWidget):
                     system=apply_period(system,period)
                     system.roc=roc_spec
                     from .transfer_plane import convergence
-                    information=convergence(system) if system.domain=='digital' else None
-                    if information is not None:exact['roc']=information['text']
-                    if information is None or information['unit'] is True:data=analyze_frequency(system,omega_grid,logarithmic=logarithmic,margins=with_margins)
-                    else:exact['frequency_notice']='No se calcula H(e^{jω}): '+information['text']+' Elegí una ROC que contenga el círculo unitario para definir su respuesta DTFT.'
+                    information=convergence(system);exact['roc']=information['text']
+                    from .system_conditions import record
+                    exact['mathematical_conditions']=record(system)
+                    if not information['known'] or information['unit'] is True:data=analyze_frequency(system,omega_grid,logarithmic=logarithmic,margins=with_margins)
+                    else:exact['frequency_notice']='La ROC no contiene la frontera de Fourier. Se conservan la expresión y el análisis en el plano complejo: '+information['text']
                 return exact,system,data
             def accept(result):
                 exact,system,data=result
@@ -213,9 +225,9 @@ class SystemAnalysisPanel(QWidget):
                 self.result_tabs.setCurrentIndex(0)
                 summary=frequency_summary(exact,data)
                 from .result_summary import Section
-                if system is not None and system.domain=='digital':
-                    from .transfer_plane import convergence
-                    summary.sections.append(Section('ROC de H(z)',paragraphs=[convergence(system)['text']]))
+                if system is not None:
+                    from .system_conditions import section
+                    summary.sections.insert(0,section(system))
                 if system is not None and system.sample_period_s is not None:
                     from .result_summary import Section,number
                     summary.sections.insert(0,Section('Reloj físico',rows=[('Período T (s)',number(system.sample_period_s))],paragraphs=['La frecuencia digital permanece en rad/muestra. El reloj se conserva al exportar o reutilizar el sistema.']))

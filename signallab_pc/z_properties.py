@@ -99,7 +99,8 @@ def inverse_pairs(request):
     from .cas_engine import encode
     text=SignalPrinter({'order':'none'}).doprint(result)
     conditions=[sp.Ne(pole,0) for pole in sides if pole.free_symbols and pole.is_zero is not False]
-    return {'operation':'Z inversa por propiedades','result':str(result),'display_result':text,'display_numeric':False,'display_terms':[],
+    pairs=[{'coefficient':str(c),'delay':str(d),'pole':str(p) if p is not None else None,'order':int(m),'right':bool(sides[p]) if p is not None else True} for c,d,p,m in terms]
+    return {'geometric_terms':pairs,'operation':'Z inversa por propiedades','result':str(result),'display_result':text,'display_numeric':False,'display_terms':[],
             'evaluated':True,'output_variable':'n','origin':start,'numeric_samples':samples or None,'parameters':parameters,
             'roc':str(lower)+(' ≤ ' if zero_included else ' < ')+'|z| < '+str(upper),'infinity_included':bool(infinity_included),
             'cas_encoded':encode(result),'method':'geometric_pairs','condition':str(sp.And(*conditions)),

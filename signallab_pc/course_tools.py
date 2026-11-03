@@ -49,24 +49,10 @@ def bands(wp,ws):
     return wp,ws,kind
 
 def spec_report(system,wp,ws,kind,dp,ds,pass_upper=None):
-    base=np.linspace(0,np.pi,32769);edges=np.r_[wp,ws]
-    if system.sos is None:
-        _,hbase=sp.freqz(system.b,system.a,worN=32769,include_nyquist=True);_,hedges=sp.freqz(system.b,system.a,worN=edges)
-    else:hbase=system.response(base);hedges=system.response(edges)
-    order=np.argsort(np.r_[base,edges]);w=np.r_[base,edges][order];h=abs(np.r_[hbase,hedges][order])
-    if kind=='lowpass':pm=w<=wp[0];sm=w>=ws[0]
-    elif kind=='highpass':pm=w>=wp[0];sm=w<=ws[0]
-    elif kind=='bandpass':pm=(w>=wp[0])&(w<=wp[1]);sm=(w<=ws[0])|(w>=ws[1])
-    else:pm=(w<=wp[0])|(w>=wp[1]);sm=(w>=ws[0])&(w<=ws[1])
-    if not np.all(np.isfinite(h)):return 'La evaluación presenta puntos no finitos; revisá el orden y la condición numérica.'
-    error=float(np.max(abs(h[pm]-1)));stop=float(np.max(h[sm]))
-    if pass_upper is not None:
-        minimum=float(np.min(h[pm]));maximum=float(np.max(h[pm]))
-        excess=max((1-dp)-minimum,maximum-pass_upper,stop-ds)
-        verdict='dentro de tolerancias.' if excess<=0 else 'al límite numérico (exceso de hasta 1e-12 en amplitud); no se certifica cumplimiento estricto.' if excess<=1e-12 else 'fuera de tolerancias; ajustá el diseño.'
-        return f'Mínimo |H| en paso: {minimum:.12g} (mínimo permitido {1-dp:.12g})\nMáximo |H| en paso: {maximum:.12g} (máximo permitido {pass_upper:.12g})\nMáximo |H| en rechazo: {stop:.12g} (límite {ds:.12g})\nExceso máximo sobre límites: {max(0,excess):.6g}\nResultado sobre la rejilla: '+verdict+'\nEvaluación sobre 32769 frecuencias y bordes. No prueba cumplimiento entre frecuencias ni orden mínimo global.'
-
-    return f'Desviación máxima de |H| respecto de 1 en paso: {error:.9g} (límite {dp:g})\nMáximo |H| en rechazo: {stop:.9g} (límite {ds:g})\nResultado sobre la rejilla: '+('dentro de tolerancias.' if error<=dp and stop<=ds else 'fuera de tolerancias; ajustá el diseño.')+'\nEvaluación numérica sobre 32769 frecuencias más los bordes. No prueba un máximo continuo ni un orden mínimo global.'
+    from .band_extrema import evaluate
+    count=2 if kind=='bandstop' else 1
+    spec={'wp':wp,'ws':ws,'kind':kind,'amplitudes':[1.]*count,'pass_lower':[1-dp]*count,'pass_upper_bands':[1+dp if pass_upper is None else pass_upper]*count,'stop_upper':ds}
+    return evaluate(system,spec)[1]
 
 def design_filter(wp,ws,dp,ds,method,period=1,taps=0,window="kaiser",search=0):
     wp,ws,kind=bands(wp,ws)

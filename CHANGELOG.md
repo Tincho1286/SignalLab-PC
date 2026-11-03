@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.2.1**.
 
+## 1.2.2 · preliminar
+
+- Condiciones matemáticas reunidas y ROC analógica preservada en reutilización y exportación.
+- Extremos de filtros refinados, frecuencias de mínimos/máximos y margen frente a tolerancias.
+- Desarrollo opcional registrado para Z y Laplace, separado del resultado principal.
+- Errores de entrada contextualizados, con señalización del campo y conservación del texto.
+- Propuestas de consolidación en [la hoja de mejoras](docs/roadmap.md).
+
+[Notas y alcance](docs/releases/v1.2.2-preview.md)
+
 ## 1.2.1 · 2026-11-02
 
 - Aviso visible en el editor y explicación en la ayuda de cada herramienta.

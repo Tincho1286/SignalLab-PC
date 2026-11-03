@@ -39,9 +39,9 @@ class FrequencyData:
 def analyze_frequency(system,omega,*,advance=0,logarithmic=False,margins=False):
     from .transfer_plane import effective_system
     system=effective_system(system)
-    if system.domain=='digital' and system.roc is not None:
+    if system.roc is not None:
         from .transfer_plane import convergence
-        if convergence(system)['unit'] is not True:raise ValueError('El círculo unitario no pertenece a la ROC; H(e^{jω}) no define la DTFT del sistema.')
+        if convergence(system)['unit'] is not True:raise ValueError('La frontera de Fourier no pertenece a la ROC; no se interpreta su evaluación formal como respuesta en frecuencia del sistema.')
     response=system.response(omega)*np.exp(1j*omega*advance)
     with np.errstate(all='ignore'):magnitude=np.abs(response);db=20*np.log10(magnitude)
     phase=np.full(response.shape,np.nan);valid=np.isfinite(response)&np.isfinite(magnitude)&(magnitude>0)
@@ -192,8 +192,10 @@ def export_frequency(data,path):
     from pathlib import Path
     from .atomic_file import atomic_text_file,write_json
     if Path(path).suffix.lower()=='.json':
+        from .system_conditions import record
         def numbers(values):return [float(value) if np.isfinite(value) else None for value in values]
         write_json(path,dict(format='signallab-frequency-analysis',version=1,frequency_units=data.units,
+            system=data.system.to_document(),mathematical_conditions=record(data.system),
             domain=data.system.domain,distribution='logarithmic' if data.logarithmic else 'linear',
             frequency=numbers(data.omega),response_real=numbers(data.response.real),response_imag=numbers(data.response.imag),
             magnitude=numbers(data.magnitude),magnitude_db=numbers(data.db),phase_rad=numbers(data.phase),group_delay=numbers(data.delay),

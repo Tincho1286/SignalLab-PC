@@ -186,8 +186,13 @@ def inverse(request):
         roc=endpoint(low_pole,True)+(' ≤ ' if zero_included else ' < ')+'|z| < '+endpoint(high_pole,False)
         for info in poles:
             pole_rows.append((f'p[{info["index"]}]','Raíz de '+info['polynomial']+' = 0; aproximación '+(context.nstr(info['value'],16).replace('j','i') if numeric else str(info['pole']))+'; término '+('derecho' if info['right'] else 'izquierdo')))
+    decomposition=[str(common*polynomial.as_expr())] if not polynomial.is_zero else []
+    for info,order,c,numeric_c in terms:
+        pole=str(values.complex_number(info['value'])) if numeric else str(info['pole'])
+        coefficient=str(values.complex_number(numeric_c)) if numeric else str(c)
+        decomposition.append('('+coefficient+')/(z-('+pole+'))^'+str(order))
     from .cas_engine import encode
-    return {'cas_encoded':encode(result),'operation':'Z inversa algebraica','result':sp.sstr(result,order='none'),'display_result':display_text,'display_terms':display_terms,'display_numeric':display_numeric,'display_precision':17 if display_numeric else None,'evaluated':True,'roc':roc,'infinity_included':bool(infinity_included),
+    return {'decomposition':'+'.join(decomposition) or '0','cas_encoded':encode(result),'operation':'Z inversa algebraica','result':sp.sstr(result,order='none'),'display_result':display_text,'display_terms':display_terms,'display_numeric':display_numeric,'display_precision':17 if display_numeric else None,'evaluated':True,'roc':roc,'infinity_included':bool(infinity_included),
         'scope':'La descomposición es algebraica exacta. La ROC decide qué términos son derechos o izquierdos; los términos polinómicos se representan por impulsos discretos. Las muestras describen sólo el intervalo elegido.'+(' El texto completo de la fórmula evalúa polos y coeficientes con al menos 17 cifras significativas y es una aproximación numérica; el cálculo conserva la definición algebraica. La vista redondeada facilita su lectura.' if display_numeric else ''),
         'origin':start,'numeric_samples':samples or None,'output_variable':'n','parameters':parameters,'pole_definitions':pole_rows,'coefficient_definitions':coefficient_rows if alias_needed else [],
         'root_note':'p[k] identifica una raíz exacta del polinomio indicado. Su decimal sólo ayuda a reconocerla; no reemplaza la definición algebraica. A[k] es el coeficiente exacto del término mostrado.' if alias_needed else ''}

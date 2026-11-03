@@ -40,16 +40,16 @@ def effective_plane_system(system):
     if reduced is None:return system
     from .filters import Transfer
     b,a,_=reduced
-    return Transfer(b,a,'analog',system.name)
+    return Transfer(b,a,'analog',system.name,roc=system.roc)
 
 
 def convergence(system):
-    if system.domain!='digital':return {'known':False,'unit':None,'text':'La ROC anular corresponde a H(z).'}
+    if system.domain!='digital':return analog_convergence(system)
     system=effective_system(system)
     from .filters import validate_roc
     specification=validate_roc(system.roc,system.domain)
     if specification is None:return {'known':False,'unit':None,'text':'ROC no especificada. La expresión racional por sí sola no determina el soporte de h[n].'}
-    zeros,poles=system.poles_zeros();radii=np.abs(poles);radii=radii[radii>0]
+    poles=plane_poles(system);radii=np.abs(poles);radii=radii[radii>0]
     from fractions import Fraction
     endpoint_pole=any(sum((Fraction(float(c.real))*(q**i) for i,c in enumerate(system.a)),Fraction(0))==0 and sum((Fraction(float(c.imag))*(q**i) for i,c in enumerate(system.a)),Fraction(0))==0 for q in (1,-1))
     mode=specification['mode'];radius=specification.get('radius')
@@ -66,7 +66,7 @@ def convergence(system):
     zero_included=inner==0 and bool(np.isfinite(evaluate_plane(system,np.array([0j]))[0]))
     text=f'{inner:.12g} '+('≤' if zero_included else '<')+' |z| < '+('∞' if np.isinf(outer) else f'{outer:.12g}')
     text+='; los bordes con polos no se incluyen.'
-    return {'known':True,'zero_included':zero_included,'inner':inner,'outer':outer,'unit':unit,'text':text,'zeros':zeros,'poles':poles}
+    return {'known':True,'zero_included':zero_included,'inner':inner,'outer':outer,'unit':unit,'boundary':boundary,'text':text,'poles':poles}
 
 
 def evaluate_plane(system,z):
@@ -94,3 +94,35 @@ def plane_roots(system):
     zero_indices=np.flatnonzero(zeros==0);pole_indices=np.flatnonzero(poles==0)
     common=min(len(zero_indices),len(pole_indices))
     return np.delete(zeros,zero_indices[:common]),np.delete(poles,pole_indices[:common])
+
+
+def analog_convergence(system):
+    system=effective_plane_system(system)
+    from .filters import validate_roc
+    specification=validate_roc(system.roc,'analog')
+    if specification is None:return {'known':False,'unit':None,'text':'ROC no especificada. H(s) por sí sola no determina el soporte de h(t).'}
+    poles=plane_poles(system);real=poles.real;mode=specification['mode']
+    if mode=='right':lower=float(real.max()) if real.size else -np.inf;upper=np.inf
+    elif mode=='left':lower=-np.inf;upper=float(real.min()) if real.size else np.inf
+    else:
+        sigma=specification['sigma']
+        tolerance=64*np.finfo(float).eps*np.maximum(abs(poles),np.finfo(float).tiny)
+        if np.any(abs(real-sigma)<=tolerance):raise ValueError('La línea σ elegida atraviesa numéricamente un polo. Elegí una línea interior a la ROC.')
+        below=real[real<sigma];above=real[real>sigma]
+        lower=float(below.max()) if below.size else -np.inf;upper=float(above.min()) if above.size else np.inf
+    boundary=bool(np.any(abs(real)<=64*np.finfo(float).eps*np.maximum(abs(poles),np.finfo(float).tiny)))
+    unit=bool(lower<0<upper and not boundary)
+    text=('−∞' if np.isneginf(lower) else f'{lower:.12g}')+' < Re(s) < '+('∞' if np.isposinf(upper) else f'{upper:.12g}')+'; los polos no se incluyen.'
+    return {'known':True,'inner':lower,'outer':upper,'unit':unit,'boundary':boundary,'text':text,'poles':poles}
+
+
+def plane_poles(system):
+    """Only denominator roots: ROC classification never needs FIR zeros."""
+    if system.sos is not None:
+        poles=np.concatenate([np.roots(row[3:]) for row in system.sos])
+    else:
+        order=max(0,len(system.a)-1);ensure_working_set(order*order,live_arrays=4)
+        poles=np.roots(system.a)
+    if system.domain=='digital' and system.advance:
+        ids=np.flatnonzero(poles==0);poles=np.delete(poles,ids[:system.advance])
+    return poles

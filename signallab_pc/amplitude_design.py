@@ -29,27 +29,15 @@ def masks(w,wp,ws,kind):
 
 
 def evaluate_spec(system,spec):
-    edges=np.r_[spec['wp'],spec['ws']]
-    w=np.unique(np.r_[0,np.geomspace(edges.min()/100,edges.max()*100,32769),edges]) if system.domain=='analog' else np.unique(np.r_[np.linspace(0,np.pi,32769),edges])
-    h=abs(system.response(w));passing,stopping=masks(w,spec['wp'],spec['ws'],spec['kind'])
-    if not np.isfinite(h).all():return False,'Respuesta no finita: el diseño no se declara válido.'
-    rows=[];excess=0.
-    for index,(mask,low,high,amplitude) in enumerate(zip(passing,spec['pass_lower'],spec['pass_upper_bands'],spec['amplitudes'])):
-        minimum=float(h[mask].min());maximum=float(h[mask].max());excess=max(excess,low-minimum,maximum-high)
-        rows.append(f'Paso {index+1}: objetivo {amplitude:.12g}; permitido [{low:.12g}, {high:.12g}]; obtenido [{minimum:.12g}, {maximum:.12g}].')
-    rejection=float(h[stopping].max());excess=max(excess,rejection-spec['stop_upper'])
-    rows.append(f'Rechazo: máximo {rejection:.12g}; límite {spec["stop_upper"]:.12g}.')
-    accepted=excess<=0
-    rows.append('Resultado sobre la rejilla: '+('dentro de tolerancias.' if accepted else 'FUERA DE TOLERANCIAS. No se presenta como diseño válido; aumentá longitud o cambiá especificaciones/método.'))
-    rows.append('Evaluación en 32769 frecuencias más bordes; no certifica los extremos entre puntos ni un orden mínimo universal.')
-    return accepted,'\n'.join(rows)
+    from .band_extrema import evaluate
+    return evaluate(system,spec)
 
 
 def scale_system(system,gain):
     if system.sos is not None:
         sections=system.sos.copy();sections[0,:3]*=gain
-        result=Transfer.from_sos(sections,name=system.name,sample_period_s=system.sample_period_s);result.advance=system.advance;return result
-    return Transfer(system.b*gain,system.a,system.domain,system.name,advance=system.advance,sample_period_s=system.sample_period_s)
+        result=Transfer.from_sos(sections,name=system.name,sample_period_s=system.sample_period_s);result.advance=system.advance;result.roc=system.roc;return result
+    return Transfer(system.b*gain,system.a,system.domain,system.name,advance=system.advance,sample_period_s=system.sample_period_s,roc=system.roc)
 
 
 def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitudes=(1,),units='absolute',analog=False):
@@ -94,7 +82,7 @@ def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitu
                 if kind in ('highpass','bandstop') and length%2==0:continue
                 trial,_,_=candidate(length)
                 if evaluate_spec(trial,spec)[0]:found=length;break
-            if found is None:raise ValueError('Ninguna longitud de la familia elegida satisface la rejilla hasta la cota indicada. Aumentá la cota o cambiá ventana/tolerancias.')
+            if found is None:raise ValueError('Ninguna longitud de la familia elegida supera la comprobación numérica de extremos hasta la cota indicada. Aumentá la cota o cambiá ventana/tolerancias.')
             count=found
         result,ideal,window_values=candidate(count);result.roc={'mode':'right'}
         signals=[Signal(ideal,name='Respuesta ideal truncada'),Signal(window_values,name='Ventana '+window),Signal(result.b,name='Respuesta FIR h[n]')]
@@ -120,7 +108,7 @@ def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitu
     else:output=design_filter(wp,ws,normalized_dp,normalized_ds,method,period,taps,window,search)
     output['systems']=[scale_system(value,gain) for value in output['systems']];output['specifications']=spec
     for system in output['systems']:
-        if system.domain=='digital':system.roc={'mode':'right'}
+        system.roc={'mode':'right'}
     reports=[];accepted=[]
     for system in output['systems']:
         if system.domain!=('analog' if analog else 'digital'):continue

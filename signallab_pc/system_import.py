@@ -60,8 +60,8 @@ class SystemImporter:
                 system=formula_system(text,domain,'H('+expression.variable+') desde expresión',allow_advance=advance)
                 if domain=='digital':
                     system.sample_period_s=self.window.project.sample_period(key)
-                    from .transform_context import result_roc
-                    system.roc=result_roc(source)
+                from .transform_context import result_roc
+                system.roc=result_roc(source)
                 return system
             def accept(system):
                 self.validate(system)

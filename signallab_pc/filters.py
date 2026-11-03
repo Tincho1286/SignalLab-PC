@@ -11,11 +11,12 @@ from .resources import ensure_working_set
 def validate_roc(specification,domain='digital'):
     from copy import deepcopy
     if specification is None:return None
-    if domain!='digital' or not isinstance(specification,dict) or specification.get('mode') not in ('right','left','radius'):raise ValueError('ROC digital inválida.')
+    modes=('right','left','radius') if domain=='digital' else ('right','left','line')
+    if not isinstance(specification,dict) or specification.get('mode') not in modes:raise ValueError('Región de convergencia incompatible con el dominio del sistema.')
     result=deepcopy(specification)
-    if result['mode']=='radius':
-        radius=result.get('radius')
-        if type(radius) not in (int,float) or not np.isfinite(radius) or radius<=0:raise ValueError('El radio de la ROC debe ser positivo y finito.')
+    if result['mode'] in ('radius','line'):
+        key='radius' if domain=='digital' else 'sigma';value=result.get(key)
+        if type(value) not in (int,float) or not np.isfinite(value) or key=='radius' and value<=0:raise ValueError('El radio de la ROC debe ser positivo y finito.' if key=='radius' else 'La parte real σ debe ser un número real finito, interior a la ROC.')
     return result
 
 
@@ -100,7 +101,7 @@ class Transfer:
         return cls([1],[1],'digital',name,sections,sample_period_s=sample_period_s)
 
     def to_document(self):
-        result={'format':'signallab-transfer','version':4 if self.roc is not None else 3 if self.sample_period_s is not None else 2 if self.advance else 1,'domain':self.domain,'name':self.name,
+        result={'format':'signallab-transfer','version':5 if self.domain=='analog' and self.roc is not None else 4 if self.roc is not None else 3 if self.sample_period_s is not None else 2 if self.advance else 1,'domain':self.domain,'name':self.name,
                 'b':[[float(v.real),float(v.imag)] for v in self.b],
                 'a':[[float(v.real),float(v.imag)] for v in self.a]}
         if self.roc is not None:result['roc']=dict(self.roc)
@@ -114,9 +115,9 @@ class Transfer:
         """Validate the complete transfer document before touching an editor."""
         if not isinstance(document,dict) or document.get('format')!='signallab-transfer':raise ValueError('El archivo no es una función de transferencia SignalLab.')
         version=document.get('version')
-        if type(version) is not int or version not in (1,2,3,4):raise ValueError('Versión de archivo de sistema no compatible; se admiten 1 a 4.')
+        if type(version) is not int or version not in (1,2,3,4,5):raise ValueError('Versión de archivo de sistema no compatible; se admiten 1 a 5.')
         advance=document.get('advance',0)
-        if version in (2,3,4) and 'advance' not in document:raise ValueError('Los formatos 2 y 3 deben indicar advance; no se supone que el avance sea cero.')
+        if version in (2,3,4,5) and 'advance' not in document:raise ValueError('Los formatos 2 y 3 deben indicar advance; no se supone que el avance sea cero.')
         if type(advance) is not int or advance<0 or version==1 and advance:raise ValueError('El avance debe ser un entero no negativo y requiere formato 2 o 3 si es distinto de cero.')
         domain=document.get('domain');name=document.get('name','Sistema importado')
         if domain not in ('digital','analog') or domain=='analog' and advance:raise ValueError('El dominio debe ser analog o digital; un avance sólo corresponde a un sistema digital.')
@@ -132,10 +133,11 @@ class Transfer:
             return result[:,0]+1j*result[:,1]
         period=document.get('sample_period_s')
         if version==3 and type(period) not in (int,float):raise ValueError('El formato 3 debe registrar sample_period_s como número positivo y finito.')
-        if version not in (3,4) and period is not None:raise ValueError('El período de un archivo de transferencia requiere formato 3.')
+        if version not in (3,4,5) and period is not None:raise ValueError('El período de un archivo de transferencia requiere formato 3.')
         roc=document.get('roc')
-        if version==4 and roc is None:raise ValueError('El formato 4 debe incluir la definición de ROC.')
-        if version!=4 and roc is not None:raise ValueError('La ROC requiere formato 4.')
+        if version in (4,5) and roc is None:raise ValueError('Los formatos 4 y 5 deben incluir la definición de ROC.')
+        if version not in (4,5) and roc is not None:raise ValueError('La ROC requiere formato 4 (digital) o 5 (analógico).')
+        if roc is not None and (version==4 and domain!='digital' or version==5 and domain!='analog'):raise ValueError('El formato 4 corresponde a ROC digital y el formato 5 a ROC analógica.')
         b,a=vector('b'),vector('a');sos=document.get('sos')
         if sos is None:return cls(b,a,domain,name,advance=advance,sample_period_s=period,roc=roc)
         if not isinstance(sos,list) or not sos or any(not isinstance(row,list) or len(row)!=6 or any(type(value) not in (int,float) for value in row) for row in sos):raise ValueError('SOS requiere seis números reales por sección.')

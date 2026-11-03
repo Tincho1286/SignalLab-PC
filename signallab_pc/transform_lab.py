@@ -43,6 +43,7 @@ class TransformLab(QWidget):
         self.analyze_system=QPushButton();self.analyze_system.clicked.connect(self.to_system);result_actions.addWidget(self.analyze_system);result_actions.addStretch()
         self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Expresión y condiciones')
         self.output=ResultView();self.tabs.addTab(self.output,'Muestras de la inversa');self.tabs.setTabVisible(1,False)
+        self.steps=ReportView();self.steps_index=self.tabs.addTab(report_panel(self.steps),'Desarrollo');self.tabs.setTabVisible(self.steps_index,False)
         def update(*_):
             index=self.mode.currentIndex();changed=index!=self._mode_index
             if changed:
@@ -109,6 +110,9 @@ class TransformLab(QWidget):
         if self.kind=='z' and system.roc is not None:
             self.roc.setCurrentIndex({'right':0,'left':1,'radius':2}[system.roc['mode']])
             if 'radius' in system.roc:self.radius.setText(str(system.roc['radius']))
+        if self.kind=='laplace' and system.roc is not None:
+            self.interpretation.setCurrentIndex(1);self.laplace_roc.setCurrentIndex({'right':0,'left':1,'line':2}[system.roc['mode']])
+            if 'sigma' in system.roc:self.sigma.setText(str(system.roc['sigma']))
     def set_copy_note(self,text):
         self.copy_note.setText(text)
         # QFormLayout owns row visibility. Showing only its hidden child leaves
@@ -120,10 +124,12 @@ class TransformLab(QWidget):
         self.analyze_system.setVisible(True);self.analyze_system.setEnabled(inverse or (self.last is not None and self.last.get('evaluated',True) and len(self.last.get('branches',[]))<=1))
         self.analyze_system.setToolTip('Copia la expresión racional al análisis de sistemas. Allí podés calcular frecuencia, retardo y polos/ceros. Se necesitan coeficientes numéricos; los parámetros libres requieren valores.')
     def display_record(self,record):
-        self.to_cas_button.show();self.to_cas_button.setEnabled(False);self.copy_inverse.hide();self.tabs.setTabVisible(1,False);self.tabs.setCurrentIndex(0)
+        self.to_cas_button.show();self.to_cas_button.setEnabled(False);self.copy_inverse.hide();self.tabs.setTabVisible(1,False);self.tabs.setTabVisible(self.steps_index,False);self.tabs.setCurrentIndex(0)
         if record is None:
             self.last=None;self.result_state.completed=None;self.report.setPlainText('Completá la entrada y calculá. Aquí aparecerán la expresión y sus condiciones.');self.update_system_action();return
         request,result,key,snapshot,signal=record;self.last=result;self.report.set_readable(transform_summary(request,result));self.result_state.accept(snapshot)
+        from .transform_steps import summary as steps_summary
+        self.steps.set_readable(steps_summary(result.get('derivation',[])));self.tabs.setTabVisible(self.steps_index,bool(result.get('derivation')))
         self.to_cas_button.setEnabled(result.get('evaluated',True) and len(result.get('branches',[]))<=1)
         direct=request['operation'] not in ('inverse_laplace','z_inverse_expression')
         self.copy_inverse.setVisible(direct and result.get('evaluated',True) and len(result.get('branches',[]))<=1)
@@ -166,7 +172,7 @@ class TransformLab(QWidget):
             from .workspaces import ROUTES
             domain='digital' if self.kind=='z' else 'analog'
             from .transform_context import result_roc
-            roc_spec=({'mode':['right','left','radius'][self.roc.currentIndex()],**({'radius':real_field(self.radius)} if self.roc.currentIndex()==2 else {})} if self.kind=='z' and inverse else result_roc({'request':record[0],'result':record[1]}) if self.kind=='z' and record else None)
+            roc_spec=({'mode':['right','left','radius'][self.roc.currentIndex()],**({'radius':real_field(self.radius)} if self.roc.currentIndex()==2 else {})} if self.kind=='z' and inverse else ({'mode':['right','left','line'][self.laplace_roc.currentIndex()],**({'sigma':real_field(self.sigma)} if self.laplace_roc.currentIndex()==2 else {})} if self.interpretation.currentIndex()==1 else {'mode':'right'}) if self.kind=='laplace' and inverse else result_roc({'request':record[0],'result':record[1]}) if record else None)
             from .filters import validate_roc
             roc_spec=validate_roc(roc_spec,domain)
             def accept(system):
@@ -177,8 +183,24 @@ class TransformLab(QWidget):
                 self.window.statusBar().showMessage('Expresión copiada como H('+('z' if domain=='digital' else 's')+'). Calculá el análisis con sus datos.')
             self.window._run_operation('Preparando sistema para analizar…',lambda:formula_system(expression,domain,'Sistema desde transformada '+self.kind.upper(),allow_advance=True),accept)
         except Exception as exc:QMessageBox.warning(self,'No se pudo analizar como sistema',str(exc))
+    def validate_fields(self):
+        from .validation import invalid
+        inverse=self.mode.currentIndex()==1
+        if self.kind=='z':
+            if inverse:
+                if self.roc.currentIndex()==2:real_field(self.radius,minimum=0,strict=True)
+                if self.include_samples.isChecked() and self.sample_scope.currentIndex()==0:
+                    integer_field(self.start);integer_field(self.count,minimum=1)
+            elif self.direct_input.currentIndex()==0:
+                lower_text=self.lower.text().strip().replace('−','-');upper_text=self.upper.text().strip()
+                low=None if lower_text=='-oo' else integer_field(self.lower)
+                high=None if upper_text=='oo' else integer_field(self.upper)
+                if low is not None and high is not None and high<low:invalid(self.upper,'debe ser mayor o igual al primer índice.','Los límites son inclusivos; usá oo para un soporte sin final.')
+        elif inverse and self.interpretation.currentIndex()==1 and self.laplace_roc.currentIndex()==2:real_field(self.sigma)
+
     def calculate(self):
         try:
+            self.validate_fields()
             index=self.mode.currentIndex();record_key=self.record_key();finite=self.kind=='z' and index==0 and self.direct_input.currentIndex()==1;request={'expression':self.expression.text()};parents=[]
             for attribute in ('_library_source','_inverse_source','_system_source'):
                 source=getattr(self,attribute,None)

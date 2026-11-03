@@ -271,3 +271,14 @@ GUIDES['system_analysis',0]['parameters'].append(('Componentes de la respuesta e
 
 for _guide in GUIDES.values():
     if not any(title=="Levantamiento de indeterminaciones" for title,_ in _guide["parameters"]):_guide["parameters"].append(("Levantamiento de indeterminaciones",'Una expresión como sin(n)/n no define su valor en n=0. SignalLab la completa por continuidad si los límites reales por izquierda y derecha coinciden y son finitos: en este caso se utiliza 1. En una secuencia discreta esto es una convención de carga, no un valor impuesto por el índice; si necesitás otro valor, definilo en Por tramos. Un valor finito ya definido se conserva. Los polos, las divergencias y los límites laterales diferentes mantienen su restricción. Cuando se aplica el criterio, el informe muestra los puntos y valores en Levantamiento de indeterminaciones; el detalle se conserva en Resultados y al copiar o guardar el informe. sinc(0)=1 ya pertenece a la definición de la función y no cuenta como una indeterminación reparada.'))
+
+
+# Conditions and recorded development share the tools' existing help pages.
+for _key in (('system_analysis',0),('systems',3)):
+    if _key in GUIDES:
+        GUIDES[_key]['reading']+=' Condiciones de validez reúne dominio, ROC, causalidad y estabilidad BIBO. En H(s) elegí semiplano derecho, izquierdo o franja con una línea σ interior; en H(z), exterior, interior o anillo con un radio interior. Sin ROC, una curva evaluada sobre el eje imaginario o el círculo unitario es formal y no demuestra una transformada de Fourier convergente. Una cancelación de la transferencia tampoco demuestra estabilidad interna.'
+for _key in (('transform_lab','z'),('transform_lab','laplace')):
+    if _key in GUIDES:
+        GUIDES[_key]['reading']+=' La pestaña Desarrollo muestra los pasos registrados del último cálculo sin volver a resolverlo. La inversión racional bilateral puede mostrar fracciones parciales; Z también muestra los pares geométricos reconocidos y sus desplazamientos. En rutas que no registran descomposición se indica esa limitación. Copiar a análisis o cargar desde Resultados conserva una ROC compatible, también para H(s).'
+if ('filter_lab',0) in GUIDES:
+    GUIDES['filter_lab',0]['reading']+=' La comprobación de tolerancias refina extremos entre frecuencias de la rejilla, incluye bordes y explora vecindades de polos. El informe muestra las frecuencias de mínimos y máximos y el margen frente a cada límite; positivo significa holgura y negativo significa exceso. En analógico se considera el límite en infinito. Sigue siendo una estimación numérica local, no una certificación global ni una demostración de orden mínimo.'

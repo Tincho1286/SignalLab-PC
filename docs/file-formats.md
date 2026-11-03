@@ -31,3 +31,9 @@ Una tabla finita no define por sí sola una fórmula infinita, un período o una
 ## Exportación
 
 Las señales pueden exportarse a JSON y CSV. Los sistemas usan su JSON de transferencia y, cuando corresponde, tablas de respuesta en frecuencia. Los informes se pueden copiar o guardar desde su vista. **Resultados** reúne las opciones disponibles para cada objeto.
+
+## ROC de transferencias
+
+Los formatos 1 a 3 conservan coeficientes, avances y reloj según su versión. El formato 4 añade ROC digital: `right`, `left` o `radius` con radio positivo. El formato 5 añade ROC analógica: `right`, `left` o `line` con una parte real `sigma` interior a la franja. Los bordes se determinan por los polos no cancelados del modelo almacenado.
+
+La ausencia de ROC se conserva explícitamente: una expresión racional no fija por sí sola causalidad ni estabilidad bilateral. El archivo de frecuencia JSON también conserva la transferencia y su interpretación matemática. Los CSV conservan su tabla de datos habitual.

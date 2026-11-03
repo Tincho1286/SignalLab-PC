@@ -29,6 +29,8 @@ def expression_result(value):
     variable=result.get('output_variable')
     if 'transfer' in result:variable='s' if request.get('domain')=='analog' else 'z'
     conditions=[str(result[k]) for k in ('roc','condition','convergence','scope') if result.get(k) not in (None,'True','')]
+    if result.get('mathematical_conditions'):
+        conditions.extend(label+': '+result['mathematical_conditions'][key] for key,label in [('domain','Dominio'),('causality','Causalidad'),('bibo_stability','Estabilidad BIBO')])
     if branches and branches[0].get('condition'):conditions.append(str(branches[0]['condition']))
     conditions.extend(str(value) for value in request.get('input_conditions',()))
     return ExpressionResult(source,variable,tuple(dict.fromkeys(conditions)),result.get('frequency_units',''),result.get('display_result','') if result.get('display_numeric') else '')
@@ -77,10 +79,9 @@ def send_expression(window,key,destination):
         panel.set_copy_note('Expresión cargada desde Resultados.'+(' Condiciones: '+'; '.join(expression.conditions) if expression.conditions else ''))
     elif destination=='system':
         window.open_tool(ROUTES['system_analysis',0]);panel=window.pages[window.current_operation].panel;panel.domain.setCurrentIndex(0 if v=='s' else 1);panel.transfer_formula.setText(text);panel.definition_mode.setCurrentIndex(1);panel.input_id=key
-        if v=='z':
-            from .transform_context import result_roc
-            spec=result_roc(window.project.get(key));panel.roc_choice.setCurrentIndex({'right':0,'left':1,'radius':2}[spec['mode']] if spec else 3)
-            if spec and 'radius' in spec:panel.roc_radius.setText(str(spec['radius']))
+        from .transform_context import result_roc
+        spec=result_roc(window.project.get(key));panel.roc_choice.setCurrentIndex({'right':0,'left':1,'radius':2,'line':2}[spec['mode']] if spec else 3)
+        if spec and ('radius' in spec or 'sigma' in spec):panel.roc_radius.setText(str(spec.get('radius',spec.get('sigma'))))
     elif destination=='transform_signal':
         window.open_tool(ROUTES['basic','shift'] if v=='n' else ROUTES['time_transform',0]);panel=window.pages[window.current_operation].panel;field=panel.source
         prepared=signal_source(expression.numerical_source or text);field.mode.setCurrentIndex(0);field.expression.setText(prepared);field._expression_origin=(field.expression.text(),key)

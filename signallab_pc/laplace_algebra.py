@@ -208,8 +208,15 @@ def inverse(request):
                                values.number(upper_display) if upper_display is not None else sp.oo)
     else:
         text = source(exact); display_roc = roc_text(lower, upper)
+    decomposition=[str(common*polynomial.as_expr())] if not polynomial.is_zero else []
+    for pole,order,c,point,nc,side in terms:
+        p=str(values.complex_number(point)) if numeric else str(pole)
+        coefficient=str(values.complex_number(nc)) if numeric else str(c)
+        decomposition.append('('+coefficient+')/(s-('+p+'))^'+str(order))
+    decomposition='+'.join(decomposition) or '0'
+    if delay:decomposition='exp(-('+str(delay)+')*s)*('+decomposition+')'
     from .cas_engine import encode
-    return {
+    return {'decomposition':decomposition,'time_shift':('Se desplaza la señal completa en d='+str(delay)+'. La ROC se conserva.' if delay else ''),
         'cas_encoded': encode(exact), 'operation': 'Laplace inversa bilateral', 'result': str(exact), 'display_result': text,
         'display_terms': display_terms, 'display_numeric': approximate, 'display_precision': 17 if approximate else None,
         'output_variable': 't', 'evaluated': True, 'parameters': parameters,

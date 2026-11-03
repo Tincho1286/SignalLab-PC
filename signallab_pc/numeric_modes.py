@@ -115,5 +115,6 @@ def laplace_numeric(value,variable,time):
         if coefficient:
             impulse=common*coefficient*sp.DiracDelta(time,power);result+=impulse;fragments.append(impulse)
     text=expression_source(result)
-    return {'operation':'Laplace inversa','result':text,'display_result':text,'display_terms':[expression_source(term) for term in fragments],'output_variable':'t','evaluated':True,'display_numeric':True,'display_precision':17,
+    decomposition=([str(common*polynomial.as_expr())] if not polynomial.is_zero else [])+['('+str(values.complex_number(item['coefficient']))+')/('+str(variable)+'-('+str(values.complex_number(item['pole']))+'))^'+str(item['order']) for item in terms]
+    return {'decomposition':'+'.join(decomposition) or '0','operation':'Laplace inversa','result':text,'display_result':text,'display_terms':[expression_source(term) for term in fragments],'output_variable':'t','evaluated':True,'display_numeric':True,'display_precision':17,
         'scope':'Inversa causal: cero para t<0. Los polos y coeficientes se evalúan con precisión ampliada. El texto completo conserva al menos 17 cifras significativas; es una aproximación numérica de la función racional de entrada. La vista redondeada facilita su lectura. Esta operación no selecciona otras ROC bilaterales.'}

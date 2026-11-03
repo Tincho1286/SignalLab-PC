@@ -88,3 +88,7 @@ SignalLab PC se publica bajo **GNU GPL versión 3 o posterior**. Podés usarlo, 
 ## Code signing policy
 
 La 1.2.1 publicada sigue sin firma digital. Se solicitó la incorporación al servicio de SignPath Foundation el 2 de noviembre de 2026, con una compilación verificable en GitHub. La evaluación del proveedor sigue pendiente; todavía no hay un certificado concedido. [Política de firma y responsables](docs/code-signing.md) · [Privacidad](docs/privacy.md).
+
+### Próxima versión · 1.2.2 preliminar
+
+Condiciones matemáticas reunidas, extremos de filtros refinados, desarrollo opcional de Z/Laplace y errores de entrada más claros. [Notas de la preliminar](docs/releases/v1.2.2-preview.md) · [Próximas mejoras](docs/roadmap.md). La descarga estable continúa siendo 1.2.1.

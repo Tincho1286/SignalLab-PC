@@ -24,3 +24,5 @@ La [versión estable 1.2.1](https://github.com/Tincho1286/SignalLab-PC/releases/
 **F1** o **Ayuda** abre la página de la herramienta activa. La biblioteca explica qué representa cada entrada, cómo interpretar el resultado y qué condiciones necesita el método. Incluye esquemas de bandas, polos y ceros, ventanas y regiones de convergencia.
 
 Los [documentos históricos](history/README.md) conservan el desarrollo de versiones anteriores. Para el comportamiento vigente, usá las guías de esta página y las notas de la versión instalada.
+
+[Mejoras de claridad y precisión: incorporaciones y propuestas](roadmap.md).
