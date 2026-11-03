@@ -2,16 +2,17 @@
 
 Revisión de capacidades de SignalLab PC, 23 de octubre de 2026. Se leyeron los cinco documentos y sus figuras; se compararon los enunciados con los menús y el código. Se añadieron herramientas generales, sin precargar respuestas ni parámetros de los ejercicios.
 
-**Conclusión:** la versión 0.25 tenía cobertura parcial. Faltaban operaciones importantes para FFT con ventanas, diseño por especificaciones, conversiones y análisis de fase. La versión 0.26 incorpora esas herramientas. Esto describe capacidades implementadas; no constituye una validación de los resultados de cada ejercicio. No se ejecutaron pruebas funcionales ni se resolvieron los prácticos completos,.
+**Conclusión:** la versión 0.25 tenía cobertura parcial. Faltaban operaciones importantes para FFT con ventanas, diseño por especificaciones, conversiones y análisis de fase. La versión 0.26 incorpora esas herramientas. Esto describe capacidades implementadas; no constituye una validación de los resultados de cada ejercicio. No se ejecutaron pruebas funcionales ni se resolvieron los prácticos completos.
 
 ## Material revisado
 
-- [Guía de filtros IIR](</<ruta-local>
-- [Diseño por ubicación de polos y ceros](</<ruta-local>
-- [Estimación espectral con FFT](</<ruta-local>
-- [Trabajo práctico 4](</<ruta-local>
-- [Diseño de filtros FIR](</<ruta-local>
+Guías de referencia temática; los documentos de ejercicios no se incluyen en esta carpeta.
 
+- Guía de filtros IIR
+- Diseño por ubicación de polos y ceros
+- Estimación espectral con FFT
+- Trabajo práctico 4
+- Diseño de filtros FIR
 ## Comparación por guía
 
 | Guía y ejercicios | Cobertura previa | Herramientas incorporadas o ampliadas | Alcance que debe tenerse en cuenta |

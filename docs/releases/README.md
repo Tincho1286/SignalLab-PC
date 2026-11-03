@@ -16,4 +16,4 @@
 | [0.99.10](v0.99.10.md) | Fourier y navegación por variantes | Preliminar |
 | [0.99.9](v0.99.9.md) | Señales continuas e impulsos ideales | Preliminar |
 | [0.99.8](v0.99.8.md) | Resultados en CAS e inversa Z por propiedades | Preliminar |
-| [archivo-historico-2026-10-28](archive.md) | Archivo histórico y primera versión | Archivo histórico |
+| [Archivo histórico](archive.md) | Archivo histórico y primera versión | Archivo histórico |

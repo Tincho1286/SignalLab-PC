@@ -1,6 +1,6 @@
 # SignalLab PC 0.81 · Biblioteca con explicaciones conectadas
 
-27/10/2026. Revisión de textos y de su presentación,. Compilación de desarrollo hacia 1.0.
+27/10/2026. Revisión de textos y de su presentación. Compilación de desarrollo hacia 1.0.
 
 ## Cambios de lectura
 

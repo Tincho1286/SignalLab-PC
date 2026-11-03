@@ -7,4 +7,4 @@
 - Ayuda contextual con esquemas para las cuatro clases de filtros, descripciones de parámetros de diseño y análisis, y diagramas del flujo de herramientas.
 - El editor traduce las casillas a las mismas especificaciones numéricas del motor; no modifica los algoritmos de diseño.
 
-Verificación: revisión de código y sintaxis. Sin pruebas funcionales ni visuales,. Versiones anteriores conservadas.
+Verificación: revisión de código y sintaxis. Sin pruebas funcionales ni visuales. Versiones anteriores conservadas.
