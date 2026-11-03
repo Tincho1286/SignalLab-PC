@@ -14,7 +14,7 @@ TAU = sp.Symbol("tau", real=True)
 SYMBOLS = {"t": T, "x": T, "s": S, "z": Z, "n": N, "w": W, "omega": W, "tau": TAU, "pi": sp.pi, "e": sp.E,
            "i": sp.I, "j": sp.I, "oo": sp.oo, "infinity": sp.oo, "true": sp.true, "false": sp.false}
 FUNCTIONS = {"sinc": lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x)/(sp.pi*x),True)), "ceil":sp.ceiling, "ceiling":sp.ceiling, "floor":sp.floor, "sign":sp.sign,"sin": sp.sin, "cos": sp.cos, "tan": sp.tan, "exp": sp.exp, "log": sp.log,
-             "ln": sp.log, "erf": sp.erf, "erfc": sp.erfc, "sqrt": sp.sqrt, "abs": sp.Abs, "sinh": sp.sinh, "cosh": sp.cosh,
+             "ln": sp.log, "polylog":sp.polylog, "lerchphi":sp.lerchphi, "mod":sp.Mod, "eq":sp.Eq, "ne":sp.Ne, "erf": sp.erf, "erfc": sp.erfc, "sqrt": sp.sqrt, "abs": sp.Abs, "sinh": sp.sinh, "cosh": sp.cosh,
              "heaviside": sp.Heaviside, "diracdelta": sp.DiracDelta, "dirac": sp.DiracDelta,
              "step": lambda x:sp.Heaviside(x,1), "impulse": lambda x:sp.KroneckerDelta(x,0) if x.has(N) else sp.DiracDelta(x), "kroneckerdelta":sp.KroneckerDelta, "piecewise": sp.Piecewise, "conj": sp.conjugate, "re": sp.re, "im": sp.im}
 
@@ -47,6 +47,9 @@ def parse(expression):
             if isinstance(node.op, ast.Mult): return sp.Mul(left,right,evaluate=False)
             if isinstance(node.op, ast.Div): return sp.Mul(left,sp.Pow(right,-1,evaluate=False),evaluate=False)
             if isinstance(node.op, ast.Pow): return sp.Pow(left,right,evaluate=False)
+            if isinstance(node.op, ast.BitAnd):return sp.And(left,right)
+            if isinstance(node.op, ast.BitOr):return sp.Or(left,right)
+        if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.Invert,ast.Not)):return sp.Not(visit(node.operand))
         if isinstance(node, ast.Tuple): return tuple(visit(item) for item in node.elts)
         if isinstance(node, ast.BoolOp) and isinstance(node.op,(ast.And,ast.Or)):
             return (sp.And if isinstance(node.op,ast.And) else sp.Or)(*(visit(v) for v in node.values))
@@ -101,6 +104,11 @@ def execute(request):
         if upper!=sp.oo and not isinstance(upper,sp.Integer):raise ValueError('El límite superior debe ser entero u oo.')
         if lower>upper:raise ValueError('El límite inferior supera al superior.')
         if lower.is_finite and upper.is_finite:ensure_working_set(int(upper-lower+1),bytes_per_sample=1024,live_arrays=8)
+        if lower==-sp.oo and upper==sp.oo:
+            from .dtft_pairs import direct as dtft_pairs
+            spectrum=dtft_pairs(value)
+            if spectrum is not None:
+                return {'operation':'dtft_expression','result':str(spectrum),'condition':'True','output_variable':'w','evaluated':True,'method':'sinc_rectangle_pair','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se aplicaron el par sinc/rectángulo, la linealidad y el desplazamiento entero, conservando las muestras definidas por continuidad. El espectro es 2π-periódico; en cada salto toma el promedio de los límites laterales.'}
         term=sp.simplify(value*sp.exp(-sp.I*W*N))
         result=sp.simplify(sp.summation(term,(N,lower,upper)))
         if result.has(sp.Sum) and term!=0:

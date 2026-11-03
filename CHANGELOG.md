@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.2.1**.
 
+## 1.4.1 · preliminar
+
+- Selección de polo/cero, conjugados y coordenadas dentro de la ventana del plano.
+- Zoom con rueda y botones, encuadre de raíces y conservación de la escala al editar.
+- Transformada Z por pares y propiedades, separando los valores completados por continuidad.
+- Par sinc/rectángulo en DTFT y distinción explícita frente a una ROC vacía de Z.
+- Reutilización de condiciones por tramos y ayudas actualizadas.
+
+[Notas de la preliminar](docs/releases/v1.4.1-preview.md) · [Transformada Z y sinc](docs/z-transforms.md)
+
 ## 1.4.0 · preliminar
 
 - Banner de inicio adaptado a la paleta seleccionada.

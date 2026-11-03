@@ -29,3 +29,9 @@ Las señales conservan su origen y fase. Las métricas usan sólo coordenadas al
 Para dos H(s) o dos H(z), elegí el intervalo angular común. Ambas se evalúan en las mismas frecuencias y el informe conserva las condiciones de cada sistema. La interpretación como Fourier requiere una ROC compatible. La comparación se registra con sus dos orígenes en la biblioteca de Resultados.
 
 Los colores de ventanas, informes y figuras pueden elegirse desde **Vista → Tema**. La [guía de apariencia](appearance.md) describe los temas disponibles.
+
+## Editar polos y ceros y cambiar el alcance
+
+La ventana del plano de diseño incluye el selector **Agregar polo × / Agregar cero ○ / Mover punto / Quitar punto**. Está sincronizado con el documento de diseño. Al elegir una acción de edición se desactiva la herramienta de desplazamiento o zoom de la barra, para que el siguiente clic edite el punto elegido.
+
+La **rueda** cambia el zoom alrededor del mouse en el plano binómico. **Acercar +** y **Alejar −** cambian la escala visible; **Ajustar a raíces** encuadra el diseño completo. En polar se modifica el alcance radial. La nueva vista se conserva al colocar raíces y actualizar el sistema. Para insertar una raíz en 2, alejá primero el plano hasta que esa posición quede visible. La carga exacta desde la lista sigue disponible y encuadra las raíces introducidas.

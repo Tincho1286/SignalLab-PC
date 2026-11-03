@@ -9,6 +9,7 @@ def build(request, result):
         text = 'Se aplica la definición sobre el soporte indicado; fuera de él la señal se considera cero.' if z else 'Se aplica la definición integral con la interpretación temporal elegida.'
         steps.append({'title':'1. Definición y soporte', 'text':text, 'formula':definition})
         if z:steps[0]['text'] += ' a='+str(request.get('origin', request.get('lower', '0')))+'; b='+str(request.get('upper', request.get('origin', 0)+len(request.get('samples', []))-1 if op=='z_finite' else 'oo'))+'.'
+        if z and result.get('method')=='table_pairs':steps.append({'title':'Pares y propiedades', 'text':'Se separaron los puntos completados por continuidad del resto del soporte antes de simplificar las identidades de índices enteros. Se aplicaron linealidad y pares de secuencias geométricas, potencias de n o series logarítmicas; se conserva la intersección de sus condiciones de convergencia.'})
         steps.append({'title':'2. Convergencia', 'text':'La expresión y su región de convergencia forman un único resultado. Las ramas condicionadas conservan sus restricciones.'})
     else:
         if result.get('decomposition'):

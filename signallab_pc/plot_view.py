@@ -39,6 +39,8 @@ def install_enlarge(toolbar):
     window=FigureWindow(parent,Qt.WindowType.Window)
     window.setModal(False);window.setWindowTitle(title);window.setWindowIcon(parent.window().windowIcon())
     content=QVBoxLayout(window);content.setContentsMargins(6,6,6,6);content.addWidget(toolbar);content.addWidget(canvas,1)
+    editor=getattr(canvas,'_signallab_root_editor',None)
+    if editor is not None:editor.install_plot_controls(window,content)
     from PySide6.QtGui import QAction
     detail=QAction('Detalle vertical',toolbar);detail.setCheckable(True);detail.setChecked(bool(getattr(canvas.figure,'_signallab_detail_vertical',False)))
     detail.setToolTip('Ajustar la escala a los valores originales, incluso variaciones muy pequeñas. Desactivado evita amplificar variaciones menores que 10⁻¹⁰ de la referencia visual (al menos 1). No se redondean ni se borran datos. El zoom manual sigue disponible.')

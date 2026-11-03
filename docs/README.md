@@ -12,6 +12,7 @@ La [guía de primeros pasos](getting-started.md) recorre un cálculo completo. P
 | Leer valores y medir diferencias en una figura | [Gráficos y cursores](cursors.md) |
 | Elegir colores y una foto de fondo | [Temas de apariencia](appearance.md) |
 | Importar o exportar datos | [Formatos de archivos](file-formats.md) |
+| Transformar secuencias con valores por continuidad | [Transformada Z y sinc](z-transforms.md) |
 | Entender índices, frecuencias y ROC | [Convenciones matemáticas](conventions.md) |
 | Consultar cobertura y límites | [Sistemas y Señales I/II](scope/sys-i-ii.md) · [Señales Aleatorias](scope/random-signals.md) |
 

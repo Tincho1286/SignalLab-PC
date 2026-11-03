@@ -185,9 +185,12 @@ def transform_summary(request,result):
     elif op=='z_finite':sections.append(Section('Registro de entrada',rows=[('Primer índice',str(request['origin'])),('Muestras',str(len(request['samples'])))],paragraphs=['Se considera cero fuera del registro. Los decimales representan los valores almacenados.']))
     branches=result.get('branches',[])
     if result.get('convergence_empty'):
-        sections.append(Section('Sin región de convergencia',paragraphs=['Las condiciones de las colas temporales son incompatibles. La integral bilateral no converge en una región abierta; la expresión de definición se conserva para identificar el cálculo.']))
+        sections.append(Section('Sin región de convergencia',paragraphs=['Las condiciones de las colas temporales son incompatibles. '+('La suma bilateral' if z else 'La integral bilateral')+' no converge en una región abierta; la expresión de definición se conserva para identificar el cálculo.']))
     elif result.get('evaluated') is False:
         sections.append(Section('Cálculo pendiente',paragraphs=['El motor no obtuvo una expresión cerrada para este caso. La expresión siguiente conserva el cálculo sin resolver; no representa una solución evaluada.']))
+    if result.get('boundary_dtft'):
+        boundary='X(exp(i*w)) = '+result['boundary_dtft']
+        sections.append(Section('DTFT sobre el círculo unitario',paragraphs=['Esta es la transformada de Fourier de la misma secuencia, no una transformada Z válida en una región abierta. Es 2π-periódica y en los saltos toma el promedio de los límites laterales. También podés calcularla y graficarla en Fourier → DTFT con soporte de −oo a oo.'],formulas=[Formula(boundary,boundary)]))
     if branches:
         for i,branch in enumerate(branches):
             expression=lhs+' = '+branch['expression']
@@ -196,7 +199,7 @@ def transform_summary(request,result):
         expression=lhs+' = '+result.get('display_result',result['result'])
         terms=result.get('display_terms',[]);lines=[]
         if len(terms)>1:lines=[lhs+' = '+terms[0],*[(term if term.startswith('-') else '+'+term) for term in terms[1:]]]
-        sections.append(Section('Integral de definición' if result.get('convergence_empty') else 'Expresión numérica obtenida' if result.get('display_numeric') else 'Expresión obtenida' if result.get('evaluated',True) else 'Expresión sin resolver',paragraphs=['Vista redondeada a 6 cifras significativas para facilitar la lectura. Copiar texto y Guardar texto conservan al menos 17 cifras; este redondeo visual no interviene en los cálculos.' ] if result.get('display_numeric') else [],formulas=[Formula(expression,expression,lines,numeric=bool(result.get('display_numeric')))]))
+        sections.append(Section(('Suma de definición' if z else 'Integral de definición') if result.get('convergence_empty') else 'Expresión numérica obtenida' if result.get('display_numeric') else 'Expresión obtenida' if result.get('evaluated',True) else 'Expresión sin resolver',paragraphs=['Vista redondeada a 6 cifras significativas para facilitar la lectura. Copiar texto y Guardar texto conservan al menos 17 cifras; este redondeo visual no interviene en los cálculos.' ] if result.get('display_numeric') else [],formulas=[Formula(expression,expression,lines,numeric=bool(result.get('display_numeric')))]))
     rows=[('Dominio','Discreto · índices n enteros' if z else 'Continuo · tiempo t'),('Interpretación','Transformada inversa con ROC' if inverse and z else 'Suma sobre el soporte indicado' if z else 'Bilateral' if request.get('interpretation')=='bilateral' else 'Unilateral / causal')]
     for key,label in [('convergence','Convergencia'),('condition','Condición adicional'),('roc','Región de convergencia'),('roc_finite_plane','ROC en el plano finito')]:
         if key in result and result[key]!='True':

@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.4.1-preview](v1.4.1-preview.md) | Edición y zoom del plano, pares Z y sinc/DTFT | Preliminar |
 | [1.4.0-preview](v1.4.0-preview.md) | Banner adaptativo, más temas y fondo personalizado | Preliminar |
 | [1.3.1-preview](v1.3.1-preview.md) | Cursor libre, inserción ×/○ y temas oscuros | Preliminar |
 | [1.3.0-preview](v1.3.0-preview.md) | Cursores, comparación, sensibilidad y residuos | Preliminar |
