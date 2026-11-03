@@ -7,6 +7,13 @@
     "stable": true,
     "assets": [
       {
+        "id": 703418344,
+        "name": "LICENSE",
+        "size": 34674,
+        "digest": "sha256:fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/LICENSE"
+      },
+      {
         "id": 703383311,
         "name": "random-signals.md",
         "size": 6456,
@@ -14,11 +21,25 @@
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/random-signals.md"
       },
       {
-        "id": 703383600,
+        "id": 703418922,
         "name": "SHA256SUMS-1.2.0.txt",
-        "size": 419,
-        "digest": "sha256:62fd2839b14def9a290567fb5c246fa7bc95621f7242be31721cf4ace3e2fafe",
+        "size": 694,
+        "digest": "sha256:de4210ecf87a340e67ac8d34a37051e8497cebbd80aa9565621489a22e45f178",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/SHA256SUMS-1.2.0.txt"
+      },
+      {
+        "id": 703418577,
+        "name": "SignalLab-PC-1.2.0-licenses.zip",
+        "size": 274003,
+        "digest": "sha256:8ce04e4a57470e7378ce9d571c941aab270755afea047484c2d281b632ed5e56",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/SignalLab-PC-1.2.0-licenses.zip"
+      },
+      {
+        "id": 703418484,
+        "name": "SignalLab-PC-1.2.0-source-GPL.zip",
+        "size": 1797831,
+        "digest": "sha256:2311f0027319073d773e7276982b04cb3a8111e9b0d79c9f47ecca8457db8411",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/SignalLab-PC-1.2.0-source-GPL.zip"
       },
       {
         "id": 703382483,
@@ -35,10 +56,10 @@
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/sys-i-ii.md"
       },
       {
-        "id": 703383140,
+        "id": 703418669,
         "name": "v1.2.0.md",
-        "size": 3232,
-        "digest": "sha256:6300a395d0e3de7d28d9f39d5de0ff66bce21f9a0d2429a245ef9d3da413ce1d",
+        "size": 4253,
+        "digest": "sha256:d8cc7c549b6947e2b10ba51eb0019a8d9ad47ff0dcafc8705ccf7e7609cc94d8",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/v1.2.0.md"
       },
       {
@@ -48,7 +69,9 @@
         "digest": "sha256:471e0e4a3fd2c87e15f3cb793b5594066e6d811077064c7fa188fb21f22b4f69",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/windows-downloads.md"
       }
-    ]
+    ],
+    "license": "GPL-3.0-or-later",
+    "license_commit": "2d627c2e8194cd0b2fb2a7552209e2b17328a497"
   },
   "historical": {
     "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/archivo-historico-2026-10-28",
@@ -157,6 +180,13 @@
     "stable": true,
     "assets": [
       {
+        "id": 703418344,
+        "name": "LICENSE",
+        "size": 34674,
+        "digest": "sha256:fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/LICENSE"
+      },
+      {
         "id": 703383311,
         "name": "random-signals.md",
         "size": 6456,
@@ -164,11 +194,25 @@
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/random-signals.md"
       },
       {
-        "id": 703383600,
+        "id": 703418922,
         "name": "SHA256SUMS-1.2.0.txt",
-        "size": 419,
-        "digest": "sha256:62fd2839b14def9a290567fb5c246fa7bc95621f7242be31721cf4ace3e2fafe",
+        "size": 694,
+        "digest": "sha256:de4210ecf87a340e67ac8d34a37051e8497cebbd80aa9565621489a22e45f178",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/SHA256SUMS-1.2.0.txt"
+      },
+      {
+        "id": 703418577,
+        "name": "SignalLab-PC-1.2.0-licenses.zip",
+        "size": 274003,
+        "digest": "sha256:8ce04e4a57470e7378ce9d571c941aab270755afea047484c2d281b632ed5e56",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/SignalLab-PC-1.2.0-licenses.zip"
+      },
+      {
+        "id": 703418484,
+        "name": "SignalLab-PC-1.2.0-source-GPL.zip",
+        "size": 1797831,
+        "digest": "sha256:2311f0027319073d773e7276982b04cb3a8111e9b0d79c9f47ecca8457db8411",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/SignalLab-PC-1.2.0-source-GPL.zip"
       },
       {
         "id": 703382483,
@@ -185,10 +229,10 @@
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/sys-i-ii.md"
       },
       {
-        "id": 703383140,
+        "id": 703418669,
         "name": "v1.2.0.md",
-        "size": 3232,
-        "digest": "sha256:6300a395d0e3de7d28d9f39d5de0ff66bce21f9a0d2429a245ef9d3da413ce1d",
+        "size": 4253,
+        "digest": "sha256:d8cc7c549b6947e2b10ba51eb0019a8d9ad47ff0dcafc8705ccf7e7609cc94d8",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/v1.2.0.md"
       },
       {
@@ -198,7 +242,9 @@
         "digest": "sha256:471e0e4a3fd2c87e15f3cb793b5594066e6d811077064c7fa188fb21f22b4f69",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/windows-downloads.md"
       }
-    ]
+    ],
+    "license": "GPL-3.0-or-later",
+    "license_commit": "2d627c2e8194cd0b2fb2a7552209e2b17328a497"
   },
   "preview": {
     "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.0-preview",
