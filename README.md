@@ -91,4 +91,4 @@ La 1.2.1 publicada sigue sin firma digital. Se solicitó la incorporación al se
 
 ### Próxima versión · 1.2.2 preliminar
 
-Condiciones matemáticas reunidas, extremos de filtros refinados, desarrollo opcional de Z/Laplace y errores de entrada más claros. [Notas de la preliminar](docs/releases/v1.2.2-preview.md) · [Próximas mejoras](docs/roadmap.md). La descarga estable continúa siendo 1.2.1.
+Condiciones matemáticas reunidas, extremos de filtros refinados, desarrollo opcional de Z/Laplace y errores de entrada más claros. [Descargar preliminar Windows y Linux](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.2-preview) · [Notas de la preliminar](docs/releases/v1.2.2-preview.md) · [Próximas mejoras](docs/roadmap.md). La descarga estable continúa siendo 1.2.1.

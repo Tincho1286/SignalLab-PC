@@ -341,53 +341,90 @@
     "build_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41546932346"
   },
   "preview": {
-    "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.0-preview",
-    "tag": "v1.2.0-preview",
-    "commit": "dc4e75b7c2daf7425309f242014274f7f20f57a0",
+    "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.2-preview",
+    "tag": "v1.2.2-preview",
+    "commit": "e64a8ce2f24871f2bd62772da69e117240dcba7c",
     "stable": false,
+    "license": "GPL-3.0-or-later",
     "assets": [
       {
-        "id": 703294240,
-        "name": "ALCANCE_1.0.md",
-        "size": 3655,
-        "digest": "sha256:2484210b425d3ca62ef0d2cd01168e048669786fb12ec50edae80a5d7c83918e",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0-preview/ALCANCE_1.0.md"
+        "id": 704026768,
+        "name": "build-provenance-linux.json",
+        "size": 722,
+        "digest": "sha256:c15e56b8ae3e69406ab7f2637df867be492534d6ca67294ab71930bb3c17d065",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.2-preview/build-provenance-linux.json"
       },
       {
-        "id": 703294547,
-        "name": "COBERTURA_SENALES_ALEATORIAS.md",
-        "size": 6731,
-        "digest": "sha256:572a0443aae31b1284344caaee5d90869be5a0d02b3fd0213c1740c37c14da95",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0-preview/COBERTURA_SENALES_ALEATORIAS.md"
+        "id": 704026695,
+        "name": "build-provenance-windows.json",
+        "size": 422,
+        "digest": "sha256:1a98deebb2d1caad7e994837885505b274291c289775b710570585cffc469608",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.2-preview/build-provenance-windows.json"
       },
       {
-        "id": 703294840,
-        "name": "COBERTURA_SYS_I_II_ACTUAL.md",
-        "size": 24608,
-        "digest": "sha256:dae919bf887c27d06b83df776d9c9b9bde58b1f5d0838ea266872567017ce8b5",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0-preview/COBERTURA_SYS_I_II_ACTUAL.md"
+        "id": 704026606,
+        "name": "LICENSE",
+        "size": 34674,
+        "digest": "sha256:fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.2-preview/LICENSE"
       },
       {
-        "id": 703295266,
-        "name": "SHA256SUMS-1.2.0-preview.txt",
-        "size": 467,
-        "digest": "sha256:b6168a20c0c587a4fd46c95593badeec6674fa2fc2a4fba8f78e203c20722cbd",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0-preview/SHA256SUMS-1.2.0-preview.txt"
+        "id": 704026862,
+        "name": "SHA256SUMS-1.2.2.txt",
+        "size": 748,
+        "digest": "sha256:25550a18205916f173273a6ec3e267656e81dd194c99f2b9ff5eea4b8765abf2",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.2-preview/SHA256SUMS-1.2.2.txt"
       },
       {
-        "id": 703233597,
-        "name": "SignalLab-PC-1.2.0-preview.exe",
-        "size": 116741990,
-        "digest": "sha256:a613f03ff83b473466db731021aa3aafb4049f1eb2c8a6faa3f83399d71fe92d",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0-preview/SignalLab-PC-1.2.0-preview.exe"
+        "id": 704026440,
+        "name": "SignalLab-PC-1.2.2-licenses.zip",
+        "size": 273468,
+        "digest": "sha256:1c3b33e3a03851c18f3322bd64d402253dfbeda86fafebca4aeea8e348f41113",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.2-preview/SignalLab-PC-1.2.2-licenses.zip"
       },
       {
-        "id": 703294936,
-        "name": "VERSION_1.2.0-preview.md",
-        "size": 2091,
-        "digest": "sha256:52f4d84fb6ba9f28239c4838ebef627778675850db7f9f68592872ce2aed997b",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0-preview/VERSION_1.2.0-preview.md"
+        "id": 704025481,
+        "name": "SignalLab-PC-1.2.2-linux-x86_64.tar.gz",
+        "size": 159534286,
+        "digest": "sha256:6f55a83300b7aaaab7aca5d2637cba3e32daeba6b7d78539d6994927e8474f9d",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.2-preview/SignalLab-PC-1.2.2-linux-x86_64.tar.gz"
+      },
+      {
+        "id": 704026334,
+        "name": "SignalLab-PC-1.2.2-source-GPL.zip",
+        "size": 1866196,
+        "digest": "sha256:660fe97e7bbacf8447bb02daeadc3f2f80cc7401841fb5a7847492005b5af943",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.2-preview/SignalLab-PC-1.2.2-source-GPL.zip"
+      },
+      {
+        "id": 704024636,
+        "name": "SignalLab-PC-1.2.2.exe",
+        "size": 117048211,
+        "digest": "sha256:638d3ad0e97ca254e1a5781466acc43f890d8e7743cdd73584a370516dccd706",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.2-preview/SignalLab-PC-1.2.2.exe"
+      },
+      {
+        "id": 704026513,
+        "name": "v1.2.2-preview.md",
+        "size": 3842,
+        "digest": "sha256:ad9ff94aae7d3814f4380fed852be6b05fdecca63ad5c6671633b275b0f79c76",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.2-preview/v1.2.2-preview.md"
       }
-    ]
+    ],
+    "platforms": {
+      "windows-x86_64": {
+        "asset": "SignalLab-PC-1.2.2.exe",
+        "source_commit": "e64a8ce2f24871f2bd62772da69e117240dcba7c"
+      },
+      "linux-x86_64": {
+        "asset": "SignalLab-PC-1.2.2-linux-x86_64.tar.gz",
+        "source_commit": "e64a8ce2f24871f2bd62772da69e117240dcba7c",
+        "glibc": [
+          "glibc",
+          "2.35"
+        ]
+      }
+    },
+    "build_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41568147049"
   }
 }
