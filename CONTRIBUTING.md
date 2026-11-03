@@ -6,7 +6,7 @@ Las mejoras pueden proponerse mediante [Issues](https://github.com/Tincho1286/Si
 
 Indicá la versión, la herramienta y los datos mínimos para reproducirlo. Para un cálculo, incluí la expresión o coeficientes, origen, unidades, método y resultado esperado. Para una interfaz, indicá resolución y escala de pantalla, y adjuntá una captura si ayuda a entender el problema.
 
-Las convenciones importan: una ROC distinta, otra normalización de Fourier o un origen de muestras diferente pueden producir resultados diferentes sin que el método sea el mismo.
+Especificá las convenciones que utiliza el caso. La ROC, la normalización de Fourier y el origen de las muestras cambian la interpretación del cálculo y son necesarios para comparar el resultado obtenido con el esperado.
 
 ## Proponer una mejora
 
@@ -24,7 +24,13 @@ Las correcciones de cálculo deben conservar condiciones, unidades, índices y c
 
 ## Documentación y versiones
 
-Los textos públicos explican qué hace el software, cómo se usa y qué cambia entre versiones. Las notas incluyen mejoras, correcciones y compatibilidad; el historial técnico anterior se conserva en `docs/history/`. Los portables se adjuntan a Releases, fuera del historial Git.
+La portada presenta el software, sus herramientas, las descargas disponibles y los objetivos generales. Cada párrafo desarrolla una idea central; sus oraciones deben explicar o completar esa idea. Los cambios de tema se separan en párrafos o apartados propios.
+
+Las mejoras pendientes se describen como objetivos en `docs/roadmap.md`. Las notas de versiones registran funciones publicadas, correcciones y compatibilidad. Una preliminar que ya puede descargarse pertenece a la sección de descargas, no a un anuncio de una versión futura.
+
+El estado de trámites, certificados y servicios de firma se documenta en las páginas técnicas correspondientes. No se añade al final del README ni se mezcla con la presentación del producto.
+
+Los portables se adjuntan a Releases, fuera del historial Git. El historial técnico anterior se conserva en `docs/history/`.
 
 ## Licencia de las contribuciones
 

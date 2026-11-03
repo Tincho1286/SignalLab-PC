@@ -28,6 +28,14 @@ Las notas describen el comportamiento de la versión: funciones incorporadas, co
 
 Las versiones estables y las preliminares se distinguen mediante los indicadores de GitHub. Una publicación de documentación no necesita generar un nuevo ejecutable.
 
+## Actualizar la portada
+
+Al publicar una entrega, actualizá las descargas que correspondan en la tabla del README y enlazá sus notas. Conservá la distinción entre una estable y una preliminar disponible.
+
+Las novedades pertenecen al historial y a las notas de la entrega. Los planes pendientes pertenecen a la hoja de objetivos, sin asignarles una versión o fecha antes de que exista una publicación. Evitá agregar al final de la portada párrafos de novedades, avisos de mantenimiento o estados de solicitudes de firma.
+
+Revisá cada párrafo como una unidad: la primera oración presenta su idea y las siguientes la desarrollan. Si una oración introduce otro asunto, movela al apartado correspondiente. Las [pautas de contribución](../../CONTRIBUTING.md#documentación-y-versiones) conservan este criterio editorial.
+
 ## Subir una versión
 
 Guardá el código y las notas en un commit y subí `main`. Después, publicá el ejecutable y la documentación correspondiente:
@@ -35,7 +43,7 @@ Guardá el código y las notas en un commit y subí `main`. Después, publicá e
 ```powershell
 .\.venv\Scripts\python.exe -B tools\github_release.py `
   --tag v1.2.1 `
-  --title "SignalLab PC 1.2.1 · Transferencias H(s)/H(z)" `
+  --title "SignalLab PC 1.2.1 · Indeterminaciones visibles" `
   --notes docs\releases\v1.2.1.md `
   --file outputs\SignalLab-PC-1.2.1.exe `
   --file outputs\SignalLab-PC-1.2.1-linux-x86_64.tar.gz `

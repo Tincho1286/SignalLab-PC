@@ -1,30 +1,31 @@
 # Documentación de SignalLab PC
 
-SignalLab PC permite estudiar señales, sistemas y filtros mediante cálculos numéricos y simbólicos. Las herramientas conservan entradas independientes y comparten resultados compatibles.
+SignalLab PC reúne herramientas numéricas y simbólicas para estudiar señales, sistemas y filtros. Estas guías explican cómo cargar los datos, interpretar los resultados y continuar un análisis entre herramientas.
 
-| Quiero… | Guía |
+## Empezar y consultar resultados
+
+La [guía de primeros pasos](getting-started.md) recorre un cálculo completo. Para instalar el portable, elegí una descarga de [Releases](https://github.com/Tincho1286/SignalLab-PC/releases); los requisitos específicos del paquete Linux se encuentran en la [guía de Linux](linux.md).
+
+| Necesitás… | Guía |
 | --- | --- |
-| Empezar a usar el portable | [Primeros pasos](getting-started.md) · [Linux](linux.md) |
 | Encontrar una operación | [Herramientas](tools.md) |
+| Leer valores y medir diferencias en una figura | [Gráficos y cursores](cursors.md) |
 | Importar o exportar datos | [Formatos de archivos](file-formats.md) |
 | Entender índices, frecuencias y ROC | [Convenciones matemáticas](conventions.md) |
 | Consultar cobertura y límites | [Sistemas y Señales I/II](scope/sys-i-ii.md) · [Señales Aleatorias](scope/random-signals.md) |
-| Ver novedades | [Historial de cambios](../CHANGELOG.md) · [Notas de versiones](releases/README.md) |
-| Trabajar con el código | [Desarrollo](development/README.md) |
-| Entender licencia y uso comercial | [Libre no significa necesariamente gratis](license.md) |
-| Consultar firma y privacidad | [Code signing policy](code-signing.md) · [Privacidad](privacy.md) |
-| Consultar la licencia | [GPL-3.0-or-later](../LICENSE) · [Avisos](../NOTICE.md) · [Terceros](../THIRD_PARTY_NOTICES.md) |
 
-## Versiones
+## Ayuda dentro de la aplicación
 
-La [versión estable 1.2.1](https://github.com/Tincho1286/SignalLab-PC/releases/latest) es la descarga principal. Las [notas de la versión](releases/v1.2.1.md) detallan sus novedades y restricciones. [Alertas de Windows al abrir el portable](windows-downloads.md).
+**F1** o **Ayuda** abre la página de la herramienta activa. Allí se explica qué representa cada entrada, cómo interpretar la salida y qué condiciones necesita el método. Los esquemas de bandas, ventanas, polos y ceros acompañan esas explicaciones para relacionar los parámetros con su significado.
 
-## Biblioteca dentro de la aplicación
+## Versiones y objetivos
 
-**F1** o **Ayuda** abre la página de la herramienta activa. La biblioteca explica qué representa cada entrada, cómo interpretar el resultado y qué condiciones necesita el método. Incluye esquemas de bandas, polos y ceros, ventanas y regiones de convergencia.
+La [estable 1.2.1](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.1) es la descarga para el trabajo habitual. La [preliminar 1.3.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.3.0-preview) permite probar las incorporaciones más recientes. Cada publicación detalla sus funciones y límites en las [notas de versiones](releases/README.md).
 
-Los [documentos históricos](history/README.md) conservan el desarrollo de versiones anteriores. Para el comportamiento vigente, usá las guías de esta página y las notas de la versión instalada.
+El [historial de cambios](../CHANGELOG.md) reúne lo que ya fue publicado. La [hoja de objetivos](roadmap.md) describe las mejoras pendientes, sin asignarlas de antemano a una versión. Los [documentos históricos](history/README.md) conservan información de etapas anteriores del proyecto.
 
-[Mejoras de claridad y precisión: incorporaciones y propuestas](roadmap.md).
+## Desarrollo y condiciones de uso
 
-[Leer y medir gráficos con cursores A/B](cursors.md).
+Para trabajar con el código, consultá la [guía de desarrollo](development/README.md) y las [pautas de contribución](../CONTRIBUTING.md). La documentación técnica incluye la [política de firma de ejecutables](code-signing.md).
+
+La [licencia del proyecto](license.md) explica las condiciones de uso y redistribución. También están disponibles la [política de privacidad](privacy.md), los [avisos del proyecto](../NOTICE.md) y las [licencias de terceros](../THIRD_PARTY_NOTICES.md).
