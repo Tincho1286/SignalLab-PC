@@ -59,7 +59,11 @@ def main():
     binary.chmod(0o755);shutil.move(str(binary),str(package/'SignalLab-PC'))
     for name in ('LICENSE','NOTICE.md','THIRD_PARTY_NOTICES.md'):shutil.copy2(ROOT/name,package/name)
     shutil.copytree(legal,package/'LICENSES')
-    shutil.copy2(ROOT/'docs/linux.md',package/'README.md')
+    readme=(ROOT/'docs/linux.md').read_text(encoding='utf-8')
+    readme=re.sub(r'SignalLab-PC-\d+\.\d+\.\d+', 'SignalLab-PC-'+version, readme)
+    readme=re.sub(r'SignalLab PC \d+\.\d+\.\d+', 'SignalLab PC '+version, readme)
+    readme=re.sub(r'/releases/tag/v\d+\.\d+\.\d+(?:-preview)?', '/releases', readme)
+    (package/'README.md').write_text(readme,encoding='utf-8',newline='\n')
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     provenance={'application':'SignalLab PC','version':version,'platform':'linux','architecture':'x86_64','build_platform':platform.platform(),'glibc':platform.libc_ver(),'python':platform.python_version(),'source_commit':commit,'repository':'https://github.com/Tincho1286/SignalLab-PC','build_url':os.environ.get('BUILD_URL'),'binary_sha256':sha256(package/'SignalLab-PC'),'application_tests_run':False}
     (package/'build-provenance.json').write_text(json.dumps(provenance,indent=2)+'\n',encoding='utf-8')

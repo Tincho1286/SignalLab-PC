@@ -155,7 +155,7 @@ def frequency_summary(exact,data):
     from .result_summary import Summary,Section,Formula,number
     sections=[Section('Definición',paragraphs=[exact['scope']],formulas=[Formula('H = '+exact['transfer'],'H = '+exact['transfer'])])]
     if exact.get('factored')!=exact['transfer']:sections.append(Section('Forma factorizada',formulas=[Formula(exact['factored'],exact['factored'])]))
-    if 'causal_impulse' in exact:sections.append(Section('Respuesta causal al impulso',formulas=[Formula('h(t) = '+exact['causal_impulse'],'h(t) = '+exact['causal_impulse'])]))
+    if 'causal_impulse' in exact:sections.append(Section('Respuesta bajo hipótesis causal',paragraphs=['Este apartado impone soporte causal. Si se eligió otra ROC, no es la respuesta impulsiva bilateral de esa ROC.'],formulas=[Formula('h(t) = '+exact['causal_impulse'],'h(t) = '+exact['causal_impulse'])]))
     if data is None:
         sections.append(Section('Vista numérica',paragraphs=[exact['frequency_notice']] if exact.get('frequency_notice') else ['Asigná valores a '+', '.join(exact.get('parameters',[]))+'.']))
         return Summary('Análisis del sistema',sections)
