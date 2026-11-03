@@ -6,7 +6,7 @@
 
 Las entradas numéricas compatibles ofrecen **Fórmula**, **Muestras**, **Archivo** y **Resultado**. Cada operando puede usar una fuente diferente: por ejemplo, sumar una señal calculada con un CSV o multiplicar dos registros importados.
 
-La preliminar 1.2 amplía la importación desde el selector de Resultados y desde editores algebraicos compatibles. El tipo de dato, el dominio, la variable y las unidades determinan qué puede cargarse.
+Desde 1.2 se amplía la importación desde el selector de Resultados y desde editores algebraicos compatibles. El tipo de dato, el dominio, la variable y las unidades determinan qué puede cargarse.
 
 | Formato | Datos y uso |
 | --- | --- |

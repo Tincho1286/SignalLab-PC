@@ -25,16 +25,22 @@ def amplitude_image():
 
 
 def z_plane_image():
-    image=QImage(960,390,QImage.Format.Format_ARGB32);image.fill(QColor(C['report']));p=QPainter(image);p.setRenderHint(QPainter.RenderHint.Antialiasing)
+    image=QImage(1000,460,QImage.Format.Format_ARGB32);image.fill(QColor(C['report']));p=QPainter(image);p.setRenderHint(QPainter.RenderHint.Antialiasing)
     def text(x,y,w,h,value,color='text',size=12):
         p.setFont(QFont('Segoe UI',size));p.setPen(QColor(C[color]));p.drawText(QRectF(x,y,w,h),Qt.TextFlag.TextWordWrap,value)
-    text(25,15,900,38,'H(z) y H(eʲω) son representaciones distintas',size=19)
-    cx,cy,r=220,206,110
-    p.setPen(QPen(QColor(C['muted']),1));p.drawLine(QLineF(58,cy,382,cy));p.drawLine(QLineF(cx,65,cx,348))
-    p.setBrush(Qt.BrushStyle.NoBrush);p.setPen(QPen(QColor(C['green']),2,Qt.PenStyle.DashLine));p.drawEllipse(QRectF(cx-r,cy-r,2*r,2*r))
-    angle=.6;x=cx+r*math.cos(angle);y=cy-r*math.sin(angle);p.setPen(QPen(QColor(C['blue']),2));p.drawLine(QLineF(cx,cy,x,y));p.setBrush(QColor(C['blue']));p.drawEllipse(QRectF(x-4,y-4,8,8))
-    text(270,110,145,50,'z = eʲω','green',12);text(244,191,80,35,'ω','blue',14);text(339,214,65,30,'Re(z)','muted',11);text(230,65,65,30,'Im(z)','muted',11)
-    text(440,90,485,60,'Plano complejo: z = a + jb','blue',16)
-    text(440,155,485,70,'El mapa de colores muestra |H(z)| en dos dimensiones. Polos y ceros pertenecen a ese plano.',size=12)
-    text(440,241,485,100,'Respuesta en frecuencia: se recorre sólo el círculo |z|=1. H(eʲω) es la DTFT cuando ese círculo pertenece a la ROC. La ROC no se deduce sólo de la fórmula.',color='green',size=12)
+    def line(x,y,xx,yy,color='muted',dashed=False):
+        p.setPen(QPen(QColor(C[color]),2,Qt.PenStyle.DashLine if dashed else Qt.PenStyle.SolidLine));p.drawLine(QLineF(x,y,xx,yy))
+    text(25,15,950,36,'H(s), H(z) y respuesta en frecuencia',size=19)
+    for cx,symbol,title in [(245,'s','Continuo · plano s'),(745,'z','Discreto · plano z')]:
+        cy=203;text(cx-170,64,350,36,title,'blue',15)
+        line(cx-155,cy,cx+155,cy);line(cx,105,cx,308)
+        text(cx+104,cy+14,90,26,'Re('+symbol+')','muted',11);text(cx+10,108,95,26,'Im('+symbol+')','muted',11)
+        if symbol=='s':
+            line(cx,112,cx,302,'green',True);text(cx-145,264,135,30,'s = jΩ','green',13)
+            line(cx-82,169,cx-70,181,'amber');line(cx-70,169,cx-82,181,'amber')
+        else:
+            p.setBrush(Qt.BrushStyle.NoBrush);p.setPen(QPen(QColor(C['green']),2,Qt.PenStyle.DashLine));p.drawEllipse(QRectF(cx-93,cy-93,186,186));text(cx-147,271,140,28,'z = eʲω','green',13)
+            line(cx-48,cy-7,cx-36,cy+5,'amber');line(cx-36,cy-7,cx-48,cy+5,'amber')
+    text(30,330,940,48,'Plano completo: dos mallas de Re(H) / Im(H), o de |H| / Arg(H). Cada punto horizontal tiene una parte real y otra imaginaria; la altura representa la componente elegida.',size=12)
+    text(30,395,940,48,'Frecuencia: se recorre sólo la línea verde, con Ω en rad/s o ω en rad/muestra. La ROC debe contener ese eje o círculo para interpretar la curva como transformada de Fourier.','green',12)
     p.end();return image

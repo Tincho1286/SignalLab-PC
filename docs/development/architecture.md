@@ -24,6 +24,6 @@ Los controles de vista no cambian el dato calculado. Reducir puntos al dibujar o
 
 ## Extensiones compartidas de 1.2
 
-`singularities.py` comparte el tratamiento de límites removibles; `transfer_plane.py` separa la evaluación racional y la ROC de `z_plane.py`; `amplitude_design.py` define amplitudes y límites por banda; los importadores comunes sirven a selectores y entradas independientes.
+`singularities.py` comparte el tratamiento de límites removibles; `transfer_plane.py` separa la evaluación racional y la ROC de `transfer_function_view.py`, que presenta H(s) y H(z) por componentes (`z_plane.py` conserva el alias de compatibilidad); `amplitude_design.py` define amplitudes y límites por banda; los importadores comunes sirven a selectores y entradas independientes.
 
 Los documentos de migración anteriores se conservan en [el archivo histórico](../history/README.md), separados de esta descripción vigente.

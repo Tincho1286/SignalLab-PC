@@ -1,25 +1,26 @@
-"""Shared rational-plane evaluation and explicitly selected annular ROC."""
+"""Shared H(s)/H(z) evaluation and explicitly selected digital annular ROC."""
 from functools import lru_cache
 import numpy as np
 from .resources import ensure_working_set
 
 
 @lru_cache(maxsize=32)
-def _cancel_common(b,a,advance):
+def _cancel_common(b,a,advance,domain="digital"):
     if not any(b):return (0j,),(1+0j,),0
     if len(a)==1:return None
     import sympy as sp
-    z=sp.Symbol('z');degree=max(len(b),len(a))
+    z=sp.Symbol('s' if domain=='analog' else 'z');degree=max(len(b),len(a))
     ensure_working_set(degree*degree,bytes_per_sample=256,live_arrays=8)
     def number(v):return sp.Rational(float(v.real))+sp.I*sp.Rational(float(v.imag))
-    bp=sp.Poly.from_list([number(v) for v in b]+[0]*(degree-len(b)),z)
-    ap=sp.Poly.from_list([number(v) for v in a]+[0]*(degree-len(a)),z)
+    bp=sp.Poly.from_list([number(v) for v in b]+([0]*(degree-len(b)) if domain=='digital' else []),z)
+    ap=sp.Poly.from_list([number(v) for v in a]+([0]*(degree-len(a)) if domain=='digital' else []),z)
     if bp.is_zero:return (0j,),(1+0j,),0
     divisor=sp.gcd(bp,ap)
     if divisor.degree()==0:return None
     bc=[complex(v.evalf(17)) for v in bp.exquo(divisor).all_coeffs()]
     ac=[complex(v.evalf(17)) for v in ap.exquo(divisor).all_coeffs()]
-    shift=max(0,len(bc)-len(ac));bc=[0j]*max(0,len(ac)-len(bc))+bc
+    shift=max(0,len(bc)-len(ac)) if domain=='digital' else 0
+    if domain=='digital':bc=[0j]*max(0,len(ac)-len(bc))+bc
     return tuple(bc),tuple(ac),advance+shift
 
 
@@ -31,6 +32,15 @@ def effective_system(system):
     from .filters import Transfer
     b,a,advance=reduced
     return Transfer(b,a,system.domain,system.name,advance=advance,sample_period_s=system.sample_period_s,roc=system.roc)
+
+
+def effective_plane_system(system):
+    if system.domain=='digital':return effective_system(system)
+    reduced=_cancel_common(tuple(system.b),tuple(system.a),0,'analog')
+    if reduced is None:return system
+    from .filters import Transfer
+    b,a,_=reduced
+    return Transfer(b,a,'analog',system.name)
 
 
 def convergence(system):
@@ -60,10 +70,12 @@ def convergence(system):
 
 
 def evaluate_plane(system,z):
-    system=effective_system(system)
+    system=effective_plane_system(system)
     z=np.asarray(z,dtype=complex)
     with np.errstate(all='ignore'):
-        if system.sos is not None and not np.any(z==0):
+        if system.domain=='analog':
+            value=np.polyval(system.b,z)/np.polyval(system.a,z)
+        elif system.sos is not None and not np.any(z==0):
             q=1/z;value=z**system.advance
             for row in system.sos:value=value*np.polynomial.polynomial.polyval(q,row[:3])/np.polynomial.polynomial.polyval(q,row[3:])
         else:
@@ -78,7 +90,7 @@ def evaluate_plane(system,z):
 
 
 def plane_roots(system):
-    zeros,poles=effective_system(system).poles_zeros()
+    zeros,poles=effective_plane_system(system).poles_zeros()
     zero_indices=np.flatnonzero(zeros==0);pole_indices=np.flatnonzero(poles==0)
     common=min(len(zero_indices),len(pole_indices))
     return np.delete(zeros,zero_indices[:common]),np.delete(poles,pole_indices[:common])

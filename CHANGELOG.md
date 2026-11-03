@@ -1,6 +1,15 @@
 # Historial de cambios
 
-Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.1.3**; **1.2.0** está disponible como preliminar.
+Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.2.0**.
+
+## 1.2.0 — Transferencias H(s)/H(z) y vistas por componentes
+
+- Representación de H(s) y H(z) mediante mallas de parte real/imaginaria o módulo/ángulo, con expresión asociada.
+- Elección de componentes también en la respuesta en frecuencia, conservando retardo de grupo.
+- Consolidación de Z, límites removibles, amplitudes por banda e importación compartida.
+- Ayuda actualizada y explicación de las alertas de firma y reputación de Windows.
+
+[Notas y alcance](docs/releases/v1.2.0.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.0)
 
 ## 1.2.0-preview — Z integrada, plano complejo y amplitudes por banda
 

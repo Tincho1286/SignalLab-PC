@@ -75,12 +75,13 @@ class SystemAnalysisPanel(QWidget):
         plot=QWidget();plot_layout=QVBoxLayout(plot);self.result_tabs.addTab(plot,'Respuesta en frecuencia')
         self.figure=Figure(figsize=(7,4));self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumHeight(260);self.frequency_toolbar=NavigationToolbar2QT(self.canvas,self);plot_layout.addWidget(self.frequency_toolbar);plot_layout.addWidget(self.canvas,1)
         self.magnitude_scale=QComboBox();self.magnitude_scale.addItems(['Módulo lineal','Módulo en dB']);self.magnitude_scale.setAccessibleName('Representación del módulo');self.magnitude_scale.setToolTip('Cambia la vista del resultado calculado; no modifica H ni recalcula.');self.magnitude_scale.currentIndexChanged.connect(self.draw_frequency);self.frequency_toolbar.addSeparator();self.frequency_toolbar.addWidget(self.magnitude_scale)
+        self.response_components=QComboBox();self.response_components.addItems(['Módulo y ángulo','Parte real e imaginaria']);self.response_components.setAccessibleName('Componentes de la respuesta en frecuencia');self.response_components.currentIndexChanged.connect(self.draw_frequency);self.frequency_toolbar.addWidget(self.response_components)
         from .pole_zero_analysis import PoleZeroAnalysis
         self.roots_view=PoleZeroAnalysis();self.result_tabs.addTab(self.roots_view,'Polos y ceros');self.result_tabs.setTabVisible(2,False)
         from .realization_panel import RealizationPanel
         self.realization_view=RealizationPanel(window);self.result_tabs.addTab(self.realization_view,'Realización');self.result_tabs.setTabVisible(3,False)
-        from .z_plane import ZPlaneView
-        self.z_view=ZPlaneView();self.z_index=self.result_tabs.addTab(self.z_view,'H(z) · plano complejo');self.result_tabs.setTabVisible(self.z_index,False)
+        from .transfer_function_view import TransferFunctionView
+        self.transfer_view=TransferFunctionView();self.transfer_index=self.result_tabs.addTab(self.transfer_view,'Función de transferencia');self.result_tabs.setTabVisible(self.transfer_index,False)
         self.domain.currentIndexChanged.connect(lambda *_:self._form.setRowVisible(self.roc_choice,self.domain.currentIndex()==1));self.domain.currentIndexChanged.connect(lambda *_:self._form.setRowVisible(self.roc_radius,self.domain.currentIndex()==1 and self.roc_choice.currentIndex()==2));self._form.setRowVisible(self.roc_choice,False);self._form.setRowVisible(self.roc_radius,False)
         self.result_tabs.currentChanged.connect(self._result_tab_changed);self.result_tabs.tabBar().tabBarClicked.connect(self._result_tab_changed)
         self.empty=QLabel('El análisis aparecerá después de calcular.');self.empty.setObjectName('muted');layout.addWidget(self.empty);self.result_tabs.hide()
@@ -93,15 +94,15 @@ class SystemAnalysisPanel(QWidget):
         self.report.set_readable(transfer_summary(system));self.result_state.accept(self.result_state.snapshot())
         self.result_state.setText('Plano del filtro copiado. Analizar sistema calcula también su respuesta en frecuencia.')
         self.result_actions.set_result(self.system,self.input_id);self.result_actions.setEnabled(True)
-        self.result_tabs.setTabVisible(self.z_index,system.domain=='digital')
+        self.result_tabs.setTabVisible(self.transfer_index,True)
         self.show_poles_zeros()
     def _result_tab_changed(self,index):
         if index==2:self.show_poles_zeros()
         elif index==3:self.show_realization()
-        elif index==self.z_index and self.analyzed_system is not None:
-            self.z_view.set_system(self.analyzed_system)
+        elif index==self.transfer_index and self.analyzed_system is not None:
+            self.transfer_view.set_system(self.analyzed_system)
             from .plot_view import enlarge_plot
-            enlarge_plot(self.z_view.canvas,self.z_view)
+            enlarge_plot(self.transfer_view.canvas,self.transfer_view)
     def show_realization(self):
         if self.analyzed_system is None:return
         self.realization_view.set_system(self.analyzed_system,self.analysis_advance,self.input_id if not self.analysis_advance else None)
@@ -208,7 +209,7 @@ class SystemAnalysisPanel(QWidget):
                 self.result_actions.set_result(self.system,self.input_id);self.result_actions.setEnabled(True)
                 message=('El sistema conserva '+str(system.advance)+' muestras de avance. Podés exportarlo o reutilizarlo para análisis y Z inversa con ROC. La simulación causal no reemplaza ese avance por un retardo.' if system is not None and system.advance else 'La fórmula conserva parámetros libres. Asignales valores para exportar o reutilizar un sistema numérico.' if system is None else '')
                 self.reuse_note.setText(message);self.reuse_note.setVisible(bool(message))
-                self.empty.hide();self.result_tabs.show();self.result_actions.show();self.result_tabs.setTabVisible(1,data is not None);self.result_tabs.setTabVisible(self.z_index,system is not None and system.domain=='digital');self.result_tabs.setTabVisible(2,system is not None);self.result_tabs.setTabEnabled(2,system is not None);self.result_tabs.setTabVisible(3,system is not None)
+                self.empty.hide();self.result_tabs.show();self.result_actions.show();self.result_tabs.setTabVisible(1,data is not None);self.result_tabs.setTabVisible(self.transfer_index,system is not None);self.result_tabs.setTabVisible(2,system is not None);self.result_tabs.setTabEnabled(2,system is not None);self.result_tabs.setTabVisible(3,system is not None)
                 self.result_tabs.setCurrentIndex(0)
                 summary=frequency_summary(exact,data)
                 from .result_summary import Section
@@ -228,12 +229,17 @@ class SystemAnalysisPanel(QWidget):
         if data is None:return
         keep=self.figure.axes[-1].get_xlim() if self.figure.axes and self._drawn_frequency is data else None
         self.figure.clear();axes=self.figure.subplots(3,1,sharex=True);omega=data.omega
+        cartesian=self.response_components.currentIndex()==1;self.magnitude_scale.setEnabled(not cartesian)
         db=self.magnitude_scale.currentIndex()==1
         magnitude=np.where(np.isfinite(data.db),data.db,np.nan) if db else data.magnitude
-        axes[0].plot(omega,magnitude);axes[0].set_ylabel('Módulo (dB)' if db else '|H|')
-        axes[1].plot(omega,data.phase);axes[1].set_ylabel('Fase (rad)')
-        if not np.isfinite(magnitude).any():axes[0].text(.5,.5,'Módulo cero: −∞ dB' if np.all(data.magnitude==0) else 'Respuesta no definida en el intervalo',ha='center',transform=axes[0].transAxes)
-        if not np.isfinite(data.phase).any():axes[1].text(.5,.5,'Fase no definida en el intervalo',ha='center',transform=axes[1].transAxes)
+        if cartesian:
+            axes[0].plot(omega,data.response.real);axes[0].set_ylabel('Parte real')
+            axes[1].plot(omega,data.response.imag);axes[1].set_ylabel('Parte imaginaria')
+        else:
+            axes[0].plot(omega,magnitude);axes[0].set_ylabel('Módulo (dB)' if db else '|H|')
+            axes[1].plot(omega,data.phase);axes[1].set_ylabel('Ángulo (rad)')
+            if not np.isfinite(magnitude).any():axes[0].text(.5,.5,'Módulo cero: −∞ dB' if np.all(data.magnitude==0) else 'Respuesta no definida en el intervalo',ha='center',transform=axes[0].transAxes)
+            if not np.isfinite(data.phase).any():axes[1].text(.5,.5,'Ángulo no definido en el intervalo',ha='center',transform=axes[1].transAxes)
         axes[2].plot(omega,data.delay);axes[2].set_ylabel('Retardo de grupo (muestras)' if data.system.domain=='digital' else 'Retardo de grupo (s)')
         if not np.isfinite(data.delay).any():axes[2].text(.5,.5,'Retardo no definido en el intervalo',ha='center',transform=axes[2].transAxes)
         from matplotlib.ticker import ScalarFormatter
@@ -254,11 +260,13 @@ class SystemAnalysisPanel(QWidget):
             for key,color,label in [('gain_crossings',C['green'],'Cruce de ganancia'),('phase_crossings',C['amber'],'Cruce de fase')]:
                 for index,row in enumerate(margins[key]):
                     frequency=row['frequency'];value=system.response(np.array([frequency]))[0]
-                    amplitude=20*np.log10(abs(value)) if db else abs(value)
+                    amplitude=value.real if cartesian else 20*np.log10(abs(value)) if db else abs(value)
                     axes[0].plot([frequency],[amplitude],'o',color=color,markersize=4,label=label if index==0 else None)
+                    if cartesian:axes[1].plot([frequency],[value.imag],'o',color=color,markersize=4)
                     for axis in axes:axis.axvline(frequency,color=color,alpha=.35,linestyle=':',linewidth=.8)
             if margins['gain_crossings'] or margins['phase_crossings']:
-                axes[0].axhline(0 if db else 1,color=C['muted'],alpha=.5,linestyle='--',linewidth=.7);axes[0].legend()
+                if not cartesian:axes[0].axhline(0 if db else 1,color=C['muted'],alpha=.5,linestyle='--',linewidth=.7)
+                axes[0].legend()
         axes[2].set_xlim(keep if keep is not None else (omega[0],omega[-1]))
         self.figure.set_layout_engine('constrained');self._drawn_frequency=data;self.canvas.draw_idle()
 

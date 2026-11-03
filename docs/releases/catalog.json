@@ -1,6 +1,22 @@
 {
   "releases": [
     {
+      "tag": "v1.2.0",
+      "title": "Transferencias H(s)/H(z) y vistas por componentes",
+      "channel": "stable",
+      "summary": "Consolidación de Z, filtros e importación, con transferencias en ambos dominios y gráficas de malla por componentes.",
+      "changes": [
+        "H(s) y H(z) con mallas de parte real/imaginaria o módulo/ángulo.",
+        "Selección de componentes también en la respuesta en frecuencia, conservando retardo de grupo.",
+        "Z integrada, límites removibles, amplitudes por banda e importación compartida."
+      ],
+      "limits": [
+        "La visualización usa una malla finita; la ROC analógica no se deduce de la fórmula.",
+        "El portable se distribuye sin firma Authenticode."
+      ],
+      "notes": "docs/releases/v1.2.0.md"
+    },
+    {
       "tag": "v1.2.0-preview",
       "title": "Z integrada, plano complejo y amplitudes por banda",
       "channel": "preview",

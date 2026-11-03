@@ -7,7 +7,7 @@
 Desde la raíz del proyecto, con el entorno preparado:
 
 ```powershell
-.\build_portable.ps1 -Name SignalLab-PC-1.2.0-preview
+.\build_portable.ps1 -Name SignalLab-PC-1.2.0
 ```
 
 El resultado se guarda en `outputs/`. La compilación usa un directorio intermedio y reemplaza el archivo de salida al terminar, para conservar las copias de versiones anteriores. `-KeepBuildFiles` permite conservar los intermedios para diagnóstico.
@@ -24,10 +24,11 @@ Guardá el código y las notas en un commit y subí `main`. Después, publicá e
 
 ```powershell
 .\.venv\Scripts\python.exe -B tools\github_release.py `
-  --tag v1.2.0-preview `
-  --title "SignalLab PC 1.2.0 · Z y análisis de filtros" `
-  --notes docs\releases\v1.2.0-preview.md `
-  --file outputs\SignalLab-PC-1.2.0-preview.exe `
+  --tag v1.2.0 `
+  --title "SignalLab PC 1.2.0 · Transferencias H(s)/H(z)" `
+  --notes docs\releases\v1.2.0.md `
+  --file outputs\SignalLab-PC-1.2.0.exe `
+  --stable `
   --allow-public
 ```
 

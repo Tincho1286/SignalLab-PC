@@ -396,5 +396,5 @@ add(('course_tools','fir'),
 add(('system_analysis',0),
  'Analizá H(s) o H(z) sin confundir la función racional del plano complejo con su respuesta en frecuencia.',
  'Ingresá fórmula o coeficientes. En digital elegí también la ROC: secuencia derecha, izquierda, anillo por radio o no especificada. Los sistemas importados conservan su ROC registrada.',
- 'H(z) · plano complejo muestra módulo por colores, raíces, círculo unitario y expresión asociada. La respuesta en frecuencia y su fase se calculan por separado sobre z=exp(jω), cuando el círculo unitario pertenece a la ROC.',
+ 'Función de transferencia muestra H(s) o H(z) mediante dos mallas seleccionables: módulo/ángulo o parte real/imaginaria. Sus ejes horizontales recorren el plano complejo; la altura representa una componente de H. La respuesta en frecuencia tiene su propia figura y el mismo selector de componentes, junto al retardo de grupo.',
  'La expresión racional puede evaluarse fuera de la ROC sin que esa evaluación sea la transformada convergente de h[n]. La fórmula sola no define una ROC. Los bordes con polos están excluidos y una raíz numéricamente sobre el círculo impide certificar su inclusión.')

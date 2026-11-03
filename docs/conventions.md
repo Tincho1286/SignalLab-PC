@@ -29,7 +29,7 @@ La simplificación de una transferencia no demuestra estabilidad interna de una 
 
 L es la cantidad total de coeficientes y M=L−1 el orden nominal. El centrado del ideal causal usa D=(L−1)/2. Las ventanas de generación son simétricas; con longitud par el centro geométrico puede ser semientero aunque los índices sigan siendo enteros.
 
-Se usa sinc(x)=sin(πx)/(πx), con sinc(0)=1. En la preliminar 1.2, la capa matemática extiende singularidades removibles cuando demuestra límites laterales finitos e iguales; los polos y las divergencias no reciben valores arbitrarios.
+Se usa sinc(x)=sin(πx)/(πx), con sinc(0)=1. Desde 1.2, la capa matemática extiende singularidades removibles cuando demuestra límites laterales finitos e iguales; los polos y las divergencias no reciben valores arbitrarios.
 
 ## Tolerancias por banda en 1.2
 
@@ -42,3 +42,8 @@ La evaluación sobre frecuencias y bordes forma parte del diseño. Un resultado 
 ## Exactitud y presentación
 
 Los informes distinguen expresiones exactas, aproximaciones numéricas, condiciones y cálculos pendientes. El formato visual puede redondear cifras para facilitar la lectura; la exportación conserva los valores almacenados. Un resultado de una ventana finita no demuestra propiedades de una señal infinita.
+
+
+## Transferencia en el plano complejo
+
+H(s) y H(z) se presentan mediante mallas de sus partes real/imaginaria o módulo/ángulo. Las coordenadas del plano son independientes de la altura de la componente. El ángulo principal está entre −π y π y sus saltos no se unen. La respuesta en frecuencia usa su propio recorrido y puede mostrar ángulo desenrollado por tramos válidos.

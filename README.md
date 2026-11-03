@@ -3,8 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.1.3" src="https://img.shields.io/badge/estable-1.1.3-71d7c4?style=flat-square&amp;labelColor=172632"></a>
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.0-preview"><img alt="Preliminar 1.2.0" src="https://img.shields.io/badge/preliminar-1.2.0-adc5eb?style=flat-square&amp;labelColor=172632"></a>
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.2.0" src="https://img.shields.io/badge/estable-1.2.0-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <img alt="Windows portable" src="https://img.shields.io/badge/Windows-portable-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Desarrollado con Python" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
 </p>
@@ -28,13 +27,15 @@ Está pensado para estudiar Sistemas y Señales, desarrollar cálculos y explora
 
 ## Descargar y empezar
 
-1. Descargá **[SignalLab-PC-1.1.3.exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.3/SignalLab-PC-1.1.3.exe)** desde la versión estable.
+1. Descargá **[SignalLab-PC-1.2.0.exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.2.0/SignalLab-PC-1.2.0.exe)** desde la versión estable.
 2. Guardá el ejecutable en una carpeta y abrilo. El portable incluye Python y sus dependencias.
 3. Buscá una herramienta, cargá una fórmula, muestras o un archivo y presioná **Calcular**. **F1** abre su ayuda.
 
 Los gráficos se abren en ventanas independientes. Desde **Resultados** podés consultar, exportar y reutilizar las salidas. [Primeros pasos →](docs/getting-started.md)
 
-> **Preliminar 1.2.0:** incorpora Z integrada, mapas de H(z), límites automáticos, amplitudes por banda e importación compartida. Está en evaluación. [Ver cambios y descargar →](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.0-preview)
+> **Nuevo en 1.2.0:** transferencias H(s)/H(z) con mallas de módulo/ángulo o real/imaginaria, Z integrada, amplitudes por banda e importación compartida. [Ver novedades →](docs/releases/v1.2.0.md)
+
+¿Windows muestra una alerta al abrir el portable? [Firma, reputación y descargas →](docs/windows-downloads.md)
 
 ## Qué podés hacer
 

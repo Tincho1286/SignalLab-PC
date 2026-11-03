@@ -89,6 +89,10 @@ def prepare_figure(figure):
         if legend is not None:needs_legend=True;legend.remove()
         axis.set_facecolor(C['panel']);axis.tick_params(colors=C['muted'],labelsize=9)
         for spine in axis.spines.values():spine.set_color(C['disabled'])
+        if axis.name=='3d':
+            axis.zaxis.set_tick_params(colors=C['muted'],labelsize=9);axis.zaxis.label.set_color(C['text'])
+            for coordinate in (axis.xaxis,axis.yaxis,axis.zaxis):
+                coordinate.pane.set_facecolor(C['panel']);coordinate.pane.set_edgecolor(C['disabled'])
         for text in [axis.title,axis.xaxis.label,axis.yaxis.label,*axis.texts]:
             text.set_color(C['text'])
         for line in axis.lines:

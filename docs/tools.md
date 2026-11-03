@@ -14,13 +14,13 @@ La multiplicación permite aplicar ventanas a una señal. Las entradas se alinea
 
 Análisis de H(s) y H(z) por fórmula o coeficientes: módulo lineal/dB, fase, retardo, raíces y realizaciones. Respuesta temporal, condiciones iniciales, conexión en serie/paralelo/realimentación y espacio de estados.
 
-La preliminar 1.2 añade el mapa complejo de H(z), separado de H(e^{jω}), con una ROC explícita. La ubicación de polos bajo una hipótesis causal y la estabilidad de una transferencia bilateral se interpretan con sus condiciones correspondientes.
+La versión 1.2 representa H(s) y H(z) mediante dos mallas: parte real/imaginaria o módulo/ángulo, separadas de la respuesta en frecuencia. La ubicación de polos bajo una hipótesis causal y la estabilidad de una transferencia bilateral se interpretan con sus condiciones correspondientes.
 
 ## Filtros
 
 Diseño FIR/IIR por bandas y tolerancias, FIR por cortes y longitud o h[n] propia, diseño interactivo por polos y ceros, secciones de segundo orden y modelos RC. Ajustes de ganancia y fase; filtros ideales definidos por tramos; conversión analógica/digital por los métodos disponibles.
 
-Las acciones del resultado permiten analizar, exportar y reutilizar el filtro. La preliminar 1.2 incorpora amplitudes por banda y tolerancias absolutas, relativas o en dB; las dos amplitudes independientes de un rechazabanda se diseñan mediante FIR.
+Las acciones del resultado permiten analizar, exportar y reutilizar el filtro. La versión 1.2 incorpora amplitudes por banda y tolerancias absolutas, relativas o en dB; las dos amplitudes independientes de un rechazabanda se diseñan mediante FIR.
 
 ## Fourier y espectros
 
@@ -38,7 +38,7 @@ Las operaciones elementales de diezmado y expansión no agregan automáticamente
 
 Transformadas directas e inversas con sus condiciones y regiones de convergencia. Las ecuaciones lineales reúnen ecuaciones diferenciales y en diferencias con coeficientes constantes y condiciones iniciales.
 
-La preliminar 1.2 integra los registros finitos en Z directa; la inversa permite pedir un intervalo o recuperar el soporte completo de un polinomio de Laurent.
+La versión 1.2 integra los registros finitos en Z directa; la inversa permite pedir un intervalo o recuperar el soporte completo de un polinomio de Laurent.
 
 ## Señales aleatorias
 

@@ -7,7 +7,7 @@ body:
     attributes:
       label: Versión de SignalLab PC
       description: Aparece en el título o en Ayuda → Acerca de SignalLab.
-      placeholder: 1.1.3 o 1.2.0-preview
+      placeholder: 1.2.0
     validations:
       required: true
   - type: input

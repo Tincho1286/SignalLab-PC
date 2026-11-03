@@ -250,7 +250,7 @@ GUIDES['transform_lab','z']['parameters']=[
  ('Analizar X(z) como H(z)','En la directa usa X(z) calculada; en la inversa usa la X(z) ingresada. Conserva el reloj disponible y una ROC compatible cuando se puede inferir. El análisis separa H(z) en el plano y H(e^{jω}).'),
  ('Archivos','Cargar expresión importa un resultado algebraico JSON compatible. Secuencia finita permite CSV, MATLAB y JSON. No se interpreta una lista finita como una fórmula de soporte infinito.')]
 GUIDES['system_analysis',0]['parameters'] += [
- ('H(z) · plano complejo','Mapa de 20 log10|H(z)|, polos, ceros y círculo unitario. El semiancho controla ambos ejes por igual. La expresión racional puede evaluarse fuera de su ROC, pero allí no representa la suma convergente de h[n].'),
+ ('Función de transferencia','H(s) y H(z) tienen una vista propia con dos gráficas de malla: módulo lineal y ángulo principal, o parte real e imaginaria. Los ejes horizontales son las partes real e imaginaria de s o z; la altura es la componente de H. Los intervalos de ambos ejes se pueden elegir por separado. Se dejan huecos en los polos y se interrumpen los saltos del ángulo.'),
  ('ROC de H(z)','Elegí secuencia derecha, izquierda, un anillo por radio o ROC no especificada. La fórmula racional sola no decide la ROC. La vista de frecuencia se habilita sólo cuando todo el círculo unitario queda dentro de la región abierta.')]
 for _task in ('fir','iir','analog'):
  _guide=GUIDES['course_tools',_task]
@@ -266,3 +266,5 @@ for _task in ('fir','iir','analog'):
 for _key,_guide in GUIDES.items():
  if _key[0] in ('basic','signal_product','fourier','inverse_dtft','fir_window','random','random_correlation','random_model','sampling','correlation'):
   _guide['parameters'].append(('Importar o reutilizar','Cada entrada tiene su propio origen: Archivo abre CSV, MATLAB o JSON; Resultado permite elegir una salida anterior y también importar allí un archivo compatible. Se conservan índices, complejos, unidades y reloj registrado. No se cambian dominios ni tasas automáticamente.'))
+
+GUIDES['system_analysis',0]['parameters'].append(('Componentes de la respuesta en frecuencia','La barra de la figura permite módulo/ángulo o real/imaginaria. Se conserva el retardo de grupo. El selector lineal/dB sólo afecta al módulo. En frecuencia el ángulo se desenrolla por tramos válidos; en el plano complejo se muestra su valor principal entre −π y π.'))
