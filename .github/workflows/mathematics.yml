@@ -51,7 +51,7 @@ jobs:
         with:
           python-version: '3.12.10'
       - name: Install locked mathematical dependencies
-        run: python -m pip install --disable-pip-version-check -c requirements-lock.txt numpy scipy sympy mpmath
+        run: python -m pip install --disable-pip-version-check -c requirements-lock.txt numpy scipy sympy mpmath h5py
       - name: Check independent reference cases and result transport
         run: python -B -X utf8 tools/check_math.py
       - name: Preserve mathematical audit reports
