@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.4.2**.
 
+## 1.5.6 · Operation Health 1 · preliminar
+
+- Filtros ideales escritos con step: retardo ordinario por tramos y exclusión de saltos.
+- Diagnóstico visible de errores inesperados en botones y trazas locales de cálculos fallidos.
+- Estado terminal correcto tras un fallo de presentación y descarte de notificaciones duplicadas.
+- Control estático de nombres y de importaciones locales condicionales antes del empaquetado.
+- Lista de correcciones, prevención, pruebas manuales y pendientes por preview.
+
+[Notas y pruebas sugeridas](docs/releases/v1.5.6-preview.md) · [Operation Health](docs/operation-health.md)
+
 ## 1.5.5 · preliminar
 
 - Análisis de DTFT como H(exp(iw)) aunque Z no tenga un anillo abierto de convergencia absoluta.

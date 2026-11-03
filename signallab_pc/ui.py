@@ -50,6 +50,8 @@ class _OperationWorker(QRunnable):
             jobs.checkpoint()
             self.signals.finished.emit(self, result)
         except Exception as exc:
+            import traceback
+            self.failure_details=''.join(traceback.format_exception(type(exc),exc,exc.__traceback__))
             self.signals.failed.emit(self, str(exc))
         finally:
             jobs.clear()
@@ -659,6 +661,7 @@ class SignalLabWindow(QMainWindow):
         worker = _OperationWorker(function)
         worker.on_success = on_success
         worker.label = message
+        worker.origin=getattr(self,'current_operation',None)
         worker.last_progress = -1
         self.cancel_button.setEnabled(True)
         self.cancel_button.setVisible(True)
@@ -683,7 +686,8 @@ class SignalLabWindow(QMainWindow):
 
     @Slot(object, object)
     def _worker_finished(self, worker, result):
-        if worker in self._workers: self._workers.remove(worker)
+        if worker not in self._workers:return
+        self._workers.remove(worker)
         self.cancel_button.setEnabled(bool(self._workers))
         self.cancel_button.setVisible(bool(self._workers))
         if worker.cancel_event.is_set():
@@ -694,18 +698,23 @@ class SignalLabWindow(QMainWindow):
             count=len(getattr(self,'_last_calculation_notes',[]))
             self.statusBar().showMessage("Cálculo finalizado · Indeterminaciones levantadas: "+str(count)+". Ver informe." if count else "Cálculo finalizado.")
         except Exception as exc:
-            QMessageBox.warning(self, "No se pudo presentar el resultado", str(exc))
+            import traceback
+            from .runtime_diagnostics import report_error
+            self.statusBar().showMessage('El cálculo terminó, pero no se pudo presentar el resultado.')
+            report_error(self,'No se pudo presentar el resultado',exc,details=''.join(traceback.format_exception(type(exc),exc,exc.__traceback__)),context=getattr(worker,'origin',None) or worker.label)
 
     @Slot(object, str)
     def _worker_failed(self, worker, error):
-        if worker in self._workers: self._workers.remove(worker)
+        if worker not in self._workers:return
+        self._workers.remove(worker)
         self.cancel_button.setEnabled(bool(self._workers))
         self.cancel_button.setVisible(bool(self._workers))
         if worker.cancel_event.is_set():
             self.statusBar().showMessage("Cálculo cancelado; no se guardó un resultado parcial.")
             return
         self.statusBar().showMessage("El cálculo no terminó.")
-        QMessageBox.warning(self, "No se pudo completar", error)
+        from .runtime_diagnostics import report_error
+        report_error(self,'No se pudo completar el cálculo',error,details=getattr(worker,'failure_details',''),context=getattr(worker,'origin',None) or worker.label)
 
     def _operation_succeeded(self, result, message):
         self._set_signal(result)
@@ -815,6 +824,8 @@ def main():
     app.setWindowIcon(QIcon(str(Path(__file__).parent/'assets'/'signallab.ico')))
     app.setStyle("Fusion")
     app.setApplicationName("SignalLab PC")
+    from .runtime_diagnostics import install_exception_hook
+    install_exception_hook(app)
     from .workbench import WorkbenchWindow
     window = WorkbenchWindow(); window.show()
     raise SystemExit(app.exec())

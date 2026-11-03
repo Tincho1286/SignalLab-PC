@@ -25,7 +25,7 @@ def worker(case_file,event_file,result_file):
 
 
 def fingerprint():
-    names=('engine','symbolic','z_direct_pairs','dtft_pairs','scalar_expression','difference_equations','filters','fourier','operations','sampling','state_space','windowing','precision','cas_engine','cas_assumptions','analytic_frequency','system_analysis_panel','system_import','result_expressions','transfer_input','transform_lab','frequency_analysis','system_conditions','symbolic_fourier_panel')
+    names=('engine','symbolic','z_direct_pairs','dtft_pairs','scalar_expression','difference_equations','filters','fourier','operations','sampling','state_space','windowing','precision','cas_engine','cas_assumptions','analytic_frequency','system_analysis_panel','system_import','result_expressions','transfer_input','transform_lab','frequency_analysis','system_conditions','symbolic_fourier_panel','runtime_diagnostics','ui')
     paths=[ROOT/'tools/math_audit_cases.py',*[ROOT/'signallab_pc'/(name+'.py') for name in names]]
     digest=hashlib.sha256()
     for path in paths:

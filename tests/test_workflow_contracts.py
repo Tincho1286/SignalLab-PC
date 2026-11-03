@@ -125,6 +125,40 @@ class WorkflowContracts(unittest.TestCase):
         assert_allclose(panel.frequency_data.magnitude[:30],1,atol=1e-13);assert_allclose(panel.frequency_data.magnitude[31:],0,atol=1e-13)
         self.assertEqual(panel.definition_mode.currentIndex(),2);self.assertIsNone(panel.system)
 
+    def test_unhandled_qt_button_failure_reaches_visible_error_handler(self):
+        import sys
+        from PySide6.QtWidgets import QPushButton
+        from signallab_pc.runtime_diagnostics import install_exception_hook
+        seen=[];button=QPushButton();self.widgets.append(button)
+        def fail():raise NameError('Operation Health callback probe')
+        button.clicked.connect(fail)
+        with patch('signallab_pc.runtime_diagnostics.report_error',side_effect=lambda *a,**k:seen.append((a,k))):
+            previous=install_exception_hook(self.app)
+            try:button.click()
+            finally:sys.excepthook=previous
+        self.assertEqual(len(seen),1);self.assertIn('NameError',seen[0][1]['details']);self.assertEqual(self.warnings,[])
+
+    def test_failed_presentation_sets_terminal_status_and_ignores_duplicate(self):
+        from PySide6.QtWidgets import QMainWindow,QPushButton
+        from signallab_pc.ui import SignalLabWindow
+        shell=QMainWindow();self.widgets.append(shell);shell.cancel_button=QPushButton(shell);calls=[]
+        def fail(result):calls.append(result);raise RuntimeError('Presentation probe')
+        worker=SimpleNamespace(cancel_event=__import__('threading').Event(),on_success=fail,label='Calculation probe',origin=('Health','probe'))
+        shell._workers=[worker];shell.statusBar().showMessage('Calculando…')
+        with patch('signallab_pc.runtime_diagnostics.report_error') as report:
+            SignalLabWindow._worker_finished(shell,worker,42);SignalLabWindow._worker_finished(shell,worker,42)
+        self.assertEqual(calls,[42]);self.assertEqual(shell._workers,[]);self.assertIn('no se pudo presentar',shell.statusBar().currentMessage());report.assert_called_once()
+
+    def test_worker_diagnostic_preserves_trace_and_stays_local(self):
+        from signallab_pc.ui import _OperationWorker
+        from signallab_pc.runtime_diagnostics import diagnostic
+        def fail():raise ArithmeticError('Health worker probe')
+        worker=_OperationWorker(fail);seen=[];worker.signals.failed.connect(lambda sender,error:seen.append(error));worker.run()
+        self.assertEqual(seen,['Health worker probe']);self.assertIn('ArithmeticError',worker.failure_details)
+        with tempfile.TemporaryDirectory() as folder:
+            text,path=diagnostic(seen[0],worker.failure_details,'Health probe',folder)
+            self.assertEqual(path.parent,Path(folder));self.assertIn('ArithmeticError',path.read_text(encoding='utf-8'));self.assertIn('Referencia:',text)
+
     def test_rational_transfer_still_retains_numeric_system(self):
         from signallab_pc.result_expressions import ExpressionResult
         self.host.open_tool(ROUTES['system_analysis',0]);panel=self.host.pages[self.host.current_operation].panel

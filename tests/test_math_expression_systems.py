@@ -41,6 +41,13 @@ class ExpressionSystemContracts(unittest.TestCase):
             assert_allclose(data.delay[2:5],float(sp.Rational(delay)),atol=1e-13);self.assertTrue(np.isnan(data.delay[[0,1,5,6]]).all())
             self.assertEqual(exact['model_kind'],'frequency');self.assertNotIn('numeric_b',exact)
 
+    def test_ideal_step_response_has_ordinary_delay_between_jumps(self):
+        request=dict(operation='system_frequency_expression',domain='digital',expression='step(pi/2-abs(w))*exp(-4*i*w)')
+        omega=np.array([-2.,-np.pi/2,-.3,0.,.3,np.pi/2,2.])
+        exact,data=analyze_expression(execute(request),request,omega)
+        assert_allclose(data.magnitude,[0,1,1,1,1,1,0],atol=1e-13)
+        assert_allclose(data.delay[2:5],4,atol=1e-13);self.assertTrue(np.isnan(data.delay[[0,1,5,6]]).all())
+
     def test_frequency_mode_rejects_complex_plane_axes(self):
         for expression in ('1/(1-z)','1/(s+1)','sin(n)'):
             with self.assertRaises(ValueError):execute(dict(operation='system_frequency_expression',domain='digital',expression=expression))

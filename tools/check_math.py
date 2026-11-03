@@ -9,7 +9,7 @@ FAMILIES={
     'transforms':('test_math_reliability.MathematicalReliabilityTests',21),
     'transform_properties':('test_math_shifted_pairs.ShiftedPairContracts',7),
     'preventive_regressions':('test_math_preventive.PreventiveContracts',6),
-    'expression_systems':('test_math_expression_systems.ExpressionSystemContracts',7),
+    'expression_systems':('test_math_expression_systems.ExpressionSystemContracts',8),
     'scalar_input':('test_math_contracts.ScalarContracts',5),
     'systems_filters':('test_math_contracts.SystemContracts',9),
     'equations':('test_math_contracts.EquationContracts',5),

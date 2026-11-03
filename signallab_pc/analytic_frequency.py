@@ -72,11 +72,14 @@ def _condition_mask(condition,omega):
 def smooth_frequency_derivative(frequency,omega):
     """Ordinary branch derivatives; a jump has no ordinary group delay."""
     from .symbolic import W
+    steps=frequency.atoms(sp.Heaviside)
     modules=sorted(frequency.atoms(sp.Mod),key=sp.count_ops,reverse=True)
     replacements={term:sp.Dummy('fold',real=True) for term in modules}
+    replacements.update({term:sp.Dummy('step',real=True) for term in steps})
     smooth=frequency.xreplace(replacements)
     derivative=sp.diff(smooth,W)
     for term,symbol in replacements.items():
+        if term.func==sp.Heaviside:continue
         # A variable modulus needs a different derivative and is left explicit.
         if term.args[1].has(W):return sp.diff(frequency,W),np.zeros(omega.shape,dtype=bool)
         derivative+=sp.diff(smooth,symbol)*sp.diff(term.args[0],W)
@@ -87,6 +90,7 @@ def smooth_frequency_derivative(frequency,omega):
     for term in frequency.atoms(sp.Piecewise):
         branches=sp.Piecewise(*[(sp.Integer(index),condition) for index,(_,condition) in enumerate(term.args)])
         candidates|=(_sample(branches,left)!=_sample(branches,right))
+    for term in steps:candidates|=(_sample(term,left)!=_sample(term,right))
     for term in modules:
         a,b=_sample(term,left),_sample(term,right)
         period=_sample(term.args[1],omega)

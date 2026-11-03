@@ -18,7 +18,7 @@ try {
         & $runtime -m venv .venv
         if ($LASTEXITCODE -ne 0) { throw 'No se pudo crear el entorno privado.' }
     }
-    & $pythonExe -m pip install -r requirements-lock.txt
+    & $pythonExe -m pip install -r requirements-lock.txt -r requirements-quality.txt
     if ($LASTEXITCODE -ne 0) { throw 'No se pudieron instalar las dependencias.' }
     if (-not $NoLaunch) { & $pythonExe main.py }
 }

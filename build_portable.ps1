@@ -1,6 +1,6 @@
 ﻿param(
     [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]*$')]
-    [string]$Name = "SignalLab-PC-1.5.5",
+    [string]$Name = "SignalLab-PC-1.5.6",
     [switch]$KeepBuildFiles
 )
 $ErrorActionPreference = 'Stop'
@@ -18,6 +18,8 @@ try {
     $env:OPENBLAS_NUM_THREADS = '1'
     $env:OMP_NUM_THREADS = '1'
     $env:PYTHONDONTWRITEBYTECODE = '1'
+    & $pythonExe -B tools/check_static.py
+    if ($LASTEXITCODE -ne 0) { throw 'Falló la detección de errores de código; no se construyó el portable.' }
     & $pythonExe -B tools/check_math.py
     if ($LASTEXITCODE -ne 0) { throw 'Falló el control matemático; no se construyó el portable.' }
     & $pythonExe -B tools/check_workflows.py

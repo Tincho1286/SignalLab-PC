@@ -12,6 +12,8 @@ on:
       - 'tools/check_workflows.py'
       - 'tests/test_workflow_contracts.py'
       - 'requirements-lock.txt'
+      - 'requirements-quality.txt'
+      - 'tools/check_static.py'
       - '.github/workflows/mathematics.yml'
   pull_request:
     paths:
@@ -23,6 +25,8 @@ on:
       - 'tools/check_workflows.py'
       - 'tests/test_workflow_contracts.py'
       - 'requirements-lock.txt'
+      - 'requirements-quality.txt'
+      - 'tools/check_static.py'
       - '.github/workflows/mathematics.yml'
   workflow_dispatch:
 
@@ -90,4 +94,24 @@ jobs:
           name: workflows-${{ matrix.os }}-${{ github.run_id }}
           path: work/workflow-checks.json
           if-no-files-found: ignore
+          retention-days: 7
+
+  static-actions:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12.10'
+      - run: python -m pip install --disable-pip-version-check -r requirements-quality.txt
+      - run: python -B -X utf8 tools/check_static.py
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: static-actions-${{ github.run_id }}
+          path: work/static-checks.json
+          if-no-files-found: error
           retention-days: 7

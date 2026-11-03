@@ -66,7 +66,7 @@ jobs:
         run: |
           python -m venv .venv
           if ($LASTEXITCODE -ne 0) { throw 'Failed to create the build environment.' }
-          & .\.venv\Scripts\python.exe -B -m pip install --disable-pip-version-check -r requirements-lock.txt
+          & .\.venv\Scripts\python.exe -B -m pip install --disable-pip-version-check -r requirements-lock.txt -r requirements-quality.txt
           if ($LASTEXITCODE -ne 0) { throw 'Failed to install the locked dependencies.' }
 
       - name: Check mathematics and build the portable
@@ -85,7 +85,7 @@ jobs:
           if ($exe.VersionInfo.ProductName -ne $details.product_name -or $exe.VersionInfo.ProductVersion -ne $details.version) {
             throw 'The executable product metadata does not match the source version.'
           }
-          $record = [ordered]@{ repository = 'https://github.com/Tincho1286/SignalLab-PC'; commit = $env:BUILD_COMMIT; ref = $env:BUILD_REF; build_url = $env:BUILD_URL; version = $details.version; filename = $details.filename; sha256 = (Get-FileHash -LiteralPath $exe.FullName -Algorithm SHA256).Hash.ToLowerInvariant(); signature_status = (Get-AuthenticodeSignature -LiteralPath $exe.FullName).Status.ToString(); mathematical_checks = (Get-Content -LiteralPath work/math-checks.json -Raw | ConvertFrom-Json); workflow_checks = (Get-Content -LiteralPath work/workflow-checks.json -Raw | ConvertFrom-Json) }
+          $record = [ordered]@{ repository = 'https://github.com/Tincho1286/SignalLab-PC'; commit = $env:BUILD_COMMIT; ref = $env:BUILD_REF; build_url = $env:BUILD_URL; version = $details.version; filename = $details.filename; sha256 = (Get-FileHash -LiteralPath $exe.FullName -Algorithm SHA256).Hash.ToLowerInvariant(); signature_status = (Get-AuthenticodeSignature -LiteralPath $exe.FullName).Status.ToString(); mathematical_checks = (Get-Content -LiteralPath work/math-checks.json -Raw | ConvertFrom-Json); static_checks = (Get-Content -LiteralPath work/static-checks.json -Raw | ConvertFrom-Json); workflow_checks = (Get-Content -LiteralPath work/workflow-checks.json -Raw | ConvertFrom-Json) }
           $record | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath outputs/build-provenance.json -Encoding utf8
           "version=$($details.version)" >> $env:GITHUB_OUTPUT
           "file_version=$($details.file_version)" >> $env:GITHUB_OUTPUT
@@ -176,7 +176,7 @@ jobs:
       - name: Install locked build dependencies
         run: |
           python -m venv .venv
-          .venv/bin/python -B -m pip install --disable-pip-version-check -r requirements-lock.txt
+          .venv/bin/python -B -m pip install --disable-pip-version-check -r requirements-lock.txt -r requirements-quality.txt
 
       - name: Check mathematics and build the Linux portable and source archive
         env:
