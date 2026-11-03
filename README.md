@@ -45,7 +45,7 @@ Los portables incluyen Python y las dependencias de la aplicación. Descargá la
 | Edición | Windows x64 | Linux x86_64 | Novedades |
 | --- | --- | --- | --- |
 | **Estable · 1.4.2** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.4.2/SignalLab-PC-1.4.2.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.4.2/SignalLab-PC-1.4.2-linux-x86_64.tar.gz) | [Notas de la estable](docs/releases/v1.4.2.md) |
-| **Preliminar · 1.5.5** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.5-preview/SignalLab-PC-1.5.5.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.5-preview/SignalLab-PC-1.5.5-linux-x86_64.tar.gz) | [Notas de la preliminar](docs/releases/v1.5.5-preview.md) |
+| **Preliminar · 1.5.6** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.6-preview/SignalLab-PC-1.5.6.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.6-preview/SignalLab-PC-1.5.6-linux-x86_64.tar.gz) | [Notas de la preliminar](docs/releases/v1.5.6-preview.md) |
 
 En Windows, abrí el ejecutable descargado. En Linux, descomprimí el paquete y ejecutá `SignalLab-PC` dentro de su carpeta; consultá los [requisitos e instrucciones de Linux](docs/linux.md) para comprobar la compatibilidad de tu sistema.
 
