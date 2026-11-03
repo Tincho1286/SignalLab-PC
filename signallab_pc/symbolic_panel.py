@@ -40,7 +40,9 @@ class SymbolicPanel(QWidget):
                 "Expansión racional alrededor de z=infinito. Ejemplo: z/(z-1/2). Otra ROC puede definir otra señal.",
                 "a0·y + a1·y′ + … = f(t). Indicá una condición inicial por derivada."][index])
         self.operation.currentIndexChanged.connect(select_operation);select_operation(0)
-        self.report=ReportView();self.report.setReadOnly(True);root.addWidget(self.report,2)
+        from PySide6.QtWidgets import QTabWidget
+        from .report_view import report_panel
+        self.result_tabs=QTabWidget();root.addWidget(self.result_tabs,2);self.report=ReportView();self.report.setReadOnly(True);self.result_tabs.addTab(report_panel(self.report),'Resultado');self.steps=ReportView();self.steps_index=self.result_tabs.addTab(report_panel(self.steps),'Desarrollo');self.result_tabs.setTabVisible(self.steps_index,False)
         self.report.setPlainText("Las operaciones simbólicas se ejecutan por separado. Cancelar detiene ese proceso y conserva el último resultado. Una transformada que el motor deja sin evaluar se informa como pendiente de resolución.")
 
     def _button(self,form,title,callback):
@@ -82,6 +84,11 @@ class SymbolicPanel(QWidget):
                 lines.extend(f"x[{origin+i}] = {value}" for i,value in enumerate(terms[:200]))
                 if len(terms)>200:lines.append(f"Se muestran 200 de {len(terms)} términos. Guardar exporta todos; usar muestras conserva la secuencia completa.")
             self.report.setPlainText("\n\n".join(lines))
+            if operation=='ode':
+                from .equation_checks import ode_summary
+                self.report.set_readable(ode_summary(request,result))
+            from .transform_steps import summary as steps_summary
+            self.steps.set_readable(steps_summary(result.get('derivation',[])));self.result_tabs.setTabVisible(self.steps_index,bool(result.get('derivation')))
         self.owner._run_operation("Calculando expresión simbólica…",lambda:run_request(request),accept)
 
     def use_sequence(self):

@@ -56,9 +56,13 @@ def dtft(x, start=-math.pi, stop=math.pi, count=1025):
         raise ValueError("La fase de DTFT requiere índices representables exactamente en float64 (|n| ≤ 2^53).")
     omega = grid(start, stop, count)
     values = _sum(x.values, x.axis.astype(float), omega)
-    return _frequency_signal(values, omega, f"DTFT_{x.name}", "rad/muestra",
+    result = _frequency_signal(values, omega, f"DTFT_{x.name}", "rad/muestra",
         {"operation": "DTFT", "input_origin": int(x.origin), "input_length": int(x.values.size),
          "convention": "sum x[n] exp(-j*w*n); finite record, zero outside"})
+    from .quality_steps import numeric_fourier
+    result.metadata['derivation']=numeric_fourier(x,result)
+    result.metadata['derivation_operation']=result.metadata['operation']
+    return result
 
 
 def dtft_with_dft(x,start,stop,count):
@@ -106,10 +110,14 @@ def ctft(x, start, stop, count):
     impulses=dirac_terms(x)
     values = _sum(x.values, x.axis, omega)*x.step if np.any(x.values) else np.zeros(omega.size,dtype=complex)
     for position,weight in impulses:values+=weight*np.exp(-1j*omega*position)
-    return _frequency_signal(_finite_output(values, "La CTFT"), omega, f"CTFT_{x.name}", "rad/s",
+    result = _frequency_signal(_finite_output(values, "La CTFT"), omega, f"CTFT_{x.name}", "rad/s",
         {"operation": "CTFT_rectangle", "input_start": x.origin, "input_step": x.step,
          "input_dirac_terms": [[t,[float(w.real),float(w.imag)]] for t,w in impulses],
          "convention": "dt*sum regular(tk) exp(-j*w*tk) plus exact Fourier terms of Dirac impulses, when present; finite regular window quadrature"})
+    from .quality_steps import numeric_fourier
+    result.metadata['derivation']=numeric_fourier(x,result)
+    result.metadata['derivation_operation']=result.metadata['operation']
+    return result
 
 
 def ictft(spectrum, start, stop, count):
@@ -122,9 +130,13 @@ def ictft(spectrum, start, stop, count):
     if len(weighted) == 1: weighted[:] = 0
     else: weighted[0] *= .5; weighted[-1] *= .5
     values = _sum(weighted, spectrum.axis, time, sign=1)*spectrum.step/(2*np.pi)
-    return Signal(_finite_output(values, "La inversa de Fourier"), float(time[0]), float(time[1]-time[0]),
+    result = Signal(_finite_output(values, "La inversa de Fourier"), float(time[0]), float(time[1]-time[0]),
                   "s", "ICTFT", "continuous", "",
                   {"operation": "ICTFT", "convention": "Trapezoidal quadrature over finite frequency window; 1/(2*pi)"})
+    from .quality_steps import numeric_fourier
+    result.metadata['derivation']=numeric_fourier(spectrum,result)
+    result.metadata['derivation_operation']=result.metadata['operation']
+    return result
 
 
 def continuous_series(expression, start, period, samples, harmonics):

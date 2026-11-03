@@ -89,6 +89,6 @@ SignalLab PC se publica bajo **GNU GPL versión 3 o posterior**. Podés usarlo, 
 
 La 1.2.1 publicada sigue sin firma digital. Se solicitó la incorporación al servicio de SignPath Foundation el 2 de noviembre de 2026, con una compilación verificable en GitHub. La evaluación del proveedor sigue pendiente; todavía no hay un certificado concedido. [Política de firma y responsables](docs/code-signing.md) · [Privacidad](docs/privacy.md).
 
-### Próxima versión · 1.2.2 preliminar
+### Próxima versión · 1.3.0 preliminar
 
-Condiciones matemáticas reunidas, extremos de filtros refinados, desarrollo opcional de Z/Laplace y errores de entrada más claros. [Descargar preliminar Windows y Linux](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.2-preview) · [Notas de la preliminar](docs/releases/v1.2.2-preview.md) · [Próximas mejoras](docs/roadmap.md). La descarga estable continúa siendo 1.2.1.
+Cursores A/B enlazados, comparación de resultados, sensibilidad de coeficientes, residuos de ecuaciones y más desarrollos explicados. [Notas de la preliminar](docs/releases/v1.3.0-preview.md) · [Guía de cursores](docs/cursors.md). La descarga estable continúa siendo 1.2.1.

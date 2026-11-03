@@ -122,6 +122,8 @@ class WorkbenchWindow(ToolboxWindow):
     def build_menus(self):
         from .tool_catalog import AREAS,ENTRIES
         file=self.menuBar().addMenu('Archivo');file.addAction('Importar señal MATLAB…',self.import_matlab);sessions=file.addMenu('Sesiones');sessions.addAction('Guardar sesión…',self.save_project);sessions.addAction('Incorporar sesión…',self.import_project)
+        from .result_comparison import open_comparison
+        results=self.menuBar().addMenu('Resultados');results.addAction('Comparar resultados…',lambda:open_comparison(self))
         tools=self.menuBar().addMenu('Herramientas');tools.addAction('Calculadora CAS',self.open_cas,'Ctrl+Shift+C');tools.addSeparator()
         for area,title,_,_ in AREAS:
             menu=tools.addMenu(title);menu.addAction('Ver herramientas',lambda checked=False,value=area:self.show_area(value));menu.addSeparator()

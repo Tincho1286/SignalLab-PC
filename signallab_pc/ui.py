@@ -551,8 +551,8 @@ class SignalLabWindow(QMainWindow):
         self.axes.clear()
         from .signal_plot import plot_samples
         from .signal_plot import configure_signal_axis
-        plot_samples(self.axes,axis,shown.real,discrete=sig.domain=='discrete',label='Parte real')
-        if np.any(sig.values.imag != 0):plot_samples(self.axes,axis,shown.imag,discrete=sig.domain=='discrete',label='Parte imaginaria')
+        plot_samples(self.axes,axis,shown.real,discrete=sig.domain=='discrete',label='Parte real',source=sig,component='real')
+        if np.any(sig.values.imag != 0):plot_samples(self.axes,axis,shown.imag,discrete=sig.domain=='discrete',label='Parte imaginaria',source=sig,component='imag')
         self.axes.axhline(0, color="#94a3b8", linewidth=.8); self.axes.grid(True, alpha=.22)
         note = " · vista reducida por densidad" if indices.size < sig.values.size else ""
         configure_signal_axis(self.axes,sig); self.axes.set_ylabel("Amplitud")

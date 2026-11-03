@@ -48,6 +48,7 @@ class DifferencePanel(QWidget):
         self.output=ResultView();self.tabs.addTab(self.output,'Muestras de y[n]');self.tabs.setTabVisible(1,False)
         self.use_button=QPushButton('Usar expresión en…');self.use_button.setEnabled(False);box.addWidget(self.use_button)
         self.use_menu=QMenu(self.use_button);self.use_button.setMenu(self.use_menu);self.use_menu.aboutToShow.connect(self.prepare_reuse)
+        self.steps=ReportView();self.steps_index=self.tabs.addTab(report_panel(self.steps),'Desarrollo');self.tabs.setTabVisible(self.steps_index,False)
 
     def prepare_reuse(self):
         self.use_menu.clear()
@@ -73,6 +74,8 @@ class DifferencePanel(QWidget):
                 transfer={'request':{'operation':'difference_equation_transfer','domain':'digital'},'result':{'operation':'Transferencia de ecuación en diferencias','result':result['system_expression'],'output_variable':'z','evaluated':True,'scope':'Transferencia desde f[n] hacia y[n] bajo condiciones iniciales nulas; no incluye la respuesta del historial.'}}
                 self.transfer_key=self.window.publish(transfer,title='H(z) de ecuación en diferencias',operation='Transferencia desde f[n]',parents=[self.result_key])
                 self.report.set_readable(summary(request,result));self.use_button.setEnabled(True)
+                from .transform_steps import summary as steps_summary
+                self.steps.set_readable(steps_summary(result.get('derivation',[])));self.tabs.setTabVisible(self.steps_index,bool(result.get('derivation')))
                 values=result.get('numeric_samples');self.tabs.setTabVisible(1,values is not None)
                 if values is not None:
                     signal=Signal([complex(*v) for v in values],result['origin'],1,'n','Solución y[n] de ecuación en diferencias','discrete',result['display_result'],{'operation':'difference_equation_samples','equation_start':result['origin'],'source_condition':result['condition'],'scope':result['scope']})

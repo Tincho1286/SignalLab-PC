@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.2.1**.
 
+## 1.3.0 · preliminar
+
+- Cursores A/B enlazados, lectura de muestras originales y copia de mediciones.
+- Comparación de señales y sistemas desde Resultados, con coordenadas y condiciones preservadas.
+- Diagnóstico de sensibilidad en el estudio de precisión de coeficientes.
+- Residuos de ecuaciones y comprobación de condiciones iniciales de EDO.
+- Desarrollo opcional en Fourier, convolución y ecuaciones; ayuda de cursores accesible en las herramientas.
+
+[Notas y alcance](docs/releases/v1.3.0-preview.md) · [Guía de cursores](docs/cursors.md)
+
 ## 1.2.2 · preliminar
 
 - Condiciones matemáticas reunidas y ROC analógica preservada en reutilización y exportación.

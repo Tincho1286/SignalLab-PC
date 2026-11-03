@@ -10,16 +10,25 @@ La prioridad es consolidar las herramientas existentes: resultados fáciles de i
 - **Desarrollo opcional de Z y Laplace:** pestaña separada con definición, soporte, convergencia y pasos registrados. La inversión racional bilateral conserva sus fracciones parciales; los pares geométricos muestran sus términos y desplazamientos. No se inventa una descomposición cuando el motor no la registra.
 - **Entradas más claras:** los campos escalares incorrectos quedan señalados y conservan su texto. Los coeficientes indican posición y formato admitido. La selección por fórmula no valida campos de coeficientes ocultos.
 
+## Incorporado en 1.3.0 preliminar
+
+- Cursores A/B enlazados con tabla, diferencias y copia completa.
+- Comparación de resultados sin realinear ni interpolar datos.
+- Diagnóstico de sensibilidad observado en la conversión de coeficientes.
+- Residuos del registro de ecuaciones en diferencias y comprobación simbólica de EDO con límites iniciales.
+- Desarrollo opcional ampliado a Fourier, convolución y ecuaciones.
+- Mejoras adicionales: lectura de muestras originales en vistas reducidas, exportación libre de cursores, selección de B compatible y carga de sólo los dos objetos que se comparan.
+
 ## Próximas propuestas
 
 | Prioridad | Mejora | Beneficio y alcance |
 | --- | --- | --- |
-| Alta | Comparación directa de resultados | Elegir dos resultados compatibles y superponerlos con unidades, escala y referencia de fase comunes; informar diferencias sin ocultar desfasajes o cambiar orígenes. Se integra en Resultados. |
-| Alta | Diagnóstico de sensibilidad numérica | Explicar cuándo pequeñas variaciones de coeficientes desplazan mucho los polos o alteran tolerancias. Ampliar el análisis de precisión existente; sugerir secciones de segundo orden cuando corresponda. |
-| Alta | Residuo de ecuaciones | Para EDO y ecuaciones en diferencias, ofrecer el residuo normalizado y las condiciones iniciales utilizadas. Diferenciar una identidad simbólica de una comprobación sobre un intervalo. |
-| Media | Medición coherente en todas las figuras | Cursores vinculados entre módulo, fase y retardo; lectura de frecuencia, unidades y puntos indefinidos. Conservar la selección de muestras enteras en señales discretas. |
+| Incorporado en 1.3.0 | Comparación directa de resultados | Elegir dos resultados compatibles y superponerlos con unidades, escala y referencia de fase comunes; informar diferencias sin ocultar desfasajes o cambiar orígenes. Se integra en Resultados. |
+| Incorporado en 1.3.0 | Diagnóstico de sensibilidad numérica | Explicar cuándo pequeñas variaciones de coeficientes desplazan mucho los polos o alteran tolerancias. Ampliar el análisis de precisión existente; sugerir secciones de segundo orden cuando corresponda. |
+| Incorporado en 1.3.0 | Residuo de ecuaciones | Para EDO y ecuaciones en diferencias, ofrecer el residuo normalizado y las condiciones iniciales utilizadas. Diferenciar una identidad simbólica de una comprobación sobre un intervalo. |
+| Incorporado para trazas 2D | Medición coherente en las figuras | Cursores vinculados entre módulo, fase y retardo; lectura de frecuencia, unidades y puntos indefinidos. Conservar la selección de muestras enteras en señales discretas. |
 | Media | Unidades y reloj más visibles | Mostrar junto a cada entrada si trabaja en rad/s, rad/muestra, segundos o índices; advertir conversiones que requieren T o Fs y pedirlos sólo cuando son necesarios. |
-| Media | Desarrollos explicativos en más herramientas | Extender el registro de pasos a convolución, Fourier y ecuaciones, aprovechando cálculos intermedios reales. Mantener el resultado principal conciso. |
+| Ampliado en 1.3.0 | Desarrollos explicativos en más herramientas | Extender el registro de pasos a convolución, Fourier y ecuaciones, aprovechando cálculos intermedios reales. Mantener el resultado principal conciso. |
 | Media | Ayuda con casos completos | Una figura y un ejemplo resuelto por concepto, enlazados desde la herramienta correspondiente. Explicar por qué se elige una ROC o ventana, además de cómo cargarla. |
 | Media | Estado del cálculo simbólico | Identificar la etapa en curso —normalización, polos, descomposición o reconstrucción— para entender una demora. Conservar cancelación y resultados previos. |
 

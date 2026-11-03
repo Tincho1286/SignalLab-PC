@@ -26,3 +26,5 @@ La [versión estable 1.2.1](https://github.com/Tincho1286/SignalLab-PC/releases/
 Los [documentos históricos](history/README.md) conservan el desarrollo de versiones anteriores. Para el comportamiento vigente, usá las guías de esta página y las notas de la versión instalada.
 
 [Mejoras de claridad y precisión: incorporaciones y propuestas](roadmap.md).
+
+[Leer y medir gráficos con cursores A/B](cursors.md).

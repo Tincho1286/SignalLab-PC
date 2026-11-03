@@ -117,6 +117,12 @@ def signal_summary(value,operation=None):
     return Summary(operation_label(operation) if operation else 'Resumen del resultado',sections)
 
 def calculation_summary(value):
+    if isinstance(value,dict) and value.get('operation')=='result_comparison':
+        from .result_comparison import summary
+        return summary(value)
+    if isinstance(value,dict) and value.get('request',{}).get('operation')=='ode':
+        from .equation_checks import ode_summary
+        return ode_summary(value['request'],value['result'])
     if isinstance(value,dict) and {'frequency_hz','sample_rate_hz','signed_alias_hz'}<=value.keys():return alias_summary(value)
     measured=measurement_summary(value)
     if measured is not None:return measured

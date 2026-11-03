@@ -55,13 +55,17 @@ def convolution(x,h):
         values=regular
     checkpoint()
     singular=attach_terms({},products)
-    return Signal(_finite_output(values,'La convolución continua'),origin,x.step,'s',
+    result = Signal(_finite_output(values,'La convolución continua'),origin,x.step,'s',
         f'{x.name} * {h.name}','continuous','',
         {**singular,'operation':'continuous_convolution','dirac_rule':'regular convolution + weighted shifted regular terms + pairwise Dirac products','input_model':'linear interpolation between endpoints; zero outside closed finite interval',
          'quadrature':'exact segment-product integral at output grid, up to floating point error',
          'convention':'y(t)=integral x(tau) h(t-tau) d tau',
          'input_intervals':[[x.origin,x.origin+(x.values.size-1)*x.step],[h.origin,h.origin+(h.values.size-1)*h.step]],
          'sample_step_s':x.step})
+    from .quality_steps import convolution as steps
+    result.metadata['derivation']=steps(x,h,result,continuous=True)
+    result.metadata['derivation_operation']=result.metadata['operation']
+    return result
 
 
 def _unit_energy(x):

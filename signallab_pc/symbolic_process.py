@@ -47,6 +47,20 @@ def worker(source, destination):
         if isinstance(result,dict) and 'error' not in result and request.get('operation') in ('z_expression','z_finite','z_inverse_expression','laplace','inverse_laplace'):
             from .transform_steps import build
             result['derivation']=build(request,result)
+        if isinstance(result,dict) and 'error' not in result:
+            op=request.get('operation')
+            if op in ('dtft_expression','inverse_dtft_expression','fourier_angular','inverse_fourier_angular'):
+                from .quality_steps import fourier
+                result['derivation']=fourier(request,result)
+            elif op=='difference_equation':
+                from .quality_steps import difference
+                result['derivation']=difference(request,result)
+            elif op=='ode':
+                from .equation_checks import ode
+                from .quality_steps import ode as ode_steps
+                try:result['residual_check']=ode(request,result)
+                except (ValueError,TypeError,NotImplementedError) as exc:result['residual_check']={'status':'Comprobación simbólica no disponible: '+str(exc)}
+                result['derivation']=ode_steps(request,result)
         if records and isinstance(result,dict) and 'error' not in result:result['_calculation_notes']=list(records.values())
     except Exception as exc:
         result={"error":str(exc)}

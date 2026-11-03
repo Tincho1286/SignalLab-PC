@@ -37,6 +37,7 @@ class SymbolicFourierPanel(QWidget):
         self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.report.setReadOnly(True);self.tabs.addTab(report_panel(self.report),'Expresión y condiciones')
         self.report.setPlainText('Ingresá la expresión y calculá. Si el resultado admite valores numéricos, aparecerán los campos para graficarlo.')
         self.output=ResultView();self.tabs.addTab(self.output,'Registro numérico');self.tabs.setTabVisible(1,False)
+        self.steps=ReportView();self.steps_index=self.tabs.addTab(report_panel(self.steps),'Desarrollo');self.tabs.setTabVisible(self.steps_index,False)
     def to_cas(self):
         if self.last is not None:
             from .cas_transfer import send_to_cas
@@ -84,6 +85,8 @@ class SymbolicFourierPanel(QWidget):
                 from .result_summary import Section
                 summary.sections.append(Section('Condiciones de la expresión de entrada',paragraphs=request['input_conditions']))
             self.report.set_readable(summary)
+            from .transform_steps import summary as steps_summary
+            self.steps.set_readable(steps_summary(result.get('derivation',[])));self.tabs.setTabVisible(self.steps_index,bool(result.get('derivation')))
         self.window._run_operation('Calculando Fourier algebraica…',lambda:run_request(request),accept)
     def sample(self):
         if self.last is None:return

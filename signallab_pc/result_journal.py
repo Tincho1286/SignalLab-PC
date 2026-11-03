@@ -99,6 +99,10 @@ class ResultJournal:
         finally:
             self.window._result_journal=previous
             if previous is None:self.window.refresh_project()
+    def reported(self,result):
+        # A compact published report may retain input IDs rather than copies.
+        if result is self.result:self.whole_result_stored=True
+
     def collect(self,result):
         if isinstance(result,dict) and 'error' in result:return
         # Scalar CAS answers are explicitly published without worksheet state.

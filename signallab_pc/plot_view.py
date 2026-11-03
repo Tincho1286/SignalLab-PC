@@ -32,6 +32,7 @@ def install_enlarge(toolbar):
     title='Gráfico · SignalLab'
     ancestor=parent
     while ancestor is not None:
+        if ancestor.__class__.__module__.endswith('pole_zero_editor'):canvas._signallab_editable=True
         route=getattr(ancestor,'tool_item',None)
         if route:title=route[0]+' · SignalLab';break
         ancestor=ancestor.parentWidget()
@@ -51,6 +52,8 @@ def install_enlarge(toolbar):
     available=parent.screen().availableGeometry();window.resize(min(1000,available.width()-32),min(700,available.height()-48));window.setMinimumSize(360,280)
     canvas._signallab_window=window;canvas._signallab_launcher=launcher
     button.clicked.connect(lambda:enlarge_plot(canvas,toolbar))
+    from .plot_probe import PlotProbe
+    PlotProbe(canvas,toolbar,content)
     install_figure_layout(canvas)
     original_draw=canvas.draw;last=[None];pending=[False]
     def open_result():
@@ -61,7 +64,7 @@ def install_enlarge(toolbar):
         # New plot objects identify a new result; repainting/zooming a closed
         # figure must not reopen it. An empty placeholder is not a result.
         artists=[artist for axis in canvas.figure.axes for artist in [*axis.lines,*axis.collections,*axis.images,*axis.patches]
-                 if artist is not axis.patch]
+                 if artist is not axis.patch and not getattr(artist,'_signallab_probe',False)]
         signature=tuple(id(artist) for artist in artists)
         if artists and signature!=last[0]:
             last[0]=signature
@@ -137,6 +140,10 @@ def install_figure_layout(canvas):
             note.setVisible(bool(protected))
         return original_draw(*args,**kwargs)
     def print_figure(*args,**kwargs):
-        prepare_figure(canvas.figure)
-        return original_print(*args,**kwargs)
+        probe=getattr(canvas,'_signallab_probe',None);state=probe.before_export() if probe is not None else None
+        try:
+            prepare_figure(canvas.figure)
+            return original_print(*args,**kwargs)
+        finally:
+            if probe is not None:probe.after_export(state)
     canvas.draw=draw;canvas.print_figure=print_figure

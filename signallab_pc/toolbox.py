@@ -179,6 +179,7 @@ class ResultView(QWidget):
         self.details_view=ReportView();self.details_index=self.views.addTab(report_panel(self.details_view),'Datos del cálculo');self.views.setTabVisible(self.details_index,False)
         if not details:self.views.tabBar().hide()
         self.empty=QLabel('El resultado aparecerá después de calcular.');self.empty.setObjectName('muted');self.empty.setWordWrap(True);root.insertWidget(0,self.empty);self.views.hide();self.actions.hide()
+        self.development=ReportView();self.development_index=self.views.addTab(report_panel(self.development),'Desarrollo');self.views.setTabVisible(self.development_index,False)
     def show_content(self):
         self.empty.hide();self.views.show();self.actions.show()
     def show_result(self,result,*,source=None,operation=None):
@@ -209,6 +210,11 @@ class ResultView(QWidget):
             if summary is not None:self.text.set_readable(summary)
             else:self.text.setPlainText(json.dumps(payload,ensure_ascii=False,indent=2))
             self.details_view.setPlainText(json.dumps(payload,ensure_ascii=False,indent=2));self.label.setText('Resultado del cálculo');self.views.setCurrentIndex(1)
+        steps=[step for value in signals if isinstance(value,Signal) for step in value.metadata.get('derivation',[]) if value.metadata.get('derivation_operation',value.metadata.get('operation'))==value.metadata.get('operation')]
+        self.views.setTabVisible(self.development_index,bool(steps))
+        if steps:
+            from .transform_steps import summary as steps_summary
+            self.development.set_readable(steps_summary(steps))
         if numeric and self.details and self.views.currentIndex()==0:self.views.setCurrentIndex(1)
         self.canvas.draw_idle()
     def draw_signal(self,*_):
@@ -224,16 +230,16 @@ class ResultView(QWidget):
         self.plot_mode.setItemText(0,'Densidad y dB' if density else 'Módulo y fase')
         for index,source in enumerate(signals):
             shown=SignalLabWindow._plot_indices(source.values);values=source.values[shown];x=source.axis[shown]
-            name=('Par' if index==0 else 'Impar') if len(signals)>1 else source.name
+            name=source.name
             discrete=is_discrete_plot(source)
             if polar and density:
                 first=values.real;second=np.full(values.size,np.nan);valid=first>0;second[valid]=10*np.log10(first[valid])
             elif polar:
                 first=np.abs(values);second=np.full(values.size,np.nan);valid=first!=0;second[valid]=np.angle(values[valid])
             else:first=values.real;second=values.imag
-            plot_samples(axes[0],x,first,discrete=discrete,label=name)
+            plot_samples(axes[0],x,first,discrete=discrete,label=name,source=source,component='real' if density or not polar else 'magnitude')
             valid=np.isfinite(second)
-            if np.any(valid):plot_samples(axes[1],x[valid] if discrete else x,second[valid] if discrete else second,discrete=discrete,label=name,phase=polar and not density)
+            if np.any(valid):plot_samples(axes[1],x[valid] if discrete else x,second[valid] if discrete else second,discrete=discrete,label=name,phase=polar and not density,source=source,component='density_db' if polar and density else 'phase' if polar else 'imag')
             elif polar:axes[1].text(.5,.5,'Densidad nula: dB = −∞' if density else 'Fase no definida: módulo nulo',ha='center',transform=axes[1].transAxes,color='#95a9bf')
             if delay_view:
                 delay=np.full(source.values.size,np.nan);valid_full=np.abs(source.values)>0
@@ -964,6 +970,8 @@ class ToolboxWindow(SignalLabWindow):
         self.view_selection=QPushButton('Abrir resultado');self.view_selection.setEnabled(False);self.view_selection.clicked.connect(self.open_selected_signal);bar.addWidget(self.view_selection,0,0)
         self.export_selection_button=QPushButton('Exportar selección…');self.export_selection_button.setEnabled(False);self.export_selection_button.clicked.connect(self.export_selected);bar.addWidget(self.export_selection_button,1,0)
         sessions=QPushButton('Sesión…');session_menu=QMenu(sessions);session_menu.addAction('Guardar sesión…',self.save_project);session_menu.addAction('Abrir sesión…',self.import_project);sessions.setMenu(session_menu);bar.addWidget(sessions,1,1)
+        from .result_comparison import open_comparison
+        compare=QPushButton('Comparar resultados…');compare.clicked.connect(lambda:open_comparison(self));bar.addWidget(compare,0,2)
         layout.addLayout(bar)
         filters=QHBoxLayout();self.result_search=QLineEdit();self.result_search.setPlaceholderText('Buscar un resultado por nombre u operación…');self.result_search.setClearButtonEnabled(True);filters.addWidget(self.result_search,1)
         self.result_kind=QComboBox()

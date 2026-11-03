@@ -282,3 +282,9 @@ for _key in (('transform_lab','z'),('transform_lab','laplace')):
         GUIDES[_key]['reading']+=' La pestaña Desarrollo muestra los pasos registrados del último cálculo sin volver a resolverlo. La inversión racional bilateral puede mostrar fracciones parciales; Z también muestra los pares geométricos reconocidos y sus desplazamientos. En rutas que no registran descomposición se indica esa limitación. Copiar a análisis o cargar desde Resultados conserva una ROC compatible, también para H(s).'
 if ('filter_lab',0) in GUIDES:
     GUIDES['filter_lab',0]['reading']+=' La comprobación de tolerancias refina extremos entre frecuencias de la rejilla, incluye bordes y explora vecindades de polos. El informe muestra las frecuencias de mínimos y máximos y el margen frente a cada límite; positivo significa holgura y negativo significa exceso. En analógico se considera el límite en infinito. Sigue siendo una estimación numérica local, no una certificación global ni una demostración de orden mínimo.'
+
+
+for _guide in GUIDES.values():
+    _guide['reading']+=' En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación.'
+for _key in (('systems',7),('system_analysis',0)):
+    if _key in GUIDES:GUIDES[_key]['reading']+=' En Resultados → Comparar resultados podés estudiar dos señales con iguales dominio y unidades o dos H del mismo dominio. No se alinean orígenes ni fases automáticamente; los sistemas se evalúan sobre las mismas frecuencias.'

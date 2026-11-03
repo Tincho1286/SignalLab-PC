@@ -129,7 +129,10 @@ def quantize_coefficients(system,encoding,preserve_sections=True):
     error=stored/maximum-original/maximum;finite_error=error[valid]
     metrics={'changed':sum(row['original']!=row['stored'] for row in rows),'saturated':sum(row['saturated'] for row in rows),'components':len(rows),'response_scale':maximum,'scaled_response_error_max':float(np.max(abs(finite_error))) if len(finite_error) else None,'undefined_points':int(np.count_nonzero(~valid)),
         'original_pole_radius':float(np.max(abs(original_poles),initial=0)),'stored_pole_radius':float(np.max(abs(stored_poles),initial=0)),'original_poles':system.stability(original_poles),'stored_poles':result.stability(stored_poles)}
-    return {'source':system,'system':result,'encoding':encoding,'sections':bool(sections),'rows':rows,'omega':w,'original_response':original,'stored_response':stored,'metrics':metrics}
+    result.roc=system.roc
+    from .coefficient_sensitivity import diagnose
+    sensitivity=diagnose(system,result,original_poles,stored_poles,sections)
+    return {'sensitivity':sensitivity,'source':system,'system':result,'encoding':encoding,'sections':bool(sections),'rows':rows,'omega':w,'original_response':original,'stored_response':stored,'metrics':metrics}
 
 
 def precision_summary(data):
@@ -152,4 +155,7 @@ def precision_summary(data):
         Section('Qué representa esta comparación',paragraphs=['Los coeficientes cuantizados se evalúan después con el motor de doble precisión. No se redondean productos, sumas, acumuladores ni estados durante la ejecución: esta opción estudia almacenamiento de coeficientes, no ruido aritmético ni ciclos límite de una implementación completa.',
         'Si se conservan SOS, se redondea cada sección y se mantiene su orden. Elegir polinomios directos expande la definición y puede aumentar la sensibilidad numérica. Los coeficientes de entrada se toman de los valores binarios almacenados en el sistema, no de una constante exacta anterior desconocida.',
         'La tabla y el CSV muestran las conversiones y saturaciones. Exportar o reutilizar toma el filtro cuantizado del último cálculo, aunque después se editen los datos.'])]
+    if data.get('sensitivity'):
+        from .coefficient_sensitivity import section
+        sections.insert(2,section(data['sensitivity']))
     return Summary('Precisión de los coeficientes',sections)

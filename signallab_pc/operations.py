@@ -157,10 +157,14 @@ def linear_convolution(x: Signal, h: Signal) -> Signal:
     ensure_working_set(count, live_arrays=7)
     y = scipy_signal.convolve(x.values, h.values, mode="full", method="auto")
     start = int(x.origin) + int(h.origin)
-    return Signal(_finite_output(y, "La convolución"), start, 1, x.units,
+    result = Signal(_finite_output(y, "La convolución"), start, 1, x.units,
                   f"{x.name}*{h.name}", "discrete", "",
                   {"operation": "linear_convolution", "inputs": [x.name, h.name],
                    "convention": "full; zero outside each finite support"})
+    from .quality_steps import convolution
+    result.metadata['derivation']=convolution(x,h,result)
+    result.metadata['derivation_operation']=result.metadata['operation']
+    return result
 
 
 def linear_correlation(x: Signal, h: Signal) -> Signal:

@@ -1,6 +1,24 @@
 {
   "releases": [
     {
+      "tag": "v1.3.0-preview",
+      "title": "Cursores y medición científica",
+      "channel": "preview",
+      "summary": "Comparación de resultados, sensibilidad, residuos y desarrollos explicados.",
+      "changes": [
+        "Cursores A/B enlazados y copia de mediciones.",
+        "Comparación en coordenadas comunes.",
+        "Sensibilidad y residuos con alcance explícito.",
+        "Desarrollos opcionales en las herramientas existentes."
+      ],
+      "limits": [
+        "Lectura de puntos, sin interpolación; navegación 3D habitual.",
+        "Residuos numéricos y comprobaciones simbólicas se distinguen.",
+        "Versión preliminar; estable 1.2.1."
+      ],
+      "notes": "docs/releases/v1.3.0-preview.md"
+    },
+    {
       "tag": "v1.2.2-preview",
       "title": "Condiciones, desarrollo y precisión de filtros",
       "channel": "preview",

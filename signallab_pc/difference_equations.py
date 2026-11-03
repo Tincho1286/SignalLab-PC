@@ -167,7 +167,7 @@ def solve(request):
     condition='n >= '+str(start)
     if coefficients[0].is_zero is not False:condition+='; '+str(coefficients[0])+' != 0'
     parameters=sorted(str(v) for v in forcing.free_symbols.union(*(a.free_symbols for a in [*coefficients,*history]))-{N})
-    numeric=None;numeric_notice=''
+    numeric=None;numeric_notice='';residual_check={'status':'Sin muestras numéricas: residuo de registro no disponible.'}
     if not parameters:
         import numpy as np
         from scipy.signal import lfilter,lfiltic
@@ -178,20 +178,23 @@ def solve(request):
             value=complex(sp.N(forcing.subs(N,start+i),18))
             if not math.isfinite(value.real) or not math.isfinite(value.imag):raise ValueError('f[n] no tiene valor finito en n='+str(start+i)+'.')
             inputs.append(value)
-        a=a/a[0];b=np.array([complex(sp.N(1/coefficients[0],18))])
+        raw_a=a.copy();a=a/a[0];b=np.array([complex(sp.N(1/coefficients[0],18))])
         if not np.isfinite(a).all() or not np.isfinite(b).all() or not np.isfinite(initial).all():
             numeric_notice='La solución algebraica se conserva, pero los parámetros exceden el rango de las muestras numéricas.'
         else:
             zi=lfiltic(b,a,initial)
             values=lfilter(b,a,np.asarray(inputs),zi=zi)[0]
             if not np.isfinite(values).all():numeric_notice='La solución algebraica se conserva, pero la recurrencia excede el rango numérico en el intervalo elegido. Reducí la cantidad de muestras.'
-            else:numeric=[[float(v.real),float(v.imag)] for v in values]
+            else:
+                numeric=[[float(v.real),float(v.imag)] for v in values]
+                from .equation_checks import difference
+                residual_check=difference(request,{'origin':start,'numeric_samples':numeric},arrays=(raw_a,initial,values,np.asarray(inputs)))
     def text(value):
         if numeric_display:
             from .numeric_modes import expression_source
             return expression_source(sp.N(value,17))
         return source(value)
-    return {'operation':'Ecuación en diferencias','result':source(exact),'display_result':text(exact),'display_numeric':numeric_display,'cas_encoded':encode(exact),'evaluated':True,'closed_form':closed,'output_variable':'n','condition':condition,
+    return {'residual_check':residual_check,'operation':'Ecuación en diferencias','result':source(exact),'display_result':text(exact),'display_numeric':numeric_display,'cas_encoded':encode(exact),'evaluated':True,'closed_form':closed,'output_variable':'n','condition':condition,
             'equation_lhs':str(sum(a*sp.IndexedBase('y')[N-j] for j,a in enumerate(coefficients))),'order':order,'origin':start,'numeric_samples':numeric,'numeric_notice':numeric_notice,'parameters':parameters,'coefficients':[str(v) for v in coefficients],'initial':[str(v) for v in history],
             'zero_input':text(shift(zero_input)),'zero_state':text(shift(zero_state)),'system_expression':str(sp.cancel(1/denominator)),
             'unilateral_output':str(sp.cancel((transformed+correction)/denominator)) if transformed is not None else None,
@@ -210,4 +213,7 @@ def summary(request,result):
         Section('Dominio y método',rows=[('Validez',result['condition']),('Método',result['method'])],paragraphs=[result['scope']])]
     if result.get('numeric_notice'):sections.append(Section('Muestras numéricas',paragraphs=[result['numeric_notice']]))
     if result.get('parameters'):sections.append(Section('Parámetros por asignar',paragraphs=[', '.join(result['parameters'])+'. La expresión se conserva; asigná valores para obtener muestras.']))
+    if result.get('residual_check'):
+        from .equation_checks import section
+        sections.append(section(result['residual_check'],discrete=True))
     return Summary('Ecuación en diferencias',sections)

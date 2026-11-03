@@ -1,19 +1,26 @@
 """Convención común de muestras, curvas y discontinuidades de fase."""
 import numpy as np
 
-def plot_samples(axis,x,y,*,discrete=False,label=None,color=None,phase=False):
+def plot_samples(axis,x,y,*,discrete=False,label=None,color=None,phase=False,source=None,component=None):
     x=np.asarray(x);y=np.asarray(y)
     if not discrete or len(x)==0:
         if phase and len(x)>1:
             # Separar el salto de rama sin borrar ninguna muestra válida.
             cuts=np.flatnonzero(np.isfinite(y[:-1]) & np.isfinite(y[1:]) & (abs(np.diff(y))>np.pi))+1
             x=np.insert(x.astype(float),cuts,np.nan);y=np.insert(y.astype(float),cuts,np.nan)
-        return axis.plot(x,y,label=label,color=color)
+        artists=axis.plot(x,y,label=label,color=color)
+        if source is not None and component is not None:
+            from .probe_data import attach_signal
+            attach_signal(artists,source,component)
+        return artists
     color=color or axis._get_lines.get_next_color()
     result=axis.stem(x,y,linefmt=color,markerfmt='o',basefmt=' ',label=label)
     result.markerline.set_color(color);result.markerline.set_markersize(3)
     result.stemlines.set_color(color);result.stemlines.set_linewidth(.9)
     axis.axhline(0,color='#617187',linewidth=.6,zorder=0)
+    if source is not None and component is not None:
+        from .probe_data import attach_signal
+        attach_signal(result,source,component)
     return result
 
 
@@ -79,6 +86,8 @@ def _pi_label(value, position=None):
 
 def configure_axis(axis, *, discrete_index=False, units='', label=None, index_symbol='n'):
     """Choose ticks by coordinate meaning, never by whether a curve uses stems."""
+    tag=('integer',index_symbol,units) if discrete_index else ('coordinate',units,label) if units else None
+    for sibling in axis.get_shared_x_axes().get_siblings(axis):sibling._signallab_coordinate=tag
     if axis.get_xscale()=='linear':
         if discrete_index:
             axis.xaxis.set_major_locator(IndexLocator())
