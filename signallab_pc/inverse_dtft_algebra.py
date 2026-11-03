@@ -16,7 +16,9 @@ def rational_z(value):
     return candidate if not candidate.has(W) and candidate.is_rational_function(Z) else None
 
 def inverse_expression(request):
-    value=parse(request['expression'])
+    from .expression_definition import prepare,attach
+    definition=prepare(request['expression'],W,'periodic_frequency',(-sp.pi,sp.pi),request.get('input_conditions',()),'integration_period')
+    value=definition.integral_expression()
     if value.has(N,T,S,Z):raise ValueError('Ingresá X(w) usando w como frecuencia. n es el índice de salida; no se ingresa x[n] ni H(z).')
     equivalent=rational_z(value)
     if equivalent is not None and not equivalent.free_symbols-{Z}:
@@ -25,15 +27,17 @@ def inverse_expression(request):
         except ValueError as exc:raise ValueError('La inversa ordinaria requiere que el círculo unidad no contenga polos. Revisá las singularidades de X(w). '+str(exc)) from exc
         result.update(operation='DTFT inversa algebraica',output_variable='n',frequency_units='rad/muestra',condition='True',input_expression=request['expression'],z_equivalent=str(equivalent),
             scope='Se usaron propiedades de Z con la ROC que contiene |z|=1. La secuencia puede ser derecha, izquierda o bilateral; no se presupone causalidad. '+result.get('scope',''))
-        return result
+        return attach(result,definition)
     integral=sp.Integral(value*sp.exp(sp.I*W*N),(W,-sp.pi,sp.pi))
     try:result=sp.integrate(value*sp.exp(sp.I*W*N),(W,-sp.pi,sp.pi),conds='piecewise')/(2*sp.pi)
     except (NotImplementedError,ValueError):result=integral/(2*sp.pi)
     result=sp.simplify(result)
     evaluated=not result.has(sp.Integral,sp.Sum) and not result.has(sp.oo,-sp.oo,sp.zoo,sp.nan)
-    return {'operation':'DTFT inversa algebraica','result':source(result),'display_result':source(result),'evaluated':evaluated,
+    answer={'operation':'DTFT inversa algebraica','result':source(result),'display_result':source(result),'evaluated':evaluated,
         'condition':'True','output_variable':'n','frequency_units':'rad/muestra','input_expression':request['expression'],
         'scope':'x[n] = (1/2π) ∫ de −π a π X(ω)e^(iωn)dω, para n entero. La entrada representa un período y se extiende periódicamente. Si queda una integral sin resolver, no se declara una expresión evaluada.'}
+    return attach(answer,definition)
+
 
 def sample_expression(request):
     start=request['start'];count=request['count']

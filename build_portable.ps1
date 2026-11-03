@@ -1,6 +1,6 @@
 ﻿param(
     [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]*$')]
-    [string]$Name = "SignalLab-PC-1.4.2",
+    [string]$Name = "SignalLab-PC-1.5.0",
     [switch]$KeepBuildFiles
 )
 $ErrorActionPreference = 'Stop'
@@ -18,6 +18,8 @@ try {
     $env:OPENBLAS_NUM_THREADS = '1'
     $env:OMP_NUM_THREADS = '1'
     $env:PYTHONDONTWRITEBYTECODE = '1'
+    & $pythonExe -B tools/check_math.py
+    if ($LASTEXITCODE -ne 0) { throw 'Falló el control matemático; no se construyó el portable.' }
     $workBase = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot 'work\pyinstaller'))
     $stagingOutput = Join-Path $PSScriptRoot 'work\portable-output'
     $versionFile = Join-Path $PSScriptRoot 'work\windows-version.txt'

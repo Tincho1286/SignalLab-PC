@@ -13,6 +13,10 @@ El proyecto usa Python 3.12 de 64 bits. Desde la raíz, en PowerShell:
 
 El primer comando prepara el entorno y las dependencias fijadas; el segundo abre la aplicación. También se puede crear un entorno Python 3.12 e instalar `requirements-lock.txt` manualmente.
 
+## Control matemático
+
+Antes de empaquetar, los constructores oficiales ejecutan `tools/check_math.py`. La [guía de fiabilidad](../mathematical-reliability.md) describe las referencias y el alcance. Un fallo bloquea la construcción; `work/math-checks.json` conserva el informe local.
+
 ## Estructura
 
 ```text

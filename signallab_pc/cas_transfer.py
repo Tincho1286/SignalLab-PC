@@ -23,11 +23,11 @@ def payload(value,window=None,seen=None):
     seen=set() if seen is None else seen
     if isinstance(value,dict):
         if 'cas_answer' in value and value['cas_answer'].get('encoded_value'):
-            answer=value['cas_answer'];return {'kind':'encoded','encoded':answer['encoded_value'],'conditions':answer.get('notices',[])}
+            answer=value['cas_answer'];return {'kind':'encoded','encoded':answer['encoded_value'],'conditions':answer.get('notices',[]),'provenance':answer.get('provenance')}
         expression=expression_result(value)
         if expression is not None:
             return {'kind':'expression','source':expression.source,'variable':expression.variable,'conditions':list(expression.conditions),
-                    'encoded':value.get('result',{}).get('cas_encoded'),'numeric_source':expression.numerical_source}
+                    'encoded':value.get('result',{}).get('cas_encoded'),'numeric_source':expression.numerical_source,'provenance':{name:value.get('result',{}).get(name) for name in ('input_definition','calculation_notes','calculation_status') if name in value.get('result',{})}}
         if isinstance(value.get('result'),dict) and value['result'].get('operation')=='signal_measures_expression':
             data={name:{'expression':value['result'][name]['exact']} for name in ('energy','mean_square','rms')}
             return {'kind':'measures','items':data,'conditions':[value['result']['scope'],value['result']['classification']]}

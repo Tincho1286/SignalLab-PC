@@ -1,5 +1,6 @@
 """Bilateral Laplace: intersect half-plane ROCs, invert rational modes by support."""
 import sympy as sp
+from .partial_fractions import apart_list
 from .symbolic import parse, T, S, N, Z, W
 from .jobs import checkpoint
 from .resources import ensure_working_set
@@ -17,7 +18,9 @@ def roc_text(lower, upper):
 
 
 def direct(request):
-    value = parse(request['expression'])
+    from .expression_definition import prepare,attach
+    definition=prepare(request['expression'],T,'continuous',(-sp.oo,sp.oo),request.get('input_conditions',()),'integration_interval')
+    value = definition.integral_expression()
     if value.has(S, N, Z, W):
         raise ValueError('Laplace directa: ingresá x(t) usando t.')
     # Distributions at t=0 belong to the full transform once, not to both
@@ -79,13 +82,15 @@ def direct(request):
             hint = {'interpretation': 'bilateral', 'laplace_roc': 'left'}
         elif not (lower.free_symbols or upper.free_symbols):
             hint = {'interpretation': 'bilateral', 'laplace_roc': 'line', 'sigma': str((lower+upper)/2)}
-    return {
+    answer={
         'operation': 'Laplace bilateral', 'result': str(result), 'output_variable': 's',
         'evaluated': bool(evaluated), 'condition': str(condition), 'convergence_empty': condition == sp.false,
         'roc': 'Vacía: las dos mitades no tienen una zona común de convergencia' if condition == sp.false else roc_text(lower, upper),
         'roc_lower': str(lower), 'roc_upper': str(upper), 'inverse_laplace_hint': hint,
         'scope': ('No existe una ROC abierta común. No se presenta la cancelación formal de las dos mitades como una transformada válida.' if condition == sp.false else
                   'Se integra sobre toda la recta temporal. La ROC es la intersección de las convergencias de t≥0 y t≤0; sus bordes están excluidos. Los impulsos se integran una sola vez. Las condiciones adicionales también deben cumplirse.')}
+
+    return attach(answer,definition)
 
 
 def _right_of(pole, sigma, values):
@@ -138,7 +143,7 @@ def inverse(request):
     try:
         num, den = [sp.Poly(v, S) for v in sp.fraction(rational)]
         ensure_working_set(max(1, int(den.degree())**2), bytes_per_sample=1024, live_arrays=8)
-        common, polynomial, parts = sp.apart_list(rational, S)
+        common, polynomial, parts = apart_list(rational, S)
     except (sp.PolynomialError, NotImplementedError) as exc:
         raise ValueError('La inversa bilateral admite X(s) racional y un desplazamiento global exp(-d*s).') from exc
     parameters = sorted(map(str, rational.free_symbols-{S}))

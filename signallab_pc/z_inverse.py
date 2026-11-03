@@ -1,6 +1,7 @@
 """Exact rational Z inversion without expanding or simplifying radical roots."""
 import math
 import sympy as sp
+from .partial_fractions import apart_list
 import mpmath as mp
 from .symbolic import parse,Z,N,T,S,W
 from .resources import ensure_working_set
@@ -21,7 +22,7 @@ def inverse(request):
     try:
         num,den=map(lambda v:sp.Poly(v,Z),sp.fraction(expression))
         degree=max(0,int(den.degree()));ensure_working_set(max(1,degree**2),bytes_per_sample=1024,live_arrays=8)
-        common,polynomial,parts=sp.apart_list(expression,Z)
+        common,polynomial,parts=apart_list(expression,Z)
     except sp.PolynomialError as exc:raise ValueError('Esta inversa algebraica admite funciones racionales de z.') from exc
     parameters=sorted(map(str,expression.free_symbols-{Z}));numeric=not parameters
     from .numeric_modes import PoleValues

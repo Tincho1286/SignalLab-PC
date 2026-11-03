@@ -28,8 +28,9 @@ def run_request(request):
             if notes:
                 from .calculation_notes import merge,plain_text
                 merge(notes)
-                if request.get('operation') in ('cas_worksheet','cas_import'):
-                    result.setdefault('notices',[]).append(plain_text(notes));result['calculation_notes']=notes
+                from .transform_status import merge_notes
+                result['calculation_notes']=merge_notes(result.get('calculation_notes',[]),notes)
+                if request.get('operation') in ('cas_worksheet','cas_import'):result.setdefault('notices',[]).append(plain_text(notes))
             return result
         finally:
             if process.poll() is None:

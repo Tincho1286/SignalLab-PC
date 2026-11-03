@@ -25,7 +25,7 @@ class SymbolicFourierTests(unittest.TestCase):
     def test_no_distribution_or_singular_grid(self):
         for expression in ['dirac(t)','a*t']:
             with self.assertRaises(ValueError):execute(dict(operation='expression_grid',variable='t',expression=expression,start=0,stop=1,count=5))
-        with self.assertRaises(FloatingPointError):execute(dict(operation='expression_grid',variable='t',expression='1/t',start=0,stop=1,count=5))
+        with self.assertRaisesRegex(ValueError,'polo'):execute(dict(operation='expression_grid',variable='t',expression='1/t',start=0,stop=1,count=5))
     def test_output_variable_collision(self):
         with self.assertRaises(ValueError):self.transform('cos(w*t)')
         with self.assertRaises(ValueError):self.transform('exp(-t*w^2)',True)

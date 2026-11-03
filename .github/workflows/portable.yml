@@ -69,7 +69,7 @@ jobs:
           & .\.venv\Scripts\python.exe -B -m pip install --disable-pip-version-check -r requirements-lock.txt
           if ($LASTEXITCODE -ne 0) { throw 'Failed to install the locked dependencies.' }
 
-      - name: Build the portable
+      - name: Check mathematics and build the portable
         run: |
           & .\build_portable.ps1
 
@@ -85,7 +85,7 @@ jobs:
           if ($exe.VersionInfo.ProductName -ne $details.product_name -or $exe.VersionInfo.ProductVersion -ne $details.version) {
             throw 'The executable product metadata does not match the source version.'
           }
-          $record = [ordered]@{ repository = 'https://github.com/Tincho1286/SignalLab-PC'; commit = $env:BUILD_COMMIT; ref = $env:BUILD_REF; build_url = $env:BUILD_URL; version = $details.version; filename = $details.filename; sha256 = (Get-FileHash -LiteralPath $exe.FullName -Algorithm SHA256).Hash.ToLowerInvariant(); signature_status = (Get-AuthenticodeSignature -LiteralPath $exe.FullName).Status.ToString() }
+          $record = [ordered]@{ repository = 'https://github.com/Tincho1286/SignalLab-PC'; commit = $env:BUILD_COMMIT; ref = $env:BUILD_REF; build_url = $env:BUILD_URL; version = $details.version; filename = $details.filename; sha256 = (Get-FileHash -LiteralPath $exe.FullName -Algorithm SHA256).Hash.ToLowerInvariant(); signature_status = (Get-AuthenticodeSignature -LiteralPath $exe.FullName).Status.ToString(); mathematical_checks = (Get-Content -LiteralPath work/math-checks.json -Raw | ConvertFrom-Json) }
           $record | ConvertTo-Json | Set-Content -LiteralPath outputs/build-provenance.json -Encoding utf8
           "version=$($details.version)" >> $env:GITHUB_OUTPUT
           "file_version=$($details.file_version)" >> $env:GITHUB_OUTPUT
@@ -178,7 +178,7 @@ jobs:
           python -m venv .venv
           .venv/bin/python -B -m pip install --disable-pip-version-check -r requirements-lock.txt
 
-      - name: Build the Linux portable and source archive
+      - name: Check mathematics and build the Linux portable and source archive
         env:
           BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: bash build_portable_linux.sh

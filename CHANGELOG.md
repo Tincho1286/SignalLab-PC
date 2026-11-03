@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.4.2**.
 
+## 1.5.0 · preliminar
+
+- Definición matemática conservada con expresión exacta, dominio, soporte y notas de continuidad.
+- Preparación común de Z y DTFT y tratamiento de valores aislados en integrales ordinarias.
+- Corrección de inversas constantes y factores racionales cancelables en Laplace.
+- Estados de cálculo coherentes y procedencia conservada al enviar resultados al CAS.
+- Control permanente de 21 pruebas; los constructores Windows/Linux se detienen ante un fallo.
+
+[Notas de la preliminar](docs/releases/v1.5.0-preview.md) · [Fiabilidad matemática](docs/mathematical-reliability.md)
+
 ## 1.4.2
 
 - Fondos Opaco, Translúcido y Transparente en el tema personalizado.

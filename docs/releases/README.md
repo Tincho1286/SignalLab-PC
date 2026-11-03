@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.5.0-preview](v1.5.0-preview.md) | Definiciones compartidas y control matemático de publicación | Preliminar |
 | [1.4.2](v1.4.2.md) | Fondos transparentes o translúcidos en el tema personalizado | Estable |
 | [1.4.1-preview](v1.4.1-preview.md) | Edición y zoom del plano, pares Z y sinc/DTFT | Preliminar |
 | [1.4.0-preview](v1.4.0-preview.md) | Banner adaptativo, más temas y fondo personalizado | Preliminar |

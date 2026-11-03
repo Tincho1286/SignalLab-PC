@@ -6,14 +6,15 @@ from .resources import ensure_working_set
 
 
 def direct(request):
-    expression=parse(request['expression']);lower=sp.simplify(parse(request.get('lower','0')));upper=sp.simplify(parse(request.get('upper','oo')))
-    if expression.has(Z,T,S,W):raise ValueError('Z directa: la secuencia x[n] usa n. Para X(z), elegí Inversa.')
+    lower=sp.simplify(parse(request.get('lower','0')));upper=sp.simplify(parse(request.get('upper','oo')))
     if lower!=-sp.oo and not isinstance(lower,sp.Integer):raise ValueError('Inicio entero o -oo.')
     if upper!=sp.oo and not isinstance(upper,sp.Integer):raise ValueError('Final entero u oo.')
     if lower>upper:raise ValueError('El índice final debe ser mayor o igual al inicial.')
     if lower.is_finite and upper.is_finite:ensure_working_set(int(upper-lower+1),bytes_per_sample=1024,live_arrays=8)
-    from .singularities import resolve_finite_support
-    expression=resolve_finite_support(expression,N,lower,upper)
+    from .expression_definition import prepare,attach
+    definition=prepare(request['expression'],N,'discrete',(lower,upper),request.get('input_conditions',()))
+    expression=definition.expression
+    if expression.has(Z,T,S,W):raise ValueError('Z directa: la secuencia x[n] usa n. Para X(z), elegí Inversa.')
     from .z_direct_pairs import direct_pairs
     try:pair=direct_pairs(expression,lower,upper)
     except (sp.PolynomialError,NotImplementedError):pair=None
@@ -56,7 +57,7 @@ def direct(request):
             zero=sp.limit(result,Z,0).is_finite;infinity=sp.limit(result,Z,sp.oo).is_finite
             answer['roc_finite_plane']='Todo z finito' if zero is True else 'Todo z finito salvo z=0' if zero is False else 'Converge para 0<|z|<∞; z=0 no determinado'
             if infinity is not None:answer['infinity_included']=bool(infinity)
-    return answer
+    return attach(answer,definition)
 
 
 def inverse(request):

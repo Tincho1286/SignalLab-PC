@@ -73,6 +73,20 @@ def parse(expression):
 
 
 def execute(request):
+    from .transform_status import OPERATIONS,finalize,merge_notes
+    if request.get('operation') not in OPERATIONS:return _execute(request)
+    from .calculation_notes import capture
+    with capture() as records:result=_execute(request)
+    if 'input_definition' not in result and request.get('expression'):
+        from .expression_definition import prepare
+        variable=Z if request['operation']=='z_inverse_expression' else S
+        definition=prepare(request['expression'],variable,'complex',conditions=request.get('input_conditions',()))
+        result['input_definition']=definition.metadata()
+    result['calculation_notes']=merge_notes(result.get('calculation_notes',[]),records.values())
+    return finalize(result)
+
+
+def _execute(request):
     operation = request["operation"]
     if operation=="difference_equation":
         from .difference_equations import solve
@@ -97,18 +111,25 @@ def execute(request):
         return (direct if operation == "laplace" else inverse)(request)
     expression = request.get("expression", "")
     if operation == 'dtft_expression':
-        value=parse(expression)
-        if value.has(W):raise ValueError('La secuencia no puede contener la variable de frecuencia w.')
+        from .expression_definition import prepare,attach
         lower=sp.simplify(parse(request.get('lower','0')));upper=sp.simplify(parse(request.get('upper','oo')))
         if lower!= -sp.oo and not isinstance(lower,sp.Integer):raise ValueError('El límite inferior debe ser entero o -oo.')
         if upper!=sp.oo and not isinstance(upper,sp.Integer):raise ValueError('El límite superior debe ser entero u oo.')
         if lower>upper:raise ValueError('El límite inferior supera al superior.')
         if lower.is_finite and upper.is_finite:ensure_working_set(int(upper-lower+1),bytes_per_sample=1024,live_arrays=8)
+        definition=prepare(expression,N,'discrete',(lower,upper),request.get('input_conditions',()));value=definition.expression
+        if value.has(W,T,S,Z):raise ValueError('La secuencia usa n y no puede contener variables temporales continuas o de frecuencia.')
         if lower==-sp.oo and upper==sp.oo:
             from .dtft_pairs import direct as dtft_pairs
             spectrum=dtft_pairs(value)
             if spectrum is not None:
-                return {'operation':'dtft_expression','result':str(spectrum),'condition':'True','output_variable':'w','evaluated':True,'method':'sinc_rectangle_pair','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se aplicaron el par sinc/rectángulo, la linealidad y el desplazamiento entero, conservando las muestras definidas por continuidad. El espectro es 2π-periódico; en cada salto toma el promedio de los límites laterales.'}
+                return attach({'operation':'dtft_expression','result':str(spectrum),'condition':'True','output_variable':'w','evaluated':True,'method':'sinc_rectangle_pair','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se aplicaron el par sinc/rectángulo, la linealidad y el desplazamiento entero, conservando las muestras definidas por continuidad. El espectro es 2π-periódico; en cada salto toma el promedio de los límites laterales.'},definition)
+        from .z_direct_pairs import direct_pairs
+        try:pair=direct_pairs(value,lower,upper)
+        except (sp.PolynomialError,NotImplementedError):pair=None
+        if pair is not None and not pair['empty'] and sp.simplify(pair['condition'].subs(Z,sp.exp(sp.I*W))) is sp.true:
+            result=sp.simplify(pair['result'].subs(Z,sp.exp(sp.I*W)))
+            return attach({'operation':'dtft_expression','result':str(result),'condition':'True','output_variable':'w','evaluated':not result.has(sp.Sum,sp.oo,sp.zoo,sp.nan),'method':'shared_discrete_pairs','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se usa la misma secuencia de índices enteros que en Z, incluyendo sus valores por continuidad. La evaluación z=exp(i*w) se aplica sólo cuando las condiciones calculadas permiten todo el círculo unitario.'},definition)
         term=sp.simplify(value*sp.exp(-sp.I*W*N))
         result=sp.simplify(sp.summation(term,(N,lower,upper)))
         if result.has(sp.Sum) and term!=0:
@@ -124,14 +145,15 @@ def execute(request):
                     closed=sp.simplify(term.subs(N,upper)/(1-1/ratio))
                     if condition==sp.true:result=closed
                     elif condition!=sp.false:result=sp.Piecewise((closed,condition),(result,True))
-        return {'operation':'dtft_expression','result':str(result),'condition':'True','output_variable':'w',
+        return attach({'operation':'dtft_expression','result':str(result),'condition':'True','output_variable':'w',
                 'evaluated':not result.has(sp.Sum),'frequency_units':'rad/muestra',
                 'convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic',
-                'scope':'Secuencia indicada entre límites inclusivos; cero fuera si los límites son finitos. Las condiciones y ramas de convergencia permanecen dentro de la expresión.'}
+                'scope':'Secuencia indicada entre límites inclusivos; cero fuera si los límites son finitos. Las condiciones y ramas de convergencia permanecen dentro de la expresión.'},definition)
     if operation in ('fourier_angular','inverse_fourier_angular'):
         frequency=sp.Dummy('frequency',real=True)
-        value=parse(expression)
+        from .expression_definition import prepare,attach
         inverse=operation=='inverse_fourier_angular'
+        definition=prepare(expression,W if inverse else T,'frequency' if inverse else 'continuous',(-sp.oo,sp.oo),request.get('input_conditions',()),'integration_interval');value=definition.integral_expression()
         if value.has(T if inverse else W):raise ValueError('La entrada contiene la variable de salida; usá otro nombre para ese parámetro.')
         if inverse:
             answer=sp.inverse_fourier_transform(value.subs(W,2*sp.pi*frequency),frequency,T,noconds=False)
@@ -144,10 +166,10 @@ def execute(request):
             result=result.subs(frequency,W/(2*sp.pi));condition=condition.subs(frequency,W/(2*sp.pi))
         result=sp.simplify(result)
         evaluated=not result.has(sp.FourierTransform,sp.InverseFourierTransform,sp.Integral)
-        return {'operation':operation,'result':str(result),'condition':str(condition),
+        return attach({'operation':operation,'result':str(result),'condition':str(condition),
                 'evaluated':evaluated,'output_variable':'t' if inverse else 'w',
                 'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)' if inverse else 'X(w) = integral x(t) exp(-i*w*t) dt',
-                'frequency_units':'rad/s','scope':'Transformada bilateral. Las condiciones simbólicas acompañan la expresión; no se asume soporte causal.'}
+                'frequency_units':'rad/s','scope':'Transformada bilateral. Las condiciones simbólicas acompañan la expresión; no se asume soporte causal.'},definition)
     if operation == 'expression_grid':
         import numpy as np
         from .operations import _finite_output
@@ -237,11 +259,12 @@ def execute(request):
             result['impulse_evaluated']=not impulse.has(sp.InverseLaplaceTransform)
         return result
     if operation == "laplace":
-        value=parse(expression)
+        from .expression_definition import prepare,attach
+        definition=prepare(expression,T,'continuous',(sp.S.Zero,sp.oo),request.get('input_conditions',()),'unilateral_0minus');value=definition.integral_expression()
         if value.has(S,N,Z,W):raise ValueError('Laplace directa: ingresá x(t) usando t. Para una expresión en s elegí Inversa.')
         result, plane, condition = sp.laplace_transform(value, T, S)
-        return {"operation": "Laplace unilateral", "result": str(result), "convergence": f"Re(s) > {plane}", "convergence_abscissa":str(plane),
-                "condition": str(condition), "output_variable":"s", "scope": "Laplace unilateral: se integra desde 0− hasta infinito. Los valores para t<0 no forman parte de esta transformada.", "evaluated": not result.has(sp.LaplaceTransform,sp.Integral,sp.oo,sp.zoo,sp.nan)}
+        return attach({"operation": "Laplace unilateral", "result": str(result), "convergence": f"Re(s) > {plane}", "convergence_abscissa":str(plane),
+                "condition": str(condition), "output_variable":"s", "scope": "Laplace unilateral: se integra desde 0− hasta infinito. Los valores para t<0 no forman parte de esta transformada.", "evaluated": not result.has(sp.LaplaceTransform,sp.Integral,sp.oo,sp.zoo,sp.nan)},definition)
     if operation == "inverse_laplace":
         value=parse(expression)
         if value.has(T,N,Z,W):raise ValueError('Laplace inversa: ingresá X(s) usando s. Para una expresión en t elegí Directa.')
@@ -251,16 +274,21 @@ def execute(request):
         result = sp.inverse_laplace_transform(value, S, T)
         return {"operation": "Laplace inversa", "result": str(result), "output_variable":"t", "scope": "Interpretación causal: la salida es cero para t<0. No determina otras regiones de convergencia bilaterales.", "evaluated": not result.has(sp.InverseLaplaceTransform,sp.Integral,sp.zoo,sp.nan)}
     if operation == "z_finite":
-        origin = int(request["origin"])
+        origin_value=sp.simplify(parse(str(request["origin"])))
+        if not isinstance(origin_value,sp.Integer):raise ValueError("El primer índice debe ser un entero exacto.")
+        origin=int(origin_value)
         samples = [sp.Rational(str(real))+sp.I*sp.Rational(str(imag)) for real,imag in request["samples"]]
         ensure_working_set(len(samples), bytes_per_sample=1024, live_arrays=8)
         terms = [value*Z**(-(origin+index)) for index,value in enumerate(samples) if value != 0]
         result = sp.Add(*terms)
         support = [origin+index for index,value in enumerate(samples) if value != 0]
-        return {"operation": "Z de registro finito", "result": str(result), "evaluated":True,"output_variable":"z",
+        from .expression_definition import Definition,attach
+        sequence=sp.Add(*[value*sp.KroneckerDelta(N,origin+index) for index,value in enumerate(samples) if value!=0])
+        definition=Definition("Secuencia finita",sequence,N,"discrete",(sp.Integer(origin),sp.Integer(origin+len(samples)-1)),conditions=tuple(request.get("input_conditions",())))
+        return attach({"operation": "Z de registro finito", "result": str(result), "evaluated":True,"output_variable":"z",
                 "roc_finite_plane": "Todo z finito salvo z=0" if support and max(support)>0 else "Todo z finito",
                 "infinity_included": not support or min(support)>=0,
-                "scope": "Cero fuera del soporte; los decimales representan las muestras almacenadas"}
+                "scope": "Cero fuera del soporte; los decimales representan las muestras almacenadas"},definition)
     if operation == "inverse_z":
         count = int(request["count"])
         if count < 1: raise ValueError("N debe ser positivo.")

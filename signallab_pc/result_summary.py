@@ -200,7 +200,7 @@ def transform_summary(request,result):
         terms=result.get('display_terms',[]);lines=[]
         if len(terms)>1:lines=[lhs+' = '+terms[0],*[(term if term.startswith('-') else '+'+term) for term in terms[1:]]]
         sections.append(Section(('Suma de definición' if z else 'Integral de definición') if result.get('convergence_empty') else 'Expresión numérica obtenida' if result.get('display_numeric') else 'Expresión obtenida' if result.get('evaluated',True) else 'Expresión sin resolver',paragraphs=['Vista redondeada a 6 cifras significativas para facilitar la lectura. Copiar texto y Guardar texto conservan al menos 17 cifras; este redondeo visual no interviene en los cálculos.' ] if result.get('display_numeric') else [],formulas=[Formula(expression,expression,lines,numeric=bool(result.get('display_numeric')))]))
-    rows=[('Dominio','Discreto · índices n enteros' if z else 'Continuo · tiempo t'),('Interpretación','Transformada inversa con ROC' if inverse and z else 'Suma sobre el soporte indicado' if z else 'Bilateral' if request.get('interpretation')=='bilateral' else 'Unilateral / causal')]
+    rows=([('Estado del cálculo',result['calculation_status']['label'])] if result.get('calculation_status') else [])+[('Dominio','Discreto · índices n enteros' if z else 'Continuo · tiempo t'),('Interpretación','Transformada inversa con ROC' if inverse and z else 'Suma sobre el soporte indicado' if z else 'Bilateral' if request.get('interpretation')=='bilateral' else 'Unilateral / causal')]
     for key,label in [('convergence','Convergencia'),('condition','Condición adicional'),('roc','Región de convergencia'),('roc_finite_plane','ROC en el plano finito')]:
         if key in result and result[key]!='True':
             displayed=result[key]

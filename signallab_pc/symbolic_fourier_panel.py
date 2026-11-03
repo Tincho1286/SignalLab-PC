@@ -79,7 +79,7 @@ class SymbolicFourierPanel(QWidget):
                 sections=[Section('Definición de entrada',formulas=[Formula(request['expression'],request['expression'])])]
                 if not result['evaluated']:sections.append(Section('Cálculo pendiente',paragraphs=['El motor conserva términos sin evaluar; no se presenta una solución cerrada.']))
                 sections.append(Section('Expresión obtenida' if result['evaluated'] else 'Expresión sin resolver',formulas=[Formula(formula,formula)]))
-                sections.append(Section('Condiciones y alcance',rows=[('Condición',result['condition'])] if result['condition']!='True' else [],paragraphs=[result['scope']]))
+                sections.append(Section('Condiciones y alcance',rows=([('Estado del cálculo',result['calculation_status']['label'])] if result.get('calculation_status') else [])+([('Condición',result['condition'])] if result['condition']!='True' else []),paragraphs=[result['scope']]))
                 summary=Summary(title,sections)
             if request['input_conditions']:
                 from .result_summary import Section

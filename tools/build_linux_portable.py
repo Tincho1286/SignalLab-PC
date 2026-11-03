@@ -41,6 +41,7 @@ def sha256(path):
 
 def main():
     if sys.platform!='linux' or platform.machine().lower() not in ('x86_64','amd64'):raise SystemExit('Build this portable on Linux x86_64.')
+    subprocess.run([sys.executable,'-B',str(ROOT/'tools/check_math.py')],cwd=ROOT,check=True)
     tree=ast.parse((ROOT/'signallab_pc/__init__.py').read_text(encoding='utf-8'))
     version=next(ast.literal_eval(n.value) for n in tree.body if isinstance(n,ast.Assign) and any(isinstance(t,ast.Name) and t.id=='__version__' for t in n.targets))
     if not re.fullmatch(r'\d+\.\d+\.\d+(?:[.+-][A-Za-z0-9.-]+)?',version):raise ValueError('Invalid source version.')
@@ -65,7 +66,7 @@ def main():
     readme=re.sub(r'/releases/tag/v\d+\.\d+\.\d+(?:-preview)?', '/releases', readme)
     (package/'README.md').write_text(readme,encoding='utf-8',newline='\n')
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
-    provenance={'application':'SignalLab PC','version':version,'platform':'linux','architecture':'x86_64','build_platform':platform.platform(),'glibc':platform.libc_ver(),'python':platform.python_version(),'source_commit':commit,'repository':'https://github.com/Tincho1286/SignalLab-PC','build_url':os.environ.get('BUILD_URL'),'binary_sha256':sha256(package/'SignalLab-PC'),'application_tests_run':False}
+    provenance={'application':'SignalLab PC','version':version,'platform':'linux','architecture':'x86_64','build_platform':platform.platform(),'glibc':platform.libc_ver(),'python':platform.python_version(),'source_commit':commit,'repository':'https://github.com/Tincho1286/SignalLab-PC','build_url':os.environ.get('BUILD_URL'),'binary_sha256':sha256(package/'SignalLab-PC'),'application_tests_run':False,'mathematical_checks':json.loads((ROOT/'work/math-checks.json').read_text(encoding='utf-8'))}
     (package/'build-provenance.json').write_text(json.dumps(provenance,indent=2)+'\n',encoding='utf-8')
     outputs=ROOT/'outputs';outputs.mkdir(exist_ok=True)
     name=package.name+'.tar.gz';temporary=build_root/(name+'.partial');archive=outputs/name

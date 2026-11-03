@@ -74,5 +74,5 @@ def import_result(request):
     from .cas_assumptions import descriptions
     return {'state':state,'encoded_value':encoded,'text':signal_source(value) if isinstance(value,sp.Expr) else str(value),'presentation':presentation(value),
             'expression':expression,'symbols':sorted(str(v) for v in value.free_symbols) if isinstance(value,sp.Basic) else [],
-            'notices':list(dict.fromkeys(notices)),'assumptions':descriptions(calculator.assumptions),'variables':[(k,str(v)) for k,v in calculator.variables.items()],
+            'provenance':copy.deepcopy(request['payload'].get('provenance')),'notices':list(dict.fromkeys(notices)),'assumptions':descriptions(calculator.assumptions),'variables':[(k,str(v)) for k,v in calculator.variables.items()],
             'functions':[(name+'('+', '.join(params)+')',str(body)) for name,(params,body) in calculator.functions.items()]}

@@ -1,6 +1,7 @@
 """High precision pole values and direct numerical expressions for inverses."""
 import mpmath as mp
 import sympy as sp
+from .partial_fractions import apart_list
 from .signal_notation import SignalPrinter,normalize
 
 
@@ -92,7 +93,7 @@ def laplace_numeric(value,variable,time):
     try:
         rational=sp.cancel(value);num,den=map(lambda v:sp.Poly(v,variable),sp.fraction(rational))
         if den.degree()<=2:return None
-        common,polynomial,parts=sp.apart_list(rational,variable)
+        common,polynomial,parts=apart_list(rational,variable)
     except (sp.PolynomialError,NotImplementedError):return None
     if not any(factor.degree()>2 for factor,coefficient,denominator,order in parts):return None
     from .resources import ensure_working_set
