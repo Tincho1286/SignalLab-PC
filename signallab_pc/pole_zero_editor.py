@@ -6,7 +6,7 @@ from .systems_panel import parse_list,list_text
 
 class PoleZeroEditor(QWidget):
     def __init__(self,panel,context):
-        super().__init__();self.panel=panel;self.context=context;self.drag=None;self._cursor_cache={};self._inside=False
+        super().__init__();self.panel=panel;self.context=context;self.drag=None;self._cursor_cache={};self._inside=False;self._saved_view=None
         panel.canvas._signallab_editable=True;panel.canvas._signallab_root_editor=self
         from matplotlib.backend_tools import Cursors
         original_cursor=panel.canvas.set_cursor
@@ -159,7 +159,11 @@ class PoleZeroEditor(QWidget):
         try:data=self.data()
         except ValueError:return
         limits=None
-        if preserve and self.panel.figure.axes and (self.panel.figure.axes[0].name=='polar')==(self.coordinates.currentIndex()==1):limits=(self.panel.figure.axes[0].get_xlim(),self.panel.figure.axes[0].get_ylim())
+        polar=self.coordinates.currentIndex()==1
+        if preserve:
+            previous=self.panel.figure.axes[0] if self.panel.figure.axes else None
+            if previous is not None and getattr(previous,'_signallab_editor_owner',None) is self and (previous.name=='polar')==polar:limits=(previous.get_xlim(),previous.get_ylim())
+            elif self._saved_view is not None and (self._saved_view[0]=='polar')==polar:limits=self._saved_view[1]
         self.panel.figure.clear();polar=self.coordinates.currentIndex()==1;axis=self.panel.figure.add_subplot(111,projection='polar' if polar else None)
         if polar:
             from matplotlib.ticker import FuncFormatter
@@ -183,7 +187,13 @@ class PoleZeroEditor(QWidget):
         else:
             extent=max([1.5]+[max(abs(z.real),abs(z.imag))*1.25 for values in data for z in values]);axis.set_xlim(-extent,extent);axis.set_ylim(-extent,extent)
         self.finish_redraw()
+    def remember_view(self,axis):
+        if axis in self.panel.figure.axes and getattr(axis,'_signallab_editor_owner',None) is self:
+            self._saved_view=(axis.name,(axis.get_xlim(),axis.get_ylim()))
     def finish_redraw(self):
+        axis=self.panel.figure.axes[0];axis._signallab_editor_owner=self
+        self.remember_view(axis)
+        for name in ('xlim_changed','ylim_changed'):axis.callbacks.connect(name,self.remember_view)
         toolbar=getattr(self.panel.canvas,'toolbar',None)
         if toolbar:toolbar.update();toolbar.push_current()
         self.panel.figure.tight_layout();self.panel.canvas.draw_idle()
