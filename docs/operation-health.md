@@ -16,6 +16,11 @@ Cada entrega publica portables de Windows y Linux, fuentes y notas con cuatro ap
 | OH-004 | Los fallos del proceso de trabajo sólo enviaban str(error), perdiendo tipo y ubicación de la excepción. | Corregido en 1.5.6-preview; diagnóstico local con tamaño limitado. |
 | OH-005 | Una importación local condicional puede ocultar un nombre importado por el módulo y romper otro recorrido del mismo botón, como ocurrió en Graficar resultado. | Prevención añadida en 1.5.6-preview: análisis estático y controles de acciones Qt. No es un análisis completo de todos los caminos posibles. |
 | OH-006 | DTFT algebraica exige condición=True para habilitar Graficar; una DTFT convergente salvo en frecuencias concretas queda bloqueada por completo. Evidencia: condiciones de convergencia válidas y bloqueo explícito del botón. | Pendiente para la siguiente tanda. |
+| OH-007 | MATLAB: un eje int64 [9007199254740993, 9007199254740994, 9007199254740995] se importó desplazado una muestra al convertir el origen a float. | Reproducido; prioridad de la siguiente tanda. |
+| OH-008 | DTFT → CAS → Resultados conserva w, pero pierde rad/muestra en el registro importado. | Reproducido; pendiente de conservar contexto y unidades. |
+| OH-009 | Se exporta un registro continuo de paso negativo a CSV, pero no puede volver a abrirse con el importador propio. | Reproducido; pendiente de coherencia de intercambio. |
+| OH-010 | Signal acepta metadatos que no son un diccionario; otras herramientas esperan un diccionario. | Reproducido; pendiente de validación en la entrada del modelo. |
+| OH-011 | Un archivo de proyecto con un registro de señal incompleto devuelve KeyError en vez de explicar qué registro es inválido. Los resultados existentes se conservan. | Reproducido; pendiente de validación de archivos. |
 
 ## Siguientes tandas
 
