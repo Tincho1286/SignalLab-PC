@@ -6,8 +6,14 @@ from .systems_panel import parse_list,list_text
 
 class PoleZeroEditor(QWidget):
     def __init__(self,panel,context):
-        super().__init__();self.panel=panel;self.context=context;self.drag=None;self._cursor_cache={}
+        super().__init__();self.panel=panel;self.context=context;self.drag=None;self._cursor_cache={};self._inside=False
         panel.canvas._signallab_editable=True
+        from matplotlib.backend_tools import Cursors
+        original_cursor=panel.canvas.set_cursor
+        def backend_cursor(shape):
+            original_cursor(shape)
+            if shape==Cursors.POINTER and self._inside:self.refresh_cursor()
+        panel.canvas.set_cursor=backend_cursor
         box=QVBoxLayout(self);box.setContentsMargins(0,0,0,0);row=QHBoxLayout()
         self.mode=QComboBox();self.mode.addItems(['Agregar polo ×','Agregar cero ○','Mover punto','Quitar punto']);row.addWidget(self.mode)
         self.coordinates=QComboBox();self.coordinates.addItems(['Binómica · real / imaginaria','Polar · módulo / ángulo (rad)']);box.addWidget(self.coordinates);self.coordinates.currentIndexChanged.connect(lambda *_:self.redraw())
@@ -28,7 +34,8 @@ class PoleZeroEditor(QWidget):
         if toolbar and toolbar.mode:return
         if self.busy():self.panel.canvas.setCursor(Qt.CursorShape.BusyCursor);return
         mode=self.mode.currentIndex()
-        if mode<2:
+        if not self._inside:self.panel.canvas.unsetCursor()
+        elif mode<2:
             from .theme_presets import CURRENT
             key=(mode,float(self.panel.canvas.devicePixelRatioF()),CURRENT)
             if key not in self._cursor_cache:self._cursor_cache[key]=insertion_cursor(self.panel.canvas,'pole' if mode==0 else 'zero')
@@ -40,8 +47,8 @@ class PoleZeroEditor(QWidget):
         toolbar=getattr(self.panel.canvas,'toolbar',None)
         if toolbar and toolbar.mode:return
         if event.name in ('axes_leave_event','figure_leave_event') or event.inaxes is None:
-            self.panel.canvas.unsetCursor();return
-        self.refresh_cursor()
+            self._inside=False;self.panel.canvas.unsetCursor();return
+        self._inside=True;self.refresh_cursor()
     def dirty(self,*_):
         callback=getattr(self.context,'on_design_dirty',None)
         if callback:callback()
