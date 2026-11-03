@@ -80,6 +80,22 @@ class HealthExchangeContracts(unittest.TestCase):
             request=dict(operation='system_frequency_expression',domain='digital',expression=answer['expression'],source_calculation=dict(cas_answer=answer))
             exact,data=analyze_expression(execute(request),request,np.array([0.,1.,2.]))
             assert_allclose(data.response[:2],1);self.assertTrue(np.isnan(data.response[2]))
+    def test_cas_assumptions_survive_simplification_and_later_purge(self):
+        from signallab_pc.analytic_frequency import analyze_expression
+        first=import_result(dict(cell=1,payload=dict(kind='expression',source='abs(w)',variable='w',frequency_units='rad/muestra',conditions=[])))
+        assumed=calculate(dict(state=first['state'],cell=2,source='assume(w>0)'))
+        answer=calculate(dict(state=assumed['state'],cell=3,source='simplify(r1)'))
+        purged=calculate(dict(state=answer['state'],cell=4,source='purge(w)'))
+        reused=calculate(dict(state=purged['state'],cell=5,source='r3'))
+        for record in (answer,reused):
+            request=dict(operation='system_frequency_expression',domain='digital',expression=record['expression'],source_calculation=dict(cas_answer=record))
+            exact,data=analyze_expression(execute(request),request,np.array([-1.,0.,1.]))
+            self.assertTrue(np.isnan(data.response[:2]).all());assert_allclose(data.response[2],1)
+    def test_untyped_cas_frequency_keeps_assumption_for_explicit_unit_selection(self):
+        first=calculate(dict(cell=1,source='assume(w,integer)'))
+        answer=calculate(dict(state=first['state'],cell=2,source='simplify(cos(2*pi*w))'))
+        self.assertEqual(answer.get('coordinate_variable'),'w');self.assertNotEqual(answer.get('frequency_condition'),'True')
+
     def test_conditioned_grid_keeps_real_zeros_and_all_excluded_positions(self):
         grid=execute(dict(operation='expression_grid',expression='0*w',condition='Ne(w,0)',allow_undefined=True,variable='w',start=-1,stop=1,count=3))
         self.assertEqual(grid['samples'],[[0.,0.],None,[0.,0.]]);self.assertEqual(grid['undefined_count'],1)

@@ -40,7 +40,7 @@ La generación de ventanas, el enventanado de h[n] y la estimación espectral ut
 
 ## Control antes de construir un portable
 
-Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` antes de empaquetar. Si falla, la construcción se detiene. El contrato `mathematical-families-v2` contiene 90 pruebas con variantes, agrupadas por familia y con un grupo adicional de propiedades de transformadas. Cada grupo exige una cantidad mínima de casos y no admite omisiones silenciosas:
+Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` antes de empaquetar. Si falla, la construcción se detiene. El contrato `mathematical-families-v2` contiene 92 pruebas con variantes, agrupadas por familia y con un grupo adicional de propiedades de transformadas. Cada grupo exige una cantidad mínima de casos y no admite omisiones silenciosas:
 
 | Familia | Referencias principales |
 |---|---|

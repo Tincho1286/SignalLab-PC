@@ -103,7 +103,7 @@ class Calculator:
         self.state=state;self.variables={name:restore(value) for name,value in state['variables'].items()}
         self.functions={name:(value['parameters'],restore(value['body'])) for name,value in state['functions'].items()}
         self.assumptions=state.setdefault('assumptions',{});self.assumption_changes=set()
-        self.contexts=[];self.domain_restrictions=[]
+        self.contexts=[];self.domain_restrictions=[];self.referenced_axes=set()
         self.locals={};self.undefined=set();self._resolving=set();self.numeric_root=False
 
     def resolve(self,value):
@@ -116,6 +116,7 @@ class Calculator:
         return value
 
     def name(self,name):
+        if name=='w':self.referenced_axes.add(name)
         if name in self.locals:return self.locals[name]
         if name.lower() in CONSTANTS:return CONSTANTS[name.lower()]
         if name.lower()=='ans':

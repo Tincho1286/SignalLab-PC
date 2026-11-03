@@ -25,6 +25,7 @@ Las notas públicas describen las mejoras aplicadas y las limitaciones conocidas
 | OH-010 | Se admitían metadatos de señal de un tipo incompatible con otras herramientas. | 1.5.7 |
 | OH-011 | Los archivos incompletos producían errores de claves en lugar de mensajes de validación. | 1.5.7 |
 | OH-012 | La suma formal de Z de una sinc bilateral podía confundirse con un resultado simplificable. | 1.5.7 |
+| OH-014 | Un resultado simplificado bajo supuestos sobre w podía analizarse fuera de esas condiciones. | 1.5.7 |
 | OH-013 | La cancelación de un cociente en CAS podía borrar restricciones de su respuesta de frecuencia importada. | 1.5.7 |
 
 ## Continuidad hacia la estable
