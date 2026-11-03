@@ -1,0 +1,38 @@
+# Compilar y publicar versiones
+
+[← Desarrollo](README.md)
+
+## Compilar el portable
+
+Desde la raíz del proyecto, con el entorno preparado:
+
+```powershell
+.\build_portable.ps1 -Name SignalLab-PC-1.2.0-preview
+```
+
+El resultado se guarda en `outputs/`. La compilación usa un directorio intermedio y reemplaza el archivo de salida al terminar, para conservar las copias de versiones anteriores. `-KeepBuildFiles` permite conservar los intermedios para diagnóstico.
+
+## Notas de publicación
+
+Las notas describen el comportamiento de la versión: funciones incorporadas, correcciones, compatibilidad y límites conocidos. El catálogo está en [docs/releases/catalog.json](../releases/catalog.json); las páginas de versión se encuentran en [Notas de versiones](../releases/README.md).
+
+Las versiones estables y las preliminares se distinguen mediante los indicadores de GitHub. Una publicación de documentación no necesita generar un nuevo ejecutable.
+
+## Subir una versión
+
+Guardá el código y las notas en un commit y subí `main`. Después, publicá el ejecutable y la documentación correspondiente:
+
+```powershell
+.\.venv\Scripts\python.exe -B tools\github_release.py `
+  --tag v1.2.0-preview `
+  --title "SignalLab PC 1.2.0 · Z y análisis de filtros" `
+  --notes docs\releases\v1.2.0-preview.md `
+  --file outputs\SignalLab-PC-1.2.0-preview.exe `
+  --allow-public
+```
+
+Por defecto se crea una preliminar. `--stable` identifica una entrega estable y `--allow-public` habilita la publicación en el repositorio público configurado. La herramienta utiliza la sesión de Git existente, comprueba la coincidencia con `main` y verifica la integridad de los adjuntos.
+
+## Conservar el historial
+
+Los ejecutables se distribuyen en Releases y no forman parte del historial Git. Las etiquetas identifican el código de cada versión. Las actualizaciones editoriales de una publicación conservan la etiqueta, la fecha, el estado y el ejecutable; si cambia un documento adjunto, su checksum se actualiza junto con él.

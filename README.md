@@ -1,50 +1,76 @@
-# SignalLab PC 1.2.0-preview
+<p align="center">
+  <img src="docs/assets/signallab-banner.svg" alt="SignalLab PC — laboratorio de señales y sistemas" width="1200">
+</p>
 
-Laboratorio portable para Windows de Sistemas y Señales I y II, desarrollado en Python. Versión estable 1.1: modelos aleatorios y ecuaciones lineales continuas/discretas.
+<p align="center">
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.1.3" src="https://img.shields.io/badge/estable-1.1.3-71d7c4?style=flat-square&amp;labelColor=172632"></a>
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.0-preview"><img alt="Preliminar 1.2.0" src="https://img.shields.io/badge/preliminar-1.2.0-adc5eb?style=flat-square&amp;labelColor=172632"></a>
+  <img alt="Windows portable" src="https://img.shields.io/badge/Windows-portable-8ab6df?style=flat-square&amp;labelColor=172632">
+  <img alt="Desarrollado con Python" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
+</p>
 
-La entrega 1.2.0 preliminar integra Z, extensiones por límite, plano complejo de H(z), amplitudes por banda e importación compartida. No se ejecutaron pruebas de funcionamiento ni regresión por indicación del usuario. [Descargar preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.0-preview) · [Resumen técnico](VERSION_1.2.0-preview.md). La última estable sigue siendo 1.1.3.
+<p align="center">
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><strong>Descargar</strong></a> ·
+  <a href="docs/README.md">Documentación</a> ·
+  <a href="docs/tools.md">Herramientas</a> ·
+  <a href="CHANGELOG.md">Novedades</a> ·
+  <a href="https://github.com/Tincho1286/SignalLab-PC/issues">Informar un problema</a>
+</p>
+
+# SignalLab PC
+
+Un laboratorio de escritorio para **señales, sistemas y procesamiento digital**. Permite trabajar con expresiones matemáticas, muestras y funciones de transferencia, observar sus resultados y continuar el análisis en otras herramientas o en una calculadora CAS.
+
+Está pensado para estudiar Sistemas y Señales, desarrollar cálculos y explorar cómo se relacionan el tiempo, la frecuencia y los planos de Laplace y Z. Cada herramienta tiene sus propias entradas; la biblioteca de resultados permite reutilizar lo calculado sin volver a cargar los datos.
+
+![Modelo AR con su ecuación, transferencia y estadísticas en SignalLab PC](docs/assets/process-models.png)
+<p align="center"><sub>Modelo de proceso AR: parámetros, ecuaciones y resultados en un mismo documento. Captura de la línea 1.1.</sub></p>
 
 ## Descargar y empezar
 
-[Descargar SignalLab PC 1.1.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.3). El repositorio y las descargas son públicos.
+1. Descargá **[SignalLab-PC-1.1.3.exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.1.3/SignalLab-PC-1.1.3.exe)** desde la versión estable.
+2. Guardá el ejecutable en una carpeta y abrilo. El portable incluye Python y sus dependencias.
+3. Buscá una herramienta, cargá una fórmula, muestras o un archivo y presioná **Calcular**. **F1** abre su ayuda.
 
-Abrí SignalLab-PC-1.1.3.exe. Incluye Python y las dependencias; no necesitás instalarlos para usar el portable. La preliminar local está en outputs/SignalLab-PC-1.2.0-preview.exe y la estable se conserva por separado.
+Los gráficos se abren en ventanas independientes. Desde **Resultados** podés consultar, exportar y reutilizar las salidas. [Primeros pasos →](docs/getting-started.md)
 
-Elegí el problema desde Inicio, el explorador o Buscar (Ctrl+K). Cada herramienta tiene sus entradas y resultados propios. Podés cargar fórmulas o tramos, pegar muestras, importar un archivo o reutilizar un resultado compatible. Calcular (Ctrl+Enter) produce un resultado; editar los datos después no cambia silenciosamente esa salida.
+> **Preliminar 1.2.0:** incorpora Z integrada, mapas de H(z), límites automáticos, amplitudes por banda e importación compartida. Está en evaluación. [Ver cambios y descargar →](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.0-preview)
 
-Los gráficos se abren en ventanas independientes. F1 o Ayuda abre la página de la herramienta, con sus entradas, convenciones e ilustraciones. Ayuda → Acerca de SignalLab muestra la versión. Resultados permite exportar, reutilizar y enviar datos matemáticos al CAS.
+## Qué podés hacer
 
-## Herramientas
+| Área | Herramientas |
+| --- | --- |
+| **Señales** | Fórmulas y tramos, muestras, ventanas, edición, transformaciones, suma, producto, convolución y correlación. |
+| **Sistemas LTI** | H(s)/H(z), frecuencia, fase, retardo de grupo, polos y ceros, respuesta temporal, realizaciones y espacio de estados. |
+| **Diseño de filtros** | FIR e IIR por especificaciones, enventanado de h[n], diseño por raíces, modelos analógicos, ajustes y conversiones. |
+| **Fourier y espectros** | DFT/FFT, DTFT, Fourier continua e inversas, series, energía espectral, periodograma, Welch, Hilbert y STFT. |
+| **Muestreo y A/D** | Muestreo, aliasing, reconstrucción, conversión racional de tasa, cuantización y precisión numérica. |
+| **Laplace y Z** | Directas e inversas con condiciones y ROC; ecuaciones diferenciales y en diferencias. |
+| **Señales aleatorias** | Realizaciones, estadísticas, correlación, modelos AR/MA/ARMA y estimación AR por Yule–Walker. |
+| **CAS** | Expresiones exactas, simplificación, ecuaciones, matrices, supuestos y operaciones sobre resultados. |
 
-La navegación reúne 30 problemas y 84 variantes, más la hoja CAS.
+[Explorar el catálogo →](docs/tools.md) · [Convenciones matemáticas →](docs/conventions.md) · [Formatos de archivos →](docs/file-formats.md)
 
-| Área | Qué reúne |
-|---|---|
-| Señales | Crear señales o ventanas, editar, transformar, sumar, multiplicar, convolucionar, correlacionar y medir energía/potencia/RMS. |
-| Sistemas LTI | Análisis de H, frecuencia, respuesta temporal, polos/ceros, realizaciones, conexiones y espacio de estados. |
-| Diseño de filtros | Un solo diseño para FIR/IIR por especificaciones, ventanas y h[n], raíces, segundo orden y RC; ajustes, filtros ideales y conversión. |
-| Fourier y espectros | DFT/FFT, DTFT, Fourier continua, directas e inversas, series, energía espectral, PSD, Hilbert y STFT. |
-| Muestreo y A/D | Muestreo, aliasing, reconstrucción, cambio de tasa, cuantización y representación numérica. |
-| Laplace y Z | Transformadas directas/inversas con condiciones y ROC, y ecuaciones diferenciales. |
-| Señales aleatorias | Generación y estadísticas; correlación auto/cruzada; modelos AR/MA/ARMA y estimación AR por Yule–Walker. |
+## Una interfaz para explorar y calcular
 
-La calculadora CAS trabaja con expresiones, ecuaciones, matrices, supuestos y resultados reutilizables. El software mantiene su paleta oscura, tipografía matemática vectorial y logo propio.
+| Ecuaciones lineales | Diseño por polos y ceros |
+| --- | --- |
+| [![Ecuación en diferencias y solución algebraica](docs/assets/difference-equations.png)](docs/assets/difference-equations.png) | [![Carga binómica o polar y lista de raíces](docs/assets/pole-zero-design.png)](docs/assets/pole-zero-design.png) |
 
-## Alcance de esta versión
+Las capturas muestran la línea 1.1. Los informes presentan fórmulas con notación matemática, los gráficos discretos usan tallos y las ayudas incluyen esquemas en colores. Las entradas modificadas conservan el resultado anterior hasta recalcularlo.
 
-- [Alcance y convenciones de 1.0](ALCANCE_1.0.md).
-- [Notas de 1.1.3](VERSION_1.1.3.md).
-- [Notas de la primera estable](VERSION_1.0.0.md).
-- [Cobertura de Señales Aleatorias](COBERTURA_SENALES_ALEATORIAS.md).
-- [Cobertura de Sistemas y Señales I/II](COBERTURA_SYS_I_II_ACTUAL.md).
-- [Cierre y evidencia](CIERRE_1.0.md).
+## Documentación
 
-Las condiciones, aproximaciones numéricas y límites de cada método siguen visibles en la ayuda y los resultados. Publicar 1.0 no convierte las cuadraturas finitas en transformadas exactas ni elimina las condiciones de convergencia.
+- [Primeros pasos](docs/getting-started.md): flujo de trabajo, atajos y resultados.
+- [Herramientas](docs/tools.md): qué resuelve cada área y dónde encontrarla.
+- [Alcance de Sistemas y Señales I/II](docs/scope/sys-i-ii.md) y [Señales Aleatorias](docs/scope/random-signals.md): capacidades y temas pendientes.
+- [Historial de cambios](CHANGELOG.md): mejoras por versión.
+- [Desarrollo](docs/development/README.md): arquitectura, dependencias, compilación y publicaciones.
 
-## Código, compilación y versiones
+Las herramientas distinguen resultados exactos, aproximaciones y cálculos pendientes. Cada método conserva sus hipótesis, unidades y condiciones de convergencia.
 
-El código está en este repositorio público. Los portables se adjuntan a Releases, fuera del historial Git. La primera versión y los ejecutables anteriores están respaldados en el archivo histórico.
+## Desarrollo y contribuciones
 
-Para desarrollo, setup_windows.ps1 prepara el entorno Python y build_portable.ps1 genera el ejecutable y limpia sus intermedios al terminar correctamente. [Publicar versiones](RELEASES_GITHUB.md) · [Almacenamiento](ALMACENAMIENTO.md).
+Desarrollado en **Python 3.12**, con **PySide6, NumPy, SciPy, SymPy y Matplotlib**. El código de la aplicación está en `signallab_pc/`; las descargas se distribuyen en [Releases](https://github.com/Tincho1286/SignalLab-PC/releases).
 
-Se conservan localmente la versión actual, la anterior y la primera. No se distribuyen los documentos de la materia ni credenciales. El historial previo del proyecto se conserva en las notas DESARROLLO y en docs/README_HASTA_0.99.11.md.
+Para proponer mejoras o informar errores, consultá la [guía de contribución](CONTRIBUTING.md). Un ejemplo reproducible con la herramienta, la entrada y el resultado esperado ayuda a resolver problemas de cálculo o de interfaz.

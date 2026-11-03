@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Documentación
+    url: https://github.com/Tincho1286/SignalLab-PC/blob/main/docs/README.md
+    about: Primeros pasos, herramientas, formatos y convenciones.
+  - name: Descargar SignalLab PC
+    url: https://github.com/Tincho1286/SignalLab-PC/releases/latest
+    about: Última versión estable para Windows.

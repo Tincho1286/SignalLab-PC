@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="280" viewBox="0 0 1200 280" role="img" aria-labelledby="title desc">
+ <title id="title">SignalLab PC</title><desc id="desc">Laboratorio de señales, sistemas y procesamiento digital.</desc>
+ <defs><linearGradient id="background" x2="1" y2="1"><stop stop-color="#101827"/><stop offset="1" stop-color="#1b2c3e"/></linearGradient><linearGradient id="accent"><stop stop-color="#71d7c4"/><stop offset="1" stop-color="#adc5eb"/></linearGradient></defs>
+ <rect width="1200" height="280" rx="20" fill="url(#background)"/>
+ <path d="M0 260H1200" stroke="url(#accent)" stroke-width="3" opacity=".45"/>
+ <g transform="translate(48 61) scale(1.18)"><rect x="2" y="2" width="124" height="124" rx="28" fill="#172632"/><path d="M22 64C35 64 35 27 49 27S63 101 77 101s14-37 29-37" fill="none" stroke="#71d7c4" stroke-width="8" stroke-linecap="round"/><path d="M24 101H105M31 95V80M49 95V64M67 95V78M85 95V47M103 95V31" fill="none" stroke="#adc5eb" stroke-width="4" stroke-linecap="round"/><circle cx="103" cy="31" r="5" fill="#adc5eb"/></g>
+ <g fill="#edf3fb" font-family="Segoe UI,Arial,sans-serif"><text x="236" y="128" font-size="66" font-weight="650" letter-spacing="-2">SignalLab <tspan fill="#adc5eb">PC</tspan></text><text x="240" y="177" font-size="25" fill="#b3c1d4">Explorar señales. Comprender sistemas.</text><text x="240" y="218" font-size="17" fill="#71d7c4" letter-spacing="2">LABORATORIO · CÁLCULO · APRENDIZAJE</text></g>
+ <g transform="translate(925 71)" fill="none" stroke-linecap="round"><path d="M0 75H225" stroke="#63748c" opacity=".35"/><path d="M0 75C18 75 18 24 37 24S56 126 75 126S94 24 112 24S131 126 150 126S169 24 187 24S206 75 225 75" stroke="#71d7c4" stroke-width="3" opacity=".7"/><path d="M19 150V126M57 150V109M95 150V78M133 150V105M171 150V124M209 150V98" stroke="#adc5eb" stroke-width="3" opacity=".55"/></g>
+</svg>

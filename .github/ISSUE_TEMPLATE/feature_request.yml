@@ -1,0 +1,23 @@
+name: Proponer una mejora
+description: Una herramienta o cambio que facilite el análisis de señales y sistemas.
+title: "[Mejora] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qué problema permitiría resolver
+      description: Describí la necesidad de cálculo o de uso.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Comportamiento propuesto
+      description: Indicá en qué herramienta encajaría y qué entradas y resultados tendría.
+    validations:
+      required: true
+  - type: textarea
+    id: example
+    attributes:
+      label: Ejemplo o referencia
+      description: Un caso breve, con unidades y condiciones cuando correspondan.

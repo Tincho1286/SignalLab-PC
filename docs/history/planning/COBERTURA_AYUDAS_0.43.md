@@ -1,0 +1,80 @@
+# Revisión de ayudas 0.43
+
+Cada ruta tiene parámetros, esquema propio de entrada/operación/salida y explicación de lectura. Revisión estática; no certifica todas las combinaciones numéricas.
+
+- Tabla y edición de muestras
+- Generar y graficar
+- Transformar una señal continua
+- Energía algebraica por intervalo
+- Energía y potencia globales
+- Energía y potencia periódicas
+- Energía, potencia y RMS
+- Desplazar una secuencia
+- Invertir el eje
+- Escalar amplitud
+- Partes par e impar
+- Correlación continua algebraica
+- Correlación discreta y autocorrelación
+- Correlación continua y periódica
+- Convolución continua numérica
+- Convolución continua algebraica
+- Convolución lineal
+- Sumar dos señales
+- Convolución circular
+- DTFT algebraica
+- Fourier continua algebraica
+- Fourier inversa algebraica
+- DFT
+- DFT inversa
+- DTFT y comparación con DFT
+- Fourier continua
+- Fourier continua inversa
+- Serie de Fourier continua
+- Serie de Fourier discreta
+- Densidad de energía espectral
+- PSD y Welch
+- Ventanas, FFT y resolución espectral
+- Energía espectral por banda
+- Potencia periódica y líneas espectrales
+- Filtros ideales y por tramos
+- Análisis numérico y algebraico
+- Conectar sistemas
+- Filtro FIR
+- Filtro IIR biquad
+- Circuito RC
+- Función de transferencia
+- Respuesta en frecuencia
+- Filtrado, impulso y escalón
+- Polos y ceros
+- Transformación bilineal
+- FIR por especificaciones
+- IIR por especificaciones
+- Convertir sistema analógico / digital
+- Normalizar ganancia
+- Fase mínima y fase lineal
+- Análisis en espacio de estados
+- Simulación en espacio de estados
+- Frecuencia de sistema MIMO
+- Discretizar modelo de estados
+- Estados a función de transferencia
+- Sistema de segundo orden
+- Respuesta temporal
+- Realimentación
+- Lugar de raíces
+- Cambio racional de tasa con antialias
+- Muestrear una expresión
+- Nyquist y aliasing
+- Cambiar tasa de muestreo
+- Reconstrucción
+- Cuantización y SNR
+- Punto fijo
+- Mapeo de frecuencias y período
+- Laplace directa
+- Laplace inversa
+- Transformada Z finita
+- Z inversa racional
+- Ecuaciones diferenciales
+- Z inversa con región de convergencia
+- Generar ruido y realizaciones
+- Estadísticas e histograma
+- Autocorrelación y autocovarianza

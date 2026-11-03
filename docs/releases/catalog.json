@@ -1,0 +1,228 @@
+{
+  "releases": [
+    {
+      "tag": "v1.2.0-preview",
+      "title": "Z integrada, plano complejo y amplitudes por banda",
+      "channel": "preview",
+      "summary": "La próxima versión reúne los flujos de Transformada Z y amplía el análisis de sistemas, el diseño FIR y la importación de datos.",
+      "changes": [
+        "Transformada Z organizada en Directa e Inversa. Las secuencias finitas se cargan dentro de la directa; la inversa puede recuperar el soporte completo de un polinomio de Laurent.",
+        "Envío a CAS y análisis de X(z) como H(z) en los flujos de Z, conservando expresiones, índices, reloj y contexto de convergencia compatible.",
+        "Tratamiento compartido de singularidades removibles mediante límites exactos. La sinc normalizada conserva sinc(0)=1, también con desplazamientos y escalas.",
+        "Nueva vista de H(z) en el plano complejo: mapa de módulo, polos, ceros, círculo unitario y ROC. La respuesta en frecuencia se estudia por separado.",
+        "Amplitudes configurables en las bandas de paso y dos amplitudes independientes para el rechazabanda FIR. Tolerancias absolutas, relativas o en dB.",
+        "Importación de archivos y reutilización de resultados desde entradas compatibles, con carga independiente por operando. Nuevas explicaciones e ilustraciones en la ayuda."
+      ],
+      "limits": [
+        "Versión preliminar en evaluación; la última versión estable es 1.1.3.",
+        "Las familias IIR clásicas mantienen una ganancia común de paso. Un rechazabanda con dos amplitudes distintas se diseña mediante FIR.",
+        "El plano complejo requiere una transferencia racional numérica. H(e^{jω}) se interpreta como DTFT cuando el círculo unitario pertenece a la ROC.",
+        "La búsqueda y evaluación de tolerancias usan una rejilla de frecuencias; no certifican máximos entre puntos."
+      ],
+      "notes": "docs/releases/v1.2.0-preview.md"
+    },
+    {
+      "tag": "v1.1.3",
+      "title": "Ventanas como señales independientes",
+      "channel": "stable",
+      "summary": "Generación de ventanas para estudiar su forma, su espectro y su transformada Z sin diseñar antes un filtro.",
+      "changes": [
+        "Señales → Crear una señal → Ventana: rectangular, Hann, Hamming, Blackman, Bartlett y Kaiser, en sus variantes simétricas.",
+        "Longitud total L, índice inicial o centrado alrededor de cero; parámetro β para Kaiser.",
+        "Gráfico discreto de tallos, tabla e informe de la ventana. Exportación JSON/CSV y reutilización en Fourier, Z y producto de señales.",
+        "Conservación de los ceros exactos de los extremos de Hann, Bartlett y Blackman; evaluación estable de Kaiser para valores elevados de β.",
+        "Envío de secuencias a Z con su origen e índices completos y ayuda ilustrada sobre longitud y centrado."
+      ],
+      "limits": [
+        "L es la cantidad total de muestras. El orden nominal de un FIR con esa longitud es M=L−1.",
+        "No se añade normalización de pico, suma ni energía; la ventana vale cero fuera del intervalo generado."
+      ],
+      "notes": "docs/releases/v1.1.3.md"
+    },
+    {
+      "tag": "v1.1.2",
+      "title": "Carga exacta de polos y ceros",
+      "channel": "stable",
+      "summary": "Un formulario dedicado permite agregar y editar raíces con precisión, junto al diseño interactivo con el mouse.",
+      "changes": [
+        "Carga de polos y ceros en forma binómica o polar, con ángulo en radianes.",
+        "Admite fracciones, pi, constantes y potencias como 10^(-3), conservando las expresiones ingresadas.",
+        "Lista editable por filas, selección múltiple y eliminación de raíces individuales.",
+        "Adición opcional del conjugado y conservación de multiplicidades; una raíz real no se duplica automáticamente.",
+        "Coordenadas exactas sobre los ejes para múltiplos de pi/2 y conservación de las expresiones al editar otros puntos con el mouse.",
+        "Ayuda ilustrada sobre partes real/imaginaria, módulo, ángulo y conjugados."
+      ],
+      "limits": [
+        "El formato de entrada es independiente de las coordenadas del gráfico. El diseño conserva las raíces repetidas de forma deliberada."
+      ],
+      "notes": "docs/releases/v1.1.2.md"
+    },
+    {
+      "tag": "v1.1.1",
+      "title": "Ecuaciones en diferencias",
+      "channel": "stable",
+      "summary": "Las ecuaciones lineales incorporan una variante discreta junto al cálculo de ecuaciones diferenciales.",
+      "changes": [
+        "Resolución de a₀y[n]+a₁y[n−1]+…+aₚy[n−p]=f[n] con coeficientes constantes.",
+        "Entrada por fórmula o tramos, índice inicial y reposo o historial de salida anterior.",
+        "Solución algebraica legible en n, respuesta de entrada cero y de estado cero, con muestras para gráfico y tabla.",
+        "Transferencia H(z) bajo condiciones iniciales nulas, separada de la solución que incluye el historial.",
+        "Reutilización de expresiones en CAS y otras herramientas, con ayuda específica sobre el orden de los datos."
+      ],
+      "limits": [
+        "La cantidad de muestras controla el gráfico y no trunca la solución algebraica.",
+        "Cuando no hay una forma cerrada disponible se conserva una suma finita exacta, identificada como tal."
+      ],
+      "notes": "docs/releases/v1.1.1.md"
+    },
+    {
+      "tag": "v1.1.0",
+      "title": "Modelos AR, MA y ARMA",
+      "channel": "stable",
+      "summary": "Las herramientas de señales aleatorias incorporan modelos estacionarios conocidos y estimación AR desde registros.",
+      "changes": [
+        "Media, varianza, potencia, autocovarianza, autocorrelación y PSD teóricas de modelos discretos AR/MA/ARMA.",
+        "Realizaciones gaussianas con estado inicial estacionario y semilla reproducible.",
+        "Estimación AR mediante Yule–Walker con orden elegido, innovación estimada, espectro y residuo.",
+        "Correlación y covarianza auto/cruzada con alineación por índices, normalización y conjugación de datos complejos.",
+        "Transferencias, curvas y registros reutilizables en sistemas, Resultados y CAS, con ayuda ilustrada."
+      ],
+      "limits": [
+        "El análisis del modelo conocido requiere coeficientes reales, causalidad y estabilidad.",
+        "Markov, Poisson, detección óptima, Wiener, Kalman y estadística inferencial avanzada no están incluidos."
+      ],
+      "notes": "docs/releases/v1.1.0.md"
+    },
+    {
+      "tag": "v1.0.2",
+      "title": "Expresiones del ideal y del FIR enventanado",
+      "channel": "stable",
+      "summary": "Los informes FIR muestran cómo se obtiene la respuesta al impulso del filtro a partir del ideal y la ventana.",
+      "changes": [
+        "Expresiones textbook de h_ideal[n], el núcleo continuo g(x), la ventana w[n] y la respuesta final h[n].",
+        "Longitud L, orden nominal M=L−1 y desplazamiento D=(L−1)/2, también para longitudes pares.",
+        "Fórmulas compartidas entre el diseño por cortes/longitud y por especificaciones.",
+        "La ganancia indicada corresponde al factor realmente aplicado a los coeficientes."
+      ],
+      "limits": [
+        "La presentación de fórmulas no modifica los coeficientes del diseño."
+      ],
+      "notes": "docs/releases/v1.0.2.md"
+    },
+    {
+      "tag": "v1.0.1",
+      "title": "Transiciones FIR y retardo de grupo",
+      "channel": "stable",
+      "summary": "Se aclara el significado de las transiciones especificadas y se mejora la representación del retardo de fase lineal.",
+      "changes": [
+        "Identificación separada de los anchos de transición izquierdo y derecho a partir de los bordes ingresados.",
+        "Informe de los cortes ideales y de la transición más estrecha usada para estimar la longitud Kaiser.",
+        "Aclaración de que las franjas del gráfico representan intervalos permitidos y no el ancho medido de la curva.",
+        "Retardo exacto para FIR reales con simetría o antisimetría exacta, manteniendo los puntos no definidos."
+      ],
+      "limits": [
+        "Una ventana común no obliga a ocupar toda una transición especificada más ancha. Los límites de cada banda se evalúan por separado."
+      ],
+      "notes": "docs/releases/v1.0.1.md"
+    },
+    {
+      "tag": "v1.0.0",
+      "title": "Primera versión estable",
+      "channel": "stable",
+      "summary": "Base estable del laboratorio de señales y sistemas, con herramientas independientes, resultados reutilizables y CAS.",
+      "changes": [
+        "Organización de 29 herramientas agrupadas y 80 variantes, además de la calculadora simbólica.",
+        "Diseño unificado de filtros y análisis separado de funciones de transferencia, respuestas, raíces y realizaciones.",
+        "Entradas locales, biblioteca de resultados, importación/exportación, gráficos externos y ayuda contextual ilustrada.",
+        "Corrección de avisos de datos modificados en los diseños RC/FIR y conservación de cambios realizados durante un cálculo.",
+        "Identificación de versión, documentación de alcance y distribución portable para Windows."
+      ],
+      "limits": [
+        "La cobertura depende de cada método y sus hipótesis; no equivale a resolver cualquier expresión simbólica ni a certificar todos los cálculos posibles."
+      ],
+      "notes": "docs/releases/v1.0.0.md"
+    },
+    {
+      "tag": "v0.99.11",
+      "title": "Diseño de filtros unificado",
+      "channel": "preview",
+      "summary": "Las distintas formas de definir un filtro se reúnen en un mismo documento con parámetros propios.",
+      "changes": [
+        "Diseño por especificaciones FIR/IIR, cortes, h[n], raíces, segundo orden y RC desde una entrada común.",
+        "Dominio y estructura aparecen cuando aportan una elección; cada formulario conserva sus valores.",
+        "Análisis, reutilización y exportación junto al resultado calculado, incluyendo filtro JSON y respuesta CSV.",
+        "Formularios más despejados y ayuda en colores para relacionar cada definición con el filtro obtenido."
+      ],
+      "limits": [
+        "Versión preliminar histórica; la línea estable comienza en 1.0.0."
+      ],
+      "notes": "docs/releases/v0.99.11.md"
+    },
+    {
+      "tag": "v0.99.10",
+      "title": "Fourier y navegación por variantes",
+      "channel": "preview",
+      "summary": "La elección de transformada, dirección y cálculo se presenta con una estructura común.",
+      "changes": [
+        "DTFT, DFT/FFT y Fourier continua organizadas por transformada, dirección y método de cálculo.",
+        "Conservación de la dirección inversa al cambiar entre modelos compatibles.",
+        "Búsqueda por variantes y navegación consistente hacia la operación correspondiente.",
+        "Preparación de entradas compatibles sin mezclar definiciones de naturaleza diferente."
+      ],
+      "limits": [
+        "Versión preliminar histórica."
+      ],
+      "notes": "docs/releases/v0.99.10.md"
+    },
+    {
+      "tag": "v0.99.9",
+      "title": "Señales continuas e impulsos ideales",
+      "channel": "preview",
+      "summary": "La carga de señales continuas conserva por separado la parte ordinaria y los pesos de impulsos Dirac.",
+      "changes": [
+        "Posiciones y pesos de impulsos ideales, incluso entre puntos de la rejilla temporal.",
+        "Contribuciones de Dirac en Fourier continua, series, convolución y respuesta de sistemas compatibles.",
+        "Conservación de impulsos y metadatos en JSON/CSV y al reutilizar los datos en CAS.",
+        "Distinción entre impulso continuo ideal y muestra discreta, con rechazo de operaciones distributivas ambiguas."
+      ],
+      "limits": [
+        "La representación numérica admite sumas finitas de impulsos de orden cero con argumentos lineales.",
+        "Los impulsos ideales no se interpretan como alturas finitas ni como señales con energía/RMS ordinarios finitos."
+      ],
+      "notes": "docs/releases/v0.99.9.md"
+    },
+    {
+      "tag": "v0.99.8",
+      "title": "Resultados en CAS e inversa Z por propiedades",
+      "channel": "preview",
+      "summary": "La reutilización de resultados incorpora el CAS y la inversa Z reconoce pares y desplazamientos antes de la descomposición general.",
+      "changes": [
+        "Envío de expresiones, sistemas, señales, modelos de estado y datos calculables a una hoja CAS existente.",
+        "Conservación de variables, borradores y supuestos; los resultados importados quedan referenciados como rN.",
+        "Reconocimiento de linealidad, pares geométricos, polos repetidos y desplazamientos enteros en la inversa Z.",
+        "Fórmulas más compactas con sus condiciones y ROC, preservando definiciones algebraicas exactas cuando están disponibles."
+      ],
+      "limits": [
+        "Versión preliminar histórica. La región de convergencia sigue siendo necesaria para determinar la secuencia."
+      ],
+      "notes": "docs/releases/v0.99.8.md"
+    },
+    {
+      "tag": "archivo-historico-2026-10-28",
+      "title": "Archivo histórico y primera versión",
+      "channel": "archive",
+      "summary": "Respaldo de las primeras etapas de SignalLab PC y sus ejecutables originales.",
+      "changes": [
+        "112 ejecutables distintos reunidos en un archivo TAR.ZST de aproximadamente 222 MiB.",
+        "Primer portable v0.1.0 y su respaldo de código fuente disponibles como adjuntos separados.",
+        "Manifiesto con versiones, rutas relativas, tamaños y hashes SHA-256 para identificar los archivos.",
+        "Guía de recuperación y verificación incluida con el archivo histórico."
+      ],
+      "limits": [
+        "Archivo de consulta histórica. Para empezar a usar la aplicación se recomienda la última versión estable.",
+        "Las primeras entregas pueden tener funciones incompletas o interfaces diferentes."
+      ],
+      "notes": "docs/releases/archive.md"
+    }
+  ]
+}
