@@ -2,7 +2,7 @@
 import json
 from PySide6.QtGui import QColor
 
-DEFAULT={'base':'navy','accent':'','photo':'','opacity':35,'fit':'cover'}
+DEFAULT={'base':'navy','accent':'','photo':'','opacity':35,'fit':'cover','surface_opacity':100}
 
 
 def validate(value):
@@ -12,6 +12,8 @@ def validate(value):
     if isinstance(value.get('accent'),str) and QColor(value['accent']).isValid():result['accent']=QColor(value['accent']).name()
     if isinstance(value.get('photo'),str):result['photo']=value['photo']
     try:result['opacity']=min(100,max(0,int(value.get('opacity',35))))
+    except (ValueError,TypeError):pass
+    try:result['surface_opacity']=min(100,max(0,int(value.get('surface_opacity',100))))
     except (ValueError,TypeError):pass
     if value.get('fit') in ('cover','contain'):result['fit']=value['fit']
     return result

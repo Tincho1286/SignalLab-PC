@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.2.1**.
 
+## 1.4.2
+
+- Fondos Opaco, Translúcido y Transparente en el tema personalizado.
+- Opacidad de menús de 0 a 100 %, independiente de la intensidad de la foto.
+- Foto continua detrás de tarjetas, categorías y navegación, sin desvanecer textos ni botones.
+- Vista previa actualizada y opciones desplazables en el diálogo de apariencia.
+- Preferencias anteriores conservadas con fondo inicialmente opaco.
+
+[Notas de la versión](docs/releases/v1.4.2.md) · [Configurar apariencia](docs/appearance.md)
+
 ## 1.4.1 · preliminar
 
 - Selección de polo/cero, conjugados y coordenadas dentro de la ventana del plano.

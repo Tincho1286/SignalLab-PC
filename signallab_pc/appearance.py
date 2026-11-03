@@ -55,6 +55,8 @@ def apply(window,key,*,persist=True):
     for widget in app.allWidgets():
         if widget.__class__.__module__.endswith('tool_browser') and hasattr(widget,'refresh_theme'):widget.refresh_theme()
         if widget.__class__.__module__.endswith('wallpaper'):widget.update()
+    from .wallpaper import refresh
+    refresh(window)
     if persist:
         from PySide6.QtCore import QSettings
         QSettings('SignalLab','Desktop071').setValue('appearance/theme',key)

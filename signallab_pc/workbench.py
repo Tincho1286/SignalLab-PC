@@ -18,6 +18,7 @@ from .theme_tokens import COLORS as C,AREA_COLORS
 from .cas_reference import CAS_ROUTE,CAS_SEARCH
 
 class WorkbenchWindow(ToolboxWindow):
+    _signallab_wallpaper_host=True
     def __init__(self):
         QMainWindow.__init__(self);self.setWindowTitle('SignalLab '+__version__+' · Escritorio de señales y sistemas');self.resize(1440,900);self.setMinimumSize(640,420)
         self.project=Project();self._published_signals={};self._workers=[];self._thread_pool=QThreadPool(self);self._thread_pool.setMaxThreadCount(1)
@@ -48,6 +49,12 @@ class WorkbenchWindow(ToolboxWindow):
         self.resize(min(self.width(),available.width()),min(self.height(),available.height()))
         self.move(max(available.left(),min(self.x(),available.right()-self.width()+1)),max(available.top(),min(self.y(),available.bottom()-self.height()+1)))
         self.show_home()
+        from .wallpaper import refresh
+        refresh(self)
+    def paintEvent(self,event):
+        super().paintEvent(event)
+        from .wallpaper import paint_window
+        paint_window(self)
     def resizeEvent(self,event):
         super().resizeEvent(event)
         if not hasattr(self,'explorer_dock'):return
@@ -398,5 +405,7 @@ class WorkbenchWindow(ToolboxWindow):
             if label.objectName() not in {'brand','pageTitle'}:
                 label.setWordWrap(True);label.setSizePolicy(label.sizePolicy().horizontalPolicy(),QSizePolicy.Policy.Fixed)
         for scroll in self.findChildren(QScrollArea):scroll.setWidgetResizable(True)
+        from .wallpaper import refresh
+        refresh(self)
         from .responsive_tools import install_tool_columns
         for view in self.views.values():install_tool_columns(view)

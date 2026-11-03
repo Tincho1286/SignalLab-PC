@@ -1,4 +1,4 @@
-"""Wallpaper is a local preference; mathematical surfaces remain opaque."""
+"""Shared local wallpaper behind optional translucent navigation surfaces."""
 from pathlib import Path
 import os,shutil,tempfile,hashlib,re
 from PySide6.QtCore import Qt,QRectF,QSize,QStandardPaths
@@ -79,11 +79,58 @@ class BackgroundSurface(QWidget):
         from . import theme_presets
         painter=QPainter(self)
         config=theme_presets.CUSTOM if theme_presets.CURRENT=='custom' else {}
-        paint(painter,QRectF(self.rect()),COLORS,config);painter.end()
+        if not (config.get('photo') and getattr(self.window(),'_signallab_wallpaper_host',False)):
+            paint(painter,QRectF(self.rect()),COLORS,config)
+        painter.end()
+
+
+def paint_window(window):
+    from . import theme_presets
+    from .theme_tokens import COLORS
+    if theme_presets.CURRENT!='custom' or not theme_presets.CUSTOM.get('photo'):return
+    painter=QPainter(window);paint(painter,QRectF(window.rect()),COLORS,theme_presets.CUSTOM);painter.end()
+
+
+def panel_color(color,opacity):
+    value=QColor(color);value.setAlpha(round(255*opacity/100));return value
 
 
 def stylesheet():
     from . import theme_presets
+    from .theme_tokens import COLORS
     if theme_presets.CURRENT!='custom' or not theme_presets.CUSTOM.get('photo'):return ''
-    return '''QWidget#desktop,QWidget#workspaceWallpaper {background:transparent;}
-QWidget#desktop > QLabel,QWidget#workspaceWallpaper > QLabel {background:@window@;padding:4px;border-radius:5px;}'''
+    opacity=theme_presets.CUSTOM.get('surface_opacity',100)
+    def shade(role):
+        value=panel_color(COLORS[role],opacity)
+        return 'rgba('+','.join(str(v) for v in value.getRgb())+')'
+    # Containers reveal the image painted once by the main window. Inputs,
+    # reports, figures and popup lists retain their own reading surfaces.
+    return '\n'.join([
+        'QWidget#desktop,QWidget#workspaceWallpaper {background:transparent;}',
+        'QWidget#desktop > QLabel,QWidget#workspaceWallpaper > QLabel {background:'+shade('window')+';padding:4px;border-radius:5px;}',
+        'QWidget#documentHeading {background:'+shade('chrome')+';}',
+        'QWidget#explorerPanel {background:'+shade('chrome')+';}',
+        'QWidget#explorerPanel QTreeWidget {background:transparent;}',
+        'QToolBar,QMenuBar,QStatusBar,QDockWidget::title {background:'+shade('chrome')+';}',
+        'QFrame#browserSection,QGroupBox {background:'+shade('panel')+';}',
+        'QFrame#welcomeCard {background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 '+shade('selected')+',stop:.65 '+shade('panel')+',stop:1 '+shade('chrome')+');}',
+        'QScrollArea > QWidget > QWidget,QTabWidget::pane,QTabBar#documents {background:transparent;}',
+        'QTabBar::tab {background:'+shade('chrome')+';}',
+        'QTabBar::tab:selected,QTabBar#documents::tab:selected {background:'+shade('panel')+';}',
+    ])
+
+
+def refresh(window):
+    from PySide6.QtWidgets import QScrollArea
+    # Some QScrollArea viewports fill their palette before their contents.
+    # Restore that flag when leaving the photo theme.
+    from . import theme_presets
+    active=theme_presets.CURRENT=='custom' and bool(theme_presets.CUSTOM.get('photo'))
+    for scroll in window.findChildren(QScrollArea):
+        viewport=scroll.viewport()
+        if active:
+            if not hasattr(viewport,'_signallab_original_fill'):viewport._signallab_original_fill=viewport.autoFillBackground()
+            viewport.setAutoFillBackground(False)
+        elif hasattr(viewport,'_signallab_original_fill'):
+            viewport.setAutoFillBackground(viewport._signallab_original_fill);del viewport._signallab_original_fill
+    window.update()
