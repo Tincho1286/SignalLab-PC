@@ -79,31 +79,36 @@ def half(term,start):
     # fractional powers of -1, which obscure real sinusoidal pairs.
     constant,dependent=ratio.as_independent(Z,as_Add=False)
     if constant.is_number:ratio=sp.expand_complex(constant)*dependent
+    interior=sp.Abs(ratio)<1
+    # Ordinary boundary convergence is certified separately from an open Z
+    # annulus. Dirichlet applies to reciprocal powers off resonance; powers
+    # below -1 converge absolutely even at resonance. A step is excluded.
+    boundary=sp.Or(interior,sp.And(sp.Eq(sp.Abs(ratio),1),sp.Ne(ratio,1) if power==-1 else sp.true)) if power<0 else interior
     lo=start-shift
     if not isinstance(shift,sp.Integer):
         # A noninteger centre is not a missing integer sample. Sum from the
         # actual integer support edge with the Hurwitz/Lerch geometric pair.
         if power<0:
             amplitude=sp.simplify(regular.subs(k,lo))
-            return amplitude*sp.lerchphi(ratio,-power,lo),sp.Abs(ratio)<1
+            return amplitude*sp.lerchphi(ratio,-power,lo),interior,boundary
         return None
     if power<0 and lo<=0:return None
     if lo<=0:
         prefix=sp.summation(shifted,(k,lo,0));lo=sp.S.One
         if prefix.has(sp.Sum,sp.nan,sp.zoo,sp.oo):return None
     else:prefix=sp.S.Zero
-    return sp.simplify(prefix+coefficient*tail(ratio,power,lo)),sp.Abs(ratio)<1
+    return sp.simplify(prefix+coefficient*tail(ratio,power,lo)),interior,boundary
 
 
 def interval(value,lower,upper):
-    if value==0:return sp.S.Zero,sp.true
-    if lower==upper:return sp.simplify(value.subs(N,lower)*Z**(-lower)),sp.true
+    if value==0:return sp.S.Zero,sp.true,sp.true
+    if lower==upper:return sp.simplify(value.subs(N,lower)*Z**(-lower)),sp.true,sp.true
     if lower.is_finite and upper.is_finite:
         result=sp.summation(value*Z**(-N),(N,lower,upper))
-        return None if result.has(sp.Sum,sp.nan,sp.zoo,sp.oo) else (result,sp.true)
+        return None if result.has(sp.Sum,sp.nan,sp.zoo,sp.oo) else (result,sp.true,sp.true)
     if lower==-sp.oo and upper==sp.oo:
         left=interval(value,-sp.oo,sp.S.NegativeOne);right=interval(value,sp.S.Zero,sp.oo)
-        return None if left is None or right is None else (left[0]+right[0],sp.And(left[1],right[1]))
+        return None if left is None or right is None else (left[0]+right[0],sp.And(left[1],right[1]),sp.And(left[2],right[2]))
     term=value*Z**(-N)
     if lower==-sp.oo:term=term.subs(N,-N);lower=-upper
     expanded=sp.expand_mul(term.rewrite(sp.exp));results=[]
@@ -113,7 +118,7 @@ def interval(value,lower,upper):
         pair=half(item,lower)
         if pair is None:return None
         results.append(pair)
-    return sp.Add(*[p[0] for p in results]),sp.And(*[p[1] for p in results])
+    return sp.Add(*[p[0] for p in results]),sp.And(*[p[1] for p in results]),sp.And(*[p[2] for p in results])
 
 
 def direct_pairs(expression,lower,upper):
@@ -129,7 +134,9 @@ def direct_pairs(expression,lower,upper):
     if not radial.has(Z):
         try:condition=sp.reduce_inequalities(radial,radius).xreplace({radius:sp.Abs(Z)})
         except (NotImplementedError,ValueError,TypeError):pass
+    boundary_condition=sp.And(*[pair[2] for pair in results])
+    closed=sp.simplify(sp.Add(*[pair[0] for pair in results]))
+    boundary={'boundary_result':closed,'boundary_condition':boundary_condition}
     if condition is sp.false:
-        return {'result':sp.Sum(expression*Z**(-N),(N,lower,upper)),'condition':condition,'empty':True}
-    result=sp.simplify(sp.Add(*[pair[0] for pair in results]))
-    return {'result':result,'condition':condition,'empty':False}
+        return {'result':sp.Sum(expression*Z**(-N),(N,lower,upper)),'condition':condition,'empty':True,**boundary}
+    return {'result':closed,'condition':condition,'empty':False,**boundary}

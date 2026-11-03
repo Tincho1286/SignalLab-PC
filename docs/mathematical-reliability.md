@@ -14,6 +14,10 @@ Z y DTFT comparten la preparación de la secuencia. La sustitución z=exp(i*w) u
 
 Antes de aplicar un par de Z se recuperan los factores separables que una expansión pueda haber combinado dentro de un denominador. El reconocimiento se basa en la potencia afín y la razón geométrica, no en una cadena literal. Para Fourier se conserva la fase de seno/coseno hasta reconocer el desplazamiento; las identidades de índices enteros se aplican después de separar los valores aislados. Los centros fraccionarios conservan su fase en cada imagen espectral y los valores asignados por tramos se incorporan como correcciones discretas.
 
+## Convergencia en el círculo unitario
+
+La comprobación de una ROC abierta no se utiliza como único criterio para Fourier. Las series geométricas amortiguadas convergen absolutamente en su región; para potencias recíprocas, el motor comprueba por separado la convergencia absoluta o la de Dirichlet sobre el borde. La condición de la expresión conserva las frecuencias excluidas. Una continuación racional del escalón no se declara por este camino como una DTFT ordinaria.
+
 ## Estado de un resultado
 
 El informe distingue una expresión obtenida, una expresión con condiciones, un resultado parcial, un cálculo sin resolver y la ausencia de una región de convergencia. Una operación pendiente dentro de una fórmula no se convierte en una solución por tener activada una marca de resultado evaluado. Obtener una fórmula no equivale a demostrar independientemente su identidad.
@@ -36,7 +40,7 @@ La generación de ventanas, el enventanado de h[n] y la estimación espectral ut
 
 ## Control antes de construir un portable
 
-Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` antes de empaquetar. Si falla, la construcción se detiene. El contrato `mathematical-families-v2` contiene 63 pruebas con variantes, agrupadas por familia y con un grupo adicional de propiedades de transformadas. Cada grupo exige una cantidad mínima de casos y no admite omisiones silenciosas:
+Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` antes de empaquetar. Si falla, la construcción se detiene. El contrato `mathematical-families-v2` contiene 69 pruebas con variantes, agrupadas por familia y con un grupo adicional de propiedades de transformadas. Cada grupo exige una cantidad mínima de casos y no admite omisiones silenciosas:
 
 | Familia | Referencias principales |
 |---|---|
@@ -51,7 +55,7 @@ Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` an
 | Muestreo y precisión | Alias angular, interpolación sinc, redondeo y saturación en punto fijo |
 | Señales aleatorias | Media compleja, potencia, varianza y autocovarianza con divisores N y N−|k| |
 
-El registro distingue el resultado de cada familia, además del resultado global. Las comprobaciones de Fourier continuo sobre registros se refieren a la cuadratura o interpolación declarada, no a una transformada exacta de una función desconocida entre las muestras.
+El registro distingue el resultado de cada familia, además del resultado global. El retardo de grupo completa los límites de factores comunes exactos del mismo orden y conserva la indefinición en ceros y polos genuinos; no realiza cancelaciones por tolerancia. Las comprobaciones de Fourier continuo sobre registros se refieren a la cuadratura o interpolación declarada, no a una transformada exacta de una función desconocida entre las muestras.
 
 Las referencias se expresan mediante fórmulas conocidas y valores de borde; las comprobaciones de ida y vuelta son complementarias. GitHub ejecuta el mismo control en Windows y Linux al cambiar el código matemático y en las propuestas de cambios. La procedencia de cada portable registra el resultado y las versiones de las dependencias.
 
@@ -62,3 +66,19 @@ Para ejecutarlo localmente:
 ```
 
 El informe local se guarda en `work/math-checks.json`. Este control cubre referencias concretas: no certifica todas las expresiones posibles ni reemplaza las condiciones de convergencia de cada cálculo. Las comparaciones numéricas aisladas tampoco constituyen una prueba de identidad general.
+
+## Barrido preventivo de parámetros y representaciones
+
+`tools/audit_mathematics.py` genera 56 casos por semilla. La construcción utiliza dos semillas: una fija y otra derivada de la huella de los motores y las referencias del barrido. Se normalizan los saltos de línea para que la huella y los parámetros coincidan entre Windows y Linux. El conjunto de 112 casos explora variaciones de constantes, ganancias, centros enteros y fraccionarios, frecuencias, orígenes, polos, factores comunes, condiciones iniciales y expresiones del CAS.
+
+Las comparaciones de filtros utilizan respuestas y retardos de primer orden conocidos; las de Fourier utilizan sumas de definición; las ecuaciones se comparan con soluciones forzadas conocidas. Las conversiones del CAS comprueban identidades, raíces, restricciones de dominio y matrices exactas. Los resultados pendientes donde se espera una solución forman parte de los fallos.
+
+El barrido se ejecuta en un proceso propio con un plazo de 20 segundos por caso. Una excepción, un resultado incompleto o un plazo agotado impiden aprobar el portable. El informe `work/math-audit.json` incluye semillas, parámetros, referencia de cada caso, tiempos y huella del código. La procedencia del portable incluye su resumen; GitHub conserva los informes completos como artefactos del control matemático.
+
+Para reproducir una semilla indicada en un informe:
+
+```powershell
+.\.venv\Scripts\python.exe -B -X utf8 tools/audit_mathematics.py --seed 20261103
+```
+
+Un barrido satisfactorio amplía la evidencia para los casos explorados. No convierte una comprobación numérica aislada en una prueba de identidad general ni certifica todas las entradas posibles.

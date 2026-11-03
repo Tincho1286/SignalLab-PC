@@ -7,6 +7,8 @@ on:
       - 'signallab_pc/**.py'
       - 'tests/test_math_*.py'
       - 'tools/check_math.py'
+      - 'tools/audit_mathematics.py'
+      - 'tools/math_audit_cases.py'
       - 'requirements-lock.txt'
       - '.github/workflows/mathematics.yml'
   pull_request:
@@ -14,6 +16,8 @@ on:
       - 'signallab_pc/**.py'
       - 'tests/test_math_*.py'
       - 'tools/check_math.py'
+      - 'tools/audit_mathematics.py'
+      - 'tools/math_audit_cases.py'
       - 'requirements-lock.txt'
       - '.github/workflows/mathematics.yml'
   workflow_dispatch:
@@ -40,3 +44,13 @@ jobs:
         run: python -m pip install --disable-pip-version-check -c requirements-lock.txt numpy scipy sympy mpmath
       - name: Check independent reference cases and result transport
         run: python -B -X utf8 tools/check_math.py
+      - name: Preserve mathematical audit reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: mathematics-${{ matrix.os }}-${{ github.run_id }}
+          path: |
+            work/math-checks.json
+            work/math-audit.json
+          if-no-files-found: ignore
+          retention-days: 7

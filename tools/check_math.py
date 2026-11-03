@@ -8,6 +8,7 @@ CONTRACT='mathematical-families-v2'
 FAMILIES={
     'transforms':('test_math_reliability.MathematicalReliabilityTests',21),
     'transform_properties':('test_math_shifted_pairs.ShiftedPairContracts',7),
+    'preventive_regressions':('test_math_preventive.PreventiveContracts',6),
     'scalar_input':('test_math_contracts.ScalarContracts',5),
     'systems_filters':('test_math_contracts.SystemContracts',9),
     'equations':('test_math_contracts.EquationContracts',5),
@@ -47,7 +48,11 @@ def main():
         row['minimum']=minimum
         row['passed']=row['tests']>=minimum and not any(row[k] for k in ('failures','errors','skipped'))
     success=result.wasSuccessful() and not result.skipped and all(row.get('passed',False) for row in result.families.values())
-    record={'contract':CONTRACT,'passed':success,'families':result.families,'tests':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'skipped':len(result.skipped),'seconds':round(time.monotonic()-begin,3),'python':platform.python_version(),'platform':sys.platform,'sympy':sympy.__version__,'numpy':numpy.__version__,'scipy':scipy.__version__}
+    from audit_mathematics import run_audit
+    audit=run_audit(ROOT/'work/math-audit.json')
+    success=success and audit['passed'] and audit['completed_cases']>=112 and len(audit['seeds'])==2
+    summary={name:audit[name] for name in ('contract','passed','seeds','source_fingerprint','case_deadline_seconds','expected_cases','completed_cases','failed_cases','timeout','groups','seconds')}
+    record={'preventive_audit':summary,'contract':CONTRACT,'passed':success,'families':result.families,'tests':result.testsRun,'failures':len(result.failures),'errors':len(result.errors),'skipped':len(result.skipped),'seconds':round(time.monotonic()-begin,3),'python':platform.python_version(),'platform':sys.platform,'sympy':sympy.__version__,'numpy':numpy.__version__,'scipy':scipy.__version__}
     folder=ROOT/'work';folder.mkdir(exist_ok=True);(folder/'math-checks.json').write_text(json.dumps(record,indent=2),encoding='utf-8')
     print('Mathematical release gate: '+('PASS' if success else 'FAIL'),flush=True)
     return 0 if success else 1

@@ -245,7 +245,29 @@ class Transfer:
                 quotient=np.full(omega.shape,complex(np.nan,np.nan))
                 np.divide(derivative,value,out=quotient,where=valid)
             return quotient
-        result=(logarithmic(self.b)-logarithmic(self.a)).real*(1 if digital else -1)
+        result=np.asarray((logarithmic(self.b)-logarithmic(self.a)).real*(1 if digital else -1)).copy()
+        # The response already completes exact common zeros. Its logarithmic
+        # derivative must use the same analytic limit, rather than NaN-NaN.
+        numerator=self.b[::-1] if digital else self.b
+        denominator=self.a[::-1] if digital else self.a
+        common=(np.polyval(numerator,z)==0)&(np.polyval(denominator,z)==0)
+        for index in np.flatnonzero(common):
+            point=z.flat[index]
+            def first_nonzero(polynomial):
+                for order in range(len(polynomial)):
+                    value=np.polyval(polynomial,point)
+                    if value!=0:
+                        following=np.polyval(np.polyder(polynomial),point)
+                        return order,value,following
+                    polynomial=np.polyder(polynomial)
+                return None
+            one,two=first_nonzero(numerator),first_nonzero(denominator)
+            if one is None or two is None or one[0]!=two[0]:continue
+            order=one[0]
+            with np.errstate(all='ignore'):
+                slope=one[2]/((order+1)*one[1])-two[2]/((order+1)*two[1])
+                limit=(point*slope).real if digital else -slope.real
+            if np.isfinite(limit):result.flat[index]=limit
         # Exact real FIR symmetry gives an exact linear-phase delay. Keep the
         # existing undefined/ill-conditioned mask; never flatten an almost
         # symmetric filter or an IIR that merely looks flat on this grid.

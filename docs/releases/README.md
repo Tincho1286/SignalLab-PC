@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.5.3-preview](v1.5.3-preview.md) | Barrido preventivo, convergencia de DTFT y límites de retardo | Preliminar |
 | [1.5.2-preview](v1.5.2-preview.md) | Pares desplazados y sinc por propiedades generales | Preliminar |
 | [1.5.1-preview](v1.5.1-preview.md) | Constantes exactas, ecuaciones y control de nueve familias matemáticas | Preliminar |
 | [1.5.0-preview](v1.5.0-preview.md) | Definiciones compartidas y control matemático de publicación | Preliminar |

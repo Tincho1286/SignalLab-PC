@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.4.2**.
 
+## 1.5.3 · preliminar
+
+- Barrido preventivo obligatorio con una base fija y variaciones reproducibles derivadas del código.
+- Registro de parámetros, referencias y plazos por caso; bloqueo de construcción ante fallos o cálculos incompletos.
+- DTFT unilateral con convergencia ordinaria comprobada independientemente de la ROC abierta de Z.
+- Límites de retardo de grupo coherentes con la respuesta para factores comunes exactos.
+- Informes públicos: 69 controles de referencia y 112 casos de barrido en ambas plataformas.
+
+[Notas de la preliminar](docs/releases/v1.5.3-preview.md)
+
 ## 1.5.2 · preliminar
 
 - Normalización de factores antes de reconocer pares Z desplazados.

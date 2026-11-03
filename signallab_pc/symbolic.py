@@ -130,6 +130,14 @@ def _execute(request):
         if pair is not None and not pair['empty'] and sp.simplify(pair['condition'].subs(Z,sp.exp(sp.I*W))) is sp.true:
             result=sp.simplify(pair['result'].subs(Z,sp.exp(sp.I*W)))
             return attach({'operation':'dtft_expression','result':str(result),'condition':'True','output_variable':'w','evaluated':not result.has(sp.Sum,sp.oo,sp.zoo,sp.nan),'method':'shared_discrete_pairs','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se usa la misma secuencia de índices enteros que en Z, incluyendo sus valores por continuidad. La evaluación z=exp(i*w) se aplica sólo cuando las condiciones calculadas permiten todo el círculo unitario.'},definition)
+        if pair is not None:
+            condition=sp.simplify(pair['boundary_condition'].subs(Z,sp.exp(sp.I*W)))
+            if condition is not sp.false:
+                result=sp.simplify(pair['boundary_result'].subs(Z,sp.exp(sp.I*W)))
+                if not result.has(sp.Sum,sp.oo,sp.zoo,sp.nan):
+                    return attach({'operation':'dtft_expression','result':str(result),'condition':str(condition),'output_variable':'w','evaluated':True,'method':'certified_boundary_pairs','frequency_units':'rad/muestra',
+                        'convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic',
+                        'scope':'La convergencia sobre el círculo unitario se comprueba por separado de la ROC abierta de Z. Las potencias recíprocas utilizan convergencia absoluta o el criterio de Dirichlet fuera de las frecuencias resonantes indicadas. No se sustituye z=exp(i*w) sin comprobar la convergencia de la serie ordinaria.'},definition)
         term=sp.simplify(value*sp.exp(-sp.I*W*N))
         result=sp.simplify(sp.summation(term,(N,lower,upper)))
         if result.has(sp.Sum) and term!=0:
