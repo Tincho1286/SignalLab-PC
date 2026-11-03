@@ -21,7 +21,7 @@ La [guía de primeros pasos](getting-started.md) recorre un cálculo completo. P
 
 ## Versiones y objetivos
 
-La [estable 1.2.1](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.1) es la descarga para el trabajo habitual. La [preliminar 1.3.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.3.0-preview) permite probar las incorporaciones más recientes. Cada publicación detalla sus funciones y límites en las [notas de versiones](releases/README.md).
+La [estable 1.2.1](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.1) es la descarga para el trabajo habitual. La [preliminar 1.3.1](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.3.1-preview) permite probar las incorporaciones más recientes. Cada publicación detalla sus funciones y límites en las [notas de versiones](releases/README.md).
 
 El [historial de cambios](../CHANGELOG.md) reúne lo que ya fue publicado. La [hoja de objetivos](roadmap.md) describe las mejoras pendientes, sin asignarlas de antemano a una versión. Los [documentos históricos](history/README.md) conservan información de etapas anteriores del proyecto.
 
