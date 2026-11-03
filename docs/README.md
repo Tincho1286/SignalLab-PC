@@ -23,7 +23,7 @@ La [guía de primeros pasos](getting-started.md) recorre un cálculo completo. P
 
 ## Versiones y objetivos
 
-La [versión 1.4.2](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.4.2) es la descarga principal para Windows y Linux. Cada publicación detalla sus funciones y límites en las [notas de versiones](releases/README.md), donde también se conservan las entregas anteriores.
+La [estable 1.4.2](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.4.2) es la descarga principal para Windows y Linux. La [preliminar 1.5.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.5.0-preview) incorpora la primera etapa de fiabilidad matemática. Las [notas de versiones](releases/README.md) describen el alcance de cada entrega.
 
 El [historial de cambios](../CHANGELOG.md) reúne lo que ya fue publicado. La [hoja de objetivos](roadmap.md) describe las mejoras pendientes, sin asignarlas de antemano a una versión. Los [documentos históricos](history/README.md) conservan información de etapas anteriores del proyecto.
 

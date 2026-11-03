@@ -311,5 +311,92 @@
     },
     "build_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41661325618"
   },
-  "preview": null
+  "preview": {
+    "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.5.0-preview",
+    "tag": "v1.5.0-preview",
+    "commit": "f4012f12e7f63a250508f59777f4cd0168bf6060",
+    "stable": false,
+    "license": "GPL-3.0-or-later",
+    "assets": [
+      {
+        "id": 706159816,
+        "name": "build-provenance-linux.json",
+        "size": 1012,
+        "digest": "sha256:9dd3c92999d32c080a1024085785a75be06e57599dc6d7740c85e938fa553728",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.0-preview/build-provenance-linux.json"
+      },
+      {
+        "id": 706159570,
+        "name": "build-provenance-windows.json",
+        "size": 725,
+        "digest": "sha256:7ac936f81efd2736eba628ca1ae9c7f2f6551382b94ad6e64df155c4b63bd0a9",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.0-preview/build-provenance-windows.json"
+      },
+      {
+        "id": 706159496,
+        "name": "LICENSE",
+        "size": 34674,
+        "digest": "sha256:fb981668c18a279e285fc4d83fba1e836cc84dd4daa73c9697d3cfd2d8aca6e0",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.0-preview/LICENSE"
+      },
+      {
+        "id": 706159911,
+        "name": "SHA256SUMS-1.5.0.txt",
+        "size": 748,
+        "digest": "sha256:d3b307bf1b40030aad77534a8edc040ae53ef21f907af23f6da5fc3adeb51da0",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.0-preview/SHA256SUMS-1.5.0.txt"
+      },
+      {
+        "id": 706159297,
+        "name": "SignalLab-PC-1.5.0-licenses.zip",
+        "size": 273468,
+        "digest": "sha256:1c3b33e3a03851c18f3322bd64d402253dfbeda86fafebca4aeea8e348f41113",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.0-preview/SignalLab-PC-1.5.0-licenses.zip"
+      },
+      {
+        "id": 706158089,
+        "name": "SignalLab-PC-1.5.0-linux-x86_64.tar.gz",
+        "size": 159647249,
+        "digest": "sha256:33b439bebebb56187c37cc474944a748c4a6aeb7f3817be40f5e3e12c30010ba",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.0-preview/SignalLab-PC-1.5.0-linux-x86_64.tar.gz"
+      },
+      {
+        "id": 706159155,
+        "name": "SignalLab-PC-1.5.0-source-GPL.zip",
+        "size": 1931251,
+        "digest": "sha256:efda80f4ab31cc6ca5677f3b3068939312c0de2870347729d95751031d790bd7",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.0-preview/SignalLab-PC-1.5.0-source-GPL.zip"
+      },
+      {
+        "id": 706157319,
+        "name": "SignalLab-PC-1.5.0.exe",
+        "size": 117162350,
+        "digest": "sha256:17c2fc84769437946410c02bbb39433b46a153a0c0b84a778b4148857218784c",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.0-preview/SignalLab-PC-1.5.0.exe"
+      },
+      {
+        "id": 706159390,
+        "name": "v1.5.0-preview.md",
+        "size": 2401,
+        "digest": "sha256:472df516d1b011f7a009e6da0c665d8cef40e4aa9019784b377fdf7a63148422",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.0-preview/v1.5.0-preview.md"
+      }
+    ],
+    "platforms": {
+      "windows-x86_64": {
+        "asset": "SignalLab-PC-1.5.0.exe",
+        "source_commit": "f4012f12e7f63a250508f59777f4cd0168bf6060"
+      },
+      "linux-x86_64": {
+        "asset": "SignalLab-PC-1.5.0-linux-x86_64.tar.gz",
+        "source_commit": "f4012f12e7f63a250508f59777f4cd0168bf6060",
+        "glibc": [
+          "glibc",
+          "2.35"
+        ]
+      }
+    },
+    "build_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41667136668",
+    "mathematics_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41667027408"
+  }
 }
