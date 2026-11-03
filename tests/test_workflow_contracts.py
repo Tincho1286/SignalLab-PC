@@ -36,8 +36,9 @@ class WorkflowContracts(unittest.TestCase):
     def setUp(self):
         self.host=Host();self.widgets=[];self.warnings=[]
         self.warning_patch=patch('PySide6.QtWidgets.QMessageBox.warning',side_effect=lambda *a:self.warnings.append(str(a[2])));self.warning_patch.start()
+        self.exception_patch=patch('sys.excepthook',side_effect=lambda kind,value,tb:self.warnings.append(kind.__name__+': '+str(value)));self.exception_patch.start()
     def tearDown(self):
-        self.warning_patch.stop()
+        self.exception_patch.stop();self.warning_patch.stop()
         for widget in [*self.widgets,*[p.panel for p in self.host.pages.values()],self.host.bar]:widget.close();widget.deleteLater()
         self.app.processEvents()
     def transform(self):
@@ -90,6 +91,39 @@ class WorkflowContracts(unittest.TestCase):
             panel.system_import.open_file(path);self.assertEqual(self.warnings,[]);panel=self.calculated_analysis()
         assert_allclose(panel.frequency_data.response,original,atol=1e-13,equal_nan=True)
         record=self.host.project.get(panel._definition_id);self.assertIn('DTFT calculada',record['result']['frequency_interpretation'])
+
+    def test_bilateral_sinc_to_frequency_analysis_and_library_reload(self):
+        from signallab_pc.result_expressions import expression_result,send_expression
+        source=TransformLab(self.host,'z');self.widgets.append(source)
+        source.expression.setText('sin(0.5*pi*(n-4))/(pi*(n-4))');source.lower.setText('-oo');source.upper.setText('oo');source.calculate_button.click()
+        self.assertEqual(self.warnings,[]);self.assertFalse(source.last['evaluated']);self.assertTrue(source.last['convergence_empty'])
+        self.assertTrue(source.analyze_system.isEnabled());self.assertIn('exp(iw)',source.analyze_system.text());source.analyze_system.click()
+        panel=self.calculated_analysis();self.assertEqual(panel.definition_mode.currentIndex(),2)
+        data=panel.frequency_data;assert_allclose(data.magnitude[:50],1,atol=1e-13);assert_allclose(data.magnitude[51:],0,atol=1e-13)
+        assert_allclose(data.magnitude[50],.5,atol=1e-13);assert_allclose(data.delay[:50],4,atol=1e-13);self.assertTrue(np.isnan(data.delay[50:]).all())
+        saved=self.host.project.get(panel._definition_id);self.assertEqual(saved['result']['model_kind'],'frequency');self.assertFalse(saved['request']['source_calculation']['result']['evaluated'])
+        expression=expression_result(saved);self.assertEqual(expression.variable,'w');self.assertEqual(expression.units,'rad/muestra')
+        send_expression(self.host,panel._definition_id,'system');panel=self.calculated_analysis();assert_allclose(panel.frequency_data.response,data.response,atol=1e-13)
+        with tempfile.TemporaryDirectory() as folder:
+            path=Path(folder)/'ideal.json';self.host.project.export_record(panel._definition_id,path);panel.system_import.open_file(path);panel=self.calculated_analysis()
+        assert_allclose(panel.frequency_data.response,data.response,atol=1e-13);self.assertIsNone(panel.system);self.assertTrue(panel.roc_choice.isHidden())
+
+    def test_dtft_plot_button_opens_and_reopens_real_figure(self):
+        from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
+        panel=SymbolicFourierPanel(self.host,discrete=True);self.widgets.append(panel)
+        panel.expression.setText('sin(0.5*pi*(n-4))/(pi*(n-4))');panel.lower.setText('-oo');panel.upper.setText('oo');panel.calculate_button.click()
+        self.assertEqual(self.warnings,[]);self.assertTrue(panel.sample_button.isEnabled());panel.sample_button.click();self.app.processEvents()
+        window=panel.output.canvas._signallab_window;self.widgets.append(window)
+        self.assertTrue(window.isVisible());self.assertEqual(panel.output.views.currentIndex(),0);self.assertGreater(len(panel.output.figure.axes[0].lines),0)
+        values=panel.output.result.values;self.assertAlmostEqual(abs(values[len(values)//2]),1);self.assertAlmostEqual(abs(values[0]),0)
+        window.hide();panel.sample_button.click();self.app.processEvents();self.assertTrue(window.isVisible());self.assertEqual(self.warnings,[])
+
+    def test_dtft_result_reused_as_frequency_system(self):
+        from signallab_pc.result_expressions import send_expression
+        request=dict(operation='dtft_expression',expression='sin(0.3*pi*(n-4))/(pi*(n-4))',lower='-oo',upper='oo')
+        key=self.host.publish(dict(request=request,result=execute(request)));send_expression(self.host,key,'system');panel=self.calculated_analysis()
+        assert_allclose(panel.frequency_data.magnitude[:30],1,atol=1e-13);assert_allclose(panel.frequency_data.magnitude[31:],0,atol=1e-13)
+        self.assertEqual(panel.definition_mode.currentIndex(),2);self.assertIsNone(panel.system)
 
     def test_rational_transfer_still_retains_numeric_system(self):
         from signallab_pc.result_expressions import ExpressionResult

@@ -226,6 +226,14 @@ def _execute(request):
         return {'operation':'continuous_convolution','result':str(result),'evaluated':not result.has(sp.Integral),
                 'scope':'Ambas entradas son cero para t<0; las fórmulas indicadas valen para t>=0.' if causal else 'Convolución bilateral; las expresiones deben incluir su soporte y cumplir las condiciones de convergencia.',
                 'convention':'integral x(tau) h(t-tau) d tau'}
+    if operation == 'system_frequency_expression':
+        domain=request['domain']
+        if domain not in ('analog','digital'):raise ValueError('Dominio de sistema inválido.')
+        expr=parse(expression)
+        if expr.has(T,N,S,Z,sp.zoo,sp.nan,sp.oo):raise ValueError('La respuesta en frecuencia usa w, en rad/muestra o rad/s según el dominio.')
+        pending=expr.has(sp.Sum,sp.Integral,sp.Derivative,sp.Limit,sp.DiracDelta)
+        return dict(operation=operation,domain=domain,model_kind='frequency',transfer=str(expr),factored=str(expr),evaluated=not pending,output_variable='w',frequency_units='rad/muestra' if domain=='digital' else 'rad/s',
+            parameters=sorted(map(str,expr.free_symbols-{W})),scope='Respuesta en frecuencia definida directamente en w. No implica una transformada Z o Laplace en una región abierta ni una realización finita con coeficientes b/a.')
     if operation == "system_formula":
         domain=request['domain']
         if domain not in ('analog','digital'):raise ValueError('Dominio de sistema inválido.')

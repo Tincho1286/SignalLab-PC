@@ -20,14 +20,18 @@ def expression_result(value):
         variable=known[0] if len(known)==1 else 'mixed' if len(known)>1 else symbols[0] if len(symbols)==1 else None
         return ExpressionResult(source,variable,tuple(dict.fromkeys([*['Supuesto '+str(k)+': '+str(v) for k,v in cas.get('assumptions',[])],*map(str,cas.get('notices',[]))])))
     result=value.get('result');request=value.get('request',{})
-    if not isinstance(result,dict) or result.get('evaluated') is False:return None
+    if not isinstance(result,dict):return None
+    if result.get('evaluated') is False:
+        if result.get('boundary_dtft'):
+            return ExpressionResult(result['boundary_dtft'],'w',tuple(str(result[k]) for k in ('roc','scope') if result.get(k)), 'rad/muestra')
+        return None
     branches=result.get('branches',[])
     if len(branches)>1:return None
     source=branches[0].get('expression') if branches else result.get('transfer',result.get('result'))
     if not isinstance(source,str) or not source.strip():return None
     if result.get('display_result') and not result.get('display_numeric'):source=result['display_result']
     variable=result.get('output_variable')
-    if 'transfer' in result:variable='s' if request.get('domain')=='analog' else 'z'
+    if 'transfer' in result and result.get('model_kind')!='frequency':variable='s' if request.get('domain')=='analog' else 'z'
     conditions=[str(result[k]) for k in ('roc','condition','convergence','scope') if result.get(k) not in (None,'True','')]
     if result.get('mathematical_conditions'):
         conditions.extend(label+': '+result['mathematical_conditions'][key] for key,label in [('domain','Dominio'),('causality','Causalidad'),('bibo_stability','Estabilidad BIBO')])
@@ -42,6 +46,7 @@ def expression_destinations(expression):
     if v in ('n','t'):destinations.extend([('Sumar con otra señal','sum'),('Multiplicar por otra señal','product')])
     if v=='n':destinations.append(('Enventanar como h[n] de un FIR','fir_window'))
     if v in ('s','z'):destinations += [('Transformada '+('Z inversa' if v=='z' else 'de Laplace inversa'),'inverse'),('Analizar como H('+v+')','system')]
+    if v=='w' and expression.units in ('rad/s','rad/muestra'):destinations.append(('Analizar respuesta en frecuencia','system'))
     if v=='w' and expression.units=='rad/s':destinations.append(('Fourier continua inversa','fourier_inverse'))
     if v=='w' and expression.units in ('','rad/muestra'):
         destinations.extend([('DTFT inversa algebraica','inverse_dtft'),('DTFT inversa numérica','inverse_dtft_numeric')])

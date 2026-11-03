@@ -20,15 +20,16 @@ class SystemAnalysisPanel(QWidget):
         form.addRow(ToolGuide('Definí H(s) o H(z) con coeficientes o una fórmula. El análisis conserva la expresión y permite consultar módulo, fase y retardo. Copiar un resultado anterior es opcional.',('Coeficientes','Sistema H','Módulo / fase')))
         self.domain=QComboBox();self.domain.addItems(['Continuo · H(s)','Discreto · H(z)'])
         form.addRow('Sistema',self.domain)
-        self.definition_mode=QComboBox();self.definition_mode.addItems(['Coeficientes','Fórmula H(s) / H(z)']);
+        self.definition_mode=QComboBox();self.definition_mode.addItems(['Coeficientes','Fórmula H(s) / H(z)','Respuesta H(w)']);
         from .choice_buttons import ChoiceButtons
-        self.definition_buttons=ChoiceButtons(self.definition_mode,['Coeficientes','Fórmula H']);form.addRow(self.definition_buttons)
+        self.definition_buttons=ChoiceButtons(self.definition_mode,['Coeficientes','Fórmula H','H(w)']);form.addRow(self.definition_buttons)
         self.transfer_formula=QLineEdit('1/(s+1)');form.addRow('Función de transferencia',self.transfer_formula)
         self.b=CoefficientEditor('1');self.a=CoefficientEditor('1, 1')
         form.addRow('Numerador b',self.b);form.addRow('Denominador a',self.a)
         self.transfer_preview=TransferPreview(self.b,self.a);form.addRow(self.transfer_preview)
         def definition_changed(*_):
-            formula=self.definition_mode.currentIndex()==1
+            formula=self.definition_mode.currentIndex()!=0
+            form.labelForField(self.transfer_formula).setText('Respuesta en frecuencia H(w)' if self.definition_mode.currentIndex()==2 else 'Función de transferencia')
             form.setRowVisible(self.transfer_formula,formula);form.setRowVisible(self.b,not formula);form.setRowVisible(self.a,not formula);form.setRowVisible(self.transfer_preview,not formula)
         self.definition_mode.currentIndexChanged.connect(definition_changed);definition_changed()
         self.system=None;self.analyzed_system=None;self.analysis_advance=0;self._roots_cache=None;self.frequency_data=None;self._drawn_frequency=None
@@ -47,7 +48,7 @@ class SystemAnalysisPanel(QWidget):
         self.log_note=QLabel('El eje logarítmico requiere frecuencias positivas.');self.log_note.setObjectName('muted');self.log_note.setWordWrap(True);form.addRow(self.log_note);self.log_note.hide()
         self.frequency_scale.currentIndexChanged.connect(lambda index:self.log_note.setVisible(index==1))
         self.margins=QCheckBox('Calcular cruces y márgenes de lazo abierto');form.addRow(self.margins)
-        self.transfer_formula.textEdited.connect(lambda *_:self.set_definition_capabilities(True))
+        self.transfer_formula.textEdited.connect(lambda *_:self.set_definition_capabilities(self.definition_mode.currentIndex()!=2))
         self.margin_note=QLabel('H se interpreta como L, con realimentación negativa unitaria. Se buscan cruces dentro del intervalo, no un certificado global de estabilidad.');self.margin_note.setWordWrap(True);self.margin_note.setObjectName('muted');form.addRow(self.margin_note);self.margin_note.hide()
         self.margins.toggled.connect(self.margin_note.setVisible)
 
@@ -147,12 +148,14 @@ class SystemAnalysisPanel(QWidget):
         if changed and self.transfer_formula.text() in ('1/(s+1)','1/(1-0.5*z^(-1))'):
             self.transfer_formula.setText('1/(1-0.5*z^(-1))' if digital else '1/(s+1)')
         self.b.set_domain(digital);self.a.set_domain(digital);self.transfer_preview.schedule()
-        if self.definition_mode.currentIndex()==1:
+        if self.definition_mode.currentIndex()==2:
+            self.note.setText('Respuesta H(exp(iw)) en rad/muestra. Permite analizar filtros ideales sin atribuirles una ROC abierta.' if digital else 'Respuesta H(iw) en rad/s. No determina por sí sola una transformada de Laplace ni su ROC.')
+        elif self.definition_mode.currentIndex()==1:
             self.note.setText('Fórmula en z, con potencias positivas o negativas, logaritmos u otras funciones. Frecuencia en rad/muestra.' if digital else 'Fórmula en s; se conserva como expresión cuando no es racional. Frecuencia en rad/s.')
         else:self.note.setText('b y a en potencias ascendentes de z⁻¹. Frecuencia en rad/muestra.' if digital else 'b y a en potencias descendentes de s. Frecuencia en rad/s.')
         if changed and hasattr(self,'w1'):self.w1.setText('pi' if digital else '10')
         if hasattr(self,'impulse'):
-            if self.definition_mode.currentIndex()==0:self.set_definition_capabilities(True)
+            if self.definition_mode.currentIndex()!=1:self.set_definition_capabilities(self.definition_mode.currentIndex()==0)
             self.impulse.setVisible(not digital and getattr(self,'_definition_rational',True))
             if digital:self.impulse.setChecked(False)
     def set_definition_capabilities(self,rational):
@@ -164,7 +167,8 @@ class SystemAnalysisPanel(QWidget):
     def load_expression(self,expression,key=None,record=None,roc_spec=None):
         from copy import deepcopy
         from .transform_context import result_roc
-        self.domain.setCurrentIndex(0 if expression.variable=='s' else 1);self.definition_mode.setCurrentIndex(1);self.transfer_formula.setText(expression.source)
+        frequency=expression.variable=='w'
+        self.domain.setCurrentIndex(0 if expression.variable=='s' or frequency and expression.units=='rad/s' else 1);self.definition_mode.setCurrentIndex(2 if frequency else 1);self.transfer_formula.setText(expression.source)
         self._preserved_system=None;self._preserved_formula=None;self.input_id=key
         self._formula_context=deepcopy(record);self._formula_context_signature=(self.transfer_formula.text(),self.domain.currentIndex())
         spec=roc_spec if roc_spec is not None else result_roc(record)
@@ -173,7 +177,7 @@ class SystemAnalysisPanel(QWidget):
         from .system_clock import remember_period
         remember_period(self,self.window.project.sample_period(key) if key else None)
         from .symbolic import parse,S,Z
-        self.set_definition_capabilities(bool(parse(expression.source).is_rational_function(S if expression.variable=='s' else Z)))
+        self.set_definition_capabilities(not frequency and bool(parse(expression.source).is_rational_function(S if expression.variable=='s' else Z)))
         self.note.setText('Fórmula cargada para análisis. Se conservan sus condiciones y soporte de origen; no se fuerza una conversión a coeficientes.')
     def prepare_expression_reuse(self):
         self.expression_menu.clear()
@@ -213,8 +217,8 @@ class SystemAnalysisPanel(QWidget):
         try:
             request=dict(operation='system_analysis',domain='analog' if self.domain.currentIndex()==0 else 'digital',
                 b=self.b.coefficients() if self.definition_mode.currentIndex()==0 else [],a=self.a.coefficients() if self.definition_mode.currentIndex()==0 else [],impulse=self.impulse.isChecked())
-            if self.definition_mode.currentIndex()==1:request=dict(operation='system_formula',expression=self.transfer_formula.text(),domain=request['domain'],impulse=self.impulse.isChecked())
-            if self.definition_mode.currentIndex()==1 and (self.transfer_formula.text(),self.domain.currentIndex())==getattr(self,'_formula_context_signature',None) and self._formula_context is not None:
+            if self.definition_mode.currentIndex()!=0:request=dict(operation='system_frequency_expression' if self.definition_mode.currentIndex()==2 else 'system_formula',expression=self.transfer_formula.text(),domain=request['domain'],impulse=self.impulse.isChecked())
+            if self.definition_mode.currentIndex()!=0 and (self.transfer_formula.text(),self.domain.currentIndex())==getattr(self,'_formula_context_signature',None) and self._formula_context is not None:
                 from copy import deepcopy
                 request['source_calculation']=deepcopy(self._formula_context)
             preserved=getattr(self,'_preserved_system',None) if (self.definition_mode.currentIndex()==0 and (self.b.text(),self.a.text(),self.domain.currentIndex())==getattr(self,'_preserved_definition',None)) or (self.definition_mode.currentIndex()==1 and (self.transfer_formula.text(),self.domain.currentIndex())==getattr(self,'_preserved_formula',None)) else None
@@ -247,7 +251,7 @@ class SystemAnalysisPanel(QWidget):
                     exact['mathematical_conditions']=record(system)
                     if not information['known'] or information['unit'] is True:data=analyze_frequency(system,omega_grid,logarithmic=logarithmic,margins=with_margins)
                     else:exact['frequency_notice']='La ROC no contiene la frontera de Fourier. Se conservan la expresión y el análisis en el plano complejo: '+information['text']
-                elif exact.get('model_kind')=='expression':
+                elif exact.get('model_kind') in ('expression','frequency'):
                     request['roc_spec']=None;request['impulse']=False
                     from .analytic_frequency import analyze_expression
                     from .system_clock import UNSET
@@ -256,7 +260,7 @@ class SystemAnalysisPanel(QWidget):
             def accept(result):
                 exact,system,data=result
                 definition=self.window.publish({'request':request,'result':exact},title='Definición algebraica del sistema',operation='Análisis numérico y algebraico',parents=[parent] if parent else [])
-                self._definition_id=definition;analytic=exact.get('model_kind')=='expression'
+                self._definition_id=definition;analytic=exact.get('model_kind') in ('expression','frequency')
                 self.set_definition_capabilities(not analytic)
                 self.system=None;self.analyzed_system=system;self.analysis_advance=0;self._roots_cache=None;self.realization_view.clear_result();self.result_tabs.setTabEnabled(2,False)
                 self.frequency_data=data;self.frequency_export.setEnabled(data is not None)

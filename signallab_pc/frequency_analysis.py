@@ -154,7 +154,7 @@ def crossover_margins(system,omega,response,*,advance=0):
 def frequency_summary(exact,data):
     from .result_summary import Summary,Section,Formula,number
     sections=[Section('Definición',paragraphs=[exact['scope']],formulas=[Formula('H = '+exact['transfer'],'H = '+exact['transfer'])])]
-    if exact.get('model_kind')=='expression':
+    if exact.get('model_kind') in ('expression','frequency'):
         sections.append(Section('Alcance de la expresión',paragraphs=[exact.get('analysis_limits','La definición se conserva sin convertirla en una lista de coeficientes.'),exact.get('frequency_interpretation','')],rows=[('Condición de frecuencia',exact.get('frequency_condition','No determinada')),('Muestras excluidas por la condición',str(exact.get('masked_frequency_samples',0))) ]))
     original=exact.get('source_calculation',{})
     if original.get('request',{}).get('operation')=='z_expression':

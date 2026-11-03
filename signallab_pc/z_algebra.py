@@ -43,7 +43,7 @@ def direct(request):
     if pair is not None:
         answer['method']='table_pairs'
         if pair['empty']:
-            answer['convergence_empty']=True;answer['evaluated']=False;answer['roc']='Vacía: no existe una región abierta de convergencia.'
+            answer['convergence_empty']=True;answer['evaluated']=False;answer['roc']='No existe un anillo abierto de convergencia absoluta. La convergencia de Fourier sobre |z|=1 se comprueba por separado.'
             if lower==-sp.oo and upper==sp.oo:
                 from .dtft_pairs import direct as dtft_pairs
                 boundary=dtft_pairs(expression)

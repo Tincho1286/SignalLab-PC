@@ -15,8 +15,9 @@ class ExpressionSystem:
     sample_period_s:float|None=None
     name:str='Sistema definido por expresión'
     advance:int=0
+    definition_kind:str='expression'
     def to_document(self):
-        return dict(format='signallab-expression-system',version=1,expression=self.expression,domain=self.domain,frequency_expression=self.frequency_expression,condition=self.condition,interpretation=self.interpretation,sample_period_s=self.sample_period_s)
+        return dict(format='signallab-expression-system',version=1,expression=self.expression,domain=self.domain,frequency_expression=self.frequency_expression,definition_kind=self.definition_kind,condition=self.condition,interpretation=self.interpretation,sample_period_s=self.sample_period_s)
 
 
 def _sample(value,omega,repair=False,eligible=None,extensions=None,role='H'):
@@ -68,6 +69,35 @@ def _condition_mask(condition,omega):
     with np.errstate(all='ignore'):return np.broadcast_to(np.asarray(function(omega),dtype=bool),omega.shape).copy()
 
 
+def smooth_frequency_derivative(frequency,omega):
+    """Ordinary branch derivatives; a jump has no ordinary group delay."""
+    from .symbolic import W
+    modules=sorted(frequency.atoms(sp.Mod),key=sp.count_ops,reverse=True)
+    replacements={term:sp.Dummy('fold',real=True) for term in modules}
+    smooth=frequency.xreplace(replacements)
+    derivative=sp.diff(smooth,W)
+    for term,symbol in replacements.items():
+        # A variable modulus needs a different derivative and is left explicit.
+        if term.args[1].has(W):return sp.diff(frequency,W),np.zeros(omega.shape,dtype=bool)
+        derivative+=sp.diff(smooth,symbol)*sp.diff(term.args[0],W)
+    derivative=derivative.xreplace({v:k for k,v in replacements.items()})
+    epsilon=128*np.finfo(float).eps*np.maximum(1,abs(omega))
+    left,right=omega-epsilon,omega+epsilon
+    candidates=np.zeros(omega.shape,dtype=bool)
+    for term in frequency.atoms(sp.Piecewise):
+        branches=sp.Piecewise(*[(sp.Integer(index),condition) for index,(_,condition) in enumerate(term.args)])
+        candidates|=(_sample(branches,left)!=_sample(branches,right))
+    for term in modules:
+        a,b=_sample(term,left),_sample(term,right)
+        period=_sample(term.args[1],omega)
+        candidates|=(abs(a-b)>abs(period)/2)
+    jumps=np.zeros(omega.shape,dtype=bool)
+    if np.any(candidates):
+        a,b=_sample(frequency,left[candidates]),_sample(frequency,right[candidates])
+        jumps[candidates]=~np.isfinite(a)|~np.isfinite(b)|(abs(a-b)>1e-8*np.maximum(1,np.maximum(abs(a),abs(b))))
+    return derivative,jumps
+
+
 def analyze_expression(exact,request,omega,*,period=None,logarithmic=False,margins=False):
     from .symbolic import execute,parse,S,Z,W
     from .frequency_analysis import FrequencyData
@@ -78,8 +108,10 @@ def analyze_expression(exact,request,omega,*,period=None,logarithmic=False,margi
     if exact.get('parameters'):
         exact['frequency_notice']='Asigná valores a los parámetros: '+', '.join(exact['parameters'])+'.'
         return exact,None
-    expression=parse(exact['transfer']);frequency=sp.simplify(expression.subs(variable,sp.exp(sp.I*W) if domain=='digital' else sp.I*W))
+    frequency_only=exact.get('model_kind')=='frequency'
+    expression=parse(exact['transfer']);frequency=expression if frequency_only else sp.simplify(expression.subs(variable,sp.exp(sp.I*W) if domain=='digital' else sp.I*W))
     condition=sp.true;interpretation='Evaluación de H(exp(iω)) o H(iΩ). La fórmula por sí sola no determina la ROC ni demuestra convergencia de Fourier.'
+    if frequency_only:interpretation='Respuesta en frecuencia ingresada directamente. Su existencia y soporte se conservan cuando proviene de una DTFT; no se infiere una ROC abierta de Z.'
     origin=request.get('source_calculation')
     for _ in range(8):
         nested=origin.get('result',{}).get('source_calculation') if isinstance(origin,dict) else None
@@ -89,8 +121,14 @@ def analyze_expression(exact,request,omega,*,period=None,logarithmic=False,margi
     if source.get('operation')=='z_expression':
         from .result_expressions import expression_result
         original=expression_result(origin)
-        if original is None or sp.cancel(parse(original.source)-expression)!=0:
+        if original is None or original.variable!=('w' if frequency_only else 'z') or sp.simplify(parse(original.source)-expression)!=0:
             raise ValueError('La fórmula y la transformada de origen no coinciden. Volvé a cargar la expresión para recuperar sus condiciones, o calculá la fórmula editada sin ese contexto.')
+    if frequency_only and source.get('operation') in ('dtft_expression','fourier_angular'):
+        original=origin.get('result',{})
+        if not original.get('evaluated') or sp.simplify(parse(original['result'])-expression)!=0:
+            raise ValueError('La respuesta y la transformada de origen no coinciden.')
+        condition=parse(original.get('condition','True'))
+        interpretation='Respuesta de Fourier calculada desde la señal original. Se conservan sus condiciones de convergencia y sus unidades.'
     if domain=='digital' and source.get('operation')=='z_expression':
         result=execute(dict(operation='dtft_expression',expression=source['expression'],lower=source.get('lower','0'),upper=source.get('upper','oo')))
         if result.get('evaluated'):
@@ -102,19 +140,21 @@ def analyze_expression(exact,request,omega,*,period=None,logarithmic=False,margi
     omega=np.asarray(omega,dtype=float);eligible=_condition_mask(condition,omega)
     extensions=[]
     response=_sample(frequency,omega,repair=True,eligible=eligible,extensions=extensions);response[~eligible|~np.isfinite(response)]=complex(np.nan,np.nan)
-    derivative=sp.diff(frequency,W)
+    derivative,jumps=smooth_frequency_derivative(frequency,omega)
     with np.errstate(all='ignore'):
         slope=_sample(derivative,omega,repair=True,eligible=eligible,extensions=extensions,role='dH/dω');delay=-(slope/response).imag;magnitude=abs(response);db=20*np.log10(magnitude)
     valid=eligible&np.isfinite(response)&(magnitude>0)
-    delay=np.where(valid&np.isfinite(delay),delay,np.nan);phase=np.full(omega.shape,np.nan)
+    delay=np.where(valid&~jumps&np.isfinite(delay),delay,np.nan);phase=np.full(omega.shape,np.nan)
     for segment in np.split(np.flatnonzero(valid),np.flatnonzero(np.diff(np.flatnonzero(valid))>1)+1):
         if segment.size:phase[segment]=np.unwrap(np.angle(response[segment]))
     system=ExpressionSystem(exact['transfer'],domain,str(frequency),str(condition),interpretation,period)
+    system.definition_kind='frequency' if frequency_only else 'expression'
     margin_data=None
     if margins:margin_data=dict(available=False,reason='Esta vista conserva una expresión no racional. El cálculo de márgenes de esta herramienta requiere una transferencia racional.',convention='No se calcularon márgenes.',scope='No se ha inferido estabilidad a partir de una curva de frecuencia.')
     data=FrequencyData(system,omega,response,magnitude,db,phase,delay,logarithmic,0,margin_data)
     exact['frequency_limit_extensions']=extensions
+    exact['group_delay_jump_samples']=int(np.count_nonzero(jumps))
     exact.update(frequency_expression=str(frequency),frequency_condition=str(condition),frequency_interpretation=interpretation,masked_frequency_samples=int(np.count_nonzero(~eligible)),
-        analysis_limits='Se conserva H como expresión. No se calcularon una lista finita de polos/ceros ni una realización b/a. La fase y el retardo se excluyen donde la respuesta es nula, no finita o la condición no puede distinguirse con precisión numérica.')
+        analysis_limits='Se conserva H como expresión. No se calcularon una lista finita de polos/ceros ni una realización b/a. La fase y el retardo no se muestran donde la respuesta es nula, no finita o su condición no puede distinguirse con precisión numérica. El retardo tampoco se define en saltos de la respuesta.')
     if origin is not None:exact['source_calculation']=deepcopy(origin)
     return exact,data

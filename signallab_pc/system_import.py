@@ -53,8 +53,9 @@ class SystemImporter:
             from .result_expressions import expression_result
             from .transfer_input import formula_system
             expression=expression_result(source)
-            if expression is None or expression.variable not in ('s','z'):raise ValueError('Elegí un sistema o una expresión en s o z.')
             editor=getattr(self.receive,'__self__',None)
+            allowed=('s','z','w') if getattr(editor,'accepts_system_expressions',False) else ('s','z')
+            if expression is None or expression.variable not in allowed:raise ValueError('Este destino requiere una transferencia H(s) o H(z). Las respuestas H(w) se analizan en Análisis de sistemas.')
             if getattr(editor,'accepts_system_expressions',False):
                 editor.load_expression(expression,key,source);self.window.statusBar().showMessage('Fórmula cargada con sus condiciones. Calculá el análisis.');return
             text=expression.source;domain='analog' if expression.variable=='s' else 'digital';domains,advance=self.constraints()
@@ -86,7 +87,7 @@ class SystemImporter:
                 staging=Project();staging.merge(path);headers=staging.headers();index=None
                 for position in range(len(headers)-1,-1,-1):
                     value=staging.get(headers[position]['id']);expression=expression_result(value)
-                    if isinstance(value,Transfer) or expression is not None and expression.variable in ('s','z'):index=position;break
+                    if isinstance(value,Transfer) or expression is not None and expression.variable in ('s','z','w'):index=position;break
                 if index is None:raise ValueError('El archivo no contiene una definición en s o z.')
                 before=len(self.window.project.headers());self.window.project.merge(path);imported=self.window.project.headers()[before+index]['id']
                 key=self.window.publish(self.window.project.get(imported),operation='Importación de definición de sistema',parents=[imported]);self.load_result(key);return

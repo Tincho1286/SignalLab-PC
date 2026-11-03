@@ -185,12 +185,12 @@ def transform_summary(request,result):
     elif op=='z_finite':sections.append(Section('Registro de entrada',rows=[('Primer índice',str(request['origin'])),('Muestras',str(len(request['samples'])))],paragraphs=['Se considera cero fuera del registro. Los decimales representan los valores almacenados.']))
     branches=result.get('branches',[])
     if result.get('convergence_empty'):
-        sections.append(Section('Sin región de convergencia',paragraphs=['Las condiciones de las colas temporales son incompatibles. '+('La suma bilateral' if z else 'La integral bilateral')+' no converge en una región abierta; la expresión de definición se conserva para identificar el cálculo.']))
+        sections.append(Section('Convergencia de Z y Fourier' if result.get('boundary_dtft') else 'Sin región de convergencia',paragraphs=['Las condiciones de las colas temporales son incompatibles. '+('La suma bilateral' if z else 'La integral bilateral')+' no converge en una región abierta; la expresión de definición se conserva para identificar el cálculo.']))
     elif result.get('evaluated') is False:
         sections.append(Section('Cálculo pendiente',paragraphs=['El motor no obtuvo una expresión cerrada para este caso. La expresión siguiente conserva el cálculo sin resolver; no representa una solución evaluada.']))
     if result.get('boundary_dtft'):
         boundary='X(exp(i*w)) = '+result['boundary_dtft']
-        sections.append(Section('DTFT sobre el círculo unitario',paragraphs=['Esta es la transformada de Fourier de la misma secuencia, no una transformada Z válida en una región abierta. Es 2π-periódica y en los saltos toma el promedio de los límites laterales. También podés calcularla y graficarla en Fourier → DTFT con soporte de −oo a oo.'],formulas=[Formula(boundary,boundary)]))
+        sections.append(Section('DTFT sobre el círculo unitario',paragraphs=['Esta es la transformada de Fourier de la misma secuencia, no una transformada Z válida en una región abierta. Es 2π-periódica y en los saltos toma el promedio de los límites laterales. Podés analizar módulo, fase y retardo con «Analizar respuesta H(exp(iw))». También podés calcularla y graficarla en Fourier → DTFT con soporte de −oo a oo.'],formulas=[Formula(boundary,boundary)]))
     if branches:
         for i,branch in enumerate(branches):
             expression=lhs+' = '+branch['expression']

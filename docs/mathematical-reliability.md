@@ -40,7 +40,7 @@ La generación de ventanas, el enventanado de h[n] y la estimación espectral ut
 
 ## Control antes de construir un portable
 
-Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` antes de empaquetar. Si falla, la construcción se detiene. El contrato `mathematical-families-v2` contiene 74 pruebas con variantes, agrupadas por familia y con un grupo adicional de propiedades de transformadas. Cada grupo exige una cantidad mínima de casos y no admite omisiones silenciosas:
+Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` antes de empaquetar. Si falla, la construcción se detiene. El contrato `mathematical-families-v2` contiene 76 pruebas con variantes, agrupadas por familia y con un grupo adicional de propiedades de transformadas. Cada grupo exige una cantidad mínima de casos y no admite omisiones silenciosas:
 
 | Familia | Referencias principales |
 |---|---|
@@ -85,7 +85,7 @@ Un barrido satisfactorio amplía la evidencia para los casos explorados. No conv
 
 ## Contratos de reutilización entre herramientas
 
-Una transformación correcta no basta para comprobar el destino que recibe su resultado. Los constructores oficiales ejecutan también `tools/check_workflows.py`, con un proceso Qt aislado y sin modificar las preferencias del usuario. Los seis recorridos comprueban los botones reales de Transformada Z y Análisis de sistemas, la biblioteca de resultados, Cargar sistema, H(s) general, exportación/apertura de una definición y conservación del modelo racional.
+Una transformación correcta no basta para comprobar el destino que recibe su resultado. Los constructores oficiales ejecutan también `tools/check_workflows.py`, con un proceso Qt aislado y sin modificar las preferencias del usuario. Los nueve recorridos comprueban los botones reales de Transformada Z y Análisis de sistemas, la biblioteca de resultados, Cargar sistema, H(s) general, exportación/apertura de una definición y conservación del modelo racional. También comprueban sinc bilateral sin anillo abierto de ROC, reutilización de su DTFT como respuesta del sistema y apertura/reapertura de la figura desde el botón Graficar resultado. Las excepciones de las acciones Qt cuentan como fallos.
 
 Una expresión con logaritmos, exponenciales o funciones especiales no se convierte a un cociente de polinomios. Análisis de sistemas conserva su fórmula y obtiene su respuesta en frecuencia. Si procede de una Z directa, se comprueba la coincidencia de la fórmula con el resultado de origen antes de utilizar la secuencia y su soporte para Fourier. Una edición invalida ese contexto. Los controles de polos/ceros y realización finita permanecen asociados a modelos racionales; los resultados por expresión conservan sus propias acciones de exportación y reutilización.
 

@@ -88,17 +88,26 @@ class SymbolicFourierPanel(QWidget):
             from .transform_steps import summary as steps_summary
             self.steps.set_readable(steps_summary(result.get('derivation',[])));self.tabs.setTabVisible(self.steps_index,bool(result.get('derivation')))
         self.window._run_operation('Calculando Fourier algebraica…',lambda:run_request(request),accept)
+    def open_output_plot(self):
+        from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
+        from .plot_view import install_enlarge,enlarge_plot
+        canvas=self.output.canvas
+        if getattr(canvas,'_signallab_window',None) is None:
+            for toolbar in self.output.findChildren(NavigationToolbar2QT):
+                if toolbar.canvas is canvas:install_enlarge(toolbar);break
+        self.output.views.setCurrentIndex(0)
+        canvas.draw()
+        enlarge_plot(canvas,self)
     def sample(self):
         if self.last is None:return
         key,result=self.last
         if not result['evaluated'] or result['condition']!='True':return
         if self.discrete and self.inverse:
-            from .numeric_input import integer_field
             try:request=dict(operation='inverse_dtft_samples',expression=result['input_expression'],start=integer_field(self.start),count=integer_field(self.count))
             except ValueError as exc:QMessageBox.warning(self,'Revisá los índices',str(exc));return
             def accept(data):
                 signal=Signal([complex(*v) for v in data['samples']],data['origin'],1,'n','DTFT inversa','discrete','',{'operation':'inverse_dtft_expression_samples','scope':result['scope'],'source_expression':result['input_expression']})
-                output_id=self.window.publish(signal,operation='Muestras de DTFT inversa',parents=[key]);self.output.show_result(signal);self.output.result_ids=[output_id];self.tabs.setTabVisible(1,True);self.tabs.setCurrentIndex(1)
+                output_id=self.window.publish(signal,operation='Muestras de DTFT inversa',parents=[key]);self.output.show_result(signal);self.output.result_ids=[output_id];self.tabs.setTabVisible(1,True);self.tabs.setCurrentIndex(1);self.open_output_plot()
             self.window._run_operation('Evaluando DTFT inversa…',lambda:run_request(request),accept);return
         try:request=dict(operation='expression_grid',expression=result['result'],variable=result['output_variable'],start=real_field(self.start),stop=real_field(self.stop),count=integer_field(self.count))
         except ValueError as exc:QMessageBox.warning(self,'Revisá la rejilla',str(exc));return
@@ -106,5 +115,5 @@ class SymbolicFourierPanel(QWidget):
             temporal=data['variable']=='t'
             signal=Signal([complex(*v) for v in data['samples']],data['origin'],data['step'],'s' if temporal else result['frequency_units'],'x(t)' if temporal else 'X(w)','continuous' if temporal else 'frequency',data['expression'],
                 {'operation':'fourier_expression_samples','scope':data['scope'],'source_condition':result['condition'],'convention':result['convention']})
-            self.window.publish(signal,operation='Muestreo de resultado Fourier algebraico',parents=[key]);self.output.show_result(signal);self.tabs.setTabVisible(1,True);self.tabs.setCurrentIndex(1)
+            self.window.publish(signal,operation='Muestreo de resultado Fourier algebraico',parents=[key]);self.output.show_result(signal);self.tabs.setTabVisible(1,True);self.tabs.setCurrentIndex(1);self.open_output_plot()
         self.window._run_operation('Evaluando expresión resuelta…',lambda:run_request(request),accept)

@@ -26,6 +26,8 @@ def source_info(project, key, kind):
         if expression is not None and expression.variable in ('s', 'z'):
             return {'domain': 'analog' if expression.variable == 's' else 'digital', 'advance': None,
                     'variable': expression.variable, 'label': 'Expresión como H('+expression.variable+')', 'definition': 'expression'}
+        if expression is not None and expression.variable=='w' and expression.units in ('rad/s','rad/muestra'):
+            return {'domain':'analog' if expression.units=='rad/s' else 'digital','advance':None,'variable':'w','label':'Respuesta en frecuencia H(w)','definition':'expression'}
         return None
     if kind == 'temporal_expression':
         expression = temporal_expression(project, key)

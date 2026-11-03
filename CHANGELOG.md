@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.4.2**.
 
+## 1.5.5 · preliminar
+
+- Análisis de DTFT como H(exp(iw)) aunque Z no tenga un anillo abierto de convergencia absoluta.
+- Entrada de respuesta H(w), reutilización desde Resultados y exportación/apertura de definiciones.
+- Retardo de grupo excluido en saltos y respuestas nulas; fase de sinc con centros fraccionarios.
+- Corrección del botón Graficar resultado de Fourier algebraica y apertura explícita de la figura.
+- Nueve recorridos Qt y 76 controles matemáticos de referencia obligatorios, además del barrido preventivo.
+
+[Notas de la preliminar](docs/releases/v1.5.5-preview.md)
+
 ## 1.5.4 · preliminar
 
 - Análisis de transferencias no racionales como expresiones, sin forzar coeficientes b/a.

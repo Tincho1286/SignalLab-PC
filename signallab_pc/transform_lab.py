@@ -121,8 +121,10 @@ class TransformLab(QWidget):
     def update_system_action(self):
         inverse=self.mode.currentIndex()==1;variable='z' if self.kind=='z' else 's'
         self.analyze_system.setText('Analizar X('+variable+') '+('ingresada' if inverse else 'calculada')+' como H('+variable+')…')
-        self.analyze_system.setVisible(True);self.analyze_system.setEnabled(inverse or (self.last is not None and self.last.get('evaluated',True) and len(self.last.get('branches',[]))<=1))
-        self.analyze_system.setToolTip('Copia la expresión racional al análisis de sistemas. Allí podés calcular frecuencia, retardo y polos/ceros. Se necesitan coeficientes numéricos; los parámetros libres requieren valores.')
+        boundary=not inverse and self.last is not None and bool(self.last.get('boundary_dtft'))
+        if boundary:self.analyze_system.setText('Analizar respuesta H(exp(iw))…')
+        self.analyze_system.setVisible(True);self.analyze_system.setEnabled(inverse or boundary or (self.last is not None and self.last.get('evaluated',True) and len(self.last.get('branches',[]))<=1))
+        self.analyze_system.setToolTip('Abre el análisis con la expresión y sus condiciones. Una DTFT permite consultar módulo, fase y retardo aunque no exista un anillo abierto de convergencia de Z. Polos/ceros y realizaciones finitas requieren una transferencia racional.')
     def display_record(self,record):
         self.to_cas_button.show();self.to_cas_button.setEnabled(False);self.copy_inverse.hide();self.tabs.setTabVisible(1,False);self.tabs.setTabVisible(self.steps_index,False);self.tabs.setCurrentIndex(0)
         if record is None:
@@ -130,7 +132,7 @@ class TransformLab(QWidget):
         request,result,key,snapshot,signal=record;self.last=result;self.report.set_readable(transform_summary(request,result));self.result_state.accept(snapshot)
         from .transform_steps import summary as steps_summary
         self.steps.set_readable(steps_summary(result.get('derivation',[])));self.tabs.setTabVisible(self.steps_index,bool(result.get('derivation')))
-        self.to_cas_button.setEnabled(result.get('evaluated',True) and len(result.get('branches',[]))<=1)
+        self.to_cas_button.setEnabled(bool(result.get('boundary_dtft')) or result.get('evaluated',True) and len(result.get('branches',[]))<=1)
         direct=request['operation'] not in ('inverse_laplace','z_inverse_expression')
         self.copy_inverse.setVisible(direct and result.get('evaluated',True) and len(result.get('branches',[]))<=1)
         if signal is not None:self.output.show_result(signal);self.tabs.setTabVisible(1,True)
@@ -166,8 +168,8 @@ class TransformLab(QWidget):
             else:
                 if record is None:return
                 result=record[1];branches=result.get('branches',[])
-                if result.get('evaluated') is False or len(branches)>1:raise ValueError('Elegí una expresión evaluada única antes de analizarla como sistema.')
-                expression=branches[0]['expression'] if branches else result['result'];parents=[record[2]]
+                if result.get('evaluated') is False and not result.get('boundary_dtft') or len(branches)>1:raise ValueError('Elegí una expresión evaluada única antes de analizarla como sistema.')
+                expression=result['boundary_dtft'] if result.get('boundary_dtft') else branches[0]['expression'] if branches else result['result'];parents=[record[2]]
             from .workspaces import ROUTES
             from .result_expressions import ExpressionResult
             from .transform_context import result_roc
@@ -175,8 +177,9 @@ class TransformLab(QWidget):
             origin={'request':record[0],'result':record[1]} if record is not None and not inverse else None
             roc_spec=({'mode':['right','left','radius'][self.roc.currentIndex()],**({'radius':real_field(self.radius)} if self.roc.currentIndex()==2 else {})} if self.kind=='z' and inverse else ({'mode':['right','left','line'][self.laplace_roc.currentIndex()],**({'sigma':real_field(self.sigma)} if self.laplace_roc.currentIndex()==2 else {})} if self.interpretation.currentIndex()==1 else {'mode':'right'}) if self.kind=='laplace' and inverse else result_roc(origin) if origin else None)
             self.window.open_tool(ROUTES['system_analysis',0]);panel=self.window.pages[self.window.current_operation].panel
-            panel.load_expression(ExpressionResult(expression,'z' if domain=='digital' else 's'),parents[0] if parents else None,origin,roc_spec)
-            self.window.statusBar().showMessage('Fórmula copiada como H('+('z' if domain=='digital' else 's')+'). Calculá el análisis con sus condiciones originales.')
+            boundary=origin is not None and bool(origin['result'].get('boundary_dtft'))
+            panel.load_expression(ExpressionResult(expression,'w' if boundary else 'z' if domain=='digital' else 's',units='rad/muestra' if boundary else ''),parents[0] if parents else None,origin,roc_spec)
+            self.window.statusBar().showMessage('Fórmula copiada como H('+('exp(iw)' if boundary else 'z' if domain=='digital' else 's')+'). Calculá el análisis con sus condiciones originales.')
         except Exception as exc:QMessageBox.warning(self,'No se pudo analizar como sistema',str(exc))
     def validate_fields(self):
         from .validation import invalid
