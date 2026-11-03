@@ -22,6 +22,7 @@ class ExpressionSystem:
 
 def _sample(value,omega,repair=False,eligible=None,extensions=None,role='H'):
     from .symbolic import W
+    value=value.xreplace({sp.zoo:sp.nan,sp.oo:sp.nan,-sp.oo:sp.nan})
     try:
         function=sp.lambdify(W,value,modules=[{'sqrt':np.emath.sqrt,'log':np.emath.log},'scipy','numpy'])
         with np.errstate(all='ignore'):result=function(omega)
@@ -127,6 +128,11 @@ def analyze_expression(exact,request,omega,*,period=None,logarithmic=False,margi
         original=expression_result(origin)
         if original is None or original.variable!=('w' if frequency_only else 'z') or sp.simplify(parse(original.source)-expression)!=0:
             raise ValueError('La fórmula y la transformada de origen no coinciden. Volvé a cargar la expresión para recuperar sus condiciones, o calculá la fórmula editada sin ese contexto.')
+    if frequency_only and isinstance(origin,dict) and origin.get('cas_answer'):
+        answer=origin['cas_answer']
+        if answer.get('frequency_units') in ('rad/s','rad/muestra','incompatible') and answer.get('frequency_units')!=('rad/muestra' if domain=='digital' else 'rad/s'):raise ValueError('La unidad de frecuencia del resultado CAS no coincide con el dominio elegido.')
+        condition=parse(answer.get('frequency_condition','True'))
+        interpretation='Expresión procedente del CAS. Se conservan la unidad de w y las restricciones de las reescrituras algebraicas; las condiciones de origen no se convierten en una ROC nueva.'
     if frequency_only and source.get('operation') in ('dtft_expression','fourier_angular'):
         original=origin.get('result',{})
         if not original.get('evaluated') or sp.simplify(parse(original['result'])-expression)!=0:

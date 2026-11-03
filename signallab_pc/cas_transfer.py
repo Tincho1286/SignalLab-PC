@@ -14,6 +14,7 @@ def can_send(value):
     if isinstance(value,dict) and (expression_result(value) is not None or 'cas_answer' in value):return True
     if is_dataclass(value):return can_send(asdict(value))
     if isinstance(value,(int,float,complex,np.number,np.ndarray)):return True
+    if isinstance(value,dict) and value.get('format')=='signallab-expression-grid':return False
     if isinstance(value,dict):return 'record' in value or any(can_send(v) for k,v in value.items() if k not in ('request','report','specifications'))
     if isinstance(value,(tuple,list)):return any(can_send(v) for v in value)
     return False
@@ -22,12 +23,13 @@ def can_send(value):
 def payload(value,window=None,seen=None):
     seen=set() if seen is None else seen
     if isinstance(value,dict):
+        if value.get('format')=='signallab-expression-grid':raise ValueError('Este registro contiene posiciones no definidas. Enviá la expresión algebraica al CAS; no se descartan las filas N/D.')
         if 'cas_answer' in value and value['cas_answer'].get('encoded_value'):
-            answer=value['cas_answer'];return {'kind':'encoded','encoded':answer['encoded_value'],'conditions':answer.get('notices',[]),'provenance':answer.get('provenance')}
+            answer=value['cas_answer'];return {'kind':'encoded','encoded':answer['encoded_value'],'conditions':answer.get('notices',[]),'provenance':answer.get('provenance'),'frequency_units':answer.get('frequency_units',''),'frequency_condition':answer.get('frequency_condition','True'),'coordinate_variable':answer.get('coordinate_variable')}
         expression=expression_result(value)
         if expression is not None:
             return {'kind':'expression','source':expression.source,'variable':expression.variable,'conditions':list(expression.conditions),
-                    'encoded':value.get('result',{}).get('cas_encoded'),'numeric_source':expression.numerical_source,'provenance':{name:value.get('result',{}).get(name) for name in ('input_definition','calculation_notes','calculation_status') if name in value.get('result',{})}}
+                    'encoded':value.get('result',{}).get('cas_encoded'),'numeric_source':expression.numerical_source,'frequency_units':expression.units,'frequency_condition':value.get('cas_answer',{}).get('frequency_condition',value.get('result',{}).get('frequency_condition',value.get('result',{}).get('condition','True'))),'provenance':{name:value.get('result',{}).get(name) for name in ('input_definition','calculation_notes','calculation_status') if name in value.get('result',{})}}
         if isinstance(value.get('result'),dict) and value['result'].get('operation')=='signal_measures_expression':
             data={name:{'expression':value['result'][name]['exact']} for name in ('energy','mean_square','rms')}
             return {'kind':'measures','items':data,'conditions':[value['result']['scope'],value['result']['classification']]}

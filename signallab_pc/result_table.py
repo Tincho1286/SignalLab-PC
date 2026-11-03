@@ -16,6 +16,7 @@ class ResultRows(QAbstractTableModel):
         if column==0:
             if source.domain=='discrete':return str(int(source.origin)+index)
             return format(source.origin+source.step*index,'.17g')
+        if not np.isfinite(value):return 'No definido'
         if column==1:return format(value.real,'.17g')
         if column==2:return format(value.imag,'.17g')
         if column==3:return format(abs(value),'.17g')

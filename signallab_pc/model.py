@@ -18,6 +18,7 @@ class Signal:
     metadata: dict[str, Any] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
+        if not isinstance(self.metadata,dict):raise ValueError('Los metadatos de la señal deben ser un diccionario.')
         self.values = np.asarray(self.values, dtype=np.complex128).reshape(-1).copy()
         if self.values.size == 0:
             raise ValueError("La señal debe contener al menos una muestra.")

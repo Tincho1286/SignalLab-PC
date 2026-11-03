@@ -126,12 +126,13 @@ class TransformLab(QWidget):
         self.analyze_system.setVisible(True);self.analyze_system.setEnabled(inverse or boundary or (self.last is not None and self.last.get('evaluated',True) and len(self.last.get('branches',[]))<=1))
         self.analyze_system.setToolTip('Abre el análisis con la expresión y sus condiciones. Una DTFT permite consultar módulo, fase y retardo aunque no exista un anillo abierto de convergencia de Z. Polos/ceros y realizaciones finitas requieren una transferencia racional.')
     def display_record(self,record):
-        self.to_cas_button.show();self.to_cas_button.setEnabled(False);self.copy_inverse.hide();self.tabs.setTabVisible(1,False);self.tabs.setTabVisible(self.steps_index,False);self.tabs.setCurrentIndex(0)
+        self.to_cas_button.setText('Enviar a CAS');self.to_cas_button.show();self.to_cas_button.setEnabled(False);self.copy_inverse.hide();self.tabs.setTabVisible(1,False);self.tabs.setTabVisible(self.steps_index,False);self.tabs.setCurrentIndex(0)
         if record is None:
             self.last=None;self.result_state.completed=None;self.report.setPlainText('Completá la entrada y calculá. Aquí aparecerán la expresión y sus condiciones.');self.update_system_action();return
         request,result,key,snapshot,signal=record;self.last=result;self.report.set_readable(transform_summary(request,result));self.result_state.accept(snapshot)
         from .transform_steps import summary as steps_summary
         self.steps.set_readable(steps_summary(result.get('derivation',[])));self.tabs.setTabVisible(self.steps_index,bool(result.get('derivation')))
+        if result.get('boundary_dtft'):self.to_cas_button.setText('Enviar DTFT al CAS')
         self.to_cas_button.setEnabled(bool(result.get('boundary_dtft')) or result.get('evaluated',True) and len(result.get('branches',[]))<=1)
         direct=request['operation'] not in ('inverse_laplace','z_inverse_expression')
         self.copy_inverse.setVisible(direct and result.get('evaluated',True) and len(result.get('branches',[]))<=1)

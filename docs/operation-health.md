@@ -1,35 +1,36 @@
 # Operation Health
 
-Operation Health es una revisión de robustez en entregas preliminares. Se priorizan resultados matemáticos coherentes, transferencia de datos entre herramientas, acciones de interfaz que respondan y diagnósticos útiles cuando una operación falla. La aceptación de uso y visual de cada preview corresponde a las pruebas del usuario; los controles automáticos básicos evitan distribuir fallos ya reproducidos.
+Operation Health es un ciclo de mantenimiento de SignalLab PC mediante entregas preliminares, hasta la próxima versión estable. Cada preview agrupa varias correcciones relacionadas de cálculo, transferencia de datos, importación y funcionamiento de la interfaz. La prioridad son los defectos que pueden alterar resultados o impedir continuar un trabajo.
 
-## Cómo se entrega cada preview
+Las notas públicas describen las mejoras aplicadas y las limitaciones conocidas. Los controles automáticos básicos forman parte de la construcción; la promoción a estable requiere además revisar el funcionamiento y resolver los problemas bloqueantes detectados durante el uso.
 
-Cada entrega publica portables de Windows y Linux, fuentes y notas con cuatro apartados: errores corregidos, fallos que se busca prevenir, casos que puede probar el usuario y pendientes conocidos. Cada caso manual indica el menú, los datos, la acción y el resultado esperado. No se publica una corrección como confirmada cuando sólo hay una sospecha. Las medidas preventivas describen su cobertura, sin prometer ausencia de errores futuros.
+## Entregas del ciclo
 
-## Registro de hallazgos
+- **1.5.6 — Operation Health 1:** filtros ideales con escalones, estado después de un fallo de presentación, diagnóstico visible y prevención de errores de nombres/importaciones en el código.
+- **1.5.7 — Operation Health 2:** sinc bilateral, condiciones y unidades en CAS, posiciones no definidas en gráficos, ejes MATLAB exactos e intercambio CSV/JSON.
 
-| ID | Hallazgo y evidencia | Estado |
+## Hallazgos tratados
+
+| ID | Hallazgo | Entrega |
 |---|---|---|
-| OH-001 | H(w)=step(pi/2-abs(w))*exp(-4*i*w) generaba NameError al intentar evaluar DiracDelta como retardo ordinario. | Corregido en 1.5.6-preview; aceptación manual pendiente. |
-| OH-002 | Una excepción de una acción Qt fuera del cálculo sólo llegaba al manejador de Python; el portable sin consola podía parecer inactivo. Reproducido con un botón real. | Diagnóstico visible en 1.5.6-preview. |
-| OH-003 | Si fallaba la presentación del resultado, la barra seguía mostrando el mensaje del cálculo. Reproducido invocando la recepción real de un resultado. | Corregido en 1.5.6-preview. |
-| OH-004 | Los fallos del proceso de trabajo sólo enviaban str(error), perdiendo tipo y ubicación de la excepción. | Corregido en 1.5.6-preview; diagnóstico local con tamaño limitado. |
-| OH-005 | Una importación local condicional puede ocultar un nombre importado por el módulo y romper otro recorrido del mismo botón, como ocurrió en Graficar resultado. | Prevención añadida en 1.5.6-preview: análisis estático y controles de acciones Qt. No es un análisis completo de todos los caminos posibles. |
-| OH-006 | DTFT algebraica exige condición=True para habilitar Graficar; una DTFT convergente salvo en frecuencias concretas queda bloqueada por completo. Evidencia: condiciones de convergencia válidas y bloqueo explícito del botón. | Pendiente para la siguiente tanda. |
-| OH-007 | MATLAB: un eje int64 [9007199254740993, 9007199254740994, 9007199254740995] se importó desplazado una muestra al convertir el origen a float. | Reproducido; prioridad de la siguiente tanda. |
-| OH-008 | DTFT → CAS → Resultados conserva w, pero pierde rad/muestra en el registro importado. | Reproducido; pendiente de conservar contexto y unidades. |
-| OH-009 | Se exporta un registro continuo de paso negativo a CSV, pero no puede volver a abrirse con el importador propio. | Reproducido; pendiente de coherencia de intercambio. |
-| OH-010 | Signal acepta metadatos que no son un diccionario; otras herramientas esperan un diccionario. | Reproducido; pendiente de validación en la entrada del modelo. |
-| OH-011 | Un archivo de proyecto con un registro de señal incompleto devuelve KeyError en vez de explicar qué registro es inválido. Los resultados existentes se conservan. | Reproducido; pendiente de validación de archivos. |
+| OH-001 | El análisis de retardo de un filtro con step intentaba evaluar DiracDelta como un número. | 1.5.6 |
+| OH-002 | Las excepciones inesperadas de acciones Qt podían dejar un botón aparentemente inactivo. | 1.5.6 |
+| OH-003 | Un fallo de presentación mantenía el mensaje de cálculo en curso. | 1.5.6 |
+| OH-004 | Se perdía la traza de los errores del proceso de trabajo. | 1.5.6 |
+| OH-005 | Una importación local condicional podía ocultar un nombre del módulo usado en otro recorrido. | Prevención desde 1.5.6 |
+| OH-006 | Una condición de convergencia deshabilitaba toda la gráfica de DTFT. | 1.5.7 |
+| OH-007 | La importación MATLAB proyectaba un origen int64 a float y podía desplazar índices grandes. | 1.5.7 |
+| OH-008 | DTFT → CAS → Resultados perdía la unidad de frecuencia. | 1.5.7 |
+| OH-009 | Un CSV propio de eje descendente se exportaba, pero no volvía a abrirse. | 1.5.7 |
+| OH-010 | Se admitían metadatos de señal de un tipo incompatible con otras herramientas. | 1.5.7 |
+| OH-011 | Los archivos incompletos producían errores de claves en lugar de mensajes de validación. | 1.5.7 |
+| OH-012 | La suma formal de Z de una sinc bilateral podía confundirse con un resultado simplificable. | 1.5.7 |
+| OH-013 | La cancelación de un cociente en CAS podía borrar restricciones de su respuesta de frecuencia importada. | 1.5.7 |
 
-## Siguientes tandas
+## Continuidad hacia la estable
 
-1. Condiciones y reutilización: muestreo de resultados condicionados, conservación de soporte, unidades y restricciones al copiar, exportar, importar y enviar al CAS. Revisar entradas editadas frente al último resultado calculado.
-2. Escalas y datos numéricos: bordes, ceros, polos, muestras grandes o pequeñas, pasos de ejes y coincidencia entre datos, tabla, cursor y exportación. Revisar CSV/JSON/MATLAB y errores de entrada sin modificar resultados anteriores.
-3. Recorrido de herramientas: abrir las opciones públicas, comprobar sus acciones principales y registrar qué variantes quedan cubiertas. Añadir una regresión cuando se confirme una familia nueva de fallos.
-
-Estas tandas son objetivos de revisión, no funcionalidades nuevas. Los problemas confirmados que afectan resultados tienen prioridad sobre mejoras visuales. Una preview no se convierte en estable sólo por superar los controles automáticos.
+La revisión continúa sobre bordes, ceros y polos, escala numérica, coincidencia entre figura/tabla/exportación y recorridos entre herramientas. Los fallos de cálculo o pérdida de datos tienen prioridad sobre cambios visuales. Las previews permiten incorporar correcciones de forma gradual sin promover automáticamente una entrega a estable.
 
 ## Diagnósticos
 
-Los errores inesperados permiten copiar un diagnóstico con referencia, versión, plataforma, acción y traza. Se guarda localmente en la carpeta de datos de SignalLab; el cuadro indica la ruta. Los archivos rotan con un máximo aproximado de 1,5 MiB. No se transmiten automáticamente. Los errores normales de datos conservan sus mensajes de validación cuando la herramienta ya los gestiona.
+Los errores inesperados permiten copiar una referencia, versión, plataforma, acción y traza. Los diagnósticos se guardan localmente con rotación y tamaño limitado; no se transmiten automáticamente.

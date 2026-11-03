@@ -37,6 +37,8 @@ class SymbolicFourierPanel(QWidget):
         self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.report.setReadOnly(True);self.tabs.addTab(report_panel(self.report),'Expresión y condiciones')
         self.report.setPlainText('Ingresá la expresión y calculá. Si el resultado admite valores numéricos, aparecerán los campos para graficarlo.')
         self.output=ResultView();self.tabs.addTab(self.output,'Registro numérico');self.tabs.setTabVisible(1,False)
+        from .expression_grid_view import ExpressionGridView
+        self.masked=ExpressionGridView();self.masked_index=self.tabs.addTab(self.masked,'Valores condicionados');self.tabs.setTabVisible(self.masked_index,False)
         self.steps=ReportView();self.steps_index=self.tabs.addTab(report_panel(self.steps),'Desarrollo');self.tabs.setTabVisible(self.steps_index,False)
     def to_cas(self):
         if self.last is not None:
@@ -68,7 +70,8 @@ class SymbolicFourierPanel(QWidget):
         snapshot=self.result_state.snapshot()
         def accept(result):
             key=self.window.publish({'request':request,'result':result},title='DTFT inversa algebraica' if self.discrete and self.inverse else 'DTFT algebraica' if self.discrete else 'Fourier inversa algebraica' if self.inverse else 'Fourier algebraica',operation=request['operation'],parents=[parent] if parent else [])
-            self.last=(key,result);self.to_cas_button.setEnabled(result['evaluated']);self.sample_button.setEnabled(result['evaluated'] and result['condition']=='True');self.numeric_controls.setVisible(self.sample_button.isEnabled());self.tabs.setCurrentIndex(0);self.result_state.accept(snapshot)
+            self.tabs.setTabVisible(1,False);self.tabs.setTabVisible(self.masked_index,False)
+            self.last=(key,result);self.to_cas_button.setEnabled(result['evaluated']);self.sample_button.setEnabled(result['evaluated']);self.numeric_controls.setVisible(self.sample_button.isEnabled());self.tabs.setCurrentIndex(0);self.result_state.accept(snapshot)
             if self.discrete and self.inverse:
                 from .inverse_dtft_summary import inverse_dtft_summary
                 summary=inverse_dtft_summary(request,result)
@@ -101,7 +104,7 @@ class SymbolicFourierPanel(QWidget):
     def sample(self):
         if self.last is None:return
         key,result=self.last
-        if not result['evaluated'] or result['condition']!='True':return
+        if not result['evaluated']:return
         if self.discrete and self.inverse:
             try:request=dict(operation='inverse_dtft_samples',expression=result['input_expression'],start=integer_field(self.start),count=integer_field(self.count))
             except ValueError as exc:QMessageBox.warning(self,'Revisá los índices',str(exc));return
@@ -109,11 +112,16 @@ class SymbolicFourierPanel(QWidget):
                 signal=Signal([complex(*v) for v in data['samples']],data['origin'],1,'n','DTFT inversa','discrete','',{'operation':'inverse_dtft_expression_samples','scope':result['scope'],'source_expression':result['input_expression']})
                 output_id=self.window.publish(signal,operation='Muestras de DTFT inversa',parents=[key]);self.output.show_result(signal);self.output.result_ids=[output_id];self.tabs.setTabVisible(1,True);self.tabs.setCurrentIndex(1);self.open_output_plot()
             self.window._run_operation('Evaluando DTFT inversa…',lambda:run_request(request),accept);return
-        try:request=dict(operation='expression_grid',expression=result['result'],variable=result['output_variable'],start=real_field(self.start),stop=real_field(self.stop),count=integer_field(self.count))
+        try:request=dict(operation='expression_grid',expression=result['result'],variable=result['output_variable'],condition=result['condition'],allow_undefined=True,start=real_field(self.start),stop=real_field(self.stop),count=integer_field(self.count))
         except ValueError as exc:QMessageBox.warning(self,'Revisá la rejilla',str(exc));return
         def accept(data):
+            if data.get('undefined_count'):
+                units='s' if data['variable']=='t' else result['frequency_units']
+                self.window.publish({'request':request,'result':{**data,'units':units}},operation='Valores condicionados del resultado algebraico',parents=[key])
+                self.tabs.setTabVisible(1,False);self.tabs.setTabVisible(self.masked_index,True);self.tabs.setCurrentIndex(self.masked_index);self.masked.set_grid(data,units);return
             temporal=data['variable']=='t'
             signal=Signal([complex(*v) for v in data['samples']],data['origin'],data['step'],'s' if temporal else result['frequency_units'],'x(t)' if temporal else 'X(w)','continuous' if temporal else 'frequency',data['expression'],
                 {'operation':'fourier_expression_samples','scope':data['scope'],'source_condition':result['condition'],'convention':result['convention']})
+            self.tabs.setTabVisible(self.masked_index,False)
             self.window.publish(signal,operation='Muestreo de resultado Fourier algebraico',parents=[key]);self.output.show_result(signal);self.tabs.setTabVisible(1,True);self.tabs.setCurrentIndex(1);self.open_output_plot()
         self.window._run_operation('Evaluando expresión resuelta…',lambda:run_request(request),accept)

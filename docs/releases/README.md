@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.5.7-preview](v1.5.7-preview.md) | Operation Health 2: CAS, datos condicionados e importaciones | Preliminar |
 | [1.5.6-preview](v1.5.6-preview.md) | Operation Health 1: filtros ideales, errores visibles y prevención | Preliminar |
 | [1.5.5-preview](v1.5.5-preview.md) | DTFT de filtros ideales, análisis y apertura de figuras | Preliminar |
 | [1.5.4-preview](v1.5.4-preview.md) | Transferencias por expresión y reutilización entre herramientas | Preliminar |

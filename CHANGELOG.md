@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.4.2**.
 
+## 1.5.7 · Operation Health 2 · preliminar
+
+- Presentación de la DTFT de la sinc bilateral sin confundirla con la sumatoria formal de Z.
+- Unidades y restricciones de frecuencia conservadas al reutilizar resultados en CAS y análisis H(w).
+- Gráficas condicionadas con posiciones N/D preservadas en tabla y exportación.
+- Ejes MATLAB int64 exactos y rechazo de ejes o canales incompatibles.
+- Apertura de CSV propios descendentes y validación de JSON/metadatos sin incorporación parcial.
+
+[Notas de la entrega](docs/releases/v1.5.7-preview.md)
+
 ## 1.5.6 · Operation Health 1 · preliminar
 
 - Filtros ideales escritos con step: retardo ordinario por tramos y exclusión de saltos.

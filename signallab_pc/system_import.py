@@ -79,6 +79,7 @@ class SystemImporter:
         try:
             path=Path(path);ensure_working_set(path.stat().st_size,bytes_per_sample=1,live_arrays=8)
             document=json.loads(path.read_text(encoding='utf-8-sig'))
+            if not isinstance(document,dict):raise ValueError('El archivo de sistema debe contener un objeto JSON.')
             if document.get('format')=='signallab-project':
                 editor=getattr(self.receive,'__self__',None)
                 if not getattr(editor,'accepts_system_expressions',False):raise ValueError('Este archivo conserva una definición por expresión. Abrilo en Análisis de sistemas o Resultados; este destino requiere coeficientes b/a.')

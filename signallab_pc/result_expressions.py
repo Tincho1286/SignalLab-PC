@@ -17,8 +17,8 @@ def expression_result(value):
         if not source and cas.get('encoded_value') is not None:source=cas.get('text')
         if not source:return None
         known=[v for v in symbols if v in ('n','t','s','z','w')]
-        variable=known[0] if len(known)==1 else 'mixed' if len(known)>1 else symbols[0] if len(symbols)==1 else None
-        return ExpressionResult(source,variable,tuple(dict.fromkeys([*['Supuesto '+str(k)+': '+str(v) for k,v in cas.get('assumptions',[])],*map(str,cas.get('notices',[]))])))
+        variable=cas.get('coordinate_variable') if not known and cas.get('coordinate_variable') else known[0] if len(known)==1 else 'mixed' if len(known)>1 else symbols[0] if len(symbols)==1 else None
+        return ExpressionResult(source,variable,tuple(dict.fromkeys([*['Supuesto '+str(k)+': '+str(v) for k,v in cas.get('assumptions',[])],*map(str,cas.get('notices',[]))])),cas.get('frequency_units',''))
     result=value.get('result');request=value.get('request',{})
     if not isinstance(result,dict):return None
     if result.get('evaluated') is False:
@@ -32,12 +32,12 @@ def expression_result(value):
     if result.get('display_result') and not result.get('display_numeric'):source=result['display_result']
     variable=result.get('output_variable')
     if 'transfer' in result and result.get('model_kind')!='frequency':variable='s' if request.get('domain')=='analog' else 'z'
-    conditions=[str(result[k]) for k in ('roc','condition','convergence','scope') if result.get(k) not in (None,'True','')]
+    conditions=[str(result[k]) for k in ('roc','condition','frequency_condition','convergence','scope') if result.get(k) not in (None,'True','')]
     if result.get('mathematical_conditions'):
         conditions.extend(label+': '+result['mathematical_conditions'][key] for key,label in [('domain','Dominio'),('causality','Causalidad'),('bibo_stability','Estabilidad BIBO')])
     if branches and branches[0].get('condition'):conditions.append(str(branches[0]['condition']))
     conditions.extend(str(value) for value in request.get('input_conditions',()))
-    return ExpressionResult(source,variable,tuple(dict.fromkeys(conditions)),result.get('frequency_units',''),result.get('display_result','') if result.get('display_numeric') else '')
+    return ExpressionResult(source,variable,tuple(dict.fromkeys(conditions)),(result.get('frequency_units','') if variable=='w' else ''),result.get('display_result','') if result.get('display_numeric') else '')
 
 def expression_destinations(expression):
     v=expression.variable;destinations=[('Copiar expresión','copy'),('Calculadora CAS','cas')]

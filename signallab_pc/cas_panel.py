@@ -51,7 +51,7 @@ class CasWorksheet(QWidget):
             for label,template in items:self.template_actions.append(menu.addAction(label,lambda checked=False,t=template:self.insert_template(t)))
         button=QToolButton();button.setText('Resultado');button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);menu=QMenu(button);button.setMenu(menu);self.toolbar.addWidget(button)
         menu.addAction('Ver resultado ampliado…',self.show_result);menu.addAction('Copiar resultado',self.copy_result);menu.addAction('Insertar referencia rN',self.insert_reference);menu.addSeparator()
-        for title,destination in [('Usar como señal continua','continuous'),('Usar como secuencia discreta','discrete'),('Usar como H(s)','analog'),('Usar como H(z)','digital')]:menu.addAction(title,lambda checked=False,key=destination:self.send_result(key))
+        for title,destination in [('Usar como señal continua','continuous'),('Usar como secuencia discreta','discrete'),('Usar como H(s)','analog'),('Usar como H(z)','digital'),('Analizar respuesta H(w)','frequency')]:menu.addAction(title,lambda checked=False,key=destination:self.send_result(key))
         sheet=QToolButton();sheet.setText('Hoja');sheet.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);menu=QMenu(sheet);sheet.setMenu(menu);self.toolbar.addWidget(sheet)
         self.variables_button=menu.addAction('Variables y supuestos…',lambda:self.variables_dialog.show());menu.addSeparator()
         menu.addAction('Hoja con formato…',lambda:self.report.export_document(True));menu.addAction('Texto completo…',lambda:self.report.export_document(False));menu.addAction('Copiar hoja',lambda:QApplication.clipboard().setText(self.report.toPlainText()))
@@ -123,7 +123,7 @@ class CasWorksheet(QWidget):
             if 'error' in answer:entry.update(status='error',error=answer['error'])
             else:
                 self.state=answer.pop('state');entry.update(status='done',answer=answer);self.selected=cell
-                saved={name:answer[name] for name in ('text','presentation','notices','expression','symbols','assumptions','calculation_notes','provenance') if name in answer}
+                saved={name:answer[name] for name in ('text','presentation','notices','expression','symbols','assumptions','calculation_notes','provenance','frequency_units','frequency_condition','coordinate_variable','origin_conditions','context_rewrite') if name in answer}
                 saved['encoded_value']=self.state['results'][str(cell)]
                 entry['result_id']=self.window.publish({'cas_answer':saved,'source':source},title='CAS · '+source,operation='Resultado CAS',parents=parents)
                 self.variables.clear()
@@ -232,6 +232,18 @@ class CasWorksheet(QWidget):
             if not expression:raise ValueError('Seleccioná un resultado que sea una expresión escalar. Las listas, matrices y ecuaciones pueden copiarse desde Resultado.')
             symbols=answer.get('symbols',[])
             if len(symbols)>1:raise ValueError('Asigná valores a los parámetros antes de enviar una expresión de una sola variable.')
+            if destination=='frequency':
+                from .result_expressions import ExpressionResult
+                from .workspaces import ROUTES
+                units=answer.get('frequency_units','')
+                if units=='incompatible':raise ValueError('El resultado mezcla rad/s y rad/muestra. Revisá las unidades de origen antes de analizarlo.')
+                if units not in ('rad/s','rad/muestra'):
+                    from PySide6.QtWidgets import QInputDialog
+                    units,ok=QInputDialog.getItem(self,'Unidad de w','Unidad de frecuencia de esta expresión:',['rad/muestra','rad/s'],0,False)
+                    if not ok:return
+                self.window.open_tool(ROUTES['system_analysis',0]);panel=self.window.pages[self.window.current_operation].panel
+                key=entry.get('result_id');panel.load_expression(ExpressionResult(expression,'w',tuple(answer.get('notices',())),units),key,self.window.project.get(key) if key else None)
+                self.window.statusBar().showMessage('Respuesta CAS copiada con su unidad y condiciones. Calculá el análisis.');return
             target=('t' if destination=='continuous' else 'n') if destination in ('continuous','discrete') else ('s' if destination=='analog' else 'z')
             if destination in ('analog','digital') and symbols and symbols[0] not in (target,'x'):
                 raise ValueError('Para esta transferencia usá '+target+' como variable de la fórmula en CAS.')
@@ -253,7 +265,9 @@ class CasWorksheet(QWidget):
                 self.window.open_tool(ROUTES['basic','generate']);page=self.window.pages[self.window.current_operation];page.source_domain.setCurrentIndex(0 if destination=='discrete' else 1)
                 source=page.first;source.mode.setCurrentIndex(0);source.expression.setText(expression)
             else:
-                self.window.open_tool(ROUTES['system_analysis',0]);panel=self.window.pages[self.window.current_operation].panel;panel.domain.setCurrentIndex(0 if destination=='analog' else 1);panel.definition_mode.setCurrentIndex(1);panel.transfer_formula.setText(expression)
+                from .result_expressions import ExpressionResult
+                self.window.open_tool(ROUTES['system_analysis',0]);panel=self.window.pages[self.window.current_operation].panel
+                key=entry.get('result_id');panel.load_expression(ExpressionResult(expression,target,tuple(answer.get('notices',()))),key,self.window.project.get(key) if key else None)
             self.window.statusBar().showMessage('Expresión CAS copiada. Revisá el intervalo y calculá en el destino.')
         except Exception as exc:QMessageBox.information(self,'Usar resultado CAS',str(exc))
 

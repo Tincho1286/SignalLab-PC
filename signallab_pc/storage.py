@@ -21,13 +21,20 @@ def save_json(signal: Signal, path: str | Path) -> None:
 
 
 def load_json(path: str | Path) -> Signal:
-    doc = json.loads(Path(path).read_text(encoding="utf-8"))
-    if doc.get("format") != "signallab-signal" or doc.get("schema_version") != 1:
+    from .resources import ensure_working_set
+    ensure_working_set(Path(path).stat().st_size,bytes_per_sample=1,live_arrays=8)
+    doc = json.loads(Path(path).read_text(encoding="utf-8-sig"))
+    if not isinstance(doc,dict) or doc.get("format") != "signallab-signal" or doc.get("schema_version") != 1:
         raise ValueError("El JSON no tiene un formato SignalLab compatible.")
+    missing=[key for key in ('samples','origin','step','units','name','domain') if key not in doc]
+    if missing:raise ValueError('La señal está incompleta. Faltan: '+', '.join(missing)+'.')
+    if not isinstance(doc['samples'],list) or any(not isinstance(pair,list) or len(pair)!=2 for pair in doc['samples']):raise ValueError('Cada muestra debe contener un par [real, imaginaria].')
     import numpy as np
-    samples = np.asarray([complex(re, im) for re, im in doc["samples"]], dtype=complex)
-    return Signal(samples, doc["origin"], float(doc["step"]), doc["units"],
-                  doc["name"], doc["domain"], doc.get("expression", ""), doc.get("metadata", {}))
+    try:
+        samples = np.asarray([complex(re, im) for re, im in doc["samples"]], dtype=complex)
+        return Signal(samples, doc["origin"], float(doc["step"]), doc["units"],
+                      doc["name"], doc["domain"], doc.get("expression", ""), doc.get("metadata", {}))
+    except (TypeError,ValueError,OverflowError) as exc:raise ValueError('Definición de señal inválida: '+str(exc)) from exc
 
 
 def save_csv(signal: Signal, path: str | Path) -> None:
@@ -79,7 +86,8 @@ def load_csv(path,*,domain='discrete',delimiter=',',skip_rows=1,axis_column=0,re
             if not parsed.is_finite() or parsed!=parsed.to_integral_value():raise ValueError('Una secuencia requiere índices enteros. Para tiempos medidos usá una entrada continua.')
             return int(parsed)
         generated_origin=coordinate(origin)
-        if not math.isfinite(float(step)) or float(step)<=0 or (domain=='discrete' and float(step)!=1):raise ValueError('El paso debe ser positivo; en secuencias discretas debe ser 1.')
+        descending=own and domain!='discrete' and float(step)<0
+        if not math.isfinite(float(step)) or float(step)==0 or not descending and float(step)<0 or domain=='discrete' and float(step)!=1:raise ValueError('El paso debe ser positivo; en secuencias discretas debe ser 1. Un CSV propio conserva también su eje descendente.')
         for row in reader:
             if not row or all(not cell.strip() for cell in row):continue
             try:
@@ -90,7 +98,7 @@ def load_csv(path,*,domain='discrete',delimiter=',',skip_rows=1,axis_column=0,re
                 if first is None:first=axis
                 else:
                     delta=axis-previous
-                    if delta<=0:raise ValueError('El eje debe ser estrictamente creciente.')
+                    if delta==0 or (delta>0 if descending else delta<0):raise ValueError('El eje no conserva la dirección indicada; no se reordenan las muestras.')
                     if spacing is None:spacing=delta
                     expected=first+len(values)*spacing
                     tolerance=0 if domain=='discrete' else max(abs(spacing)*1e-7,8*math.ulp(float(expected)))

@@ -1,7 +1,7 @@
 """Explicit MATLAB variable/axis selection without flattening channels."""
 from PySide6.QtWidgets import QDialog,QVBoxLayout,QFormLayout,QComboBox,QSpinBox,QLineEdit,QLabel,QPushButton,QMessageBox,QPlainTextEdit
 from .matlab_import import MatlabFile,make_signal
-from .numeric_input import real_field
+from .numeric_input import real_field,integer_field
 
 class MatlabImportDialog(QDialog):
     def __init__(self,path,kind='import',parent=None):
@@ -34,7 +34,7 @@ class MatlabImportDialog(QDialog):
         try:
             domain=self.domain.currentData();axis=self.axis.currentData()
             # Hidden inputs do not block import of a complete axis.
-            origin=real_field(self.origin) if axis is None else 0
+            origin=(integer_field(self.origin) if domain=='discrete' else real_field(self.origin)) if axis is None else 0
             step=real_field(self.step) if axis is None or __import__('math').prod(self.data.entries[axis])==1 else 1
             self.result_signal=make_signal(self.data,self.variable.currentData(),self.column.value()-1,domain,axis,origin,step,self.units.currentText() if domain=='frequency' else None);self.accept()
         except Exception as exc:QMessageBox.warning(self,'Revisá la selección',str(exc))

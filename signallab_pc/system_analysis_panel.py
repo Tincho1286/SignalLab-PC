@@ -168,6 +168,7 @@ class SystemAnalysisPanel(QWidget):
         from copy import deepcopy
         from .transform_context import result_roc
         frequency=expression.variable=='w'
+        if frequency and expression.units not in ('rad/s','rad/muestra'):raise ValueError('Definí una unidad de frecuencia única: rad/s o rad/muestra. No se convierte entre ellas automáticamente.')
         self.domain.setCurrentIndex(0 if expression.variable=='s' or frequency and expression.units=='rad/s' else 1);self.definition_mode.setCurrentIndex(2 if frequency else 1);self.transfer_formula.setText(expression.source)
         self._preserved_system=None;self._preserved_formula=None;self.input_id=key
         self._formula_context=deepcopy(record);self._formula_context_signature=(self.transfer_formula.text(),self.domain.currentIndex())

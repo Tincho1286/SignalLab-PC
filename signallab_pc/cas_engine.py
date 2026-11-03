@@ -103,6 +103,7 @@ class Calculator:
         self.state=state;self.variables={name:restore(value) for name,value in state['variables'].items()}
         self.functions={name:(value['parameters'],restore(value['body'])) for name,value in state['functions'].items()}
         self.assumptions=state.setdefault('assumptions',{});self.assumption_changes=set()
+        self.contexts=[];self.domain_restrictions=[]
         self.locals={};self.undefined=set();self._resolving=set();self.numeric_root=False
 
     def resolve(self,value):
@@ -119,12 +120,15 @@ class Calculator:
         if name.lower() in CONSTANTS:return CONSTANTS[name.lower()]
         if name.lower()=='ans':
             if self.state['ans'] is None:raise ValueError('Todavía no hay un resultado para ans.')
+            self.contexts.append(self.state.get('result_contexts',{}).get(str(self.state['ans']),{}))
             return self.resolve(restore(self.state['results'][str(self.state['ans'])]))
         if re.fullmatch(r'r[0-9]+',name):
             if name[1:] not in self.state['results']:raise ValueError(name+' no tiene un resultado válido.')
+            self.contexts.append(self.state.get('result_contexts',{}).get(name[1:],{}))
             return self.resolve(restore(self.state['results'][name[1:]]))
         if not NAME.fullmatch(name):raise ValueError('Usá nombres de letras, números y guion bajo, comenzando con una letra.')
         if name in self.variables:
+            self.contexts.append(self.state.get('name_contexts',{}).get(name,{}))
             if name in self._resolving:raise ValueError('Hay una definición circular en '+name+'. Purgá ese nombre antes de usarlo.')
             self._resolving.add(name)
             try:return self.resolve(self.variables[name])
@@ -157,8 +161,11 @@ class Calculator:
                 if isinstance(node.op,ast.Add):return a+b
                 if isinstance(node.op,ast.Sub):return a-b
                 if isinstance(node.op,ast.Mult):return a*b
-                if isinstance(node.op,ast.Div):return a/b
+                if isinstance(node.op,ast.Div):
+                    if isinstance(b,sp.Expr):self.domain_restrictions.append(sp.Ne(b,0))
+                    return a/b
                 if isinstance(node.op,ast.Pow):
+                    if isinstance(a,sp.Expr) and isinstance(b,sp.Expr) and b.is_negative is True:self.domain_restrictions.append(sp.Ne(a,0))
                     if isinstance(a,sp.Integer) and isinstance(b,sp.Integer) and b>0:
                         estimated=max(1,abs(int(a)).bit_length())*b//8+1
                         ensure_working_set(int(estimated),bytes_per_sample=1,live_arrays=4)
@@ -186,7 +193,7 @@ class Calculator:
                 if key=='purge':
                     if not node.args or not all(isinstance(arg,ast.Name) for arg in node.args):raise ValueError('Purge recibe nombres: purge(a) o purge(a,f).')
                     for arg in node.args:
-                        self.variables.pop(arg.id,None);self.functions.pop(arg.id,None);self.assumptions.pop(arg.id,None)
+                        self.variables.pop(arg.id,None);self.functions.pop(arg.id,None);self.assumptions.pop(arg.id,None);self.state.setdefault('name_contexts',{}).pop(arg.id,None)
                     return sp.true
                 if key=='assume':
                     from .cas_assumptions import constrain,PROPERTIES
@@ -210,6 +217,7 @@ class Calculator:
                     return self.name('ans')
                 args=[visit(arg) for arg in node.args]
                 if name in self.functions:
+                    self.contexts.append(self.state.get('name_contexts',{}).get(name,{}))
                     parameters,body=self.functions[name]
                     if len(args)!=len(parameters):raise ValueError(name+' requiere '+str(len(parameters))+' argumentos.')
                     return self.resolve(body.xreplace({sp.Symbol(param):arg for param,arg in zip(parameters,args)}))
@@ -350,6 +358,9 @@ def calculate(request):
     if isinstance(value,sp.Basic) and value.has(sp.Integral,sp.Sum,sp.Product,sp.Derivative,sp.Limit,sp.ConditionSet):notice.append('El resultado conserva operaciones o condiciones sin resolver; no se reemplazan por una aproximación supuesta.')
     if isinstance(value,sp.Basic) and value.has(sp.zoo,sp.nan):notice.append('El resultado no representa un valor finito definido.')
     if defined:notice.append('Definición guardada: '+defined+'.')
+    from .cas_context import combine,remember
+    context=combine(calculator,value,body if assignment else source,notice);remember(state,cell,context)
+    if defined:state.setdefault('name_contexts',{})[name]=context
     from .cas_assumptions import descriptions
     assumption_rows=descriptions(calculator.assumptions)
     for name,description in assumption_rows:
@@ -359,7 +370,7 @@ def calculate(request):
     expression=None;symbols=[]
     if isinstance(value,sp.Expr) and not isinstance(value,sp.MatrixExpr):
         symbols=sorted(str(v) for v in value.free_symbols);expression=sp.sstr(value)
-    return {'state':state,'text':plain,'presentation':presentation(value),'notices':notice,'expression':expression,'symbols':symbols,
+    return {**context,'state':state,'text':plain,'presentation':presentation(value),'notices':notice,'expression':expression,'symbols':symbols,
         'assumptions':assumption_rows,
         'variables':[(name,str(calculator.resolve(value))) for name,value in calculator.variables.items()],
         'functions':[(name+'('+', '.join(params)+')',str(body)) for name,(params,body) in calculator.functions.items()]}

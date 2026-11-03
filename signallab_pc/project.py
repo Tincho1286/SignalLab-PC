@@ -117,7 +117,10 @@ class Project:
         write_json(path,document)
         self.dirty=False
     def merge(self,path):
-        document=json.loads(Path(path).read_text(encoding='utf-8'))
+        from .resources import ensure_working_set
+        ensure_working_set(Path(path).stat().st_size,bytes_per_sample=1,live_arrays=8)
+        document=json.loads(Path(path).read_text(encoding='utf-8-sig'))
+        if not isinstance(document,dict):raise ValueError('El archivo de proyecto debe contener un objeto JSON.')
         if document.get('format')!='signallab-project' or document.get('schema_version') not in (1,2):raise ValueError('Proyecto SignalLab incompatible.')
         records=document.get('records')
         if not isinstance(records,list):raise ValueError('El proyecto no contiene una lista de objetos.')
@@ -125,9 +128,11 @@ class Project:
         for record in records:
             if not isinstance(record,dict) or not isinstance(record.get('id'),str) or record['id'] in mapping:raise ValueError('Identificadores de proyecto inválidos o repetidos.')
             mapping[record['id']]=uuid4().hex
-        for record in records:
-            decode(record['kind'],record['data'])
-            if not isinstance(record.get('title'),str) or not isinstance(record.get('parents'),list):raise ValueError('Registro incompleto.')
+        for number,record in enumerate(records,1):
+            if record.get('kind') not in ('signal','system','state_space','calculation') or not isinstance(record.get('data'),dict):raise ValueError('Registro '+str(number)+': tipo o datos de resultado inválidos.')
+            try:decode(record['kind'],record['data'])
+            except (KeyError,TypeError,ValueError,IndexError,OverflowError) as exc:raise ValueError('Registro '+str(number)+' ('+record['id']+'): definición incompleta o inválida. '+str(exc)) from exc
+            if not isinstance(record.get('title'),str) or not isinstance(record.get('parents'),list) or any(not isinstance(parent,str) for parent in record['parents']):raise ValueError('Registro '+str(number)+': título o procedencia incompletos.')
             # Los padres deben preceder al resultado: también impide ciclos.
             if any(parent not in staging for parent in record['parents']):raise ValueError('Procedencia faltante o circular.')
             staging[record['id']]=deepcopy(record)

@@ -12,7 +12,7 @@ N = sp.Symbol("n", integer=True)
 W = sp.Symbol("w", real=True)
 TAU = sp.Symbol("tau", real=True)
 SYMBOLS = {"t": T, "x": T, "s": S, "z": Z, "n": N, "w": W, "omega": W, "tau": TAU, "pi": sp.pi, "e": sp.E,
-           "i": sp.I, "j": sp.I, "oo": sp.oo, "infinity": sp.oo, "true": sp.true, "false": sp.false}
+           "i": sp.I, "j": sp.I, "oo": sp.oo, "infinity": sp.oo, "zoo":sp.zoo,"nan":sp.nan,"true": sp.true, "false": sp.false}
 FUNCTIONS = {"sinc": lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x)/(sp.pi*x),True)), "ceil":sp.ceiling, "ceiling":sp.ceiling, "floor":sp.floor, "sign":sp.sign,"sin": sp.sin, "cos": sp.cos, "tan": sp.tan, "exp": sp.exp, "log": sp.log,
              "asin":sp.asin, "acos":sp.acos, "atan":sp.atan, "tanh":sp.tanh, "ln": sp.log, "polylog":sp.polylog, "lerchphi":sp.lerchphi, "mod":sp.Mod, "eq":sp.Eq, "ne":sp.Ne, "erf": sp.erf, "erfc": sp.erfc, "sqrt": sp.sqrt, "abs": sp.Abs, "sinh": sp.sinh, "cosh": sp.cosh,
              "heaviside": sp.Heaviside, "diracdelta": sp.DiracDelta, "dirac": sp.DiracDelta,
@@ -186,13 +186,25 @@ def _execute(request):
         value=parse(expression)
         if value.has(sp.DiracDelta,sp.FourierTransform,sp.InverseFourierTransform,sp.Integral,sp.Sum):
             raise ValueError('Una distribución o integral sin evaluar no se puede convertir en muestras finitas.')
-        parameters=value.free_symbols-{variable}
+        condition=parse(request.get('condition','True'))
+        parameters=(value.free_symbols|condition.free_symbols)-{variable}
         if parameters:raise ValueError('Asigná valores a los parámetros: '+', '.join(sorted(str(p) for p in parameters)))
         count=int(request['count']);start=float(request['start']);stop=float(request['stop'])
         if count<2 or not math.isfinite(start) or not math.isfinite(stop) or stop<=start:raise ValueError('Indicá una rejilla finita creciente con al menos dos puntos.')
         ensure_working_set(count,live_arrays=16)
         grid=np.linspace(start,stop,count)
         if np.any(np.diff(grid)<=0):raise ValueError('La rejilla no se distingue con la precisión disponible.')
+        if request.get('allow_undefined'):
+            from .analytic_frequency import _sample,_condition_mask
+            eligible=_condition_mask(condition.xreplace({variable:W}),grid)
+            values=np.full(grid.shape,complex(np.nan,np.nan))
+            if eligible.any():values[eligible]=_sample(value.xreplace({variable:W}),grid[eligible],repair=True)
+            valid=eligible&np.isfinite(values)
+            return dict(format='signallab-expression-grid',schema_version=1,operation='expression_grid',
+                samples=[[float(v.real),float(v.imag)] if good else None for v,good in zip(values,valid)],valid=valid.tolist(),
+                origin=start,step=(stop-start)/(count-1),variable=request['variable'],expression=expression,condition=str(condition),
+                undefined_count=int(np.count_nonzero(~valid)),scope='Cada posición del eje se conserva. N/D indica una condición incumplida o un valor no finito; no se sustituye por cero ni se interpolan esos puntos.')
+        if condition is not sp.true:raise ValueError('Esta expresión tiene condiciones. Usá la vista de valores condicionados para conservar las posiciones N/D.')
         from .singularities import sample_symbolic
         values=sample_symbolic(value,variable,grid)
         if values.ndim==0:values=np.full(count,values,dtype=np.complex128)
@@ -230,7 +242,8 @@ def _execute(request):
         domain=request['domain']
         if domain not in ('analog','digital'):raise ValueError('Dominio de sistema inválido.')
         expr=parse(expression)
-        if expr.has(T,N,S,Z,sp.zoo,sp.nan,sp.oo):raise ValueError('La respuesta en frecuencia usa w, en rad/muestra o rad/s según el dominio.')
+        if expr.has(T,N,S,Z):raise ValueError('La respuesta en frecuencia usa w, en rad/muestra o rad/s según el dominio.')
+        if expr in (sp.zoo,sp.nan,sp.oo,-sp.oo):raise ValueError('La respuesta no define un valor ordinario finito. Revisá la fórmula y sus condiciones.')
         pending=expr.has(sp.Sum,sp.Integral,sp.Derivative,sp.Limit,sp.DiracDelta)
         return dict(operation=operation,domain=domain,model_kind='frequency',transfer=str(expr),factored=str(expr),evaluated=not pending,output_variable='w',frequency_units='rad/muestra' if domain=='digital' else 'rad/s',
             parameters=sorted(map(str,expr.free_symbols-{W})),scope='Respuesta en frecuencia definida directamente en w. No implica una transformada Z o Laplace en una región abierta ni una realización finita con coeficientes b/a.')

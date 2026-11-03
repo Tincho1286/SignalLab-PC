@@ -159,6 +159,27 @@ class WorkflowContracts(unittest.TestCase):
             text,path=diagnostic(seen[0],worker.failure_details,'Health probe',folder)
             self.assertEqual(path.parent,Path(folder));self.assertIn('ArithmeticError',path.read_text(encoding='utf-8'));self.assertIn('Referencia:',text)
 
+    def test_cas_worksheet_rewrite_and_send_to_frequency_analysis(self):
+        from signallab_pc.cas_panel import CasWorksheet
+        from signallab_pc.cas_transfer import payload
+        sheet=CasWorksheet(self.host);self.widgets.append(sheet)
+        request=dict(operation='dtft_expression',expression='sin(pi*n/2)/(pi*n)',lower='-oo',upper='oo');record=dict(request=request,result=execute(request));key=self.host.publish(record)
+        sheet.import_result(payload(record),'DTFT',key);sheet.input.setPlainText('simplify(r1)');sheet.input.evaluateRequested.emit()
+        self.assertEqual(sheet.entries[-1]['status'],'done');saved=self.host.project.get(sheet.entries[-1]['result_id']);self.assertEqual(saved['cas_answer']['frequency_units'],'rad/muestra')
+        sheet.send_result('frequency');panel=self.calculated_analysis();self.assertEqual(panel.definition_mode.currentIndex(),2)
+        self.assertEqual(panel.frequency_data.units,'rad/muestra');self.assertEqual(self.warnings,[])
+
+    def test_conditional_dtft_plot_and_export_keep_undefined_frequency(self):
+        from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
+        panel=SymbolicFourierPanel(self.host,discrete=True);self.widgets.append(panel)
+        panel.expression.setText('1/n');panel.lower.setText('1');panel.upper.setText('oo');panel.calculate_button.click();self.assertEqual(self.warnings,[])
+        self.assertTrue(panel.sample_button.isEnabled());panel.start.setText('-1');panel.stop.setText('1');panel.count.setText('5');panel.sample_button.click();self.app.processEvents()
+        self.assertEqual(self.warnings,[]);self.assertEqual(panel.masked.data['samples'][2],None);self.assertEqual(panel.masked.table.model.value(2,1),'No definido')
+        window=panel.masked.canvas._signallab_window;self.widgets.append(window);self.assertTrue(window.isVisible())
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'grid.json';panel.masked.save(path);data=json.loads(path.read_text());self.assertEqual(data['samples'][2],None);self.assertEqual(len(data['samples']),5)
+        panel.expression.setText('(1/2)^n');panel.lower.setText('0');panel.calculate_button.click();self.assertFalse(panel.tabs.isTabVisible(panel.masked_index))
+
     def test_rational_transfer_still_retains_numeric_system(self):
         from signallab_pc.result_expressions import ExpressionResult
         self.host.open_tool(ROUTES['system_analysis',0]);panel=self.host.pages[self.host.current_operation].panel

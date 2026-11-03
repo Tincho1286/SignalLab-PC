@@ -70,9 +70,11 @@ def import_result(request):
     value=_value(request['payload'],notices);encoded=encode(value)
     state['results'][str(cell)]=encoded;state['ans']=cell
     expression=sp.sstr(value) if isinstance(value,sp.Expr) else None
+    from .cas_context import imported,remember
+    context=imported(request['payload'],value,notices);remember(state,cell,context)
     calculator=Calculator(state)
     from .cas_assumptions import descriptions
-    return {'state':state,'encoded_value':encoded,'text':signal_source(value) if isinstance(value,sp.Expr) else str(value),'presentation':presentation(value),
+    return {**context,'state':state,'encoded_value':encoded,'text':signal_source(value) if isinstance(value,sp.Expr) else str(value),'presentation':presentation(value),
             'expression':expression,'symbols':sorted(str(v) for v in value.free_symbols) if isinstance(value,sp.Basic) else [],
             'provenance':copy.deepcopy(request['payload'].get('provenance')),'notices':list(dict.fromkeys(notices)),'assumptions':descriptions(calculator.assumptions),'variables':[(k,str(v)) for k,v in calculator.variables.items()],
             'functions':[(name+'('+', '.join(params)+')',str(body)) for name,(params,body) in calculator.functions.items()]}

@@ -1,6 +1,6 @@
 ﻿param(
     [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]*$')]
-    [string]$Name = "SignalLab-PC-1.5.6",
+    [string]$Name = "SignalLab-PC-1.5.7",
     [switch]$KeepBuildFiles
 )
 $ErrorActionPreference = 'Stop'

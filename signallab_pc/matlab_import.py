@@ -138,22 +138,44 @@ class MatlabFile:
 
 def vector(array,column=0):
     array=np.asarray(array)
+    if array.ndim>2:raise ValueError('Seleccioná un vector o una matriz de canales de dos dimensiones.')
+    if array.size==0:raise ValueError('La variable seleccionada no contiene muestras.')
     if array.ndim==0 or array.ndim==1 or 1 in array.shape:return array.reshape(-1)
+    if not 0<=column<array.shape[1]:raise ValueError('La columna seleccionada no existe.')
     return array[:,column]
 
+
 def make_signal(data,name,column,domain,axis_name=None,origin=0,step=1,units=None):
-    values=vector(data.load(name),column);origin=float(origin);step=float(step)
+    from .scalar_expression import integer_value
+    values=vector(data.load(name),column);step=float(step)
+    if domain not in ('discrete','continuous','frequency'):raise ValueError('Dominio de señal no admitido.')
+    origin=integer_value(str(origin)) if domain=='discrete' and not axis_name else float(origin)
     if axis_name:
         axis=np.asarray(data.load(axis_name))
         if axis.ndim>2 or (axis.ndim==2 and min(axis.shape)>1):raise ValueError('Seleccioná un vector para el eje, no una matriz de canales.')
         axis=axis.reshape(-1)
-        if axis.ndim!=1 or axis.size!=values.size or np.any(np.imag(axis)) or not np.isfinite(axis).all():raise ValueError('El eje debe ser un vector real finito con tantas coordenadas como muestras.')
-        axis=axis.real;origin=float(axis[0])
-        if len(axis)>1:
-            step=float((axis[-1]-axis[0])/(len(axis)-1))
-            if step<=0 or not np.allclose(axis,origin+step*np.arange(len(axis)),rtol=0,atol=max(abs(step)*1e-7,np.finfo(float).eps*np.max(abs(axis))*8)):
-                raise ValueError('El eje no es uniforme y creciente. No se remuestrea ni se descartan coordenadas.')
-    if domain=='discrete' and (origin!=int(origin) or not np.isclose(step,1,rtol=0,atol=1e-9)):raise ValueError('Una secuencia requiere índices enteros con paso 1. Para tiempos en segundos elegí señal continua muestreada.')
-    if step<=0:raise ValueError('El paso debe ser positivo.')
-    return Signal(values,origin,1 if domain=='discrete' else step,units or {'discrete':'n','continuous':'s','frequency':'rad/s'}[domain],name,domain,metadata={'source_format':'MATLAB','source_file':data.path.name,'source_variable':name,'column':column+1,'axis_variable':axis_name})
-
+        if axis.size!=values.size or np.any(np.imag(axis)) or not np.isfinite(axis).all():raise ValueError('El eje debe ser un vector real finito con tantas coordenadas como muestras.')
+        axis=axis.real
+        if domain=='discrete':
+            # Never project an integer axis to float: adjacent indices beyond
+            # 2**53 would silently move or collapse.
+            origin=int(axis[0]);last=origin+len(axis)-1;limit=np.iinfo(np.int64)
+            if origin<limit.min or last>limit.max:raise ValueError('El eje excede los índices enteros de 64 bits.')
+            if axis.dtype.kind in 'iu':valid=np.array_equal(axis,np.arange(len(axis),dtype=np.int64)+origin)
+            else:
+                from .jobs import checkpoint
+                valid=True
+                for index,value in enumerate(axis):
+                    if index%4096==0:checkpoint()
+                    if value!=int(value) or int(value)!=origin+index:valid=False;break
+            if not valid:raise ValueError('Una secuencia requiere índices enteros consecutivos y exactos. No se redondea ni se remuestrea el eje.')
+            step=1
+        else:
+            origin=float(axis[0])
+            if len(axis)>1:
+                step=float((axis[-1]-axis[0])/(len(axis)-1))
+                if step<=0 or not np.allclose(axis,origin+step*np.arange(len(axis)),rtol=0,atol=max(abs(step)*1e-7,np.finfo(float).eps*np.max(abs(axis))*8)):
+                    raise ValueError('El eje no es uniforme y creciente. No se remuestrea ni se descartan coordenadas.')
+    if domain=='discrete' and step!=1:raise ValueError('Una secuencia requiere paso exactamente 1. Para tiempos en segundos elegí señal continua muestreada.')
+    if not np.isfinite(step) or step<=0:raise ValueError('El paso debe ser positivo y finito.')
+    return Signal(values,origin,step,units or {'discrete':'n','continuous':'s','frequency':'rad/s'}[domain],name,domain,metadata={'source_format':'MATLAB','source_file':data.path.name,'source_variable':name,'column':column+1,'axis_variable':axis_name})

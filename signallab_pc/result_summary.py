@@ -190,12 +190,12 @@ def transform_summary(request,result):
         sections.append(Section('Cálculo pendiente',paragraphs=['El motor no obtuvo una expresión cerrada para este caso. La expresión siguiente conserva el cálculo sin resolver; no representa una solución evaluada.']))
     if result.get('boundary_dtft'):
         boundary='X(exp(i*w)) = '+result['boundary_dtft']
-        sections.append(Section('DTFT sobre el círculo unitario',paragraphs=['Esta es la transformada de Fourier de la misma secuencia, no una transformada Z válida en una región abierta. Es 2π-periódica y en los saltos toma el promedio de los límites laterales. Podés analizar módulo, fase y retardo con «Analizar respuesta H(exp(iw))». También podés calcularla y graficarla en Fourier → DTFT con soporte de −oo a oo.'],formulas=[Formula(boundary,boundary)]))
+        sections.append(Section('Resultado calculado: DTFT',paragraphs=['La secuencia tiene esta transformada de Fourier. Su suma formal de Z no define una función en un anillo abierto de convergencia absoluta; no se presenta esa sumatoria como un resultado simplificable. «Enviar DTFT al CAS» copia la expresión de Fourier en w. Es 2π-periódica y en los saltos toma el promedio de los límites laterales. Podés analizar módulo, fase y retardo con «Analizar respuesta H(exp(iw))». También podés calcularla y graficarla en Fourier → DTFT con soporte de −oo a oo.'],formulas=[Formula(boundary,boundary)]))
     if branches:
         for i,branch in enumerate(branches):
             expression=lhs+' = '+branch['expression']
             sections.append(Section('Resultado condicionado' if len(branches)==1 else 'Resultado: rama '+str(i+1),rows=[('Válido cuando',branch['condition'])],formulas=[Formula(expression,expression)]))
-    else:
+    elif not result.get('boundary_dtft'):
         expression=lhs+' = '+result.get('display_result',result['result'])
         terms=result.get('display_terms',[]);lines=[]
         if len(terms)>1:lines=[lhs+' = '+terms[0],*[(term if term.startswith('-') else '+'+term) for term in terms[1:]]]

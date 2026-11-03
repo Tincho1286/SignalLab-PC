@@ -47,7 +47,7 @@ Los portables incluyen Python y las dependencias de la aplicación. Descargá la
 | **Estable · 1.4.2** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.4.2/SignalLab-PC-1.4.2.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.4.2/SignalLab-PC-1.4.2-linux-x86_64.tar.gz) | [Notas de la estable](docs/releases/v1.4.2.md) |
 | **Preliminar · 1.5.6** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.6-preview/SignalLab-PC-1.5.6.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.6-preview/SignalLab-PC-1.5.6-linux-x86_64.tar.gz) | [Notas de la preliminar](docs/releases/v1.5.6-preview.md) |
 
-**Operation Health:** las previews revisan robustez y coherencia entre herramientas. Cada entrega incluye correcciones, medidas preventivas y una guía de pruebas manuales. Consultá el [registro de hallazgos](docs/operation-health.md) y las [pruebas de la primera entrega](docs/releases/v1.5.6-preview.md).
+**Operation Health** es un ciclo de mantenimiento mediante previews que agrupan correcciones de robustez y coherencia entre herramientas, hasta la próxima versión estable. El [registro de hallazgos](docs/operation-health.md) y las [notas de cada entrega](docs/releases/README.md) describen su avance.
 
 En Windows, abrí el ejecutable descargado. En Linux, descomprimí el paquete y ejecutá `SignalLab-PC` dentro de su carpeta; consultá los [requisitos e instrucciones de Linux](docs/linux.md) para comprobar la compatibilidad de tu sistema.
 
