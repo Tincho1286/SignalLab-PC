@@ -27,14 +27,16 @@ _paper_tokens={'#e1e7ee':C['text'],'#a6b2c1':C['muted'],'#1b2027':C['report'],'#
 PAPER_COLORS={old:_paper_tokens.get(mapped,mapped) for old,mapped in PAPER_COLORS.items()}
 
 def paper_html(text):
+    from .theme_presets import color,recolor
+    css=recolor(PAPER_CSS)
     def declaration(match):
-        value=re.sub(r'#[0-9a-fA-F]{6}',lambda color:PAPER_COLORS.get(color.group().lower(),color.group()),match[2])
+        value=re.sub(r'#[0-9a-fA-F]{6}',lambda match:color(PAPER_COLORS.get(match.group().lower(),match.group())),match[2])
         return match[1]+':'+value
     text=re.sub(r'(color|background(?:-color)?|border(?:-[a-z]+)?):([^;"<>]+)',declaration,str(text))
     text=text.replace('font-family:Segoe UI','font-family:Cambria')
-    if '<head>' in text:return text.replace('<head>','<head><style>'+PAPER_CSS+'</style>',1)
-    if '<html>' in text:return text.replace('<html>','<html><head><style>'+PAPER_CSS+'</style></head>',1)
-    return '<html><head><style>'+PAPER_CSS+'</style></head><body>'+text+'</body></html>'
+    if '<head>' in text:return text.replace('<head>','<head><style>'+css+'</style>',1)
+    if '<html>' in text:return text.replace('<html>','<html><head><style>'+css+'</style></head>',1)
+    return '<html><head><style>'+css+'</style></head><body>'+text+'</body></html>'
 
 LABELS={'average_power':'Potencia media del registro','sample_count':'Cantidad de muestras','interpretation':'Interpretación','input_origins':'Orígenes de entrada','input_origin':'Origen de entrada','output_variable':'Variable de salida','scope':'Alcance','roc':'Región de convergencia','parameters':'Parámetros','evaluated':'Cálculo evaluado','realization':'Realización','operation':'Operación','sample_rate_hz':'Frecuencia de muestreo (Hz)','time_start_s':'Tiempo inicial (s)','input_length':'Muestras de entrada','output_length':'Muestras de salida','convention':'Convención','method':'Método','domain':'Dominio','origin':'Origen','step':'Paso','units':'Unidades','energy':'Energía','power':'Potencia','rms':'RMS','N':'Cantidad de puntos','count':'Cantidad de puntos','metadata':'Detalles','input_action':'Tratamiento de la entrada','period':'Periodo','normalization':'Normalización','time_mapping':'Relación entre índice y tiempo'}
 LABELS['sample_period_s']='Período de muestreo T (s)'
@@ -92,10 +94,22 @@ class ReportView(QTextBrowser):
             text=re.sub(r'(<body[^>]*>)',lambda match:match.group(1)+callout,str(text),count=1,flags=re.I) if re.search(r'<body[^>]*>',str(text),re.I) else callout+str(text)
         super().setHtml(paper_html(text))
         self._math_handler.prune({html.unescape(value) for value in re.findall(r'src="([^"]+)"',str(text))})
+    def refresh_theme(self,previous):
+        from dataclasses import replace
+        from .theme_presets import recolor
+        revision=self._report_revision;vertical=self.verticalScrollBar().value();horizontal=self.horizontalScrollBar().value()
+        for name,formula in list(self._math_resources.items()):
+            value=replace(formula,svg=recolor(formula.svg.decode('utf-8'),previous).encode('utf-8'))
+            self._math_resources[name]=value;self.document().addResource(QTextDocument.ResourceType.ImageResource,QUrl(name),QByteArray(value.svg))
+        self._math_handler.renderers.clear();self.setHtml(self._base_html);self._report_revision=revision
+        self.verticalScrollBar().setValue(vertical);self.horizontalScrollBar().setValue(horizontal);self.viewport().update()
     def set_calculation_notes(self,records):
         self._calculation_notes=[dict(record) for record in records]
         self.setHtml(self._base_html)
     def vector_math_html(self,formula,source='',width=None):
+        from dataclasses import replace
+        from .theme_presets import recolor
+        formula=replace(formula,svg=recolor(formula.svg.decode('utf-8')).encode('utf-8'))
         self._formula_number+=1;name='formula:'+str(self._formula_number)
         self._math_resources[name]=formula
         self.document().addResource(QTextDocument.ResourceType.ImageResource,QUrl(name),QByteArray(formula.svg))

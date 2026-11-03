@@ -28,6 +28,10 @@ La biblioteca **Resultados** guarda las salidas calculadas: señales, sistemas, 
 
 La calculadora **CAS** permite continuar operaciones simbólicas. Las expresiones conservan sus variables y condiciones; un registro numérico se representa como datos, sin inventar una fórmula infinita.
 
+## Elegir la apariencia
+
+En **Vista → Tema** podés elegir Azul marino, Grafito, Bosque o Berenjena. El cambio se aplica a las ventanas y resultados abiertos, y se conserva para el próximo inicio. La [guía de apariencia](appearance.md) explica su alcance.
+
 ## Atajos
 
 | Acción | Atajo |

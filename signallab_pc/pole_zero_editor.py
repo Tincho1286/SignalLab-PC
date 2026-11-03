@@ -6,7 +6,8 @@ from .systems_panel import parse_list,list_text
 
 class PoleZeroEditor(QWidget):
     def __init__(self,panel,context):
-        super().__init__();self.panel=panel;self.context=context;self.drag=None
+        super().__init__();self.panel=panel;self.context=context;self.drag=None;self._cursor_cache={}
+        panel.canvas._signallab_editable=True
         box=QVBoxLayout(self);box.setContentsMargins(0,0,0,0);row=QHBoxLayout()
         self.mode=QComboBox();self.mode.addItems(['Agregar polo ×','Agregar cero ○','Mover punto','Quitar punto']);row.addWidget(self.mode)
         self.coordinates=QComboBox();self.coordinates.addItems(['Binómica · real / imaginaria','Polar · módulo / ángulo (rad)']);box.addWidget(self.coordinates);self.coordinates.currentIndexChanged.connect(lambda *_:self.redraw())
@@ -17,7 +18,30 @@ class PoleZeroEditor(QWidget):
             panel.fields[key].textChanged.connect(self.dirty)
             panel.fields[key].editingFinished.connect(self.manual)
         panel.domain.currentIndexChanged.connect(self.manual)
+        self.mode.currentIndexChanged.connect(self.refresh_cursor)
+        self.connections.extend([panel.canvas.mpl_connect(name,self.cursor_event) for name in ('axes_enter_event','axes_leave_event','figure_leave_event')])
         self.redraw()
+    def refresh_cursor(self,*_):
+        from .editor_pointer import insertion_cursor
+        from PySide6.QtCore import Qt
+        toolbar=getattr(self.panel.canvas,'toolbar',None)
+        if toolbar and toolbar.mode:return
+        if self.busy():self.panel.canvas.setCursor(Qt.CursorShape.BusyCursor);return
+        mode=self.mode.currentIndex()
+        if mode<2:
+            from .theme_presets import CURRENT
+            key=(mode,float(self.panel.canvas.devicePixelRatioF()),CURRENT)
+            if key not in self._cursor_cache:self._cursor_cache[key]=insertion_cursor(self.panel.canvas,'pole' if mode==0 else 'zero')
+            self.panel.canvas.setCursor(self._cursor_cache[key])
+        else:self.panel.canvas.setCursor(Qt.CursorShape.OpenHandCursor if mode==2 else Qt.CursorShape.CrossCursor)
+        messages=['Hacé clic para agregar un polo en la posición del cursor ×.','Hacé clic para agregar un cero en la posición del cursor ○.','Arrastrá un polo o cero existente para moverlo.','Hacé clic cerca de un polo o cero para quitarlo.']
+        self.note.setText(messages[mode])
+    def cursor_event(self,event):
+        toolbar=getattr(self.panel.canvas,'toolbar',None)
+        if toolbar and toolbar.mode:return
+        if event.name in ('axes_leave_event','figure_leave_event') or event.inaxes is None:
+            self.panel.canvas.unsetCursor();return
+        self.refresh_cursor()
     def dirty(self,*_):
         callback=getattr(self.context,'on_design_dirty',None)
         if callback:callback()
@@ -40,7 +64,7 @@ class PoleZeroEditor(QWidget):
         return event.inaxes is not None and event.xdata is not None and event.ydata is not None and not (toolbar and toolbar.mode) and not self.busy()
     def point(self,event):
         value=event.ydata*np.exp(1j*event.xdata) if self.coordinates.currentIndex()==1 else complex(event.xdata,event.ydata)
-        if self.pairs.isChecked() and abs(value.imag)<.02*abs(event.inaxes.get_ylim()[1]-event.inaxes.get_ylim()[0]):value=complex(value.real,0)
+        if self.coordinates.currentIndex()==1 and event.xdata%np.pi==0:value=complex(value.real,0)
         return value
     def nearest(self,event,data):
         choices=[]
@@ -70,6 +94,7 @@ class PoleZeroEditor(QWidget):
             self.write(data);self.redraw();self.submit()
         else:self.drag=(data,kind,index,pair)
     def move(self,event):
+        self.cursor_event(event)
         if self.drag is None or not self.active(event):return
         data,kind,index,pair=self.drag;value=self.point(event);data[kind][index]=value
         if pair is None and self.pairs.isChecked() and value.imag:

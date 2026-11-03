@@ -28,6 +28,7 @@ def origin_description(zeros,poles):
 
 
 def draw_root_markers(axis,zeros=(),poles=(),*,polar=False):
+    axis._signallab_plane=True;axis._signallab_plane_label='Plano polar · θ (rad), r' if polar else 'Plano complejo · Re, Im'
     zeros=np.asarray(zeros,dtype=complex).reshape(-1);poles=np.asarray(poles,dtype=complex).reshape(-1)
     axis.set_axisbelow(True)
     if polar:axis.set_rorigin(0)

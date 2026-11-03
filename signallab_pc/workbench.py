@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (QHeaderView,QComboBox,QMainWindow,QWidget,QHBoxLa
 from .toolbox import ToolboxWindow,ToolPage
 from .project import Project
 from .design import configure_theme,icon
-from .desktop_theme import DESKTOP_STYLE,configure_desktop
+from .desktop_theme import desktop_style,configure_desktop
 from .workspaces import STATIONS,STATION_FOR,ROUTES
 from .theory_panel import TheoryPanel
 from .tool_descriptions import describe_tool
@@ -21,8 +21,10 @@ class WorkbenchWindow(ToolboxWindow):
     def __init__(self):
         QMainWindow.__init__(self);self.setWindowTitle('SignalLab '+__version__+' · Escritorio de señales y sistemas');self.resize(1440,900);self.setMinimumSize(640,420)
         self.project=Project();self._published_signals={};self._workers=[];self._thread_pool=QThreadPool(self);self._thread_pool.setMaxThreadCount(1)
-        self.current_operation=None;self.pages={};self.views={};self.category='Inicio';self.active_route=None;configure_theme();configure_desktop()
-        self.setWindowIcon(QIcon(str(Path(__file__).parent/'assets'/'signallab.ico')));self.setStyleSheet(DESKTOP_STYLE)
+        self.current_operation=None;self.pages={};self.views={};self.category='Inicio';self.active_route=None
+        from .theme_presets import restore
+        restore();configure_theme();configure_desktop()
+        self.setWindowIcon(QIcon(str(Path(__file__).parent/'assets'/'signallab.ico')));self.setStyleSheet(desktop_style())
         root=QWidget();root.setObjectName('desktop');body=QVBoxLayout(root);body.setContentsMargins(0,0,0,0);body.setSpacing(0)
         self.documents=QTabBar();self.documents.setObjectName('documents');self.documents.setExpanding(False);self.documents.setMovable(True);self.documents.setTabsClosable(True);self.documents.setUsesScrollButtons(True);self.documents.setElideMode(Qt.TextElideMode.ElideRight);self.documents.currentChanged.connect(self.activate_document);self.documents.tabCloseRequested.connect(self.close_document);body.addWidget(self.documents)
         heading=QWidget();heading.setObjectName('documentHeading');row=QHBoxLayout(heading);row.setContentsMargins(14,10,14,10);row.setSpacing(8)
@@ -129,6 +131,8 @@ class WorkbenchWindow(ToolboxWindow):
             menu=tools.addMenu(title);menu.addAction('Ver herramientas',lambda checked=False,value=area:self.show_area(value));menu.addSeparator()
             for entry in [e for e in ENTRIES if e['area']==area]:menu.addAction(entry['title'],lambda checked=False,value=entry:self.open_workflow(value))
         view=self.menuBar().addMenu('Vista');view.addAction(self.explorer_dock.toggleViewAction());view.addAction(self.workspace_dock.toggleViewAction());view.addSeparator();view.addAction('Concentrarse en el documento',self.focus_document,'F11');view.addAction('Restablecer distribución',self.reset_layout)
+        from .appearance import install_menu
+        install_menu(self,view.addMenu('Tema'))
         help_menu=self.menuBar().addMenu('Ayuda');help_menu.addAction('Ayuda de la herramienta',self.open_help,'F1');help_menu.addAction('Biblioteca',lambda:self.show_menu('Biblioteca'));help_menu.addAction('Funciones de las fórmulas…',self.show_function_help)
         help_menu.addSeparator();help_menu.addAction('Acerca de SignalLab…',self.about)
         bar=QToolBar('Acciones');bar.setObjectName('mainToolbar');bar.setMovable(False);bar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon);bar.setIconSize(QSize(18,18));self.addToolBar(bar)

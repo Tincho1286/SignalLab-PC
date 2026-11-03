@@ -95,7 +95,7 @@ class PlotProbe:
     def drawn(self,event):
         if self.exporting:return
         traces=collect(self.canvas.figure)
-        signature=tuple((t.key,id(t.artist.get_xdata()) if hasattr(t.artist,'get_xdata') else id(t.artist.get_offsets()),id(t.artist.get_ydata()) if hasattr(t.artist,'get_ydata') else 0) for t in traces)
+        signature=tuple((t.key,id(t.artist.get_xdata()) if hasattr(t.artist,'get_xdata') else id(t.artist.get_offsets()) if hasattr(t.artist,'get_offsets') else id(t.axis),id(t.artist.get_ydata()) if hasattr(t.artist,'get_ydata') else 0) for t in traces)
         if signature!=self.signature:
             for artist in self.artists:
                 try:artist.remove()
@@ -146,7 +146,8 @@ class PlotProbe:
                     x,y=point
                     if trace.axis not in guided:
                         guide=self.guides[trace.axis][slot];guide.set_xdata([x,x]);guide.set_visible(True);guided.add(trace.axis)
-                    marker=self.markers[trace.key][slot];marker.set_data([x],[y]);marker.set_visible(bool(np.isfinite(y)))
+                    marker=self.markers[trace.key][slot];marker.set_data([x],[y]);is_live=self.a is None if slot==0 else self.b is None
+                    marker.set_visible(bool(np.isfinite(y)) and not (is_live and getattr(self.canvas,'_signallab_editable',False)))
         if self.background is None:return
         try:
             self.canvas.restore_region(self.background)

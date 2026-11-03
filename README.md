@@ -89,6 +89,7 @@ La [hoja de objetivos](docs/roadmap.md) desarrolla estas líneas de trabajo. Las
 | --- | --- |
 | Empezar a trabajar | [Primeros pasos](docs/getting-started.md) |
 | Encontrar una operación | [Catálogo de herramientas](docs/tools.md) |
+| Elegir los colores de la aplicación | [Temas de apariencia](docs/appearance.md) |
 | Leer y medir una figura | [Gráficos y cursores](docs/cursors.md) |
 | Revisar el alcance de la materia | [Sistemas y Señales I/II](docs/scope/sys-i-ii.md) · [Señales Aleatorias](docs/scope/random-signals.md) |
 | Consultar las demás guías | [Índice de documentación](docs/README.md) |

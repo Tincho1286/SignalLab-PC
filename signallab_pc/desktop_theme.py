@@ -130,3 +130,8 @@ DESKTOP_STYLE += 'QTabBar::close-button {image:url("'+(_assets/'close_document.s
 DESKTOP_STYLE += "QPlainTextEdit#casInput {font-family:'Consolas';font-size:11pt;}"
 
 DESKTOP_STYLE += "QToolBar#casToolbar {spacing:0;padding:2px;} QToolBar#casToolbar QToolButton {padding:3px 3px;}"
+
+
+def desktop_style():
+    from .theme_presets import recolor
+    return recolor(DESKTOP_STYLE)

@@ -2,6 +2,15 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.2.1**.
 
+## 1.3.1 · preliminar
+
+- Coordenadas libres en los planos de polos y ceros, sin ajuste al círculo unitario.
+- Cursor × para insertar polos y ○ para insertar ceros, centrados en el punto de inserción.
+- Cuatro temas oscuros desde Vista → Tema, con elección persistente.
+- Actualización de informes y figuras abiertas conservando datos y zoom.
+
+[Notas de la preliminar](docs/releases/v1.3.1-preview.md) · [Temas](docs/appearance.md)
+
 ## 1.3.0 · preliminar
 
 - Cursores A/B enlazados, lectura de muestras originales y copia de mediciones.

@@ -58,14 +58,24 @@ class Trace:
         return float(self.x[index]),float(self.y[index])
 
 
+class PlanePointer:
+    def __init__(self,axis):
+        self.axis=axis;self.artist=axis.patch;self.label=getattr(axis,'_signallab_plane_label','Posición en el plano')
+    @property
+    def key(self):return id(self.axis.patch)
+    def point(self,x,y=None):
+        return (float(x),float(y)) if y is not None and np.isfinite([x,y]).all() else None
+
+
 def collect(figure):
     traces=[]
     for axis in figure.axes:
         if axis.name=='3d' or not axis.axison or getattr(axis,'_colorbar',None) is not None:continue
+        if getattr(axis,'_signallab_plane',False):traces.append(PlanePointer(axis));continue
         stems={id(c.markerline):c for c in axis.containers if isinstance(c,StemContainer)}
         baselines={id(c.baseline) for c in axis.containers if isinstance(c,StemContainer)}
         for artist in [*axis.lines,*axis.collections]:
-            if getattr(artist,'_signallab_probe',False) or not artist.get_visible() or artist.get_alpha()==0 or id(artist) in baselines:continue
+            if getattr(artist,'_signallab_probe',False) or getattr(artist,'_signallab_reference',False) or not artist.get_visible() or artist.get_alpha()==0 or id(artist) in baselines:continue
             try:
                 if artist in axis.lines:
                     if artist.get_transform()!=axis.transData:continue

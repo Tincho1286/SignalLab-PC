@@ -1,6 +1,21 @@
 {
   "releases": [
     {
+      "tag": "v1.3.1-preview",
+      "title": "Cursor libre y temas oscuros",
+      "channel": "preview",
+      "summary": "Corrección del plano de polos y ceros, símbolos de inserción y apariencia personalizable.",
+      "changes": [
+        "Lectura libre en los planos complejos.",
+        "Cursores de inserción × y ○.",
+        "Azul marino, Grafito, Bosque y Berenjena."
+      ],
+      "limits": [
+        "Publicación preliminar; estable 1.2.1."
+      ],
+      "notes": "docs/releases/v1.3.1-preview.md"
+    },
+    {
       "tag": "v1.3.0-preview",
       "title": "Cursores y medición científica",
       "channel": "preview",
