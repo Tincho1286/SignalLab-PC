@@ -154,6 +154,14 @@ def crossover_margins(system,omega,response,*,advance=0):
 def frequency_summary(exact,data):
     from .result_summary import Summary,Section,Formula,number
     sections=[Section('Definición',paragraphs=[exact['scope']],formulas=[Formula('H = '+exact['transfer'],'H = '+exact['transfer'])])]
+    if exact.get('model_kind')=='expression':
+        sections.append(Section('Alcance de la expresión',paragraphs=[exact.get('analysis_limits','La definición se conserva sin convertirla en una lista de coeficientes.'),exact.get('frequency_interpretation','')],rows=[('Condición de frecuencia',exact.get('frequency_condition','No determinada')),('Muestras excluidas por la condición',str(exact.get('masked_frequency_samples',0))) ]))
+    original=exact.get('source_calculation',{})
+    if original.get('request',{}).get('operation')=='z_expression':
+        source=original['request'];calculation=original.get('result',{});branches=calculation.get('branches',[])
+        sections.append(Section('Secuencia y soporte de origen',rows=[('Primer índice',str(source.get('lower','0'))),('Último índice',str(source.get('upper','oo'))),('Condición de Z',str(branches[0].get('condition','No determinada')) if branches else str(calculation.get('roc','No determinada')))],paragraphs=['Se interpreta la secuencia original como h[n], con el soporte indicado. Su DTFT se comprueba independientemente de la ROC abierta.'],formulas=[Formula('h[n] = '+source['expression'],'h[n] = '+source['expression'])]))
+    if exact.get('frequency_limit_extensions'):
+        sections.append(Section('Valores completados por límite',rows=[(item['role']+' en frecuencia '+item['point'],item['value']) for item in exact['frequency_limit_extensions']]))
     if exact.get('factored')!=exact['transfer']:sections.append(Section('Forma factorizada',formulas=[Formula(exact['factored'],exact['factored'])]))
     if 'causal_impulse' in exact:sections.append(Section('Respuesta bajo hipótesis causal',paragraphs=['Este apartado impone soporte causal. Si se eligió otra ROC, no es la respuesta impulsiva bilateral de esa ROC.'],formulas=[Formula('h(t) = '+exact['causal_impulse'],'h(t) = '+exact['causal_impulse'])]))
     if data is None:
@@ -163,7 +171,7 @@ def frequency_summary(exact,data):
         ('Frecuencias evaluadas',str(data.omega.size)),('Distribución','Logarítmica' if data.logarithmic else 'Lineal'),
         ('Respuesta no finita',str(int(np.count_nonzero(~np.isfinite(data.response))))),
         ('Retardo de grupo','Muestras' if data.system.domain=='digital' else 'Segundos')],
-        paragraphs=['En la figura podés alternar módulo lineal o dB sin recalcular. La fase y las frecuencias angulares se muestran en radianes. En ceros de H, fase y retardo no están definidos; el módulo en dB es −∞. Se evalúa la fórmula sobre el eje imaginario o el círculo unidad; su interpretación como transformada de Fourier exige que ese eje o círculo pertenezca a la ROC.'],
+        paragraphs=['En la figura podés alternar módulo lineal o dB sin recalcular. La fase y las frecuencias angulares se muestran en radianes. En ceros de H, fase y retardo no están definidos; el módulo en dB es −∞. La interpretación de la curva y las condiciones de convergencia se indican en la definición y en Condiciones de validez; una evaluación formal de H no demuestra por sí sola la existencia de Fourier.'],
         formulas=[Formula('M = 20*log(abs(H))/log(10)','M = 20 log10 |H|')]))
     if data.advance:sections.append(Section('Avance temporal',paragraphs=[f'La representación conserva un factor z elevado a {data.advance}. Se incluye en la respuesta, fase, retardo, exportación y reutilización para análisis; no se sustituye por un retardo causal. Una ROC sigue siendo necesaria para determinar la secuencia bilateral.']))
     margins=data.margins

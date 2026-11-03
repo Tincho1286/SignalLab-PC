@@ -54,6 +54,9 @@ class SystemImporter:
             from .transfer_input import formula_system
             expression=expression_result(source)
             if expression is None or expression.variable not in ('s','z'):raise ValueError('Elegí un sistema o una expresión en s o z.')
+            editor=getattr(self.receive,'__self__',None)
+            if getattr(editor,'accepts_system_expressions',False):
+                editor.load_expression(expression,key,source);self.window.statusBar().showMessage('Fórmula cargada con sus condiciones. Calculá el análisis.');return
             text=expression.source;domain='analog' if expression.variable=='s' else 'digital';domains,advance=self.constraints()
             if domains is not None and domain not in domains:raise ValueError('La expresión corresponde a otro dominio. No se transforma automáticamente entre s y z.')
             def convert():
@@ -73,6 +76,20 @@ class SystemImporter:
         if path is None:path,_=QFileDialog.getOpenFileName(self.button,'Abrir sistema','','Sistema SignalLab (*.json)')
         if not path:return
         try:
+            path=Path(path);ensure_working_set(path.stat().st_size,bytes_per_sample=1,live_arrays=8)
+            document=json.loads(path.read_text(encoding='utf-8-sig'))
+            if document.get('format')=='signallab-project':
+                editor=getattr(self.receive,'__self__',None)
+                if not getattr(editor,'accepts_system_expressions',False):raise ValueError('Este archivo conserva una definición por expresión. Abrilo en Análisis de sistemas o Resultados; este destino requiere coeficientes b/a.')
+                from .project import Project
+                from .result_expressions import expression_result
+                staging=Project();staging.merge(path);headers=staging.headers();index=None
+                for position in range(len(headers)-1,-1,-1):
+                    value=staging.get(headers[position]['id']);expression=expression_result(value)
+                    if isinstance(value,Transfer) or expression is not None and expression.variable in ('s','z'):index=position;break
+                if index is None:raise ValueError('El archivo no contiene una definición en s o z.')
+                before=len(self.window.project.headers());self.window.project.merge(path);imported=self.window.project.headers()[before+index]['id']
+                key=self.window.publish(self.window.project.get(imported),operation='Importación de definición de sistema',parents=[imported]);self.load_result(key);return
             system=load_transfer(path);self.validate(system)
             key=self.window.publish(system,operation='Importación JSON de sistema')
             if self.receive(system,key) is False:return

@@ -227,9 +227,16 @@ def _execute(request):
                 'scope':'Ambas entradas son cero para t<0; las fórmulas indicadas valen para t>=0.' if causal else 'Convolución bilateral; las expresiones deben incluir su soporte y cumplir las condiciones de convergencia.',
                 'convention':'integral x(tau) h(t-tau) d tau'}
     if operation == "system_formula":
-        domain=request['domain'];variable=S if domain=='analog' else Z
+        domain=request['domain']
+        if domain not in ('analog','digital'):raise ValueError('Dominio de sistema inválido.')
+        variable=S if domain=='analog' else Z
         expr=sp.cancel(parse(expression))
-        if expr.has(T,N,W,sp.zoo,sp.nan,sp.oo):raise ValueError('Usá una función racional de s o de z, sin variables temporales.')
+        if expr.has(T,N,W,Z if domain=='analog' else S,sp.zoo,sp.nan,sp.oo):raise ValueError('Usá s para H(s) o z para H(z), sin variables temporales ni la variable del otro dominio.')
+        if not expr.is_rational_function(variable):
+            pending=expr.has(sp.Sum,sp.Integral,sp.Derivative,sp.Limit)
+            return dict(operation='system_formula',domain=domain,model_kind='expression',transfer=str(expr),factored=str(expr),evaluated=not pending,output_variable=str(variable),
+                parameters=sorted(map(str,expr.free_symbols-{variable})),
+                scope='Sistema conservado como expresión no racional. El análisis en frecuencia evalúa la fórmula y conserva las condiciones de origen. No se convierte automáticamente a coeficientes b/a ni se inventa una realización finita.')
         numerator,denominator=sp.fraction(expr)
         b=sp.Poly(numerator,variable).all_coeffs();a=sp.Poly(denominator,variable).all_coeffs()
         advance=max(0,len(b)-len(a)) if domain=='digital' else 0

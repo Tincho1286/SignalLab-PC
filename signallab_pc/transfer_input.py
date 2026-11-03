@@ -37,6 +37,7 @@ def _read_system(editor,digital_index=1,name='Sistema de entrada',allow_advance=
 def formula_system(expression,domain,name='Sistema definido por fórmula',allow_advance=False):
     from .symbolic_process import run_request
     result=run_request({'operation':'system_formula','expression':expression,'domain':domain})
+    if result.get('model_kind')=='expression':raise ValueError('Esta herramienta necesita una transferencia racional con coeficientes b/a finitos. La fórmula contiene funciones no racionales; podés analizarla sin aproximarla en Análisis de sistemas, usando Fórmula H.')
     if 'numeric_b' not in result:raise ValueError('Asigná valores a los parámetros antes de simular el sistema.')
     if result.get('advance',0) and not allow_advance:raise ValueError('Esta fórmula contiene un avance temporal. Podés analizarla en Sistemas LTI → Función de transferencia y análisis; esta operación causal requiere un sistema sin avances.')
     return Transfer([complex(*v) for v in result['numeric_b']],[complex(*v) for v in result['numeric_a']],domain,name,advance=result.get('advance',0))

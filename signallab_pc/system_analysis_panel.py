@@ -13,10 +13,11 @@ from .resources import ensure_working_set
 from .frequency_analysis import frequency_grid,analyze_frequency,frequency_summary,export_frequency
 
 class SystemAnalysisPanel(QWidget):
+    accepts_system_expressions=True
     def __init__(self,window):
         super().__init__();self.window=window;self.input_id=None
         root=QHBoxLayout(self);controls=QWidget();form=QFormLayout(controls);form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows)
-        form.addRow(ToolGuide('Definí H(s) o H(z) con su numerador y denominador. Obtendrás su expresión algebraica y su respuesta en frecuencia. Copiar un resultado anterior es opcional.',('Coeficientes','Sistema H','Módulo / fase')))
+        form.addRow(ToolGuide('Definí H(s) o H(z) con coeficientes o una fórmula. El análisis conserva la expresión y permite consultar módulo, fase y retardo. Copiar un resultado anterior es opcional.',('Coeficientes','Sistema H','Módulo / fase')))
         self.domain=QComboBox();self.domain.addItems(['Continuo · H(s)','Discreto · H(z)'])
         form.addRow('Sistema',self.domain)
         self.definition_mode=QComboBox();self.definition_mode.addItems(['Coeficientes','Fórmula H(s) / H(z)']);
@@ -69,6 +70,11 @@ class SystemAnalysisPanel(QWidget):
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);root.addWidget(right,2)
         layout.addWidget(self.result_actions);self.frequency_export=QPushButton('Exportar respuesta…');self.frequency_export.clicked.connect(self.export_response);self.frequency_export.setEnabled(False);self.result_actions.layout().addWidget(self.frequency_export);self.result_actions.hide()
+        self.expression_actions=QWidget();expression_row=QHBoxLayout(self.expression_actions);expression_row.setContentsMargins(0,0,0,0)
+        expression_reuse=QPushButton('Usar expresión en…');self.expression_menu=QMenu(expression_reuse);expression_reuse.setMenu(self.expression_menu);self.expression_menu.aboutToShow.connect(self.prepare_expression_reuse);expression_row.addWidget(expression_reuse)
+        expression_export=QPushButton('Exportar definición…');expression_export.clicked.connect(self.export_expression);expression_row.addWidget(expression_export)
+        self.expression_frequency_export=QPushButton('Exportar respuesta…');self.expression_frequency_export.clicked.connect(self.export_response);expression_row.addWidget(self.expression_frequency_export)
+        layout.addWidget(self.expression_actions);self.expression_actions.hide();self._definition_id=None;self._formula_context=None
         self.reuse_note=QLabel();self.reuse_note.setWordWrap(True);self.reuse_note.setObjectName('muted');layout.addWidget(self.reuse_note);self.reuse_note.hide()
         from .active_stack import ActiveTabs
         self.result_tabs=ActiveTabs();layout.addWidget(self.result_tabs)
@@ -141,13 +147,35 @@ class SystemAnalysisPanel(QWidget):
             self.transfer_formula.setText('1/(1-0.5*z^(-1))' if digital else '1/(s+1)')
         self.b.set_domain(digital);self.a.set_domain(digital);self.transfer_preview.schedule()
         if self.definition_mode.currentIndex()==1:
-            self.note.setText('Fórmula racional en z, con potencias positivas o negativas. Frecuencia en rad/muestra.' if digital else 'Fórmula racional en s. Frecuencia en rad/s.')
+            self.note.setText('Fórmula en z, con potencias positivas o negativas, logaritmos u otras funciones. Frecuencia en rad/muestra.' if digital else 'Fórmula en s; se conserva como expresión cuando no es racional. Frecuencia en rad/s.')
         else:self.note.setText('b y a en potencias ascendentes de z⁻¹. Frecuencia en rad/muestra.' if digital else 'b y a en potencias descendentes de s. Frecuencia en rad/s.')
         if changed and hasattr(self,'w1'):self.w1.setText('pi' if digital else '10')
         if hasattr(self,'impulse'):
             self.impulse.setVisible(not digital)
             if digital:self.impulse.setChecked(False)
+    def load_expression(self,expression,key=None,record=None,roc_spec=None):
+        from copy import deepcopy
+        from .transform_context import result_roc
+        self.domain.setCurrentIndex(0 if expression.variable=='s' else 1);self.definition_mode.setCurrentIndex(1);self.transfer_formula.setText(expression.source)
+        self._preserved_system=None;self._preserved_formula=None;self.input_id=key
+        self._formula_context=deepcopy(record);self._formula_context_signature=(self.transfer_formula.text(),self.domain.currentIndex())
+        spec=roc_spec if roc_spec is not None else result_roc(record)
+        self.roc_choice.setCurrentIndex({'right':0,'left':1,'radius':2,'line':2}.get(spec.get('mode'),3) if spec else 3)
+        if spec and ('radius' in spec or 'sigma' in spec):self.roc_radius.setText(str(spec.get('radius',spec.get('sigma'))))
+        from .system_clock import remember_period
+        remember_period(self,self.window.project.sample_period(key) if key else None)
+        self.note.setText('Fórmula cargada para análisis. Se conservan sus condiciones y soporte de origen; no se fuerza una conversión a coeficientes.')
+    def prepare_expression_reuse(self):
+        self.expression_menu.clear()
+        if not self._definition_id:return
+        from .result_expressions import send_expression
+        for label,destination in [('Copiar fórmula','copy'),('Calculadora CAS','cas')]:self.expression_menu.addAction(label,lambda checked=False,target=destination:send_expression(self.window,self._definition_id,target))
+    def export_expression(self):
+        if not self._definition_id:return
+        path,_=QFileDialog.getSaveFileName(self,'Exportar definición del sistema','sistema_expresion.json','Resultado SignalLab (*.json)')
+        if path:self.window.project.export_record(self._definition_id,path)
     def set_system(self,system,key=None):
+        self._formula_context=None
         from .systems_panel import list_text
         from .transfer_input import remember_system
         self.definition_mode.setCurrentIndex(0);self.domain.setCurrentIndex(0 if system.domain=='analog' else 1)
@@ -176,6 +204,9 @@ class SystemAnalysisPanel(QWidget):
             request=dict(operation='system_analysis',domain='analog' if self.domain.currentIndex()==0 else 'digital',
                 b=self.b.coefficients() if self.definition_mode.currentIndex()==0 else [],a=self.a.coefficients() if self.definition_mode.currentIndex()==0 else [],impulse=self.impulse.isChecked())
             if self.definition_mode.currentIndex()==1:request=dict(operation='system_formula',expression=self.transfer_formula.text(),domain=request['domain'],impulse=self.impulse.isChecked())
+            if self.definition_mode.currentIndex()==1 and (self.transfer_formula.text(),self.domain.currentIndex())==getattr(self,'_formula_context_signature',None) and self._formula_context is not None:
+                from copy import deepcopy
+                request['source_calculation']=deepcopy(self._formula_context)
             preserved=getattr(self,'_preserved_system',None) if (self.definition_mode.currentIndex()==0 and (self.b.text(),self.a.text(),self.domain.currentIndex())==getattr(self,'_preserved_definition',None)) or (self.definition_mode.currentIndex()==1 and (self.transfer_formula.text(),self.domain.currentIndex())==getattr(self,'_preserved_formula',None)) else None
             start,stop,count=real_field(self.w0),real_field(self.w1),integer_field(self.count,minimum=2)
             logarithmic=self.frequency_scale.currentIndex()==1;with_margins=self.margins.isChecked()
@@ -206,22 +237,28 @@ class SystemAnalysisPanel(QWidget):
                     exact['mathematical_conditions']=record(system)
                     if not information['known'] or information['unit'] is True:data=analyze_frequency(system,omega_grid,logarithmic=logarithmic,margins=with_margins)
                     else:exact['frequency_notice']='La ROC no contiene la frontera de Fourier. Se conservan la expresión y el análisis en el plano complejo: '+information['text']
+                elif exact.get('model_kind')=='expression':
+                    from .analytic_frequency import analyze_expression
+                    from .system_clock import UNSET
+                    exact,data=analyze_expression(exact,request,omega_grid,period=None if period is UNSET else period,logarithmic=logarithmic,margins=with_margins)
                 return exact,system,data
             def accept(result):
                 exact,system,data=result
                 definition=self.window.publish({'request':request,'result':exact},title='Definición algebraica del sistema',operation='Análisis numérico y algebraico',parents=[parent] if parent else [])
+                self._definition_id=definition;analytic=exact.get('model_kind')=='expression'
                 self.system=None;self.analyzed_system=system;self.analysis_advance=0;self._roots_cache=None;self.realization_view.clear_result();self.result_tabs.setTabEnabled(2,False)
                 self.frequency_data=data;self.frequency_export.setEnabled(data is not None)
                 if system is not None:
                     self.system=system
                     if self.system is not None:self.input_id=self.window.publish(system,operation='Aproximación numérica de la definición',parents=[definition])
-                    if data is not None:self.draw_frequency()
+                elif analytic:self.input_id=definition
+                if data is not None:self.draw_frequency()
                 else:
                     self.figure.clear();empty=self.figure.add_subplot(111);empty.set_axis_off();empty.text(.5,.5,'Asigná valores a los parámetros para obtener la respuesta numérica.',ha='center',va='center',wrap=True,transform=empty.transAxes);self.canvas.draw_idle()
                 self.result_actions.set_result(self.system,self.input_id);self.result_actions.setEnabled(True)
-                message=('El sistema conserva '+str(system.advance)+' muestras de avance. Podés exportarlo o reutilizarlo para análisis y Z inversa con ROC. La simulación causal no reemplaza ese avance por un retardo.' if system is not None and system.advance else 'La fórmula conserva parámetros libres. Asignales valores para exportar o reutilizar un sistema numérico.' if system is None else '')
+                message=exact.get('analysis_limits','La fórmula se conserva con sus parámetros y condiciones.') if analytic else ('El sistema conserva '+str(system.advance)+' muestras de avance. Podés exportarlo o reutilizarlo para análisis y Z inversa con ROC. La simulación causal no reemplaza ese avance por un retardo.' if system is not None and system.advance else 'La fórmula conserva parámetros libres. Asignales valores para exportar o reutilizar un sistema numérico.' if system is None else '')
                 self.reuse_note.setText(message);self.reuse_note.setVisible(bool(message))
-                self.empty.hide();self.result_tabs.show();self.result_actions.show();self.result_tabs.setTabVisible(1,data is not None);self.result_tabs.setTabVisible(self.transfer_index,system is not None);self.result_tabs.setTabVisible(2,system is not None);self.result_tabs.setTabEnabled(2,system is not None);self.result_tabs.setTabVisible(3,system is not None)
+                self.empty.hide();self.result_tabs.show();self.result_actions.setVisible(not analytic);self.expression_actions.setVisible(analytic);self.expression_frequency_export.setEnabled(data is not None);self.result_tabs.setTabVisible(1,data is not None);self.result_tabs.setTabVisible(self.transfer_index,system is not None);self.result_tabs.setTabVisible(2,system is not None);self.result_tabs.setTabEnabled(2,system is not None);self.result_tabs.setTabVisible(3,system is not None)
                 self.result_tabs.setCurrentIndex(0)
                 summary=frequency_summary(exact,data)
                 from .result_summary import Section
@@ -259,7 +296,7 @@ class SystemAnalysisPanel(QWidget):
         # Exact coefficient symmetry identifies a linear-phase FIR. Do not let
         # floating derivative noise at deep notches expand a constant-delay axis.
         system=data.system
-        if system.domain=='digital' and len(system.a)==1 and not np.any(system.b.imag) and (np.array_equal(system.b,system.b[::-1]) or np.array_equal(system.b,-system.b[::-1])):
+        if isinstance(system,Transfer) and system.domain=='digital' and len(system.a)==1 and not np.any(system.b.imag) and (np.array_equal(system.b,system.b[::-1]) or np.array_equal(system.b,-system.b[::-1])):
             expected=(len(system.b)-1)/2-data.advance;padding=max(.05,.05*abs(expected))
             axes[2].set_ylim(expected-padding,expected+padding)
         if data.logarithmic:axes[2].set_xscale('log')

@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.4.2**.
 
+## 1.5.4 · preliminar
+
+- Análisis de transferencias no racionales como expresiones, sin forzar coeficientes b/a.
+- Conservación de la secuencia, soporte y condiciones al enviar X(z) al análisis de H(z).
+- Reutilización desde Resultados, importación y archivos JSON de definición.
+- Frecuencia, fase y retardo para H(s)/H(z) generales, con límites separados de valores y derivadas.
+- Seis recorridos de interfaz obligatorios, además de 74 controles matemáticos y el barrido preventivo.
+
+[Notas de la preliminar](docs/releases/v1.5.4-preview.md)
+
 ## 1.5.3 · preliminar
 
 - Barrido preventivo obligatorio con una base fija y variaciones reproducibles derivadas del código.

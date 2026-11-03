@@ -85,7 +85,7 @@ jobs:
           if ($exe.VersionInfo.ProductName -ne $details.product_name -or $exe.VersionInfo.ProductVersion -ne $details.version) {
             throw 'The executable product metadata does not match the source version.'
           }
-          $record = [ordered]@{ repository = 'https://github.com/Tincho1286/SignalLab-PC'; commit = $env:BUILD_COMMIT; ref = $env:BUILD_REF; build_url = $env:BUILD_URL; version = $details.version; filename = $details.filename; sha256 = (Get-FileHash -LiteralPath $exe.FullName -Algorithm SHA256).Hash.ToLowerInvariant(); signature_status = (Get-AuthenticodeSignature -LiteralPath $exe.FullName).Status.ToString(); mathematical_checks = (Get-Content -LiteralPath work/math-checks.json -Raw | ConvertFrom-Json) }
+          $record = [ordered]@{ repository = 'https://github.com/Tincho1286/SignalLab-PC'; commit = $env:BUILD_COMMIT; ref = $env:BUILD_REF; build_url = $env:BUILD_URL; version = $details.version; filename = $details.filename; sha256 = (Get-FileHash -LiteralPath $exe.FullName -Algorithm SHA256).Hash.ToLowerInvariant(); signature_status = (Get-AuthenticodeSignature -LiteralPath $exe.FullName).Status.ToString(); mathematical_checks = (Get-Content -LiteralPath work/math-checks.json -Raw | ConvertFrom-Json); workflow_checks = (Get-Content -LiteralPath work/workflow-checks.json -Raw | ConvertFrom-Json) }
           $record | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath outputs/build-provenance.json -Encoding utf8
           "version=$($details.version)" >> $env:GITHUB_OUTPUT
           "file_version=$($details.file_version)" >> $env:GITHUB_OUTPUT

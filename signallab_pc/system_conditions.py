@@ -3,6 +3,9 @@ import numpy as np
 
 
 def record(system):
+    from .analytic_frequency import ExpressionSystem
+    if isinstance(system,ExpressionSystem):
+        return dict(domain='Discreto · H(z)' if system.domain=='digital' else 'Continuo · H(s)',roc='Se conservan las condiciones de la expresión de origen.',causality='No inferida por una lista de coeficientes.',bibo_stability='No inferida; una DTFT condicional no demuestra estabilidad BIBO.',frequency_interpretation=system.interpretation,scope='Análisis de expresión: '+system.condition)
     from .transfer_plane import convergence, effective_plane_system
     effective = effective_plane_system(system);digital = system.domain=='digital'
     information = convergence(effective)

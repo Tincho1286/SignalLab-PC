@@ -40,7 +40,7 @@ La generación de ventanas, el enventanado de h[n] y la estimación espectral ut
 
 ## Control antes de construir un portable
 
-Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` antes de empaquetar. Si falla, la construcción se detiene. El contrato `mathematical-families-v2` contiene 69 pruebas con variantes, agrupadas por familia y con un grupo adicional de propiedades de transformadas. Cada grupo exige una cantidad mínima de casos y no admite omisiones silenciosas:
+Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` antes de empaquetar. Si falla, la construcción se detiene. El contrato `mathematical-families-v2` contiene 74 pruebas con variantes, agrupadas por familia y con un grupo adicional de propiedades de transformadas. Cada grupo exige una cantidad mínima de casos y no admite omisiones silenciosas:
 
 | Familia | Referencias principales |
 |---|---|
@@ -82,3 +82,15 @@ Para reproducir una semilla indicada en un informe:
 ```
 
 Un barrido satisfactorio amplía la evidencia para los casos explorados. No convierte una comprobación numérica aislada en una prueba de identidad general ni certifica todas las entradas posibles.
+
+## Contratos de reutilización entre herramientas
+
+Una transformación correcta no basta para comprobar el destino que recibe su resultado. Los constructores oficiales ejecutan también `tools/check_workflows.py`, con un proceso Qt aislado y sin modificar las preferencias del usuario. Los seis recorridos comprueban los botones reales de Transformada Z y Análisis de sistemas, la biblioteca de resultados, Cargar sistema, H(s) general, exportación/apertura de una definición y conservación del modelo racional.
+
+Una expresión con logaritmos, exponenciales o funciones especiales no se convierte a un cociente de polinomios. Análisis de sistemas conserva su fórmula y obtiene su respuesta en frecuencia. Si procede de una Z directa, se comprueba la coincidencia de la fórmula con el resultado de origen antes de utilizar la secuencia y su soporte para Fourier. Una edición invalida ese contexto. Los controles de polos/ceros y realización finita permanecen asociados a modelos racionales; los resultados por expresión conservan sus propias acciones de exportación y reutilización.
+
+El informe `work/workflow-checks.json` registra los recorridos, el resultado y la huella del código. Windows y Linux lo incluyen en su procedencia y GitHub conserva los informes completos. El grupo dispone de un plazo de cinco minutos; un fallo, una omisión o un tiempo agotado impiden construir el portable. No es una aceptación visual completa de todas las pantallas: es una comprobación funcional del transporte y del cálculo en los controles afectados.
+
+```powershell
+.\.venv\Scripts\python.exe -B -X utf8 tools/check_workflows.py
+```

@@ -168,20 +168,15 @@ class TransformLab(QWidget):
                 result=record[1];branches=result.get('branches',[])
                 if result.get('evaluated') is False or len(branches)>1:raise ValueError('Elegí una expresión evaluada única antes de analizarla como sistema.')
                 expression=branches[0]['expression'] if branches else result['result'];parents=[record[2]]
-            from .transfer_input import formula_system
             from .workspaces import ROUTES
-            domain='digital' if self.kind=='z' else 'analog'
+            from .result_expressions import ExpressionResult
             from .transform_context import result_roc
-            roc_spec=({'mode':['right','left','radius'][self.roc.currentIndex()],**({'radius':real_field(self.radius)} if self.roc.currentIndex()==2 else {})} if self.kind=='z' and inverse else ({'mode':['right','left','line'][self.laplace_roc.currentIndex()],**({'sigma':real_field(self.sigma)} if self.laplace_roc.currentIndex()==2 else {})} if self.interpretation.currentIndex()==1 else {'mode':'right'}) if self.kind=='laplace' and inverse else result_roc({'request':record[0],'result':record[1]}) if record else None)
-            from .filters import validate_roc
-            roc_spec=validate_roc(roc_spec,domain)
-            def accept(system):
-                system.roc=roc_spec
-                if self.kind=='z' and parents:system.sample_period_s=self.window.project.sample_period(parents[0])
-                key=self.window.publish(system,operation='Transformada interpretada como transferencia',parents=parents)
-                self.window.send_system(system,key,ROUTES['system_analysis',0])
-                self.window.statusBar().showMessage('Expresión copiada como H('+('z' if domain=='digital' else 's')+'). Calculá el análisis con sus datos.')
-            self.window._run_operation('Preparando sistema para analizar…',lambda:formula_system(expression,domain,'Sistema desde transformada '+self.kind.upper(),allow_advance=True),accept)
+            domain='digital' if self.kind=='z' else 'analog'
+            origin={'request':record[0],'result':record[1]} if record is not None and not inverse else None
+            roc_spec=({'mode':['right','left','radius'][self.roc.currentIndex()],**({'radius':real_field(self.radius)} if self.roc.currentIndex()==2 else {})} if self.kind=='z' and inverse else ({'mode':['right','left','line'][self.laplace_roc.currentIndex()],**({'sigma':real_field(self.sigma)} if self.laplace_roc.currentIndex()==2 else {})} if self.interpretation.currentIndex()==1 else {'mode':'right'}) if self.kind=='laplace' and inverse else result_roc(origin) if origin else None)
+            self.window.open_tool(ROUTES['system_analysis',0]);panel=self.window.pages[self.window.current_operation].panel
+            panel.load_expression(ExpressionResult(expression,'z' if domain=='digital' else 's'),parents[0] if parents else None,origin,roc_spec)
+            self.window.statusBar().showMessage('Fórmula copiada como H('+('z' if domain=='digital' else 's')+'). Calculá el análisis con sus condiciones originales.')
         except Exception as exc:QMessageBox.warning(self,'No se pudo analizar como sistema',str(exc))
     def validate_fields(self):
         from .validation import invalid

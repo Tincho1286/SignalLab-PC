@@ -78,10 +78,8 @@ def send_expression(window,key,destination):
         panel._library_source=(text,key);panel._library_conditions=tuple(expression.conditions)
         panel.set_copy_note('Expresión cargada desde Resultados.'+(' Condiciones: '+'; '.join(expression.conditions) if expression.conditions else ''))
     elif destination=='system':
-        window.open_tool(ROUTES['system_analysis',0]);panel=window.pages[window.current_operation].panel;panel.domain.setCurrentIndex(0 if v=='s' else 1);panel.transfer_formula.setText(text);panel.definition_mode.setCurrentIndex(1);panel.input_id=key
-        from .transform_context import result_roc
-        spec=result_roc(window.project.get(key));panel.roc_choice.setCurrentIndex({'right':0,'left':1,'radius':2,'line':2}[spec['mode']] if spec else 3)
-        if spec and ('radius' in spec or 'sigma' in spec):panel.roc_radius.setText(str(spec.get('radius',spec.get('sigma'))))
+        window.open_tool(ROUTES['system_analysis',0]);panel=window.pages[window.current_operation].panel
+        panel.load_expression(expression,key,window.project.get(key))
     elif destination=='transform_signal':
         window.open_tool(ROUTES['basic','shift'] if v=='n' else ROUTES['time_transform',0]);panel=window.pages[window.current_operation].panel;field=panel.source
         prepared=signal_source(expression.numerical_source or text);field.mode.setCurrentIndex(0);field.expression.setText(prepared);field._expression_origin=(field.expression.text(),key)
