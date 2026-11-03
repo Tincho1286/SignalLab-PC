@@ -26,6 +26,8 @@ def configure_theme():
         'savefig.facecolor':'#171e29','axes.prop_cycle':mpl.cycler(color=['#55d6c2','#8b9cfa','#efb56c','#ec819c'])})
 
 
+_ICON_ROLES={}
+
 def icon(kind, color=None):
     if color is None:color=C['muted']
     paths = {
@@ -47,7 +49,7 @@ def icon(kind, color=None):
     svg=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="{paths.get(kind,paths["wave"])}" fill="none" stroke="{color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'
     pixmap=QPixmap(24,24);pixmap.fill(Qt.GlobalColor.transparent)
     painter=QPainter(pixmap);QSvgRenderer(QByteArray(svg.encode())).render(painter);painter.end()
-    return QIcon(pixmap)
+    result=QIcon(pixmap);role=next((key for key,value in C.items() if value==color),'muted');_ICON_ROLES[result.cacheKey()]=(kind,role);return result
 
 
 def install_tasks(form, tasks, common=()):
@@ -158,3 +160,17 @@ STYLE += "QPushButton#toolTile { text-align:left; padding:22px; min-height:44px;
 STYLE += "QTextBrowser#resultReport { background:#151e2b; border:1px solid #2a384a; border-radius:10px; padding:10px; selection-background-color:#29465c; }"
 
 STYLE += "QLabel#pageTitle { font-size:17pt; } QPushButton#toolTile { padding:10px 14px; border-radius:4px; font-size:10pt; min-height:26px; } QGroupBox { border-radius:4px; padding:10px; } QLineEdit, QComboBox, QPushButton { border-radius:4px; } QTabWidget::pane { border:1px solid #293646; }"
+
+
+def refresh_icons(app):
+    from PySide6.QtWidgets import QAbstractButton
+    alive=set();done=set()
+    for widget in app.allWidgets():
+        targets=([widget] if isinstance(widget,QAbstractButton) else [])+list(widget.actions())
+        for target in targets:
+            if id(target) in done:continue
+            done.add(id(target));data=_ICON_ROLES.get(target.icon().cacheKey())
+            if data:
+                target.setIcon(icon(data[0],C[data[1]]));alive.add(target.icon().cacheKey())
+    for key in list(_ICON_ROLES):
+        if key not in alive:_ICON_ROLES.pop(key,None)

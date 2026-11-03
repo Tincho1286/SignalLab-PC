@@ -40,12 +40,21 @@ def apply(window,key,*,persist=True):
             probe.background=None
             for artist in probe.artists:
                 line=artist.line;line.set_color(remap(line.get_color()));line.set_markeredgecolor(remap(line.get_markeredgecolor()));line.set_markerfacecolor(remap(line.get_markerfacecolor()))
+        toolbar=getattr(canvas,'toolbar',None)
+        if toolbar is not None and hasattr(toolbar,'_icon'):
+            for text,tip,image,callback in toolbar.toolitems:
+                if image and callback in toolbar._actions:toolbar._actions[callback].setIcon(toolbar._icon(image+'.png'))
         canvas.draw_idle()
     from .design import icon
     if hasattr(window,'calculate_action'):window.calculate_action.setIcon(icon('run',COLORS['on_primary']))
     if hasattr(window,'help'):window.help.setIcon(icon('book',COLORS['green']))
     for widget in window.findChildren(QWidget):
         if widget.__class__.__module__.endswith('pole_zero_editor') and hasattr(widget,'refresh_cursor'):widget.refresh_cursor()
+    from .design import refresh_icons
+    refresh_icons(app)
+    for widget in app.allWidgets():
+        if widget.__class__.__module__.endswith('tool_browser') and hasattr(widget,'refresh_theme'):widget.refresh_theme()
+        if widget.__class__.__module__.endswith('wallpaper'):widget.update()
     if persist:
         from PySide6.QtCore import QSettings
         QSettings('SignalLab','Desktop071').setValue('appearance/theme',key)
@@ -58,5 +67,16 @@ def install_menu(window,menu):
     group=QActionGroup(window);group.setExclusive(True);window.theme_actions={}
     for key,(name,_) in theme_presets.PRESETS.items():
         action=menu.addAction(name);action.setCheckable(True);action.setChecked(key==theme_presets.CURRENT);group.addAction(action)
-        action.triggered.connect(lambda checked=False,value=key:apply(window,value));window.theme_actions[key]=action
+        action.triggered.connect(lambda checked=False,value=key:choose(window,value));window.theme_actions[key]=action
+    menu.addSeparator();menu.addAction('Configurar tema personalizado…',lambda:configure_custom(window))
     window.theme_action_group=group
+
+
+def configure_custom(window):
+    from .theme_custom_dialog import configure
+    configure(window)
+
+
+def choose(window,key):
+    if key=='custom' and not theme_presets.HAS_CUSTOM:configure_custom(window)
+    else:apply(window,key)

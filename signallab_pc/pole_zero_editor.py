@@ -36,8 +36,8 @@ class PoleZeroEditor(QWidget):
         mode=self.mode.currentIndex()
         if not self._inside:self.panel.canvas.unsetCursor()
         elif mode<2:
-            from .theme_presets import CURRENT
-            key=(mode,float(self.panel.canvas.devicePixelRatioF()),CURRENT)
+            from .theme_tokens import COLORS as C
+            key=(mode,float(self.panel.canvas.devicePixelRatioF()),C['red'],C['blue'],C['window'])
             if key not in self._cursor_cache:self._cursor_cache[key]=insertion_cursor(self.panel.canvas,'pole' if mode==0 else 'zero')
             self.panel.canvas.setCursor(self._cursor_cache[key])
         else:self.panel.canvas.setCursor(Qt.CursorShape.OpenHandCursor if mode==2 else Qt.CursorShape.CrossCursor)

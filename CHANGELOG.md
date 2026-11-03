@@ -2,6 +2,15 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.2.1**.
 
+## 1.4.0 · preliminar
+
+- Banner de inicio adaptado a la paleta seleccionada.
+- Temas Vanta Black, Rosa, Claro y Blanco, además de los cuatro anteriores.
+- Tema personalizado con base, acento y foto local; vista previa, intensidad y encuadre.
+- Iconos y fórmulas adaptados a fondos claros y oscuros, conservando datos y zoom.
+
+[Notas de la preliminar](docs/releases/v1.4.0-preview.md) · [Configurar apariencia](docs/appearance.md)
+
 ## 1.3.1 · preliminar
 
 - Coordenadas libres en los planos de polos y ceros, sin ajuste al círculo unitario.

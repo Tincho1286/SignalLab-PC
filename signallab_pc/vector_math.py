@@ -17,6 +17,7 @@ class VectorFormula:
     svg:bytes
     width:int
     height:int
+    color:str|None=None
 
 @lru_cache(maxsize=256)
 def render_latex(latex,size=15,color='#e1e7ee'):
@@ -30,7 +31,7 @@ def render_latex(latex,size=15,color='#e1e7ee'):
     # Match the existing logical text size (100 px/in), independently of DPR.
     width=max(1,round(bounds.width()*100/72));height=max(1,round(bounds.height()*100/72))
     if not math.isfinite(width*height) or width*height>16000000:raise ValueError('Vista matemática extensa')
-    return VectorFormula(data,width,height)
+    return VectorFormula(data,width,height,color)
 
 class MathImageHandler(QPyTextObject):
     """Keep normal HTML image tags, painting formula SVG paths without a bitmap."""
@@ -68,3 +69,12 @@ class MathImageHandler(QPyTextObject):
                 image=self.image(document,name)
                 if not image.isNull():painter.drawImage(QRectF(rect),image)
         finally:painter.restore()
+
+
+def retint_formula(formula,color):
+    from dataclasses import replace
+    import re
+    old=formula.color or '#e1e7ee'
+    if old.lower()==color.lower():return formula
+    svg=re.sub(re.escape(old),color,formula.svg.decode('utf-8'),flags=re.I)
+    return replace(formula,svg=svg.encode('utf-8'),color=color)

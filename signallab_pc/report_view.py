@@ -8,29 +8,35 @@ from PySide6.QtWidgets import QTextBrowser,QWidget,QVBoxLayout,QHBoxLayout,QPush
 from PySide6.QtCore import QUrl,Qt,QByteArray,QBuffer,QIODevice
 from PySide6.QtGui import QTextDocument,QImage,QPainter,QColor
 from .math_display import formula_vector
-from .vector_math import MathImageHandler
+from .vector_math import MathImageHandler,retint_formula
 from .expression_structure import parse_cases
 from .signal_notation import normalize_source
 
 from .theme_tokens import COLORS as C,colorize
 
-PAPER_CSS=colorize("""
+_PAPER_TEMPLATE="""
 body {font-family:Cambria;font-size:11pt;color:@text@;background-color:@report@;}
 h1 {font-family:'Segoe UI';font-size:15pt;font-weight:600;color:@text@;margin:0 0 14px;}
 h2 {font-family:'Segoe UI';font-size:11pt;font-weight:600;color:@accent@;margin:16px 0 8px;}
 h3 {font-family:'Segoe UI';font-size:10pt;font-weight:600;color:@accent@;}
 p {line-height:145%;} td {vertical-align:top;} a {color:@accent@;}
-""")
+"""
+PAPER_CSS=colorize(_PAPER_TEMPLATE)
 PAPER_COLORS={'#dce4ef': '#e1e7ee', '#e2eaf5': '#e1e7ee', '#e1e2e5': '#e1e7ee', '#27313b': '#e1e7ee', '#95a9bf': '#a6b2c1', '#aebccd': '#a6b2c1', '#8194ae': '#a6b2c1', '#91a0b5': '#a6b2c1', '#586b7a': '#a6b2c1', '#617382': '#a6b2c1', '#10151e': '#1b2027', '#151e2b': '#1b2027', '#131d2a': '#1b2027', '#ffffff': '#1b2027', '#293646': '#3c4653', '#2a384a': '#3c4653', '#d7dfe5': '#3c4653', '#294d68': '#8ab6df', '#3b5368': '#a6b2c1', '#235d87': '#8ab6df', '#53cbb6': '#79c4ad', '#087c68': '#79c4ad'}
 
 _paper_tokens={'#e1e7ee':C['text'],'#a6b2c1':C['muted'],'#1b2027':C['report'],'#3c4653':C['border'],'#8ab6df':C['accent'],'#79c4ad':C['green']}
 PAPER_COLORS={old:_paper_tokens.get(mapped,mapped) for old,mapped in PAPER_COLORS.items()}
 
 def paper_html(text):
-    from .theme_presets import color,recolor
-    css=recolor(PAPER_CSS)
+    from .theme_presets import color
+    css=colorize(_PAPER_TEMPLATE)
     def declaration(match):
-        value=re.sub(r'#[0-9a-fA-F]{6}',lambda match:color(PAPER_COLORS.get(match.group().lower(),match.group())),match[2])
+        kind='foreground' if match[1]=='color' else 'background' if match[1].startswith('background') else 'border'
+        def resolve(item):
+            value=item.group().lower()
+            if kind=='foreground' and value in ('#ffffff','#000000'):return C['text']
+            return color(PAPER_COLORS.get(value,value),kind=kind)
+        value=re.sub(r'#[0-9a-fA-F]{6}',resolve,match[2])
         return match[1]+':'+value
     text=re.sub(r'(color|background(?:-color)?|border(?:-[a-z]+)?):([^;"<>]+)',declaration,str(text))
     text=text.replace('font-family:Segoe UI','font-family:Cambria')
@@ -95,11 +101,9 @@ class ReportView(QTextBrowser):
         super().setHtml(paper_html(text))
         self._math_handler.prune({html.unescape(value) for value in re.findall(r'src="([^"]+)"',str(text))})
     def refresh_theme(self,previous):
-        from dataclasses import replace
-        from .theme_presets import recolor
         revision=self._report_revision;vertical=self.verticalScrollBar().value();horizontal=self.horizontalScrollBar().value()
         for name,formula in list(self._math_resources.items()):
-            value=replace(formula,svg=recolor(formula.svg.decode('utf-8'),previous).encode('utf-8'))
+            value=retint_formula(formula,C['text'])
             self._math_resources[name]=value;self.document().addResource(QTextDocument.ResourceType.ImageResource,QUrl(name),QByteArray(value.svg))
         self._math_handler.renderers.clear();self.setHtml(self._base_html);self._report_revision=revision
         self.verticalScrollBar().setValue(vertical);self.horizontalScrollBar().setValue(horizontal);self.viewport().update()
@@ -107,9 +111,7 @@ class ReportView(QTextBrowser):
         self._calculation_notes=[dict(record) for record in records]
         self.setHtml(self._base_html)
     def vector_math_html(self,formula,source='',width=None):
-        from dataclasses import replace
-        from .theme_presets import recolor
-        formula=replace(formula,svg=recolor(formula.svg.decode('utf-8')).encode('utf-8'))
+        formula=retint_formula(formula,C['text'])
         self._formula_number+=1;name='formula:'+str(self._formula_number)
         self._math_resources[name]=formula
         self.document().addResource(QTextDocument.ResourceType.ImageResource,QUrl(name),QByteArray(formula.svg))

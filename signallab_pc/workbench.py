@@ -25,7 +25,8 @@ class WorkbenchWindow(ToolboxWindow):
         from .theme_presets import restore
         restore();configure_theme();configure_desktop()
         self.setWindowIcon(QIcon(str(Path(__file__).parent/'assets'/'signallab.ico')));self.setStyleSheet(desktop_style())
-        root=QWidget();root.setObjectName('desktop');body=QVBoxLayout(root);body.setContentsMargins(0,0,0,0);body.setSpacing(0)
+        from .wallpaper import BackgroundSurface
+        root=BackgroundSurface();root.setObjectName('desktop');body=QVBoxLayout(root);body.setContentsMargins(0,0,0,0);body.setSpacing(0)
         self.documents=QTabBar();self.documents.setObjectName('documents');self.documents.setExpanding(False);self.documents.setMovable(True);self.documents.setTabsClosable(True);self.documents.setUsesScrollButtons(True);self.documents.setElideMode(Qt.TextElideMode.ElideRight);self.documents.currentChanged.connect(self.activate_document);self.documents.tabCloseRequested.connect(self.close_document);body.addWidget(self.documents)
         heading=QWidget();heading.setObjectName('documentHeading');row=QHBoxLayout(heading);row.setContentsMargins(14,10,14,10);row.setSpacing(8)
         self.title=QLabel('Inicio');self.title.setObjectName('pageTitle');self.title.setWordWrap(True);row.addWidget(self.title,1)
