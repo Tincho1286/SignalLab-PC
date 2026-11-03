@@ -237,32 +237,9 @@ def normalize_gain(system,omega,target):
     return bundle(f'Normalización de ganancia\n\nFrecuencia angular: {omega:g}\nMódulo previo: {magnitude:.12g}\nMódulo objetivo: {target:g}\nFactor aplicado: {target/magnitude:.12g}\n\nSe modifica sólo la ganancia; la fase y las posiciones de polos y ceros se conservan.',systems=[result])
 
 def phase_structure(system):
-    if system.domain!='digital':raise ValueError('Este análisis requiere H(z).')
-    b=np.trim_zeros(system.b,'b');a=np.trim_zeros(system.a,'b')
-    if not b.size:raise ValueError('La transferencia nula no tiene fase ni inversa definidas.')
-    delay=int(np.flatnonzero(b!=0)[0]);active=b[delay:]
-    ensure_working_set(int(max(len(a),len(b))**2),live_arrays=12)
-    zeros=np.roots(active);poles=np.roots(a);near=np.any(np.isclose(abs(zeros),1,rtol=1e-8,atol=1e-10))
-    outside=abs(zeros)>1;reflected=zeros.copy();reflected[outside]=1/np.conj(zeros[outside])
-    gain=active[0]*np.prod(abs(zeros[outside]));minimum=Transfer(gain*np.atleast_1d(np.poly(reflected)),a,name='Factor con ceros reflejados',sample_period_s=system.sample_period_s)
-    allpass=Transfer(b,minimum.b,name='Factor paso todo y retardo',sample_period_s=system.sample_period_s)
-    lines=['Fase mínima y fase lineal',f'Retardo explícito: {delay} muestras',f'Ceros fuera del círculo unidad: {int(np.count_nonzero(outside))}',f'Polos fuera o sobre el círculo: {int(np.count_nonzero(abs(poles)>=1))}']
-    strict=(delay==0 and not near and np.all(abs(zeros)<1) and np.all(abs(poles)<1))
-    lines+=['Fase mínima estricta (interpretación causal, sin cancelaciones): '+('compatible con los polos y ceros numéricos.' if strict else 'no se puede afirmar con esta representación.')]
-    bb=np.convolve(b,np.conj(b[::-1]));aa=np.convolve(a,np.conj(a[::-1]));size=max(bb.size,aa.size)
-    def center(v):return np.pad(v,((size-v.size)//2,(size-v.size)//2))
-    gain_squared=float(np.sum(abs(b)**2)/np.sum(abs(a)**2))
-    constant=np.allclose(center(bb),gain_squared*center(aa),rtol=1e-9,atol=1e-12)
-    lines+=['Módulo constante en el círculo, salvo singularidades: '+(f'compatible con {np.sqrt(gain_squared):.9g} (comparación polinómica numérica).' if constant else 'no detectado.')]
-    lines+=['La factorización conserva H=Hmin·Hap en precisión numérica; refleja z₀ exterior a 1/conj(z₀) y compensa la ganancia.']
-    if near:lines+=['Hay ceros sobre o muy próximos al círculo unidad: no se afirma fase mínima estricta ni inversa estable.']
-    if np.any(abs(poles)>=1):lines+=['El sistema causal tiene polos no estables; reflejar ceros no estabiliza sus polos.']
-    if len(a)==1 and not np.any(b.imag):
-        symmetric=np.allclose(active,active[::-1],rtol=1e-9,atol=1e-12);antisymmetric=np.allclose(active,-active[::-1],rtol=1e-9,atol=1e-12)
-        kind=('I' if len(active)%2 else 'II') if symmetric else ('III' if len(active)%2 else 'IV') if antisymmetric else None
-        lines+=[('FIR de fase lineal generalizada, tipo '+kind+f'. Retardo: {delay+(len(active)-1)/2:g} muestras.' if kind else 'El FIR no presenta simetría ni antisimetría dentro de la tolerancia usada.')]
-    lines+=['La clasificación usa coeficientes y raíces numéricos; no cancela polos y ceros por proximidad. La estabilidad interna y los casos degenerados requieren análisis algebraico. El retardo de grupo no está definido donde H es cero.']
-    return bundle('\n\n'.join(lines),systems=[minimum,allpass])
+    from .phase_adjustment import factor_phase
+    return factor_phase(system)
+
 
 def inverse_z_contour(system,mode,radius,start,count,points):
     if system.domain!='digital':raise ValueError('Se requiere una transferencia discreta.')

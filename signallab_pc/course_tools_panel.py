@@ -139,7 +139,7 @@ class CourseToolsPanel(QWidget):
             self.fields['definition'].currentIndexChanged.connect(reference_visibility);self.fields['method'].currentIndexChanged.connect(reference_visibility);reference_visibility()
 
         elif action=='phase':
-            choice('phase_mode','Estudio',[('Fase mínima y paso todo','factor'),('Compensar módulo y fase · FIR','compensate'),('Reconstruir módulo y fase','reconstruct')])
+            choice('phase_mode','Estudio',[('Fase mínima y pasa todo','factor'),('Fase lineal · sistema y complemento','linear'),('Compensar módulo y fase · FIR','compensate'),('Reconstruir módulo y fase','reconstruct')])
             from .reconstruction_controls import ReconstructionControls
             self.reconstruction_controls=ReconstructionControls(window);form.addRow(self.reconstruction_controls)
             field('eq_low','Banda · desde (rad/muestra)','0');field('eq_high','Banda · hasta (rad/muestra)','pi')
@@ -287,6 +287,9 @@ class CourseToolsPanel(QWidget):
                     source,kind,options=self.reconstruction_controls.request();parent=self.reconstruction_controls.source.reference_id;parents=[parent] if parent else [];system=None
                     job=lambda:reconstruct(source,kind,**options)
                 elif self.fields['phase_mode'].currentData()=='factor':job=lambda:calc.phase_structure(system)
+                elif self.fields['phase_mode'].currentData()=='linear':
+                    from .phase_adjustment import linear_phase
+                    job=lambda:linear_phase(system)
                 else:
                     from .phase_compensation import design_compensator
                     args=(system,self.scalar('eq_low'),self.scalar('eq_high'),self.integer('eq_taps'),self.integer('eq_delay'),self.scalar('eq_gain'),self.scalar('eq_reg'));job=lambda:design_compensator(*args)
@@ -322,10 +325,10 @@ class CourseToolsPanel(QWidget):
                 for value in self.items:self.records.append(self.window.publish(value,operation=TITLES[action],parents=parents))
                 self.window.publish({'report':result['report'],'specifications':self.specifications,**({'input_conditions':imported_conditions} if ideal_conversion else {})},title=TITLES[action],operation='Informe de '+TITLES[action],parents=parents)
                 if action=='phase':
-                    self.phase_input=system;self.phase_report=result['report'];self._phase_report_value=None;self.compensation_data=result.get('compensation');self.reconstruction_data=result.get('reconstruction')
+                    self.phase_adjustment=result.get('phase_adjustment');self.phase_input=system;self.phase_report=result['report'];self._phase_report_value=None;self.compensation_data=result.get('compensation');self.reconstruction_data=result.get('reconstruction')
                     self.compensation_export.setText('Exportar reconstrucción CSV…' if self.reconstruction_data is not None else 'Exportar comparación CSV…');self.compensation_export.setVisible(self.compensation_data is not None or self.reconstruction_data is not None)
                     figure_window=getattr(self.view.canvas,'_signallab_window',None)
-                    if figure_window is not None:figure_window.setWindowTitle(('Reconstrucción de módulo/fase' if self.reconstruction_data is not None else 'Compensación FIR' if self.compensation_data is not None else 'Fase mínima y paso todo')+' · SignalLab')
+                    if figure_window is not None:figure_window.setWindowTitle(('Reconstrucción de módulo/fase' if self.reconstruction_data is not None else 'Compensación FIR' if self.compensation_data is not None else 'Ajuste de fase')+' · SignalLab')
                     self.show_all_systems.setText('Comparar original, compensado y objetivo');self.show_all_systems.setToolTip('Las acciones de exportación y reutilización toman el sistema elegido en el selector, aunque la figura muestre las tres curvas.')
                     self.show_all_systems.setVisible(self.compensation_data is not None)
                 self.conversion_info=result.get('conversion_details')
@@ -418,6 +421,9 @@ class CourseToolsPanel(QWidget):
             if self.compensation_data is not None:
                 from .phase_compensation import compensation_summary
                 self.report.set_readable(compensation_summary(self.compensation_data,value))
+            elif getattr(self,'phase_adjustment',None) is not None:
+                from .phase_adjustment import adjustment_summary
+                self.report.set_readable(adjustment_summary(self.phase_input,self.items,index,self.phase_report,self.phase_adjustment))
             else:self.report.set_readable(phase_summary(self.phase_input,self.items,index,self.phase_report))
             self._phase_report_value=value
         if self.action=='phase' and self.compensation_data is not None and self.show_all_systems.isChecked():

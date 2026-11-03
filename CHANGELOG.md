@@ -4,6 +4,8 @@ Las versiones estables y preliminares se distribuyen en [GitHub Releases](https:
 
 ## 1.2.0 — Transferencias H(s)/H(z) y vistas por componentes
 
+- Ajuste de fase con sistemas y complementos explícitos: fase mínima, pasa todo y construcción de fase lineal con sus condiciones de módulo, causalidad y ROC.
+
 - Representación de H(s) y H(z) mediante mallas de parte real/imaginaria o módulo/ángulo, con expresión asociada.
 - Elección de componentes también en la respuesta en frecuencia, conservando retardo de grupo.
 - Consolidación de Z, límites removibles, amplitudes por banda e importación compartida.
