@@ -91,4 +91,4 @@ La 1.2.1 publicada sigue sin firma digital. Se solicitó la incorporación al se
 
 ### Próxima versión · 1.3.0 preliminar
 
-Cursores A/B enlazados, comparación de resultados, sensibilidad de coeficientes, residuos de ecuaciones y más desarrollos explicados. [Notas de la preliminar](docs/releases/v1.3.0-preview.md) · [Guía de cursores](docs/cursors.md). La descarga estable continúa siendo 1.2.1.
+Cursores A/B enlazados, comparación de resultados, sensibilidad de coeficientes, residuos de ecuaciones y más desarrollos explicados. [Descargar preliminar Windows y Linux](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.3.0-preview) · [Notas de la preliminar](docs/releases/v1.3.0-preview.md) · [Guía de cursores](docs/cursors.md). La descarga estable continúa siendo 1.2.1.
