@@ -28,6 +28,8 @@ Los programas de la materia, documentos personales, entorno Python, temporales y
 
 ## Publicaciones disponibles
 
+- [1.2.0 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.0-preview): Z integrada, singularidades removibles por límites exactos, plano complejo de H(z), amplitudes por banda e importación compartida. Sin pruebas de funcionamiento por pedido del usuario; 1.1.3 sigue siendo la última estable.
+
 - [1.1.3 estable](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.3): generar ventanas como señales independientes, exportación y recepción directa en Fourier/Z finita.
 
 - [1.1.2 estable](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.2): carga exacta lateral de polos y ceros en forma binómica/polar, lista editable por filas y ayuda ilustrada.
