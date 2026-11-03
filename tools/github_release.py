@@ -96,8 +96,30 @@ class GitHub:
         result=self.verify(asset,path,expected)
         print('Verified:',path.name,expected,flush=True);return result
 
+    def ensure_release_tag(self,tag,target,title):
+        """Date new annotated tags with GitHub's clock, preserving existing refs."""
+        base='/repos/'+self.repository;reference=base+'/git/ref/tags/'+urllib.parse.quote(tag,safe='')
+        try:
+            existing=self.api('GET',reference)['object']
+        except urllib.error.HTTPError as exc:
+            if exc.code!=404:raise
+        else:
+            while existing['type']=='tag':existing=self.api('GET',base+'/git/tags/'+existing['sha'])['object']
+            if existing['type']!='commit' or existing['sha']!=target:raise RuntimeError('La etiqueta existente apunta a otro commit; no se modifica.')
+            return
+        from datetime import timezone
+        from email.utils import parsedate_to_datetime
+        request=urllib.request.Request('https://api.github.com'+base,headers=self.headers())
+        with self.opener.open(request,timeout=60) as response:server_date=response.headers.get('Date')
+        if not server_date:raise RuntimeError('GitHub no informó su fecha; no se usa el reloj local para fechar la etiqueta.')
+        timestamp=parsedate_to_datetime(server_date).astimezone(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+        maintainer=self.api('GET','/user')
+        annotated=self.api('POST',base+'/git/tags',{'tag':tag,'message':title+'\n\nBuild source commit: '+target+'.','object':target,'type':'commit','tagger':{'name':maintainer['login'],'email':str(maintainer['id'])+'+'+maintainer['login']+'@users.noreply.github.com','date':timestamp}})
+        self.api('POST',base+'/git/refs',{'ref':'refs/tags/'+tag,'sha':annotated['sha']})
+
     def publish(self,tag,title,notes,paths,target,prerelease=True,allow_public=False):
         self.require_repository(allow_public);base='/repos/'+self.repository
+        self.ensure_release_tag(tag,target,title)
         try:release=self.api('GET',base+'/releases/tags/'+urllib.parse.quote(tag,safe=''))
         except urllib.error.HTTPError as exc:
             if exc.code!=404:raise

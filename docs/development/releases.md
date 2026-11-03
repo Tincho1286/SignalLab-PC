@@ -48,3 +48,11 @@ Por defecto se crea una preliminar. `--stable` identifica una entrega estable y 
 ## Conservar el historial
 
 Los ejecutables se distribuyen en Releases y no forman parte del historial Git. Las etiquetas identifican el código de cada versión. Las actualizaciones editoriales de una publicación conservan la etiqueta, la fecha, el estado y el ejecutable; si cambia un documento adjunto, su checksum se actualiza junto con él.
+
+## Fechas y orden de Releases
+
+GitHub ordena el listado usando la fecha de la etiqueta o del commit, que puede diferir de la fecha de publicación. Marcar una versión como Latest controla la descarga principal, pero no corrige por sí solo fechas de referencia adelantadas.
+
+El publicador crea las etiquetas nuevas como anotadas, con la fecha UTC informada por GitHub. Conserva el commit exacto de construcción y comprueba el destino de cualquier etiqueta que ya exista, sin reemplazarla. Así la fecha local del equipo no desplaza el orden de las nuevas entregas.
+
+Las etiquetas v1.2.0-preview, v1.2.0 y v1.2.1 se normalizaron con sus fechas originales de publicación. Conservan sus mismos commits, contenidos y archivos descargables. Al actualizar una copia local antigua de esas etiquetas, puede ser necesario volver a obtener sus metadatos con un fetch explícito; no requiere recompilar los portables.
