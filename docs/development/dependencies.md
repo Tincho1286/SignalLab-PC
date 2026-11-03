@@ -14,4 +14,6 @@ El entorno se dirige a Python 3.12 de 64 bits. `pyproject.toml`, `requirements.t
 | h5py | Lectura de datos HDF5 utilizados por formatos MATLAB compatibles. |
 | PyInstaller | Empaquetado del portable Windows. |
 
+La aplicación se publica bajo [GPL-3.0-or-later](../../LICENSE). Las dependencias mantienen sus propias licencias; sus avisos están en [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md) y `LICENSES/`.
+
 Para conocer las versiones fijadas, consultá [pyproject.toml](../../pyproject.toml) y [requirements-lock.txt](../../requirements-lock.txt). Los cambios de dependencias se documentan junto con sus efectos en cálculo, formatos y distribución.

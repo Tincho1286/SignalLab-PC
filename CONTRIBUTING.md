@@ -25,3 +25,7 @@ Las correcciones de cálculo deben conservar condiciones, unidades, índices y c
 ## Documentación y versiones
 
 Los textos públicos explican qué hace el software, cómo se usa y qué cambia entre versiones. Las notas incluyen mejoras, correcciones y compatibilidad; el historial técnico anterior se conserva en `docs/history/`. Los portables se adjuntan a Releases, fuera del historial Git.
+
+## Licencia de las contribuciones
+
+Las contribuciones originales al proyecto se incorporan bajo GPL-3.0-or-later. Conservá los avisos existentes y acreditá cualquier material de terceros con su licencia compatible y procedencia. Proponé únicamente contenido que tengas derecho a aportar bajo esos términos.

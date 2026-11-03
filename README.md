@@ -4,6 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.2.0" src="https://img.shields.io/badge/estable-1.2.0-71d7c4?style=flat-square&amp;labelColor=172632"></a>
+  <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
   <img alt="Windows portable" src="https://img.shields.io/badge/Windows-portable-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Desarrollado con Python" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
 </p>
@@ -75,3 +76,9 @@ Las herramientas distinguen resultados exactos, aproximaciones y cálculos pendi
 Desarrollado en **Python 3.12**, con **PySide6, NumPy, SciPy, SymPy y Matplotlib**. El código de la aplicación está en `signallab_pc/`; las descargas se distribuyen en [Releases](https://github.com/Tincho1286/SignalLab-PC/releases).
 
 Para proponer mejoras o informar errores, consultá la [guía de contribución](CONTRIBUTING.md). Un ejemplo reproducible con la herramienta, la entrada y el resultado esperado ayuda a resolver problemas de cálculo o de interfaz.
+
+## Licencia abierta
+
+SignalLab PC se publica bajo **GNU GPL versión 3 o posterior**. Podés usarlo, estudiar su código, modificarlo y redistribuirlo, incluso con fines comerciales. Las versiones modificadas que se distribuyan deben conservar la licencia GPL y facilitar su código fuente conforme a sus términos. Se distribuye sin garantía.
+
+[Licencia completa](LICENSE) · [Alcance y avisos](NOTICE.md) · [Licencias de terceros](THIRD_PARTY_NOTICES.md)

@@ -11,6 +11,7 @@ SignalLab PC permite estudiar señales, sistemas y filtros mediante cálculos nu
 | Consultar cobertura y límites | [Sistemas y Señales I/II](scope/sys-i-ii.md) · [Señales Aleatorias](scope/random-signals.md) |
 | Ver novedades | [Historial de cambios](../CHANGELOG.md) · [Notas de versiones](releases/README.md) |
 | Trabajar con el código | [Desarrollo](development/README.md) |
+| Consultar la licencia | [GPL-3.0-or-later](../LICENSE) · [Avisos](../NOTICE.md) · [Terceros](../THIRD_PARTY_NOTICES.md) |
 
 ## Versiones
 

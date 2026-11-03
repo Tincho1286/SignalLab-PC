@@ -2,6 +2,12 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.2.0**.
 
+## Documentación y licencia · 2026-11-02
+
+- Publicación del código y los recursos originales bajo GPL-3.0-or-later.
+- Texto íntegro de licencia, alcance, metadatos del paquete y avisos originales de dependencias.
+- Fuentes y avisos accesibles junto a la descarga 1.2.0; el ejecutable y sus cálculos se conservan.
+
 ## 1.2.0 — Transferencias H(s)/H(z) y vistas por componentes
 
 - Ajuste de fase con sistemas y complementos explícitos: fase mínima, pasa todo y construcción de fase lineal con sus condiciones de módulo, causalidad y ROC.
