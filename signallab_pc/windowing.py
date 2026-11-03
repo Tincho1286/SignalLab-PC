@@ -73,7 +73,8 @@ def window_impulse(h,window='hamming',beta=8.6,retard=True,custom=None,*,length=
         if window not in ('boxcar','hann','hamming','blackman','kaiser','bartlett'):raise ValueError('Elegí una ventana disponible.')
         beta=float(beta)
         if window=='kaiser' and (not math.isfinite(beta) or beta<0):raise ValueError('β de Kaiser debe ser finito y no negativo.')
-        values=get_window(('kaiser',beta) if window=='kaiser' else window,size,fftbins=False)
+        from .window_signals import generate_window
+        values=generate_window(window,size,origin,beta).values
         window_name=window+(' (β='+str(beta)+')' if window=='kaiser' else '')
         metadata={'operation':'fir_window','window':window,'symmetric':True,'length':size,'start':origin,'scope':'Ventana simétrica de longitud L elegida independientemente del registro de h[n].'}
         if window=='kaiser':metadata['beta']=beta

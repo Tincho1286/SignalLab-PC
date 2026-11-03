@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.4.2**.
 
+## 1.5.1 · preliminar
+
+- Analizador común de constantes exactas, campos numéricos y coeficientes.
+- Validación de enteros, dominios de funciones y pérdida de coeficientes al normalizar filtros.
+- Entradas de ecuaciones coherentes con las transformadas y reconocimiento de sinc como impulso en recurrencias.
+- Ventanas compartidas entre señales, FIR por h[n] y estimación espectral.
+- Control obligatorio ampliado a 56 pruebas en nueve familias matemáticas.
+
+[Notas de la preliminar](docs/releases/v1.5.1-preview.md) · [Fiabilidad matemática](docs/mathematical-reliability.md)
+
 ## 1.5.0 · preliminar
 
 - Definición matemática conservada con expresión exacta, dominio, soporte y notas de continuidad.

@@ -89,9 +89,13 @@ def tail_transform(amplitude,start):
 
 
 def unilateral(value,start,parts=False):
+    from .z_direct_pairs import pieces
+    prepared=pieces(value,sp.Integer(start),sp.oo)
+    if prepared is None:prepared=segments(sp.expand_mul(value),sp.Integer(start),sp.oo)
     terms=[]
-    for amplitude,lower,upper in segments(sp.expand_mul(value),sp.Integer(start),sp.oo):
+    for amplitude,lower,upper in prepared:
         checkpoint()
+        if amplitude==0:continue
         if lower==upper:
             terms.append(amplitude.subs(N,lower)*Z**(-(lower-start)));continue
         terms.append(Z**(-(lower-start))*tail_transform(amplitude,lower))
@@ -135,18 +139,21 @@ def forward_inverse(expression):
 def solve(request):
     from .signal_notation import source
     from .cas_engine import encode
-    coefficients=[sp.cancel(parse(v)) for v in request['coefficients']]
+    from .scalar_expression import exact_constant,integer_value
+    from .expression_definition import prepare
+    coefficients=[exact_constant(v,parameters=True) for v in request['coefficients']]
     if any(v.has(N,T,Z,S,W) or v.has(sp.nan,sp.zoo,sp.oo,-sp.oo) for v in coefficients):raise ValueError('Los coeficientes deben ser constantes finitas, independientes de n.')
     while coefficients and coefficients[-1]==0:coefficients.pop()
     if len(coefficients)<2:raise ValueError('Se requiere una ecuación en diferencias de orden al menos 1.')
     if coefficients[0]==0:raise ValueError('a₀ no puede ser cero: debe permitir despejar y[n].')
-    order=len(coefficients)-1;start=int(request.get('start',0));count=int(request.get('count',64))
+    order=len(coefficients)-1;start=integer_value(request.get('start',0));count=integer_value(request.get('count',64))
     if count<1:raise ValueError('La cantidad de muestras debe ser positiva.')
     ensure_working_set(count+order*order,bytes_per_sample=2048,live_arrays=12)
-    history=[sp.S.Zero]*order if request.get('rest',True) else [sp.cancel(parse(v)) for v in request['initial']]
+    history=[sp.S.Zero]*order if request.get('rest',True) else [exact_constant(v,parameters=True) for v in request['initial']]
     if len(history)!=order:raise ValueError('Cargá '+str(order)+' valores: y['+str(start-1)+'], y['+str(start-2)+'], …, y['+str(start-order)+'].')
     if any(v.has(N,T,Z,S,W,sp.nan,sp.zoo,sp.oo,-sp.oo) for v in history):raise ValueError('Las condiciones iniciales deben ser constantes finitas.')
-    forcing=parse(request['expression'])
+    definition=prepare(request['expression'],N,'discrete',(sp.Integer(start),sp.oo),support_kind='recurrence_input')
+    forcing=definition.expression
     if forcing.has(T,Z,S,W,sp.DiracDelta):raise ValueError('Usá n en f[n] e impulse(n−k) para impulsos discretos. No uses t, z ni DiracDelta.')
     denominator=sum(a*Z**(-j) for j,a in enumerate(coefficients))
     correction=-sum(coefficients[j]*sum(history[r-1]*Z**(-(j-r)) for r in range(1,j+1)) for j in range(1,order+1))
@@ -194,7 +201,7 @@ def solve(request):
             from .numeric_modes import expression_source
             return expression_source(sp.N(value,17))
         return source(value)
-    return {'residual_check':residual_check,'operation':'Ecuación en diferencias','result':source(exact),'display_result':text(exact),'display_numeric':numeric_display,'cas_encoded':encode(exact),'evaluated':True,'closed_form':closed,'output_variable':'n','condition':condition,
+    return {'input_definition':definition.metadata(),'calculation_notes':list(definition.extensions),'residual_check':residual_check,'operation':'Ecuación en diferencias','result':source(exact),'display_result':text(exact),'display_numeric':numeric_display,'cas_encoded':encode(exact),'evaluated':closed,'closed_form':closed,'output_variable':'n','condition':condition,
             'equation_lhs':str(sum(a*sp.IndexedBase('y')[N-j] for j,a in enumerate(coefficients))),'order':order,'origin':start,'numeric_samples':numeric,'numeric_notice':numeric_notice,'parameters':parameters,'coefficients':[str(v) for v in coefficients],'initial':[str(v) for v in history],
             'zero_input':text(shift(zero_input)),'zero_state':text(shift(zero_state)),'system_expression':str(sp.cancel(1/denominator)),
             'unilateral_output':str(sp.cancel((transformed+correction)/denominator)) if transformed is not None else None,

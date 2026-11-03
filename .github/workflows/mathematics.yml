@@ -5,14 +5,14 @@ on:
     branches: [main]
     paths:
       - 'signallab_pc/**.py'
-      - 'tests/test_math_reliability.py'
+      - 'tests/test_math_*.py'
       - 'tools/check_math.py'
       - 'requirements-lock.txt'
       - '.github/workflows/mathematics.yml'
   pull_request:
     paths:
       - 'signallab_pc/**.py'
-      - 'tests/test_math_reliability.py'
+      - 'tests/test_math_*.py'
       - 'tools/check_math.py'
       - 'requirements-lock.txt'
       - '.github/workflows/mathematics.yml'

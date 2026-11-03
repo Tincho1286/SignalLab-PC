@@ -10,18 +10,35 @@ from .resources import ensure_working_set
 
 
 _BIN = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
-        ast.Div: np.divide, ast.Pow: lambda a, b: np.power(np.asarray(a, dtype=np.complex128), b), ast.Mod: operator.mod}
-_UNARY = {ast.UAdd: operator.pos, ast.USub: operator.neg}
+        ast.Div: np.divide, ast.Pow: lambda a, b: np.power(np.asarray(a, dtype=np.complex128), b), ast.Mod: lambda a,b:np.remainder(_real_argument(a),_real_argument(b)), ast.BitAnd:np.logical_and, ast.BitOr:np.logical_or}
+_UNARY = {ast.UAdd: operator.pos, ast.USub: operator.neg, ast.Not:np.logical_not, ast.Invert:np.logical_not}
+
+
+def _real_argument(value):
+    value=np.asarray(value)
+    if np.iscomplexobj(value):
+        if np.any(value.imag!=0):raise ExpressionError('Esta operación requiere argumentos reales.')
+        value=value.real
+    return value
+
+
+def _inverse_trig(value,kind):
+    # On the real branch cuts, use the same principal values as the CAS.
+    value=np.asarray(value,dtype=complex)
+    result=(np.arcsin if kind=='asin' else np.arccos)(value)
+    return np.where((value.imag==0)&(value.real>1),np.conj(result),result)
+
+
 _FUNCS = {"sin": np.sin, "cos": np.cos, "tan": np.tan, "exp": np.exp,
           "sqrt": lambda v: np.sqrt(np.asarray(v, dtype=np.complex128)),
           "abs": np.abs, "log": lambda v: np.log(np.asarray(v, dtype=np.complex128)),
           "ln": lambda v: np.log(np.asarray(v, dtype=np.complex128)),
           "sinh": np.sinh, "cosh": np.cosh, "tanh": np.tanh, "sign": np.sign,
-          "asin": np.arcsin, "acos": np.arccos, "atan": np.arctan,
+          "asin": lambda v:_inverse_trig(v,'asin'), "acos": lambda v:_inverse_trig(v,'acos'), "atan": np.arctan,
           "re": np.real, "im": np.imag, "conj": np.conjugate,
-          "floor": np.floor, "ceiling": np.ceil, "ceil": np.ceil,
-          "heaviside": lambda v, edge=.5: np.heaviside(v, edge),
-          "step": lambda v: np.asarray(v) >= 0,
+          "floor": lambda v:np.floor(_real_argument(v)), "ceiling": lambda v:np.ceil(_real_argument(v)), "ceil": lambda v:np.ceil(_real_argument(v)),
+          "heaviside": lambda v, edge=.5: np.heaviside(_real_argument(v), _real_argument(edge)),
+          "step": lambda v: _real_argument(v) >= 0,
           "impulse": lambda v: np.asarray(v) == 0,
           "sinc": np.sinc}
 
@@ -42,8 +59,16 @@ def evaluate_expression(expression: str, x: np.ndarray) -> np.ndarray:
         node_count = sum(1 for _ in ast.walk(tree))
         coordinates = np.asarray(x, dtype=float)
         ensure_working_set(coordinates.size, live_arrays=max(4, node_count + 3))
+        axis_names={'x','t','n','k','w'}
+        constant=not any(isinstance(node,ast.Name) and node.id.lower() in axis_names or isinstance(node,(ast.IfExp,ast.Compare,ast.BoolOp)) or isinstance(node,ast.Constant) and isinstance(node.value,bool) or isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id.lower() in ('where','step','impulse','heaviside','kroneckerdelta') for node in ast.walk(tree))
+        raw_coordinates=np.asarray(x)
+        if not constant and raw_coordinates.size and np.issubdtype(raw_coordinates.dtype,np.integer) and max(abs(int(raw_coordinates.min())),abs(int(raw_coordinates.max())))>2**53:
+            raise ExpressionError('La evaluación numérica de la fórmula requiere índices exactamente representables (|n| ≤ 2^53).')
         with np.errstate(all="ignore"):
-            result = _visit(tree.body, coordinates)
+            if constant:
+                from .scalar_expression import constant_value
+                result=constant_value(source)
+            else:result = _visit(tree.body, coordinates)
         arr = np.asarray(result, dtype=np.complex128)
         if arr.ndim == 0:
             arr = np.full(np.asarray(x).shape, arr, dtype=np.complex128)
@@ -108,7 +133,10 @@ def _visit(node, x):
         for operation, operand in zip(node.ops, node.comparators):
             if type(operation) not in comparisons: raise ExpressionError("Comparación no permitida.")
             right = _visit(operand, x)
-            result &= comparisons[type(operation)](left, right)
+            if not isinstance(operation,(ast.Eq,ast.NotEq)):
+                first,second=_real_argument(left),_real_argument(right)
+            else:first,second=left,right
+            result &= comparisons[type(operation)](first, second)
             left = right
         return result
     if isinstance(node, ast.BoolOp) and isinstance(node.op, (ast.And, ast.Or)):

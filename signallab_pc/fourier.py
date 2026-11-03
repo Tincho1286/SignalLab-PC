@@ -192,7 +192,8 @@ def spectral_density(x, rate, *, method="welch", segment=256, overlap=128,
     if not math.isfinite(beta) or beta < 0:
         raise ValueError("Beta debe ser finito y no negativo.")
     ensure_working_set(segment, live_arrays=14)
-    weights = get_window(("kaiser", beta) if window == "kaiser" else window, segment, fftbins=False)
+    from .window_signals import generate_window
+    weights = generate_window(window,segment,beta=beta).values.real
     energy = float(np.sum(weights**2))
     if not math.isfinite(energy) or energy <= 0:
         raise ValueError("La ventana tiene energía nula o no finita; cambiá ventana o segmento.")

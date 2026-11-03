@@ -47,15 +47,12 @@ class CoefficientEditor(QWidget):
     def fit_table(self):self.table.setFixedHeight(48+30*min(max(1,len(self.model.values)),5))
     def text(self):return ', '.join(self.model.values)
     def coefficients(self):
-        import sympy as sp
-        from .symbolic import parse,T,S,N,Z,W
+        from .scalar_expression import exact_constant
         from .numeric_input import field_name
         from .validation import invalid
         for index,value in enumerate(self.model.values):
             try:
-                expression=parse(value)
-                if expression.has(T,S,N,Z,W):raise ValueError('El coeficiente debe ser constante respecto de los ejes t, s, n, z y w.')
-                if expression.has(sp.zoo,sp.nan,sp.oo):raise ValueError('El coeficiente debe ser finito.')
+                exact_constant(value,parameters=True)
             except Exception as exc:
                 invalid(self.inline,'coeficiente '+str(index+1)+' incorrecto: '+str(exc),'Se admiten pi, 10^(-3), 1e-3, fracciones y complejos; separá los coeficientes con comas.',name=field_name(self))
         if not self.model.values:invalid(self.inline,'la lista está vacía.','Ingresá al menos un coeficiente; por ejemplo 1, 0, pi/4.',name=field_name(self))
@@ -93,9 +90,9 @@ class TransferPreview(ReportView):
         numerator.textChanged.connect(self.schedule);denominator.textChanged.connect(self.schedule);self.schedule()
     def schedule(self,*_):self.timer.start()
     def refresh(self):
-        if len(self.numerator.coefficients())+len(self.denominator.coefficients())>16:
-            self.setPlainText('La vista previa se omite para listas largas. Todos los coeficientes permanecen en las tablas y se usan en el cálculo.');return
         try:
+            if len(self.numerator.model.values)+len(self.denominator.model.values)>16:
+                self.setPlainText('La vista previa se omite para listas largas. Todos los coeficientes permanecen en las tablas y se usan en el cálculo.');return
             denominator=self.denominator.expression()
             if denominator=='0':
                 self.setPlainText('El denominador no puede ser cero. Editá al menos uno de sus coeficientes.');return

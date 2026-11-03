@@ -14,7 +14,7 @@ TAU = sp.Symbol("tau", real=True)
 SYMBOLS = {"t": T, "x": T, "s": S, "z": Z, "n": N, "w": W, "omega": W, "tau": TAU, "pi": sp.pi, "e": sp.E,
            "i": sp.I, "j": sp.I, "oo": sp.oo, "infinity": sp.oo, "true": sp.true, "false": sp.false}
 FUNCTIONS = {"sinc": lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x)/(sp.pi*x),True)), "ceil":sp.ceiling, "ceiling":sp.ceiling, "floor":sp.floor, "sign":sp.sign,"sin": sp.sin, "cos": sp.cos, "tan": sp.tan, "exp": sp.exp, "log": sp.log,
-             "ln": sp.log, "polylog":sp.polylog, "lerchphi":sp.lerchphi, "mod":sp.Mod, "eq":sp.Eq, "ne":sp.Ne, "erf": sp.erf, "erfc": sp.erfc, "sqrt": sp.sqrt, "abs": sp.Abs, "sinh": sp.sinh, "cosh": sp.cosh,
+             "asin":sp.asin, "acos":sp.acos, "atan":sp.atan, "tanh":sp.tanh, "ln": sp.log, "polylog":sp.polylog, "lerchphi":sp.lerchphi, "mod":sp.Mod, "eq":sp.Eq, "ne":sp.Ne, "erf": sp.erf, "erfc": sp.erfc, "sqrt": sp.sqrt, "abs": sp.Abs, "sinh": sp.sinh, "cosh": sp.cosh,
              "heaviside": sp.Heaviside, "diracdelta": sp.DiracDelta, "dirac": sp.DiracDelta,
              "step": lambda x:sp.Heaviside(x,1), "impulse": lambda x:sp.KroneckerDelta(x,0) if x.has(N) else sp.DiracDelta(x), "kroneckerdelta":sp.KroneckerDelta, "piecewise": sp.Piecewise, "conj": sp.conjugate, "re": sp.re, "im": sp.im}
 
@@ -232,8 +232,9 @@ def _execute(request):
     if operation == "system_analysis":
         domain=request['domain']
         if domain not in ('analog','digital'):raise ValueError('Dominio de sistema inválido.')
-        b=[sp.simplify(parse(v)) for v in request['b']]
-        a=[sp.simplify(parse(v)) for v in request['a']]
+        from .scalar_expression import exact_constant,numerical_value
+        b=[exact_constant(v,parameters=True) for v in request['b']]
+        a=[exact_constant(v,parameters=True) for v in request['a']]
         if not b or not a or all(v==0 for v in a):raise ValueError('El denominador no puede ser nulo.')
         if any(v.has(S,Z,T,N,sp.oo,sp.zoo,sp.nan) for v in b+a):raise ValueError('Los coeficientes deben ser constantes finitas o parámetros.')
         if domain=='digital' and a[0]==0:raise ValueError('La representación digital requiere a0 distinto de cero.')
@@ -249,7 +250,7 @@ def _execute(request):
                 'scope':'Representación algebraica de los coeficientes ingresados. Simplificar H no prueba estabilidad interna ni identifica una ROC.',
                 'parameters':sorted(str(v) for coefficient in b+a for v in coefficient.free_symbols)}
         if not any(v.free_symbols for v in b+a):
-            numeric=[complex(sp.N(v,17)) for v in b+a]
+            numeric=[numerical_value(v) for v in b+a]
             if any(not math.isfinite(v.real) or not math.isfinite(v.imag) for v in numeric):raise ValueError('Los coeficientes exceden la precisión numérica disponible.')
             result['numeric_b']=[[v.real,v.imag] for v in numeric[:len(b)]]
             result['numeric_a']=[[v.real,v.imag] for v in numeric[len(b):]]
@@ -319,20 +320,23 @@ def _execute(request):
                 "scope": "Rama de soporte acotado inferiormente; primeros N términos, no toda la señal infinita",
                 "roc": "Exterior de todos los polos finitos no cancelados. La misma expresión con otra ROC puede dar otra secuencia."}
     if operation == "ode":
-        coefficients=[sp.cancel(parse(value)) for value in request["coefficients"]]
-        if any(value.has(T,S) for value in coefficients): raise ValueError("La EDO requiere coeficientes constantes.")
+        from .scalar_expression import exact_constant
+        from .expression_definition import prepare
+        coefficients=[exact_constant(value,parameters=True) for value in request["coefficients"]]
         while coefficients and coefficients[-1] == 0: coefficients.pop()
         if len(coefficients)<2: raise ValueError("Se requiere una EDO de orden >=1.")
-        initial=[parse(value) for value in request["initial"]]
-        if any(value.has(T,S) for value in initial): raise ValueError("Las condiciones iniciales deben ser constantes.")
+        initial=[exact_constant(value,parameters=True) for value in request["initial"]]
         order=len(coefficients)-1
         if len(initial)!=order: raise ValueError("Ingrese una condición inicial por derivada de orden 0 hasta orden-1.")
-        forcing, plane, condition=sp.laplace_transform(parse(expression),T,S)
+        definition=prepare(expression,T,'continuous',(sp.S.Zero,sp.oo),support_kind='unilateral_0minus')
+        forcing_expression=definition.integral_expression()
+        if forcing_expression.has(N,S,Z,W):raise ValueError('La entrada de la EDO debe estar expresada en t.')
+        forcing, plane, condition=sp.laplace_transform(forcing_expression,T,S)
         polynomial=sum(value*S**j for j,value in enumerate(coefficients))
         correction=sum(coefficients[j]*sum(S**(j-1-k)*initial[k] for k in range(j)) for j in range(1,order+1))
         transformed=sp.cancel((forcing+correction)/polynomial)
         result=sp.inverse_laplace_transform(transformed,S,T)
-        return {"operation":"EDO lineal de coeficientes constantes", "result":str(result), "Y(s)":str(transformed),
+        return {"input_definition":definition.metadata(),"calculation_notes":list(definition.extensions),"operation":"EDO lineal de coeficientes constantes", "result":str(result), "Y(s)":str(transformed),
                 "forcing_convergence":f"Re(s) > {plane}; {condition}",
                 "scope":"t >= 0 con las condiciones iniciales indicadas; a0*y+a1*y'+...=f(t)",
                 "evaluated":not result.has(sp.InverseLaplaceTransform,sp.LaplaceTransform)}
