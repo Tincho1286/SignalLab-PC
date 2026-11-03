@@ -123,7 +123,7 @@ def _execute(request):
             from .dtft_pairs import direct as dtft_pairs
             spectrum=dtft_pairs(value)
             if spectrum is not None:
-                return attach({'operation':'dtft_expression','result':str(spectrum),'condition':'True','output_variable':'w','evaluated':True,'method':'sinc_rectangle_pair','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se aplicaron el par sinc/rectángulo, la linealidad y el desplazamiento entero, conservando las muestras definidas por continuidad. El espectro es 2π-periódico; en cada salto toma el promedio de los límites laterales.'},definition)
+                return attach({'operation':'dtft_expression','result':str(spectrum),'condition':'True','output_variable':'w','evaluated':True,'method':'sinc_rectangle_pair','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se aplicaron el par sinc/rectángulo, la linealidad, el desplazamiento y la traslación en frecuencia, conservando las muestras definidas por continuidad. Las imágenes espectrales se suman cuando se superponen. El espectro es 2π-periódico; en cada salto toma el promedio de los límites laterales.'},definition)
         from .z_direct_pairs import direct_pairs
         try:pair=direct_pairs(value,lower,upper)
         except (sp.PolynomialError,NotImplementedError):pair=None

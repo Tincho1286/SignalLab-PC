@@ -10,6 +10,10 @@ En una integral ordinaria, cambiar el valor aislado de una función no cambia su
 
 Z y DTFT comparten la preparación de la secuencia. La sustitución z=exp(i*w) utiliza los pares de Z sólo cuando sus condiciones permiten el círculo unitario completo. Los pares de Fourier que existen únicamente sobre ese círculo, como la sinc bilateral, conservan su tratamiento propio.
 
+## Reconocimiento independiente de la forma escrita
+
+Antes de aplicar un par de Z se recuperan los factores separables que una expansión pueda haber combinado dentro de un denominador. El reconocimiento se basa en la potencia afín y la razón geométrica, no en una cadena literal. Para Fourier se conserva la fase de seno/coseno hasta reconocer el desplazamiento; las identidades de índices enteros se aplican después de separar los valores aislados. Los centros fraccionarios conservan su fase en cada imagen espectral y los valores asignados por tramos se incorporan como correcciones discretas.
+
 ## Estado de un resultado
 
 El informe distingue una expresión obtenida, una expresión con condiciones, un resultado parcial, un cálculo sin resolver y la ausencia de una región de convergencia. Una operación pendiente dentro de una fórmula no se convierte en una solución por tener activada una marca de resultado evaluado. Obtener una fórmula no equivale a demostrar independientemente su identidad.
@@ -32,11 +36,12 @@ La generación de ventanas, el enventanado de h[n] y la estimación espectral ut
 
 ## Control antes de construir un portable
 
-Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` antes de empaquetar. Si falla, la construcción se detiene. El contrato `mathematical-families-v2` contiene 56 pruebas con variantes, agrupadas en nueve familias obligatorias. Cada familia exige una cantidad mínima de casos y no admite omisiones silenciosas:
+Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` antes de empaquetar. Si falla, la construcción se detiene. El contrato `mathematical-families-v2` contiene 63 pruebas con variantes, agrupadas por familia y con un grupo adicional de propiedades de transformadas. Cada grupo exige una cantidad mínima de casos y no admite omisiones silenciosas:
 
 | Familia | Referencias principales |
 |---|---|
 | Transformadas | Pares de Z, Laplace y Fourier, inversas, ROC, soporte, continuidad y transporte de resultados |
+| Propiedades de transformadas | Escalas y desplazamientos de sinc, expresiones equivalentes, centros fraccionarios, bordes, imágenes espectrales y proceso simbólico de la interfaz |
 | Carga de expresiones | Aritmética exacta, constantes, ramas principales, variables reservadas y límites numéricos |
 | Sistemas y filtros | H por fórmula, coeficientes y raíces; impulso, historial, avances, retardos, polos en cero, fase y bilineal |
 | Ecuaciones | Sustitución de la solución en la ecuación original, condiciones iniciales y coherencia entre fórmula y muestras |

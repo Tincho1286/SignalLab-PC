@@ -22,21 +22,22 @@ def intervals(region):
     return [(lo,hi)] if lo<=hi else []
 
 
-def pieces(expression,lower,upper):
+def pieces(expression,lower,upper,*,preserve_structure=False):
     # Keep the explicitly completed sample separate before integer identities
     # such as sin(pi*n)=0 simplify the regular branch.
     value=expression.replace(lambda v:v.func in (sp.Heaviside,sp.KroneckerDelta),lambda v:v.rewrite(sp.Piecewise))
     value=sp.piecewise_fold(value)
-    if not isinstance(value,sp.Piecewise):return [(sp.simplify(value),lower,upper)]
+    def branch(value):return value if preserve_structure else sp.simplify(value)
+    if not isinstance(value,sp.Piecewise):return [(branch(value),lower,upper)]
     try:parts=value.as_expr_set_pairs()
     except (NotImplementedError,ValueError,TypeError):return None
     result=[];support=sp.Interval(lower,upper)
     missing=intervals(support-sp.Union(*[region for _,region in parts]))
     if missing is None or missing:return None
-    for branch,region in parts:
+    for amplitude,region in parts:
         bounds=intervals(region.intersect(support))
         if bounds is None:return None
-        result.extend((sp.simplify(branch),lo,hi) for lo,hi in bounds)
+        result.extend((branch(amplitude),lo,hi) for lo,hi in bounds)
     return result
 
 
@@ -55,7 +56,10 @@ def tail(r,power,start):
 
 def half(term,start):
     """Recognize shifted polynomial/exponential pairs and reciprocal powers."""
-    term=sp.powsimp(term);shift=sp.S.Zero;power=0
+    # Rewriting powers as exponentials and distributing products can collect a
+    # common exponential into an additive denominator. Restore the separable
+    # factors before inspecting the affine power; grouping is not semantics.
+    term=sp.factor_terms(sp.powsimp(term));shift=sp.S.Zero;power=0
     for factor in sp.Mul.make_args(term):
         base,exponent=factor.as_base_exp()
         if not isinstance(exponent,sp.Integer):continue
@@ -63,7 +67,7 @@ def half(term,start):
         except sp.PolynomialError:continue
         if polynomial.degree()==1:
             root=sp.cancel(-polynomial.nth(0)/polynomial.nth(1))
-            if isinstance(root,sp.Integer):shift=root;power=int(exponent);break
+            if root.is_real is True and root.is_finite is True:shift=root;power=int(exponent);break
     k=sp.Dummy('k',integer=True)
     shifted=term.subs(N,k+shift)
     regular=sp.powsimp(sp.cancel(shifted/k**power))
@@ -76,6 +80,13 @@ def half(term,start):
     constant,dependent=ratio.as_independent(Z,as_Add=False)
     if constant.is_number:ratio=sp.expand_complex(constant)*dependent
     lo=start-shift
+    if not isinstance(shift,sp.Integer):
+        # A noninteger centre is not a missing integer sample. Sum from the
+        # actual integer support edge with the Hurwitz/Lerch geometric pair.
+        if power<0:
+            amplitude=sp.simplify(regular.subs(k,lo))
+            return amplitude*sp.lerchphi(ratio,-power,lo),sp.Abs(ratio)<1
+        return None
     if power<0 and lo<=0:return None
     if lo<=0:
         prefix=sp.summation(shifted,(k,lo,0));lo=sp.S.One

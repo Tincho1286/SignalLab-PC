@@ -2,6 +2,15 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.4.2**.
 
+## 1.5.2 · preliminar
+
+- Normalización de factores antes de reconocer pares Z desplazados.
+- Pares de potencias recíprocas con centros fraccionarios mediante Lerch.
+- Sinc/rectángulo con fase conservada, formas seno/coseno e imágenes espectrales.
+- Control por propiedades de escalas, desplazamientos, soportes y muestras explícitas; 63 pruebas obligatorias.
+
+[Notas de la preliminar](docs/releases/v1.5.2-preview.md)
+
 ## 1.5.1 · preliminar
 
 - Analizador común de constantes exactas, campos numéricos y coeficientes.
