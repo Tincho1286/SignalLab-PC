@@ -81,4 +81,8 @@ Para proponer mejoras o informar errores, consultá la [guía de contribución](
 
 SignalLab PC se publica bajo **GNU GPL versión 3 o posterior**. Podés usarlo, estudiar su código, modificarlo y redistribuirlo, incluso con fines comerciales. Las versiones modificadas que se distribuyan deben conservar la licencia GPL y facilitar su código fuente conforme a sus términos. Se distribuye sin garantía.
 
-[Licencia completa](LICENSE) · [Alcance y avisos](NOTICE.md) · [Licencias de terceros](THIRD_PARTY_NOTICES.md)
+[Licencia completa](LICENSE) · [Libre y comercial: qué significa](docs/license.md) · [Alcance y avisos](NOTICE.md) · [Licencias de terceros](THIRD_PARTY_NOTICES.md)
+
+## Code signing policy
+
+La 1.2.0 publicada sigue sin firma digital. Se prepara la incorporación al servicio de SignPath Foundation con una compilación verificable en GitHub; no se anuncia todavía un certificado concedido. [Política de firma y responsables](docs/code-signing.md) · [Privacidad](docs/privacy.md).

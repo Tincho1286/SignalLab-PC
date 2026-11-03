@@ -31,6 +31,7 @@ Los directorios `.venv/`, `work/`, `build/`, `dist/`, `outputs/` y los ejecutabl
 - [Arquitectura](architecture.md).
 - [Dependencias](dependencies.md).
 - [Compilar y publicar](releases.md).
+- [Compilación verificable y firma](signing.md).
 - [Almacenamiento de versiones](storage.md).
 - [Contribuciones](../../CONTRIBUTING.md).
 

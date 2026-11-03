@@ -20,7 +20,11 @@ try {
     $env:PYTHONDONTWRITEBYTECODE = '1'
     $workBase = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot 'work\pyinstaller'))
     $stagingOutput = Join-Path $PSScriptRoot 'work\portable-output'
-    & $pythonExe -B -m PyInstaller --noconfirm --clean --onefile --windowed --icon "$PSScriptRoot/signallab_pc/assets/signallab.ico" --name $Name --distpath $stagingOutput --workpath $workBase --specpath work --add-data "$PSScriptRoot/signallab_pc/assets;signallab_pc/assets" --add-data "$PSScriptRoot/LICENSE;legal" --add-data "$PSScriptRoot/NOTICE.md;legal" --add-data "$PSScriptRoot/THIRD_PARTY_NOTICES.md;legal" --add-data "$PSScriptRoot/LICENSES;legal/LICENSES" main.py
+    $versionFile = Join-Path $PSScriptRoot 'work\windows-version.txt'
+    $versionMetadata = Join-Path $PSScriptRoot 'work\windows-version.json'
+    & $pythonExe -B tools/windows_version.py --filename "$Name.exe" --output $versionFile --metadata-output $versionMetadata
+    if ($LASTEXITCODE -ne 0) { throw 'No se pudieron generar los metadatos de producto y versión.' }
+    & $pythonExe -B -m PyInstaller --noconfirm --clean --onefile --windowed --icon "$PSScriptRoot/signallab_pc/assets/signallab.ico" --name $Name --version-file $versionFile --distpath $stagingOutput --workpath $workBase --specpath work --add-data "$PSScriptRoot/signallab_pc/assets;signallab_pc/assets" --add-data "$PSScriptRoot/LICENSE;legal" --add-data "$PSScriptRoot/NOTICE.md;legal" --add-data "$PSScriptRoot/THIRD_PARTY_NOTICES.md;legal" --add-data "$PSScriptRoot/LICENSES;legal/LICENSES" main.py
     if ($LASTEXITCODE -ne 0) { throw 'Falló el empaquetado portable. Se conservaron los intermedios para diagnosticarlo.' }
     $outputDir = Join-Path $PSScriptRoot 'outputs'
     New-Item -ItemType Directory -Path $outputDir -Force | Out-Null

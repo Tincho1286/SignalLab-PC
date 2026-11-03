@@ -1,0 +1,140 @@
+name: Build portable and request signing
+run-name: Portable from ${{ github.ref_name }} · signing ${{ inputs.request_signing }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      request_signing:
+        description: Request SignPath signing after building (requires approved account and manual approval)
+        type: boolean
+        required: true
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: portable-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  portable:
+    if: github.repository == 'Tincho1286/SignalLab-PC' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))
+    runs-on: windows-2022
+    timeout-minutes: 85
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out the exact build commit
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12.10'
+          architecture: x64
+
+      - name: Check signing configuration when requested
+        if: inputs.request_signing
+        env:
+          SIGNPATH_TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+          SIGNPATH_ORGANIZATION: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          SIGNPATH_PROJECT: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          SIGNPATH_POLICY: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+        run: |
+          foreach ($name in @('SIGNPATH_TOKEN','SIGNPATH_ORGANIZATION','SIGNPATH_PROJECT','SIGNPATH_POLICY')) {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
+              throw "Missing signing configuration: $name. Provider approval and configuration are required."
+            }
+          }
+
+      - name: Install locked build dependencies
+        run: |
+          python -m venv .venv
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to create the build environment.' }
+          & .\.venv\Scripts\python.exe -B -m pip install --disable-pip-version-check -r requirements-lock.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Failed to install the locked dependencies.' }
+
+      - name: Build the portable
+        run: |
+          & .\build_portable.ps1
+
+      - name: Record binary metadata and source provenance
+        id: metadata
+        env:
+          BUILD_COMMIT: ${{ github.sha }}
+          BUILD_REF: ${{ github.ref }}
+          BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          $details = Get-Content -LiteralPath work/windows-version.json -Raw | ConvertFrom-Json
+          $exe = Get-Item -LiteralPath (Join-Path outputs $details.filename)
+          if ($exe.VersionInfo.ProductName -ne $details.product_name -or $exe.VersionInfo.ProductVersion -ne $details.version) {
+            throw 'The executable product metadata does not match the source version.'
+          }
+          $record = [ordered]@{ repository = 'https://github.com/Tincho1286/SignalLab-PC'; commit = $env:BUILD_COMMIT; ref = $env:BUILD_REF; build_url = $env:BUILD_URL; version = $details.version; filename = $details.filename; sha256 = (Get-FileHash -LiteralPath $exe.FullName -Algorithm SHA256).Hash.ToLowerInvariant(); signature_status = (Get-AuthenticodeSignature -LiteralPath $exe.FullName).Status.ToString() }
+          $record | ConvertTo-Json | Set-Content -LiteralPath outputs/build-provenance.json -Encoding utf8
+          "version=$($details.version)" >> $env:GITHUB_OUTPUT
+          "file_version=$($details.file_version)" >> $env:GITHUB_OUTPUT
+          "filename=$($details.filename)" >> $env:GITHUB_OUTPUT
+
+      - name: Upload unsigned build for origin verification
+        id: unsigned
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: SignalLab-PC-unsigned-${{ github.run_id }}
+          path: outputs/*.exe
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
+      - name: Upload provenance
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: SignalLab-PC-provenance-${{ github.run_id }}
+          path: outputs/build-provenance.json
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Request signing and wait for a human approver
+        if: inputs.request_signing
+        uses: signpath/github-action-submit-signing-request@f6d04783b4569d051e0c80105fe66e82819d0092 # v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG }}
+          signing-policy-slug: ${{ vars.SIGNPATH_SIGNING_POLICY_SLUG }}
+          artifact-configuration-slug: ${{ vars.SIGNPATH_ARTIFACT_CONFIGURATION_SLUG }}
+          github-artifact-id: ${{ steps.unsigned.outputs.artifact-id }}
+          github-token: ${{ github.token }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: signed-output
+          parameters: |
+            version: ${{ toJSON(steps.metadata.outputs.version) }}
+            file_version: ${{ toJSON(steps.metadata.outputs.file_version) }}
+
+      - name: Verify the returned Authenticode signature
+        if: inputs.request_signing
+        env:
+          EXPECTED_FILENAME: ${{ steps.metadata.outputs.filename }}
+        run: |
+          $executables = @(Get-ChildItem -LiteralPath signed-output -Recurse -File -Filter *.exe)
+          if ($executables.Count -ne 1 -or $executables[0].Name -ne $env:EXPECTED_FILENAME) { throw 'Unexpected signed artifact.' }
+          $signature = Get-AuthenticodeSignature -LiteralPath $executables[0].FullName
+          if ($signature.Status -ne 'Valid') { throw "The returned signature is not trusted: $($signature.Status)" }
+          [ordered]@{ filename = $executables[0].Name; sha256 = (Get-FileHash -LiteralPath $executables[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant(); status = $signature.Status.ToString(); publisher = $signature.SignerCertificate.Subject; certificate_thumbprint = $signature.SignerCertificate.Thumbprint } | ConvertTo-Json | Set-Content signed-output/signature.json -Encoding utf8
+
+      - name: Upload the signed result
+        if: inputs.request_signing
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: SignalLab-PC-signed-${{ github.run_id }}
+          path: signed-output/
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
