@@ -55,4 +55,66 @@ class PreventiveContracts(unittest.TestCase):
         self.assertFalse(report['passed']);self.assertIsNotNone(report['timeout']);self.assertLess(report['completed_cases'],report['expected_cases'])
 
 
+    def test_periodic_poles_are_undefined_without_approximate_cancellation(self):
+        from signallab_pc.transfer_plane import evaluate_plane
+        omega=np.array([0.,2*np.pi,4*np.pi,-2*np.pi])
+        for order in (1,2,3):
+            a=np.array([1.])
+            for _ in range(order):a=np.polymul(a,[1.,-1.])
+            h=Transfer([1],a);self.assertTrue(np.isnan(h.response(omega)).all());self.assertTrue(np.isnan(h.group_delay(omega)).all())
+            self.assertTrue(np.isnan(evaluate_plane(h,np.array([1.+0j]))).all())
+        h=Transfer([1],[1,-1,1]);w=np.array([np.pi/3,2*np.pi+np.pi/3,-np.pi/3]);self.assertTrue(np.isnan(h.response(w)).all())
+        cancelled=Transfer([1,-1],[1,-1.5,.5]);assert_allclose(cancelled.response(omega),2,atol=5e-14);assert_allclose(cancelled.group_delay(omega),1,atol=5e-14)
+        almost=Transfer([1,-1],[1,-(1-1e-15)]);self.assertEqual(almost.response(np.array([0.]))[0],0);self.assertTrue(np.isnan(almost.response(np.array([2*np.pi]))[0]))
+        r=1-1e-15;near=Transfer([1],[1,-r]);assert_allclose(near.response(np.array([0.])),[1/(1-r)],rtol=2e-14);assert_allclose(near.group_delay(np.array([0.])),[r/(1-r)],rtol=2e-14)
+        self.assertTrue(np.isfinite(evaluate_plane(Transfer([1],[1,-1]),np.array([1+1e-20j]))[0]))
+
+    def test_large_frequency_ratios_keep_finite_response(self):
+        from signallab_pc.transfer_plane import evaluate_plane
+        h=Transfer([1,2,1],[1,3,2],domain='analog');w=np.array([1e160,1e200,-1e200])
+        result=h.response(w);self.assertTrue(np.isfinite(result).all());assert_allclose(result.real,1,atol=1e-14)
+        assert_allclose(result.imag,1/w,rtol=2e-14,atol=0)
+        self.assertTrue(np.isfinite(evaluate_plane(h,1j*w)).all())
+        # The subnormal response of 1/s is representable and must survive.
+        first=Transfer([1],[1,0],domain='analog');assert_allclose(first.response(np.array([1e200])),[-1e-200j],atol=0,rtol=2e-14)
+
+    def test_underflow_is_not_reported_as_an_exact_zero(self):
+        from signallab_pc.frequency_analysis import analyze_frequency
+        small=Transfer([1,0,0],[1],domain='analog');self.assertEqual(small.response(np.array([0.]))[0],0)
+        self.assertTrue(np.isnan(small.response(np.array([1e-200]))[0]))
+        large=Transfer([1],[1,0,0],domain='analog');self.assertTrue(np.isnan(large.response(np.array([1e200]))[0]))
+        physical=Transfer([1],[1,1],domain='analog');self.assertTrue(np.isnan(physical.group_delay(np.array([1e200]))[0]))
+        data=analyze_frequency(small,np.array([0.,1e-200]));self.assertTrue(np.isnan(data.phase).all());self.assertTrue(np.isnan(data.delay).all())
+        zero=Transfer([0],[1,-1]);np.testing.assert_array_equal(zero.response([0,2*np.pi]),[0,0]);self.assertTrue(np.isnan(zero.group_delay([0,2*np.pi])).all())
+
+    def test_exact_cascade_cancellation_survives_intermediate_overflow(self):
+        r=1-1e-15
+        sections=np.vstack([np.tile([1,0,0,1,-r,0],(25,1)),np.tile([1,-r,0,1,0,0],(25,1))])
+        h=Transfer.from_sos(sections);w=np.array([0.,.3,np.pi]);assert_allclose(h.response(w),1,atol=2e-13);np.testing.assert_array_equal(h.group_delay(w),[0,0,0])
+        advanced=Transfer([1],[1],sos=sections,advance=2);assert_allclose(advanced.response(w),np.exp(2j*w),atol=2e-13);assert_allclose(advanced.group_delay(w),-2,atol=2e-13)
+        self.assertEqual(Transfer([1],[1,-.5]).response(0.),2)
+
+    def test_small_real_group_delay_is_not_flattened(self):
+        from fractions import Fraction
+        shift=2.**-48;h=Transfer([1,1],[1,1+shift],domain='analog')
+        want=float(Fraction(1,1)/Fraction(1+shift)-1)
+        actual=h.group_delay(np.array([0.]))[0];self.assertNotEqual(actual,0);self.assertAlmostEqual(actual/want,1,places=14)
+
+    def test_inactive_support_excludes_factor_poles(self):
+        for source,want in [('Step(n-1)/n',-sp.log(1-1/Z)),('Step(n-2)/(n-1)',-sp.log(1-1/Z)/Z),('Impulse(n-3)/n',1/(3*Z**3))]:
+            with self.subTest(source=source):
+                r=execute(dict(operation='z_expression',expression=source,lower='-oo',upper='oo'));self.assertTrue(r['evaluated'])
+                actual=parse(r['branches'][0]['expression'] if r.get('branches') else r['result'])
+                for z in (2,3):self.assertAlmostEqual(abs(complex((actual-want).subs(Z,z).evalf())),0,places=13)
+                effective=parse(r['input_definition']['effective_expression']);self.assertEqual(effective.subs(N,0),0)
+        for source in ('Step(n)/n','Heaviside(n)/n','Impulse(n)/n'):
+            with self.subTest(source=source),self.assertRaises(ValueError):execute(dict(operation='z_expression',expression=source,lower='-oo',upper='oo'))
+        r=execute(dict(operation='dtft_expression',expression='Step(n-1)/n',lower='-oo',upper='oo'));self.assertTrue(r['evaluated']);self.assertEqual(sp.simplify(parse(r['condition']).subs(W,0)),sp.false)
+
+    def test_finite_impulse_dtft_uses_shared_discrete_description(self):
+        r=execute(dict(operation='dtft_expression',expression='2*Dirac(n+1)+3*Impulse(n-2)',lower='-oo',upper='oo'))
+        self.assertTrue(r['evaluated']);self.assertEqual(r['method'],'shared_discrete_pairs')
+        self.assertEqual(sp.simplify(parse(r['result'])-2*sp.exp(sp.I*W)-3*sp.exp(-2*sp.I*W)),0)
+
+
 if __name__=='__main__':unittest.main()

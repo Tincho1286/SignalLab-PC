@@ -187,94 +187,70 @@ class Transfer:
         return "Estable (polos estrictamente dentro de la región estable)"
 
     def response(self, omega):
-        """ω en rad/muestra (digital) o rad/s (analógico); polos se marcan N/D."""
-        omega = np.asarray(omega, dtype=float)
-        if not np.all(np.isfinite(omega)):
-            raise ValueError("La frecuencia debe ser finita.")
-        ensure_working_set(int(omega.size), live_arrays=6)
+        """Frequency response; poles and values outside numerical range are N/D."""
+        omega=np.asarray(omega,dtype=float)
+        if not np.isfinite(omega).all():raise ValueError('La frecuencia debe ser finita.')
+        ensure_working_set(int(omega.size),live_arrays=10)
+        digital=self.domain=='digital'
+        point=np.exp(-1j*omega) if digital else 1j*omega
+        if digital:point=np.where(omega==0,1+0j,point);point=np.where(abs(omega)==np.pi,-1+0j,point)
         if self.sos is not None:
+            if any(not np.any(row[:3]) for row in self.sos):return np.zeros(omega.shape,dtype=complex)
             result=np.ones(omega.shape,dtype=complex)
-            for row in self.sos:result*=Transfer(row[:3],row[3:]).response(omega)
-            result[~np.isfinite(result)]=complex(np.nan,np.nan)
-            return result*np.exp(1j*omega*self.advance)
-        if self.domain == "digital":
-            z = np.exp(-1j * omega)
-            z = np.where(omega == 0, 1+0j, z)
-            z = np.where(abs(omega) == np.pi, -1+0j, z)
-            b, a = self.b[::-1], self.a[::-1]
+            with np.errstate(all='ignore'):
+                for row in self.sos:result*=Transfer(row[:3],row[3:]).response(omega)
+            mask=~np.isfinite(result)|(result==0)
         else:
-            z, b, a = 1j * omega, self.b, self.a
-        numerator, denominator = np.polyval(b, z), np.polyval(a, z)
-        # Sólo 0/0 exacto admite el límite por derivadas; jamás cancelar por tolerancia.
-        for _ in range(max(len(a), len(b))-1):
-            mask = (numerator == 0) & (denominator == 0)
-            if not np.any(mask):
-                break
-            b, a = np.polyder(b), np.polyder(a)
-            numerator = np.where(mask, np.polyval(b, z), numerator)
-            denominator = np.where(mask, np.polyval(a, z), denominator)
-        result = np.full(omega.shape, complex(np.nan, np.nan))
-        with np.errstate(divide="ignore", invalid="ignore", over="ignore"):
-            np.divide(numerator, denominator, out=result, where=denominator != 0)
-        result[~np.isfinite(result)] = complex(np.nan, np.nan)
-        return result*np.exp(1j*omega*self.advance) if self.advance else result
+            if not np.any(self.b):return np.zeros(omega.shape,dtype=complex)
+            b,a=(self.b[::-1],self.a[::-1]) if digital else (self.b,self.a)
+            with np.errstate(all='ignore'):
+                numerator=np.polyval(b,point);denominator=np.polyval(a,point)
+                bound=np.polyval(abs(a),abs(point));result=numerator/denominator
+                uncertain=abs(denominator)<=(32+8*len(a))*np.finfo(float).eps*bound
+            mask=~np.isfinite(result)|(result==0)|uncertain|~np.isfinite(bound)
+        from .rational_frequency import repair
+        result=repair(self,point,result,mask)
+        with np.errstate(all='ignore'):
+            if self.advance:result=result*np.exp(1j*omega*self.advance)
+        return np.where(np.isfinite(result),result,complex(np.nan,np.nan))
 
     def group_delay(self, omega):
-        """Analytic logarithmic derivative; samples for H(z), seconds for H(s)."""
+        """Analytic logarithmic derivative with exact exceptional-point repair."""
         omega=np.asarray(omega,dtype=float)
-        if not np.all(np.isfinite(omega)):raise ValueError('La frecuencia debe ser finita.')
+        if not np.isfinite(omega).all():raise ValueError('La frecuencia debe ser finita.')
         ensure_working_set(int(omega.size+len(self.b)+len(self.a)),live_arrays=10)
+        digital=self.domain=='digital';point=np.exp(-1j*omega) if digital else 1j*omega
+        if digital:point=np.where(omega==0,1+0j,point);point=np.where(abs(omega)==np.pi,-1+0j,point)
         if self.sos is not None:
-            delay=np.zeros(omega.shape,dtype=float)
-            for row in self.sos:delay+=Transfer(row[:3],row[3:]).group_delay(omega)
-            return delay-self.advance
-        digital=self.domain=='digital'
-        z=np.exp(-1j*omega) if digital else 1j*omega
-        if digital:
-            z=np.where(omega==0,1+0j,z);z=np.where(abs(omega)==np.pi,-1+0j,z)
-        def logarithmic(coeff):
-            scale=float(np.max(abs(coeff)))
-            if scale==0:return np.full(omega.shape,complex(np.nan,np.nan))
-            coeff=coeff/scale
-            polynomial=coeff[::-1] if digital else coeff
-            weighted=(np.arange(len(coeff))*coeff)[::-1] if digital else np.polyder(coeff)
+            if any(not np.any(row[:3]) for row in self.sos):return np.full(omega.shape,np.nan)
+            result=np.zeros(omega.shape,dtype=float);roundoff=np.zeros(omega.shape,dtype=float)
             with np.errstate(all='ignore'):
-                value=np.polyval(polynomial,z);derivative=np.polyval(weighted,z)
-                bound=np.polyval(abs(polynomial),abs(z))
-                valid=np.isfinite(value)&np.isfinite(derivative)&np.isfinite(bound)&(abs(value)>32*np.finfo(float).eps*bound)
-                quotient=np.full(omega.shape,complex(np.nan,np.nan))
-                np.divide(derivative,value,out=quotient,where=valid)
-            return quotient
-        result=np.asarray((logarithmic(self.b)-logarithmic(self.a)).real*(1 if digital else -1)).copy()
-        # The response already completes exact common zeros. Its logarithmic
-        # derivative must use the same analytic limit, rather than NaN-NaN.
-        numerator=self.b[::-1] if digital else self.b
-        denominator=self.a[::-1] if digital else self.a
-        common=(np.polyval(numerator,z)==0)&(np.polyval(denominator,z)==0)
-        for index in np.flatnonzero(common):
-            point=z.flat[index]
-            def first_nonzero(polynomial):
-                for order in range(len(polynomial)):
-                    value=np.polyval(polynomial,point)
-                    if value!=0:
-                        following=np.polyval(np.polyder(polynomial),point)
-                        return order,value,following
-                    polynomial=np.polyder(polynomial)
-                return None
-            one,two=first_nonzero(numerator),first_nonzero(denominator)
-            if one is None or two is None or one[0]!=two[0]:continue
-            order=one[0]
+                for row in self.sos:
+                    stage=Transfer(row[:3],row[3:]).group_delay(omega);result+=stage;roundoff+=abs(stage)
+            result-=self.advance;roundoff=32*np.finfo(float).eps*(roundoff+self.advance)
+        else:
+            if not np.any(self.b):return np.full(omega.shape,np.nan)
+            if len(self.b)==len(self.a)==1:return np.full(omega.shape,-float(self.advance))
+            def logarithmic(coeff):
+                scale=max(float(np.max(abs(coeff.real))),float(np.max(abs(coeff.imag))))
+                if scale==0:return np.full(omega.shape,complex(np.nan,np.nan))
+                coeff=coeff/scale;polynomial=coeff[::-1] if digital else coeff
+                weighted=(np.arange(len(coeff))*coeff)[::-1] if digital else np.polyder(coeff)
+                with np.errstate(all='ignore'):
+                    value=np.polyval(polynomial,point);derivative=np.polyval(weighted,point)
+                    bound=np.polyval(abs(polynomial),abs(point))
+                    valid=np.isfinite(value)&np.isfinite(derivative)&np.isfinite(bound)&(abs(value)>(32+8*len(polynomial))*np.finfo(float).eps*bound)
+                    quotient=np.full(omega.shape,complex(np.nan,np.nan));np.divide(derivative,value,out=quotient,where=valid)
+                return quotient
             with np.errstate(all='ignore'):
-                slope=one[2]/((order+1)*one[1])-two[2]/((order+1)*two[1])
-                limit=(point*slope).real if digital else -slope.real
-            if np.isfinite(limit):result.flat[index]=limit
-        # Exact real FIR symmetry gives an exact linear-phase delay. Keep the
-        # existing undefined/ill-conditioned mask; never flatten an almost
-        # symmetric filter or an IIR that merely looks flat on this grid.
+                one,two=logarithmic(self.b),logarithmic(self.a)
+                result=np.asarray((one-two).real*(1 if digital else -1))-self.advance
+                roundoff=32*np.finfo(float).eps*(abs(one)+abs(two)+self.advance)
+        from .rational_frequency import repair
+        result=repair(self,point,result,~np.isfinite(result)|(result==0)|(abs(result)<=roundoff),delay=True)
         if digital and not np.any(self.a[1:]) and np.all(self.b.imag==0):
-            if np.array_equal(self.b,self.b[::-1]) or np.array_equal(self.b,-self.b[::-1]):
-                result=np.where(np.isfinite(result),(len(self.b)-1)/2,np.nan)
-        return np.where(np.isfinite(result),result-self.advance,np.nan)
+            if np.array_equal(self.b,self.b[::-1]) or np.array_equal(self.b,-self.b[::-1]):result=np.where(np.isfinite(result),(len(self.b)-1)/2-self.advance,np.nan)
+        return np.where(np.isfinite(result),result,np.nan)
 
     def apply(self, x: Signal, previous_inputs=(), previous_outputs=()):
         """Reposo inicial por defecto; historiales desde la muestra más reciente."""

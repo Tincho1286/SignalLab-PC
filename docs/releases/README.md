@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.5.10-preview](v1.5.10-preview.md) | Respuestas de frecuencia, rango numérico y soporte de secuencias | Preliminar |
 | [1.5.9-preview](v1.5.9-preview.md) | expresiones compartidas, bordes y condiciones de sistemas en CAS | Preliminar |
 | [1.5.8-preview](v1.5.8-preview.md) | impulsos, pares de Fourier y Laplace | Preliminar |
 | [1.5.7-preview](v1.5.7-preview.md) | CAS, datos condicionados e importaciones | Preliminar |

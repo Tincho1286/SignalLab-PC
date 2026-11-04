@@ -179,6 +179,20 @@ class WorkflowContracts(unittest.TestCase):
             text,path=diagnostic(seen[0],worker.failure_details,'Health probe',folder)
             self.assertEqual(path.parent,Path(folder));self.assertIn('ArithmeticError',path.read_text(encoding='utf-8'));self.assertIn('Referencia:',text)
 
+    def test_numerical_frequency_limits_reach_report_and_export(self):
+        from signallab_pc.frequency_analysis import export_frequency
+        self.host.open_tool(ROUTES['system_analysis',0]);panel=self.host.pages[self.host.current_operation].panel
+        panel.domain.setCurrentIndex(1);panel.definition_mode.setCurrentIndex(1);panel.transfer_formula.setText('1/(1-z^(-1))')
+        panel.w0.setText('0');panel.w1.setText('2*pi');panel.count.setText('9');panel.calculate_button.click();self.assertEqual(self.warnings,[])
+        data=panel.frequency_data;self.assertTrue(np.isnan(data.response[[0,-1]]).all());self.assertTrue(np.isfinite(data.response[1:-1]).all())
+        self.assertTrue(np.isnan(data.delay[[0,-1]]).all())
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'response.json';export_frequency(data,path);saved=json.loads(path.read_text())
+            self.assertEqual(len(saved['frequency']),9);self.assertIsNone(saved['response_real'][0]);self.assertIsNone(saved['response_real'][-1]);self.assertIsNone(saved['group_delay'][0])
+        panel.domain.setCurrentIndex(0);panel.transfer_formula.setText('(s^2+2*s+1)/(s^2+3*s+2)')
+        panel.w0.setText('1e160');panel.w1.setText('1e200');panel.count.setText('3');panel.calculate_button.click();self.assertEqual(self.warnings,[])
+        self.assertTrue(np.isfinite(panel.frequency_data.response).all());assert_allclose(panel.frequency_data.magnitude,1,atol=1e-13)
+
     def test_cas_library_inverse_preserves_roc_and_requires_unknown_selection(self):
         from signallab_pc.cas_panel import CasWorksheet
         from signallab_pc.cas_transfer import payload

@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.4.2**.
 
+## 1.5.10 · preliminar
+
+- Polos periódicos y evaluaciones mal condicionadas marcados como N/D.
+- Razones de polinomios y cascadas revisadas ante desbordamientos intermedios.
+- Valores fuera del rango numérico diferenciados de ceros exactos.
+- Retardo de grupo y exportaciones coherentes con las posiciones disponibles.
+- Validación del soporte activo de secuencias con escalones e impulsos.
+
+[Notas de la entrega](docs/releases/v1.5.10-preview.md)
+
 ## 1.5.9 · preliminar
 
 - Nombres de impulsos y escalones compartidos entre los dominios continuo y discreto.

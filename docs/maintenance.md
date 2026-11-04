@@ -6,6 +6,7 @@ El mantenimiento de SignalLab PC prioriza la exactitud de los resultados y la co
 
 | Versión | Mejoras |
 | --- | --- |
+| [1.5.10](releases/v1.5.10-preview.md) | Respuestas de frecuencia en polos y valores extremos; validación del soporte activo de las secuencias. |
 | [1.5.9](releases/v1.5.9-preview.md) | Expresiones elementales en ambos dominios, valores en bordes y condiciones de sistemas conservadas al trabajar con CAS e inversas. |
 | [1.5.8](releases/v1.5.8-preview.md) | Impulsos discretos, pares de Fourier y factores de escala de Dirac en Laplace. |
 | [1.5.7](releases/v1.5.7-preview.md) | DTFT de sinc bilateral, restricciones de frecuencia en CAS, posiciones no definidas y validación de archivos. |

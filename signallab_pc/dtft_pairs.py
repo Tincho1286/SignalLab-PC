@@ -13,7 +13,7 @@ def direct(expression):
     if any(sp.simplify(value-generic)!=0 for value in infinite):return None
     # Integer-index identities may erase the ordinary branch, but never the
     # isolated samples already separated above. Keep other phases intact.
-    if sp.simplify(generic)==0:generic=sp.S.Zero
+    if sp.simplify(generic)==0:return None  # Finite support uses the shared discrete table, not the sinc pair.
     spectrum=sp.S.Zero
     if generic!=0:
         for term in sp.Add.make_args(sp.expand_mul(generic)):

@@ -84,6 +84,14 @@ def evaluate_plane(system,z):
             b=np.pad(system.b,(0,degree-len(system.b)+system.advance));a=np.pad(system.a,(0,degree-len(system.a)))
             while len(a)>1 and a[-1]==0 and b[-1]==0:a=a[:-1];b=b[:-1]
             value=np.polyval(b,z)/np.polyval(a,z)
+    if system.domain=='analog':bb,aa=system.b,system.a
+    else:
+        degree=max(len(system.b),len(system.a));bb=np.pad(system.b,(0,degree-len(system.b)+system.advance));aa=np.pad(system.a,(0,degree-len(system.a)))
+    with np.errstate(all='ignore'):
+        denominator=np.polyval(aa,z);bound=np.polyval(abs(aa),abs(z))
+        uncertain=abs(denominator)<=(32+8*len(aa))*np.finfo(float).eps*bound
+    from .rational_frequency import repair_plane
+    value=repair_plane(system,z,value,~np.isfinite(value)|(value==0)|uncertain|~np.isfinite(bound))
     return np.where(np.isfinite(value),value,complex(np.nan,np.nan))
 
 

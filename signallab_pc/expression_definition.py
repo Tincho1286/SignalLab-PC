@@ -53,6 +53,10 @@ def prepare(source,variable,domain,support=None,conditions=(),support_kind='sign
         if domain!='discrete' and expression.has(sp.KroneckerDelta):
             raise ValueError('KroneckerDelta representa un impulso discreto. Para una entrada continua usá Dirac(t-a); en frecuencia, Dirac(w-a).')
         if domain=='discrete' and support is not None:
+            # Apply support gates before checking samples: a pole in an inactive
+            # branch is not a sample of the indicated sequence.
+            if expression.has(sp.Heaviside,sp.KroneckerDelta):
+                expression=sp.piecewise_fold(expression.replace(lambda v:v.func in (sp.Heaviside,sp.KroneckerDelta),lambda v:v.rewrite(sp.Piecewise)))
             expression=resolve_finite_support(expression,variable,*support)
             # Reject actual undefined integer samples, not real poles between
             # samples. Finite explicit values in Piecewise take precedence.

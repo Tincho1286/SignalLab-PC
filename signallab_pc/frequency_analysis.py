@@ -49,6 +49,7 @@ def analyze_frequency(system,omega,*,advance=0,logarithmic=False,margins=False):
     for segment in np.split(indices,np.flatnonzero(np.diff(indices)>1)+1):
         if segment.size:phase[segment]=np.unwrap(np.angle(response[segment]))
     delay=system.group_delay(omega)-advance
+    delay=np.where(valid&np.isfinite(delay),delay,np.nan)
     result=FrequencyData(system,omega,response,magnitude,db,phase,delay,logarithmic,int(advance+system.advance))
     if margins:result.margins=crossover_margins(system,omega,response,advance=advance)
     return result
@@ -169,9 +170,9 @@ def frequency_summary(exact,data):
         return Summary('Análisis del sistema',sections)
     sections.append(Section('Respuesta en frecuencia',rows=[('Intervalo',number(data.omega[0])+' a '+number(data.omega[-1])+' '+data.units),
         ('Frecuencias evaluadas',str(data.omega.size)),('Distribución','Logarítmica' if data.logarithmic else 'Lineal'),
-        ('Respuesta no finita',str(int(np.count_nonzero(~np.isfinite(data.response))))),
+        ('Respuesta no disponible (N/D)',str(int(np.count_nonzero(~np.isfinite(data.response))))),
         ('Retardo de grupo','Muestras' if data.system.domain=='digital' else 'Segundos')],
-        paragraphs=['En la figura podés alternar módulo lineal o dB sin recalcular. La fase y las frecuencias angulares se muestran en radianes. En ceros de H, fase y retardo no están definidos; el módulo en dB es −∞. La interpretación de la curva y las condiciones de convergencia se indican en la definición y en Condiciones de validez; una evaluación formal de H no demuestra por sí sola la existencia de Fourier.'],
+        paragraphs=['En la figura podés alternar módulo lineal o dB sin recalcular. La fase y las frecuencias angulares se muestran en radianes. N/D indica un polo, una evaluación mal condicionada o un valor fuera del rango numérico; no equivale a cero. En ceros de H, fase y retardo no están definidos; el módulo en dB es −∞. La interpretación de la curva y las condiciones de convergencia se indican en la definición y en Condiciones de validez; una evaluación formal de H no demuestra por sí sola la existencia de Fourier.'],
         formulas=[Formula('M = 20*log(abs(H))/log(10)','M = 20 log10 |H|')]))
     if data.advance:sections.append(Section('Avance temporal',paragraphs=[f'La representación conserva un factor z elevado a {data.advance}. Se incluye en la respuesta, fase, retardo, exportación y reutilización para análisis; no se sustituye por un retardo causal. Una ROC sigue siendo necesaria para determinar la secuencia bilateral.']))
     margins=data.margins
@@ -207,7 +208,7 @@ def export_frequency(data,path):
             domain=data.system.domain,distribution='logarithmic' if data.logarithmic else 'linear',
             frequency=numbers(data.omega),response_real=numbers(data.response.real),response_imag=numbers(data.response.imag),
             magnitude=numbers(data.magnitude),magnitude_db=numbers(data.db),phase_rad=numbers(data.phase),group_delay=numbers(data.delay),
-            undefined='null marks non-finite values; magnitude zero implies magnitude_db = -infinity',advance=data.advance,margins=data.margins))
+            undefined='null marks unavailable numeric values (poles, ill-conditioned evaluation or numerical range limits); magnitude zero implies magnitude_db = -infinity',advance=data.advance,margins=data.margins))
         return
     import csv
     unit='rad_muestra' if data.system.domain=='digital' else 'rad_s';delay='muestras' if data.system.domain=='digital' else 's'
