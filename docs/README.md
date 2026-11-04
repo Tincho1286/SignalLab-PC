@@ -23,7 +23,7 @@ La [guía de primeros pasos](getting-started.md) recorre un cálculo completo. P
 
 ## Versiones y objetivos
 
-La [estable 1.6.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.0) es la descarga principal para Windows y Linux. La [preliminar 1.6.2](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.2-preview) corrige regiones de convergencia, simulación de cascadas y precisión de fase en Fourier. Las [notas de versiones](releases/README.md) describen el alcance de cada entrega.
+La [estable 1.6.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.0) es la descarga principal para Windows y Linux. La [preliminar 1.6.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.3-preview) añade longitud FIR automática, acelera el diseño y permite ajustar el rango vertical de los gráficos. Las [notas de versiones](releases/README.md) describen el alcance de cada entrega.
 
 El [historial de cambios](../CHANGELOG.md) reúne lo que ya fue publicado. La [hoja de objetivos](roadmap.md) describe las mejoras pendientes, sin asignarlas de antemano a una versión. Los [documentos históricos](history/README.md) conservan información de etapas anteriores del proyecto.
 
