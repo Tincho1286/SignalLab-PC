@@ -4,10 +4,10 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
-| [1.5.9-preview](v1.5.9-preview.md) | Operation Health 4: expresiones compartidas, bordes y condiciones de sistemas en CAS | Preliminar |
-| [1.5.8-preview](v1.5.8-preview.md) | Operation Health 3: impulsos, pares de Fourier y Laplace | Preliminar |
-| [1.5.7-preview](v1.5.7-preview.md) | Operation Health 2: CAS, datos condicionados e importaciones | Preliminar |
-| [1.5.6-preview](v1.5.6-preview.md) | Operation Health 1: filtros ideales, errores visibles y prevención | Preliminar |
+| [1.5.9-preview](v1.5.9-preview.md) | expresiones compartidas, bordes y condiciones de sistemas en CAS | Preliminar |
+| [1.5.8-preview](v1.5.8-preview.md) | impulsos, pares de Fourier y Laplace | Preliminar |
+| [1.5.7-preview](v1.5.7-preview.md) | CAS, datos condicionados e importaciones | Preliminar |
+| [1.5.6-preview](v1.5.6-preview.md) | filtros ideales, errores visibles y prevención | Preliminar |
 | [1.5.5-preview](v1.5.5-preview.md) | DTFT de filtros ideales, análisis y apertura de figuras | Preliminar |
 | [1.5.4-preview](v1.5.4-preview.md) | Transferencias por expresión y reutilización entre herramientas | Preliminar |
 | [1.5.3-preview](v1.5.3-preview.md) | Barrido preventivo, convergencia de DTFT y límites de retardo | Preliminar |

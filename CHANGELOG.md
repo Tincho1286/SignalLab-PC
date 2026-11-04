@@ -2,7 +2,24 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.4.2**.
 
-## 1.5.7 · Operation Health 2 · preliminar
+## 1.5.9 · preliminar
+
+- Nombres de impulsos y escalones compartidos entre los dominios continuo y discreto.
+- Valores por continuidad conservados antes de aplicar impulsos o escalones.
+- ROC, período y definición original conservados en reescrituras equivalentes del CAS.
+- Región de convergencia trasladada a las inversas, con selección explícita cuando falta.
+
+[Notas de la entrega](docs/releases/v1.5.9-preview.md)
+
+## 1.5.8 · preliminar
+
+- Impulsos discretos reconocidos por Z y DTFT, incluidos desplazamientos y soporte efectivo.
+- Pares básicos de Fourier e inversa para constantes, polinomios y exponenciales.
+- Factores de escala de las derivadas de Dirac conservados en Laplace.
+
+[Notas de la entrega](docs/releases/v1.5.8-preview.md)
+
+## 1.5.7 · preliminar
 
 - Presentación de la DTFT de la sinc bilateral sin confundirla con la sumatoria formal de Z.
 - Unidades y restricciones de frecuencia conservadas al reutilizar resultados en CAS y análisis H(w).
@@ -12,15 +29,14 @@ Las versiones estables y preliminares se distribuyen en [GitHub Releases](https:
 
 [Notas de la entrega](docs/releases/v1.5.7-preview.md)
 
-## 1.5.6 · Operation Health 1 · preliminar
+## 1.5.6 · preliminar
 
 - Filtros ideales escritos con step: retardo ordinario por tramos y exclusión de saltos.
 - Diagnóstico visible de errores inesperados en botones y trazas locales de cálculos fallidos.
 - Estado terminal correcto tras un fallo de presentación y descarte de notificaciones duplicadas.
 - Control estático de nombres y de importaciones locales condicionales antes del empaquetado.
-- Lista de correcciones, prevención, pruebas manuales y pendientes por preview.
 
-[Notas y pruebas sugeridas](docs/releases/v1.5.6-preview.md) · [Operation Health](docs/operation-health.md)
+[Notas de la entrega](docs/releases/v1.5.6-preview.md) · [Mejoras de fiabilidad](docs/maintenance.md)
 
 ## 1.5.5 · preliminar
 

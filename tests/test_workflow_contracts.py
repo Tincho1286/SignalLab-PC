@@ -150,7 +150,7 @@ class WorkflowContracts(unittest.TestCase):
         from PySide6.QtWidgets import QPushButton
         from signallab_pc.runtime_diagnostics import install_exception_hook
         seen=[];button=QPushButton();self.widgets.append(button)
-        def fail():raise NameError('Operation Health callback probe')
+        def fail():raise NameError('Callback failure probe')
         button.clicked.connect(fail)
         with patch('signallab_pc.runtime_diagnostics.report_error',side_effect=lambda *a,**k:seen.append((a,k))):
             previous=install_exception_hook(self.app)

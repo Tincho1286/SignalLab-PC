@@ -23,7 +23,7 @@ La [guía de primeros pasos](getting-started.md) recorre un cálculo completo. P
 
 ## Versiones y objetivos
 
-La [estable 1.4.2](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.4.2) es la descarga principal para Windows y Linux. La [preliminar 1.5.9](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.5.9-preview) continúa Operation Health con expresiones compartidas, bordes y condiciones de sistemas en CAS. Las [notas de versiones](releases/README.md) describen el alcance de cada entrega.
+La [estable 1.4.2](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.4.2) es la descarga principal para Windows y Linux. La [preliminar 1.5.9](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.5.9-preview) incluye mejoras en expresiones compartidas, bordes y condiciones de sistemas en CAS. Las [notas de versiones](releases/README.md) describen el alcance de cada entrega.
 
 El [historial de cambios](../CHANGELOG.md) reúne lo que ya fue publicado. La [hoja de objetivos](roadmap.md) describe las mejoras pendientes, sin asignarlas de antemano a una versión. Los [documentos históricos](history/README.md) conservan información de etapas anteriores del proyecto.
 

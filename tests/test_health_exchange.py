@@ -1,4 +1,4 @@
-"""Operation Health: independent exchange and convergence invariants."""
+"""Exchange reliability: independent exchange and convergence invariants."""
 import json,tempfile,unittest
 from pathlib import Path
 from types import SimpleNamespace

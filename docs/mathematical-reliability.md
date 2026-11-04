@@ -95,8 +95,8 @@ El informe `work/workflow-checks.json` registra los recorridos, el resultado y l
 .\.venv\Scripts\python.exe -B -X utf8 tools/check_workflows.py
 ```
 
-## Operation Health y controles de acciones
+## Controles de acciones y diagnósticos
 
 El empaquetado exige también `tools/check_static.py`, con la versión fijada en `requirements-quality.txt`. Revisa los archivos Python de la aplicación y bloquea nombres no definidos, ciertos accesos locales antes de asignación y las importaciones condicionales que ocultan un nombre del módulo usado fuera de su bloque. El analizador se comprueba con ejemplos deliberadamente defectuosos. No es una demostración de ausencia de errores en todos los caminos de ejecución.
 
-Los catorce recorridos Qt incluyen el manejador visible de errores de botones, la recuperación tras un fallo de presentación y la conservación de la traza del cálculo. La aceptación visual y de uso se registra por separado. [Registro de Operation Health](operation-health.md).
+Los recorridos de interfaz incluyen el manejador visible de errores de botones, la recuperación tras un fallo de presentación y la conservación de la traza del cálculo. La aceptación visual y de uso se registra por separado. [Mejoras de fiabilidad](maintenance.md).
