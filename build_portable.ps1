@@ -1,6 +1,6 @@
 ﻿param(
     [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9._-]*$')]
-    [string]$Name = "SignalLab-PC-1.5.7",
+    [string]$Name = "",
     [switch]$KeepBuildFiles
 )
 $ErrorActionPreference = 'Stop'
@@ -13,6 +13,12 @@ try {
     $pythonExe = Join-Path $PSScriptRoot '.venv\Scripts\python.exe'
     if (-not (Test-Path -LiteralPath $pythonExe)) {
         throw 'Primero ejecutá setup_windows.ps1 para preparar el entorno del proyecto.'
+    }
+    if ([string]::IsNullOrWhiteSpace($Name)) {
+        $Name = & $pythonExe -B -c 'from tools.windows_version import version_metadata; print(version_metadata()[1]["filename"][:-4])'
+        if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($Name)) { throw 'No se pudo obtener el nombre portable de la versión de origen.' }
+        $Name = $Name.Trim()
+        if ($Name -notmatch '^SignalLab-PC-[A-Za-z0-9._-]+$') { throw 'Nombre portable generado inválido.' }
     }
     $env:PATH = ((Split-Path $pythonExe), (Join-Path $env:SystemRoot 'System32'), $env:SystemRoot) -join ';'
     $env:OPENBLAS_NUM_THREADS = '1'

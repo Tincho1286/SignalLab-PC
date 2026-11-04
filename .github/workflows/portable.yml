@@ -81,6 +81,9 @@ jobs:
           BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           $details = Get-Content -LiteralPath work/windows-version.json -Raw | ConvertFrom-Json
+          if ($details.filename -ne ("SignalLab-PC-" + $details.version + ".exe")) {
+            throw 'The portable download filename does not match the source version.'
+          }
           $exe = Get-Item -LiteralPath (Join-Path outputs $details.filename)
           if ($exe.VersionInfo.ProductName -ne $details.product_name -or $exe.VersionInfo.ProductVersion -ne $details.version) {
             throw 'The executable product metadata does not match the source version.'
