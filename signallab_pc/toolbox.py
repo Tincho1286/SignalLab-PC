@@ -38,7 +38,7 @@ from .signal_plot import plot_samples
 from .signal_plot import configure_signal_axis, is_discrete_plot, validate_overlay
 
 def signal_destinations(value,items):
-    return [item for item in items if (item[1:3]==('transform_lab','z') and value.domain=='discrete') or (item[1]=='basic' and item[2] in ('generate','measures') and value.domain in {'continuous','discrete'}) or (item[1]=='dsp_extensions' and item[2] in ('hilbert','stft') and value.domain in {'continuous','discrete'}) or (item[1]=='frequency_filter' and value.domain in {'discrete','continuous','frequency'} and (value.domain!='frequency' or value.units in {'rad/s','rad/muestra'})) or item[3] in ({'discrete','pair'} if value.domain=='discrete' else {'continuous','continuous_pair'} if value.domain=='continuous' else set()) or (item[1]=='systems' and item[2]==9 and value.domain in {'discrete','continuous'}) or (item[1]=='course_tools' and item[2]=='band' and value.domain=='frequency' and value.units in {'rad/s','rad/muestra'}) or (item[1]=='correlation' and value.domain==('continuous' if item[2] else 'discrete')) or (item[1]=='signal_editor' and value.domain in {'discrete','continuous'}) or (item[1]=='rational_resampling' and value.domain=='discrete') or (item[1:3]==('sampling',5) and value.domain=='discrete') or (item[1:3]==('fourier',6) and value.domain in {'discrete','continuous','frequency'}) or (item[1]=='fourier' and item[2] in (3,6) and value.domain=='frequency' and (item[2]!=3 or value.units=='rad/s')) or (item[1]=='inverse_dtft' and value.domain=='frequency' and value.units=='rad/muestra') or ((item[1]=='signal_product' or item[1:3]==('basic','sum')) and value.domain in {'discrete','continuous'}) or (item[1:3]==('state_space','simulation') and value.domain in {'discrete','continuous'})]
+    return [item for item in items if (item[1:3]==('basic','idft') and ops.is_centered_dft(value)) or (item[1:3]==('transform_lab','z') and value.domain=='discrete') or (item[1]=='basic' and item[2] in ('generate','measures') and value.domain in {'continuous','discrete'}) or (item[1]=='dsp_extensions' and item[2] in ('hilbert','stft') and value.domain in {'continuous','discrete'}) or (item[1]=='frequency_filter' and value.domain in {'discrete','continuous','frequency'} and (value.domain!='frequency' or value.units in {'rad/s','rad/muestra'})) or item[3] in ({'discrete','pair'} if value.domain=='discrete' else {'continuous','continuous_pair'} if value.domain=='continuous' else set()) or (item[1]=='systems' and item[2]==9 and value.domain in {'discrete','continuous'}) or (item[1]=='course_tools' and item[2]=='band' and value.domain=='frequency' and value.units in {'rad/s','rad/muestra'}) or (item[1]=='correlation' and value.domain==('continuous' if item[2] else 'discrete')) or (item[1]=='signal_editor' and value.domain in {'discrete','continuous'}) or (item[1]=='rational_resampling' and value.domain=='discrete') or (item[1:3]==('sampling',5) and value.domain=='discrete') or (item[1:3]==('fourier',6) and value.domain in {'discrete','continuous','frequency'}) or (item[1]=='fourier' and item[2] in (3,6) and value.domain=='frequency' and (item[2]!=3 or value.units=='rad/s')) or (item[1]=='inverse_dtft' and value.domain=='frequency' and value.units=='rad/muestra') or ((item[1]=='signal_product' or item[1:3]==('basic','sum')) and value.domain in {'discrete','continuous'}) or (item[1:3]==('state_space','simulation') and value.domain in {'discrete','continuous'})]
 
 def system_destinations(value,items):
     keys={('system_analysis',0),('interconnection',0),('systems',9),('systems',6),('course_tools','convert'),('course_tools','gain')}
@@ -95,7 +95,8 @@ class LocalInput(QGroupBox):
             if value is not None:self.set_source(value)
         except Exception as exc:QMessageBox.warning(self,'No se pudo importar',str(exc))
     def set_source(self,source,reference_id=None):
-        if self.kind in ('continuous','discrete','frequency') and source.domain!=self.kind:
+        accepts_centered = getattr(self, 'dft_input', False) and ops.is_centered_dft(source)
+        if self.kind in ('continuous','discrete','frequency') and source.domain!=self.kind and not accepts_centered:
             raise ValueError('Esta entrada requiere '+('un espectro.' if self.kind=='frequency' else 'una señal continua.' if self.kind=='continuous' else 'una secuencia discreta.'))
         self.reference_id=reference_id;self.loaded_reference_id=reference_id;self.fingerprint=None
         self.loaded=source;self.entry_modes.select(3 if reference_id is not None else 2);self.mode.setCurrentIndex(2);self.file_note.setText(f'{source.name}\n{source.values.size:,} muestras · '+{'continuous':'Tiempo continuo','discrete':'Secuencia discreta','frequency':'Espectro'}.get(source.domain,source.domain));self.file_note.setObjectName('loadedSignal');self.file_note.style().unpolish(self.file_note);self.file_note.style().polish(self.file_note)
@@ -113,7 +114,8 @@ class LocalInput(QGroupBox):
         records=reversed(self.project_window.project.headers('signal'))
         for record in records:
             info=self.project_window.project.describe(record['id'])
-            if self.kind in ('continuous','discrete','frequency') and info['domain']!=self.kind:continue
+            accepts_centered = getattr(self, 'dft_input', False) and info.get('centered_dft', False)
+            if self.kind in ('continuous','discrete','frequency') and info['domain']!=self.kind and not accepts_centered:continue
             self.recent.addItem(f"{record['title']} · {info['count']:,} muestras",record['id'])
             self.recent.setItemData(self.recent.count()-1,record['operation'],Qt.ItemDataRole.ToolTipRole)
             if self.recent.count()>20:break
@@ -123,7 +125,10 @@ class LocalInput(QGroupBox):
         if key:self.set_source(self.project_window.project.get(key),key)
 
     def choose_project(self):
-        key=self.project_window.choose_record('signal',domains=[self.kind] if self.kind in ('continuous','discrete','frequency') else None)
+        if getattr(self, 'dft_input', False):
+            key=self.project_window.choose_record('signal',domains=['discrete','frequency'],dft_input=True)
+        else:
+            key=self.project_window.choose_record('signal',domains=[self.kind] if self.kind in ('continuous','discrete','frequency') else None)
         if key:self.set_source(self.project_window.project.get(key),key)
     def read(self):
         value=self._read()
@@ -691,6 +696,7 @@ class ToolPage(QWidget):
         if input_kind in ('pair','continuous_pair'):
             self.second=LocalInput('Entrada h(t)' if continuous_input else 'Entrada h[n]','continuous' if continuous_input else 'discrete');self.second.mode.setCurrentIndex(1);box.addWidget(self.second)
         if operation=='idft':
+            self.first.dft_input=True
             self.first.setTitle('Coeficientes del espectro X[k]')
             self.first.samples.setText('1, 1, 1, 1');self.first.mode.setCurrentIndex(1)
             self.first.layout().labelForField(self.first.expression).setText('X[k] · usar n como índice k')
@@ -720,7 +726,7 @@ class ToolPage(QWidget):
             try:
                 x=self.first.read();h=self.second.read() if self.second else None
                 parameter=constant_value(self.parameter.text()) if operation=='scale' else integer_field(self.parameter) if operation=='shift' else None
-                functions={'continuous_convolve':lambda:continuous.convolution(x,h),'continuous_correlate':lambda:continuous.correlation(x,h),'continuous_normalized':lambda:continuous.correlation(x,h,normalized=True),'continuous_auto':lambda:continuous.correlation(x),'generate':lambda:x,'measures':lambda:ops.finite_measures(x),'shift':lambda:ops.shift(x,parameter),'scale':lambda:ops.scale_amplitude(x,parameter),'reverse':lambda:ops.reverse(x),'parity':lambda:ops.even_odd_parts(x),'convolve':lambda:ops.linear_convolution(x,h),'correlate':lambda:ops.linear_correlation(x,h),'sum':lambda:ops.add_sequences(x,h),'circular':lambda:ops.circular_convolution(x,h),'dft':lambda:ops.dft(x),'idft':lambda:ops.idft(x)}
+                functions={'continuous_convolve':lambda:continuous.convolution(x,h),'continuous_correlate':lambda:continuous.correlation(x,h),'continuous_normalized':lambda:continuous.correlation(x,h,normalized=True),'continuous_auto':lambda:continuous.correlation(x),'generate':lambda:x,'measures':lambda:ops.finite_measures(x),'shift':lambda:ops.shift(x,parameter),'scale':lambda:ops.scale_amplitude(x,parameter),'reverse':lambda:ops.reverse(x),'parity':lambda:ops.even_odd_parts(x),'convolve':lambda:ops.linear_convolution(x,h),'correlate':lambda:ops.linear_correlation(x,h),'sum':lambda:ops.add_sequences(x,h),'circular':lambda:ops.circular_convolution(x,h),'dft':lambda:ops.dft(x,centered=True),'idft':lambda:ops.idft(x)}
                 parents=[entry.reference_id for entry in (self.first,self.second) if entry and entry.reference_id]
                 calculated_inputs=self.result_state.snapshot()
                 def accept(value):
@@ -907,7 +913,8 @@ class ToolboxWindow(SignalLabWindow):
             panel.domain.setCurrentIndex(1 if value.domain=='discrete' else 0)
             panel.stimulus.setCurrentIndex(2)
         active=getattr(self.stack.currentWidget(),'active_page',self.stack.currentWidget())
-        fields=[field for field in active.findChildren(LocalInput) if field.kind=='import' or field.kind==value.domain]
+        fields=[field for field in active.findChildren(LocalInput)
+                if field.kind in ('import',value.domain) or (getattr(field,'dft_input',False) and ops.is_centered_dft(value))]
         if not fields:return
         target=fields[0]
         if len(fields)>1:

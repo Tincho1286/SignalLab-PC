@@ -120,6 +120,8 @@ def configure_signal_axis(axis, source):
     else:label=units
     configure_axis(axis,discrete_index=discrete,units=units,label=label,
                    index_symbol='k' if units in ('k','bin k') or 'correlation' in operation else 'n')
+    if source.metadata.get('dft_order')=='centered' and units=='rad/muestra':
+        axis.set_xlim(-np.pi,np.pi)
 
 
 def is_discrete_plot(source):

@@ -180,7 +180,7 @@ def linear_correlation(x: Signal, h: Signal) -> Signal:
                    "convention": "r[l]=sum_n x[n] conjugate(h[n-l]); zero outside support"})
 
 
-def dft(x: Signal, length: int | None = None) -> Signal:
+def dft(x: Signal, length: int | None = None, *, centered: bool = False) -> Signal:
     """DFT sin normalizar sobre el orden almacenado; ignora el origen global del eje."""
     _discrete(x)
     n = x.values.size if length is None else length
@@ -192,18 +192,37 @@ def dft(x: Signal, length: int | None = None) -> Signal:
     values = np.fft.fft(x.values, n=n)
     values = _finite_output(values, "La DFT")
     action = "unchanged" if n == x.values.size else ("zero padded" if n > x.values.size else "truncated at N")
-    return Signal(values, 0, 1, "bin k", "X[k]", "discrete", "",
-                  {"operation": "DFT", "input_length": int(x.values.size), "N": n,
-                   "input_action": action,
-                   "convention": "sum x[m] exp(-2*pi*i*k*m/N), m is stored offset from 0; no forward normalization"})
+    metadata = {"operation": "DFT", "input_length": int(x.values.size), "N": n,
+                "input_action": action,
+                "convention": "sum x[m] exp(-2*pi*i*k*m/N), m is stored offset from 0; no forward normalization"}
+    if centered:
+        from .fourier_phase import bin_frequency
+
+        metadata["dft_order"] = "centered"
+        origin = bin_frequency(-(n//2), n)
+        return Signal(np.fft.fftshift(values), origin, 2*np.pi/n, "rad/muestra",
+                      "DFT X[k]", "frequency", "", metadata)
+    return Signal(values, 0, 1, "bin k", "X[k]", "discrete", "", metadata)
+
+
+def is_centered_dft(X: Signal) -> bool:
+    return X.domain == "frequency" and X.units == "rad/muestra" and X.metadata.get("dft_order") == "centered"
 
 
 def idft(X: Signal) -> Signal:
     """IDFT con división por N; el eje de salida empieza en n=0."""
-    _discrete(X)
     n = X.values.size
+    centered = is_centered_dft(X)
+    if centered:
+        spacing = 2*np.pi/n
+        if (X.metadata.get("N") != n or not np.isclose(X.step, spacing, rtol=1e-12, atol=0)
+                or not np.isclose(X.origin, -(n//2)*spacing, rtol=1e-12, atol=0)):
+            raise ValueError("La DFT centrada requiere sus N bins completos en la rejilla original.")
+    else:
+        _discrete(X)
     ensure_working_set(n, bytes_per_sample=16, live_arrays=8)
-    values = _finite_output(np.fft.ifft(X.values), "La IDFT")
+    coefficients = np.fft.ifftshift(X.values) if centered else X.values
+    values = _finite_output(np.fft.ifft(coefficients), "La IDFT")
     return Signal(values, 0, 1, "n", "x_idft[n]", "discrete", "",
                   {"operation": "IDFT", "N": n,
                    "convention": "(1/N) sum X[k] exp(+2*pi*i*k*m/N), m is stored output offset from 0"})

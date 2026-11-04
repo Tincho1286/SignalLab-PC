@@ -598,8 +598,8 @@ class SignalLabWindow(QMainWindow):
         try:
             n = int(n_text) if n_text.strip() else None
             source = self.signal
-            self._run_operation("Calculando DFT…", lambda: dft(source, n),
-                lambda result: self._operation_succeeded(result, "DFT: suma sin normalizar; eje k = bins enteros, no Hz ni rad/s."))
+            self._run_operation("Calculando DFT…", lambda: dft(source, n, centered=True),
+                lambda result: self._operation_succeeded(result, "DFT sin normalizar · frecuencias de −π a π rad/muestra."))
         except Exception as exc: QMessageBox.warning(self, "No se pudo calcular DFT", str(exc))
 
     def _show_idft(self):

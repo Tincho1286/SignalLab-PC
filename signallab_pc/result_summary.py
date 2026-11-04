@@ -82,13 +82,16 @@ def signal_summary(value,operation=None):
         sections.append(Section(signal.name,rows=rows))
         if signal.expression and signal.expression!='lista ingresada':sections.append(Section('Expresión de origen',paragraphs=['Las transformaciones posteriores se reflejan en los valores almacenados.'],formulas=[Formula(signal.expression,signal.expression)]))
         op=meta.get('operation','');reading=[];formulas=[]
-        if op=='DFT' and signal.domain=='discrete':
+        if op=='DFT' and meta.get('dft_order')=='centered':
+            formulas=[Formula('X[k] = Sum(v[m]*exp(-2*pi*i*k*m/N),(m,0,N-1))','X[k] = Σ desde m=0 hasta N−1 de v[m]·exp(−j2πkm/N)')]
+            reading=['Se muestran los N bins en orden creciente dentro de −π ≤ ω < π, con ω = 2πk/N. Para N par, Nyquist aparece una sola vez en −π. La suma usa el orden de las muestras de entrada, con la primera en m=0, y no divide por N. La DFT inversa reconoce el orden centrado al reutilizar el resultado.']
+        elif op=='DFT' and signal.domain=='discrete':
             formulas=[Formula('X[k] = Sum(v[m]*exp(-2*pi*i*k*m/N),(m,0,N-1))','X[k] = Σ desde m=0 hasta N−1 de v[m]·exp(−j2πkm/N)')]
             reading=['v[m] son los valores en el orden almacenado. La DFT no divide por N y usa índices k desde cero; no incorpora el origen temporal original. La transformada inversa divide por N.']
         elif op=='DFT' and signal.domain=='frequency':reading=['La DFT se representa mediante muestras en frecuencia angular. No son puntos conectados de una función continua. El informe de FFT y ventanas conserva la normalización y la referencia de fase del cálculo.']
         elif op=='IDFT':
             formulas=[Formula('x[n] = Sum(X[k]*exp(2*pi*i*k*n/N),(k,0,N-1))/N','x[n] = (1/N)·Σ desde k=0 hasta N−1 de X[k]·exp(j2πkn/N)')]
-            reading=['Los coeficientes se interpretan en orden desde k=0. El eje reconstruido comienza en n=0; no recupera automáticamente un origen temporal anterior.']
+            reading=['La entrada manual usa el orden desde k=0. Al cargar una DFT centrada, el programa reconoce el orden y la invierte. El eje reconstruido comienza en n=0.']
         elif op=='linear_convolution':
             formulas=[Formula('y[n] = Sum(x[m]*h[n-m],(m,-oo,oo))','y[n] = Σ sobre m de x[m]·h[n−m]')]
             reading=['Las entradas se consideran cero fuera de sus registros. La salida completa tiene Nx+Nh−1 muestras y su primer índice es la suma de los primeros índices de ambas entradas.']

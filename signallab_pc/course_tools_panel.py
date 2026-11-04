@@ -194,7 +194,7 @@ class CourseToolsPanel(QWidget):
         self.reference_spectrum=None
         if action=='fft':
             comparison=QWidget();self.comparison_controls=comparison;comparison.hide();row=QVBoxLayout(comparison);row.setContentsMargins(0,0,0,0)
-            buttons=QHBoxLayout();self.overlay_enabled=QCheckBox('Superponer DFT y DTFT');self.overlay_enabled.setChecked(True);buttons.addWidget(self.overlay_enabled)
+            buttons=QHBoxLayout();self.overlay_enabled=QCheckBox('Superponer DFT y DTFT');buttons.addWidget(self.overlay_enabled)
             self.pin_button=QPushButton('Conservar curva de referencia');self.pin_button.setEnabled(False);buttons.addWidget(self.pin_button)
             self.clear_reference=QPushButton('Quitar referencia');self.clear_reference.setEnabled(False);buttons.addWidget(self.clear_reference);row.addLayout(buttons)
             self.comparison_note=QLabel('La DFT se muestra con tallos; la DTFT, como curva.');self.comparison_note.setWordWrap(True);row.addWidget(self.comparison_note);out.insertWidget(1,comparison)
