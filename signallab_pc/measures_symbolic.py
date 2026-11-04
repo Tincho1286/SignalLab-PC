@@ -9,7 +9,11 @@ def measure_expression(request):
     domain=request.get('domain','continuous');mode=request.get('mode','interval')
     if domain not in ('continuous','discrete') or mode not in ('interval','global','periodic'):raise ValueError('Dominio o alcance no admitido.')
     variable=T if domain=='continuous' else N
-    value=sp.simplify(parse(request['expression']))
+    value = parse(request['expression'])
+    if domain == 'discrete':
+        from .expression_definition import fold_discrete_gates
+        value = fold_discrete_gates(value)
+    value = sp.simplify(value)
     if not isinstance(value,sp.Expr) or value.has(sp.DiracDelta,sp.oo,-sp.oo,sp.zoo,sp.nan):raise ValueError('La energía requiere una función ordinaria; no se eleva al cuadrado una distribución o un valor no finito.')
     if value.free_symbols.intersection({T,N,W,S,Z}-{variable}):raise ValueError('Usá sólo t para tiempo continuo o n para secuencias; las otras variables de dominio no son parámetros.')
     power_density=sp.simplify(value*sp.conjugate(value))
@@ -21,6 +25,12 @@ def measure_expression(request):
     def accumulated(lower,upper):
         if domain=='discrete':
             if lower.is_number and upper.is_number and lower.is_finite and upper.is_finite:ensure_working_set(int(upper-lower+1),bytes_per_sample=1024,live_arrays=8)
+            if not (lower.free_symbols or upper.free_symbols) and power_density.has(sp.Piecewise):
+                from .z_direct_pairs import pieces
+                intervals = pieces(power_density, lower, upper)
+                if intervals is not None:
+                    return sp.simplify(sp.Add(*(sp.summation(value, (N, start, stop))
+                                                for value, start, stop in intervals if value != 0)))
             # Separar en n<0 y n>=0 ayuda a conservar los soportes de Abs/Piecewise.
             if lower==-sp.oo and upper==sp.oo:
                 return sp.simplify(sp.summation(power_density,(N,-sp.oo,-1))+sp.summation(power_density,(N,0,sp.oo)))
@@ -91,7 +101,12 @@ def sample_measure_expression(request):
     from .symbolic import parse,T,N
     domain=request.get('domain','continuous')
     if domain not in ('continuous','discrete'):raise ValueError('Dominio no admitido.')
-    variable=T if domain=='continuous' else N;value=sp.simplify(parse(request['expression']))
+    variable = T if domain == 'continuous' else N
+    value = parse(request['expression'])
+    if domain == 'discrete':
+        from .expression_definition import fold_discrete_gates
+        value = fold_discrete_gates(value)
+    value = sp.simplify(value)
     if value.has(sp.DiracDelta,sp.Integral,sp.Sum,sp.Limit):raise ValueError('La expresión no es una función evaluable en muestras ordinarias.')
     if value.free_symbols-{variable}:raise ValueError('Asigná valores numéricos a los parámetros antes de crear muestras.')
     if domain=='discrete':

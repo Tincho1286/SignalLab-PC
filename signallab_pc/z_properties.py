@@ -31,8 +31,9 @@ def _pair(term):
     return sp.simplify(coefficient),delay,pole,order
 
 
-def inverse_pairs(request):
-    raw=parse(request['expression'])
+def inverse_pairs(request, raw=None):
+    if raw is None:
+        raw = parse(request['expression'])
     if raw.has(N,T,S,W,sp.zoo,sp.nan,sp.oo):return None
     terms=[]
     for term in sp.Add.make_args(sp.expand_mul(raw)):

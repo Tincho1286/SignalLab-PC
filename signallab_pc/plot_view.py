@@ -15,6 +15,24 @@ def enlarge_plot(canvas,owner):
         window.show();window.raise_();window.activateWindow();canvas.draw_idle()
 
 
+def hide_plot(canvas):
+    window = getattr(canvas, '_signallab_window', None)
+    if window is not None:
+        window.hide()
+
+
+def open_result_plot(view, owner):
+    canvas = view.canvas
+    if getattr(canvas, '_signallab_window', None) is None:
+        for toolbar in view.findChildren(NavigationToolbar2QT):
+            if toolbar.canvas is canvas:
+                install_enlarge(toolbar)
+                break
+    view.views.setCurrentIndex(0)
+    canvas.draw()
+    enlarge_plot(canvas, owner)
+
+
 def install_enlarge(toolbar):
     from PySide6.QtCore import Qt,QTimer
     from PySide6.QtWidgets import QWidget,QLabel,QSizePolicy
@@ -71,7 +89,7 @@ def install_enlarge(toolbar):
         refresh=getattr(canvas,'_signallab_plot_action_refresh',None)
         if refresh is not None:refresh()
         signature=tuple(id(artist) for artist in artists)
-        if artists and signature!=last[0]:
+        if artists and signature!=last[0] and not getattr(canvas, '_signallab_explicit_plot', False):
             last[0]=signature
             if not pending[0]:pending[0]=True;QTimer.singleShot(0,window,open_result)
         return result

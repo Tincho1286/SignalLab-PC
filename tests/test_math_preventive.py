@@ -117,4 +117,64 @@ class PreventiveContracts(unittest.TestCase):
         self.assertEqual(sp.simplify(parse(r['result'])-2*sp.exp(sp.I*W)-3*sp.exp(-2*sp.I*W)),0)
 
 
+    def test_energy_and_samples_respect_discrete_support(self):
+        expression = 'Step(n-1)/n'
+        interval = execute(dict(operation='signal_measures_expression', expression=expression, domain='discrete', mode='interval', lower='-1', upper='1'))
+        self.assertEqual(interval['energy']['exact'], '1')
+        total = execute(dict(operation='signal_measures_expression', expression=expression, domain='discrete', mode='global'))
+        self.assertEqual(sp.simplify(parse(total['energy']['exact'])-sp.pi**2/6), 0)
+        sampled = execute(dict(operation='signal_measures_window', expression=expression, domain='discrete', start='-1', stop='1'))
+        self.assertEqual(sampled['samples'], [[0, 0], [0, 0], [1, 0]])
+        with self.assertRaises(ValueError):
+            execute(dict(operation='signal_measures_window', expression='Step(n)/n', domain='discrete', start='-1', stop='1'))
+
+    def test_sos_roc_cancels_only_exact_section_factors(self):
+        from signallab_pc.frequency_analysis import analyze_frequency
+        from signallab_pc.transfer_plane import convergence, evaluate_plane, plane_roots
+        system = Transfer.from_sos([[1, -1, 0, 1, -.7, 0], [1, .2, 0, 1, -1, 0]])
+        system.roc = {'mode': 'right'}
+        grid = np.array([0., .5])
+        q = np.exp(-1j*grid)
+        assert_allclose(analyze_frequency(system, grid).response, (1+.2*q)/(1-.7*q), atol=2e-14)
+        assert_allclose(plane_roots(system)[1], [.7], atol=2e-14)
+        assert_allclose(evaluate_plane(system, np.array([0, 1, 2])), [-2/7, 4, 22/13], atol=2e-14)
+        nearby = Transfer.from_sos([[1, np.nextafter(-1., 0.), 0, 1, -.7, 0], [1, .2, 0, 1, -1, 0]])
+        nearby.roc = {'mode': 'right'}
+        self.assertFalse(convergence(nearby)['unit'])
+
+    def test_frequency_db_phase_and_delay_survive_linear_magnitude_overflow(self):
+        from signallab_pc.frequency_analysis import analyze_frequency
+        from signallab_pc.analytic_frequency import analyze_expression
+        grid = np.array([0., .5])
+        value = 1.5e308
+        expected_db = 20*np.log10(value) + 10*np.log10(2)
+        expression = '1.5e308*(1+i)'
+        request = dict(operation='system_frequency_expression', expression=expression, domain='digital')
+        _, analytical = analyze_expression(execute(request), request, grid)
+        for data in (analyze_frequency(Transfer([complex(value,value)], [1]), grid), analytical):
+            self.assertTrue(np.isinf(data.magnitude).all())
+            assert_allclose(data.db, expected_db)
+            assert_allclose(data.phase, np.pi/4)
+            assert_allclose(data.delay, 0)
+
+    def test_reciprocal_z_tails_round_trip_with_support(self):
+        cases = [
+            ('Step(n-2)/(n-1)', '2', 'oo', 'right', -1, [0,0,0,1,.5,1/3]),
+            ('Step(-n-1)/n^2', '-oo', '-1', 'left', -4, [1/16,1/9,1/4,1,0,0]),
+            ('Step(n-26)/n', '26', 'oo', 'right', 24, [0,0,1/26,1/27,1/28,1/29]),
+        ]
+        for expression, lower, upper, side, start, expected in cases:
+            with self.subTest(expression=expression):
+                direct = execute(dict(operation='z_expression', expression=expression, lower=lower, upper=upper))
+                branch = direct['branches'][0]['expression']
+                request = dict(operation='z_inverse_expression', expression=branch, roc=side, start=start, count=len(expected))
+                inverse = execute(request)
+                self.assertEqual(inverse['method'], 'reciprocal_series_pairs')
+                assert_allclose(np.asarray(inverse['numeric_samples'])[:,0], expected, atol=1e-15)
+                for index,value in enumerate(expected, start):
+                    self.assertAlmostEqual(float(parse(inverse['result']).subs(N,index)), value, places=14)
+                with self.assertRaisesRegex(ValueError, 'ROC'):
+                    execute(dict(request, roc='left' if side == 'right' else 'right'))
+
+
 if __name__=='__main__':unittest.main()

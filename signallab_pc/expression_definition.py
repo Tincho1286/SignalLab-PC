@@ -43,6 +43,17 @@ class Definition:
         return value if value.has(sp.DiracDelta) else sp.factor_terms(sp.cancel(value))
 
 
+def fold_discrete_gates(expression):
+    """Give inactive steps and impulses their zero branch before evaluation."""
+    if expression.has(sp.Heaviside, sp.KroneckerDelta):
+        expression = expression.replace(
+            lambda node: node.func in (sp.Heaviside, sp.KroneckerDelta),
+            lambda node: node.rewrite(sp.Piecewise),
+        )
+        return sp.piecewise_fold(expression)
+    return expression
+
+
 def prepare(source,variable,domain,support=None,conditions=(),support_kind='signal_support'):
     from .symbolic import parse
     from .singularities import resolve_finite_support
@@ -55,8 +66,7 @@ def prepare(source,variable,domain,support=None,conditions=(),support_kind='sign
         if domain=='discrete' and support is not None:
             # Apply support gates before checking samples: a pole in an inactive
             # branch is not a sample of the indicated sequence.
-            if expression.has(sp.Heaviside,sp.KroneckerDelta):
-                expression=sp.piecewise_fold(expression.replace(lambda v:v.func in (sp.Heaviside,sp.KroneckerDelta),lambda v:v.rewrite(sp.Piecewise)))
+            expression = fold_discrete_gates(expression)
             expression=resolve_finite_support(expression,variable,*support)
             # Reject actual undefined integer samples, not real poles between
             # samples. Finite explicit values in Piecewise take precedence.

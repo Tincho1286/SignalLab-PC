@@ -10,9 +10,15 @@ from .jobs import checkpoint
 
 def inverse(request):
     from .z_properties import inverse_pairs
-    answer=inverse_pairs(request)
+    raw = parse(request['expression'])
+    if not raw.has(N, T, S, W, sp.zoo, sp.nan, sp.oo):
+        from .z_series_inverse import inverse_tails
+        answer = inverse_tails(request, raw)
+        if answer is not None:
+            return answer
+    answer=inverse_pairs(request, raw)
     if answer is not None:return answer
-    expression=sp.cancel(parse(request['expression']))
+    expression=sp.cancel(raw)
     if expression.has(N,T,S,W):raise ValueError('Z inversa: ingresá X(z) usando z. Para x[n], elegí Directa.')
     if expression.has(sp.zoo,sp.nan,sp.oo):raise ValueError('La entrada debe definir una función racional finita.')
     mode=request.get('roc','right')
@@ -23,7 +29,7 @@ def inverse(request):
         num,den=map(lambda v:sp.Poly(v,Z),sp.fraction(expression))
         degree=max(0,int(den.degree()));ensure_working_set(max(1,degree**2),bytes_per_sample=1024,live_arrays=8)
         common,polynomial,parts=apart_list(expression,Z)
-    except sp.PolynomialError as exc:raise ValueError('Esta inversa algebraica admite funciones racionales de z.') from exc
+    except sp.PolynomialError as exc:raise ValueError('No se reconoció un par de Z inversa para esta expresión. Se admiten transferencias racionales y pares de series recíprocas.') from exc
     parameters=sorted(map(str,expression.free_symbols-{Z}));numeric=not parameters
     from .numeric_modes import PoleValues
     values=PoleValues();context=values.context;numeric_values=values.values

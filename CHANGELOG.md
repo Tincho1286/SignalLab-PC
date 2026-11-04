@@ -2,6 +2,14 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.0**.
 
+## 1.6.1 · preliminar
+
+- Validación de la ROC en simulaciones causales y cancelación exacta en cascadas.
+- Energía de secuencias con soporte definido y magnitud en dB para ganancias extremas.
+- Reapertura de figuras sin duplicar registros y Z inversa de series recíprocas.
+
+[Notas de la entrega](docs/releases/v1.6.1-preview.md)
+
 ## 1.6.0 · estable
 
 - Acceso uniforme a las figuras desde la cabecera de resultados e informes en todas las herramientas.

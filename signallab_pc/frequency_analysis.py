@@ -36,6 +36,20 @@ class FrequencyData:
     def units(self):return 'rad/muestra' if self.system.domain=='digital' else 'rad/s'
 
 
+def response_magnitudes(response):
+    """Compute dB even when the linear magnitude is outside float64 range."""
+    with np.errstate(all='ignore'):
+        magnitude = np.hypot(response.real, response.imag)
+        db = 20 * np.log10(magnitude)
+        overflow = np.isfinite(response) & np.isinf(magnitude)
+        if np.any(overflow):
+            real = response.real[overflow]
+            imag = response.imag[overflow]
+            scale = np.maximum(abs(real), abs(imag))
+            db[overflow] = 20 * (np.log10(scale) + np.log10(np.hypot(real/scale, imag/scale)))
+    return magnitude, db
+
+
 def analyze_frequency(system,omega,*,advance=0,logarithmic=False,margins=False):
     from .transfer_plane import effective_system
     system=effective_system(system)
@@ -43,8 +57,9 @@ def analyze_frequency(system,omega,*,advance=0,logarithmic=False,margins=False):
         from .transfer_plane import convergence
         if convergence(system)['unit'] is not True:raise ValueError('La frontera de Fourier no pertenece a la ROC; no se interpreta su evaluación formal como respuesta en frecuencia del sistema.')
     response=system.response(omega)*np.exp(1j*omega*advance)
-    with np.errstate(all='ignore'):magnitude=np.abs(response);db=20*np.log10(magnitude)
-    phase=np.full(response.shape,np.nan);valid=np.isfinite(response)&np.isfinite(magnitude)&(magnitude>0)
+    magnitude, db = response_magnitudes(response)
+    phase = np.full(response.shape, np.nan)
+    valid = np.isfinite(response) & (response != 0)
     indices=np.flatnonzero(valid)
     for segment in np.split(indices,np.flatnonzero(np.diff(indices)>1)+1):
         if segment.size:phase[segment]=np.unwrap(np.angle(response[segment]))

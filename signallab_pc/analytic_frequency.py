@@ -105,7 +105,7 @@ def smooth_frequency_derivative(frequency,omega):
 
 def analyze_expression(exact,request,omega,*,period=None,logarithmic=False,margins=False):
     from .symbolic import execute,parse,S,Z,W
-    from .frequency_analysis import FrequencyData
+    from .frequency_analysis import FrequencyData, response_magnitudes
     exact=deepcopy(exact);domain=request['domain'];variable=Z if domain=='digital' else S
     if exact.get('evaluated') is False:
         exact['frequency_notice']='La fórmula contiene operaciones simbólicas pendientes. Se conserva la definición; completá esas operaciones antes de evaluar la frecuencia.'
@@ -154,8 +154,13 @@ def analyze_expression(exact,request,omega,*,period=None,logarithmic=False,margi
     response=_sample(frequency,omega,repair=True,eligible=eligible,extensions=extensions);response[~eligible|~np.isfinite(response)]=complex(np.nan,np.nan)
     derivative,jumps=smooth_frequency_derivative(frequency,omega)
     with np.errstate(all='ignore'):
-        slope=_sample(derivative,omega,repair=True,eligible=eligible,extensions=extensions,role='dH/dω');delay=-(slope/response).imag;magnitude=abs(response);db=20*np.log10(magnitude)
-    valid=eligible&np.isfinite(response)&(magnitude>0)
+        slope = _sample(derivative, omega, repair=True, eligible=eligible, extensions=extensions, role='dH/dω')
+        scale = np.maximum(abs(response.real), abs(response.imag))
+        normalized_response = response.real/scale + 1j*(response.imag/scale)
+        normalized_slope = slope.real/scale + 1j*(slope.imag/scale)
+        delay = -(normalized_slope/normalized_response).imag
+    magnitude, db = response_magnitudes(response)
+    valid = eligible & np.isfinite(response) & (response != 0)
     delay=np.where(valid&~jumps&np.isfinite(delay),delay,np.nan);phase=np.full(omega.shape,np.nan)
     for segment in np.split(np.flatnonzero(valid),np.flatnonzero(np.diff(np.flatnonzero(valid))>1)+1):
         if segment.size:phase[segment]=np.unwrap(np.angle(response[segment]))

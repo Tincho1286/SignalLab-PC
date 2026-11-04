@@ -24,9 +24,43 @@ def _cancel_common(b,a,advance,domain="digital"):
     return tuple(bc),tuple(ac),advance+shift
 
 
+@lru_cache(maxsize=32)
+def _sos_factors(sections, advance):
+    """Cancel factors of the stored sections over the exact binary rationals."""
+    from collections import Counter
+    import sympy as sp
+    from .jobs import checkpoint
+
+    if any(not any(row[:3]) for row in sections):
+        return (), ()
+    coordinate = sp.Symbol('z')
+    numerator = Counter()
+    denominator = Counter()
+    for row in sections:
+        checkpoint()
+        for coefficients, factors in ((row[:3], numerator), (row[3:], denominator)):
+            polynomial = sp.Poly.from_list([sp.Rational(value) for value in coefficients], coordinate, domain=sp.QQ)
+            for factor, multiplicity in polynomial.factor_list()[1]:
+                factors[factor.monic()] += multiplicity
+    if advance:
+        numerator[sp.Poly(coordinate, coordinate, domain=sp.QQ)] += advance
+    return tuple((numerator-denominator).items()), tuple((denominator-numerator).items())
+
+
+def _section_factors(system):
+    return _sos_factors(tuple(tuple(float(v) for v in row) for row in system.sos), system.advance)
+
+
+def _factor_roots(factors):
+    roots = [np.tile(np.roots([float(value) for value in factor.all_coeffs()]), multiplicity)
+             for factor, multiplicity in factors]
+    return np.concatenate(roots).astype(complex) if roots else np.empty(0, dtype=complex)
+
+
 def effective_system(system):
     """Cancel exact common polynomial factors; never match nearby roots."""
-    if system.domain!='digital':return system
+    if system.domain != 'digital' or system.sos is not None:
+        return system
     reduced=_cancel_common(tuple(system.b),tuple(system.a),system.advance)
     if reduced is None:return system
     from .filters import Transfer
@@ -51,7 +85,11 @@ def convergence(system):
     if specification is None:return {'known':False,'unit':None,'text':'ROC no especificada. La expresión racional por sí sola no determina el soporte de h[n].'}
     poles=plane_poles(system);radii=np.abs(poles);radii=radii[radii>0]
     from fractions import Fraction
-    endpoint_pole=any(sum((Fraction(float(c.real))*(q**i) for i,c in enumerate(system.a)),Fraction(0))==0 and sum((Fraction(float(c.imag))*(q**i) for i,c in enumerate(system.a)),Fraction(0))==0 for q in (1,-1))
+    if system.sos is not None:
+        _, denominator = _section_factors(system)
+        endpoint_pole = any(factor.eval(z) == 0 for factor, _ in denominator for z in (1, -1))
+    else:
+        endpoint_pole=any(sum((Fraction(float(c.real))*(q**i) for i,c in enumerate(system.a)),Fraction(0))==0 and sum((Fraction(float(c.imag))*(q**i) for i,c in enumerate(system.a)),Fraction(0))==0 for q in (1,-1))
     mode=specification['mode'];radius=specification.get('radius')
     if mode=='radius' and radius==1 and endpoint_pole:raise ValueError('El radio 1 atraviesa un polo exacto en z=1 o z=−1; no es interior a una ROC.')
     if mode=='right':inner=float(radii.max(initial=0));outer=np.inf
@@ -75,9 +113,13 @@ def evaluate_plane(system,z):
     with np.errstate(all='ignore'):
         if system.domain=='analog':
             value=np.polyval(system.b,z)/np.polyval(system.a,z)
-        elif system.sos is not None and not np.any(z==0):
-            q=1/z;value=z**system.advance
-            for row in system.sos:value=value*np.polynomial.polynomial.polyval(q,row[:3])/np.polynomial.polynomial.polyval(q,row[3:])
+        elif system.sos is not None:
+            q = np.divide(1, z, out=np.zeros_like(z), where=z != 0)
+            value = z**system.advance
+            for row in system.sos:
+                value = value * np.polynomial.polynomial.polyval(q, row[:3]) / np.polynomial.polynomial.polyval(q, row[3:])
+            # The z=0 limit must use the exact section products, including delays.
+            value = np.where(z != 0, value, complex(np.nan, np.nan))
         else:
             # Positive-power polynomials avoid artificial 1/0 singularities at z=0.
             degree=max(len(system.b),len(system.a))
@@ -98,6 +140,9 @@ def evaluate_plane(system,z):
 
 
 def plane_roots(system):
+    if system.sos is not None:
+        zeros, poles = _section_factors(system)
+        return _factor_roots(zeros), _factor_roots(poles)
     zeros,poles=effective_plane_system(system).poles_zeros()
     zero_indices=np.flatnonzero(zeros==0);pole_indices=np.flatnonzero(poles==0)
     common=min(len(zero_indices),len(pole_indices))
@@ -127,7 +172,7 @@ def analog_convergence(system):
 def plane_poles(system):
     """Only denominator roots: ROC classification never needs FIR zeros."""
     if system.sos is not None:
-        poles=np.concatenate([np.roots(row[3:]) for row in system.sos])
+        return _factor_roots(_section_factors(system)[1])
     else:
         order=max(0,len(system.a)-1);ensure_working_set(order*order,live_arrays=4)
         poles=np.roots(system.a)

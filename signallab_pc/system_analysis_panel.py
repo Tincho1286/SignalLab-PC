@@ -311,7 +311,14 @@ class SystemAnalysisPanel(QWidget):
         else:
             axes[0].plot(omega,magnitude);axes[0].set_ylabel('Módulo (dB)' if db else '|H|')
             axes[1].plot(omega,data.phase);axes[1].set_ylabel('Ángulo (rad)')
-            if not np.isfinite(magnitude).any():axes[0].text(.5,.5,'Módulo cero: −∞ dB' if np.all(data.magnitude==0) else 'Respuesta no definida en el intervalo',ha='center',transform=axes[0].transAxes)
+            if not np.isfinite(magnitude).any():
+                if np.all(data.magnitude == 0):
+                    message = 'Módulo cero: −∞ dB'
+                elif not db and np.isfinite(data.db).any():
+                    message = 'Módulo lineal fuera de rango. Usá la escala en dB.'
+                else:
+                    message = 'Respuesta no definida en el intervalo'
+                axes[0].text(.5, .5, message, ha='center', transform=axes[0].transAxes)
             if not np.isfinite(data.phase).any():axes[1].text(.5,.5,'Ángulo no definido en el intervalo',ha='center',transform=axes[1].transAxes)
         axes[2].plot(omega,data.delay);axes[2].set_ylabel('Retardo de grupo (muestras)' if data.system.domain=='digital' else 'Retardo de grupo (s)')
         if not np.isfinite(data.delay).any():axes[2].text(.5,.5,'Retardo no definido en el intervalo',ha='center',transform=axes[2].transAxes)

@@ -89,7 +89,9 @@ def bind_canvas(canvas,origin):
         ancestor=ancestor.parentWidget()
     custom=next((tabs._signallab_custom_plot_action for tabs,_ in routes if getattr(tabs,'_signallab_custom_plot_action',None) is not None),None)
     if custom is not None:
-        canvas._signallab_plot_action_scope=custom;return
+        canvas._signallab_plot_action_scope = custom
+        canvas._signallab_explicit_plot = True
+        return
     if routes:
         tabs,page=routes[-1];launcher=getattr(tabs,'_signallab_plot_actions',None)
         if launcher is None:

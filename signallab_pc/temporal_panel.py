@@ -103,6 +103,8 @@ class TemporalPanel(QWidget):
         try:
             from .transfer_input import read_system
             digital=self.domain.currentIndex()==1;system=read_system(self,name='Sistema de respuesta temporal')
+            from .system_conditions import require_causal_roc
+            require_causal_roc(system)
             custom=self.stimulus.currentIndex()==2
             source=None;parents=[]
             if custom:

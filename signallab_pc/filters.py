@@ -248,7 +248,7 @@ class Transfer:
                 roundoff=32*np.finfo(float).eps*(abs(one)+abs(two)+self.advance)
         from .rational_frequency import repair
         result=repair(self,point,result,~np.isfinite(result)|(result==0)|(abs(result)<=roundoff),delay=True)
-        if digital and not np.any(self.a[1:]) and np.all(self.b.imag==0):
+        if digital and self.sos is None and not np.any(self.a[1:]) and np.all(self.b.imag==0):
             if np.array_equal(self.b,self.b[::-1]) or np.array_equal(self.b,-self.b[::-1]):result=np.where(np.isfinite(result),(len(self.b)-1)/2-self.advance,np.nan)
         return np.where(np.isfinite(result),result,np.nan)
 
@@ -257,6 +257,8 @@ class Transfer:
         if self.advance:raise ValueError('El sistema contiene un avance temporal. Esta recurrencia es causal; analizá su frecuencia o usá Z inversa con ROC para obtener su respuesta bilateral.')
         if self.domain != "digital":
             raise ValueError("La ecuación en diferencias requiere coeficientes digitales.")
+        from .system_conditions import require_causal_roc
+        require_causal_roc(self)
         from .system_clock import input_metadata
         clock=input_metadata(self,x)
         ensure_working_set(int(x.values.size), live_arrays=5)

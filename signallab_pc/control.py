@@ -34,6 +34,8 @@ def feedback(system, gain=1, positive=False):
 
 def analog_response(system, duration, count, kind="step"):
     if system.domain != "analog": raise ValueError("La respuesta temporal continua requiere H(s).")
+    from .system_conditions import require_causal_roc
+    require_causal_roc(system)
     duration = positive_finite(duration, "Duración")
     count = positive_integer(count, "Muestras")
     if count < 2 or kind not in {"step", "impulse"}: raise ValueError("Usá al menos dos puntos y excitación step o impulse.")
@@ -95,6 +97,8 @@ def forced_response(system, source, interpolation="linear"):
     expected = "discrete" if system.domain == "digital" else "continuous"
     if source.domain != expected:
         raise ValueError("El dominio de la entrada debe coincidir con el del sistema.")
+    from .system_conditions import require_causal_roc
+    require_causal_roc(system)
     from .distributions import dirac_terms,attach_terms
     impulses=dirac_terms(source)
     if impulses and (system.domain!='analog' or any(t<source.origin or t>source.axis[-1] for t,_ in impulses)):
@@ -214,6 +218,8 @@ def discrete_response_parts(system,source,previous_inputs=(),previous_outputs=()
     """Descompone una recurrencia causal desde el primer índice del registro."""
     if system.domain!='digital' or source.domain!='discrete':
         raise ValueError('La descomposición por historiales requiere sistema y señal discretos.')
+    from .system_conditions import require_causal_roc
+    require_causal_roc(system)
     previous_inputs=np.asarray(previous_inputs,dtype=complex).reshape(-1)
     previous_outputs=np.asarray(previous_outputs,dtype=complex).reshape(-1)
     if not np.all(np.isfinite(previous_inputs)) or not np.all(np.isfinite(previous_outputs)):

@@ -45,15 +45,27 @@ class ExpressionMeasuresPanel(QWidget):
         self.report=ReportView();self.numeric_report=ReportView();self.output=ResultView(details=False);self.tabs.addTab(report_panel(self.report),'Algebraico');self.tabs.addTab(report_panel(self.numeric_report),'Ventana numérica');self.tabs.addTab(self.output,'Gráfico')
         self.report.setPlainText('Ingresá una expresión con t o n. Se conservan los valores exactos, sus condiciones y las aproximaciones disponibles. Los parámetros sin asignar permanecen simbólicos.')
         self.numeric_report.setPlainText('Después del cálculo algebraico podés crear una ventana de muestras y consultar sus medidas aquí.')
-        for field in (self.expression,self.lower,self.upper,self.period):field.textChanged.connect(lambda _:self.sample_button.setEnabled(False))
+        self._sampled_plot = None
+        self.tabs.setTabVisible(1, False)
+        self.tabs.setTabVisible(2, False)
+        for field in (self.expression, self.lower, self.upper, self.period):
+            field.textChanged.connect(self.refresh_sample_action)
         self.domain.currentIndexChanged.connect(self.change_domain);self.domain.currentIndexChanged.connect(self.refresh_origin)
+    def refresh_sample_action(self, *_):
+        current = self.last is not None and self.last[0] == self.request()
+        self.sample_button.setEnabled(current)
+        if not current:
+            from .plot_view import hide_plot
+            hide_plot(self.output.canvas)
+
     def change_domain(self,index):
-        self.sample_button.setEnabled(False);self.count.setEnabled(index==0)
+        self.count.setEnabled(index==0)
         defaults={'exp(-abs(t))':'(1/2)^abs(n)','sin(t)':'sin(pi*n/2)'}
         current=self.expression.text()
         if index and current in defaults:self.expression.setText(defaults[current])
         elif not index and current in defaults.values():self.expression.setText(next(k for k,v in defaults.items() if v==current))
         if self.mode=='periodic' and self.period.text() in ('2*pi','4'):self.period.setText('4' if index else '2*pi')
+        self.refresh_sample_action()
     def request(self):
         intact=self._expression_origin and self._expression_origin[0]==self.expression.text() and self._expression_origin[2]==self.domain.currentIndex()
         return dict(input_conditions=list(self._input_conditions) if intact else [],operation='signal_measures_expression',expression=self.expression.text(),domain='continuous' if self.domain.currentIndex()==0 else 'discrete',mode=self.mode,lower=self.lower.text(),upper=self.upper.text(),period=self.period.text())
@@ -64,7 +76,7 @@ class ExpressionMeasuresPanel(QWidget):
         if expression is None or expression.variable not in ('t','n',None):raise ValueError('Elegí una expresión temporal en t o n.')
         if expression.variable is not None:self.domain.setCurrentIndex(0 if expression.variable=='t' else 1)
         text=expression.numerical_source or expression.source
-        self.expression.setText(text);self.parent_id=key;self._expression_origin=(self.expression.text(),key,self.domain.currentIndex());self._input_conditions=expression.conditions;self.refresh_origin()
+        self.expression.setText(text);self.parent_id=key;self._expression_origin=(self.expression.text(),key,self.domain.currentIndex());self._input_conditions=expression.conditions;self.refresh_origin();self.refresh_sample_action()
     def choose(self):
         key=self.window.choose_record('temporal_expression')
         if not key:return
@@ -74,29 +86,39 @@ class ExpressionMeasuresPanel(QWidget):
         request=self.request();intact=self._expression_origin and self._expression_origin[0]==request['expression'] and self._expression_origin[2]==self.domain.currentIndex();parent=self._expression_origin[1] if intact else None;parents=[parent] if parent else []
         def accept(result):
             key=self.window.publish({'request':request,'result':result},title='Energía y potencia · '+request['expression'],operation='Medidas algebraicas de señal',parents=parents)
+            from .plot_view import hide_plot
+            hide_plot(self.output.canvas)
+            self._sampled_plot = None
+            self.numeric_report.clear()
+            self.tabs.setTabVisible(1, False)
+            self.tabs.setTabVisible(2, False)
             self.last=(request,result,key);self.sample_button.setEnabled(request==self.request())
             from .result_summary import expression_measure_summary
             self.report.set_readable(expression_measure_summary(request,result));self.tabs.setCurrentIndex(0)
         self.window._run_operation('Calculando medidas algebraicas…',lambda:run_request(request),accept)
-    def open_output_plot(self):
-        from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
-        from .plot_view import install_enlarge,enlarge_plot
-        canvas=self.output.canvas
-        if getattr(canvas,'_signallab_window',None) is None:
-            for toolbar in self.output.findChildren(NavigationToolbar2QT):
-                if toolbar.canvas is canvas:install_enlarge(toolbar);break
-        canvas.draw();enlarge_plot(canvas,self)
     def sample(self):
-        if not self.last:return
-        definition,result,parent=self.last
+        if not self.last or self.last[0] != self.request():
+            return
+        from .plot_view import enlarge_plot, open_result_plot
+        definition,_,parent=self.last
         try:
             request=dict(operation='signal_measures_window',expression=definition['expression'],domain=definition['domain'],start=self.start.text(),stop=self.stop.text(),count=integer_field(self.count) if definition['domain']=='continuous' else None)
+            if self._sampled_plot == (parent, request):
+                enlarge_plot(self.output.canvas, self)
+                return
             def accept(data):
+                if self.last[2] != parent or definition != self.request():
+                    return
                 summary={k:v for k,v in data.items() if k!='samples'}
                 report_id=self.window.publish({'request':request,'result':summary},title='Medidas de ventana · '+definition['expression'],operation='Aproximación de energía y potencia',parents=[parent])
                 signal=Signal([complex(*v) for v in data['samples']],data['origin'],data['step'],'s' if data['domain']=='continuous' else 'n',definition['expression'],data['domain'],definition['expression'],{'operation':'expression_measure_window','energy':data['energy'],'mean_square':data['mean_square'],'rms':data['rms'],'scope':data['scope'],'method':data['method']})
-                self.window.publish(signal,operation='Muestras de expresión analizada',parents=[report_id]);self.tabs.setCurrentIndex(2);self.output.show_result(signal)
-                self.numeric_report.setPlainText('Medidas de la ventana\n\nEnergía: '+str(data['energy'])+'\nPromedio cuadrático: '+str(data['mean_square'])+'\nRMS: '+str(data['rms'])+'\nMétodo: '+data['method']+'\n\n'+data['scope']);self.tabs.setCurrentIndex(2);self.open_output_plot()
+                self.window.publish(signal,operation='Muestras de expresión analizada',parents=[report_id]);self.output.show_result(signal)
+                self.tabs.setTabVisible(1, True)
+                self.tabs.setTabVisible(2, True)
+                self.numeric_report.setPlainText('Medidas de la ventana\n\nEnergía: '+str(data['energy'])+'\nPromedio cuadrático: '+str(data['mean_square'])+'\nRMS: '+str(data['rms'])+'\nMétodo: '+data['method']+'\n\n'+data['scope'])
+                self.tabs.setCurrentIndex(2)
+                open_result_plot(self.output, self)
+                self._sampled_plot = (parent, request)
             self.window._run_operation('Evaluando ventana numérica…',lambda:run_request(request),accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá la ventana',str(exc))
     def save(self):

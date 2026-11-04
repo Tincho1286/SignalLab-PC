@@ -138,7 +138,16 @@ class WorkflowContracts(unittest.TestCase):
         window=panel.output.canvas._signallab_window;self.widgets.append(window)
         self.assertTrue(window.isVisible());self.assertEqual(panel.output.views.currentIndex(),0);self.assertGreater(len(panel.output.figure.axes[0].lines),0)
         values=panel.output.result.values;self.assertAlmostEqual(abs(values[len(values)//2]),1);self.assertAlmostEqual(abs(values[0]),0)
+        count = len(self.host.project.headers())
         window.hide();panel.tabs.setCurrentIndex(0);panel.sample_button.click();self.app.processEvents();self.assertTrue(window.isVisible());self.assertEqual(self.warnings,[])
+        self.assertEqual(len(self.host.project.headers()), count)
+        panel.expression.setText('0')
+        self.assertFalse(panel.sample_button.isEnabled())
+        self.assertFalse(window.isVisible())
+        panel.calculate_button.click();self.app.processEvents()
+        self.assertFalse(window.isVisible())
+        panel.sample_button.click();self.app.processEvents()
+        self.assertTrue(window.isVisible());assert_allclose(panel.output.result.values, 0)
 
     def test_dtft_result_reused_as_frequency_system(self):
         from signallab_pc.result_expressions import send_expression
@@ -309,6 +318,42 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(self.warnings,[]);self.assertTrue(panel.sample_button.isEnabled());self.app.processEvents();self.assertTrue(panel.sample_button.isVisible())
         panel.sample_button.click();self.app.processEvents();self.assertEqual(self.warnings,[]);window=panel.output.canvas._signallab_window;self.widgets.append(window);self.assertTrue(window.isVisible())
         assert_allclose(panel.output.result.values,[0,0,1,0,0]);self.assertAlmostEqual(panel.output.result.metadata['energy'],1)
+        count = len(self.host.project.headers())
         window.hide();panel.tabs.setCurrentIndex(0);panel.sample_button.click();self.app.processEvents();self.assertTrue(window.isVisible());self.assertEqual(self.warnings,[])
+        self.assertEqual(len(self.host.project.headers()), count)
+
+    def test_temporal_panel_rejects_incompatible_roc_without_publishing(self):
+        from signallab_pc.temporal_panel import TemporalPanel
+        panel = TemporalPanel(self.host);self.widgets.append(panel)
+        for domain, denominator in (('digital', [1,-2]), ('analog', [1,-1])):
+            with self.subTest(domain=domain):
+                system = Transfer([1], denominator, domain, roc={'mode':'left'})
+                key = self.host.project.add(system)
+                panel.set_system(system, key);panel.stimulus.setCurrentIndex(1);panel.count.setText('5')
+                count = len(self.host.project.headers())
+                panel.calculate_button.click()
+                self.assertIn('cola anticausal', self.warnings[-1])
+                self.assertIn('inversa', self.warnings[-1])
+                self.assertEqual(len(self.host.project.headers()), count)
+                self.assertIsNone(panel.output.result)
+                panel.set_system(Transfer([1], denominator, domain, roc={'mode':'right'}))
+                self.warnings.clear()
+                panel.calculate_button.click()
+                self.assertEqual(self.warnings, [])
+                self.assertIsNotNone(panel.output.result)
+                panel.output.result = None
+
+    def test_z_reciprocal_tail_from_direct_to_inverse(self):
+        panel = TransformLab(self.host, 'z');self.widgets.append(panel)
+        panel.expression.setText('Step(n-1)/n');panel.lower.setText('1');panel.upper.setText('oo')
+        panel.calculate_button.click();panel.to_inverse()
+        self.assertEqual(panel.roc.currentIndex(), 0)
+        panel.include_samples.setChecked(True);panel.start.setText('-1');panel.count.setText('5')
+        panel.calculate_button.click()
+        self.assertEqual(self.warnings, [])
+        _, result, _, _, signal = panel.records[panel.record_key()]
+        self.assertEqual(result['method'], 'reciprocal_series_pairs')
+        assert_allclose(signal.values, [0,0,1,.5,1/3])
+
 
 if __name__=='__main__':unittest.main()
