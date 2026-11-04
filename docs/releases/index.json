@@ -3,22 +3,22 @@
   "current": {
     "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.5",
     "tag": "v1.6.5",
-    "commit": "849c83bc9205ef127e3ffe73fcd8e3037e1aefb0",
+    "commit": "46e37a7fa6edc9324b36061ac666de8bd8be5488",
     "stable": true,
     "license": "GPL-3.0-or-later",
     "assets": [
       {
-        "id": 709924315,
+        "id": 709968450,
         "name": "build-provenance-linux.json",
-        "size": 6119,
-        "digest": "sha256:19dfa5815e6a655bb4cac74e05c145e353586882b2446b96962386e88c73f000",
+        "size": 6118,
+        "digest": "sha256:c93f7e9cef7da8df6daca369d8db9fd3c477da1d71f63e98be9f9f66b7481128",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/build-provenance-linux.json"
       },
       {
-        "id": 709924150,
+        "id": 709968353,
         "name": "build-provenance-windows.json",
         "size": 5922,
-        "digest": "sha256:7f5e94f4cf30a1c2dce6b3809d5f4c34a9704e61bbc7989d821670427c0a0062",
+        "digest": "sha256:4de10f548adc4ae3bfdf37ba18cf9a29feea42c979051e6371f41b9bb1003c28",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/build-provenance-windows.json"
       },
       {
@@ -29,10 +29,10 @@
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/LICENSE"
       },
       {
-        "id": 709924393,
+        "id": 709968570,
         "name": "SHA256SUMS-1.6.5-estable.txt",
         "size": 732,
-        "digest": "sha256:a41d6523f209f0681c94f74771416c170d2585a925e0d88db90d42fafe8322df",
+        "digest": "sha256:571d2405b39995a78c0231492b7fa58646e253107b3172d93ba63ef3c25584cd",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SHA256SUMS-1.6.5-estable.txt"
       },
       {
@@ -43,50 +43,50 @@
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SignalLab-PC-1.6.5-licenses.zip"
       },
       {
-        "id": 709922735,
+        "id": 709966919,
         "name": "SignalLab-PC-1.6.5-linux-x86_64.tar.gz",
-        "size": 159812548,
-        "digest": "sha256:c79c4733f0ab57a5accc0ad9f311c070ad965a807ad8e239428e6ecf89cff065",
+        "size": 159810507,
+        "digest": "sha256:521717d1368b53ba7d52f3a83378d09dede4f5fbe3b8219a56943ee74b34e00a",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SignalLab-PC-1.6.5-linux-x86_64.tar.gz"
       },
       {
-        "id": 709923894,
+        "id": 709968177,
         "name": "SignalLab-PC-1.6.5-source-GPL.zip",
-        "size": 2044858,
-        "digest": "sha256:46a2b72123139062d19f79837cb703d08db7e7f9f08ead3c2e45d78b9fdde472",
+        "size": 2045398,
+        "digest": "sha256:023e77a3d95cea36d895884b845823b1f182979adf6f4b71c714e2b17ada31ea",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SignalLab-PC-1.6.5-source-GPL.zip"
       },
       {
-        "id": 709921848,
+        "id": 709966172,
         "name": "SignalLab-PC-1.6.5.exe",
-        "size": 117324779,
-        "digest": "sha256:cdcf43b22f2f6bf13c61db614457dd250814dbad7f5c2a63be2d4c25e5cee05a",
+        "size": 117323282,
+        "digest": "sha256:169da2de4147ad6ceb8042165f52aa1bf67b280992d995001961bbd1688cc869",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SignalLab-PC-1.6.5.exe"
       },
       {
-        "id": 709924045,
+        "id": 709968289,
         "name": "v1.6.5.md",
-        "size": 1626,
-        "digest": "sha256:1334c77780edbe7248a69746b840ab6c10e225f0c1eff89a04c060abacbc0541",
+        "size": 1778,
+        "digest": "sha256:3917f200f183ce1248d3c3b1e84d395edf9be5e71fac64040b30e297480ce9ef",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/v1.6.5.md"
       }
     ],
     "platforms": {
       "windows-x86_64": {
         "asset": "SignalLab-PC-1.6.5.exe",
-        "source_commit": "849c83bc9205ef127e3ffe73fcd8e3037e1aefb0"
+        "source_commit": "46e37a7fa6edc9324b36061ac666de8bd8be5488"
       },
       "linux-x86_64": {
         "asset": "SignalLab-PC-1.6.5-linux-x86_64.tar.gz",
-        "source_commit": "849c83bc9205ef127e3ffe73fcd8e3037e1aefb0",
+        "source_commit": "46e37a7fa6edc9324b36061ac666de8bd8be5488",
         "glibc": [
           "glibc",
           "2.35"
         ]
       }
     },
-    "build_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41852799939",
-    "mathematics_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41852792330"
+    "build_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41856109449",
+    "mathematics_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41856108995"
   },
   "historical": {
     "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/archivo-historico-2026-10-28",
@@ -229,22 +229,22 @@
   "stable": {
     "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.5",
     "tag": "v1.6.5",
-    "commit": "849c83bc9205ef127e3ffe73fcd8e3037e1aefb0",
+    "commit": "46e37a7fa6edc9324b36061ac666de8bd8be5488",
     "stable": true,
     "license": "GPL-3.0-or-later",
     "assets": [
       {
-        "id": 709924315,
+        "id": 709968450,
         "name": "build-provenance-linux.json",
-        "size": 6119,
-        "digest": "sha256:19dfa5815e6a655bb4cac74e05c145e353586882b2446b96962386e88c73f000",
+        "size": 6118,
+        "digest": "sha256:c93f7e9cef7da8df6daca369d8db9fd3c477da1d71f63e98be9f9f66b7481128",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/build-provenance-linux.json"
       },
       {
-        "id": 709924150,
+        "id": 709968353,
         "name": "build-provenance-windows.json",
         "size": 5922,
-        "digest": "sha256:7f5e94f4cf30a1c2dce6b3809d5f4c34a9704e61bbc7989d821670427c0a0062",
+        "digest": "sha256:4de10f548adc4ae3bfdf37ba18cf9a29feea42c979051e6371f41b9bb1003c28",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/build-provenance-windows.json"
       },
       {
@@ -255,10 +255,10 @@
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/LICENSE"
       },
       {
-        "id": 709924393,
+        "id": 709968570,
         "name": "SHA256SUMS-1.6.5-estable.txt",
         "size": 732,
-        "digest": "sha256:a41d6523f209f0681c94f74771416c170d2585a925e0d88db90d42fafe8322df",
+        "digest": "sha256:571d2405b39995a78c0231492b7fa58646e253107b3172d93ba63ef3c25584cd",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SHA256SUMS-1.6.5-estable.txt"
       },
       {
@@ -269,49 +269,49 @@
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SignalLab-PC-1.6.5-licenses.zip"
       },
       {
-        "id": 709922735,
+        "id": 709966919,
         "name": "SignalLab-PC-1.6.5-linux-x86_64.tar.gz",
-        "size": 159812548,
-        "digest": "sha256:c79c4733f0ab57a5accc0ad9f311c070ad965a807ad8e239428e6ecf89cff065",
+        "size": 159810507,
+        "digest": "sha256:521717d1368b53ba7d52f3a83378d09dede4f5fbe3b8219a56943ee74b34e00a",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SignalLab-PC-1.6.5-linux-x86_64.tar.gz"
       },
       {
-        "id": 709923894,
+        "id": 709968177,
         "name": "SignalLab-PC-1.6.5-source-GPL.zip",
-        "size": 2044858,
-        "digest": "sha256:46a2b72123139062d19f79837cb703d08db7e7f9f08ead3c2e45d78b9fdde472",
+        "size": 2045398,
+        "digest": "sha256:023e77a3d95cea36d895884b845823b1f182979adf6f4b71c714e2b17ada31ea",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SignalLab-PC-1.6.5-source-GPL.zip"
       },
       {
-        "id": 709921848,
+        "id": 709966172,
         "name": "SignalLab-PC-1.6.5.exe",
-        "size": 117324779,
-        "digest": "sha256:cdcf43b22f2f6bf13c61db614457dd250814dbad7f5c2a63be2d4c25e5cee05a",
+        "size": 117323282,
+        "digest": "sha256:169da2de4147ad6ceb8042165f52aa1bf67b280992d995001961bbd1688cc869",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SignalLab-PC-1.6.5.exe"
       },
       {
-        "id": 709924045,
+        "id": 709968289,
         "name": "v1.6.5.md",
-        "size": 1626,
-        "digest": "sha256:1334c77780edbe7248a69746b840ab6c10e225f0c1eff89a04c060abacbc0541",
+        "size": 1778,
+        "digest": "sha256:3917f200f183ce1248d3c3b1e84d395edf9be5e71fac64040b30e297480ce9ef",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/v1.6.5.md"
       }
     ],
     "platforms": {
       "windows-x86_64": {
         "asset": "SignalLab-PC-1.6.5.exe",
-        "source_commit": "849c83bc9205ef127e3ffe73fcd8e3037e1aefb0"
+        "source_commit": "46e37a7fa6edc9324b36061ac666de8bd8be5488"
       },
       "linux-x86_64": {
         "asset": "SignalLab-PC-1.6.5-linux-x86_64.tar.gz",
-        "source_commit": "849c83bc9205ef127e3ffe73fcd8e3037e1aefb0",
+        "source_commit": "46e37a7fa6edc9324b36061ac666de8bd8be5488",
         "glibc": [
           "glibc",
           "2.35"
         ]
       }
     },
-    "build_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41852799939",
-    "mathematics_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41852792330"
+    "build_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41856109449",
+    "mathematics_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/41856108995"
   }
 }
