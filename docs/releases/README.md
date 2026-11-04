@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.6.5-preview](v1.6.5-preview.md) | Longitud mínima automática para FIR Kaiser | Preliminar |
 | [1.6.3-preview](v1.6.3-preview.md) | Longitud FIR automática, espacio de estados y reloj de la señal | Preliminar |
 | [1.6.2-preview](v1.6.2-preview.md) | ROC, simulación de cascadas y precisión de fase | Preliminar |
 | [1.6.1-preview](v1.6.1-preview.md) | ROC, soporte discreto, Z inversa y reapertura de figuras | Preliminar |

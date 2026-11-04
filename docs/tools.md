@@ -20,7 +20,7 @@ La versión 1.2 representa H(s) y H(z) mediante dos mallas: parte real/imaginari
 
 Diseño FIR/IIR por bandas y tolerancias, FIR por cortes y longitud o h[n] propia, diseño interactivo por polos y ceros, secciones de segundo orden y modelos RC. Ajustes de ganancia y fase; filtros ideales definidos por tramos; conversión analógica/digital por los métodos disponibles.
 
-Para las ventanas FIR distintas de Kaiser, el diseño por bandas busca automáticamente la primera longitud que supera la comprobación numérica de tolerancias. Las acciones del resultado permiten analizar, exportar y reutilizar el filtro. La versión 1.2 incorpora amplitudes por banda y tolerancias absolutas, relativas o en dB; las dos amplitudes independientes de un rechazabanda se diseñan mediante FIR.
+El diseño FIR por bandas busca automáticamente la primera longitud que supera la comprobación numérica de tolerancias. En Kaiser, dejá la longitud en cero para usar esa búsqueda o ingresá una cantidad de coeficientes para fijarla. Las acciones del resultado permiten analizar, exportar y reutilizar el filtro. La versión 1.2 incorpora amplitudes por banda y tolerancias absolutas, relativas o en dB; las dos amplitudes independientes de un rechazabanda se diseñan mediante FIR.
 
 ## Fourier y espectros
 

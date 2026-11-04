@@ -86,17 +86,15 @@ class CourseToolsPanel(QWidget):
                 self.fields['dp'].setToolTip(self.amplitude_note.text());self.fields['ds'].setToolTip(self.amplitude_note.text())
             self.band_edges.kind.currentIndexChanged.connect(update_amplitudes);self.fields['tolerance_units'].currentIndexChanged.connect(update_amplitudes);update_amplitudes()
             if action=='fir':
-                choice('window' ,'Ventana',[(name,name) for name in ('kaiser','boxcar','hann','hamming','blackman','bartlett')]);field('taps','Cantidad de coeficientes (0 = estimar Kaiser)','0');field('search','Buscar menor longitud hasta (0 = sin búsqueda)','0')
-                hint('Opciones de Kaiser. Podés fijar una longitud, usar la estimación o indicar un límite de búsqueda.')
+                choice('window' ,'Ventana',[(name,name) for name in ('kaiser','boxcar','hann','hamming','blackman','bartlett')]);field('taps','Longitud L (0 = mínima automática)','0')
                 self.window_length_note = QLabel()
                 self.window_length_note.setWordWrap(True)
                 form.addRow(self.window_length_note)
                 def update_window_length(*_):
                     is_kaiser = self.fields['window'].currentData() == 'kaiser'
-                    for key in ('taps','search'):
-                        form.setRowVisible(self.fields[key], is_kaiser)
-                        self.fields[key].setProperty('calculationInput', is_kaiser)
-                    self.window_length_note.setText('Kaiser admite longitud manual o estimada.' if is_kaiser else
+                    form.setRowVisible(self.fields['taps'], is_kaiser)
+                    self.fields['taps'].setProperty('calculationInput', is_kaiser)
+                    self.window_length_note.setText('Con 0 se busca la menor longitud que cumple las tolerancias. Ingresá un valor positivo para fijar la cantidad de coeficientes.' if is_kaiser else
                         'Longitud automática. Se elige la primera cantidad de coeficientes que cumple las tolerancias de esta ventana.')
                 self.fields['window'].currentIndexChanged.connect(update_window_length)
                 update_window_length()
@@ -280,7 +278,7 @@ class CourseToolsPanel(QWidget):
                 wp,ws=self.band_edges.bands()
                 window = self.fields['window'].currentData() if action=='fir' else 'kaiser'
                 kaiser = action=='fir' and window=='kaiser'
-                args=(wp,ws,self.scalar('dp'),self.scalar('ds'),'kaiser' if action=='fir' else self.fields['method'].currentData(),self.scalar('period') if action=='iir' and self.fields['method'].currentData() in ('bilinear','impulse') else 1,self.integer('taps') if kaiser else 0,window,self.integer('search') if kaiser else 0);job=lambda:calc.design_filter(*args)
+                args=(wp,ws,self.scalar('dp'),self.scalar('ds'),'kaiser' if action=='fir' else self.fields['method'].currentData(),self.scalar('period') if action=='iir' and self.fields['method'].currentData() in ('bilinear','impulse') else 1,self.integer('taps') if kaiser else 0,window)
                 from .amplitude_design import design
                 amplitudes=[self.scalar('amplitude_low')]+([self.scalar('amplitude_high')] if self.band_edges.kind.currentData()=='bandstop' else []);units=self.fields['tolerance_units'].currentData()
                 job=lambda:design(*args,amplitudes=amplitudes,units=units)

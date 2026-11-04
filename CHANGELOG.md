@@ -2,6 +2,13 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.0**.
 
+## 1.6.5 · preliminar
+
+- Kaiser busca la longitud FIR mínima que cumple las tolerancias cuando la longitud está en modo automático.
+- El informe distingue la longitud elegida de la estimación por fórmula.
+
+[Notas de la entrega](docs/releases/v1.6.5-preview.md)
+
 ## 1.6.3 · preliminar
 
 - Longitud FIR automática para ventanas distintas de Kaiser en el diseño por bandas.

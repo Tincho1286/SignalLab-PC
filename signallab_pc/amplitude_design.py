@@ -107,16 +107,17 @@ def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitu
     if analog:spec.update(domain='analog',plot_range=[float(np.r_[wp,ws].min()/10),float(np.r_[wp,ws].max()*10)])
     if method=='kaiser' and not analog:
         if window not in ('boxcar','hann','hamming','blackman','bartlett','kaiser'):raise ValueError('Ventana no admitida.')
-        automatic = window != 'kaiser'
-        if not automatic and (taps<0 or search<0):
+        is_kaiser = window == 'kaiser'
+        automatic = not is_kaiser or not taps
+        if is_kaiser and (taps<0 or search<0):
             raise ValueError('Longitud y cota de búsqueda deben ser no negativas.')
-        if automatic:
-            beta = 0.
-        else:
+        if is_kaiser:
             width = float(np.min(abs(wp-ws)))
             error = min(float((amplitudes-lower).min()),float((upper-amplitudes).min()),stop)
             attenuation = 20*(np.log10(float(amplitudes.max()))-np.log10(error))
             estimated,beta = sp.kaiserord(max(8.,attenuation),width/np.pi)
+        else:
+            beta = 0.
         cutoff=(wp+ws)/2;chosen=('kaiser',beta) if window=='kaiser' else window
         def kernel(m):
             low=lambda cut:cut/np.pi*np.sinc(cut*m/np.pi)
@@ -129,15 +130,15 @@ def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitu
             m=np.arange(length)-(length-1)/2;ideal=kernel(m);window_values=sp.get_window(chosen,length,fftbins=False)
             b=ideal*window_values;b=(b+b[::-1])/2
             return Transfer(b,[1],name='FIR '+window+' · amplitudes por banda'),ideal,window_values
-        if automatic or search:
+        searching = automatic or bool(search)
+        if searching:
             count, (result, ideal, window_values), evaluation = _search_fir(
-                candidate, spec, wp, ws, limit=None if automatic else int(search))
+                candidate, spec, wp, ws, limit=int(search) if is_kaiser and search else None)
             accepted = True
         else:
-            count = max(2,int(taps or estimated))
+            count = max(2,int(taps))
             if kind in ('highpass','bandstop') and count%2==0:
-                if taps:raise ValueError('Paso no nulo en π: el FIR simétrico requiere longitud impar.')
-                count += 1
+                raise ValueError('Paso no nulo en π: el FIR simétrico requiere longitud impar.')
             result, ideal, window_values = candidate(count)
             accepted, evaluation = evaluate_spec(result, spec)
         result.roc={'mode':'right'}
@@ -151,7 +152,9 @@ def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitu
         formulas=[Formula('h_ideal[n] = '+formula('n'),'h_ideal[n] = '+formula('n')),Formula('w[n] = '+window_expression(window,count,beta),'w[n] = '+window_expression(window,count,beta)),Formula('h[n] = Piecewise((('+formula('n-('+d+')')+')*w[n], '+condition+'), (0, True))','h[n] = ('+formula('n-('+d+')')+')*w[n] para '+condition+'; 0 fuera')]
         for value in formulas:value.numeric=True
         length_note = ('Búsqueda automática en orden creciente. L es la primera longitud de esta ventana que supera la comprobación numérica de bandas.'
-                       if automatic else f'Longitud estimada Kaiser: {estimated}\nβ Kaiser: {beta:.12g}')
+                       if searching else 'Longitud fijada manualmente.')
+        if is_kaiser:
+            length_note += f'\nLongitud de referencia por fórmula de Kaiser: {estimated}\nβ Kaiser: {beta:.12g}'
         detail=f'Ventana: {window}\n{length_note}\nLongitud usada L: {count}\nOrden nominal M: {count-1}\nRetardo D: {d} muestras\nTransiciones especificadas: '+', '.join(f'{v:.12g} rad/muestra' for v in abs(wp-ws))+'\nCortes del ideal: '+', '.join(f'{v:.12g}' for v in cutoff)
         summary=Summary('Diseño FIR con amplitudes por banda',[Section('Ideal y filtro enventanado',formulas=formulas,paragraphs=['sinc(x)=sin(πx)/(πx), sinc(0)=1. El ideal está definido para todo n. El filtro usa el ideal desplazado por D=(L−1)/2 y una ventana simétrica, sin normalización global que altere la relación entre bandas.']),Section('Parámetros',paragraphs=detail.splitlines()),Section('Tolerancias',paragraphs=evaluation.splitlines())])
         return {'report':summary.plain_text(),'fir_summary':summary,'systems':[result],'signals':signals,'specifications':spec,'specification_met':accepted}
