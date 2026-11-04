@@ -17,7 +17,12 @@ def simplify_radial(condition, coordinate):
         if not radial_parts:
             return sp.And(*(reduce(part) if part.func == sp.Or else part for part in parts))
         try:
-            reduced = sp.reduce_inequalities(radial_parts, radius)
+            # Convert each predicate separately. reduce_inequalities may leave
+            # equivalent bounds in different forms (r < 1 and 1/r < 1).
+            # Intersecting the real sets detects the contradiction exactly.
+            region = sp.Intersection(sp.Interval.open(0, sp.oo),
+                                     *(part.as_set() for part in radial_parts))
+            reduced = region.as_relational(radius)
         except (NotImplementedError, ValueError, TypeError):
             return node
         return sp.And(reduced, *(reduce(part) if part.func == sp.Or else part
