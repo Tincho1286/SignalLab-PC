@@ -1,5 +1,6 @@
 from .numeric_input import real_field,integer_field,constant_value
 """Menús de calculadoras independientes, con entradas y resultados locales."""
+from copy import copy
 from dataclasses import asdict
 import json
 import hashlib
@@ -177,6 +178,13 @@ class ResultView(QWidget):
         self.send=QPushButton('Usar en otra herramienta…');self.send.setProperty('actionRole','reuse');self.send.setEnabled(False);self.send_menu=QMenu(self.send);self.send.setMenu(self.send_menu);self.send_menu.aboutToShow.connect(self.prepare_send);bar.addWidget(self.send)
         self.save=QPushButton('Exportar datos…');self.save.setEnabled(False);self.save.clicked.connect(self.export);bar.addWidget(self.save);self.actions=QWidget();self.actions.setLayout(bar);bar.setContentsMargins(0,0,0,0);root.insertWidget(0,self.actions)
         self.plot_mode=QComboBox();self.plot_mode.addItems(['Módulo y fase','Parte real e imaginaria']);self.plot_mode.setAccessibleName('Representación del resultado');self.plot_mode.currentIndexChanged.connect(self.draw_signal);layout.addWidget(self.plot_mode)
+        self.dft_axis=QComboBox()
+        self.dft_axis.addItems(['Frecuencia ω (rad/muestra)','Índice k centrado'])
+        self.dft_axis.setAccessibleName('Eje horizontal de la DFT')
+        self.dft_axis.setToolTip('Elegí la unidad del gráfico y de la tabla de valores.')
+        self.dft_axis.hide()
+        self.dft_axis.currentIndexChanged.connect(self.update_dft_axis)
+        root.insertWidget(1,self.dft_axis)
         self.figure=Figure(figsize=(7,3));empty=self.figure.add_subplot(111);empty.set_axis_off();empty.text(.5,.5,'Completá las entradas y presioná Calcular',ha='center',color='#8194ae',transform=empty.transAxes);self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumHeight(260);layout.addWidget(NavigationToolbar2QT(self.canvas,self));layout.addWidget(self.canvas,1)
         self.text=ReportView();self.views.addTab(report_panel(self.text),'Informe');self.views.setTabVisible(1,details)
         from .result_table import ResultTable
@@ -192,7 +200,10 @@ class ResultView(QWidget):
         if all(isinstance(value,Signal) for value in candidates):validate_overlay(candidates)
         self.show_content();self.result=result;self.save.setEnabled(True);self.figure.clear()
         signals=result if isinstance(result,tuple) else (result,)
-        numeric=all(isinstance(value,Signal) for value in signals);self.table_view.set_signals(signals if numeric else ());self.views.setTabVisible(self.table_index,numeric)
+        numeric=all(isinstance(value,Signal) for value in signals)
+        self.dft_axis.setVisible(numeric and all(ops.is_centered_dft(value) for value in signals))
+        self.table_view.set_signals(self.displayed_signals() if numeric else ())
+        self.views.setTabVisible(self.table_index,numeric)
         self.views.setTabVisible(0,numeric);self.views.setTabVisible(1,self.details or not numeric);self.views.setTabVisible(self.details_index,self.details and numeric and any(signal.metadata for signal in signals));self.views.tabBar().show()
         window=self.window();self.result_ids=[window.published_signal_id(value) if isinstance(value,Signal) and hasattr(window,'published_signal_id') else None for value in signals]
         from .cas_transfer import can_send
@@ -222,10 +233,29 @@ class ResultView(QWidget):
             self.development.set_readable(steps_summary(steps))
         if numeric and self.details and self.views.currentIndex()==0:self.views.setCurrentIndex(1)
         self.canvas.draw_idle()
+    def displayed_signals(self):
+        signals=self.result if isinstance(self.result,tuple) else (self.result,)
+        if self.dft_axis.currentIndex()!=1 or not all(ops.is_centered_dft(signal) for signal in signals):
+            return signals
+        # Share the calculated coefficients. Only the view uses integer coordinates.
+        indexed=tuple(copy(signal) for signal in signals)
+        for signal in indexed:
+            signal.origin=-(signal.values.size//2)
+            signal.step=1
+            signal.domain='discrete'
+            signal.units='k'
+        return indexed
+
+    def update_dft_axis(self,*_):
+        if not self.dft_axis.isHidden():
+            self.table_view.set_signals(self.displayed_signals())
+            self.draw_signal()
+
     def draw_signal(self,*_):
         if self.result is None:return
-        signals=self.result if isinstance(self.result,tuple) else (self.result,)
-        if not isinstance(signals[0],Signal):return
+        result=self.result if isinstance(self.result,tuple) else (self.result,)
+        if not isinstance(result[0],Signal):return
+        signals=self.displayed_signals()
         self.figure.clear();polar=self.plot_mode.currentIndex()==0
         delay_view=polar and all(v.metadata.get('operation')=='frequency_filter' for v in signals)
         from .distributions import dirac_terms

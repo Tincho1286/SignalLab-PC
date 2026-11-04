@@ -82,7 +82,7 @@ add(('dsp_extensions','blocks'),'La convolución por bloques calcula la misma co
 'El tamaño de bloque organiza el cálculo; no cambia el sistema definido por h[n]. Se usa extensión por ceros, no repetición periódica de la señal completa.')
 add(('basic','dft'),'La DFT representa N muestras temporales mediante N coeficientes complejos de frecuencia. La FFT es una forma rápida de calcular esa misma transformada.',
 'Cargá las N muestras en orden temporal y calculá. La transformada directa usa la suma sin dividir por N.',
-'Los N coeficientes se ordenan por frecuencia angular dentro de −π ≤ ω < π, con separación 2π/N rad/muestra. El módulo muestra amplitudes espectrales y la fase conserva la referencia temporal indicada por la herramienta.',
+'Los N coeficientes se ordenan por frecuencia angular dentro de −π ≤ ω < π, con separación 2π/N rad/muestra. En el resultado podés cambiar el eje del gráfico y la tabla al índice entero k centrado. El módulo muestra amplitudes espectrales y la fase conserva la referencia temporal indicada por la herramienta.',
 'Los coeficientes no son una curva continua de frecuencia. Para recuperar las muestras usá la DFT inversa, que aplica el factor 1/N.')
 add(('basic','idft'),'La DFT inversa recupera una secuencia a partir de sus N coeficientes de frecuencia.',
 'Ingresá X[0],…,X[N−1] en ese orden o copiá una DFT anterior. Podés escribir coeficientes complejos, como 1+2*i.',
