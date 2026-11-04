@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.6.0](v1.6.0.md) | Gráficos junto a informes y mejoras matemáticas de la serie 1.5 | Estable |
 | [1.5.10-preview](v1.5.10-preview.md) | Respuestas de frecuencia, rango numérico y soporte de secuencias | Preliminar |
 | [1.5.9-preview](v1.5.9-preview.md) | expresiones compartidas, bordes y condiciones de sistemas en CAS | Preliminar |
 | [1.5.8-preview](v1.5.8-preview.md) | impulsos, pares de Fourier y Laplace | Preliminar |

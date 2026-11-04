@@ -1,6 +1,16 @@
 # Historial de cambios
 
-Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.4.2**.
+Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.0**.
+
+## 1.6.0 · estable
+
+- Acceso uniforme a las figuras desde la cabecera de resultados e informes en todas las herramientas.
+- Selección de figuras disponibles desde un único botón cuando hay varias vistas.
+- Fourier/DTFT algebraicas y medidas de energía/potencia con apertura de gráficos junto a sus informes.
+- Integración de las mejoras de transformadas, indeterminaciones, rango numérico y conservación de condiciones desarrolladas en la serie 1.5.
+- Portables para Windows x64 y Linux x86_64.
+
+[Notas de la entrega](docs/releases/v1.6.0.md)
 
 ## 1.5.10 · preliminar
 

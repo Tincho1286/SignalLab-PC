@@ -1,5 +1,5 @@
 """Ampliación temporal del lienzo, conservando figura, zoom y datos."""
-from PySide6.QtWidgets import QDialog,QVBoxLayout,QPushButton
+from PySide6.QtWidgets import QDialog,QVBoxLayout
 from .theme_tokens import COLORS as C
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 
@@ -23,8 +23,7 @@ def install_enlarge(toolbar):
     canvas=toolbar.canvas;parent=canvas.parentWidget();layout=parent.layout()
     if layout is None:return
     launcher=QWidget(parent);box=QVBoxLayout(launcher);box.setContentsMargins(0,4,0,4)
-    note=QLabel('Los gráficos se abren en una ventana independiente.');note.setWordWrap(True);box.addWidget(note)
-    button=QPushButton('Abrir gráfico');box.addWidget(button);box.addStretch()
+    note=QLabel('Usá «Abrir gráfico» en la cabecera de resultados. La figura se abre en una ventana independiente.');note.setWordWrap(True);box.addWidget(note);box.addStretch()
     launcher.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Preferred)
     item=layout.replaceWidget(canvas,launcher);del item
     toolbar_parent=toolbar.parentWidget()
@@ -53,7 +52,8 @@ def install_enlarge(toolbar):
     canvas.setMinimumSize(0,0);canvas.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
     available=parent.screen().availableGeometry();window.resize(min(1000,available.width()-32),min(700,available.height()-48));window.setMinimumSize(360,280)
     canvas._signallab_window=window;canvas._signallab_launcher=launcher
-    button.clicked.connect(lambda:enlarge_plot(canvas,toolbar))
+    from .plot_actions import bind_canvas
+    bind_canvas(canvas,parent)
     from .plot_probe import PlotProbe
     PlotProbe(canvas,toolbar,content)
     install_figure_layout(canvas)
@@ -67,6 +67,9 @@ def install_enlarge(toolbar):
         # figure must not reopen it. An empty placeholder is not a result.
         artists=[artist for axis in canvas.figure.axes for artist in [*axis.lines,*axis.collections,*axis.images,*axis.patches]
                  if artist is not axis.patch and not getattr(artist,'_signallab_probe',False)]
+        canvas._signallab_has_plot_result=bool(artists)
+        refresh=getattr(canvas,'_signallab_plot_action_refresh',None)
+        if refresh is not None:refresh()
         signature=tuple(id(artist) for artist in artists)
         if artists and signature!=last[0]:
             last[0]=signature

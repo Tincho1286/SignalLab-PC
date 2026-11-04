@@ -6,6 +6,7 @@ El mantenimiento de SignalLab PC prioriza la exactitud de los resultados y la co
 
 | Versión | Mejoras |
 | --- | --- |
+| [1.6.0](releases/v1.6.0.md) | Acceso uniforme a figuras e integración de las mejoras de fiabilidad de la serie 1.5. |
 | [1.5.10](releases/v1.5.10-preview.md) | Respuestas de frecuencia en polos y valores extremos; validación del soporte activo de las secuencias. |
 | [1.5.9](releases/v1.5.9-preview.md) | Expresiones elementales en ambos dominios, valores en bordes y condiciones de sistemas conservadas al trabajar con CAS e inversas. |
 | [1.5.8](releases/v1.5.8-preview.md) | Impulsos discretos, pares de Fourier y factores de escala de Dirac en Laplace. |

@@ -34,11 +34,14 @@ class ExpressionMeasuresPanel(QWidget):
         heading=QLabel('Ventana numérica');heading.setObjectName('cardTitle');form.addRow(heading)
         self.start=QLineEdit('-5');self.stop=QLineEdit('5');self.count=QLineEdit('501')
         form.addRow('Inicio de la ventana',self.start);form.addRow('Final de la ventana',self.stop);form.addRow('Puntos en continuo',self.count)
-        self.sample_button=QPushButton('Graficar y guardar muestras');self.sample_button.setEnabled(False);self.sample_button.clicked.connect(self.sample);form.addRow(self.sample_button)
+        self.sample_button=QPushButton('Graficar y guardar muestras');self.sample_button.setEnabled(False);self.sample_button.clicked.connect(self.sample);self.sample_button.setToolTip('Crear la ventana numérica indicada, guardar sus muestras y abrir la figura.')
         note=QLabel('La ventana genera una señal reutilizable. Su energía y promedio son locales: no reemplazan el análisis de todo el eje. En discreto se incluyen todos los índices de inicio a final.');note.setWordWrap(True);form.addRow(note)
-        save=QPushButton('Guardar informe…');save.clicked.connect(self.save);form.addRow(save)
+        self.save_report=QPushButton('Guardar informe…');self.save_report.clicked.connect(self.save)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(300);split.addWidget(scroll)
-        self.tabs=QTabWidget();split.addWidget(self.tabs);split.setSizes([350,740]);split.setStretchFactor(1,1)
+        results=QWidget();result_layout=QVBoxLayout(results);result_layout.setContentsMargins(0,0,0,0);result_layout.addWidget(self.save_report,0,Qt.AlignmentFlag.AlignRight)
+        self.tabs=QTabWidget();result_layout.addWidget(self.tabs,1);split.addWidget(results);split.setSizes([350,740]);split.setStretchFactor(1,1)
+        from .plot_actions import install_result_button
+        install_result_button(self.tabs,self.sample_button)
         self.report=ReportView();self.numeric_report=ReportView();self.output=ResultView(details=False);self.tabs.addTab(report_panel(self.report),'Algebraico');self.tabs.addTab(report_panel(self.numeric_report),'Ventana numérica');self.tabs.addTab(self.output,'Gráfico')
         self.report.setPlainText('Ingresá una expresión con t o n. Se conservan los valores exactos, sus condiciones y las aproximaciones disponibles. Los parámetros sin asignar permanecen simbólicos.')
         self.numeric_report.setPlainText('Después del cálculo algebraico podés crear una ventana de muestras y consultar sus medidas aquí.')
@@ -75,6 +78,14 @@ class ExpressionMeasuresPanel(QWidget):
             from .result_summary import expression_measure_summary
             self.report.set_readable(expression_measure_summary(request,result));self.tabs.setCurrentIndex(0)
         self.window._run_operation('Calculando medidas algebraicas…',lambda:run_request(request),accept)
+    def open_output_plot(self):
+        from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
+        from .plot_view import install_enlarge,enlarge_plot
+        canvas=self.output.canvas
+        if getattr(canvas,'_signallab_window',None) is None:
+            for toolbar in self.output.findChildren(NavigationToolbar2QT):
+                if toolbar.canvas is canvas:install_enlarge(toolbar);break
+        canvas.draw();enlarge_plot(canvas,self)
     def sample(self):
         if not self.last:return
         definition,result,parent=self.last
@@ -85,7 +96,7 @@ class ExpressionMeasuresPanel(QWidget):
                 report_id=self.window.publish({'request':request,'result':summary},title='Medidas de ventana · '+definition['expression'],operation='Aproximación de energía y potencia',parents=[parent])
                 signal=Signal([complex(*v) for v in data['samples']],data['origin'],data['step'],'s' if data['domain']=='continuous' else 'n',definition['expression'],data['domain'],definition['expression'],{'operation':'expression_measure_window','energy':data['energy'],'mean_square':data['mean_square'],'rms':data['rms'],'scope':data['scope'],'method':data['method']})
                 self.window.publish(signal,operation='Muestras de expresión analizada',parents=[report_id]);self.tabs.setCurrentIndex(2);self.output.show_result(signal)
-                self.numeric_report.setPlainText('Medidas de la ventana\n\nEnergía: '+str(data['energy'])+'\nPromedio cuadrático: '+str(data['mean_square'])+'\nRMS: '+str(data['rms'])+'\nMétodo: '+data['method']+'\n\n'+data['scope']);self.tabs.setCurrentIndex(2)
+                self.numeric_report.setPlainText('Medidas de la ventana\n\nEnergía: '+str(data['energy'])+'\nPromedio cuadrático: '+str(data['mean_square'])+'\nRMS: '+str(data['rms'])+'\nMétodo: '+data['method']+'\n\n'+data['scope']);self.tabs.setCurrentIndex(2);self.open_output_plot()
             self.window._run_operation('Evaluando ventana numérica…',lambda:run_request(request),accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá la ventana',str(exc))
     def save(self):

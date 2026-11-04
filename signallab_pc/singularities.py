@@ -77,8 +77,19 @@ def numeric_expression(source):
     return parse(ast.unparse(ast.fix_missing_locations(tree))),T
 
 
+def _numeric_kronecker(left,right,delta_range=None):
+    """Exact equality on arrays; SymPy's scalar ternary cannot sample a grid."""
+    values=np.equal(left,right)
+    if delta_range is not None:
+        lower,upper=delta_range
+        values=values & np.greater_equal(left,lower) & np.less_equal(left,upper)
+    return np.asarray(values,dtype=float)
+
+
 def sample_symbolic(expression,variable,coordinates):
-    function=sp.lambdify(variable,expression,modules=[{'sqrt':np.emath.sqrt,'log':np.emath.log},'scipy','numpy'])
+    # The built-in printer emits a scalar ternary even with a module override.
+    numeric=expression.xreplace({delta:sp.Function('_sample_delta')(*delta.args) for delta in expression.atoms(sp.KroneckerDelta)})
+    function=sp.lambdify(variable,numeric,modules=[{'sqrt':np.emath.sqrt,'log':np.emath.log,'_sample_delta':_numeric_kronecker},'scipy','numpy'])
     with np.errstate(all='ignore'):
         try:values=function(np.asarray(coordinates,dtype=float))
         except ZeroDivisionError:values=np.full(np.asarray(coordinates).shape,complex(np.nan,np.nan))

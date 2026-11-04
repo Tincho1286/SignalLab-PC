@@ -29,12 +29,14 @@ class SymbolicFourierPanel(QWidget):
         self.start=QLineEdit('-16' if discrete and inverse else '-3.141592653589793' if discrete else '-5');self.stop=QLineEdit('3.141592653589793' if discrete else '5');self.count=QLineEdit('33' if discrete and inverse else '501')
         for title,field in [('Primer índice n' if discrete and inverse else 'Inicio (rad/muestra)' if discrete else 'Inicio (s)' if inverse else 'Inicio (rad/s)',self.start),('Final (rad/muestra)' if discrete else 'Final (s)' if inverse else 'Final (rad/s)',self.stop),('Cantidad de muestras' if discrete and inverse else 'Cantidad de puntos',self.count)]:
             if not (discrete and inverse and field is self.stop):numeric_form.addRow(title,field)
-        self.sample_button=QPushButton('Graficar resultado');self.sample_button.setEnabled(False);self.sample_button.clicked.connect(self.sample);numeric_form.addRow(self.sample_button)
+        self.sample_button=QPushButton('Graficar resultado');self.sample_button.setEnabled(False);self.sample_button.clicked.connect(self.sample);self.sample_button.setToolTip('Evaluar el último resultado en el intervalo indicado y abrir su figura.')
         scope=QLabel('La expresión algebraica y sus muestras se conservan como objetos distintos, vinculados por su procedencia. Las distribuciones y las expresiones no resueltas no se convierten en muestras finitas.');scope.setWordWrap(True);numeric_form.addRow(scope)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);layout.setContentsMargins(0,0,0,0);root.addWidget(right,2)
         actions=QHBoxLayout();self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setEnabled(False);self.to_cas_button.clicked.connect(self.to_cas);actions.addWidget(self.to_cas_button);actions.addStretch();layout.addLayout(actions)
         self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.report.setReadOnly(True);self.tabs.addTab(report_panel(self.report),'Expresión y condiciones')
+        from .plot_actions import install_result_button
+        install_result_button(self.tabs,self.sample_button)
         self.report.setPlainText('Ingresá la expresión y calculá. Si el resultado admite valores numéricos, aparecerán los campos para graficarlo.')
         self.output=ResultView();self.tabs.addTab(self.output,'Registro numérico');self.tabs.setTabVisible(1,False)
         from .expression_grid_view import ExpressionGridView

@@ -132,11 +132,13 @@ class WorkflowContracts(unittest.TestCase):
         from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
         panel=SymbolicFourierPanel(self.host,discrete=True);self.widgets.append(panel)
         panel.expression.setText('sin(0.5*pi*(n-4))/(pi*(n-4))');panel.lower.setText('-oo');panel.upper.setText('oo');panel.calculate_button.click()
+        from PySide6.QtCore import Qt
+        self.assertIs(panel.tabs.cornerWidget(Qt.Corner.TopRightCorner),panel.sample_button)
         self.assertEqual(self.warnings,[]);self.assertTrue(panel.sample_button.isEnabled());panel.sample_button.click();self.app.processEvents()
         window=panel.output.canvas._signallab_window;self.widgets.append(window)
         self.assertTrue(window.isVisible());self.assertEqual(panel.output.views.currentIndex(),0);self.assertGreater(len(panel.output.figure.axes[0].lines),0)
         values=panel.output.result.values;self.assertAlmostEqual(abs(values[len(values)//2]),1);self.assertAlmostEqual(abs(values[0]),0)
-        window.hide();panel.sample_button.click();self.app.processEvents();self.assertTrue(window.isVisible());self.assertEqual(self.warnings,[])
+        window.hide();panel.tabs.setCurrentIndex(0);panel.sample_button.click();self.app.processEvents();self.assertTrue(window.isVisible());self.assertEqual(self.warnings,[])
 
     def test_dtft_result_reused_as_frequency_system(self):
         from signallab_pc.result_expressions import send_expression
@@ -269,5 +271,44 @@ class WorkflowContracts(unittest.TestCase):
         z=np.exp(1j*panel.frequency_data.omega);assert_allclose(panel.frequency_data.response,z*z/(z-.5),atol=2e-13)
         self.assertTrue(panel.expression_actions.isHidden());self.assertTrue(panel.result_tabs.isTabVisible(2));self.assertFalse(panel.roc_choice.isHidden())
 
+
+
+    def test_report_header_opens_and_selects_available_figures(self):
+        from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import QWidget,QVBoxLayout,QTabWidget
+        from matplotlib.figure import Figure
+        from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg,NavigationToolbar2QT
+        from signallab_pc.plot_view import install_enlarge
+        tabs=QTabWidget();self.widgets.append(tabs);canvases=[]
+        for label in ('Frecuencia','Polos y ceros'):
+            page=QWidget();box=QVBoxLayout(page);tabs.addTab(page,label)
+            canvas=FigureCanvasQTAgg(Figure());bar=NavigationToolbar2QT(canvas,page);box.addWidget(bar);box.addWidget(canvas)
+            install_enlarge(bar);canvases.append(canvas);self.widgets.append(canvas._signallab_window)
+        report=QWidget();tabs.addTab(report,'Informe');tabs.resize(820,480);tabs.show();self.app.processEvents()
+        launcher=tabs.cornerWidget(Qt.Corner.TopRightCorner);self.assertIsNotNone(launcher);self.assertFalse(launcher.isEnabled())
+        for canvas in canvases:canvas.figure.add_subplot(111).plot([0,1],[0,1]);canvas.draw()
+        self.app.processEvents()
+        for canvas in canvases:canvas._signallab_window.hide()
+        tabs.setCurrentWidget(report);self.app.processEvents();self.assertTrue(launcher.isVisible());launcher.click();self.app.processEvents()
+        self.assertTrue(canvases[0]._signallab_window.isVisible());canvases[0]._signallab_window.hide()
+        launcher.rebuild();self.assertEqual([a.text() for a in launcher.menu.actions()],['Frecuencia','Polos y ceros'])
+        launcher.menu.actions()[1].trigger();self.app.processEvents();self.assertTrue(canvases[1]._signallab_window.isVisible())
+        tabs.setTabVisible(1,False);launcher.rebuild();self.assertEqual(len(launcher.menu.actions()),1)
+        tabs.setTabEnabled(0,False);launcher.refresh();self.assertFalse(launcher.isEnabled());self.assertEqual(launcher.available(),[])
+        self.assertEqual(self.warnings,[])
+
+    def test_measures_plot_action_stays_with_report(self):
+        from PySide6.QtCore import Qt
+        from signallab_pc.expression_measures_panel import ExpressionMeasuresPanel
+        panel=ExpressionMeasuresPanel(self.host,'interval');self.widgets.append(panel);panel.resize(1040,620);panel.show()
+        from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
+        from signallab_pc.plot_view import install_enlarge
+        for toolbar in panel.findChildren(NavigationToolbar2QT):install_enlarge(toolbar)
+        self.assertIs(panel.tabs.cornerWidget(Qt.Corner.TopRightCorner),panel.sample_button);self.assertFalse(panel.sample_button.isEnabled())
+        panel.domain.setCurrentIndex(1);panel.expression.setText('Impulse(n)');panel.lower.setText('-2');panel.upper.setText('2');panel.start.setText('-2');panel.stop.setText('2');panel.calculate_button.click()
+        self.assertEqual(self.warnings,[]);self.assertTrue(panel.sample_button.isEnabled());self.app.processEvents();self.assertTrue(panel.sample_button.isVisible())
+        panel.sample_button.click();self.app.processEvents();self.assertEqual(self.warnings,[]);window=panel.output.canvas._signallab_window;self.widgets.append(window);self.assertTrue(window.isVisible())
+        assert_allclose(panel.output.result.values,[0,0,1,0,0]);self.assertAlmostEqual(panel.output.result.metadata['energy'],1)
+        window.hide();panel.tabs.setCurrentIndex(0);panel.sample_button.click();self.app.processEvents();self.assertTrue(window.isVisible());self.assertEqual(self.warnings,[])
 
 if __name__=='__main__':unittest.main()
