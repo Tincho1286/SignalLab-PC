@@ -1,6 +1,6 @@
 # Historial de cambios
 
-Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.9**.
+Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.10**.
 
 ## 1.6.10 · Hotfix
 
