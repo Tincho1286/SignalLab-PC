@@ -17,7 +17,32 @@ def substitute(value, pairs):
         if len(result)!=len(value):
             raise ValueError('La sustitución hace coincidir claves distintas.')
         return result
+    if not pairs or not hasattr(value,'subs'):return value
+    if isinstance(value,sp.MatrixBase):return value.applyfunc(lambda entry:substitute(entry,pairs))
+    introduced={symbol for _,replacement in pairs for symbol in replacement.free_symbols}
+    if introduced and any(introduced.intersection(getattr(node,'bound_symbols',())) for node in sp.preorder_traversal(value)):
+        value=value.as_dummy()
+        canonical={s for s in value.atoms(sp.Symbol) if s.name.startswith('_') and s.name[1:].isdigit()}
+        value=value.xreplace({s:sp.Dummy('bound') for s in canonical})
     return value.subs(pairs, simultaneous=True)
+
+
+def function_domain(command, args):
+    if not args or not isinstance(args[0],sp.Expr):return sp.true
+    value=bare(args[0])
+    if command=='tan':return sp.Ne(sp.cos(value),0)
+    if command=='tanh':return sp.Ne(sp.cosh(value),0)
+    if command in {'log','ln'}:
+        if len(args)==2 and isinstance(args[1],sp.Expr):
+            base=bare(args[1]);return sp.And(sp.Ne(value,0),sp.Ne(base,0),sp.Ne(base,1))
+        return sp.Ne(value,0)
+    if command=='atan':return sp.Ne(value**2+1,0)
+    if command=='atanh':return sp.Ne(value**2-1,0)
+    if command in {'gamma','factorial'}:
+        pole=sp.And(sp.Eq(sp.im(value),0),sp.Eq(sp.re(value),sp.floor(sp.re(value))),
+                    sp.re(value)<=(0 if command=='gamma' else -1))
+        return sp.Not(pole)
+    return sp.true
 
 
 def with_domain(result, variables, condition):
@@ -81,19 +106,27 @@ def solve_scalar(expression, variable, domain):
     return sp.Union(*solutions)
 
 
-def intrinsic_system_domain(value, condition):
-    if not isinstance(value,sp.Expr) or len(value.free_symbols)!=1:
-        return False
-    variable=bare(next(iter(value.free_symbols)))
+def intrinsic_system_domain(value, condition, *, analysis=False):
+    if not isinstance(value,sp.Expr):return False
+    symbols=bare(value).free_symbols | condition.free_symbols
+    if len(symbols)!=1:return False
+    variable=next(iter(symbols))
     if variable.name not in {'s','z'}:
         return False
     restrictions=sp.And.make_args(condition)
     if not all(isinstance(term,sp.Unequality) and term.free_symbols=={variable} for term in restrictions):
         return False
     try:
-        denominator=sp.Poly(sp.cancel(bare(value)).as_numer_denom()[1],variable)
-        return all(denominator.rem(sp.Poly(term.lhs-term.rhs,variable).sqf_part()).is_zero
-                   for term in restrictions)
+        denominator=sp.cancel(bare(value)).as_numer_denom()[1]
+        # The origin is outside the unit circle. A Laurent spelling can
+        # exclude it while the rational continuation has a value there.
+        if analysis and variable.name=='z':denominator*=variable
+        poles=sp.Poly(denominator,variable,domain='EX')
+        for term in restrictions:
+            num,den=sp.cancel(term.lhs-term.rhs).as_numer_denom()
+            excluded=sp.Poly(num*den,variable,domain='EX').sqf_part()
+            if excluded.is_zero or not poles.rem(excluded).is_zero:return False
+        return True
     except sp.PolynomialError:
         return False
 

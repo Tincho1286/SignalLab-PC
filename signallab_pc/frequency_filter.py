@@ -12,7 +12,10 @@ from .resources import ensure_working_set
 def analyze(response,domain,start,count,step,source=None):
     from .distributions import regular_only
 
+    from .signal_semantics import require_frequency_response,require_temporal
+    require_frequency_response(response)
     regular_only(response,'El filtro definido por valores de H(ω)')
+    if source is not None:require_temporal(source)
     if response.domain!='frequency' or response.step<=0 or response.values.size<2:
         raise ValueError('H requiere al menos dos frecuencias crecientes con paso uniforme.')
     digital = domain=='discrete'

@@ -37,10 +37,13 @@ class Trace:
         full=getattr(self.artist,'_signallab_probe_source',None)
         if full is not None:
             source,component=full
-            index=min(max(int(np.floor((x-source.origin)/source.step+.5)),0),source.values.size-1)
-            coordinate=source.origin+index*source.step;value=source.values[index]
+            base=getattr(self.axis,'_signallab_index_origin',0)
+            local_origin=source.origin-base
+            index=min(max(int(np.floor((x-local_origin)/source.step+.5)),0),source.values.size-1)
+            coordinate=source.origin+index if source.domain=='discrete' else source.origin+index*source.step
+            value=source.values[index]
             value=value.real if component=='real' else value.imag if component=='imag' else abs(value) if component=='magnitude' else 10*np.log10(value.real) if component=='density_db' and value.real>0 else np.nan if component=='density_db' else np.angle(value) if value else np.nan
-            return float(coordinate),float(value)
+            return coordinate,float(value)
         if not self.valid.size:return None
         if self.spatial:
             # Scatter and complex-plane loops require a 2-D screen distance.
@@ -55,7 +58,9 @@ class Trace:
         else:
             where=int(np.searchsorted(self.sorted_x,x));candidates=[i for i in (where-1,where) if 0<=i<len(self.valid)]
             index=self.valid[min(candidates,key=lambda i:abs(self.sorted_x[i]-x))]
-        return float(self.x[index]),float(self.y[index])
+        base=getattr(self.axis,'_signallab_index_origin',None)
+        coordinate=float(self.x[index]) if base is None else base+int(round(self.x[index]))
+        return coordinate,float(self.y[index])
 
 
 class PlanePointer:

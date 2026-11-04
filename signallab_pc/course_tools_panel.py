@@ -208,7 +208,7 @@ class CourseToolsPanel(QWidget):
         self.bandpass_result=None
         if hasattr(self,'copy_system_button'):
             from .system_import import install_system_import
-            self.system_import=install_system_import(self.copy_system_button,window,self.set_system,self.choose_system,domains=['digital'] if action in ('phase','inverse_z') else None,allow_advance=action in ('gain','inverse_z'))
+            self.system_import=install_system_import(self.copy_system_button,window,self.set_system,self.choose_system,domains=['digital'] if action in ('phase','inverse_z') else None,allow_advance=action in ('gain','inverse_z','convert'))
         if action=='bandpass_sampling':
             self.export_bands_button=QPushButton('Exportar intervalos CSV…');self.export_bands_button.setEnabled(False);self.export_bands_button.hide();self.export_bands_button.clicked.connect(self.export_sampling_bands);out.addWidget(self.export_bands_button)
             self.use_rate_button=QPushButton('Usar tasa en Muestrear una expresión');self.use_rate_button.setEnabled(False);self.use_rate_button.hide();self.use_rate_button.clicked.connect(self.use_sampling_rate);out.addWidget(self.use_rate_button)
@@ -263,7 +263,7 @@ class CourseToolsPanel(QWidget):
             reconstructing=action=='phase' and self.fields['phase_mode'].currentData()=='reconstruct'
             if hasattr(self,'b') and not ideal_conversion and not reconstructing:
                 from .transfer_input import read_system
-                system=read_system(self,allow_advance=action in ('inverse_z','gain'))
+                system=read_system(self,allow_advance=action in ('inverse_z','gain','convert'))
                 parents=[self.window.publish(system,operation='Definición local de '+TITLES[action],parents=[self.parent_id] if self.parent_id else [])]
             if action=='fft':
                 args=(source,self.integer('length') or source.values.size,self.integer('nfft'),self.fields['window'].currentData(),self.scalar('beta') if self.fields['window'].currentData()=='kaiser' else 0,self.integer('points'));job=lambda:calc.window_fft(*args)

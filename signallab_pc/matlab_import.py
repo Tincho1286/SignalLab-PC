@@ -24,11 +24,15 @@ def expression(text,variables):
             if len(cells)==1:
                 # Space-separated literals and variable names; compound cells use commas.
                 if re.fullmatch(r'[\w.+\-\s]+',row):cells=row.split()
-            values=[np.atleast_1d(expression(c,variables)).reshape(-1) for c in cells if c]
-            if values:rows.append(np.concatenate(values))
+            values=[np.atleast_2d(expression(c,variables)) for c in cells if c]
+            if values:
+                if len({a.shape[0] for a in values})!=1:raise ValueError('La concatenación horizontal requiere la misma cantidad de filas.')
+                ensure_working_set(sum(a.size for a in values),live_arrays=6)
+                rows.append(np.concatenate(values,axis=1))
         if not rows:return np.empty((1,0))
-        if len({len(r) for r in rows})!=1:raise ValueError('Las filas de una matriz deben tener igual longitud.')
-        return np.vstack(rows)
+        if len({r.shape[1] for r in rows})!=1:raise ValueError('La concatenación vertical requiere la misma cantidad de columnas.')
+        ensure_working_set(sum(a.size for a in rows),live_arrays=6)
+        return np.concatenate(rows,axis=0)
     colon=split_top(text,':')
     if len(colon)>1:
         if len(colon) not in (2,3):raise ValueError('Rango no válido.')
@@ -38,8 +42,15 @@ def expression(text,variables):
         count=max(0,math.floor((stop-start)/step+1e-10)+1);ensure_working_set(count,live_arrays=6)
         return (start+step*np.arange(count)).reshape(1,-1)
     text=re.sub(r'(?<=[0-9.])([ij])\b',r'*\1',text)
-    scalar_power=bool(re.search(r'(?<!\.)\^',text))
-    text=text.replace('.*','@').replace('./','//').replace('.^','**').replace('^','**')
+    operators={'.*':'@','./':'//','.^':'**','^':'**'}
+    chunks=[];powers={};position=0;cursor=0
+    for operator in re.finditer(r'\.\*|\./|\.\^|\^',text):
+        prefix=text[cursor:operator.start()];token=operator[0]
+        chunks.extend((prefix,operators[token]));position+=len(prefix.encode('utf-8'))
+        if token in ('^','.^'):powers[position]=token
+        position+=len(operators[token]);cursor=operator.end()
+    text=''.join((*chunks,text[cursor:]))
+    offsets=[0,*[match.end() for match in re.finditer(rb'\n',text.encode('utf-8'))]]
     tree=ast.parse(text,mode='eval')
     def run(node):
         if isinstance(node,ast.Constant) and isinstance(node.value,(int,float,complex)):return node.value
@@ -61,9 +72,16 @@ def expression(text,variables):
                 if np.size(b)>1:raise ValueError('Para división elemento a elemento usá ./ .')
                 return a/b
             if isinstance(node.op,ast.FloorDiv):return a/b
-            if isinstance(node.op,(ast.Pow,ast.BitXor)):
-                if scalar_power and np.size(a)>1:raise ValueError('La potencia matricial ^ no se importa; separá las potencias escalares y usá .^ para vectores.')
-                return np.power(np.asarray(a,dtype=complex if np.iscomplexobj(a) else float),b)
+            if isinstance(node.op,ast.Pow):
+                left=offsets[node.left.end_lineno-1]+node.left.end_col_offset
+                right=offsets[node.right.lineno-1]+node.right.col_offset
+                operator=next(token for pos,token in powers.items() if left<=pos<right)
+                if operator=='^' and (np.size(a)>1 or np.size(b)>1):
+                    raise ValueError('La potencia matricial ^ no se importa. Usá .^ para potencias elemento a elemento.')
+                base=np.asarray(a,dtype=complex if np.iscomplexobj(a) else float)
+                if not np.iscomplexobj(base) and np.any(base<0) and (np.iscomplexobj(b) or np.any(np.asarray(b)!=np.trunc(b))):
+                    base=base.astype(complex)
+                return np.power(base,b)
         if isinstance(node,ast.Compare) and len(node.ops)==1:
             a,b=run(node.left),run(node.comparators[0]);op=node.ops[0]
             for cls,fn in [(ast.Lt,np.less),(ast.LtE,np.less_equal),(ast.Gt,np.greater),(ast.GtE,np.greater_equal),(ast.Eq,np.equal),(ast.NotEq,np.not_equal)]:
@@ -173,9 +191,8 @@ def make_signal(data,name,column,domain,axis_name=None,origin=0,step=1,units=Non
         else:
             origin=float(axis[0])
             if len(axis)>1:
-                step=float((axis[-1]-axis[0])/(len(axis)-1))
-                if step<=0 or not np.allclose(axis,origin+step*np.arange(len(axis)),rtol=0,atol=max(abs(step)*1e-7,np.finfo(float).eps*np.max(abs(axis))*8)):
-                    raise ValueError('El eje no es uniforme y creciente. No se remuestrea ni se descartan coordenadas.')
+                from .uniform_axis import uniform_step
+                step=uniform_step(axis)
     if domain=='discrete' and step!=1:raise ValueError('Una secuencia requiere paso exactamente 1. Para tiempos en segundos elegí señal continua muestreada.')
     if not np.isfinite(step) or step<=0:raise ValueError('El paso debe ser positivo y finito.')
     return Signal(values,origin,step,units or {'discrete':'n','continuous':'s','frequency':'rad/s'}[domain],name,domain,metadata={'source_format':'MATLAB','source_file':data.path.name,'source_variable':name,'column':column+1,'axis_variable':axis_name})

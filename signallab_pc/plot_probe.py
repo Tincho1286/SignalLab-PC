@@ -9,7 +9,9 @@ from .probe_data import collect,readings
 from .theme_tokens import COLORS as C
 
 
-def number(value):return 'No definido' if not np.isfinite(value) else format(value,'.10g')
+def number(value):
+    if isinstance(value,(int,np.integer)):return str(value)
+    return 'No definido' if not np.isfinite(value) else format(value,'.10g')
 
 
 class ProbeArtist(Artist):
@@ -125,7 +127,7 @@ class PlotProbe:
             values=[name,*(list(first) if first else [None,None]),*(list(second) if second else [None,None]),second[0]-first[0] if first and second else None,second[1]-first[1] if first and second else None]
             for column,value in enumerate(values):
                 text=value if column==0 else '—' if value is None else number(value)
-                item=QTableWidgetItem(text);item.setToolTip(str(value) if column==0 else 'Sin punto compatible' if value is None else format(value,'.17g'));self.table.setItem(row,column,item)
+                item=QTableWidgetItem(text);item.setToolTip(str(value) if column==0 else 'Sin punto compatible' if value is None else str(value) if isinstance(value,(int,np.integer)) else format(value,'.17g'));self.table.setItem(row,column,item)
         self.hint.setText('A sigue al mouse · clic para fijarlo.' if self.a is None else 'A fijo · B sigue al mouse · clic para fijar B.' if self.b is None else 'A y B fijos · Seguir libera los cursores; clic empieza otro intervalo.')
         if self.active_axis is not None:
             label=self.active_axis.get_xlabel() or next((axis.get_xlabel() for axis in self.active_axis.get_shared_x_axes().get_siblings(self.active_axis) if axis.get_xlabel()),'')
@@ -144,6 +146,7 @@ class PlotProbe:
                     point=points.get(trace.key)
                     if point is None:continue
                     x,y=point
+                    x-=getattr(trace.axis,'_signallab_index_origin',0)
                     if trace.axis not in guided:
                         guide=self.guides[trace.axis][slot];guide.set_xdata([x,x]);guide.set_visible(True);guided.add(trace.axis)
                     marker=self.markers[trace.key][slot];marker.set_data([x],[y]);is_live=self.a is None if slot==0 else self.b is None

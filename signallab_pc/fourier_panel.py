@@ -60,7 +60,7 @@ class FourierPanel(QWidget):
         self._button(form, "Serie discreta: registro = un periodo", self.discrete_series)
         self._button(form, "Reconstruir serie discreta cargada", self.discrete_synthesis)
         self._section(form, "PSD / periodograma")
-        self.rate = self._field(form, "Fs (Hz)", "100")
+        self.rate = self._field(form, "Fs para señales sin reloj (Hz)", "100")
         self.estimator = QComboBox(); self.estimator.addItems(["Welch calibrado", "Un segmento calibrado", "Periodograma sin calibración: |DFT|²/N"])
         form.addRow("Estimador", self.estimator)
         self.segment = self._field(form, "Muestras por segmento Welch", "256")
@@ -167,7 +167,9 @@ class FourierPanel(QWidget):
         source = self._source(); self._job(lambda: fourier.energy_density(source))
 
     def psd(self):
-        source, rate = self._source(), real_field(self.rate)
+        source = self._source()
+        rate=source.metadata.get('sample_rate_hz')
+        if rate is None:rate=real_field(self.rate)
         method=["welch", "periodogram", "legacy"][self.estimator.currentIndex()]
         window=["boxcar", "hann", "hamming", "blackman", "kaiser"][self.window.currentIndex()]
         kwargs=dict(method=method,window=window,beta=real_field(self.beta) if window=='kaiser' else 0.,

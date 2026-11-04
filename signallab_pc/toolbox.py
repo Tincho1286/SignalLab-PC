@@ -39,15 +39,22 @@ from .signal_plot import plot_samples
 from .signal_plot import configure_signal_axis, is_discrete_plot, validate_overlay
 
 def signal_destinations(value,items):
-    from .fourier import is_power_spectrum
-    if is_power_spectrum(value) or (value.domain=='frequency' and value.metadata.get('distribution')):
-        items=[item for item in items if item[1:3] not in (('inverse_dtft',0),('fourier',3))]
+    kind=value.data_kind
+    if kind=='harmonics':
+        operation=value.metadata.get('operation')
+        keys={('fourier',5)} if operation=='discrete_fourier_series' else {('fourier',4),('course_tools','lines')}
+        return [item for item in items if item[1:3] in keys]
+    if kind=='dft_bins':return [item for item in items if item[1:3]==('basic','idft')]
+    if kind in {'density','spectral_lines'}:
+        items=[item for item in items if item[1:3] not in (('inverse_dtft',0),('fourier',3),('fourier',6),('course_tools','band'))]
+    if value.domain=='frequency' and kind not in {'frequency_response','frequency_values'}:
+        items=[item for item in items if item[1]!='frequency_filter']
     return [item for item in items if (item[1:3]==('basic','idft') and ops.is_centered_dft(value)) or (item[1:3]==('transform_lab','z') and value.domain=='discrete') or (item[1]=='basic' and item[2] in ('generate','measures') and value.domain in {'continuous','discrete'}) or (item[1]=='dsp_extensions' and item[2] in ('hilbert','stft') and value.domain in {'continuous','discrete'}) or (item[1]=='frequency_filter' and value.domain in {'discrete','continuous','frequency'} and (value.domain!='frequency' or value.units in {'rad/s','rad/muestra'})) or item[3] in ({'discrete','pair'} if value.domain=='discrete' else {'continuous','continuous_pair'} if value.domain=='continuous' else set()) or (item[1]=='systems' and item[2]==9 and value.domain in {'discrete','continuous'}) or (item[1]=='course_tools' and item[2]=='band' and value.domain=='frequency' and value.units in {'rad/s','rad/muestra'}) or (item[1]=='correlation' and value.domain==('continuous' if item[2] else 'discrete')) or (item[1]=='signal_editor' and value.domain in {'discrete','continuous'}) or (item[1]=='rational_resampling' and value.domain=='discrete') or (item[1:3]==('sampling',5) and value.domain=='discrete') or (item[1:3]==('fourier',6) and value.domain in {'discrete','continuous','frequency'}) or (item[1]=='fourier' and item[2] in (3,6) and value.domain=='frequency' and (item[2]!=3 or value.units=='rad/s')) or (item[1]=='inverse_dtft' and value.domain=='frequency' and value.units=='rad/muestra') or ((item[1]=='signal_product' or item[1:3]==('basic','sum')) and value.domain in {'discrete','continuous'}) or (item[1:3]==('state_space','simulation') and value.domain in {'discrete','continuous'})]
 
 def system_destinations(value,items):
     keys={('system_analysis',0),('interconnection',0),('systems',9),('systems',6),('course_tools','convert'),('course_tools','gain')}
     if value.domain=='digital':keys|={('course_tools','phase'),('course_tools','inverse_z'),('sampling',5),('random_model','model')}
-    if value.advance:keys={('system_analysis',0),('systems',6),('course_tools','inverse_z'),('course_tools','gain'),('interconnection',0)}
+    if value.advance:keys={('system_analysis',0),('systems',6),('course_tools','inverse_z'),('course_tools','gain'),('course_tools','convert'),('interconnection',0)}
     return [item for item in items if item[1:3] in keys]
 
 
@@ -85,7 +92,17 @@ class LocalInput(QGroupBox):
             if hasattr(self,'recent'):form.setRowVisible(self.recent,index==2 and self.entry_modes.view==3);form.setRowVisible(self.browse_results,index==2 and self.entry_modes.view==3)
         self.entry_modes.viewChanged.connect(lambda:update(self.mode.currentIndex()))
         self.mode.currentIndexChanged.connect(update);self.mode.setCurrentIndex(2 if kind=='import' else 0);update(self.mode.currentIndex())
+    def data_kinds(self):
+        role=getattr(self,'role',None)
+        if role=='frequency_response':return {'frequency_response','frequency_values'}
+        if role=='series_coefficients':return {'harmonics','temporal'}
+        if getattr(self,'dft_input',False):return {'temporal','dft_bins','spectrum'}
+        if self.kind in ('continuous','discrete'):return {'temporal'}
+        return None
+
     def set_role(self,role):
+        self.role=role
+        if hasattr(self,'recent'):self.refresh_recent()
         if self.kind!='discrete':return
         coefficients=role=='series_coefficients'
         self.layout().labelForField(self.expression).setText('c[k]' if coefficients else 'x[n]')
@@ -98,7 +115,16 @@ class LocalInput(QGroupBox):
             value=load_signal(self,self.kind)
             if value is not None:self.set_source(value)
         except Exception as exc:QMessageBox.warning(self,'No se pudo importar',str(exc))
+    def validate_data_kind(self,source):
+        allowed=self.data_kinds()
+        if allowed is not None and source.data_kind not in allowed:
+            from .signal_semantics import require_frequency_response,require_temporal
+            if getattr(self,'role',None)=='frequency_response':require_frequency_response(source)
+            if allowed=={'temporal'}:require_temporal(source)
+            raise ValueError('Los datos cargados no corresponden a esta operación.')
+
     def set_source(self,source,reference_id=None):
+        self.validate_data_kind(source)
         accepts_centered = getattr(self, 'dft_input', False) and ops.is_centered_dft(source)
         if self.kind in ('continuous','discrete','frequency') and source.domain!=self.kind and not accepts_centered:
             raise ValueError('Esta entrada requiere '+('un espectro.' if self.kind=='frequency' else 'una señal continua.' if self.kind=='continuous' else 'una secuencia discreta.'))
@@ -120,6 +146,7 @@ class LocalInput(QGroupBox):
             info=self.project_window.project.describe(record['id'])
             accepts_centered = getattr(self, 'dft_input', False) and info.get('centered_dft', False)
             if self.kind in ('continuous','discrete','frequency') and info['domain']!=self.kind and not accepts_centered:continue
+            if self.data_kinds() is not None and info.get('data_kind') not in self.data_kinds():continue
             self.recent.addItem(f"{record['title']} · {info['count']:,} muestras",record['id'])
             self.recent.setItemData(self.recent.count()-1,record['operation'],Qt.ItemDataRole.ToolTipRole)
             if self.recent.count()>20:break
@@ -130,9 +157,9 @@ class LocalInput(QGroupBox):
 
     def choose_project(self):
         if getattr(self, 'dft_input', False):
-            key=self.project_window.choose_record('signal',domains=['discrete','frequency'],dft_input=True)
+            key=self.project_window.choose_record('signal',domains=['discrete','frequency'],dft_input=True,data_kinds=self.data_kinds())
         else:
-            key=self.project_window.choose_record('signal',domains=[self.kind] if self.kind in ('continuous','discrete','frequency') else None)
+            key=self.project_window.choose_record('signal',domains=[self.kind] if self.kind in ('continuous','discrete','frequency') else None,data_kinds=self.data_kinds())
         if key:self.set_source(self.project_window.project.get(key),key)
     def read(self):
         value=self._read()
@@ -155,6 +182,7 @@ class LocalInput(QGroupBox):
         mode=self.mode.currentIndex()
         if mode==2:
             if self.loaded is None:raise ValueError('Abrí los datos de entrada dentro de esta herramienta.')
+            self.validate_data_kind(self.loaded)
             return self.loaded
         if self.kind in ('continuous','frequency'):
             origin=real_field(self.origin);step=real_field(self.step)
@@ -551,7 +579,7 @@ class ToolPage(QWidget):
                     rc_note.setText('Calculá el componente faltante para una etapa RC. fc = 1 / (2πRC). Capacitancia en faradios; 1 µF = 0,000001 F.' if solve else 'Definí resistencia y capacitancia. Varias etapas representan la cascada ideal sin carga entre ellas. Capacitancia en faradios; 1 µF = 0,000001 F.')
                 rc_mode.currentIndexChanged.connect(update_rc_fields);self.panel.known.currentIndexChanged.connect(update_rc_fields);update_rc_fields()
         if kind=='fourier' and index in (4,5):
-            operation=QComboBox();operation.addItems(['Obtener coeficientes de una señal','Reconstruir desde coeficientes']);form.insertRow(0,'Operación',operation)
+            operation=QComboBox();self.series_operation=operation;operation.addItems(['Obtener coeficientes de una señal','Reconstruir desde coeficientes']);form.insertRow(0,'Operación',operation)
             series_buttons=self.panel.findChildren(QPushButton)
             def series_mode(mode):
                 synthesis=mode==1
@@ -732,6 +760,8 @@ class ToolPage(QWidget):
     def reuse(self,source):
         result=self.context.result
         if result is None:QMessageBox.information(self,'Sin resultado','Calculá un resultado en esta herramienta o abrí un archivo de entrada.');return
+        if result.data_kind=='harmonics' and hasattr(self,'series_operation'):
+            self.series_operation.setCurrentIndex(1)
         source.set_source(result)
     def build_basic(self,window,root,operation,input_kind):
         body=QWidget();layout=QHBoxLayout(body);controls=QWidget();box=QVBoxLayout(controls);layout.addWidget(controls,1)
@@ -941,6 +971,9 @@ class ToolboxWindow(SignalLabWindow):
         return entry[1] if entry and entry[0]() is value else None
     def send_signal(self,value,key,item):
         self.open_tool(item)
+        if value.data_kind=='harmonics' and item[1:3] in (('fourier',4),('fourier',5)):
+            page=self.stack.currentWidget();page.series_operation.setCurrentIndex(1)
+            page.context.source.set_source(value,key);return
         if item[1:3] in (('transform_lab','z'),('symbolic',2)):
             if value.domain!='discrete':raise ValueError('La Z finita requiere una secuencia discreta.')
             panel=self.stack.currentWidget().panel;panel.use_finite_input()

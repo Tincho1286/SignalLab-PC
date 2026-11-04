@@ -13,6 +13,19 @@ def plot_samples(axis,x,y,*,discrete=False,label=None,color=None,phase=False,sou
             from .probe_data import attach_signal
             attach_signal(artists,source,component)
         return artists
+    base=getattr(axis,'_signallab_index_origin',None)
+    if base is None and x.dtype.kind in 'iu' and max(abs(int(x.min())),abs(int(x.max())))>=2**53:
+        from matplotlib.container import StemContainer
+        siblings=axis.get_shared_x_axes().get_siblings(axis)
+        if any(isinstance(item,StemContainer) for sibling in siblings for item in sibling.containers):
+            raise ValueError('Separá las señales con orígenes muy distantes para distinguir cada índice en el gráfico.')
+        base=int(x[0])
+        for sibling in siblings:sibling._signallab_index_origin=base
+    if base is not None:
+        indices=[int(index)-base for index in x]
+        if any(abs(index)>=2**53 for index in indices):
+            raise ValueError('El rango conjunto del gráfico no permite distinguir todos los índices.')
+        x=np.asarray(indices,dtype=float)
     color=color or axis._get_lines.get_next_color()
     result=axis.stem(x,y,linefmt=color,markerfmt='o',basefmt=' ',label=label)
     result.markerline.set_color(color);result.markerline.set_markersize(3)
@@ -63,7 +76,8 @@ def _sample_coordinate(axis,symbol):
                 if not label or label.startswith('_'):label=axis.get_ylabel() or 'valor'
                 value=values[hit[0]]
                 parts.append(f'{label} = {value:.7g}' if np.isfinite(value) else f'{label}: no definido')
-        return f'{symbol} = {index}'+(' · '+'; '.join(parts) if parts else ' · sin muestra dibujada en este índice')
+        physical=index+getattr(axis,'_signallab_index_origin',0)
+        return f'{symbol} = {physical}'+(' · '+'; '.join(parts) if parts else ' · sin muestra dibujada en este índice')
     return describe
 
 
@@ -92,7 +106,9 @@ def configure_axis(axis, *, discrete_index=False, units='', label=None, index_sy
         if discrete_index:
             axis.xaxis.set_major_locator(IndexLocator())
             axis.xaxis.set_minor_locator(SampleMarkLocator())
-            axis.xaxis.set_major_formatter(ScalarFormatter(useOffset=False))
+            base=getattr(axis,'_signallab_index_origin',None)
+            formatter=ScalarFormatter(useOffset=False) if base is None else FuncFormatter(lambda tick,_:str(base+int(round(tick))))
+            axis.xaxis.set_major_formatter(formatter)
         elif units=='rad/muestra':
             axis.xaxis.set_major_locator(AngularLocator())
             axis.xaxis.set_major_formatter(FuncFormatter(_pi_label))

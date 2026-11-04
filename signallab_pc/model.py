@@ -48,6 +48,11 @@ class Signal:
             self.origin = integer_origin
 
     @property
+    def data_kind(self):
+        from .signal_semantics import signal_kind
+        return signal_kind(self.domain,self.units,self.metadata)
+
+    @property
     def axis(self) -> np.ndarray:
         if self.domain == "discrete":
             return np.arange(self.values.size, dtype=np.int64) + self.origin

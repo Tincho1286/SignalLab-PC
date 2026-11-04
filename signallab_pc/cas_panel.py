@@ -123,7 +123,7 @@ class CasWorksheet(QWidget):
             if 'error' in answer:entry.update(status='error',error=answer['error'])
             else:
                 self.state=answer.pop('state');entry.update(status='done',answer=answer);self.selected=cell
-                saved={name:answer[name] for name in ('text','presentation','notices','expression','symbols','assumptions','calculation_notes','provenance','frequency_units','frequency_condition','coordinate_variable','origin_conditions','context_rewrite','system_context','domain_condition','domain_symbols','domain_condition_implicit') if name in answer}
+                saved={name:answer[name] for name in ('text','presentation','notices','expression','symbols','assumptions','calculation_notes','provenance','frequency_units','frequency_condition','coordinate_variable','origin_conditions','context_rewrite','system_context','domain_condition','domain_symbols','domain_condition_implicit','domain_condition_analysis') if name in answer}
                 saved['encoded_value']=self.state['results'][str(cell)]
                 entry['result_id']=self.window.publish({'cas_answer':saved,'source':source},title='CAS · '+source,operation='Resultado CAS',parents=parents)
                 self.variables.clear()

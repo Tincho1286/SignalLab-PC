@@ -41,10 +41,12 @@ def source_info(project, key, kind):
     return info
 
 
-def compatible(info, *, domains=None, variables=None, units=None, allow_advance=True, dft_input=False):
+def compatible(info, *, domains=None, variables=None, units=None, allow_advance=True, dft_input=False, data_kinds=None):
     if info is None:
         return False
     if domains is not None and info.get('domain') not in domains:
+        return False
+    if data_kinds is not None and info.get('data_kind') not in data_kinds:
         return False
     if dft_input and info.get('domain') != 'discrete' and not info.get('centered_dft'):
         return False

@@ -24,7 +24,10 @@ class FiniteMeasures:
     axis_units: str = "n"
 
 
-def _discrete(signal: Signal) -> None:
+def _discrete(signal: Signal, *, temporal=True) -> None:
+    if temporal:
+        from .signal_semantics import require_temporal
+        require_temporal(signal)
     if signal.domain != "discrete" or signal.step != 1 or not float(signal.origin).is_integer():
         raise ValueError("La operación requiere una secuencia discreta con índices enteros y paso 1.")
 
@@ -155,17 +158,16 @@ def convolution_clock(x,h):
     clock = {}
     left_rate = x.metadata.get('sample_rate_hz')
     right_rate = h.metadata.get('sample_rate_hz')
-    if left_rate is not None and right_rate is not None:
-        from .sampling import positive_finite
-        left_rate = positive_finite(left_rate, 'Fs de la primera secuencia')
-        right_rate = positive_finite(right_rate, 'Fs de la segunda secuencia')
-        if not np.isclose(left_rate,right_rate,rtol=1e-12,atol=0):
-            raise ValueError('Las secuencias tienen distintas tasas de muestreo. Igualá sus relojes antes de convolucionar.')
-        clock['sample_rate_hz'] = left_rate
+    from .sampling import positive_finite
+    rates=[positive_finite(rate,'Fs registrada') for rate in (left_rate,right_rate) if rate is not None]
+    if len(rates)==2 and not np.isclose(*rates,rtol=1e-12,atol=0):
+        raise ValueError('Las secuencias tienen distintas tasas de muestreo. Igualá sus relojes antes de convolucionar.')
+    if rates:
+        clock['sample_rate_hz']=rates[0]
         if 'time_start_s' in x.metadata and 'time_start_s' in h.metadata:
-            start_s = float(x.metadata['time_start_s']) + float(h.metadata['time_start_s'])
-            if not np.isfinite(start_s):
-                raise ValueError('El instante inicial de la convolución excede el rango numérico.')
+            from .system_clock import validate_clock_resolution
+            start_s=float(x.metadata['time_start_s'])+float(h.metadata['time_start_s'])
+            validate_clock_resolution(start_s,rates[0],x.values.size+h.values.size-1)
             clock.update(time_start_s=start_s,time_mapping='t = time_start_s + (n-origin)/sample_rate_hz')
     return clock
 
@@ -240,7 +242,8 @@ def idft(X: Signal) -> Signal:
                 or not np.isclose(X.origin, -(n//2)*spacing, rtol=1e-12, atol=0)):
             raise ValueError("La DFT centrada requiere sus N bins completos en la rejilla original.")
     else:
-        _discrete(X)
+        _discrete(X,temporal=False)
+        if X.data_kind=='harmonics':raise ValueError('Para coeficientes de serie usá la síntesis de Fourier, que emplea otra normalización.')
     ensure_working_set(n, bytes_per_sample=16, live_arrays=8)
     coefficients = np.fft.ifftshift(X.values) if centered else X.values
     values = _finite_output(np.fft.ifft(coefficients), "La IDFT")

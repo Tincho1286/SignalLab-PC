@@ -168,6 +168,9 @@ class SystemAnalysisPanel(QWidget):
         from copy import deepcopy
         from .transform_context import result_roc
         frequency=expression.variable=='w'
+        if isinstance(record,dict) and record.get('cas_answer'):
+            from .result_expressions import check_cas_destination
+            check_cas_destination(record['cas_answer'],'frequency' if frequency else 'system')
         if frequency and expression.units not in ('rad/s','rad/muestra'):raise ValueError('Definí una unidad de frecuencia única: rad/s o rad/muestra. No se convierte entre ellas automáticamente.')
         from .cas_system_context import record_context
         context=record_context(record)
@@ -247,6 +250,12 @@ class SystemAnalysisPanel(QWidget):
                 else:exact=run_request(request)
                 system=None;data=None
                 if 'numeric_b' in exact:
+                    origin=request.get('source_calculation',{})
+                    condition=origin.get('cas_answer',{}).get('domain_condition') or origin.get('result',{}).get('cas_domain_condition')
+                    if condition:
+                        from .cas_engine import restore
+                        exact['cas_domain_condition']=condition
+                        exact['cas_input_domain']=str(restore(condition))
                     from copy import deepcopy
                     system=deepcopy(preserved) if preserved is not None else Transfer([complex(*v) for v in exact['numeric_b']],[complex(*v) for v in exact['numeric_a']],request['domain'],'Sistema analizado',advance=exact.get('advance',0))
                     system=apply_period(system,period)

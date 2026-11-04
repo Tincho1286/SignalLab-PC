@@ -7,10 +7,13 @@ from .model import Signal
 from .resources import ensure_working_set
 from .operations import convolution_clock
 from .jobs import checkpoint
+from .signal_semantics import require_temporal
+from .spectral_scaling import bounded, restore_scale
 
 
 def analytic_signal(source):
     from .distributions import regular_only
+    require_temporal(source)
     regular_only(source,'La transformada de Hilbert numérica')
     if source.domain not in ('continuous','discrete') or source.step<=0:raise ValueError('Ingresá una señal temporal con paso positivo.')
     if np.any(source.values.imag):raise ValueError('Hilbert requiere una entrada real. No se descarta la parte imaginaria.')
@@ -30,30 +33,36 @@ def block_convolution(source,kernel,length,method):
     if source.domain!='discrete' or kernel.domain!='discrete':raise ValueError('La convolución por bloques requiere dos secuencias discretas.')
     if isinstance(length,bool) or int(length)!=length or length<1:raise ValueError('Las muestras nuevas por bloque deben ser un entero positivo.')
     if method not in ('ola','ols'):raise ValueError('Método de bloques no admitido.')
+    require_temporal(source);require_temporal(kernel)
     clock=convolution_clock(source,kernel)
     length=int(length);m=kernel.values.size;n=source.values.size;total=n+m-1
     size=next_fast_len(length+m-1)
     ensure_working_set(int(total+size+length),live_arrays=12)
-    response=fft(kernel.values,size);output=np.zeros(total,dtype=complex)
+    samples, source_exponent=bounded(source.values)
+    coefficients, kernel_exponent=bounded(kernel.values)
+    response=fft(coefficients,size);output=np.zeros(total,dtype=complex)
     count=math.ceil((n if method=='ola' else total)/length)
     for block in range(count):
         checkpoint(block/count);start=block*length
         if method=='ola':
-            chunk=source.values[start:start+length];part=ifft(fft(chunk,size)*response)
+            chunk=samples[start:start+length];part=ifft(fft(chunk,size)*response)
             end=min(total,start+chunk.size+m-1);output[start:end]+=part[:end-start]
         else:
             # M−1 muestras de historia y L nuevas. Fuera del registro se usa cero.
             chunk=np.zeros(length+m-1,dtype=complex);left=start-(m-1);lo=max(0,left);hi=min(n,start+length)
-            if hi>lo:chunk[lo-left:hi-left]=source.values[lo:hi]
+            if hi>lo:chunk[lo-left:hi-left]=samples[lo:hi]
             part=ifft(fft(chunk,size)*response);valid=min(length,total-start)
             output[start:start+valid]=part[m-1:m-1+valid]
+    output=restore_scale(output,source_exponent+kernel_exponent)
     if not np.any(source.values.imag) and not np.any(kernel.values.imag):output=output.real
+    if not np.all(np.isfinite(output)):raise FloatingPointError('La convolución excede el rango numérico finito.')
     metadata={**clock,'operation':'block_convolution','method':method,'block_new_samples':length,'fft_length':size,'blocks':count,'kernel_length':int(m),'input_length':int(n),'zero_extension':True,'overlap':int(m-1)}
     return Signal(output,source.origin+kernel.origin,1,'n','Convolución por '+('solapamiento-suma' if method=='ola' else 'solapamiento-almacenamiento'),'discrete',metadata=metadata)
 
 
 def time_frequency(source,length,overlap,nfft,window,beta=5):
     from .distributions import regular_only
+    require_temporal(source)
     regular_only(source,'La STFT de muestras')
     if source.domain not in ('continuous','discrete') or source.step<=0:raise ValueError('Se necesita una señal temporal con paso positivo.')
     n=int(source.values.size)

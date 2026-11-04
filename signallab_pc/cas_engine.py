@@ -5,7 +5,7 @@ from sympy.core.function import FunctionClass,AppliedUndef
 from sympy.core.relational import Relational
 from .resources import ensure_working_set
 from .impulse_pairs import impulse
-from .cas_domains import bare, substitute, with_domain, scoped_result, solve_scalar, intrinsic_system_domain
+from .cas_domains import bare, substitute, with_domain, scoped_result, solve_scalar, intrinsic_system_domain, function_domain
 
 
 CONSTANTS={'pi':sp.pi,'e':sp.E,'i':sp.I,'j':sp.I,'oo':sp.oo,'infinity':sp.oo,
@@ -45,6 +45,9 @@ from sympy.functions.elementary.piecewise import ExprCondPair
 HEADS['ExprCondPair']=ExprCondPair
 
 
+SERIALIZED_CONSTANTS={name:getattr(sp,name) for name in ('EulerGamma','Catalan','GoldenRatio','TribonacciConstant')}
+
+
 def restore(source):
     tree=ast.parse(source,mode='eval');ensure_working_set(sum(1 for _ in ast.walk(tree)),bytes_per_sample=512,live_arrays=4)
     def visit(node):
@@ -55,7 +58,9 @@ def restore(source):
         if isinstance(node,(ast.List,ast.Tuple)):
             values=[visit(item) for item in node.elts];return values if isinstance(node,ast.List) else tuple(values)
         if isinstance(node,ast.Dict):return {visit(k):visit(v) for k,v in zip(node.keys,node.values)}
-        if isinstance(node,ast.Name) and node.id.lower() in CONSTANTS:return CONSTANTS[node.id.lower()]
+        if isinstance(node,ast.Name):
+            if node.id in SERIALIZED_CONSTANTS:return SERIALIZED_CONSTANTS[node.id]
+            if node.id.lower() in CONSTANTS:return CONSTANTS[node.id.lower()]
         if isinstance(node,ast.Call):
             if isinstance(node.func,ast.Name) and node.func.id in ('Symbol','Dummy','Function','Float'):
                 if not node.args or not isinstance(node.args[0],ast.Constant) or not isinstance(node.args[0].value,str):raise ValueError('Estado simbólico inválido.')
@@ -108,14 +113,15 @@ class Calculator:
         self.contexts=[];self.domain_restrictions=[];self.referenced_axes=set()
         self.locals={};self.undefined=set();self._resolving=set();self.numeric_root=False
         self.frequency_axis_removed=False
+        self.operation_notices=[]
 
     def resolve(self,value):
         if isinstance(value,list):return [self.resolve(v) for v in value]
         if isinstance(value,tuple):return tuple(self.resolve(v) for v in value)
         if isinstance(value,dict):return {self.resolve(k):self.resolve(v) for k,v in value.items()}
         if isinstance(value,(sp.Basic,sp.MatrixBase)):
-            replacements={symbol:self.name(symbol.name) for symbol in value.free_symbols if symbol.name not in self.locals}
-            if replacements:value=value.xreplace(replacements)
+            replacements={symbol:self.name(symbol.name) for symbol in value.free_symbols}
+            if any(old!=new for old,new in replacements.items()):value=substitute(value,list(replacements.items()))
         return value
 
     def recall_domain(self,context):
@@ -172,6 +178,26 @@ class Calculator:
             del self.domain_restrictions[start:]
             return value,condition
 
+        def scoped_arguments(key,nodes):
+            if key not in {'integrate','int','integral','sum','summation','prod','product'} or len(nodes)<2:
+                return [collect(arg) for arg in nodes]
+            # A definite iterator owns its symbol, even when the worksheet has
+            # assigned a value to the same spelling. Limits are evaluated in
+            # the surrounding scope, from outermost to innermost.
+            limits=list(nodes[1:]);flat=len(nodes)==4 and isinstance(nodes[1],ast.Name)
+            if flat:limits=[ast.Tuple(elts=limits)]
+            outer=self.locals;self.locals=outer.copy();prepared=[]
+            try:
+                for limit in reversed(limits):
+                    if isinstance(limit,(ast.Tuple,ast.List)) and len(limit.elts)==3 and isinstance(limit.elts[0],ast.Name):
+                        name=limit.elts[0].id
+                        lower,lo_domain=collect(limit.elts[1]);upper,hi_domain=collect(limit.elts[2])
+                        index=sp.Symbol(name);self.locals[name]=index
+                        prepared.append(((index,lower,upper),sp.And(lo_domain,hi_domain)))
+                    else:prepared.append(collect(limit))
+                return [collect(nodes[0]),*reversed(prepared)]
+            finally:self.locals=outer
+
         def visit(node):
             if isinstance(node,ast.Constant):
                 if isinstance(node.value,bool):return sp.true if node.value else sp.false
@@ -194,7 +220,12 @@ class Calculator:
                     if isinstance(b,sp.Expr):self.domain_restrictions.append(sp.Ne(bare(b),0))
                     return a/b
                 if isinstance(node.op,ast.Pow):
-                    if isinstance(a,sp.Expr) and isinstance(b,sp.Expr) and b.is_negative is True:self.domain_restrictions.append(sp.Ne(bare(a),0))
+                    if isinstance(a,sp.Expr) and isinstance(b,sp.Expr):
+                        if b.is_negative is True:self.domain_restrictions.append(sp.Ne(bare(a),0))
+                        elif b.free_symbols and b.is_nonnegative is not True:
+                            exponent=bare(b)
+                            self.domain_restrictions.append(sp.Or(sp.Ne(bare(a),0),sp.Eq(exponent,0),
+                                sp.And(sp.Eq(sp.im(exponent),0),sp.re(exponent)>0)))
                     if isinstance(a,sp.Integer) and isinstance(b,sp.Integer) and b>0:
                         estimated=max(1,abs(int(a)).bit_length())*b//8+1
                         ensure_working_set(int(estimated),bytes_per_sample=1,live_arrays=4)
@@ -253,7 +284,7 @@ class Calculator:
                         pairs.append((value,test))
                     self.domain_restrictions.append(sp.Or(*defined))
                     return sp.Piecewise(*pairs)
-                evaluated=[collect(arg) for arg in node.args]
+                evaluated=(scoped_arguments(key,node.args) if name not in self.functions else [collect(arg) for arg in node.args])
                 args=[value for value,_ in evaluated]
                 domains=[domain for _,domain in evaluated]
                 if name in self.functions:
@@ -268,9 +299,18 @@ class Calculator:
                         domain=domain.subs({p:bare(a) for p,a in replacements.items()},simultaneous=True)
                         self.domain_restrictions.append(domain)
                     self.domain_restrictions.extend(domains)
-                    return self.resolve(body.xreplace(replacements))
+                    return self.resolve(substitute(body,list(replacements.items())))
                 if key in SPECIAL or name=='N':
                     return self.special('approx' if name=='N' else key,args,domains)
+                if key in {'laplace_transform','inverse_laplace_transform'} and len(args)>=3 and isinstance(args[1],sp.Symbol):
+                    bound=bare(args[1]);retained=[]
+                    for term in sp.And.make_args(domains[0]):
+                        if bound in term.free_symbols:
+                            if not isinstance(term,sp.Unequality):
+                                raise ValueError('Definí el soporte de la transformada en la expresión por tramos antes de calcular.')
+                            self.operation_notices.append('Condición en la variable de origen: '+str(term)+'.')
+                        else:retained.append(term)
+                    domains=[sp.And(*retained),*domains[1:]]
                 self.domain_restrictions.extend(scoped_result(key,args,domains))
                 if key in {'limit','integrate','int','integral','sum','summation','prod','product'}:
                     bounds=args[1:2] if key=='limit' or len(args)==4 else args[1:]
@@ -279,6 +319,8 @@ class Calculator:
                         if isinstance(bound,sp.Symbol) and bound.name=='w':self.frequency_axis_removed=True
                 fn=FUNCTIONS.get(key)
                 if fn is not None:
+                    condition=function_domain(key,args)
+                    if condition is not sp.true:self.domain_restrictions.append(condition)
                     if key=='factorial' and args and isinstance(args[0],sp.Integer) and args[0]>100:
                         try:digits=int(math.lgamma(float(args[0])+1)/math.log(10))+1
                         except (OverflowError,ValueError):raise ValueError('El tamaño de ese factorial excede los recursos numéricos disponibles.')
@@ -419,6 +461,7 @@ def calculate(request):
             calculator.variables[name]=value;calculator.functions.pop(name,None);defined=name
     else:value=calculator.parse(source)
     if isinstance(value,sp.Integer):ensure_working_set(max(1,int(value).bit_length()*30103//100000),bytes_per_sample=32,live_arrays=6)
+    notice.extend(calculator.operation_notices)
     domain=sp.And(*calculator.domain_restrictions)
     if domain is sp.false:raise ValueError('El valor está fuera del dominio de la expresión o de los supuestos con los que se obtuvo.')
     encoded=encode(value);restore(encoded)
@@ -435,6 +478,8 @@ def calculate(request):
         context['domain_condition']=encode(domain)
         context['domain_symbols']=sorted({symbol.name for symbol in domain.free_symbols})
         context['domain_condition_implicit']=intrinsic_system_domain(value,domain)
+        if not context['domain_condition_implicit'] and intrinsic_system_domain(value,domain,analysis=True):
+            context['domain_condition_analysis']=True
         notice.append('Condición de validez de la expresión: '+str(domain)+'.')
     remember(state,cell,context)
     if defined:state.setdefault('name_contexts',{})[name]=context

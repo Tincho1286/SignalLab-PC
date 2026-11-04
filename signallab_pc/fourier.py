@@ -9,6 +9,7 @@ from .operations import _discrete, _finite_output
 from .resources import ensure_working_set
 from .sampling import positive_integer, positive_finite
 from .jobs import checkpoint
+from .spectral_scaling import bounded, restore_scale
 
 
 def grid(start, stop, count):
@@ -24,11 +25,12 @@ def grid(start, stop, count):
     return values
 
 
-def _sum(values, input_axis, output_axis, sign=-1):
+def _sum(values, input_axis, output_axis, sign=-1, factors=()):
     """Suma compleja por bloques: no construye una matriz N por M completa."""
     ensure_working_set(int(len(values)+len(output_axis)), live_arrays=10)
     rows, cols = min(128, len(output_axis)), min(2048, len(values))
     ensure_working_set(int(rows*cols), live_arrays=4)
+    values, exponent = bounded(values)
     result = np.zeros(len(output_axis), dtype=complex)
     for start in range(0, len(output_axis), rows):
         checkpoint(start/len(output_axis))
@@ -42,7 +44,7 @@ def _sum(values, input_axis, output_axis, sign=-1):
             accumulator += np.exp(sign*1j*phase) @ values[offset:offset+cols]
         result[start:start+rows] = accumulator
     checkpoint(1)
-    return _finite_output(result, "La transformada")
+    return _finite_output(restore_scale(result,exponent,*factors), "La transformada")
 
 
 def dtft(x, start=-math.pi, stop=math.pi, count=1025):
@@ -84,7 +86,9 @@ def discrete_series(x):
     ensure_working_set(int(n), live_arrays=8)
     k = np.arange(n, dtype=float)
     # Origen reducido módulo N antes de pasarlo a float.
-    coefficients = np.fft.fft(x.values)/n * np.exp(-2j*np.pi*k*((int(x.origin)%n)/n))
+    samples, exponent = bounded(x.values)
+    coefficients = np.fft.fft(samples) * np.exp(-2j*np.pi*k*((int(x.origin)%n)/n))
+    coefficients = restore_scale(coefficients,exponent,1/n)
     return Signal(_finite_output(coefficients, "La serie discreta"), 0, 1, "k", f"DFS_{x.name}", "discrete", "",
                   {"operation": "discrete_fourier_series", "period_samples": int(n),
                    "input_origin": int(x.origin), "convention": "c[k]=(1/N) sum over one period x[n] exp(-j*2*pi*k*n/N)"})
@@ -96,7 +100,9 @@ def synthesize_discrete(coefficients):
     n = coefficients.values.size
     origin = int(coefficients.metadata["input_origin"])
     ensure_working_set(int(n), live_arrays=8)
-    values = np.fft.ifft(coefficients.values * np.exp(2j*np.pi*np.arange(n)*((origin%n)/n)))*n
+    bins, exponent = bounded(coefficients.values)
+    values = np.fft.ifft(bins * np.exp(2j*np.pi*np.arange(n)*((origin%n)/n)))
+    values = restore_scale(values,exponent,n)
     return Signal(_finite_output(values, "La síntesis"), origin, 1, "n", "Síntesis_DFS", "discrete", "",
                   {"operation": "discrete_series_synthesis", "period_samples": int(n)})
 
@@ -107,7 +113,7 @@ def ctft(x, start, stop, count):
     omega = grid(start, stop, count)
     from .distributions import dirac_terms
     impulses=dirac_terms(x)
-    values = _sum(x.values, x.axis, omega)*x.step if np.any(x.values) else np.zeros(omega.size,dtype=complex)
+    values = _sum(x.values,x.axis,omega,factors=(x.step,)) if np.any(x.values) else np.zeros(omega.size,dtype=complex)
     for position,weight in impulses:values+=weight*np.exp(-1j*omega*position)
     step = (float(stop)-float(start))/(len(omega)-1)
     result = Signal(_finite_output(values, "La CTFT"), float(omega[0]),step,"rad/s",f"CTFT_{x.name}","frequency","",
@@ -137,9 +143,9 @@ def ictft(spectrum, start, stop, count):
         raise ValueError("La inversa requiere un espectro con eje uniforme en rad/s y paso positivo.")
     time = grid(start, stop, count)
     weighted = spectrum.values.copy()
-    if len(weighted) == 1: weighted[:] = 0
-    else: weighted[0] *= .5; weighted[-1] *= .5
-    values = _sum(weighted, spectrum.axis, time, sign=1)*spectrum.step/(2*np.pi)
+    if len(weighted)<2:raise ValueError('Fourier inversa por cuadratura requiere al menos dos frecuencias. Para líneas espectrales usá la inversa algebraica.')
+    weighted[0] *= .5; weighted[-1] *= .5
+    values = _sum(weighted,spectrum.axis,time,sign=1,factors=(spectrum.step,1/math.tau))
     result = Signal(_finite_output(values, "La inversa de Fourier"), float(time[0]), (float(stop)-float(start))/(len(time)-1),
                   "s", "ICTFT", "continuous", "",
                   {"operation": "ICTFT", "convention": "Trapezoidal quadrature over finite frequency window; 1/(2*pi)"})
@@ -165,7 +171,7 @@ def continuous_series(expression, start, period, samples, harmonics):
     source=sample_continuous(expression,float(time[0]),period/samples,samples,support=(start,start+period),right_open=True)
     time=source.axis;values=source.values;impulses=dirac_terms(source)
     k = np.arange(-harmonics, harmonics+1, dtype=np.int64)
-    coeff = _sum(values, time, k*(2*np.pi/period))/samples if np.any(values) else np.zeros(k.size,dtype=complex)
+    coeff = _sum(values,time,k*(2*np.pi/period),factors=(1/samples,)) if np.any(values) else np.zeros(k.size,dtype=complex)
     for position,weight in impulses:coeff+=weight*np.exp(-1j*k*(2*np.pi/period)*position)/period
     return Signal(coeff, -harmonics, 1, "k", "Coeficientes_FS", "discrete", expression,
                   {"operation": "continuous_fourier_series", "period_s": period, "period_start_s": start,
@@ -191,6 +197,9 @@ def spectral_density(x, rate, *, method="welch", segment=256, overlap=128,
                      window="hann", beta=5.0, remove_mean=False):
     _discrete(x)
     rate = positive_finite(rate, "Fs")
+    recorded=x.metadata.get('sample_rate_hz')
+    if recorded is not None and not math.isclose(rate,positive_finite(recorded,'Fs registrada'),rel_tol=1e-12,abs_tol=0):
+        raise ValueError('Fs no coincide con el reloj de la señal. Ajustá el reloj de la entrada antes de calcular su PSD.')
     if method not in {"welch", "periodogram", "legacy"}:
         raise ValueError("Estimador desconocido.")
     if method != "welch": segment, overlap = int(x.values.size), 0

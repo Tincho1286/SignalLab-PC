@@ -25,7 +25,8 @@ def window_fft(x,length,nfft,window,beta,points):
     ensure_working_set(int(nfft+points+length),live_arrays=14)
     weights=sp.get_window(('kaiser',beta) if window=='kaiser' else window,length,fftbins=False)
     w=Signal(weights,x.origin,1,'n','Ventana '+window,'discrete')
-    v=Signal(x.values[:length]*weights,x.origin,1,'n','Señal enventanada','discrete')
+    clock={key:x.metadata[key] for key in ('sample_rate_hz','time_start_s','time_mapping') if key in x.metadata}
+    v=Signal(x.values[:length]*weights,x.origin,1,'n','Señal enventanada','discrete',metadata={**clock,'operation':'windowed_signal'})
     raw=np.fft.fft(v.values,nfft)
     from .fourier_phase import bin_frequency, dft_origin_phase
     indices = np.arange(nfft, dtype=np.int64)-nfft//2
@@ -214,9 +215,10 @@ def convert_system(system,period,method):
             note += '\nROC discreta: ' + convergence(result)['text']
     elif method=='impulse_inverse':
         if system.domain!='digital':raise ValueError('La reconstrucción por invarianza requiere H(z).')
+        if system.advance:raise ValueError('La inversa por invarianza de polos simples no admite avances. Para esta transferencia usá Bilineal inversa.')
         roc = impulse_roc(system, period, inverse=True)
         residues,poles,direct=sp.residuez(system.b,system.a,tol=1e-10)
-        if np.any(abs(direct)>1e-10):raise ValueError('Esta reconstrucción requiere fracciones simples sin parte polinómica directa; los términos de impulso necesitan un tratamiento distributivo.')
+        if np.any(direct!=0):raise ValueError('Esta reconstrucción requiere fracciones simples sin parte polinómica directa; los términos de impulso necesitan un tratamiento distributivo.')
         if np.any(abs(poles)<1e-12):raise ValueError('Un polo nulo no tiene logaritmo finito en el mapeo exponencial.')
         if any(abs(poles[i]-poles[j])<1e-9*max(1,abs(poles[i])) for i in range(len(poles)) for j in range(i)):
             raise ValueError('La reconstrucción actual admite polos simples separados; no polos múltiples o numéricamente coincidentes.')
@@ -239,15 +241,17 @@ def convert_system(system,period,method):
             from .transfer_plane import convergence
             convergence(candidate)
             candidates.append(candidate)
-        return bundle('Inversa de invarianza al impulso: candidatos\n\nh[n]=T·hc(nT). Para r/(1−p z⁻¹), un término continuo compatible tiene residuo r/T y polo (log(p)+j2πk)/T.\n\nSe muestran dos elecciones de ramas. Para polos y residuos reales se construyen pares conjugados cuando hace falta: tienen las mismas muestras, pero distinta evolución entre ellas. La respuesta no es única.\n\nAlcance: polos simples separados y sin parte polinómica directa significativa. La descomposición usa tolerancia numérica 1e−10; no es una equivalencia algebraica exacta. En n=0 se interpreta el valor por la derecha de hc.',systems=candidates)
+        return bundle('Inversa de invarianza al impulso: candidatos\n\nh[n]=T·hc(nT). Para r/(1−p z⁻¹), un término continuo compatible tiene residuo r/T y polo (log(p)+j2πk)/T.\n\nSe muestran dos elecciones de ramas. Para polos y residuos reales se construyen pares conjugados cuando hace falta: tienen las mismas muestras, pero distinta evolución entre ellas. La respuesta no es única.\n\nAlcance: polos simples separados y sin parte polinómica directa. La descomposición usa tolerancia numérica 1e−10; no es una equivalencia algebraica exacta. En n=0 se interpreta el valor por la derecha de hc.',systems=candidates)
     else:
         if system.domain!='digital':raise ValueError('La bilineal inversa requiere H(z) discreta.')
-        degree=max(len(system.a),len(system.b))-1
+        degree=max(len(system.a)+system.advance,len(system.b))-1
+        ensure_working_set((degree+1)**2,live_arrays=18)
+        denominator=np.r_[np.zeros(system.advance),system.a]
         def substitute(v):
             values=np.pad(v,(0,degree+1-len(v)));out=np.poly1d([0j]);plus=np.poly1d([period/2,1]);minus=np.poly1d([-period/2,1])
             for i,c in enumerate(values):out=out+complex(c)*(minus**i)*(plus**(degree-i))
             return out.c
-        result=Transfer(substitute(system.b),substitute(system.a),'analog','Bilineal inversa')
+        result=Transfer(substitute(system.b),substitute(denominator),'analog','Bilineal inversa')
         note='z = (1+sT/2)/(1−sT/2). Para un T fijado la sustitución racional es única. El resultado puede ser impropio y no tener una respuesta temporal ordinaria.'
     return bundle('Conversión de sistemas\n\n'+note+'\nT: '+str(period)+' s',systems=[result])
 
@@ -301,7 +305,7 @@ def inverse_z_contour(system,mode,radius,start,count,points):
         radius=float(np.min(radii))*.8
     elif mode=='stable':radius=1.
     if radius<=0 or not np.isfinite(radius):raise ValueError('El radio debe ser positivo y finito.')
-    if np.any(np.isclose(radii,radius,rtol=1e-9,atol=1e-12)):raise ValueError('El contorno coincide con un polo; elegí un radio dentro de una ROC abierta.')
+    if np.any(np.isclose(radii,radius,rtol=1e-9,atol=0)):raise ValueError('El contorno coincide con un polo; elegí un radio dentro de una ROC abierta.')
     if 2*max(abs(start),abs(start+count-1))>=points:raise ValueError('Aumentá los puntos de contorno para que |n| sea menor que la mitad de ellos.')
     theta=2*np.pi*np.arange(points)/points
     h=evaluate_plane(system,radius*np.exp(1j*theta))

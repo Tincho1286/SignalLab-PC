@@ -125,6 +125,9 @@ def resample(x, factor, method, phase=0):
         if rate is not None:
             metadata["sample_rate_hz"] = positive_finite(float(rate)*factor, "Fs de salida")
         metadata["support"] = "Finite input, zero outside; output ends at last original sample"
+    if 'sample_rate_hz' in metadata and 'time_start_s' in metadata:
+        from .system_clock import validate_clock_resolution
+        validate_clock_resolution(metadata['time_start_s'],metadata['sample_rate_hz'],count)
     return Signal(_finite_output(values, "El remuestreo"), origin, 1, x.units,
                   f"{x.name}_{method}", "discrete", "", metadata)
 
@@ -212,13 +215,19 @@ def quantize(x, bits, low, high, method="round", align_zero=False, first=0, last
         codes=(clipped-low)/step
     codes = np.floor(codes+.5) if method == "round" else np.floor(codes)
     codes = np.clip(codes, 0, levels-1)
-    if align_zero:
-        values=(codes-kzero)*step
-    elif wide:
-        fraction=codes/(levels-1)
-        values=(1-fraction)*low+fraction*high
-    else:
-        values=low+codes*step
+    def code_values(code):
+        if align_zero:values=(code-kzero)*step
+        elif wide:
+            fraction=code/(levels-1);values=(1-fraction)*low+fraction*high
+        else:values=low+code*step
+        return np.where(code==0,low,np.where(code==levels-1,high,values))
+    if method=='floor':
+        # Division can land a few ulps to either side of an exact level.
+        # Check the neighboring actual levels without promoting lower inputs.
+        codes=np.where(code_values(codes)>clipped,np.maximum(0,codes-1),codes)
+        upper=np.minimum(levels-1,codes+1)
+        codes=np.where(code_values(upper)<=clipped,upper,codes)
+    values=code_values(codes)
     error = _finite_output(values-original, "El error de cuantización")
     last = x.values.size-1 if last is None else last
     if any(isinstance(v, bool) or not isinstance(v, (int, np.integer)) for v in (first, last)) or not 0 <= first <= last < x.values.size:
@@ -234,7 +243,8 @@ def quantize(x, bits, low, high, method="round", align_zero=False, first=0, last
                 "convention": "Endpoints; floor is lower level, not truncation toward zero"}
     result = Signal(values, x.origin, x.step, x.units, f"{x.name}_q", x.domain, "", metadata)
     residual = Signal(error, x.origin, x.step, x.units, f"error_{x.name}", x.domain, "",
-                      {"operation": "quantization_error", "convention": "xq-x"})
+                      {**{key:x.metadata[key] for key in ('sample_rate_hz','time_start_s','time_mapping') if key in x.metadata},
+                       "operation": "quantization_error", "convention": "xq-x"})
     return QuantizationResult(result, residual, step, levels, low, high,
                               int(np.count_nonzero(original != clipped)), snr, int(last-first+1))
 
@@ -293,8 +303,8 @@ def resample_rational(x, up, down, *, rate=None, start=None, half_width=10, beta
     count=(int(x.values.size)*up+down-1)//down
     taps=1 if up==down else 2*half_width*max(up,down)+1
     ensure_working_set(count+int(x.values.size)+taps,live_arrays=16)
-    if count>1 and (start+1/output_rate==start or not math.isfinite(start+(count-1)/output_rate)):
-        raise ValueError('El reloj de salida excede la resolución o el rango numérico.')
+    from .system_clock import validate_clock_resolution
+    validate_clock_resolution(start,output_rate,count)
     checkpoint()
     if up==down:values=x.values.copy()
     else:

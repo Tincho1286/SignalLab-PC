@@ -8,6 +8,10 @@ from .resources import ensure_working_set
 
 def cross_correlation(first,second,max_lag=None,remove_mean=False,denominator='N',normalize=False):
     if first.domain!='discrete' or second.domain!='discrete':raise ValueError('Se requieren dos registros discretos.')
+    from .operations import _discrete
+    from .windowing import validate_discrete_clocks
+    _discrete(first);_discrete(second)
+    validate_discrete_clocks(first,second)
     start=max(first.origin,second.origin);stop=min(first.origin+len(first.values),second.origin+len(second.values));n=int(stop-start)
     if n<1:raise ValueError('Los registros no tienen índices observados en común. Revisá sus orígenes.')
     lag=min(50,n-1) if max_lag is None else positive_integer(max_lag+1,'Cantidad de retardos')-1

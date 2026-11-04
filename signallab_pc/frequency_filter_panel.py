@@ -13,7 +13,7 @@ class FrequencyFilterPanel(QWidget):
         root=QHBoxLayout(self);controls=QWidget();form=QFormLayout(controls)
         self.domain=QComboBox();self.domain.addItems(['Discreto · ω en rad/muestra','Continuo · Ω en rad/s']);form.addRow('Dominio',self.domain)
         note=QLabel('Definí H por tramos. El valor es la ganancia (puede ser compleja); la condición indica en qué frecuencias se aplica. Usá w para la frecuencia.');note.setWordWrap(True);form.addRow(note)
-        self.h=LocalInput('Respuesta del filtro H(ω)','frequency');self.h.bind_project(window)
+        self.h=LocalInput('Respuesta del filtro H(ω)','frequency');self.h.set_role('frequency_response');self.h.bind_project(window)
         for label in self.h.findChildren(QLabel):
             if label.text()=='Paso (rad/s)':label.setText('Paso angular')
             if label.text().startswith('X(ω)'):label.setText('H(ω), usar w como frecuencia')
@@ -57,6 +57,8 @@ class FrequencyFilterPanel(QWidget):
             digital=self.domain.currentIndex()==0;domain='discrete' if digital else 'continuous';unit='rad/muestra' if digital else 'rad/s'
             response=self.h._read().copy_with(name='Respuesta H(ω)')
             if self.h.mode.currentIndex()==2 and response.units!=unit:raise ValueError('La respuesta importada debe usar '+unit+'.')
+            from .signal_semantics import require_frequency_response
+            require_frequency_response(response)
             response.units=unit;response.metadata={**response.metadata,'operation':'frequency_filter','time_domain':domain}
             start=integer_field(self.start) if digital else self.scalar(self.start)
             count=integer_field(self.count);step=self.scalar(self.step)

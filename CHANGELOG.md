@@ -2,6 +2,14 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.9**.
 
+## 1.6.10 · Hotfix
+
+- Dominio y variables ligadas en el CAS, validación de entradas y reutilización de transferencias Laurent.
+- Ejes importados, operaciones de MATLAB, relojes y compatibilidad entre resultados.
+- Conversiones de filtros, precisión de Fourier, cuantización e índices de gráficos.
+
+[Notas de la entrega](docs/releases/v1.6.10.md)
+
 ## 1.6.9 · estable
 
 - Dominios, exclusiones y supuestos conservados al operar y resolver en el CAS.

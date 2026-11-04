@@ -30,11 +30,28 @@ def sum_signals(x,h):
     if not math.isfinite(ratio) or ratio<0:raise ValueError('El intervalo conjunto no es representable con esos orígenes y pasos.')
     nearest=round(ratio);intervals=nearest if abs(ratio-nearest)<=8*math.ulp(ratio) else math.ceil(ratio)
     if span and intervals<1:intervals=1
+    singletons=[source for source in (x,h) if source.values.size==1 and source.values[0]!=0]
+    if span and singletons:
+        from fractions import Fraction
+        denominator=1
+        for source in singletons:
+            offset=(source.origin-start)/span
+            fraction=Fraction(offset).limit_denominator(4096)
+            if abs(float(fraction)-offset)>4*math.ulp(offset):
+                raise ValueError('La rejilla uniforme no puede representar una de las muestras aisladas. Ajustá el paso o los instantes de entrada.')
+            denominator=math.lcm(denominator,fraction.denominator)
+        intervals=((intervals+denominator-1)//denominator)*denominator
     count=intervals+1;ensure_working_set(count+len(x.values)+len(h.values),live_arrays=12)
     step=span/intervals if intervals else spacing
     # Construct the same uniform axis the returned Signal will expose.
     result=Signal(np.zeros(count),start,step,x.units,'Suma de señales','continuous')
-    values=interpolate_record(x,result.axis)+interpolate_record(h,result.axis)
+    axis=result.axis
+    for source in singletons:
+        tolerance=min(source.step/4,4*math.ulp(float(source.origin)))
+        index=min(int(np.searchsorted(axis,source.origin)),count-1)
+        if min(abs(axis[index]-source.origin),abs(axis[max(0,index-1)]-source.origin))>tolerance:
+            raise ValueError('La rejilla de salida no distingue el instante de una muestra aislada.')
+    values=interpolate_record(x,axis)+interpolate_record(h,axis)
     metadata['scope']='Suma sobre el intervalo completo de ambos registros. Cada parte ordinaria se interpola linealmente y vale cero fuera de sus datos. La rejilla uniforme usa una resolución basada en el menor paso de entrada y ajusta el paso para abarcar ambos extremos. Entre muestras es una aproximación; no equivale a recuperar información que no estaba en las entradas.'
     if x.units=='s':
         metadata['time_start_s']=start;rate=1/step

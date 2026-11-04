@@ -61,10 +61,23 @@ def _condition_mask(condition,omega):
         return np.logical_and.reduce([_condition_mask(part,omega) for part in condition.args])
     if condition.func==sp.Or:
         return np.logical_or.reduce([_condition_mask(part,omega) for part in condition.args])
-    if condition.func==sp.Ne:
-        left,right=(_sample(v,omega) for v in condition.args)
-        scale=np.maximum(1,np.maximum(abs(left),abs(right)))
-        return np.isfinite(left)&np.isfinite(right)&(abs(left-right)>64*np.finfo(float).eps*scale)
+    if condition.func in (sp.Eq,sp.Ne):
+        # Remove constant factors first so the tolerance does not turn a
+        # mere change of units into extra excluded frequencies.
+        difference=sp.factor_terms(sp.expand_mul(condition.lhs-condition.rhs))
+        if difference.is_zero is True:return np.full(omega.shape,condition.func==sp.Eq,dtype=bool)
+        _,difference=difference.as_independent(*difference.free_symbols,as_Add=False)
+        if not difference.free_symbols:
+            equal=difference.is_zero
+            if equal is not None:return np.full(omega.shape,equal==(condition.func==sp.Eq),dtype=bool)
+        observed=_sample(difference,omega)
+        terms=sp.Add.make_args(difference)
+        scale=sum(abs(_sample(term,omega)) for term in terms) if len(terms)>1 else abs(observed)
+        # Single trigonometric terms still need a small tolerance for
+        # machine approximations to their exact zeros.
+        tolerance=64*np.finfo(float).eps*np.maximum(1,scale)
+        equal=abs(observed)<=tolerance
+        return np.isfinite(observed)&np.isfinite(scale)&(equal if condition.func==sp.Eq else ~equal)
     from .symbolic import W
     function=sp.lambdify(W,condition,modules='numpy')
     with np.errstate(all='ignore'):return np.broadcast_to(np.asarray(function(omega),dtype=bool),omega.shape).copy()

@@ -171,6 +171,9 @@ def frequency_summary(exact,data):
     sections=[Section('Definición',paragraphs=[exact['scope']],formulas=[Formula('H = '+exact['transfer'],'H = '+exact['transfer'])])]
     if exact.get('model_kind') in ('expression','frequency'):
         sections.append(Section('Alcance de la expresión',paragraphs=[exact.get('analysis_limits','La definición se conserva sin convertirla en una lista de coeficientes.'),exact.get('frequency_interpretation','')],rows=[('Condición de frecuencia',exact.get('frequency_condition','No determinada')),('Muestras excluidas por la condición',str(exact.get('masked_frequency_samples',0))) ]))
+    if exact.get('cas_input_domain'):
+        sections.append(Section('Dominio de la fórmula de origen',rows=[('Condición del CAS',exact['cas_input_domain'])],
+            paragraphs=['Los polos y ceros corresponden a la forma racional. Un punto excluido por la expresión original puede tener un valor en su continuación racional.']))
     original=exact.get('source_calculation',{})
     if original.get('request',{}).get('operation')=='z_expression':
         source=original['request'];calculation=original.get('result',{});branches=calculation.get('branches',[])

@@ -14,11 +14,13 @@ def imported(data,value,notices):
         if not isinstance(condition,sp.logic.boolalg.Boolean):raise ValueError('Condición de dominio CAS inválida.')
         from .cas_domains import intrinsic_system_domain
         context.update(domain_condition=data['domain_condition'],domain_symbols=sorted({s.name for s in condition.free_symbols}),
-                       domain_condition_implicit=intrinsic_system_domain(value,condition))
+                       domain_condition_implicit=intrinsic_system_domain(value,condition),
+                       domain_condition_analysis=intrinsic_system_domain(value,condition,analysis=True))
     if data.get('variable',data.get('coordinate_variable'))!='w' or not isinstance(value,sp.Expr):return context
     unit=data.get('frequency_units','')
     if unit not in ('','rad/s','rad/muestra','incompatible'):return context
-    return {**context,**dict(frequency_units=unit,coordinate_variable='w',frequency_condition=data.get('frequency_condition','True'),origin_conditions=list(notices))}
+    return {**context,**dict(frequency_units=unit,coordinate_variable='w',frequency_condition=data.get('frequency_condition','True'),
+                              origin_conditions=list(notices),context_rewrite=data.get('context_rewrite'))}
 
 def combine(calculator,value,source,notices):
     from .cas_system_context import combine as combine_system

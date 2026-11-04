@@ -62,7 +62,14 @@ class Project:
         return [deepcopy({k:v for k,v in r.items() if k!="data"}) for r in self._records.values() if kind is None or r["kind"]==kind or kind=='expression' and self.expression(r['id']) is not None]
     def describe(self,key):
         record=self._records[key];data=record['data']
-        if record['kind']=='signal':return dict({k:deepcopy(data[k]) for k in ('domain','origin','step','units','name')},kind='signal',count=len(data['values']),centered_dft=(data['domain']=='frequency' and data['units']=='rad/muestra' and data.get('metadata',{}).get('dft_order')=='centered'))
+        if record['kind']=='signal':
+            from .signal_semantics import signal_kind
+            metadata=data.get('metadata',{})
+            details={k:deepcopy(data[k]) for k in ('domain','origin','step','units','name')}
+            return dict(details,kind='signal',count=len(data['values']),
+                        data_kind=signal_kind(data['domain'],data['units'],metadata),
+                        centered_dft=(data['domain']=='frequency' and data['units']=='rad/muestra'
+                                      and metadata.get('dft_order')=='centered'))
         if record['kind']=='system':return {'kind':'system','domain':data['domain'],'name':data['name'],'advance':data.get('advance',0)}
         if record['kind']=='state_space':return {'kind':'state_space','domain':'continuous' if data.get('dt') is None else 'discrete'}
         expression=self.expression(key)

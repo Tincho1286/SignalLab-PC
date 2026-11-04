@@ -12,9 +12,9 @@ from .report_view import ReportView
 from .reuse_sources import source_info,compatible,temporal_expression
 
 class ProjectPicker(QDialog):
-    def __init__(self,window,kind,domains=None,*,variables=None,units=None,allow_advance=True,dft_input=False):
+    def __init__(self,window,kind,domains=None,*,variables=None,units=None,allow_advance=True,dft_input=False,data_kinds=None):
         super().__init__(window);self.project=window.project;self.kind=kind;self.domains=domains;self.selected_id=None;self._has_plot=False;self._narrow=None
-        self.constraints=dict(domains=domains,variables=variables,units=units,allow_advance=allow_advance,dft_input=dft_input)
+        self.constraints=dict(domains=domains,variables=variables,units=units,allow_advance=allow_advance,dft_input=dft_input,data_kinds=data_kinds)
         self.setWindowTitle('Reutilizar un resultado');self.setMinimumSize(540,400)
         available=window.screen().availableGeometry();self.resize(min(960,available.width()-32),min(660,available.height()-48))
         root=QVBoxLayout(self);heading=QLabel({'signal':'Elegí una señal','system_source':'Cargar un sistema o una expresión H','temporal_expression':'Elegí una definición de señal','expression':'Elegí una expresión'}.get(kind,'Elegí un resultado para copiar'));heading.setObjectName('cardTitle');root.addWidget(heading)

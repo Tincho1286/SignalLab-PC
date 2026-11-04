@@ -33,6 +33,7 @@ def expression_result(value):
     variable=result.get('output_variable')
     if 'transfer' in result and result.get('model_kind')!='frequency':variable='s' if request.get('domain')=='analog' else 'z'
     conditions=[str(result[k]) for k in ('roc','condition','frequency_condition','convergence','scope') if result.get(k) not in (None,'True','')]
+    if result.get('cas_input_domain'):conditions.append(result['cas_input_domain'])
     if result.get('mathematical_conditions'):
         conditions.extend(label+': '+result['mathematical_conditions'][key] for key,label in [('domain','Dominio'),('causality','Causalidad'),('bibo_stability','Estabilidad BIBO')])
     if branches and branches[0].get('condition'):conditions.append(str(branches[0]['condition']))
@@ -63,6 +64,17 @@ def check_cas_destination(answer,destination):
         return
     if destination in ('system','analog','digital','inverse') and answer.get('domain_condition_implicit'):
         return
+    if destination in ('system','digital'):
+        if answer.get('domain_condition_analysis'):return
+        # Results saved before the analysis flag was introduced still have
+        # their encoded domain condition.
+        if answer.get('domain_symbols')==['z'] and answer.get('expression'):
+            from .cas_engine import restore
+            from .cas_domains import intrinsic_system_domain
+            from .symbolic import parse
+            try:
+                if intrinsic_system_domain(parse(answer['expression']),restore(answer['domain_condition']),analysis=True):return
+            except (SyntaxError,ValueError,TypeError):pass
     if destination in ('system','frequency') and answer.get('coordinate_variable')=='w' and answer.get('context_rewrite') is True:
         return
     raise ValueError('Este destino no aplica las condiciones de validez del CAS. Revisá la condición en el informe y definí allí el dominio antes de reutilizar la fórmula.')

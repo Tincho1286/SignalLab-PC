@@ -11,6 +11,15 @@ def validate_period(period,domain='digital'):
     if not math.isfinite(period) or period<=0:raise ValueError('El período T debe ser positivo y finito.')
     return period
 
+def validate_clock_resolution(start,rate,count):
+    start=float(start);rate=float(rate)
+    if not math.isfinite(start) or not math.isfinite(rate) or rate<=0:
+        raise ValueError('El reloj requiere un tiempo inicial finito y una tasa positiva.')
+    step=1/rate;end=start+(count-1)*step
+    if not math.isfinite(end) or count>1 and (start+step==start or end-step==end or step<max(math.ulp(start),math.ulp(end))):
+        raise ValueError('El reloj de salida excede la resolución o el rango numérico.')
+
+
 def common_period(*systems):
     periods=[system.sample_period_s for system in systems if system.sample_period_s is not None]
     if not periods:return None
@@ -19,6 +28,8 @@ def common_period(*systems):
 
 def input_metadata(system,source):
     if source.domain!='discrete':raise ValueError('La entrada del filtro discreto debe ser una secuencia.')
+    from .signal_semantics import require_temporal
+    require_temporal(source)
     metadata=dict(source.metadata);rate=metadata.get('sample_rate_hz');period=system.sample_period_s
     if rate is not None:
         rate=float(rate)

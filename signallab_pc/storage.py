@@ -3,10 +3,25 @@
 import math
 import csv
 import json
+from threading import Lock
 from pathlib import Path
 
 from .model import Signal
 from .atomic_file import atomic_text_file,write_json
+
+
+_CSV_HEADER_LOCK=Lock()
+
+
+def _read_own_csv_header(reader,size):
+    from .resources import ensure_working_set
+    ensure_working_set(size,bytes_per_sample=1,live_arrays=5)
+    with _CSV_HEADER_LOCK:
+        previous=csv.field_size_limit()
+        try:
+            csv.field_size_limit(max(previous,min(size,2**31-1)))
+            return next(reader)
+        finally:csv.field_size_limit(previous)
 
 
 def save_json(signal: Signal, path: str | Path) -> None:
@@ -57,14 +72,14 @@ def load_csv(path,*,domain='discrete',delimiter=',',skip_rows=1,axis_column=0,re
     if delimiter not in (',',';','\t'):raise ValueError('Separador no admitido.')
     if decimal_comma and delimiter==',':raise ValueError('Para coma decimal elegí punto y coma o tabulación como separador.')
     path=Path(path);metadata={};name=path.stem;units={'discrete':'n','continuous':'s','frequency':'rad/s'}.get(domain,'n')
-    values=[];first=None;spacing=None;previous=None;axis_scale=1
+    values=[];coordinates=[];first=None;spacing=None;previous=None;axis_scale=1
     source_units=axis_units or units
     with path.open('r',newline='',encoding='utf-8-sig') as stream:
-        first_line=stream.readline();stream.seek(0)
+        first_line=stream.readline(100);stream.seek(0)
         own=first_line.startswith('# SignalLab CSV v1')
         reader=csv.reader(stream,delimiter=',' if own else delimiter)
         if own:
-            header=next(reader);fields=dict(cell.split('=',1) for cell in header[1:] if '=' in cell)
+            header=_read_own_csv_header(reader,path.stat().st_size);fields=dict(cell.split('=',1) for cell in header[1:] if '=' in cell)
             domain=fields['domain'];name=fields.get('name',name);units=fields.get('units',units);metadata=json.loads(fields.get('metadata','{}'))
             origin=fields.get('origin','0');step=float(fields.get('step','1'));axis_column=0;real_column=1;imag_column=2;decimal_comma=False
             if next(reader,None)!=['axis','real','imag']:raise ValueError('Encabezado de columnas SignalLab inválido.')
@@ -99,13 +114,18 @@ def load_csv(path,*,domain='discrete',delimiter=',',skip_rows=1,axis_column=0,re
                 else:
                     delta=axis-previous
                     if delta==0 or (delta>0 if descending else delta<0):raise ValueError('El eje no conserva la dirección indicada; no se reordenan las muestras.')
-                    if spacing is None:spacing=step if own else delta
-                    expected=first+len(values)*spacing
-                    tolerance=0 if domain=='discrete' else max(abs(spacing)*1e-7,8*math.ulp(float(expected)))
-                    if abs(axis-expected)>tolerance or (domain=='discrete' and delta!=1):raise ValueError('El eje no tiene paso uniforme. No se interpolan ni descartan datos automáticamente.')
+                    if own and domain!='discrete':
+                        expected=first+len(values)*step
+                        tolerance=min(abs(step)/4,max(abs(step)*1e-7,math.ulp(expected)))
+                        if abs(axis-expected)>tolerance:raise ValueError('El eje no coincide con el paso declarado.')
+                    if domain=='discrete' and delta!=1:raise ValueError('El eje discreto requiere índices consecutivos.')
+                if not own and domain!='discrete' and axis_column is not None:coordinates.append(axis)
                 previous=axis;values.append(value)
             except (ValueError,IndexError,InvalidOperation) as exc:raise ValueError(f'Fila CSV {reader.line_num}: {exc}') from exc
     if not values:raise ValueError('No hay muestras para importar. Revisá encabezados y columnas.')
+    if len(coordinates)>1:
+        from .uniform_axis import uniform_step
+        spacing=uniform_step(coordinates)
     actual_step=1 if domain=='discrete' else spacing if spacing is not None else float(step)
     if own and (first!=generated_origin or not math.isclose(actual_step,float(step),rel_tol=1e-7,abs_tol=0)):
         raise ValueError('El eje del CSV no coincide con su encabezado SignalLab.')
