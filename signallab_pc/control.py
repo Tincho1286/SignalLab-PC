@@ -39,6 +39,8 @@ def analog_response(system, duration, count, kind="step"):
     duration = positive_finite(duration, "Duración")
     count = positive_integer(count, "Muestras")
     if count < 2 or kind not in {"step", "impulse"}: raise ValueError("Usá al menos dos puntos y excitación step o impulse.")
+    from .transfer_plane import effective_plane_system
+    system = effective_plane_system(system)
     b = np.trim_zeros(system.b, "f")
     if not len(b): b = np.array([0j])
     if len(b) > len(system.a):
@@ -110,6 +112,8 @@ def forced_response(system, source, interpolation="linear"):
             raise ValueError("La entrada continua requiere al menos dos puntos y paso positivo.")
         if interpolation not in {"linear", "hold"}:
             raise ValueError("Elegí interpolación lineal o retención constante.")
+        from .transfer_plane import effective_plane_system
+        system = effective_plane_system(system)
         b = np.trim_zeros(system.b, "f")
         if not b.size: b = np.array([0j])
         if len(b) > len(system.a):
@@ -153,6 +157,41 @@ def forced_response(system, source, interpolation="linear"):
     return result
 
 
+def _connection_roc(first, second, connection):
+    from .transfer_plane import convergence, effective_plane_system
+
+    if connection not in ('cascade','parallel'):
+        return None
+    if first.roc is None and second.roc is None:
+        return None
+    digital = first.domain=='digital'
+    unrestricted_lower = 0. if digital else -np.inf
+    models = [effective_plane_system(system) for system in (first,second)]
+    regions = []
+    for model in models:
+        b = np.trim_zeros(model.b,'f') if not digital else np.trim_zeros(model.b,'b')
+        a = model.a if not digital else np.trim_zeros(model.a,'b')
+        if not model.advance and len(a)==1 and len(b)<=1:
+            regions.append((unrestricted_lower,np.inf))
+        else:
+            info = convergence(model)
+            if not info['known']:
+                return None
+            regions.append((info['inner'],info['outer']))
+    lower = max(region[0] for region in regions)
+    upper = min(region[1] for region in regions)
+    if lower>=upper:
+        raise ValueError('Las regiones de convergencia no se intersectan. La conexión no tiene una región común para combinar estas respuestas.')
+    if np.isposinf(upper):
+        return {'mode':'right'}
+    if lower==unrestricted_lower:
+        return {'mode':'left'}
+    interior = lower/2+upper/2
+    if not lower<interior<upper:
+        raise ValueError('La región común es demasiado estrecha para distinguir un punto interior.')
+    return {'mode':'radius','radius':interior} if digital else {'mode':'line','sigma':interior}
+
+
 def interconnect(first, second, connection="cascade"):
     """Composición racional sin cancelaciones aproximadas de polos y ceros."""
     if first.domain != second.domain:
@@ -161,6 +200,7 @@ def interconnect(first, second, connection="cascade"):
         raise ValueError("Conexión desconocida.")
     from .system_clock import common_period
     period=common_period(first,second)
+    roc=_connection_roc(first,second,connection)
     size=sum(len(v) for v in (first.a,first.b,second.a,second.b))
     ensure_working_set(size,live_arrays=16)
     def add(left,right,sign=1):
@@ -177,7 +217,7 @@ def interconnect(first, second, connection="cascade"):
             return None
         one,two=sections(first),sections(second)
         if one is not None and two is not None:
-            result=Transfer([1],[1],'digital','Cascada H₁·H₂ en secciones',np.vstack((one,two)),first.advance+second.advance,sample_period_s=period);checkpoint(1);return result
+            result=Transfer([1],[1],'digital','Cascada H₁·H₂ en secciones',np.vstack((one,two)),first.advance+second.advance,sample_period_s=period,roc=roc);checkpoint(1);return result
     denominator=np.convolve(first.a,second.a)
     advance=0
     def delayed(values,count):
@@ -201,7 +241,7 @@ def interconnect(first, second, connection="cascade"):
     if first.domain=="digital" and denominator[0]==0:
         leading=int(np.flatnonzero(denominator)[0]);denominator=denominator[leading:];advance+=leading
     checkpoint(1)
-    result=Transfer(numerator,denominator,first.domain,name,advance=advance,sample_period_s=period)
+    result=Transfer(numerator,denominator,first.domain,name,advance=advance,sample_period_s=period,roc=roc)
     if first.sos is not None or second.sos is not None:
         # A polynomial equivalent must not silently discard the accuracy of SOS inputs.
         w=np.linspace(0,np.pi,2049);h1=first.response(w);h2=second.response(w)

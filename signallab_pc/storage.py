@@ -99,7 +99,7 @@ def load_csv(path,*,domain='discrete',delimiter=',',skip_rows=1,axis_column=0,re
                 else:
                     delta=axis-previous
                     if delta==0 or (delta>0 if descending else delta<0):raise ValueError('El eje no conserva la dirección indicada; no se reordenan las muestras.')
-                    if spacing is None:spacing=delta
+                    if spacing is None:spacing=step if own else delta
                     expected=first+len(values)*spacing
                     tolerance=0 if domain=='discrete' else max(abs(spacing)*1e-7,8*math.ulp(float(expected)))
                     if abs(axis-expected)>tolerance or (domain=='discrete' and delta!=1):raise ValueError('El eje no tiene paso uniforme. No se interpolan ni descartan datos automáticamente.')

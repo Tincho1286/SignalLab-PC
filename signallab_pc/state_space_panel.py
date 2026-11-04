@@ -194,7 +194,7 @@ class StateSpacePanel(QWidget):
                     summary=transfer_summary(system);rows=[('Canal',f'u{input_index+1} → y{output_index+1}'),('Estados del modelo',str(model.states))]
                     if model.dt is not None:rows.append(('Periodo T del modelo (s)',number(model.dt)))
                     summary.sections.insert(0,summary.sections.pop(1))
-                    summary.sections.insert(1,Section('Canal calculado',rows=rows,paragraphs=['La transferencia relaciona la entrada y salida elegidas con estado inicial nulo. Puede ocultar modos internos no controlables u observables. Los coeficientes son numéricos y pueden contener residuos de redondeo.']))
+                    summary.sections.insert(1,Section('Canal calculado',rows=rows,paragraphs=['La transferencia relaciona la entrada y salida elegidas con estado inicial nulo. Puede ocultar modos internos no controlables u observables. Los factores exactamente comunes se cancelan antes de convertir los coeficientes a doble precisión.']))
                     self.report.set_readable(summary);self.result_tabs.setCurrentIndex(0)
                 self.run('Obteniendo transferencia…',lambda:model.to_transfer(input_index,output_index),accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá el modelo',str(exc))

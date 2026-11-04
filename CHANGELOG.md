@@ -2,6 +2,16 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.5**.
 
+## 1.6.6 · preliminar
+
+- Selección correcta de la entrada reutilizada en Densidad de energía y conservación del reloj en convolución, PSD y edición de ejes.
+- Cancelaciones exactas al exportar canales de espacio de estados y al simular transferencias continuas desde reposo.
+- Conservación de una ROC compatible en cascadas y sumas.
+- Filtrado en frecuencia sobre rejillas completas y manejo preciso de índices discretos grandes.
+- Reapertura de CSV propios con el paso declarado.
+
+[Notas de la entrega](docs/releases/v1.6.6-preview.md)
+
 ## 1.6.5 · estable
 
 - La DFT directa permite elegir frecuencia angular o índice k centrado en el gráfico y la tabla.

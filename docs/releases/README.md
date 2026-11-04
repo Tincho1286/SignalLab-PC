@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.6.6-preview](v1.6.6-preview.md) | Reutilización de datos, ROC y precisión numérica | Preliminar |
 | [1.6.5](v1.6.5.md) | Longitud mínima automática para FIR Kaiser | Estable |
 | [1.6.3-preview](v1.6.3-preview.md) | Longitud FIR automática, espacio de estados y reloj de la señal | Preliminar |
 | [1.6.2-preview](v1.6.2-preview.md) | ROC, simulación de cascadas y precisión de fase | Preliminar |

@@ -1,7 +1,7 @@
 """Modelos de estado continuos/discretos, MIMO y simulación con entrada ZOH."""
 from dataclasses import dataclass
 import numpy as np
-from scipy.signal import cont2discrete,ss2tf
+from scipy.signal import cont2discrete
 from .filters import Transfer
 from .resources import ensure_working_set
 from .jobs import checkpoint
@@ -67,8 +67,18 @@ class StateModel:
         if not 0<=input_index<self.inputs or not 0<=output_index<self.outputs:raise ValueError('Canal de entrada o salida fuera de rango.')
         ensure_working_set(max(1,self.states**2),live_arrays=12);checkpoint()
         if not self.states:return Transfer([self.D[output_index,input_index]],[1],self.domain,self.name,sample_period_s=self.dt,roc={'mode':'right'})
-        b,a=ss2tf(self.A,self.B,self.C,self.D,input=input_index)
-        return Transfer(b[output_index],a,self.domain,f'{self.name}: y{output_index+1}/u{input_index+1}',sample_period_s=self.dt,roc={'mode':'right'})
+        from .state_frequency import _channel_models
+        from .rational_frequency import complex_float
+
+        channel = _channel_models(self,input_index,output_index)[0][0]
+        channel.reduce()
+        b = [complex_float(value) for value in channel.b]
+        a = [complex_float(value) for value in channel.a]
+        if self.dt is not None:
+            # Descending powers of z become ascending powers of z⁻¹ after dividing by z^degree.
+            b = [0j]*(len(a)-len(b))+b
+        return Transfer(b,a,self.domain,f'{self.name}: y{output_index+1}/u{input_index+1}',
+                        sample_period_s=self.dt,roc={'mode':'right'})
     @classmethod
     def from_transfer(cls,system,dt=None):
         from .realization import realize_system

@@ -22,11 +22,15 @@ def _rational(value):
     return Fraction(int(real.p), int(real.q)), Fraction(int(imag.p), int(imag.q))
 
 
-def _channel_models(model):
+def _channel_models(model, input_index=None, output_index=None):
     """Build C adj(zI-A) B + D det(zI-A) without rounding state coefficients."""
-    ensure_working_set(model.states**2 + (model.states+1)*model.outputs*model.inputs,
+    inputs = slice(None) if input_index is None else slice(input_index,input_index+1)
+    outputs = slice(None) if output_index is None else slice(output_index,output_index+1)
+    matrices = (model.A, model.B[:,inputs], model.C[outputs,:], model.D[outputs,inputs])
+    count_outputs,count_inputs = matrices[-1].shape
+    ensure_working_set(model.states**2 + (model.states+1)*count_outputs*count_inputs,
                        bytes_per_sample=256, live_arrays=8)
-    A, B, C, D = (_matrix(matrix) for matrix in (model.A, model.B, model.C, model.D))
+    A, B, C, D = (_matrix(matrix) for matrix in matrices)
     denominator = A.charpoly().all_coeffs()
     coefficients = [D]
     block = B
@@ -37,7 +41,7 @@ def _channel_models(model):
             block = A*block + denominator[index+1]*B
     den = tuple(map(_rational, denominator))
     return [[RationalModel(tuple(_rational(coefficient[i,j]) for coefficient in coefficients), den)
-             for j in range(model.inputs)] for i in range(model.outputs)]
+             for j in range(count_inputs)] for i in range(count_outputs)]
 
 
 def _point(angle, digital):

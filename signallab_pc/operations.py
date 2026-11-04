@@ -153,13 +153,28 @@ def even_odd_parts(x: Signal) -> tuple[Signal, Signal]:
 def linear_convolution(x: Signal, h: Signal) -> Signal:
     """Convolución lineal completa y[n]=sum x[k]h[n-k], incluidos índices negativos."""
     _discrete(x); _discrete(h)
+    clock = {}
+    left_rate = x.metadata.get('sample_rate_hz')
+    right_rate = h.metadata.get('sample_rate_hz')
+    if left_rate is not None and right_rate is not None:
+        from .sampling import positive_finite
+        left_rate = positive_finite(left_rate, 'Fs de la primera secuencia')
+        right_rate = positive_finite(right_rate, 'Fs de la segunda secuencia')
+        if not np.isclose(left_rate,right_rate,rtol=1e-12,atol=0):
+            raise ValueError('Las secuencias tienen distintas tasas de muestreo. Igualá sus relojes antes de convolucionar.')
+        clock['sample_rate_hz'] = left_rate
+        if 'time_start_s' in x.metadata and 'time_start_s' in h.metadata:
+            start_s = float(x.metadata['time_start_s']) + float(h.metadata['time_start_s'])
+            if not np.isfinite(start_s):
+                raise ValueError('El instante inicial de la convolución excede el rango numérico.')
+            clock.update(time_start_s=start_s,time_mapping='t = time_start_s + (n-origin)/sample_rate_hz')
     count = x.values.size + h.values.size - 1
     ensure_working_set(count, live_arrays=7)
     y = scipy_signal.convolve(x.values, h.values, mode="full", method="auto")
     start = int(x.origin) + int(h.origin)
     result = Signal(_finite_output(y, "La convolución"), start, 1, x.units,
                   f"{x.name}*{h.name}", "discrete", "",
-                  {"operation": "linear_convolution", "inputs": [x.name, h.name],
+                  {**clock, "operation": "linear_convolution", "inputs": [x.name, h.name],
                    "convention": "full; zero outside each finite support"})
     from .quality_steps import convolution
     result.metadata['derivation']=convolution(x,h,result)

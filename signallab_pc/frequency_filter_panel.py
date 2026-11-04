@@ -1,4 +1,4 @@
-from .numeric_input import real_field
+from .numeric_input import real_field,integer_field
 """Entrada visual de H por tramos, respuesta al impulso y filtrado espectral."""
 import numpy as np
 from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QPushButton,QLabel,QScrollArea,QTabWidget,QMessageBox
@@ -58,8 +58,8 @@ class FrequencyFilterPanel(QWidget):
             response=self.h._read().copy_with(name='Respuesta H(ω)')
             if self.h.mode.currentIndex()==2 and response.units!=unit:raise ValueError('La respuesta importada debe usar '+unit+'.')
             response.units=unit;response.metadata={**response.metadata,'operation':'frequency_filter','time_domain':domain}
-            start=self.scalar(self.start);count=self.scalar(self.count);step=self.scalar(self.step)
-            if count!=int(count):raise ValueError('La cantidad de puntos debe ser entera.')
+            start=integer_field(self.start) if digital else self.scalar(self.start)
+            count=integer_field(self.count);step=self.scalar(self.step)
             source=(self.xd if digital else self.xc).read() if self.operation.currentIndex()==1 else None
             snapshot=self.state.snapshot()
             def accept(result):

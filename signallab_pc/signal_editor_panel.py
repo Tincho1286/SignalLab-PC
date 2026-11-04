@@ -143,6 +143,11 @@ class SignalEditorPanel(QWidget):
             if result.expression:result.metadata['source_expression']=result.expression
             result.expression=''
         result.metadata={**result.metadata,'operation':'edit_samples_and_axis','edited_offsets':sorted(self.changed_rows)}
+        if result.domain=='continuous' and result.units=='s' and (origin!=self.current.origin or step!=self.current.step):
+            rate=1/step
+            if not np.isfinite(rate):raise ValueError('La tasa del nuevo eje excede el rango numérico.')
+            result.metadata.update(time_start_s=origin,sample_rate_hz=rate)
+            result.metadata.pop('time_mapping',None)
         key=self.window.publish(result,operation='Edición de muestras y eje',parents=[self.parent_id] if self.parent_id else [])
         self.parent_id=key;self.current=result.copy_with();self.applied=result;self.pending=False;self.changed_rows=set()
         self.render();self.output.show_result(result);self.tabs.setTabVisible(self.result_tab,True)

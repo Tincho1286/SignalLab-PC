@@ -700,6 +700,9 @@ class ToolPage(QWidget):
         if kind=='sampling' and index==3:
             from .input_clock import bind_clock
             form.insertRow(0,bind_clock(source,self.panel.rate,self.panel.start))
+        if kind=='fourier' and index==7:
+            from .input_clock import bind_clock
+            form.insertRow(0,bind_clock(source,self.panel.rate))
         from .result_state import ResultState
         source_widgets=set(source.findChildren(QWidget)) if source is not None else set()
         tracked=[]
@@ -930,6 +933,11 @@ class ToolboxWindow(SignalLabWindow):
             if key is None:key=self.publish(value,operation='Secuencia enviada a Z finita')
             panel.source.set_source(self.project.get(key),key)
             self.statusBar().showMessage('Secuencia cargada en Z directa, conservando todos sus índices.');return
+        if item[1:3]==('fourier',6):
+            if key is None:key=self.publish(value,operation='Resultado enviado a densidad de energía')
+            self.stack.currentWidget().panel.receive(self.project.get(key),key)
+            self.statusBar().showMessage('Entrada cargada en Densidad de energía.')
+            return
         if item[1]=='frequency_filter':
             panel=self.stack.currentWidget().panel
             if value.domain=='frequency':panel.receive_response(value)
