@@ -340,10 +340,10 @@
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.9-preview/LICENSE"
       },
       {
-        "id": 707750233,
+        "id": 707763138,
         "name": "SHA256SUMS-1.5.9.txt",
-        "size": 748,
-        "digest": "sha256:c67dee7e7239129219a2c8884f41f872707c2f53be61204590b9a47c40763e10",
+        "size": 740,
+        "digest": "sha256:4d214cd84e3342bccda32a1c27a54f7cf2d582ca6e579c8116a1cb1a8c23af44",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.9-preview/SHA256SUMS-1.5.9.txt"
       },
       {
@@ -375,10 +375,10 @@
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.9-preview/SignalLab-PC-1.5.9.exe"
       },
       {
-        "id": 707749932,
+        "id": 707763018,
         "name": "v1.5.9-preview.md",
-        "size": 3080,
-        "digest": "sha256:f147331b12b1d9f5feb3850e896b76896047237042ee6f6f1a4d24da6d838acc",
+        "size": 3046,
+        "digest": "sha256:c3e418f697280acc3d1257318240906cc77d9c1fde222db1c140698960d822f0",
         "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.5.9-preview/v1.5.9-preview.md"
       }
     ],
