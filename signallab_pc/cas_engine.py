@@ -4,6 +4,7 @@ import sympy as sp
 from sympy.core.function import FunctionClass,AppliedUndef
 from sympy.core.relational import Relational
 from .resources import ensure_working_set
+from .impulse_pairs import impulse
 
 
 CONSTANTS={'pi':sp.pi,'e':sp.E,'i':sp.I,'j':sp.I,'oo':sp.oo,'infinity':sp.oo,
@@ -16,7 +17,7 @@ FUNCTIONS={name:getattr(sp,name) for name in ('sin','cos','tan','asin','acos','a
     'diff','integrate','limit','series','summation','product','dsolve','nsolve','laplace_transform','inverse_laplace_transform',
     'gcd','lcm','div','rem','factorint')}
 FUNCTIONS.update({'sinc':lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x)/(sp.pi*x),True)),'abs':sp.Abs,'ln':sp.log,'re':sp.re,'im':sp.im,'conj':sp.conjugate,
-    'arg':sp.arg,'mod':sp.Mod,'piecewise':sp.Piecewise,'heaviside':sp.Heaviside,'diracdelta':sp.DiracDelta,
+    'arg':sp.arg,'mod':sp.Mod,'piecewise':sp.Piecewise,'heaviside':sp.Heaviside,'diracdelta':impulse,'dirac':impulse,'impulse':impulse,
     'step':lambda value:sp.Heaviside(value,1),'kroneckerdelta':sp.KroneckerDelta,
     'integral':sp.Integral,'derivative':sp.Derivative,'sum':sp.summation,'prod':sp.product,
     'matrix':sp.Matrix,'vector':lambda value:sp.Matrix(value),'det':lambda a:a.det(),

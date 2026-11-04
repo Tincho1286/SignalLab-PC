@@ -7,7 +7,7 @@ CONTRACT='mathematical-families-v2'
 # Requiring each named family prevents a missing import/file from becoming a pass.
 FAMILIES={
     'transforms':('test_math_reliability.MathematicalReliabilityTests',21),
-    'transform_properties':('test_math_shifted_pairs.ShiftedPairContracts',7),
+    'transform_properties':('test_math_shifted_pairs.ShiftedPairContracts',14),
     'preventive_regressions':('test_math_preventive.PreventiveContracts',6),
     'health_exchange':('test_health_exchange.HealthExchangeContracts',15),
     'expression_systems':('test_math_expression_systems.ExpressionSystemContracts',8),

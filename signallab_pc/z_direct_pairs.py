@@ -139,4 +139,5 @@ def direct_pairs(expression,lower,upper):
     boundary={'boundary_result':closed,'boundary_condition':boundary_condition}
     if condition is sp.false:
         return {'result':sp.Sum(expression*Z**(-N),(N,lower,upper)),'condition':condition,'empty':True,**boundary}
-    return {'result':closed,'condition':condition,'empty':False,**boundary}
+    finite_support=all(value==0 or (lo.is_finite and hi.is_finite) for value,lo,hi in parts)
+    return {'result':closed,'condition':condition,'empty':False,'finite_support':bool(finite_support),**boundary}

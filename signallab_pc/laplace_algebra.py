@@ -31,7 +31,9 @@ def direct(request):
     impulse = sp.S.Zero
     for term in singular:
         checkpoint()
-        impulse += sp.integrate(term * sp.exp(-S*T), (T, -sp.oo, sp.oo))
+        from .impulse_pairs import impulse_integral
+        pair=impulse_integral(term,T,sp.exp(-S*T))
+        impulse += pair if pair is not None else sp.integrate(term * sp.exp(-S*T), (T, -sp.oo, sp.oo))
     regular = sp.piecewise_fold(sp.Add(*regular).rewrite(sp.Piecewise))
     try:
         regions = regular.as_expr_set_pairs(domain=sp.S.Reals) if isinstance(regular, sp.Piecewise) else [(regular, sp.S.Reals)]

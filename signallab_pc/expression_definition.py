@@ -47,6 +47,10 @@ def prepare(source,variable,domain,support=None,conditions=(),support_kind='sign
     from .singularities import resolve_finite_support
     with capture() as records:
         expression=parse(source)
+        if domain=='discrete' and expression.has(sp.DiracDelta):
+            raise ValueError('Un impulso discreto debe depender de n, como Dirac(n-a) o impulse(n-a). Las derivadas de Dirac pertenecen al dominio continuo.')
+        if domain!='discrete' and expression.has(sp.KroneckerDelta):
+            raise ValueError('KroneckerDelta representa un impulso discreto. Para una entrada continua usá Dirac(t-a); en frecuencia, Dirac(w-a).')
         if domain=='discrete' and support is not None:
             expression=resolve_finite_support(expression,variable,*support)
             # Reject actual undefined integer samples, not real poles between

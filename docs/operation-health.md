@@ -9,6 +9,8 @@ Las notas públicas describen las mejoras aplicadas y las limitaciones conocidas
 - **1.5.6 — Operation Health 1:** filtros ideales con escalones, estado después de un fallo de presentación, diagnóstico visible y prevención de errores de nombres/importaciones en el código.
 - **1.5.7 — Operation Health 2:** sinc bilateral, condiciones y unidades en CAS, posiciones no definidas en gráficos, ejes MATLAB exactos e intercambio CSV/JSON.
 
+- **1.5.8 — Operation Health 3:** impulsos discretos compartidos, pares de Fourier y escalado de derivadas de Dirac en Laplace.
+
 ## Hallazgos tratados
 
 | ID | Hallazgo | Entrega |
@@ -27,6 +29,11 @@ Las notas públicas describen las mejoras aplicadas y las limitaciones conocidas
 | OH-012 | La suma formal de Z de una sinc bilateral podía confundirse con un resultado simplificable. | 1.5.7 |
 | OH-014 | Un resultado simplificado bajo supuestos sobre w podía analizarse fuera de esas condiciones. | 1.5.7 |
 | OH-013 | La cancelación de un cociente en CAS podía borrar restricciones de su respuesta de frecuencia importada. | 1.5.7 |
+| OH-015 | Dirac(n) se interpretaba como distribución continua y dejaba Z/DTFT como sumas sin resolver. | 1.5.8 |
+| OH-016 | El soporte infinito de entrada ocultaba la convergencia de una secuencia de impulsos finita. | 1.5.8 |
+| OH-017 | Fourier e inversa dejaban pendientes pares básicos de constantes, polinomios y exponenciales. | 1.5.8 |
+| OH-018 | Las derivadas de Dirac con argumento escalado podían perder su factor en Laplace. | 1.5.8 |
+| OH-019 | Las distribuciones continuas podían entrar en operaciones de producto sin una validación explícita. | 1.5.8 |
 
 ## Continuidad hacia la estable
 

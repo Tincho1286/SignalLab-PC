@@ -51,6 +51,23 @@ class WorkflowContracts(unittest.TestCase):
         request=dict(operation='z_expression',expression=SOURCE,lower='0',upper='oo')
         return dict(request=request,result=execute(request))
 
+    def test_impulse_alias_transform_to_analysis_and_cas(self):
+        from signallab_pc.cas_transfer import payload
+        from signallab_pc.cas_import import import_result
+        from signallab_pc.cas_engine import empty_state,restore
+        panel=TransformLab(self.host,'z');self.widgets.append(panel)
+        for expression,delay,gain in [('Dirac(n)',0,1),('2*Dirac(n-3)',3,2),('Dirac(n+2)',-2,1)]:
+            panel.expression.setText(expression);panel.lower.setText('-oo');panel.upper.setText('oo');panel.calculate_button.click()
+            self.assertEqual(self.warnings,[]);self.assertTrue(panel.last['evaluated']);self.assertTrue(panel.analyze_system.isEnabled())
+            imported=import_result(dict(state=empty_state(),cell='1',payload=payload(dict(request=dict(operation='z_expression',expression=expression,lower='-oo',upper='oo'),result=panel.last))))
+            value=restore(imported['state']['results']['1'])
+            from signallab_pc.symbolic import Z
+            self.assertEqual((value-gain*Z**(-delay)).simplify(),0)
+            panel.analyze_system.click();analysis=self.calculated_analysis()
+            data=analysis.frequency_data
+            assert_allclose(data.response,gain*np.exp(-1j*data.omega*delay),atol=2e-12)
+            self.assertTrue(np.isfinite(data.response).all())
+
     def test_transform_button_to_general_system_analysis(self):
         source=self.transform();before=self.host.project.records();source.analyze_system.click();panel=self.calculated_analysis()
         self.assertIsNone(panel.system);self.assertIsNone(panel.analyzed_system)

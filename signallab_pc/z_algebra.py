@@ -42,6 +42,7 @@ def direct(request):
     answer={'operation':'Transformada Z algebraica','result':str(result),'branches':branches,'evaluated':evaluated,'output_variable':'z','inverse_roc_hint':'right' if lower.is_finite else 'left' if upper.is_finite else None,'scope':f'X(z)=Σ x[n] z^(−n), desde n={lower} hasta {upper}. Fuera del soporte indicado x[n]=0. Las condiciones de convergencia acompañan la expresión; no se descartan al simplificar.'}
     if pair is not None:
         answer['method']='table_pairs'
+        if pair.get('finite_support'):answer['inverse_roc_hint']='right'
         if pair['empty']:
             answer['convergence_empty']=True;answer['evaluated']=False;answer['roc']='No existe un anillo abierto de convergencia absoluta. La convergencia de Fourier sobre |z|=1 se comprueba por separado.'
             if lower==-sp.oo and upper==sp.oo:
@@ -50,7 +51,7 @@ def direct(request):
                 if boundary is not None:answer['boundary_dtft']=str(boundary)
             answer['scope']='Las colas izquierda y derecha exigen condiciones incompatibles sobre |z|. Puede existir una DTFT sobre el círculo unitario, pero eso no constituye una ROC abierta para la transformada Z.'
         else:answer['scope']+=' Se separaron los valores definidos por continuidad y se aplicaron linealidad y pares de potencias, exponenciales o series logarítmicas sobre cada tramo.'
-    if lower.is_finite and upper.is_finite and evaluated and not branches:
+    if ((lower.is_finite and upper.is_finite) or (pair is not None and pair.get('finite_support'))) and evaluated and not branches:
         if result.free_symbols-{Z}:
             answer['roc_finite_plane']='Converge para 0<|z|<∞. La inclusión de z=0 y z=∞ depende del soporte efectivo y de los parámetros.'
         else:

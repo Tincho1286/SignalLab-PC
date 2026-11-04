@@ -4,6 +4,7 @@ import re
 import math
 import sympy as sp
 from .resources import ensure_working_set
+from .impulse_pairs import impulse
 
 T = sp.Symbol("t", real=True)
 S = sp.Symbol("s")
@@ -15,8 +16,8 @@ SYMBOLS = {"t": T, "x": T, "s": S, "z": Z, "n": N, "w": W, "omega": W, "tau": TA
            "i": sp.I, "j": sp.I, "oo": sp.oo, "infinity": sp.oo, "zoo":sp.zoo,"nan":sp.nan,"true": sp.true, "false": sp.false}
 FUNCTIONS = {"sinc": lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x)/(sp.pi*x),True)), "ceil":sp.ceiling, "ceiling":sp.ceiling, "floor":sp.floor, "sign":sp.sign,"sin": sp.sin, "cos": sp.cos, "tan": sp.tan, "exp": sp.exp, "log": sp.log,
              "asin":sp.asin, "acos":sp.acos, "atan":sp.atan, "tanh":sp.tanh, "ln": sp.log, "polylog":sp.polylog, "lerchphi":sp.lerchphi, "mod":sp.Mod, "eq":sp.Eq, "ne":sp.Ne, "erf": sp.erf, "erfc": sp.erfc, "sqrt": sp.sqrt, "abs": sp.Abs, "sinh": sp.sinh, "cosh": sp.cosh,
-             "heaviside": sp.Heaviside, "diracdelta": sp.DiracDelta, "dirac": sp.DiracDelta,
-             "step": lambda x:sp.Heaviside(x,1), "impulse": lambda x:sp.KroneckerDelta(x,0) if x.has(N) else sp.DiracDelta(x), "kroneckerdelta":sp.KroneckerDelta, "piecewise": sp.Piecewise, "conj": sp.conjugate, "re": sp.re, "im": sp.im}
+             "heaviside": sp.Heaviside, "diracdelta": impulse, "dirac": impulse,
+             "step": lambda x:sp.Heaviside(x,1), "impulse": impulse, "kroneckerdelta":sp.KroneckerDelta, "piecewise": sp.Piecewise, "conj": sp.conjugate, "re": sp.re, "im": sp.im}
 
 
 def parse(expression):
@@ -163,16 +164,19 @@ def _execute(request):
         inverse=operation=='inverse_fourier_angular'
         definition=prepare(expression,W if inverse else T,'frequency' if inverse else 'continuous',(-sp.oo,sp.oo),request.get('input_conditions',()),'integration_interval');value=definition.integral_expression()
         if value.has(T if inverse else W):raise ValueError('La entrada contiene la variable de salida; usá otro nombre para ese parámetro.')
-        if inverse:
-            answer=sp.inverse_fourier_transform(value.subs(W,2*sp.pi*frequency),frequency,T,noconds=False)
+        from .impulse_pairs import fourier_pairs
+        known,regular=fourier_pairs(value,W if inverse else T,T if inverse else W,inverse=inverse)
+        if regular==0:answer=(sp.S.Zero,sp.true)
+        elif inverse:
+            answer=sp.inverse_fourier_transform(regular.subs(W,2*sp.pi*frequency),frequency,T,noconds=False)
         else:
-            answer=sp.fourier_transform(value,T,frequency,noconds=False)
+            answer=sp.fourier_transform(regular,T,frequency,noconds=False)
         if isinstance(answer,tuple):result,condition=answer
         else:result,condition=answer,sp.true
         condition=sp.sympify(condition)
         if not inverse:
             result=result.subs(frequency,W/(2*sp.pi));condition=condition.subs(frequency,W/(2*sp.pi))
-        result=sp.simplify(result)
+        result=sp.simplify(result+known)
         evaluated=not result.has(sp.FourierTransform,sp.InverseFourierTransform,sp.Integral)
         return attach({'operation':operation,'result':str(result),'condition':str(condition),
                 'evaluated':evaluated,'output_variable':'t' if inverse else 'w',
@@ -299,7 +303,8 @@ def _execute(request):
         from .expression_definition import prepare,attach
         definition=prepare(expression,T,'continuous',(sp.S.Zero,sp.oo),request.get('input_conditions',()),'unilateral_0minus');value=definition.integral_expression()
         if value.has(S,N,Z,W):raise ValueError('Laplace directa: ingresá x(t) usando t. Para una expresión en s elegí Inversa.')
-        result, plane, condition = sp.laplace_transform(value, T, S)
+        from .impulse_pairs import unilateral_laplace
+        result, plane, condition = unilateral_laplace(value, T, S)
         return attach({"operation": "Laplace unilateral", "result": str(result), "convergence": f"Re(s) > {plane}", "convergence_abscissa":str(plane),
                 "condition": str(condition), "output_variable":"s", "scope": "Laplace unilateral: se integra desde 0− hasta infinito. Los valores para t<0 no forman parte de esta transformada.", "evaluated": not result.has(sp.LaplaceTransform,sp.Integral,sp.oo,sp.zoo,sp.nan)},definition)
     if operation == "inverse_laplace":
@@ -367,7 +372,8 @@ def _execute(request):
         definition=prepare(expression,T,'continuous',(sp.S.Zero,sp.oo),support_kind='unilateral_0minus')
         forcing_expression=definition.integral_expression()
         if forcing_expression.has(N,S,Z,W):raise ValueError('La entrada de la EDO debe estar expresada en t.')
-        forcing, plane, condition=sp.laplace_transform(forcing_expression,T,S)
+        from .impulse_pairs import unilateral_laplace
+        forcing, plane, condition=unilateral_laplace(forcing_expression,T,S)
         polynomial=sum(value*S**j for j,value in enumerate(coefficients))
         correction=sum(coefficients[j]*sum(S**(j-1-k)*initial[k] for k in range(j)) for j in range(1,order+1))
         transformed=sp.cancel((forcing+correction)/polynomial)

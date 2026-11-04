@@ -83,4 +83,84 @@ class ShiftedPairContracts(unittest.TestCase):
             self.assertEqual(sp.simplify(value.subs(W,w)-height*sp.exp(-4*sp.I*(w-carrier))),0)
 
 
+    def test_impulse_aliases_have_identical_z_dtft_and_numeric_samples(self):
+        from signallab_pc.engine import sequence_from_expression
+        for alias in ('Dirac','dirac','DiracDelta','Impulse','impulse'):
+            for delay in (-4,0,3):
+                text=f'2*{alias}(n-({delay}))'
+                for operation,expected in [('z_expression',2*Z**(-delay)),('dtft_expression',2*sp.exp(-sp.I*W*delay))]:
+                    with self.subTest(alias=alias,delay=delay,operation=operation):
+                        result=self.transform(text,operation,'-oo')
+                        self.assertTrue(result['evaluated']);self.assertEqual(sp.simplify(parse(result['result'])-expected),0)
+                        self.assertFalse(parse(result['result']).has(sp.Sum,sp.Integral,sp.DiracDelta))
+                        if operation=='z_expression':self.assertIn('roc_finite_plane',result)
+                samples=sequence_from_expression(text,-5,11)
+                want=np.zeros(11);want[delay+5]=2
+                np.testing.assert_array_equal(samples.values,want)
+
+    def test_impulse_sifting_scaling_products_and_support(self):
+        cases=[('(n+2)*Dirac(n-3)',-sp.oo,sp.oo,5*Z**-3),
+               ('Dirac(2*n)',-sp.oo,sp.oo,1),('Dirac(-2*(n+2))',-sp.oo,sp.oo,Z**2),
+               ('Dirac(n-1/2)',-sp.oo,sp.oo,0),('Dirac(2*n-1)',-sp.oo,sp.oo,0),
+               ('Dirac(n-3)',0,2,0),('Dirac(n+2)',0,sp.oo,0),
+               ('3*Dirac(n+2)-Dirac(n-3)',-2,3,3*Z**2-Z**-3)]
+        for text,lo,hi,want in cases:
+            with self.subTest(text=text,lower=lo,upper=hi):
+                result=self.transform(text,lower=str(lo),upper=str(hi));self.assertTrue(result['evaluated'])
+                self.assertEqual(sp.simplify(parse(result['result'])-want),0)
+                self.assertIn('roc_finite_plane',result)
+
+    def test_impulse_linearity_with_ordinary_infinite_tail(self):
+        for operation in ('z_expression','dtft_expression'):
+            result=self.transform('3*Dirac(n+2)+(1/2)^n*step(n)',operation,'-oo');self.assertTrue(result['evaluated'])
+            if operation=='z_expression':
+                value=parse(result['branches'][0]['expression']);want=3*Z**2+1/(1-1/(2*Z))
+            else:value=parse(result['result']);want=3*sp.exp(2*sp.I*W)+1/(1-sp.exp(-sp.I*W)/2)
+            self.assertEqual(sp.simplify(value-want),0)
+
+    def test_fourier_distribution_pairs_and_round_trips(self):
+        from signallab_pc.symbolic import T
+        for original,want in [('1',2*sp.pi*sp.DiracDelta(W)),('exp(2*i*t)',2*sp.pi*sp.DiracDelta(W-2)),
+                              ('t',2*sp.pi*sp.I*sp.DiracDelta(W,1)),('cos(2*t)',sp.pi*(sp.DiracDelta(W-2)+sp.DiracDelta(W+2)))]:
+            with self.subTest(original=original):
+                result=execute(dict(operation='fourier_angular',expression=original));self.assertTrue(result['evaluated'])
+                self.assertEqual(sp.simplify(parse(result['result'])-want),0)
+                inverse=execute(dict(operation='inverse_fourier_angular',expression=result['result']));self.assertTrue(inverse['evaluated'])
+                self.assertEqual(sp.simplify(parse(inverse['result'])-parse(original)),0)
+        for original,want in [('1',sp.DiracDelta(T)),('exp(-3*i*w)',sp.DiracDelta(T-3)),('w',-sp.I*sp.DiracDelta(T,1))]:
+            result=execute(dict(operation='inverse_fourier_angular',expression=original));self.assertTrue(result['evaluated'])
+            self.assertEqual(sp.simplify(parse(result['result'])-want),0)
+
+    def test_continuous_impulse_derivatives_keep_affine_scaling(self):
+        from signallab_pc.symbolic import S
+        for scale in (-3,-1,2):
+            for order in (0,1,2):
+                for operation in ('laplace','fourier_angular'):
+                    text=f'DiracDelta({scale}*(t-2),{order})'
+                    result=execute(dict(operation=operation,expression=text,interpretation='bilateral'));self.assertTrue(result['evaluated'])
+                    variable=S if operation=='laplace' else sp.I*W
+                    want=variable**order*sp.exp(-2*variable)/(abs(scale)*sp.Integer(scale)**order)
+                    self.assertEqual(sp.simplify(parse(result['result'])-want),0)
+                result=execute(dict(operation='laplace',expression=text));self.assertTrue(result['evaluated'])
+                self.assertEqual(sp.simplify(parse(result['result'])-S**order*sp.exp(-2*S)/(abs(scale)*sp.Integer(scale)**order)),0)
+        self.assertEqual(execute(dict(operation='laplace',expression='Dirac(t)'))['result'],'1')
+        self.assertEqual(execute(dict(operation='laplace',expression='Dirac(t+2)'))['result'],'0')
+
+    def test_invalid_distribution_products_and_domain_confusions_are_explicit(self):
+        for request in [dict(operation='z_expression',expression='DiracDelta(n,1)'),
+                        dict(operation='z_expression',expression='Dirac(0)'),
+                        dict(operation='fourier_angular',expression='Dirac(t)^2'),
+                        dict(operation='laplace',expression='Dirac(t)*step(t)',interpretation='bilateral'),
+                        dict(operation='fourier_angular',expression='KroneckerDelta(t,0)')]:
+            with self.subTest(request=request),self.assertRaises(ValueError):execute(request)
+
+    def test_impulse_inverse_z_and_inverse_dtft_keep_discrete_sequence(self):
+        for delay in (-3,0,4):
+            for operation,expression in [('z_inverse_expression',str(Z**(-delay))),('inverse_dtft_expression',str(sp.exp(-sp.I*W*delay)))]:
+                result=execute(dict(operation=operation,expression=expression,roc='right',include_samples=False));self.assertTrue(result['evaluated'])
+                from signallab_pc.signal_notation import read
+                value=read(result['result'],('n',))
+                for index in (delay-1,delay,delay+1):self.assertEqual(sp.simplify(value.subs(N,index)),int(index==delay))
+
+
 if __name__=='__main__':unittest.main()

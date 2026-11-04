@@ -40,6 +40,8 @@ _FUNCS = {"sin": np.sin, "cos": np.cos, "tan": np.tan, "exp": np.exp,
           "heaviside": lambda v, edge=.5: np.heaviside(_real_argument(v), _real_argument(edge)),
           "step": lambda v: _real_argument(v) >= 0,
           "impulse": lambda v: np.asarray(v) == 0,
+          "dirac": lambda v: np.asarray(v) == 0,
+          "diracdelta": lambda v: np.asarray(v) == 0,
           "sinc": np.sinc}
 
 
@@ -60,7 +62,7 @@ def evaluate_expression(expression: str, x: np.ndarray) -> np.ndarray:
         coordinates = np.asarray(x, dtype=float)
         ensure_working_set(coordinates.size, live_arrays=max(4, node_count + 3))
         axis_names={'x','t','n','k','w'}
-        constant=not any(isinstance(node,ast.Name) and node.id.lower() in axis_names or isinstance(node,(ast.IfExp,ast.Compare,ast.BoolOp)) or isinstance(node,ast.Constant) and isinstance(node.value,bool) or isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id.lower() in ('where','step','impulse','heaviside','kroneckerdelta') for node in ast.walk(tree))
+        constant=not any(isinstance(node,ast.Name) and node.id.lower() in axis_names or isinstance(node,(ast.IfExp,ast.Compare,ast.BoolOp)) or isinstance(node,ast.Constant) and isinstance(node.value,bool) or isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id.lower() in ('where','step','impulse','dirac','diracdelta','heaviside','kroneckerdelta') for node in ast.walk(tree))
         raw_coordinates=np.asarray(x)
         if not constant and raw_coordinates.size and np.issubdtype(raw_coordinates.dtype,np.integer) and max(abs(int(raw_coordinates.min())),abs(int(raw_coordinates.max())))>2**53:
             raise ExpressionError('La evaluación numérica de la fórmula requiere índices exactamente representables (|n| ≤ 2^53).')
@@ -108,7 +110,7 @@ def _visit(node, x):
                 if isinstance(value,ast.BinOp) and isinstance(value.op,ast.Mult):flatten(value.left);flatten(value.right)
                 else:factors.append(value)
             flatten(node)
-            gates=[value for value in factors if isinstance(value,ast.Call) and isinstance(value.func,ast.Name) and value.func.id.lower() in ('step','impulse','heaviside','kroneckerdelta')]
+            gates=[value for value in factors if isinstance(value,ast.Call) and isinstance(value.func,ast.Name) and value.func.id.lower() in ('step','impulse','dirac','diracdelta','heaviside','kroneckerdelta')]
             if gates:
                 # A supported signal is zero outside its support. Do not first
                 # overflow an exponential there and then multiply infinity by 0.
