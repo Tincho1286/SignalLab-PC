@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.6.5" src="https://img.shields.io/badge/estable-1.6.5-71d7c4?style=flat-square&amp;labelColor=172632"></a>
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.6.9" src="https://img.shields.io/badge/estable-1.6.9-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
   <img alt="Windows y Linux portables" src="https://img.shields.io/badge/Windows%20%2B%20Linux-portables-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Desarrollado con Python" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
@@ -40,14 +40,13 @@ El [catálogo de herramientas](docs/tools.md) explica dónde encontrar cada oper
 
 ## Descargar y empezar
 
-Los portables incluyen Python y las dependencias de la aplicación. Descargá la versión 1.6.5 para Windows o Linux. Las entregas anteriores están en Releases.
+Los portables incluyen Python y las dependencias de la aplicación. Descargá la versión 1.6.9 para Windows o Linux. Las entregas anteriores están en Releases.
 
 | Edición | Windows x64 | Linux x86_64 | Novedades |
 | --- | --- | --- | --- |
-| **Estable · 1.6.5** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SignalLab-PC-1.6.5.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SignalLab-PC-1.6.5-linux-x86_64.tar.gz) | [Notas de la estable](docs/releases/v1.6.5.md) |
-| **Preliminar · 1.6.8** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.8-preview/SignalLab-PC-1.6.8.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.8-preview/SignalLab-PC-1.6.8-linux-x86_64.tar.gz) | [Notas de la preliminar](docs/releases/v1.6.8-preview.md) |
+| **Estable · 1.6.9** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.9/SignalLab-PC-1.6.9.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.9/SignalLab-PC-1.6.9-linux-x86_64.tar.gz) | [Notas de la estable](docs/releases/v1.6.9.md) |
 
-La 1.6.5 reúne las correcciones de las preliminares 1.6.1, 1.6.2 y 1.6.3. El diseño FIR por bandas busca la longitud mínima que cumple las tolerancias, incluso con Kaiser. La DFT directa permite cambiar entre frecuencia angular e índices de bin centrados, y las figuras ofrecen control del rango vertical. Las [notas de la 1.6.5](docs/releases/v1.6.5.md) describen estas mejoras.
+La 1.6.9 reúne las correcciones de las preliminares 1.6.6, 1.6.7 y 1.6.8. El CAS conserva las condiciones de validez al simplificar y reutilizar expresiones. Las [notas de la 1.6.9](docs/releases/v1.6.9.md) detallan los cambios.
 
 En Windows, abrí el ejecutable descargado. En Linux, descomprimí el paquete y ejecutá `SignalLab-PC` dentro de su carpeta; consultá los [requisitos e instrucciones de Linux](docs/linux.md) para comprobar la compatibilidad de tu sistema.
 
