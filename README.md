@@ -45,7 +45,7 @@ Los portables incluyen Python y las dependencias de la aplicación. Descargá la
 | Edición | Windows x64 | Linux x86_64 | Novedades |
 | --- | --- | --- | --- |
 | **Estable · 1.6.0** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.0/SignalLab-PC-1.6.0.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.0/SignalLab-PC-1.6.0-linux-x86_64.tar.gz) | [Notas de la estable](docs/releases/v1.6.0.md) |
-| **Preliminar · 1.6.3** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.3-preview/SignalLab-PC-1.6.3.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.3-preview/SignalLab-PC-1.6.3-linux-x86_64.tar.gz) | [Notas de la preliminar](docs/releases/v1.6.3-preview.md) |
+| **Preliminar · 1.6.5** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5-preview/SignalLab-PC-1.6.5.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5-preview/SignalLab-PC-1.6.5-linux-x86_64.tar.gz) | [Notas de la preliminar](docs/releases/v1.6.5-preview.md) |
 
 Las versiones preliminares agrupan mejoras de cálculo, intercambio de resultados e importación. Las [notas de versiones](docs/releases/README.md) describen los cambios y sus límites; la [documentación de mantenimiento](docs/maintenance.md) resume las áreas revisadas.
 
