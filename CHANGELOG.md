@@ -4,6 +4,7 @@ Las versiones estables y preliminares se distribuyen en [GitHub Releases](https:
 
 ## 1.6.5 · estable
 
+- DFT directa centrada en rad/muestra y superposición DTFT opcional en el estudio de ventanas.
 - Kaiser busca la longitud FIR mínima que cumple las tolerancias cuando la longitud está en modo automático.
 - El informe distingue la longitud elegida de la estimación por fórmula.
 
