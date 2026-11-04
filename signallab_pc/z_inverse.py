@@ -8,7 +8,7 @@ from .resources import ensure_working_set
 from .jobs import checkpoint
 
 
-def inverse(request):
+def inverse(request, *, sample_sink=None):
     from .z_properties import inverse_pairs
     raw = parse(request['expression'])
     if not raw.has(N, T, S, W, sp.zoo, sp.nan, sp.oo):
@@ -16,7 +16,7 @@ def inverse(request):
         answer = inverse_tails(request, raw)
         if answer is not None:
             return answer
-    answer=inverse_pairs(request, raw)
+    answer=inverse_pairs(request, raw, sample_sink=sample_sink)
     if answer is not None:return answer
     expression=sp.cancel(raw)
     if expression.has(N,T,S,W):raise ValueError('Z inversa: ingresá X(z) usando z. Para x[n], elegí Directa.')
@@ -160,8 +160,8 @@ def inverse(request):
         for offset,n in enumerate(range(start,start+count)):
             if offset%64==0:checkpoint(.5+.4*offset/max(1,count))
             if causal_exact is not None:
-                value=complex(causal_exact[n] if n>=0 else 0)
-                value+=sum(complex(c) for index,c in impulses if index==n)
+                exact = (causal_exact[n] if n>=0 else sp.S.Zero) + sum(c for index,c in impulses if index==n)
+                value = as_mp(exact) if sample_sink is not None else complex(exact)
             else:
                 value=context.mpc(0)
                 for index,c in impulses:
@@ -175,7 +175,10 @@ def inverse(request):
                 if real_input:
                     if abs(value.imag)>context.mpf('1e-55')*max(1,abs(value)):raise ValueError('La cancelación de términos requiere más precisión para obtener muestras fiables.')
                     value=context.mpc(value.real,0)
-                value=complex(value)
+            if sample_sink is not None:
+                sample_sink.append(value)
+                continue
+            value = complex(value)
             if not math.isfinite(value.real) or not math.isfinite(value.imag):raise ValueError('Las muestras exceden el rango numérico.')
             samples.append([value.real,value.imag])
     zero_included=not inner and den.eval(0).is_zero is False
@@ -199,7 +202,7 @@ def inverse(request):
         coefficient=str(values.complex_number(numeric_c)) if numeric else str(c)
         decomposition.append('('+coefficient+')/(z-('+pole+'))^'+str(order))
     from .cas_engine import encode
-    return {'decomposition':'+'.join(decomposition) or '0','cas_encoded':encode(result),'operation':'Z inversa algebraica','result':sp.sstr(result,order='none'),'display_result':display_text,'display_terms':display_terms,'display_numeric':display_numeric,'display_precision':17 if display_numeric else None,'evaluated':True,'roc':roc,'infinity_included':bool(infinity_included),
+    return {'decomposition':'+'.join(decomposition) or '0','cas_encoded':encode(result),'operation':'Z inversa algebraica','result':sp.sstr(result,order='none'),'display_result':display_text,'display_terms':display_terms,'display_numeric':display_numeric,'display_precision':17 if display_numeric else None,'evaluated':True,'roc':roc,'infinity_included':bool(infinity_included),'roc_bounds_encoded':encode(sp.Tuple(low, high)),'zero_included':bool(zero_included),
         'scope':'La descomposición es algebraica exacta. La ROC decide qué términos son derechos o izquierdos; los términos polinómicos se representan por impulsos discretos. Las muestras describen sólo el intervalo elegido.'+(' El texto completo de la fórmula evalúa polos y coeficientes con al menos 17 cifras significativas y es una aproximación numérica; el cálculo conserva la definición algebraica. La vista redondeada facilita su lectura.' if display_numeric else ''),
         'origin':start,'numeric_samples':samples or None,'output_variable':'n','parameters':parameters,'pole_definitions':pole_rows,'coefficient_definitions':coefficient_rows if alias_needed else [],
         'root_note':'p[k] identifica una raíz exacta del polinomio indicado. Su decimal sólo ayuda a reconocerla; no reemplaza la definición algebraica. A[k] es el coeficiente exacto del término mostrado.' if alias_needed else ''}

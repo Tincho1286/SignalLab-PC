@@ -310,7 +310,7 @@ class SystemAnalysisPanel(QWidget):
             axes[1].plot(omega,data.response.imag);axes[1].set_ylabel('Parte imaginaria')
         else:
             axes[0].plot(omega,magnitude);axes[0].set_ylabel('Módulo (dB)' if db else '|H|')
-            axes[1].plot(omega,data.phase);axes[1].set_ylabel('Ángulo (rad)')
+            axes[1].plot(omega,data.phase);axes[1].set_ylabel('Fase continua (rad)' if data.phase_kind=='continuous' else 'Ángulo principal (rad)')
             if not np.isfinite(magnitude).any():
                 if np.all(data.magnitude == 0):
                     message = 'Módulo cero: −∞ dB'

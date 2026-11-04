@@ -2,6 +2,14 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.0**.
 
+## 1.6.2 · preliminar
+
+- Intersección correcta de las ROC y Z inversa de sumas racionales y logarítmicas.
+- Conversión por invarianza al impulso con ROC y simulación desde reposo con cancelaciones exactas.
+- Fase de sistemas racionales, bin de Nyquist y orígenes grandes en DTFT/DFT.
+
+[Notas de la entrega](docs/releases/v1.6.2-preview.md)
+
 ## 1.6.1 · preliminar
 
 - Validación de la ROC en simulaciones causales y cancelación exacta en cascadas.

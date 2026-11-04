@@ -212,7 +212,7 @@ class FourierPanel(QWidget):
                 if polar:parts[1][np.abs(bins)==0]=np.nan
                 for axis,part in zip(axes,parts):
                     plot_samples(axis,frequencies,part,discrete=True,label='DFT',color='#efb56c');axis.legend()
-                    axis.set_xlim(result.origin,result.origin+result.step*(result.values.size-1))
+                    axis.set_xlim(*result.metadata.get('frequency_bounds', (result.origin, result.axis[-1])))
             configure_signal_axis(axes[1],result)
             if polar:axes[1].set_title('Ceros: dB = −∞, no trazado' if power else 'Fase no definida donde el módulo es cero',fontsize=9)
             self.figure.tight_layout();self.canvas.draw_idle();return
@@ -249,7 +249,7 @@ class FourierPanel(QWidget):
             valid_dft=magnitude_dft>0;db_dft[valid_dft]=20*np.log10(magnitude_dft[valid_dft])
             for axis,part in ((axes[0,0],magnitude_dft),(axes[0,1],db_dft)):
                 plot_samples(axis,frequencies[selected],part,discrete=True,label='DFT',color='#efb56c');axis.legend()
-                axis.set_xlim(result.origin,result.origin+result.step*(result.values.size-1))
+                axis.set_xlim(*result.metadata.get('frequency_bounds', (result.origin, result.axis[-1])))
         for axis in axes.flat: configure_signal_axis(axis,result); axis.grid(alpha=.2)
         self.figure.tight_layout(); self.canvas.draw_idle()
 

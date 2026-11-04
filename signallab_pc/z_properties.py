@@ -31,7 +31,7 @@ def _pair(term):
     return sp.simplify(coefficient),delay,pole,order
 
 
-def inverse_pairs(request, raw=None):
+def inverse_pairs(request, raw=None, *, sample_sink=None):
     if raw is None:
         raw = parse(request['expression'])
     if raw.has(N,T,S,W,sp.zoo,sp.nan,sp.oo):return None
@@ -94,6 +94,9 @@ def inverse_pairs(request, raw=None):
                     if k==0:value+=c
                 elif right and k>=0:value+=c*math.comb(k+m-1,m-1)*p**k
                 elif not right and k<=-m:value+=c*(-1)**m*math.comb(-k-1,m-1)*p**k
+            if sample_sink is not None:
+                sample_sink.append(value)
+                continue
             value=complex(value)
             if not math.isfinite(value.real) or not math.isfinite(value.imag):raise ValueError('Las muestras exceden el rango numérico.')
             samples.append([value.real,value.imag])
@@ -103,6 +106,6 @@ def inverse_pairs(request, raw=None):
     pairs=[{'coefficient':str(c),'delay':str(d),'pole':str(p) if p is not None else None,'order':int(m),'right':bool(sides[p]) if p is not None else True} for c,d,p,m in terms]
     return {'geometric_terms':pairs,'operation':'Z inversa por propiedades','result':str(result),'display_result':text,'display_numeric':False,'display_terms':[],
             'evaluated':True,'output_variable':'n','origin':start,'numeric_samples':samples or None,'parameters':parameters,
-            'roc':str(lower)+(' ≤ ' if zero_included else ' < ')+'|z| < '+str(upper),'infinity_included':bool(infinity_included),
+            'roc':str(lower)+(' ≤ ' if zero_included else ' < ')+'|z| < '+str(upper),'infinity_included':bool(infinity_included),'roc_bounds_encoded':encode(sp.Tuple(lower, upper)),'zero_included':bool(zero_included),
             'cas_encoded':encode(result),'method':'geometric_pairs','condition':str(sp.And(*conditions)),
             'scope':'Se aplicaron linealidad, desplazamiento y pares de secuencias geométricas. La ROC decide el soporte derecho o izquierdo. La fórmula conserva exponenciales y coeficientes exactos; las muestras sólo cubren el intervalo elegido.'}

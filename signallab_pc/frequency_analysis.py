@@ -31,6 +31,7 @@ class FrequencyData:
     logarithmic:bool
     advance:int=0
     margins:dict|None=None
+    phase_kind:str="continuous"
 
     @property
     def units(self):return 'rad/muestra' if self.system.domain=='digital' else 'rad/s'
@@ -58,14 +59,12 @@ def analyze_frequency(system,omega,*,advance=0,logarithmic=False,margins=False):
         if convergence(system)['unit'] is not True:raise ValueError('La frontera de Fourier no pertenece a la ROC; no se interpreta su evaluación formal como respuesta en frecuencia del sistema.')
     response=system.response(omega)*np.exp(1j*omega*advance)
     magnitude, db = response_magnitudes(response)
-    phase = np.full(response.shape, np.nan)
+    from .frequency_phase import rational_phase
     valid = np.isfinite(response) & (response != 0)
-    indices=np.flatnonzero(valid)
-    for segment in np.split(indices,np.flatnonzero(np.diff(indices)>1)+1):
-        if segment.size:phase[segment]=np.unwrap(np.angle(response[segment]))
+    phase, phase_kind = rational_phase(system, np.asarray(omega), response, advance)
     delay=system.group_delay(omega)-advance
     delay=np.where(valid&np.isfinite(delay),delay,np.nan)
-    result=FrequencyData(system,omega,response,magnitude,db,phase,delay,logarithmic,int(advance+system.advance))
+    result=FrequencyData(system,omega,response,magnitude,db,phase,delay,logarithmic,int(advance+system.advance),phase_kind=phase_kind)
     if margins:result.margins=crossover_margins(system,omega,response,advance=advance)
     return result
 
@@ -222,12 +221,12 @@ def export_frequency(data,path):
             system=data.system.to_document(),mathematical_conditions=record(data.system),
             domain=data.system.domain,distribution='logarithmic' if data.logarithmic else 'linear',
             frequency=numbers(data.omega),response_real=numbers(data.response.real),response_imag=numbers(data.response.imag),
-            magnitude=numbers(data.magnitude),magnitude_db=numbers(data.db),phase_rad=numbers(data.phase),group_delay=numbers(data.delay),
+            magnitude=numbers(data.magnitude),magnitude_db=numbers(data.db),phase_rad=numbers(data.phase),phase_convention=data.phase_kind,group_delay=numbers(data.delay),
             undefined='null marks unavailable numeric values (poles, ill-conditioned evaluation or numerical range limits); magnitude zero implies magnitude_db = -infinity',advance=data.advance,margins=data.margins))
         return
     import csv
     unit='rad_muestra' if data.system.domain=='digital' else 'rad_s';delay='muestras' if data.system.domain=='digital' else 's'
     with atomic_text_file(path,encoding='utf-8-sig',newline='') as stream:
-        writer=csv.writer(stream);writer.writerow(['frecuencia_'+unit,'H_real','H_imag','modulo','modulo_dB','fase_rad','retardo_'+delay])
+        writer=csv.writer(stream);writer.writerow(['frecuencia_'+unit,'H_real','H_imag','modulo','modulo_dB','fase_'+('continua' if data.phase_kind=='continuous' else 'principal')+'_rad','retardo_'+delay])
         for row in zip(data.omega,data.response.real,data.response.imag,data.magnitude,data.db,data.phase,data.delay):
             writer.writerow([format(float(value),'.17g') if np.isfinite(value) else '-inf' if np.isneginf(value) else '' for value in row])

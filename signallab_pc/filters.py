@@ -262,22 +262,27 @@ class Transfer:
         from .system_clock import input_metadata
         clock=input_metadata(self,x)
         ensure_working_set(int(x.values.size), live_arrays=5)
-        kwargs = {}
-        if len(previous_inputs) or len(previous_outputs):
-            kwargs["zi"] = sp.lfiltic(self.b, self.a, previous_outputs, previous_inputs)
-        use_sections=self.sos is not None and not (np.any(previous_inputs) or np.any(previous_outputs))
-        result = sp.sosfilt(self.sos,x.values) if use_sections else sp.lfilter(self.b, self.a, x.values, **kwargs)
+        has_history = bool(np.any(previous_inputs) or np.any(previous_outputs))
+        from .transfer_plane import causal_sections, effective_system
+        sections = causal_sections(self) if self.sos is not None and not has_history else None
+        model = effective_system(self) if sections is None and not has_history else self
+        if sections is not None:
+            result = sp.sosfilt(sections, x.values)
+        elif has_history:
+            initial = sp.lfiltic(model.b, model.a, previous_outputs, previous_inputs)
+            result = sp.lfilter(model.b, model.a, x.values, zi=initial)
+        else:
+            result = sp.lfilter(model.b, model.a, x.values)
         if isinstance(result, tuple):
             result = result[0]
         if not np.all(np.isfinite(result)):
             raise FloatingPointError("La respuesta excede el rango numérico finito.")
         return Signal(result, x.origin, x.step, x.units, f"{self.name}({x.name})",
                       x.domain, "", {**clock, "operation": "difference_equation",
-                      "b": [[v.real, v.imag] for v in self.b],
-                      "a": [[v.real, v.imag] for v in self.a],
-                      "initial_rest": not (np.any(previous_inputs) or np.any(previous_outputs)),
-                      "realization": "second_order_sections" if use_sections else "polynomial",
-                      "sos": self.sos.tolist() if use_sections else None})
+                      "b": [[v.real, v.imag] for v in model.b], "a": [[v.real, v.imag] for v in model.a],
+                      "initial_rest": not has_history,
+                      "realization": "second_order_sections" if sections is not None else "polynomial",
+                      "sos": sections.tolist() if sections is not None else None})
 
     def excitation_response(self, count, kind="impulse"):
         count = positive_integer(count)

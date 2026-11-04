@@ -26,9 +26,10 @@ def window_fft(x,length,nfft,window,beta,points):
     w=Signal(weights,x.origin,1,'n','Ventana '+window,'discrete')
     v=Signal(x.values[:length]*weights,x.origin,1,'n','Señal enventanada','discrete')
     raw=np.fft.fft(v.values,nfft)
-    omega=np.fft.fftshift(np.fft.fftfreq(nfft))*2*np.pi
-    spectrum=np.fft.fftshift(raw)*np.exp(-1j*omega*float(x.origin))
-    if abs(x.origin)>2**53:raise ValueError('El origen excede la precisión disponible para calcular la fase.')
+    from .fourier_phase import bin_frequency, dft_origin_phase
+    indices = np.arange(nfft, dtype=np.int64)-nfft//2
+    omega = bin_frequency(indices, nfft)
+    spectrum = raw[indices % nfft]*dft_origin_phase(indices, nfft, int(x.origin))
     fft=Signal(spectrum,float(omega[0]),2*np.pi/nfft,'rad/muestra','DFT de la señal enventanada','frequency','',{'operation':'DFT','nfft':nfft,'window_length':length,'window':window,'kaiser_beta':beta if window=='kaiser' else None,'input_origin':x.origin})
     dense=dtft(v,-np.pi,np.pi,points)
     window_spectrum=dtft(w,-np.pi,np.pi,points)
@@ -159,6 +160,27 @@ def compare_iir(wp,ws,dp,ds):
     output=bundle(report,systems=systems);output['specifications']=designs[0]['specifications'];output['comparison']=True
     return output
 
+def impulse_roc(system, period, *, inverse=False):
+    """Map the contour as well as the poles under z = exp(s*T)."""
+    if system.roc is None:
+        return {'mode': 'right'}
+    from .transfer_plane import convergence
+    convergence(system)  # Reject a contour on a pole before mapping it.
+    mode = system.roc['mode']
+    if mode in ('left', 'right'):
+        return {'mode': mode}
+    if inverse:
+        sigma = float(np.log(system.roc['radius'])/period)
+        if not np.isfinite(sigma):
+            raise ValueError('La línea σ de la ROC convertida excede el rango numérico.')
+        return {'mode': 'line', 'sigma': sigma}
+    with np.errstate(over='ignore', under='ignore'):
+        radius = float(np.exp(system.roc['sigma']*period))
+    if not np.isfinite(radius) or radius <= 0:
+        raise ValueError('El radio de la ROC convertida excede el rango numérico.')
+    return {'mode': 'radius', 'radius': radius}
+
+
 def convert_system(system,period,method):
     if not np.isfinite(period) or period<=0:raise ValueError('T debe ser positivo y finito.')
     ensure_working_set(int((max(len(system.a),len(system.b))+1)**2),live_arrays=18)
@@ -167,15 +189,29 @@ def convert_system(system,period,method):
         b=np.trim_zeros(system.b,'f');b=b if b.size else np.array([0j])
         if np.any(b.imag) or np.any(system.a.imag):raise ValueError('La conversión requiere coeficientes reales.')
         if method=='impulse':
-            if len(b)>=len(system.a):raise ValueError('Invarianza al impulso requiere H(s) estrictamente propia, sin término de Dirac directo.')
-            num,den,_=sp.cont2discrete((b.real,system.a.real),period,method='impulse');num=num.reshape(-1)
-            note='h[n] = T · hc(nT). La respuesta puede sufrir aliasing. Los polos se mapean como z=exp(sT); la transformación inversa no es única.'
+            from .transfer_plane import effective_plane_system
+            system = effective_plane_system(system)
+            b = np.trim_zeros(system.b, 'f')
+            b = b if b.size else np.array([0j])
+            if np.any(b) and len(b)>=len(system.a):raise ValueError('Invarianza al impulso requiere H(s) estrictamente propia, sin término de Dirac directo.')
+            roc = impulse_roc(system, period)
+            if np.any(b):
+                num,den,_=sp.cont2discrete((b.real,system.a.real),period,method='impulse');num=num.reshape(-1)
+            else:
+                num, den = [0], [1]
+            note='h[n] = T · hc(nT), con el límite derecho en n=0. Los polos y la ROC se mapean mediante z=exp(sT). La respuesta puede sufrir aliasing y la transformación inversa no es única.'
+            if system.roc is None:
+                note += ' Como la entrada no especifica una ROC, se adopta la interpretación causal.'
         else:
             num,den=sp.bilinear(b.real,system.a.real,fs=1/period)
             note='s = (2/T) · (z−1)/(z+1). Ω = (2/T)tan(ω/2). No hay aliasing por el mapeo, pero sí deformación de frecuencia.'
-        result=Transfer(num,den,'digital','Conversión '+method,sample_period_s=period)
+        result=Transfer(num,den,'digital','Conversión '+method,sample_period_s=period,roc=roc if method=='impulse' else None)
+        if method == 'impulse':
+            from .transfer_plane import convergence
+            note += '\nROC discreta: ' + convergence(result)['text']
     elif method=='impulse_inverse':
         if system.domain!='digital':raise ValueError('La reconstrucción por invarianza requiere H(z).')
+        roc = impulse_roc(system, period, inverse=True)
         residues,poles,direct=sp.residuez(system.b,system.a,tol=1e-10)
         if np.any(abs(direct)>1e-10):raise ValueError('Esta reconstrucción requiere fracciones simples sin parte polinómica directa; los términos de impulso necesitan un tratamiento distributivo.')
         if np.any(abs(poles)<1e-12):raise ValueError('Un polo nulo no tiene logaritmo finito en el mapeo exponencial.')
@@ -196,7 +232,10 @@ def convert_system(system,period,method):
                     analog_poles.append((np.log(complex(pole))+2j*np.pi*shift)/period);analog_residues.append(r/period)
             num,den=sp.invres(np.asarray(analog_residues),np.asarray(analog_poles),[])
             if real_system:num=np.real_if_close(num,tol=1000);den=np.real_if_close(den,tol=1000)
-            candidates.append(Transfer(num,den,'analog','Candidato analógico · rama '+str(branch)))
+            candidate = Transfer(num,den,'analog','Candidato analógico · rama '+str(branch),roc=roc)
+            from .transfer_plane import convergence
+            convergence(candidate)
+            candidates.append(candidate)
         return bundle('Inversa de invarianza al impulso: candidatos\n\nh[n]=T·hc(nT). Para r/(1−p z⁻¹), un término continuo compatible tiene residuo r/T y polo (log(p)+j2πk)/T.\n\nSe muestran dos elecciones de ramas. Para polos y residuos reales se construyen pares conjugados cuando hace falta: tienen las mismas muestras, pero distinta evolución entre ellas. La respuesta no es única.\n\nAlcance: polos simples separados y sin parte polinómica directa significativa. La descomposición usa tolerancia numérica 1e−10; no es una equivalencia algebraica exacta. En n=0 se interpreta el valor por la derecha de hc.',systems=candidates)
     else:
         if system.domain!='digital':raise ValueError('La bilineal inversa requiere H(z) discreta.')

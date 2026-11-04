@@ -445,17 +445,20 @@ class CourseToolsPanel(QWidget):
         magnitude_label='|H| · amplitud' if linear else 'Módulo (dB)'
         labels=(magnitude_label,'Fase (rad)','Retardo de grupo\n(muestras)' if value.domain=='digital' else 'Retardo de grupo\n(s)') if mode==0 else (magnitude_label,) if mode in (1,3) else ('Retardo (muestras)' if value.domain=='digital' else 'Retardo (s)',)
         palette=['#68c7b4','#e8b56b','#91a5f6','#dd8baf']
-        for curve_index,system in enumerate(plotted):
-            h=system.response(w)
-            finite=np.isfinite(h);scale=float(np.max(abs(h[finite]))) if np.any(finite) else 1
-            scale=scale if scale else 1
-            valid=finite&(abs(h)>np.finfo(float).eps*scale)
-            db_valid=finite&(abs(h)>0)
-            magnitude=np.full(w.size,np.nan);magnitude[db_valid]=20*np.log10(abs(h[db_valid]));phase=np.full(w.size,np.nan);delay=np.full(w.size,np.nan)
-            for indices in np.split(np.flatnonzero(valid),np.flatnonzero(np.diff(np.flatnonzero(valid))>1)+1):
-                if indices.size>1:phase[indices]=np.unwrap(np.angle(h[indices]))
+        from .frequency_analysis import response_magnitudes
+        from .frequency_phase import principal_phase, rational_phase
+        responses = [system.response(w) for system in plotted]
+        if mode == 0:
+            phases = [rational_phase(system, w, h) for system, h in zip(plotted, responses)]
+            use_principal = any(kind == 'principal' for _, kind in phases)
+            labels = (labels[0], 'Ángulo principal (rad)' if use_principal else 'Fase continua (rad)', labels[2])
+        for curve_index, (system, h) in enumerate(zip(plotted, responses)):
+            amplitude, db = response_magnitudes(h)
+            magnitude = np.where(np.isfinite(db), db, np.nan)
+            phase = (principal_phase(h) if use_principal else phases[curve_index][0]) if mode == 0 else None
+            delay = None
             if mode in (0,2):delay=system.group_delay(w)
-            shown_magnitude=abs(h) if linear else magnitude
+            shown_magnitude=amplitude if linear else magnitude
             values=(shown_magnitude,phase,delay) if mode==0 else (shown_magnitude,) if mode in (1,3) else (delay,)
             selected=system is value
             for axis,y,label in zip(axes,values,labels):

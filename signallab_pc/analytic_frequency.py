@@ -161,14 +161,16 @@ def analyze_expression(exact,request,omega,*,period=None,logarithmic=False,margi
         delay = -(normalized_slope/normalized_response).imag
     magnitude, db = response_magnitudes(response)
     valid = eligible & np.isfinite(response) & (response != 0)
-    delay=np.where(valid&~jumps&np.isfinite(delay),delay,np.nan);phase=np.full(omega.shape,np.nan)
-    for segment in np.split(np.flatnonzero(valid),np.flatnonzero(np.diff(np.flatnonzero(valid))>1)+1):
-        if segment.size:phase[segment]=np.unwrap(np.angle(response[segment]))
+    from .frequency_phase import principal_phase
+    delay = np.where(valid & ~jumps & np.isfinite(delay), delay, np.nan)
+    # Arbitrary expressions can wind between any pair of sampled frequencies.
+    # Without a factorization, the principal angle is the defined quantity.
+    phase = principal_phase(response)
     system=ExpressionSystem(exact['transfer'],domain,str(frequency),str(condition),interpretation,period)
     system.definition_kind='frequency' if frequency_only else 'expression'
     margin_data=None
     if margins:margin_data=dict(available=False,reason='Esta vista conserva una expresión no racional. El cálculo de márgenes de esta herramienta requiere una transferencia racional.',convention='No se calcularon márgenes.',scope='No se ha inferido estabilidad a partir de una curva de frecuencia.')
-    data=FrequencyData(system,omega,response,magnitude,db,phase,delay,logarithmic,0,margin_data)
+    data=FrequencyData(system,omega,response,magnitude,db,phase,delay,logarithmic,0,margin_data,phase_kind="principal")
     exact['frequency_limit_extensions']=extensions
     exact['group_delay_jump_samples']=int(np.count_nonzero(jumps))
     exact.update(frequency_expression=str(frequency),frequency_condition=str(condition),frequency_interpretation=interpretation,masked_frequency_samples=int(np.count_nonzero(~eligible)),

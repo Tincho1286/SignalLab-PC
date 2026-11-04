@@ -77,13 +77,36 @@ def inverse_tails(request, raw):
     """Invert finite Laurent terms plus shifted logarithmic, Li and Lerch tails."""
     if not raw.has(sp.log, sp.polylog, sp.lerchphi):
         return None
-    terms = [_term(term) for term in sp.Add.make_args(sp.expand_mul(raw))]
-    if any(term is None for term in terms):
+    # Collect by kernel first. Combining rational coefficients can recover a
+    # Laurent monomial even if the input was written over a common denominator.
+    kernels = [node for node in raw.atoms(sp.log, sp.polylog, sp.lerchphi) if node.has(Z)]
+    placeholders = {kernel: sp.Dummy('kernel') for kernel in kernels}
+    if not placeholders:
         return None
-    tails = [term for term in terms if isinstance(term, Tail)]
+    try:
+        parts = sp.Poly(sp.cancel(raw.xreplace(placeholders)), *placeholders.values())
+    except sp.PolynomialError:
+        return None
+    tails = []
+    rational = sp.S.Zero
+    for powers, coefficient in parts.terms():
+        degree = sum(powers)
+        if degree == 0:
+            rational = coefficient
+        elif degree == 1:
+            kernel = kernels[powers.index(1)]
+            # A Laurent polynomial times a kernel is a sum of shifted tails.
+            for factor in sp.Add.make_args(sp.expand_mul(coefficient)):
+                term = _term(factor*kernel)
+                if not isinstance(term, Tail):
+                    return None
+                tails.append(term)
+        else:
+            return None
     if not tails:
         return None
-    impulses = [term for term in terms if not isinstance(term, Tail)]
+    if not rational.is_rational_function(Z):
+        return None
     right = [sp.Abs(term.base) for term in tails if term.side == 1]
     left = [1/sp.Abs(term.base) for term in tails if term.side == -1]
     lower = sp.Max(*right) if right else sp.S.Zero
@@ -95,9 +118,20 @@ def inverse_tails(request, raw):
         raise ValueError('La ROC elegida no es compatible con la serie de esta expresión. '
                          'Usá soporte derecho para potencias de 1/z, izquierdo para potencias de z, '
                          'o un radio interior si hay colas de ambos lados.')
+    from .cas_engine import encode, restore
+    rational_result = None
+    rational_samples = []
+    if rational != 0:
+        from .z_inverse import inverse
+        include_samples = request.get('include_samples', True) and not (raw.free_symbols - {Z})
+        rational_result = inverse(dict(request, expression=str(rational), include_samples=include_samples),
+                                  sample_sink=rational_samples)
+        rational_lower, rational_upper = restore(rational_result['roc_bounds_encoded'])
+        lower = sp.Max(lower, rational_lower)
+        upper = sp.Min(upper, rational_upper)
     region = lower < upper
     if region is sp.false:
-        raise ValueError('Las colas no comparten una región abierta de convergencia.')
+        raise ValueError('Los términos no comparten una región abierta de convergencia.')
     if mode == 'radius':
         radius = parse(request.get('radius', '1'))
         if radius.free_symbols or radius.is_positive is not True or radius.is_finite is not True:
@@ -105,8 +139,8 @@ def inverse_tails(request, raw):
         if sp.And(lower < radius, radius < upper) is not sp.true:
             raise ValueError('El radio debe estar estrictamente dentro de la ROC de la serie.')
 
-    expression = sp.Add(*(term.expression() for term in tails),
-                        *(coefficient * sp.KroneckerDelta(N, index) for coefficient, index in impulses))
+    rational_sequence = restore(rational_result['cas_encoded']) if rational_result else sp.S.Zero
+    expression = sp.Add(rational_sequence, *(term.expression() for term in tails))
     parameters = sorted(map(str, expression.free_symbols - {N}))
     start = int(request.get('start', -16))
     samples = None
@@ -118,12 +152,11 @@ def inverse_tails(request, raw):
         from .numeric_modes import PoleValues
         numbers = PoleValues()
         numeric_tails = [(term, numbers.value(term.gain), numbers.value(term.base), numbers.value(term.offset)) for term in tails]
-        numeric_impulses = [(numbers.value(coefficient), index) for coefficient, index in impulses]
         samples = []
         for index in range(start, start+count):
             if (index-start) % 64 == 0:
                 checkpoint()
-            value = sum((coefficient for coefficient, at in numeric_impulses if at == index), numbers.context.mpc(0))
+            value = numbers.context.mpc(rational_samples[index-start]) if rational_samples else numbers.context.mpc(0)
             for term, gain, base, offset in numeric_tails:
                 j = term.side * (index-term.delay)
                 if j >= term.first:
@@ -133,10 +166,10 @@ def inverse_tails(request, raw):
                 raise ValueError('Las muestras exceden el rango numérico.')
             samples.append([result.real, result.imag])
 
-    zero_included = not right and all(term.edge <= 0 for term in tails) and all(i <= 0 for _, i in impulses)
-    infinity_included = not left and all(term.edge >= 0 for term in tails) and all(i >= 0 for _, i in impulses)
-    condition = sp.And(region, *(sp.Ne(term.base, 0) for term in tails))
-    from .cas_engine import encode
+    zero_included = not right and all(term.edge <= 0 for term in tails) and (not rational_result or rational_result['zero_included'])
+    infinity_included = not left and all(term.edge >= 0 for term in tails) and (not rational_result or rational_result['infinity_included'])
+    rational_condition = parse(rational_result.get('condition', 'True')) if rational_result else sp.true
+    condition = sp.And(region, rational_condition, *(sp.Ne(term.base, 0) for term in tails))
     from .signal_notation import SignalPrinter
     return {
         'operation': 'Z inversa por propiedades', 'method': 'reciprocal_series_pairs',
@@ -144,6 +177,7 @@ def inverse_tails(request, raw):
         'display_numeric': False, 'display_terms': [], 'evaluated': True, 'output_variable': 'n',
         'origin': start, 'numeric_samples': samples, 'parameters': parameters,
         'roc': f"{lower}{' ≤ ' if zero_included else ' < '}|z| < {upper}",
-        'infinity_included': infinity_included, 'cas_encoded': encode(expression), 'condition': str(condition),
+        'infinity_included': infinity_included, 'zero_included': zero_included, 'roc_bounds_encoded': encode(sp.Tuple(lower, upper)),
+        'cas_encoded': encode(expression), 'condition': str(condition),
         'scope': 'Se aplicaron linealidad, desplazamiento y los coeficientes de las series logarítmicas o de potencias recíprocas. La ROC indicada es abierta en sus radios no nulos.',
     }

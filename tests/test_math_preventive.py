@@ -177,4 +177,109 @@ class PreventiveContracts(unittest.TestCase):
                     execute(dict(request, roc='left' if side == 'right' else 'right'))
 
 
+    def test_z_radial_intersection_for_one_sided_and_bilateral_sums(self):
+        fixtures = [
+            ('(1/2)^n+(1/4)^n','0','oo',[sp.Rational(1,3),1], [False,True]),
+            ('2^n+3^n','-oo','-1',[1,2,3],[True,False,False]),
+            ('Step(n)*(1/2)^n+Step(-n-1)*2^n','-oo','oo',[sp.Rational(1,3),1,3],[False,True,False]),
+        ]
+        for expression,lo,hi,points,expected in fixtures:
+            direct=execute(dict(operation='z_expression',expression=expression,lower=lo,upper=hi))
+            self.assertTrue(direct['evaluated'],direct)
+            condition=parse(direct['branches'][0]['condition'])
+            self.assertEqual([bool(sp.simplify(condition.subs(Z,point))) for point in points],expected)
+        from signallab_pc.radial_conditions import simplify_radial
+        union=sp.Or(sp.Abs(Z)<sp.Rational(1,2),sp.Abs(Z)>2)
+        condition=simplify_radial(union,Z)
+        self.assertEqual([bool(condition.subs(Z,point)) for point in (sp.Rational(1,4),1,3)], [True,False,True])
+
+    def test_mixed_z_inverse_intersects_regions_and_sums_samples(self):
+        expression='1/(1-1/(2*z))-log(1-1/z)'
+        request=dict(operation='z_inverse_expression',expression=expression,roc='right',start=-1,count=5)
+        result=execute(request)
+        assert_allclose(np.array(result['numeric_samples'])[:,0],[0,1,1.5,.75,1/3+.125],atol=1e-14)
+        self.assertTrue(result['roc'].startswith('1 <'))
+        bilateral=execute(dict(request,expression='1/(1-z/2)-log(1-1/z)',roc='radius',radius='3/2'))
+        assert_allclose(np.array(bilateral['numeric_samples'])[:,0],[.5,1,1,.5,1/3],atol=1e-14)
+        self.assertTrue(bilateral['roc'].endswith('< 2'))
+        # Round once after combining the two families. Their 1-unit residual
+        # would vanish if the rational part were rounded to float first.
+        cancelling=execute(dict(request,expression='2*(10^16+1)/(1-1/(2*z))+10^16*log(1-1/z)',start=1,count=1))
+        self.assertEqual(cancelling['numeric_samples'],[[1.,0.]])
+        with self.assertRaisesRegex(ValueError,'ROC|convergencia|radio'):
+            execute(dict(request,expression='1/(1-1/(2*z))-log(1-z)-log(1-1/z)',roc='radius',radius='3/2'))
+
+    def test_impulse_invariance_maps_left_and_bilateral_roc(self):
+        from signallab_pc.course_tools import convert_system, inverse_z_contour
+        t=.25
+        source=Transfer([1],[1,-1],domain='analog',roc={'mode':'left'})
+        digital=convert_system(source,t,'impulse')['systems'][0]
+        self.assertEqual(digital.roc,{'mode':'left'})
+        h=inverse_z_contour(digital,'radius',1,-3,7,512)['signals'][0]
+        assert_allclose(h.values,[-t*np.exp(t*n) if n<0 else 0 for n in range(-3,4)],atol=2e-13)
+        source=Transfer([1,0],[1,0,-1],domain='analog',roc={'mode':'line','sigma':0})
+        digital=convert_system(source,t,'impulse')['systems'][0]
+        self.assertEqual(digital.roc,{'mode':'radius','radius':1.})
+        h=inverse_z_contour(digital,'radius',1,-3,7,512)['signals'][0]
+        assert_allclose(h.values,[t/2*np.exp(-t*n) if n>=0 else -t/2*np.exp(t*n) for n in range(-3,4)],atol=2e-13)
+
+    def test_initial_rest_eliminates_exact_hidden_modes_but_keeps_histories(self):
+        from signallab_pc.model import Signal
+        model=Transfer.from_sos([[1,.2,0,1,-2,0],[1,-2,0,1,-.99,0]])
+        reduced=Transfer([1,.2],[1,-.99])
+        x=Signal(np.r_[1,np.zeros(120)])
+        assert_allclose(model.apply(x).values,reduced.apply(x).values,atol=2e-14)
+        # Past outputs can excite a canceled mode in the original recurrence.
+        polynomial=Transfer([1,-2],[1,-2])
+        assert_allclose(polynomial.apply(Signal([0,0,0]),previous_outputs=[1]).values,[2,4,8])
+        assert_allclose(polynomial.apply(Signal([1,0,0])).values,[1,0,0])
+
+    def test_rational_phase_keeps_winding_on_sparse_grids(self):
+        from signallab_pc.frequency_analysis import analyze_frequency
+        from signallab_pc.filters import from_poles_zeros
+        omega=np.linspace(0,np.pi,51)
+        for delay in (80, 400):
+            pure=Transfer(np.r_[np.zeros(delay),1],[1])
+            result=analyze_frequency(pure,omega)
+            self.assertEqual(result.phase_kind,'continuous')
+            assert_allclose(result.phase,-delay*omega,atol=3e-12)
+        cascade=from_poles_zeros([.9,.85],[.1,.2],domain='digital')
+        shifted=Transfer(np.r_[np.zeros(80),cascade.b],cascade.a)
+        result=analyze_frequency(shifted,omega)
+        ref=np.unwrap(np.angle(shifted.response(np.linspace(0,np.pi,5001))))[::100]
+        assert_allclose(result.phase,ref,atol=2e-8)
+
+    def test_dft_overlay_keeps_exact_nyquist_and_respects_open_cutoff(self):
+        from signallab_pc.fourier import dtft_with_dft
+        from signallab_pc.model import Signal
+        for length in (6, 50, 70):
+            signal=Signal(np.r_[1,np.zeros(length-1)])
+            _, (bins,_) = dtft_with_dft(signal,-np.pi,np.pi,65)
+            self.assertEqual(len(bins),length+1)
+            assert_allclose(bins[[0,-1]],[-np.pi,np.pi],atol=0,rtol=0)
+            _, (bins,_) = dtft_with_dft(signal,np.nextafter(-np.pi,0),np.nextafter(np.pi,0),65)
+            self.assertEqual(len(bins),length-1)
+
+    def test_discrete_fourier_uses_integer_origin_modulo_the_grid(self):
+        from signallab_pc.course_tools import window_fft
+        from signallab_pc.fourier import dtft, dtft_with_dft
+        from signallab_pc.model import Signal
+        import mpmath
+        for origin in (2**53-3, -(2**57)+5, 2**63-5):
+            signal=Signal([0,0,0,1],origin)
+            spectrum,(frequencies,bins)=dtft_with_dft(signal,0,np.pi,3)
+            expected=np.exp(-2j*np.pi*((np.arange(3)*((origin+3)%4))%4)/4)
+            assert_allclose(spectrum.values,expected,atol=2e-15)
+            assert_allclose(bins,expected,atol=2e-15)
+            assert_allclose(frequencies,[0,np.pi/2,np.pi])
+            windowed=window_fft(signal,4,4,'boxcar',0,9)['signals'][0]
+            assert_allclose(windowed.values,np.exp(-2j*np.pi*((np.arange(-2,2)*((origin+3)%4))%4)/4),atol=2e-15)
+        angle=.123456789
+        signal=Signal([1],2**60+17)
+        data=dtft(signal,angle,angle+.01,2)
+        with mpmath.workdps(70):
+            expected=complex(mpmath.exp(-1j*mpmath.mpf(angle)*signal.origin))
+        assert_allclose(data.values[0],expected,atol=2e-15)
+
+
 if __name__=='__main__':unittest.main()

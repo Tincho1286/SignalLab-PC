@@ -338,19 +338,16 @@ class SystemsPanel(QWidget):
     def _show_response(self, result):
         omega, response, domain, logarithmic = result
         self.last_response = result
-        magnitude = abs(response)
-        phase = np.full(omega.shape, np.nan)
-        valid = np.isfinite(response) & (magnitude != 0)
-        # Desenrollar cada tramo válido sin unir polos ni fase de cero.
-        edges = np.flatnonzero(np.diff(np.r_[False, valid, False]))
-        for start, stop in zip(edges[::2], edges[1::2]):
-            phase[start:stop] = np.unwrap(np.angle(response[start:stop]))
-        with np.errstate(divide="ignore", invalid="ignore"):
-            db = 20*np.log10(magnitude)
+        from .frequency_phase import rational_phase
+        from .frequency_analysis import response_magnitudes
+        magnitude, db = response_magnitudes(response)
+        phase, convention = rational_phase(self.system, omega, response)
+        phase_label = 'Fase continua (rad)' if convention == 'continuous' else 'Ángulo principal (rad)'
+        db = np.where(np.isfinite(db), db, np.nan)
         self.figure.clear()
         shared=None
         for position, values, label in [(1, magnitude, "|H|"), (2, db, "Magnitud · dB"),
-                                         (3, phase, "Fase · rad"), (4,self.system.group_delay(omega),"Retardo (muestras)" if domain=="digital" else "Retardo (s)")]:
+                                         (3, phase, phase_label), (4,self.system.group_delay(omega),"Retardo (muestras)" if domain=="digital" else "Retardo (s)")]:
             axis = self.figure.add_subplot(4, 1, position,sharex=shared)
             if shared is None:shared=axis
             axis.plot(omega, values); axis.set_ylabel(label); axis.grid(alpha=.25)

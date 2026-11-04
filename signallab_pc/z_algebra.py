@@ -25,12 +25,10 @@ def direct(request):
     # Never simplify the whole Piecewise: SymPy can turn a complex-plane
     # modulus condition into inequalities on a real z.
     if isinstance(result,sp.Piecewise):
-        radius=sp.Symbol('R',positive=True);parts=[]
+        from .radial_conditions import simplify_radial
+        parts=[]
         for value,condition in result.args:
-            radial=condition.subs(sp.Abs(Z),radius)
-            if not radial.has(Z) and radial.has(radius):
-                try:condition=sp.reduce_inequalities(radial,radius).xreplace({radius:sp.Abs(Z)})
-                except (NotImplementedError,ValueError,TypeError):pass
+            condition = simplify_radial(condition, Z)
             parts.append((sp.simplify(value) if not value.has(sp.Sum) else value,condition))
         result=sp.Piecewise(*parts,evaluate=False)
     else:result=sp.simplify(result)

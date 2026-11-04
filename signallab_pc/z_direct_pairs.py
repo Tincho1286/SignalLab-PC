@@ -129,11 +129,8 @@ def direct_pairs(expression,lower,upper):
         checkpoint();pair=interval(value,lo,hi)
         if pair is None:return None
         results.append(pair)
-    condition=sp.And(*[pair[1] for pair in results]);radius=sp.Symbol('R',positive=True)
-    radial=condition.subs(sp.Abs(Z),radius)
-    if not radial.has(Z):
-        try:condition=sp.reduce_inequalities(radial,radius).xreplace({radius:sp.Abs(Z)})
-        except (NotImplementedError,ValueError,TypeError):pass
+    from .radial_conditions import simplify_radial
+    condition = simplify_radial(sp.And(*(pair[1] for pair in results)), Z)
     boundary_condition=sp.And(*[pair[2] for pair in results])
     closed=sp.simplify(sp.Add(*[pair[0] for pair in results]))
     boundary={'boundary_result':closed,'boundary_condition':boundary_condition}

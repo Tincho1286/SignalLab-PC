@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.6.2-preview](v1.6.2-preview.md) | ROC, simulación de cascadas y precisión de fase | Preliminar |
 | [1.6.1-preview](v1.6.1-preview.md) | ROC, soporte discreto, Z inversa y reapertura de figuras | Preliminar |
 | [1.6.0](v1.6.0.md) | Gráficos junto a informes y mejoras matemáticas de la serie 1.5 | Estable |
 | [1.5.10-preview](v1.5.10-preview.md) | Respuestas de frecuencia, rango numérico y soporte de secuencias | Preliminar |

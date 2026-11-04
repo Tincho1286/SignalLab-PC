@@ -47,6 +47,54 @@ def _sos_factors(sections, advance):
     return tuple((numerator-denominator).items()), tuple((denominator-numerator).items())
 
 
+@lru_cache(maxsize=32)
+def _sos_time_sections(sections):
+    """Remove exact common factors from causal sections in q = z**(-1)."""
+    from collections import Counter
+    import sympy as sp
+    from .jobs import checkpoint
+
+    if any(not any(row[:3]) for row in sections):
+        return ((0., 0., 0., 1., 0., 0.),)
+    q = sp.Symbol('q')
+    rows = []
+    totals = [Counter(), Counter()]
+    for row in sections:
+        checkpoint()
+        polys = [sp.Poly.from_list([sp.Rational(value) for value in values[::-1]], q, domain=sp.QQ)
+                 for values in (row[:3], row[3:])]
+        factors = [Counter({factor.monic(): multiplicity for factor, multiplicity in poly.factor_list()[1]})
+                   for poly in polys]
+        for total, terms in zip(totals, factors):
+            total.update(terms)
+        rows.append((polys, factors))
+    common = totals[0] & totals[1]
+    if not common:
+        return sections
+
+    remaining = [common.copy(), common.copy()]
+    output = []
+    for polys, factors in rows:
+        reduced = []
+        for poly, terms, available in zip(polys, factors, remaining):
+            removable = terms & available
+            for factor, multiplicity in removable.items():
+                poly = poly.exquo(factor**multiplicity)
+            available.subtract(removable)
+            reduced.append(poly)
+        gain = reduced[1].nth(0)
+        coefficients = [poly.nth(power)/gain for poly in reduced for power in range(3)]
+        floats = tuple(float(value) for value in coefficients)
+        if not np.isfinite(floats).all() or any(value and number == 0 for value, number in zip(coefficients, floats)):
+            raise ValueError('La realización reducida por secciones excede la precisión numérica.')
+        output.append(floats)
+    return tuple(output)
+
+
+def causal_sections(system):
+    return np.asarray(_sos_time_sections(tuple(tuple(float(v) for v in row) for row in system.sos)))
+
+
 def _section_factors(system):
     return _sos_factors(tuple(tuple(float(v) for v in row) for row in system.sos), system.advance)
 

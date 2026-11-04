@@ -18,7 +18,7 @@ def grid(start, stop, count):
         raise ValueError("La rejilla requiere extremos finitos crecientes y al menos dos puntos.")
     ensure_working_set(count, live_arrays=10)
     values = np.linspace(start, stop, count)
-    if np.any(np.diff(values) <= 0):
+    if not np.isfinite(values).all() or np.any(np.diff(values) <= 0):
         raise ValueError("El paso de la rejilla no se distingue con precisión float64.")
     return values
 
@@ -51,13 +51,15 @@ def _frequency_signal(values, frequencies, name, units, metadata):
 
 def dtft(x, start=-math.pi, stop=math.pi, count=1025):
     _discrete(x)
-    last = int(x.origin)+x.values.size-1
-    if max(abs(int(x.origin)), abs(last)) > 2**53:
-        raise ValueError("La fase de DTFT requiere índices representables exactamente en float64 (|n| ≤ 2^53).")
+    from .fourier_phase import dtft_angles
     omega = grid(start, stop, count)
-    values = _sum(x.values, x.axis.astype(float), omega)
-    result = _frequency_signal(values, omega, f"DTFT_{x.name}", "rad/muestra",
+    step = (float(stop)-float(start))/(count-1)
+    omega = float(start) + step*np.arange(omega.size)
+    local, shift = dtft_angles(omega, float(start), float(stop), int(x.origin))
+    values = _sum(x.values, np.arange(x.values.size, dtype=float), local) * shift
+    result = Signal(values, float(start), step, 'rad/muestra', f'DTFT_{x.name}', 'frequency', '',
         {"operation": "DTFT", "input_origin": int(x.origin), "input_length": int(x.values.size),
+         "frequency_bounds": [float(start), float(stop)],
          "convention": "sum x[n] exp(-j*w*n); finite record, zero outside"})
     from .quality_steps import numeric_fourier
     result.metadata['derivation']=numeric_fourier(x,result)
@@ -68,14 +70,16 @@ def dtft(x, start=-math.pi, stop=math.pi, count=1025):
 def dtft_with_dft(x,start,stop,count):
     """Misma DTFT independiente; DFT sobre sus propias frecuencias, sin interpolar."""
     spectrum=dtft(x,start,stop,count)
-    n=x.values.size;spacing=2*np.pi/n
-    first=math.ceil(float(start)/spacing);last=math.floor(float(stop)/spacing)
-    if max(abs(first),abs(last))>2**53:
-        raise ValueError('El intervalo excede la precisión de las frecuencias de la DFT.')
-    size=max(0,last-first+1);ensure_working_set(int(n+size),live_arrays=10)
-    indices=np.arange(size,dtype=np.int64)+first
-    omega=indices*spacing
-    values=np.fft.fft(x.values)[indices % n]*np.exp(-1j*omega*int(x.origin))
+    from .fourier_phase import bin_frequency, bin_range, dft_origin_phase
+    n = x.values.size
+    first, last = bin_range(float(start), float(stop), n)
+    size = max(0, last-first+1)
+    ensure_working_set(int(n+size), live_arrays=10)
+    indices = np.arange(size, dtype=np.int64)+first
+    omega = bin_frequency(indices, n)
+    if np.any(np.diff(omega) <= 0):
+        raise ValueError('La precisión numérica no distingue todos los bins solicitados.')
+    values = np.fft.fft(x.values)[indices % n] * dft_origin_phase(indices, n, int(x.origin))
     return spectrum,(omega,values)
 
 
