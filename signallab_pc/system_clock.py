@@ -15,7 +15,13 @@ def validate_clock_resolution(start,rate,count):
     start=float(start);rate=float(rate)
     if not math.isfinite(start) or not math.isfinite(rate) or rate<=0:
         raise ValueError('El reloj requiere un tiempo inicial finito y una tasa positiva.')
-    step=1/rate;end=start+(count-1)*step
+    validate_time_step(start,1/rate,count)
+
+
+def validate_time_step(start,step,count):
+    if not math.isfinite(start) or not math.isfinite(step) or step<=0:
+        raise ValueError('El reloj requiere un inicio finito y un paso positivo.')
+    end=start+(count-1)*step
     if not math.isfinite(end) or count>1 and (start+step==start or end-step==end or step<max(math.ulp(start),math.ulp(end))):
         raise ValueError('El reloj de salida excede la resolución o el rango numérico.')
 

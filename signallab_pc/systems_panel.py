@@ -427,12 +427,14 @@ class SystemsPanel(QWidget):
         args = self.system, real_field(self.control_fields["duration"]), integer_field(self.control_fields["points"]), kind
         def accept(result):
             self.owner._set_signal(result)
-            self.report.setPlainText(json.dumps(result.metadata, ensure_ascii=False, indent=2))
+            from .result_summary import signal_summary
+            self.report.set_readable(signal_summary(result))
             if "dirac_at_zero" in result.metadata:
                 QMessageBox.information(self, "Impulso ideal en t=0",
                     "El gráfico muestra la parte regular. La respuesta también incluye una Dirac ideal en cero, "
                     f"de peso {result.metadata['dirac_at_zero']}. Su peso queda registrado en los metadatos.")
-        self._job("Calculando respuesta continua…", lambda: control.analog_response(*args), accept)
+        from .temporal_formula import add_excitation_formula
+        self._job("Calculando respuesta continua…", lambda:add_excitation_formula(control.analog_response(*args),args[0],kind),accept)
 
     def root_locus(self):
         args = self.system, real_field(self.control_fields["kstart"]), real_field(self.control_fields["kstop"]), integer_field(self.control_fields["points"])

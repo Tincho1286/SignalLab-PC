@@ -132,11 +132,24 @@ def resample(x, factor, method, phase=0):
                   f"{x.name}_{method}", "discrete", "", metadata)
 
 
-def reconstruct(x, rate, start, factor, method):
+def reconstruct(x, rate, start, factor, method, *, override_clock=False):
     """Reconstrucción sobre el intervalo almacenado, con L subdivisiones/Ts."""
     _discrete(x)
+    if not override_clock:
+        recorded_rate=x.metadata.get('sample_rate_hz');recorded_start=x.metadata.get('time_start_s')
+        if recorded_rate is not None:
+            known=positive_finite(recorded_rate,'Fs registrada')
+            if rate is not None and not math.isclose(float(rate),known,rel_tol=1e-12,abs_tol=0):
+                raise ValueError('Fs difiere del reloj registrado. Activá la reinterpretación explícita del reloj para usar otra tasa.')
+            rate=known
+        if recorded_start is not None:
+            known=float(recorded_start)
+            if start is not None and float(start)!=known:
+                raise ValueError('El primer instante difiere del reloj registrado. Activá la reinterpretación explícita para usar otro.')
+            start=known
     rate = positive_finite(rate, "Fs")
     factor = positive_integer(factor, "Subdivisiones")
+    if start is None:raise ValueError('Indicá el tiempo de la primera muestra.')
     start = float(start)
     if not math.isfinite(start):
         raise ValueError("t0 debe ser finito.")
@@ -149,11 +162,11 @@ def reconstruct(x, rate, start, factor, method):
     local.metadata={}
     interpolated = resample(local, factor, method)
     step = 1 / rate / factor
-    end = start + (interpolated.values.size - 1)*step
-    if not math.isfinite(end) or step <= 0 or start+step == start or end-step == end:
-        raise ValueError("La resolución temporal excede la precisión disponible.")
+    from .system_clock import validate_time_step
+    validate_time_step(start,step,interpolated.values.size)
     return Signal(interpolated.values, start, step, "s", f"{x.name}_{method}(t)", "continuous", "",
                   {"operation": "reconstruction", "method": method, "source_rate_hz": rate,
+                   "source_time_start_s":start,"clock_override":bool(override_clock),
                    "model": "Finite input; SINC includes all input samples, no window or renormalization",
                    "display_window": "first through last stored sample; infinite SINC tails omitted"})
 

@@ -89,6 +89,7 @@ class StateSpacePanel(QWidget):
         if action in ('simulation','frequency'):
             plot_layout.addWidget(self.plot_mode);plot_layout.addWidget(self.plot_channel);plot_layout.addWidget(self.export_plot)
         self.plot_mode.currentIndexChanged.connect(self.redraw_channels);self.plot_channel.currentIndexChanged.connect(self.redraw_channels)
+        if self.action=='simulation':self.plot_channel.currentIndexChanged.connect(self.show_simulation_formula)
         self.figure=Figure(figsize=(7,4));self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumHeight(260);plot_layout.addWidget(NavigationToolbar2QT(self.canvas,self));plot_layout.addWidget(self.canvas,1)
         self.model_actions=None;self.system_actions=None
         if action=='transfer':
@@ -208,20 +209,38 @@ class StateSpacePanel(QWidget):
             _,output,states=result;self.last_simulation=(grid,output,states)
             hold='samplewise' if grid.discrete else 'ZOH'
             run=self.window.publish({'step_s':grid.step,'count':len(grid.axis),'first_index' if grid.discrete else 'first_time_s':grid.origin,'time_start_s':grid.time_start,'initial_state':[[float(v.real),float(v.imag)] for v in initial],'domain':model.domain,'input_hold':hold},title='Simulación de estados',operation='Simulación MIMO',parents=parents)
+            output_ids=[]
             for values,prefix,operation in [(output,'y','Salida de simulación'),(states,'x','Estado de simulación')]:
                 for channel in range(values.shape[1]):
                     signal=Signal(values[:,channel],grid.origin,1 if grid.discrete else grid.step,'n' if grid.discrete else 's',prefix+str(channel+1),'discrete' if grid.discrete else 'continuous','',{'operation':operation,'sample_rate_hz':1/grid.step,'time_start_s':grid.time_start,'input_hold':hold})
-                    self.window.publish(signal,operation=operation,parents=[run])
+                    key=self.window.publish(signal,operation=operation,parents=[run])
+                    if prefix=='y':output_ids.append(key)
+            self._simulation_formula_report=None
             self.set_channels(grid.axis,[output[:,j] for j in range(model.outputs)],[f'y{j+1}' for j in range(model.outputs)],'Índice n' if grid.discrete else 't (s)',grid.discrete)
             self.model_actions.set_result(model,model_id)
             self.result_tabs.setCurrentIndex(1)
             equation='x[n+1] = A*x[n]+B*u[n]' if grid.discrete else 'dx/dt = A*x(t)+B*u(t)'
             output_equation='y[n] = C*x[n]+D*u[n]' if grid.discrete else 'y(t) = C*x(t)+D*u(t)'
-            self.report.set_readable(Summary('Simulación en espacio de estados',[
+            summary=Summary('Simulación en espacio de estados',[
                 Section('Registro calculado',rows=[('Muestras',str(len(grid.axis))),('Entradas / salidas / estados',f'{model.inputs} / {model.outputs} / {model.states}'),('Primer índice n₀' if grid.discrete else 'Primer instante t₀ (s)',number(grid.origin)),('Último índice' if grid.discrete else 'Último instante (s)',number(grid.axis[-1])),('Período T (s)' if grid.discrete else 'Paso temporal (s)',number(grid.step))]),
                 Section('Modelo y condición inicial',formulas=[Formula(equation,equation),Formula(output_equation,output_equation)],rows=[('Estado al inicio del registro','['+', '.join(number(value) for value in initial)+']')],paragraphs=['El estado inicial se aplica al primer índice o instante cargado. No se simula ni se presupone la historia anterior.']),
-                Section('Interpretación',paragraphs=['En discreto, las fórmulas de entrada se evalúan en n entero, conservando el origen de cada secuencia. T describe el reloj físico; no escala el índice n.' if grid.discrete else 'Se mantiene cada entrada constante entre instantes (ZOH). La propagación usa la exponencial matricial; es exacta para ese modelo por tramos, salvo redondeo numérico.','Entradas, estados, salidas y datos del cálculo quedan en Resultados. El selector muestra cualquier salida; la vista conjunta dibuja hasta 16 y el CSV exporta todas.'])]))
+                Section('Interpretación',paragraphs=['En discreto, las fórmulas de entrada se evalúan en n entero, conservando el origen de cada secuencia. T describe el reloj físico; no escala el índice n.' if grid.discrete else 'Se mantiene cada entrada constante entre instantes (ZOH). La propagación usa la exponencial matricial; es exacta para ese modelo por tramos, salvo redondeo numérico.','Entradas, estados, salidas y datos del cálculo quedan en Resultados. El selector muestra cualquier salida; la vista conjunta dibuja hasta 16 y el CSV exporta todas.'])])
+            self._simulation_formula_report=(summary,output_ids)
+            self.show_simulation_formula()
         self.run('Simulando sistema…',lambda:model.simulate(grid.values,step=grid.step,initial=initial),accept)
+
+    def show_simulation_formula(self,*_):
+        saved=getattr(self,'_simulation_formula_report',None)
+        if saved is None:return
+        from .temporal_formula import sections as temporal_sections
+        summary,keys=saved
+        selected=self.plot_channel.currentData()
+        index=selected if selected is not None and 0<=selected<len(keys) else 0
+        channel=self.window.project.get(keys[index])
+        formulas=temporal_sections(channel)
+        note=Section('Canal de la fórmula',paragraphs=[channel.name+' · Elegí otro canal en el selector del gráfico para consultar su expresión.'])
+        self.report.set_readable(Summary(summary.title,[note,*formulas,*summary.sections]))
+
     def frequency(self,model,model_id):
         start,stop,count=real_field(self.w0),real_field(self.w1),integer_field(self.count)
         if not np.isfinite([start,stop]).all() or stop<=start or count<2:raise ValueError('Indicá un intervalo creciente y al menos dos puntos.')

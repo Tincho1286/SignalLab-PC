@@ -33,9 +33,11 @@ def inverse_dtft(spectrum,start,count):
     indices=periodic_indices(start,count,length)
     multiplier=periodic_phase(origin,length,start,count)
     result=_finite_output(coefficients[indices]*multiplier,'La DTFT inversa');checkpoint(1)
+    from .inverse_fourier_report import numeric_model
     return Signal(result,start,1,'n','DTFT inversa · '+spectrum.name,'discrete','',{
         'operation':'inverse_dtft','convention':'x[n] = integral_over_one_period X(w)*exp(i*w*n) dw / (2*pi)',
         'frequency_units':'rad/muestra','frequency_origin':origin,'frequency_step':step,'frequency_samples':size,
+        'inverse_model':numeric_model('periodic',origin,step,coefficients),
         'independent_frequencies':length,'quadrature':'Trapezoidal: extremos con peso 1/2' if closed else 'Periódica: sin duplicar el extremo',
         'endpoint_policy':'El primer y último valor comparten peso si ambos extremos están incluidos.' if closed else 'Todos los puntos tienen el mismo peso.',
         'scope':'Coeficientes de Fourier aproximados de X(ω), no una secuencia causal impuesta. La rejilla finita confunde índices separados por '+str(length)+'; puede introducir un factor de fase según el inicio del período. Pedir más índices no agrega información espectral.'})

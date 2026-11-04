@@ -62,6 +62,8 @@ class CorrelationPanel(QWidget):
                 if normalization=='energy':scale_note+=' Se divide por √(Ex·Ey); no es el coeficiente de Pearson con medias restadas. Un registro de energía cero no admite esta normalización.'
                 elif normalization=='mean':scale_note+=' Se divide por '+('T, la duración del período.' if self.temporal else 'N, las muestras del período.')
                 sections.append(Section('Convención',paragraphs=[explanation,scale_note],formulas=[formula]))
+                from .temporal_formula import sections as temporal_sections
+                sections.extend(temporal_sections(result))
                 self.result.text.set_readable(Summary('Correlación y retardo',sections));self.result_state.accept(calculated_inputs)
             self.window._run_operation('Calculando correlación…',compute,accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá las entradas',str(exc))

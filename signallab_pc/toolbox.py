@@ -730,7 +730,7 @@ class ToolPage(QWidget):
 
         if kind=='sampling' and index==3:
             from .input_clock import bind_clock
-            form.insertRow(0,bind_clock(source,self.panel.rate,self.panel.start))
+            form.insertRow(0,bind_clock(source,self.panel.rate,self.panel.start,self.panel.clock_override))
         if kind=='fourier' and index==7:
             from .input_clock import bind_clock
             form.insertRow(0,bind_clock(source,self.panel.rate))
@@ -779,7 +779,9 @@ class ToolPage(QWidget):
             self.first.layout().labelForField(self.first.expression).setText('X[k] · usar n como índice k')
             self.first.layout().labelForField(self.first.samples).setText('X[0], X[1], …, X[N−1]')
             self.first.origin.setText('0');self.first.origin.parentWidget().hide()
-            guidance=QLabel('Ingresá los coeficientes en orden desde k = 0. Se admiten complejos, por ejemplo 1+2i. La cantidad ingresada define N. La salida empieza en n = 0 y usa normalización 1/N. También podés copiar un resultado de DFT.');guidance.setWordWrap(True);box.addWidget(guidance)
+            self.restore_dft_origin=QCheckBox('Restaurar el índice inicial de la señal original')
+            self.restore_dft_origin.setChecked(True);box.addWidget(self.restore_dft_origin)
+            guidance=QLabel('Ingresá X[k] desde k=0 o cargá una DFT calculada. La inversa usa 1/N. El reloj disponible se conserva; sin índice de origen, la salida empieza en n=0.');guidance.setWordWrap(True);box.addWidget(guidance)
         self.first.bind_project(window)
         if operation in ('generate','measures'):
             from .choice_buttons import ChoiceButtons
@@ -798,12 +800,14 @@ class ToolPage(QWidget):
         tracked=[self.parameter] if operation in ('scale','shift') else []
         sources=[field for field in (self.first,self.second,getattr(self,'continuous_source',None)) if field is not None]
         if hasattr(self,'source_domain'):tracked.append(self.source_domain)
+        if operation=='idft':tracked.append(self.restore_dft_origin)
         self.result_state=ResultState(tracked,button,sources);box.insertWidget(1,self.result_state)
         def calculate():
             try:
                 x=self.first.read();h=self.second.read() if self.second else None
                 parameter=constant_value(self.parameter.text()) if operation=='scale' else integer_field(self.parameter) if operation=='shift' else None
-                functions={'continuous_convolve':lambda:continuous.convolution(x,h),'continuous_correlate':lambda:continuous.correlation(x,h),'continuous_normalized':lambda:continuous.correlation(x,h,normalized=True),'continuous_auto':lambda:continuous.correlation(x),'generate':lambda:x,'measures':lambda:ops.finite_measures(x),'shift':lambda:ops.shift(x,parameter),'scale':lambda:ops.scale_amplitude(x,parameter),'reverse':lambda:ops.reverse(x),'parity':lambda:ops.even_odd_parts(x),'convolve':lambda:ops.linear_convolution(x,h),'correlate':lambda:ops.linear_correlation(x,h),'sum':lambda:ops.add_sequences(x,h),'circular':lambda:ops.circular_convolution(x,h),'dft':lambda:ops.dft(x,centered=True),'idft':lambda:ops.idft(x)}
+                restore_origin=operation=='idft' and self.restore_dft_origin.isChecked()
+                functions={'continuous_convolve':lambda:continuous.convolution(x,h),'continuous_correlate':lambda:continuous.correlation(x,h),'continuous_normalized':lambda:continuous.correlation(x,h,normalized=True),'continuous_auto':lambda:continuous.correlation(x),'generate':lambda:x,'measures':lambda:ops.finite_measures(x),'shift':lambda:ops.shift(x,parameter),'scale':lambda:ops.scale_amplitude(x,parameter),'reverse':lambda:ops.reverse(x),'parity':lambda:ops.even_odd_parts(x),'convolve':lambda:ops.linear_convolution(x,h),'correlate':lambda:ops.linear_correlation(x,h),'sum':lambda:ops.add_sequences(x,h),'circular':lambda:ops.circular_convolution(x,h),'dft':lambda:ops.dft(x,centered=True),'idft':lambda:ops.idft(x,restore_origin=restore_origin)}
                 parents=[entry.reference_id for entry in (self.first,self.second) if entry and entry.reference_id]
                 calculated_inputs=self.result_state.snapshot()
                 def accept(value):

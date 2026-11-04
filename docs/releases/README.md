@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.6.11](v1.6.11.md) | Fórmulas de respuesta temporal y filtros ideales | Estable |
 | [1.6.10](v1.6.10.md) | Hotfix de cálculo, importación y reutilización | Estable |
 | [1.6.9](v1.6.9.md) | Dominios y reutilización en el CAS, escalado de STFT | Estable |
 | [1.6.8-preview](v1.6.8-preview.md) | Transformadas, ejes y cálculo espectral | Preliminar |

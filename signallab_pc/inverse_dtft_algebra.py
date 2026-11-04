@@ -20,6 +20,13 @@ def inverse_expression(request):
     definition=prepare(request['expression'],W,'periodic_frequency',(-sp.pi,sp.pi),request.get('input_conditions',()),'integration_period')
     value=definition.integral_expression()
     if value.has(N,T,S,Z):raise ValueError('Ingresá X(w) usando w como frecuencia. n es el índice de salida; no se ingresa x[n] ni H(z).')
+    from .fourier_bands import inverse_bands
+    exact=inverse_bands(value,W,N,discrete=True) if value.has(sp.Piecewise,sp.Heaviside) else None
+    if exact is not None:
+        return attach({'operation':'DTFT inversa algebraica','result':source(exact),'display_result':source(exact),
+            'evaluated':True,'condition':'True','output_variable':'n','frequency_units':'rad/muestra',
+            'input_expression':request['expression'],
+            'scope':'Se integró cada banda de frecuencia en un período. La fórmula en n incluye el valor en el origen.'},definition)
     equivalent=rational_z(value)
     if equivalent is not None and not equivalent.free_symbols-{Z}:
         from .z_inverse import inverse

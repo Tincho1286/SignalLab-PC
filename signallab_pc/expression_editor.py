@@ -33,8 +33,8 @@ class ExpressionEditor(QWidget):
             from .math_source import normalize
             tree=ast.parse(normalize(self.text()),mode='eval')
             names={node.id for node in ast.walk(tree) if isinstance(node,ast.Name)}
-            return next((name for name in ('n','k','t','w','s','z','x') if name in names),'t')
-        except SyntaxError:return 't'
+            return next((name for name in ('n','k','t','w','s','z','x') if name in names),self.property('variableHint') or 't')
+        except SyntaxError:return self.property('variableHint') or 't'
     def add_row(self,value,condition):
         loading=self._loading;self._loading=True
         row=self.table.rowCount();self.table.insertRow(row);self.table.setItem(row,0,QTableWidgetItem(value));self.table.setItem(row,1,QTableWidgetItem(condition))

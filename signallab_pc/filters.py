@@ -280,7 +280,9 @@ class Transfer:
         return Signal(result, x.origin, x.step, x.units, f"{self.name}({x.name})",
                       x.domain, "", {**clock, "operation": "difference_equation",
                       "b": [[v.real, v.imag] for v in model.b], "a": [[v.real, v.imag] for v in model.a],
-                      "initial_rest": not has_history,
+                      "initial_rest": not has_history, "input_name": x.name,
+                      "previous_inputs": [[float(complex(v).real),float(complex(v).imag)] for v in previous_inputs],
+                      "previous_outputs": [[float(complex(v).real),float(complex(v).imag)] for v in previous_outputs],
                       "realization": "second_order_sections" if sections is not None else "polynomial",
                       "sos": sections.tolist() if sections is not None else None})
 
@@ -291,7 +293,7 @@ class Transfer:
         ensure_working_set(count, live_arrays=6)
         values = np.zeros(count) if kind == "impulse" else np.ones(count)
         values[0] = 1
-        return self.apply(Signal(values, name=kind))
+        return self.apply(Signal(values,name=kind,metadata={'excitation':kind,'input_name':kind}))
 
 
 def fir(kind, taps, f1, f2=None, window="hamming", beta=8.6):

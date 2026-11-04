@@ -216,7 +216,8 @@ def dft(x: Signal, length: int | None = None, *, centered: bool = False) -> Sign
     values = _finite_output(values, "La DFT")
     action = "unchanged" if n == x.values.size else ("zero padded" if n > x.values.size else "truncated at N")
     metadata = {"operation": "DFT", "input_length": int(x.values.size), "N": n,
-                "input_action": action,
+                "input_action": action,"input_origin":int(x.origin),
+                "input_clock":{key:x.metadata[key] for key in ('sample_rate_hz','time_start_s') if key in x.metadata},
                 "convention": "sum x[m] exp(-2*pi*i*k*m/N), m is stored offset from 0; no forward normalization"}
     if centered:
         from .fourier_phase import bin_frequency
@@ -232,8 +233,8 @@ def is_centered_dft(X: Signal) -> bool:
     return X.domain == "frequency" and X.units == "rad/muestra" and X.metadata.get("dft_order") == "centered"
 
 
-def idft(X: Signal) -> Signal:
-    """IDFT con división por N; el eje de salida empieza en n=0."""
+def idft(X: Signal, *, restore_origin=False) -> Signal:
+    """IDFT con división por N y restauración opcional de los índices de origen."""
     n = X.values.size
     centered = is_centered_dft(X)
     if centered:
@@ -247,9 +248,29 @@ def idft(X: Signal) -> Signal:
     ensure_working_set(n, bytes_per_sample=16, live_arrays=8)
     coefficients = np.fft.ifftshift(X.values) if centered else X.values
     values = _finite_output(np.fft.ifft(coefficients), "La IDFT")
-    return Signal(values, 0, 1, "n", "x_idft[n]", "discrete", "",
-                  {"operation": "IDFT", "N": n,
-                   "convention": "(1/N) sum X[k] exp(+2*pi*i*k*m/N), m is stored output offset from 0"})
+    metadata={"operation":"IDFT","N":n,
+              "convention":"(1/N) sum X[k] exp(+2*pi*i*k*m/N), m is stored output offset from 0"}
+    origin=0
+    if X.metadata.get('operation')=='DFT':
+        initial=X.metadata.get('input_origin',X.metadata.get('source_origin'))
+        if initial is not None:
+            if type(initial) is not int:raise ValueError('El índice original de la DFT debe ser entero.')
+            metadata['original_origin']=initial
+            if restore_origin:origin=initial
+        clock=X.metadata.get('input_clock',{})
+        if not isinstance(clock,dict):raise ValueError('El reloj de origen de la DFT no es válido.')
+        from .sampling import positive_finite
+        if 'sample_rate_hz' in clock:
+            metadata['sample_rate_hz']=positive_finite(clock['sample_rate_hz'],'Fs de origen')
+        if 'time_start_s' in clock:
+            t0=float(clock['time_start_s'])
+            if not np.isfinite(t0):raise ValueError('El tiempo de origen de la DFT debe ser finito.')
+            metadata['time_start_s']=t0
+            if 'sample_rate_hz' in metadata:
+                from .system_clock import validate_clock_resolution
+                validate_clock_resolution(t0,metadata['sample_rate_hz'],n)
+                metadata['time_mapping']='t = time_start_s + (n-origin)/sample_rate_hz'
+    return Signal(values,origin,1,'n','x_idft[n]','discrete',metadata=metadata)
 
 
 def circular_convolution(x: Signal, h: Signal) -> Signal:

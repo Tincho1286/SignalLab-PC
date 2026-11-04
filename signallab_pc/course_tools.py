@@ -35,9 +35,9 @@ def window_fft(x,length,nfft,window,beta,points):
     fft=Signal(spectrum,float(omega[0]),2*np.pi/nfft,'rad/muestra','DFT de la señal enventanada','frequency','',{'operation':'DFT','nfft':nfft,'window_length':length,'window':window,'kaiser_beta':beta if window=='kaiser' else None,'input_origin':x.origin})
     dense=dtft(v,-np.pi,np.pi,points)
     window_spectrum=dtft(w,-np.pi,np.pi,points)
-    coeff=Signal(raw,0,1,'k','Coeficientes DFT para inversión','discrete','',{'operation':'DFT','source_origin':x.origin,'nfft':nfft})
+    coeff=Signal(raw,0,1,'k','Coeficientes DFT para inversión','discrete','',{'operation':'DFT','source_origin':x.origin,'nfft':nfft,'input_clock':clock})
     energy=float(np.sum(abs(v.values)**2));spectral=float(np.sum(abs(raw)**2)/nfft)
-    return bundle(f'Ventanas y resolución espectral\n\nLongitud observada: {length}\nNFFT: {nfft}\nCeros agregados: {nfft-length}\nSeparación entre bins: {2*np.pi/nfft:.9g} rad/muestra\nVentana: {window}, simétrica\nGanancia coherente: {np.mean(weights):.9g}\n\nEnergía temporal: {energy:.12g}\nSuma |X[k]|²/NFFT: {spectral:.12g}\n\nLa FFT no se normaliza hacia adelante. Su fase en rad/muestra respeta el origen de la entrada. La DFT invertible usa índices desde cero; al invertirla, el eje empieza en cero. La DTFT usa los índices originales.\n\nAgregar ceros densifica la rejilla, pero no mejora la resolución física. Aumentar la duración y cambiar la ventana modifica el ancho del lóbulo y la fuga. Se usan las primeras L muestras; no se supone que aumentar NFFT agrega información.',[fft,dense,v,w,window_spectrum,coeff])
+    return bundle(f'Ventanas y resolución espectral\n\nLongitud observada: {length}\nNFFT: {nfft}\nCeros agregados: {nfft-length}\nSeparación entre bins: {2*np.pi/nfft:.9g} rad/muestra\nVentana: {window}, simétrica\nGanancia coherente: {np.mean(weights):.9g}\n\nEnergía temporal: {energy:.12g}\nSuma |X[k]|²/NFFT: {spectral:.12g}\n\nLa FFT no se normaliza hacia adelante. Su fase en rad/muestra respeta el origen de la entrada. La DFT invertible conserva el origen y el reloj de la entrada para la inversa. Se puede elegir un eje local desde cero. La DTFT usa los índices originales.\n\nAgregar ceros densifica la rejilla, pero no mejora la resolución física. Aumentar la duración y cambiar la ventana modifica el ancho del lóbulo y la fuga. Se usan las primeras L muestras; no se supone que aumentar NFFT agrega información.',[fft,dense,v,w,window_spectrum,coeff])
 
 def bands(wp,ws):
     wp=np.asarray(wp,float);ws=np.asarray(ws,float)
@@ -356,19 +356,27 @@ def periodic_lines(coefficients,period):
     power=float(np.sum(powers))
     return bundle(f'Potencia de una señal periódica\n\nSx(ω) = 2π Σ |c[k]|² δ(ω−kω₀)\nω₀: {omega0:.12g} rad/s\nPeríodo: {period:g} s\nPotencia de los armónicos disponibles: {power:.12g}\n\nCada tallo representa el peso de una delta, no su altura ni una densidad finita. Parseval da P=Σ|c[k]|². Si faltan armónicos o los coeficientes se estimaron por cuadratura, el resultado sólo aproxima la potencia total. No se deben integrar los tallos con trapecios.',[weights])
 
+def map_analog_frequency(analog,period,method):
+    raw=float(analog)*float(period)
+    if not math.isfinite(raw):raise ValueError('Ω·T excede el rango numérico.')
+    if method in ('bilinear','inverse'):return 2*math.atan(raw/2)
+    value=math.remainder(raw,math.tau)
+    return -math.pi if value==math.pi else value
+
+
 def frequency_mapping(omega,analog,period,method,direction,branch):
     if not np.isfinite(period) or period<=0:raise ValueError('T debe ser positivo y finito.')
     if method not in ('kaiser','butter','cheby1','cheby2','ellip','bilinear','impulse'):raise ValueError('Método de diseño no admitido.')
     if method=='bilinear':
         if direction!='to_digital' and not -np.pi<omega<np.pi:raise ValueError('La bilineal requiere −π<ω<π para frecuencia analógica finita.')
-        if direction=='to_digital':result=2*np.arctan(analog*period/2);unit='rad/muestra'
+        if direction=='to_digital':result=map_analog_frequency(analog,period,method);unit='rad/muestra'
         elif direction=='to_analog':result=2/period*np.tan(omega/2);unit='rad/s'
         else:
             if analog==0:raise ValueError('Ω debe ser distinta de cero para determinar T.')
             result=2*np.tan(omega/2)/analog;unit='s'
         explanation='Ω=(2/T)tan(ω/2); ω=2 atan(ΩT/2). Para T fijado es un mapeo uno a uno entre Ω real y −π<ω<π.'
     else:
-        if direction=='to_digital':result=(analog*period+np.pi)%(2*np.pi)-np.pi;unit='rad/muestra'
+        if direction=='to_digital':result=map_analog_frequency(analog,period,method);unit='rad/muestra'
         elif direction=='to_analog':result=(omega+2*np.pi*branch)/period;unit='rad/s'
         else:
             if analog==0:raise ValueError('Ω debe ser distinta de cero para determinar T.')

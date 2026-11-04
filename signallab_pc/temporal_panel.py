@@ -122,7 +122,10 @@ class TemporalPanel(QWidget):
                 count=integer_field(self.count);kind='step' if self.stimulus.currentIndex()==0 else 'impulse'
                 if count<2:raise ValueError('Usá al menos dos puntos o muestras.')
                 duration=real_field(self.duration) if not digital else None
-                operation=lambda:system.excitation_response(count,kind) if digital else control.analog_response(system,duration,count,kind)
+                from .temporal_formula import add_excitation_formula
+                def operation():
+                    result=system.excitation_response(count,kind) if digital else control.analog_response(system,duration,count,kind)
+                    return add_excitation_formula(result,system,kind)
                 title='Respuesta al '+('escalón' if kind=='step' else 'impulso')
             separate=digital and self.initial_conditions.isChecked()
             if separate:
@@ -131,7 +134,7 @@ class TemporalPanel(QWidget):
                 if source is None:
                     ensure_working_set(count,live_arrays=16)
                     values=np.ones(count) if kind=='step' else np.zeros(count);values[0]=1
-                    source=Signal(values,name='Entrada escalón' if kind=='step' else 'Entrada impulso')
+                    source=Signal(values,name='Entrada escalón' if kind=='step' else 'Entrada impulso',metadata={'excitation':kind})
                     from .system_clock import input_metadata
                     source.metadata=input_metadata(system,source)
                     parents.append(self.window.publish(source,operation='Entrada de respuesta temporal'))
@@ -148,20 +151,28 @@ class TemporalPanel(QWidget):
                     report='Respuesta temporal discreta con memoria inicial\n\ny[n] = y_estado_cero[n] + y_entrada_cero[n]\n\nÍndice inicial n₀: '+str(source.origin)+'\nEntradas anteriores: '+(list_text(previous_inputs) or 'Todas cero')+'\nSalidas anteriores: '+(list_text(previous_outputs) or 'Todas cero')+'\n\nEstado cero: se aplica la entrada con memoria inicial nula. Entrada cero: se anula la entrada desde n₀ y se conserva la memoria previa. Total: entrada y memoria previa actúan juntas.\n\nLos historiales se ordenan n₀−1, n₀−2, …; los valores omitidos son cero. Cada pestaña permite exportar o reutilizar su señal. La descomposición puede presentar diferencias de redondeo numérico. No se calcula la cola posterior al registro.'
                     
                     if system.sos is not None:report+='\n\nRealización: cascada de secciones para memoria nula; ecuación polinómica para memoria no nula. En órdenes altos, esta última puede perder precisión.'
-                    self.output.text.setPlainText(report);self.result_state.accept(calculated_inputs);return
+                    from .result_summary import signal_summary,Section
+                    summary=signal_summary(total)
+                    summary.sections.append(Section('Descomposición de la respuesta',paragraphs=report.split('\n\n')))
+                    self.output.text.set_readable(summary);self.result_state.accept(calculated_inputs);return
                 signal=signal.copy_with(name=title)
-                self.window.publish(signal,operation=title,parents=[key]+parents);self.output.show_result(signal)
+                signal_id=self.window.publish(signal,operation=title,parents=[key]+parents);self.output.show_result(signal);self.output.result_ids=[signal_id]
+                formula=signal.metadata.get('temporal_formula')
+                if formula:
+                    self.window.publish({'result':{'result':formula['source'],'display_result':formula['expression'],
+                        'display_numeric':formula['numeric'],'output_variable':formula['variable'],'evaluated':True,'scope':formula['scope']}},
+                        title='Expresión temporal · '+title,operation=title,parents=[signal_id,key])
                 self.result_tabs.setTabVisible(1,custom);self.result_tabs.setCurrentIndex(0)
                 if custom:
                     self.input_view.show_result(source)
                     interpretation='Secuencia discreta; ecuación en diferencias.' if digital else ('Interpolación lineal entre puntos.' if interpolation=='linear' else 'Entrada constante entre puntos: retención de orden cero.')
-                    self.output.text.setPlainText(title+'\n\ny = H{x} · Respuesta de estado cero\n\nEntrada: '+source.name+f'\nInicio: {source.origin:g} · Final: {source.axis[-1]:g}\nPuntos: {source.values.size:,}\n\n'+interpretation+'\nEl sistema parte del reposo al inicio del registro, aunque éste no comience en cero. La salida conserva el eje de la entrada. No se simula la cola posterior a la ventana: extendé la entrada con ceros para verla.\n\nLa pestaña Entrada permite consultar y exportar x; la pestaña Salida permite exportar o reutilizar y. En Parte real e imaginaria se conserva el signo de las señales reales.')
-                from .distributions import dirac_terms
-                terms=dirac_terms(signal)
-                if terms:
-                    description='; '.join(f'{w:g} δ(t − ({t:g}))' for t,w in terms)
-                    self.output.text.appendPlainText('\nTérminos ideales de la salida: '+description+'\nSe conservan aparte de la parte regular: no son muestras de altura finita.')
-                if custom and dirac_terms(source):self.output.text.appendPlainText('\nLos impulsos de la entrada se aplican por su posición y peso exactos; la interpolación sólo afecta a la parte regular.')
+                    from .result_summary import signal_summary,Section
+                    report=title+'\n\ny = H{x} · Respuesta de estado cero\n\nEntrada: '+source.name+f'\nInicio: {source.origin:g} · Final: {source.axis[-1]:g}\nPuntos: {source.values.size:,}\n\n'+interpretation+'\nEl sistema parte del reposo al inicio del registro, aunque éste no comience en cero. La salida conserva el eje de la entrada. No se simula la cola posterior a la ventana: extendé la entrada con ceros para verla.\n\nLa pestaña Entrada permite consultar y exportar x; la pestaña Salida permite exportar o reutilizar y. En Parte real e imaginaria se conserva el signo de las señales reales.'
+                    from .distributions import dirac_terms
+                    if dirac_terms(source):report+='\n\nLos impulsos de la entrada se aplican por su posición y peso exactos. La interpolación corresponde a la parte ordinaria.'
+                    summary=signal_summary(signal)
+                    summary.sections.append(Section('Entrada y condiciones de la simulación',paragraphs=report.split('\n\n')))
+                    self.output.text.set_readable(summary)
                 self.result_state.accept(calculated_inputs)
             self.window._run_operation('Calculando respuesta…',operation,accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá la definición',str(exc))

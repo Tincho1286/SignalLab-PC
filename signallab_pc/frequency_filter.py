@@ -4,12 +4,12 @@ import math
 import numpy as np
 
 from .model import Signal
-from .fourier import ctft,_sum
+from .fourier import ctft_on_grid,_sum
 from .fourier_phase import periodic_indices,periodic_phase
 from .resources import ensure_working_set
 
 
-def analyze(response,domain,start,count,step,source=None):
+def analyze(response,domain,start,count,step,source=None,*,allow_periodic=False):
     from .distributions import regular_only
 
     from .signal_semantics import require_frequency_response,require_temporal
@@ -32,6 +32,7 @@ def analyze(response,domain,start,count,step,source=None):
     if source is not None and source.domain!=domain:
         raise ValueError('La señal y el filtro deben usar el mismo dominio temporal.')
 
+    from .inverse_fourier_report import numeric_model
     if digital:
         if start!=int(start) or step!=1:raise ValueError('La salida discreta requiere inicio entero y paso 1.')
         start=int(start)
@@ -42,6 +43,9 @@ def analyze(response,domain,start,count,step,source=None):
         if not closed and not math.isclose(size*response.step,math.tau,rel_tol=1e-12):
             raise ValueError('H debe cubrir un período completo de 2π rad/muestra, con o sin el extremo repetido.')
         independent=size-int(closed)
+        folded_input=source is not None and source.values.size>independent
+        if folded_input and not allow_periodic:
+            raise ValueError(f'La rejilla tiene {independent} frecuencias independientes para {source.values.size} muestras. Aumentá la rejilla o activá el plegado periódico de la entrada.')
 
         def inverse(values,first,length):
             if closed:
@@ -50,9 +54,10 @@ def analyze(response,domain,start,count,step,source=None):
                 values[0]=.5*values[0]+.5*last
             coefficients=np.fft.ifft(values)
             phase=periodic_phase(response.origin,independent,first,length)
-            return coefficients[periodic_indices(first,length,independent)]*phase
+            return coefficients[periodic_indices(first,length,independent)]*phase,coefficients
 
-        impulse=inverse(response.values,start,count)
+        impulse,coefficients=inverse(response.values,start,count)
+        inverse_model=numeric_model('periodic',response.origin,response.step,coefficients)
         approximation='periodic inverse Fourier'
         if source is not None:
             samples=source.values.size
@@ -65,22 +70,24 @@ def analyze(response,domain,start,count,step,source=None):
             x=Signal(spectrum,response.origin,response.step,unit,'DTFT_'+source.name,'frequency',
                      metadata={'operation':'DTFT','input_origin':int(source.origin),'input_length':samples})
             y_values=spectrum*response.values
-            output_values=inverse(y_values,int(source.origin),samples)
+            output_values,_=inverse(y_values,int(source.origin),samples)
     else:
-        weights=np.full(size,response.step)
+        weights=np.ones(size)
         weights[[0,-1]]*=.5
         axis=start+step*np.arange(count)
         if not np.isfinite(axis).all():raise ValueError('El intervalo de salida debe ser finito y creciente.')
-        impulse=_sum(response.values*weights,w,axis,sign=1)/math.tau
+        factors=(response.step,1/math.tau)
+        impulse=_sum(response.values*weights,w,axis,sign=1,factors=factors)
         approximation='trapezoidal inverse Fourier'
+        inverse_model=numeric_model('quadrature',response.origin,response.step,response.values)
         if source is not None:
-            x=ctft(source,float(w[0]),float(w[-1]),size)
+            x=ctft_on_grid(source,w,response.step)
             y_values=x.values*response.values
-            output_values=_sum(y_values*weights,w,source.axis,sign=1)/math.tau
+            output_values=_sum(y_values*weights,w,source.axis,sign=1,factors=factors)
 
     grid_metadata={'frequency_start':float(w[0]),'frequency_stop':float(w[-1]),'frequency_points':size}
     h=Signal(impulse,start,step,'n' if digital else 's','Respuesta al impulso h',domain,
-             metadata={**grid_metadata,'operation':'frequency_filter_impulse','approximation':approximation})
+             metadata={**grid_metadata,'operation':'frequency_filter_impulse','approximation':approximation,'inverse_model':inverse_model})
     outputs=[response,h]
     if source is not None:
         y=x.copy_with(values=y_values,name='Espectro de salida Y = H·X',
@@ -90,8 +97,11 @@ def analyze(response,domain,start,count,step,source=None):
                   'filter_expression':response.expression,'approximation':approximation}
         output=source.copy_with(values=output_values,name='Salida filtrada y',expression='',metadata=metadata)
         outputs.extend([x,y,output])
-    report='Filtro definido en frecuencia\n\nH(ω) indica cuánto amplifica y retrasa cada componente sinusoidal. La definición puede tener tramos y valores complejos.\n\nY(ω) = H(ω) X(ω)\n\nLa respuesta al impulso y la salida se calculan por integración numérica (regla del trapecio). Aumentá la cantidad de frecuencias para estudiar la convergencia cerca de discontinuidades. No se ajusta un FIR ni un IIR.\n\nUn filtro ideal con corte abrupto puede tener respuesta infinita en el tiempo y no ser causal. El tramo de h mostrado no es toda la respuesta ni un FIR equivalente. La salida se muestra sobre el mismo intervalo de la entrada; no representa su cola completa.\n\n'+('En discreto se integra un período de −π a π. Una rejilla finita produce repetición numérica en el tiempo; ampliá su resolución para separar las réplicas del intervalo que estudiás.' if domain=='discrete' else 'En continuo se integra sólo la banda de frecuencias indicada. La energía fuera de esa banda se omite: un pasaaltos ideal requiere una banda cada vez más amplia para aproximar su efecto. El impulso de Dirac de una ganancia constante no se representa exactamente mediante esta cuadratura.')+'\n\nExportar H conserva sus muestras y su fórmula. Se puede volver a cargar en esta herramienta. Los menús que requieren coeficientes b/a describen otro tipo de representación.'
+    report='Filtro definido en frecuencia\n\nH(ω) indica cuánto amplifica y retrasa cada componente sinusoidal. La definición puede tener tramos y valores complejos.\n\nY(ω) = H(ω) X(ω)\n\nLa respuesta al impulso y la salida se calculan por integración numérica (regla del trapecio). Aumentá la cantidad de frecuencias para estudiar la convergencia cerca de discontinuidades. No se ajusta un FIR ni un IIR.\n\nUn filtro ideal con corte abrupto puede tener respuesta infinita en el tiempo y no ser causal. El tramo de h mostrado no es toda la respuesta ni un FIR equivalente. La salida se muestra sobre el mismo intervalo de la entrada; no representa su cola completa.\n\n'+('En discreto se integra un período completo de 2π sobre la rejilla ingresada. Una rejilla finita produce repetición numérica en el tiempo; ampliá su resolución para separar las réplicas del intervalo que estudiás.' if domain=='discrete' else 'En continuo se integra sólo la banda de frecuencias indicada. La energía fuera de esa banda se omite: un pasaaltos ideal requiere una banda cada vez más amplia para aproximar su efecto. El impulso de Dirac de una ganancia constante no se representa exactamente mediante esta cuadratura.')+'\n\nExportar H conserva sus muestras y su fórmula. Se puede volver a cargar en esta herramienta. Los menús que requieren coeficientes b/a describen otro tipo de representación.'
     if digital:
         rule = 'suma periódica con peso medio en los extremos repetidos' if closed else 'suma periódica sin extremo repetido'
         report=report.replace('regla del trapecio',rule)
+        if folded_input:
+            report+=f'\n\nPlegado periódico habilitado. Se sumaron las muestras separadas por {independent} índices antes de aplicar H. La salida representa esa secuencia periódica.'
+            output.metadata.update(periodic_input_folded=True,periodic_samples=independent)
     return outputs,report

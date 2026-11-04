@@ -62,11 +62,12 @@ def enrich_conversion(result,original,period,method,references=(),*,input_expres
     forward=method in ('bilinear','impulse')
     source_measure=half_power(original,references) if original is not None else None
     edges=references or (source_measure['frequencies'] if forward and source_measure else [])
+    from .course_tools import map_analog_frequency
     mappings=[]
     for edge in edges:
         raw=edge*period
         if not math.isfinite(raw):raise ValueError('Ωc·T excede el rango numérico; revisá el corte y el período.')
-        mapped=2*math.atan(raw/2) if method=='bilinear' else abs(math.remainder(raw,2*math.pi))
+        mapped=abs(map_analog_frequency(edge,period,method))
         mappings.append({'analog':edge,'digital':mapped,'unwrapped':raw,'aliased':method=='impulse' and raw>math.pi})
     info={'method':method,'period':float(period),'references_entered':bool(references),'mappings':mappings,'ideal':original is None,
           'input':_formula(original,'Ha' if original.domain=='analog' else 'Hd') if original is not None else {'expression':'Ha(w) = '+input_expression,'text':'Ha(w) = '+input_expression},

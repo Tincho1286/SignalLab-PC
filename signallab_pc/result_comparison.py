@@ -21,18 +21,49 @@ def errors(a,b):
     return {'count':int(a.size),'relative_max':maximum/float(max(abs(aa).max(),abs(bb).max())),'absolute_max':absolute(maximum),'rms':absolute(rms)}
 
 
-def compare(a,b,start=0.,stop=np.pi,count=2001):
+def _physical_axis(source):
+    from .system_clock import validate_clock_resolution
+    from .sampling import positive_finite
+    rate=source.metadata.get('sample_rate_hz');start=source.metadata.get('time_start_s')
+    if rate is None or start is None:raise ValueError('Para comparar en segundos, ambas entradas deben registrar Fs y el instante de la primera muestra.')
+    rate=positive_finite(rate,'Fs registrada')
+    validate_clock_resolution(start,rate,source.values.size)
+    return float(start)+np.arange(source.values.size,dtype=float)/rate
+
+
+def compare(a,b,start=0.,stop=np.pi,count=2001,*,alignment='index'):
     if not compatible(a,b):raise ValueError('Elegí dos señales del mismo dominio y unidades, o dos sistemas del mismo dominio.')
     from .resources import ensure_working_set
     if isinstance(a,Signal):
         ensure_working_set(a.values.size+b.values.size,live_arrays=12)
-        if a.domain=='discrete':
+        clock_note=None
+        if alignment not in ('index','physical') or alignment=='physical' and a.domain!='discrete':
+            raise ValueError('La comparación por reloj físico requiere dos secuencias discretas.')
+        if a.domain=='discrete' and alignment=='index':
+            from .windowing import validate_discrete_clocks
+            try:validate_discrete_clocks(a,b)
+            except ValueError as exc:clock_note=str(exc)+' Las diferencias calculadas aquí corresponden sólo a los índices n.'
             low=max(a.origin,b.origin);high=min(a.origin+a.values.size-1,b.origin+b.values.size-1)
             n=max(0,int(high-low+1));one=a.values[low-a.origin:low-a.origin+n];two=b.values[low-b.origin:low-b.origin+n]
         else:
-            common,i,j=np.intersect1d(a.axis,b.axis,assume_unique=False,return_indices=True);one=a.values[i];two=b.values[j]
+            axes=(_physical_axis(a),_physical_axis(b)) if alignment=='physical' else (a.axis,b.axis)
+            _,i,j=np.intersect1d(*axes,assume_unique=False,return_indices=True);one=a.values[i];two=b.values[j]
         metrics=errors(one,two)
-        return {'metrics':metrics,'signals':(a,b),'scope':'Se comparan sólo coordenadas almacenadas exactamente coincidentes. Se conservan origen, amplitud y fase; no se interpola, desplaza ni rellena con ceros. Una ausencia de puntos comunes no significa igualdad.','units':a.units,'domain':a.domain}
+        from .distributions import dirac_terms
+        impulses=None
+        if a.domain in ('continuous','frequency'):
+            left=dict(dirac_terms(a));right=dict(dirac_terms(b))
+            positions=sorted(left.keys() | right.keys())
+            if positions:
+                from itertools import islice
+                weights_a=np.array([left.get(position,0j) for position in positions])
+                weights_b=np.array([right.get(position,0j) for position in positions])
+                impulses={'metrics':errors(weights_a,weights_b),'terms_a':len(left),'terms_b':len(right),
+                          'different_positions':sum(left.get(t,0j)!=right.get(t,0j) for t in positions),
+                          'first_differences':[[t,[float(u.real),float(u.imag)],[float(v.real),float(v.imag)]]
+                                               for t,u,v in islice((item for item in zip(positions,weights_a,weights_b)
+                                                                    if item[1]!=item[2]),12)]}
+        return {'metrics':metrics,'signals':(a,b),'alignment':alignment,'clock_note':clock_note,'impulses':impulses,'scope':'Se comparan sólo coordenadas almacenadas exactamente coincidentes. Se conservan origen, amplitud y fase; no se interpola, desplaza ni rellena con ceros. Una ausencia de puntos comunes no significa igualdad.','units':a.units,'domain':a.domain}
     from .frequency_analysis import frequency_grid
     from .system_conditions import record
     w=frequency_grid(start,stop,count);one=a.response(w);two=b.response(w)
@@ -42,9 +73,22 @@ def compare(a,b,start=0.,stop=np.pi,count=2001):
 def summary(data):
     from .result_summary import Summary,Section,Formula,number
     m=data['metrics']
+    physical=data.get('alignment')=='physical'
     rows=[('Coordenadas comunes finitas',str(m['count']))]
+    if data.get('domain')=='discrete':rows.insert(0,('Alineación','Instantes físicos (s)' if physical else 'Índices n'))
     for key,label in [('absolute_max','Máximo |B−A|'),('rms','RMS de B−A'),('relative_max','Máximo relativo a la mayor amplitud de A/B')]:rows.append((label,number(m[key]) if m[key] is not None else 'No disponible'))
     sections=[Section('Diferencias sobre coordenadas comunes',rows=rows,formulas=[Formula('e = B-A','e = B − A')]),Section('Interpretación',paragraphs=[data['scope'],'La fase se compara en la diferencia compleja, conservando su referencia. RMS es el promedio sobre los puntos comparados; no una integral temporal.'])]
+    if data.get('clock_note'):sections.append(Section('Reloj físico',paragraphs=[data['clock_note']]))
+    impulses=data.get('impulses')
+    if impulses:
+        maximum=impulses['metrics']['absolute_max']
+        differences=impulses['first_differences']
+        details=[(number(t)+' '+data['units'],'A = '+number(complex(*a))+' · B = '+number(complex(*b))) for t,a,b in differences]
+        sections.append(Section('Impulsos de Dirac',rows=[
+            ('Impulsos en A',str(impulses['terms_a'])),('Impulsos en B',str(impulses['terms_b'])),
+            ('Posiciones con pesos distintos',str(impulses['different_positions'])),
+            ('Máxima diferencia de peso',number(maximum) if maximum is not None else 'Fuera de rango'),*details],
+            paragraphs=['Se comparan los pesos en la unión de las posiciones de A y B. Las métricas de muestras de arriba corresponden a la parte ordinaria. Se listan hasta doce posiciones con diferencias.']))
     for index,condition in enumerate(data.get('conditions',())):sections.append(Section('Sistema '+('A' if index==0 else 'B'),rows=[('ROC',condition['roc']),('Causalidad',condition['causality']),('BIBO',condition['bibo_stability'])],paragraphs=[condition['frequency_interpretation']]))
     return Summary('Comparación de resultados',sections)
 
@@ -65,12 +109,15 @@ class ComparisonDialog(QDialog):
     def __init__(self,window):
         super().__init__(window);self.owner=window;self.data=None;self.setWindowTitle('Comparar resultados · SignalLab');self.resize(850,660)
         root=QVBoxLayout(self);form=QFormLayout();root.addLayout(form);self.a=QComboBox();self.b=QComboBox();form.addRow('Resultado A',self.a);form.addRow('Resultado B',self.b)
+        self.alignment=QComboBox();self.alignment.addItems(['Índices n','Tiempo físico (s)'])
+        self.alignment_label=QLabel('Alineación de muestras');form.addRow(self.alignment_label,self.alignment)
+        self.alignment.hide();self.alignment_label.hide()
         self.frequency_box=QWidget();row=QHBoxLayout(self.frequency_box);row.setContentsMargins(0,0,0,0);self.start=QLineEdit('0');self.stop=QLineEdit('pi');self.count=QLineEdit('2001');self.unit=QLabel()
         for name,field in [('Desde',self.start),('Hasta',self.stop),('Puntos',self.count)]:field.setAccessibleName(name);row.addWidget(QLabel(name));row.addWidget(field)
         row.addWidget(self.unit);form.addRow('Frecuencias comunes',self.frequency_box)
         row=QHBoxLayout();self.mode=QComboBox();self.mode.addItems(['Parte real e imaginaria','Módulo y fase']);self.calculate_button=QPushButton('Comparar');self.calculate_button.setObjectName('primary');row.addWidget(self.mode);row.addStretch();row.addWidget(self.calculate_button);root.addLayout(row)
         from .result_state import ResultState
-        self.state=ResultState([self.a,self.b,self.start,self.stop,self.count],self.calculate_button);root.addWidget(self.state)
+        self.state=ResultState([self.a,self.b,self.start,self.stop,self.count,self.alignment],self.calculate_button);root.addWidget(self.state)
         self.tabs=QTabWidget();root.addWidget(self.tabs,1);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Informe');plot=QWidget();layout=QVBoxLayout(plot);self.figure=Figure();self.canvas=FigureCanvasQTAgg(self.figure);self.toolbar=NavigationToolbar2QT(self.canvas,plot);layout.addWidget(self.toolbar);layout.addWidget(self.canvas,1);self.tabs.addTab(plot,'Gráfico')
         from .plot_view import install_enlarge
         install_enlarge(self.toolbar)
@@ -90,6 +137,9 @@ class ComparisonDialog(QDialog):
             if candidate!=key and a.get('kind')==b['kind'] and a.get('domain')==b['domain'] and (b['kind']=='system' or a.get('units')==b['units']):self.b.addItem(self.titles[candidate],candidate)
         index=self.b.findData(selected)
         if index>=0:self.b.setCurrentIndex(index)
+        discrete=a.get('domain')=='discrete'
+        self.alignment.setVisible(discrete);self.alignment_label.setVisible(discrete)
+        self.alignment.setProperty('calculationInput',discrete)
         systems=a.get('kind')=='system';self.frequency_box.setVisible(systems);self.calculate_button.setEnabled(self.b.count()>0)
         if systems:
             digital=a['domain']=='digital';self.unit.setText('rad/muestra' if digital else 'rad/s')
@@ -103,6 +153,7 @@ class ComparisonDialog(QDialog):
             start,stop,count=(real_field(self.start),real_field(self.stop),integer_field(self.count,minimum=2)) if isinstance(a,Transfer) else (0.,1.,2)
             from .validation import ordered_interval
             if isinstance(a,Transfer):ordered_interval(self.start,self.stop,start,stop)
+            alignment='physical' if isinstance(a,Signal) and a.domain=='discrete' and self.alignment.currentIndex()==1 else 'index'
             snapshot=self.state.snapshot()
             def accept(data):
                 self.data={**data,**({'signals':(a,b)} if isinstance(a,Signal) else {'systems':(a,b)})};self.report.set_readable(summary(data));self.state.accept(snapshot);self.draw()
@@ -112,7 +163,7 @@ class ComparisonDialog(QDialog):
                 if journal is not None:journal.reported(data)
                 self.tabs.setCurrentIndex(0)
             def compute():
-                data=compare(a,b,start,stop,count)
+                data=compare(a,b,start,stop,count,alignment=alignment)
                 data.pop('signals',None);data.pop('systems',None)
                 return data
             self.owner._run_operation('Comparando resultados…',compute,accept)
@@ -124,11 +175,15 @@ class ComparisonDialog(QDialog):
         from .ui import SignalLabWindow
         self.figure.clear();axes=self.figure.subplots(2,1,sharex=True);polar=self.mode.currentIndex()==1
         if 'signals' in self.data:
+            physical=self.data.get('alignment')=='physical'
             for letter,source in zip(('A','B'),self.data['signals']):
                 ids=SignalLabWindow._plot_indices(source.values);v=source.values[ids];phase=np.where(abs(v)>0,np.angle(v),np.nan)
                 for axis,values,component in zip(axes,(abs(v),phase) if polar else (v.real,v.imag),('magnitude','phase') if polar else ('real','imag')):
-                    plot_samples(axis,source.axis[ids],values,discrete=is_discrete_plot(source),label=letter+' · '+source.name,phase=component=='phase',source=source,component=component)
-            configure_signal_axis(axes[-1],self.data['signals'][0])
+                    coordinates=_physical_axis(source) if physical else source.axis
+                    plot_samples(axis,coordinates[ids],values,discrete=is_discrete_plot(source),label=letter+' · '+source.name,
+                                 phase=component=='phase',source=None if physical else source,component=component)
+            if physical:configure_axis(axes[-1],units='s',label='Tiempo físico (s)')
+            else:configure_signal_axis(axes[-1],self.data['signals'][0])
         else:
             for letter,values,system in zip(('A','B'),self.data['responses'],self.data['systems']):
                 phase=np.where(np.isfinite(values)&(abs(values)>0),np.angle(values),np.nan)

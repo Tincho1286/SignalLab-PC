@@ -37,13 +37,26 @@ class InverseDtftPanel(QWidget):
     def calculate(self):
         try:
             source=self.source.read();start=integer_field(self.start);count=integer_field(self.count);parents=[self.source.reference_id] if self.source.reference_id else [];snapshot=self.state.snapshot()
-            def accept(result):
+            from .inverse_fourier_report import from_signal,exact_section,numeric_section
+            def compute():
+                return inverse_dtft(source,start,count),from_signal(source)
+            def accept(data):
+                result,algebra=data
+                exact=algebra['inverse'] if algebra else None
+                if exact:
+                    from .temporal_formula import attach_temporal_formula
+                    attach_temporal_formula(result,exact)
                 self.result=result;key=self.window.publish(result,operation='DTFT inversa numérica',parents=parents)
                 self.output.show_result(result);self.output.result_ids=[key]
-                self.report.set_readable(Summary('DTFT inversa numérica',[
-                    Section('Relación calculada',formulas=[Formula('x[n] = Integral(X(w)*exp(i*w*n),(w,-pi,pi))/(2*pi)','x[n] = (1/2π) ∫ de −π a π X(ω)e^(iωn)dω')]),
+                sections=[]
+                if exact:
+                    sections.append(exact_section(exact,'x'))
+                    self.window.publish({'result':exact},title='Expresión algebraica de x[n]',operation='DTFT inversa algebraica',parents=[key])
+                sections.append(numeric_section(result.metadata['inverse_model'],'x'))
+                self.report.set_readable(Summary('DTFT inversa numérica',sections+[
+                    Section('Regla de la transformada',formulas=[Formula('x[n] = Integral(X(w)*exp(i*w*n),(w,-pi,pi))/(2*pi)','x[n] = (1/2π) ∫ de −π a π X(ω)e^(iωn)dω')]),
                     Section('Entrada y salida',rows=[('Unidad de frecuencia','rad/muestra'),('Puntos ingresados',str(len(source.values))),('Frecuencias independientes',str(result.metadata['independent_frequencies'])),('Índices de salida',str(start)+' a '+str(start+count-1)),('Integración',result.metadata['quadrature'])]),
                     Section('Cómo interpretarlo',paragraphs=[result.metadata['scope'],'Aumentá la resolución de X(ω) para estudiar la aproximación. El intervalo elegido muestra una parte de la secuencia; no impone que la secuencia completa sea finita.']),
                 ]));self.state.accept(snapshot)
-            self.window._run_operation('Calculando DTFT inversa…',lambda:inverse_dtft(source,start,count),accept)
+            self.window._run_operation('Calculando DTFT inversa…',compute,accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá la DTFT inversa',str(exc))

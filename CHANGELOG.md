@@ -2,6 +2,14 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.10**.
 
+## 1.6.11 · Hotfix
+
+- Fórmulas en los informes de respuesta temporal, con recurrencias y condiciones iniciales para sistemas discretos.
+- Expresión de la respuesta al impulso en filtros por tramos e inversas de Fourier con un informe del resultado calculado.
+- Ajustes de validación y reutilización de datos entre herramientas.
+
+[Notas de la entrega](docs/releases/v1.6.11.md)
+
 ## 1.6.10 · Hotfix
 
 - Dominio y variables ligadas en el CAS, validación de entradas y reutilización de transferencias Laurent.

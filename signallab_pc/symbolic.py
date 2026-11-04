@@ -17,7 +17,7 @@ SYMBOLS = {"t": T, "x": T, "s": S, "z": Z, "n": N, "w": W, "omega": W, "tau": TA
 FUNCTIONS = {"sinc": lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x)/(sp.pi*x),True)), "ceil":sp.ceiling, "ceiling":sp.ceiling, "floor":sp.floor, "sign":sp.sign,"sin": sp.sin, "cos": sp.cos, "tan": sp.tan, "exp": sp.exp, "log": sp.log,
              "asin":sp.asin, "acos":sp.acos, "atan":sp.atan, "tanh":sp.tanh, "ln": sp.log, "polylog":sp.polylog, "lerchphi":sp.lerchphi, "mod":sp.Mod, "eq":sp.Eq, "ne":sp.Ne, "erf": sp.erf, "erfc": sp.erfc, "sqrt": sp.sqrt, "abs": sp.Abs, "sinh": sp.sinh, "cosh": sp.cosh,
              "heaviside": sp.Heaviside, "diracdelta": impulse, "dirac": impulse,
-             "step": lambda x:sp.Heaviside(x,1), "impulse": impulse, "kroneckerdelta":sp.KroneckerDelta, "piecewise": sp.Piecewise, "conj": sp.conjugate, "re": sp.re, "im": sp.im}
+             "step": lambda x:sp.Heaviside(x,1), "impulse": impulse, "kroneckerdelta":sp.KroneckerDelta, "piecewise": sp.Piecewise, "where":lambda condition,value,otherwise:sp.Piecewise((value,condition),(otherwise,True)), "conj": sp.conjugate, "re": sp.re, "im": sp.im}
 
 
 def parse(expression):
@@ -89,6 +89,9 @@ def execute(request):
 
 def _execute(request):
     operation = request["operation"]
+    if operation=='frequency_definition':
+        from .fourier_bands import frequency_definition
+        return frequency_definition(request)
     if operation=="difference_equation":
         from .difference_equations import solve
         return solve(request)
@@ -164,6 +167,14 @@ def _execute(request):
         inverse=operation=='inverse_fourier_angular'
         definition=prepare(expression,W if inverse else T,'frequency' if inverse else 'continuous',(-sp.oo,sp.oo),request.get('input_conditions',()),'integration_interval');value=definition.integral_expression()
         if value.has(T if inverse else W):raise ValueError('La entrada contiene la variable de salida; usá otro nombre para ese parámetro.')
+        if inverse:
+            from .fourier_bands import inverse_bands
+            exact=inverse_bands(value,W,T,discrete=False)
+            if exact is not None:
+                return attach({'operation':operation,'result':str(exact),'condition':'True','evaluated':True,
+                    'output_variable':'t','frequency_units':'rad/s',
+                    'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
+                    'scope':'Inversa por integración de bandas y pares de Fourier. Los valores aislados de frecuencia tienen medida nula.'},definition)
         from .impulse_pairs import fourier_pairs
         known,regular=fourier_pairs(value,W if inverse else T,T if inverse else W,inverse=inverse)
         if regular==0:answer=(sp.S.Zero,sp.true)

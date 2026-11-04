@@ -42,7 +42,10 @@ class SamplingPanel(QWidget):
         self._section(form, "Reconstruir en tiempo continuo")
         self.reconstruction = QComboBox(); self.reconstruction.addItems(["ZOH", "Lineal", "SINC"])
         form.addRow("Modelo", self.reconstruction)
-        self._button(form, "Reconstruir usando Fs, t0 y L indicados", self.reconstruct)
+        self.clock_override=QCheckBox('Usar la Fs y el tiempo inicial del formulario')
+        self.clock_override.setToolTip('Activá esta opción sólo si querés reinterpretar el reloj de las muestras.')
+        form.addRow(self.clock_override)
+        self._button(form, "Reconstruir señal", self.reconstruct)
         form.addRow(QLabel("Ventana de salida: primera a última muestra del registro."))
         self._section(form, "Cuantización de la señal de entrada")
         self.bits = self._field(form, "Bits (máximo 52 por precisión numérica)", "8")
@@ -70,7 +73,7 @@ class SamplingPanel(QWidget):
             ("Cambiar tasa", "Diezmá, expandí o interpolá la señal de entrada. El diezmado no agrega un filtro automáticamente.",
              [self.factor,self.phase,self.rate_method],["Aplicar cambio de tasa"]),
             ("Reconstruir una señal", "Elegí el modelo y la rejilla temporal de reconstrucción.",
-             [self.rate,self.start,self.factor,self.reconstruction],["Leer Fs y tiempo de la señal de entrada","Reconstruir usando Fs, t0 y L indicados"]),
+             [self.rate,self.start,self.factor,self.reconstruction,self.clock_override],["Leer Fs y tiempo de la señal de entrada","Reconstruir señal"]),
             ("Cuantización y SNR", "Definí la resolución, el rango y el intervalo del análisis de ruido.",
              [self.bits,self.low,self.high,self.quant_method,self.zero,self.first,self.last],["Cuantizar y calcular SNR"]),
             ("Punto fijo", "Representá un valor con signo y precisión fraccionaria elegida.",
@@ -116,7 +119,7 @@ class SamplingPanel(QWidget):
         if "sample_rate_hz" not in source.metadata:
             raise ValueError("Esta señal no tiene Fs registrada. Indicá Fs y el tiempo inicial para reconstruirla.")
         self.rate.setText(str(source.metadata["sample_rate_hz"]))
-        self.start.setText(str(source.metadata.get("time_start_s", 0)))
+        if "time_start_s" in source.metadata:self.start.setText(str(source.metadata["time_start_s"]))
 
     def alias(self):
         result = sampling.alias_angular_frequency(real_field(self.frequency), real_field(self.rate))
@@ -133,8 +136,11 @@ class SamplingPanel(QWidget):
         self._job("Cambiando tasa…", lambda: sampling.resample(source, factor, method, phase), self._accept_signal)
 
     def reconstruct(self):
-        args = self._source(), real_field(self.rate), real_field(self.start), integer_field(self.factor), ["zoh", "linear", "sinc"][self.reconstruction.currentIndex()]
-        self._job("Reconstruyendo registro…", lambda: sampling.reconstruct(*args), self._accept_signal)
+        source=self._source();override=self.clock_override.isChecked()
+        rate=real_field(self.rate) if override or source.metadata.get('sample_rate_hz') is None else None
+        start=real_field(self.start) if override or source.metadata.get('time_start_s') is None else None
+        factor=integer_field(self.factor);method=["zoh", "linear", "sinc"][self.reconstruction.currentIndex()]
+        self._job("Reconstruyendo registro…", lambda: sampling.reconstruct(source,rate,start,factor,method,override_clock=override), self._accept_signal)
 
     def quantize(self):
         args = (self._source(), integer_field(self.bits), real_field(self.low), real_field(self.high),

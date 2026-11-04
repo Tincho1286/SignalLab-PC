@@ -80,6 +80,8 @@ def signal_summary(value,operation=None):
         if 'sample_rate_hz' in meta:rows.append(('Tasa de muestreo Fs',number(meta['sample_rate_hz'])+' muestras/s'))
         if 'time_start_s' in meta:rows.append(('Tiempo de la primera muestra',number(meta['time_start_s'])+' s'))
         sections.append(Section(signal.name,rows=rows))
+        from .temporal_formula import sections as temporal_sections
+        sections.extend(temporal_sections(signal))
         if signal.expression and signal.expression!='lista ingresada':sections.append(Section('Expresión de origen',paragraphs=['Las transformaciones posteriores se reflejan en los valores almacenados.'],formulas=[Formula(signal.expression,signal.expression)]))
         op=meta.get('operation','');reading=[];formulas=[]
         if op=='DFT' and meta.get('dft_order')=='centered':
@@ -90,8 +92,8 @@ def signal_summary(value,operation=None):
             reading=['v[m] son los valores en el orden almacenado. La DFT no divide por N y usa índices k desde cero; no incorpora el origen temporal original. La transformada inversa divide por N.']
         elif op=='DFT' and signal.domain=='frequency':reading=['La DFT se representa mediante muestras en frecuencia angular. No son puntos conectados de una función continua. El informe de FFT y ventanas conserva la normalización y la referencia de fase del cálculo.']
         elif op=='IDFT':
-            formulas=[Formula('x[n] = Sum(X[k]*exp(2*pi*i*k*n/N),(k,0,N-1))/N','x[n] = (1/N)·Σ desde k=0 hasta N−1 de X[k]·exp(j2πkn/N)')]
-            reading=['La entrada manual usa el orden desde k=0. Al cargar una DFT centrada, el programa reconoce el orden y la invierte. El eje reconstruido comienza en n=0.']
+            formulas=[Formula('x[n0+m] = Sum(X[k]*exp(2*pi*i*k*m/N),(k,0,N-1))/N','x[n₀+m] = (1/N)·Σ desde k=0 hasta N−1 de X[k]·exp(j2πkm/N)')]
+            reading=['La entrada manual usa el orden desde k=0. Al cargar una DFT centrada, el programa reconoce el orden y la invierte. El primer índice de la salida es '+str(signal.origin)+'. El reloj registrado se conserva también cuando se elige n₀=0.']
         elif op=='linear_convolution':
             formulas=[Formula('y[n] = Sum(x[m]*h[n-m],(m,-oo,oo))','y[n] = Σ sobre m de x[m]·h[n−m]')]
             reading=['Las entradas se consideran cero fuera de sus registros. La salida completa tiene Nx+Nh−1 muestras y su primer índice es la suma de los primeros índices de ambas entradas.']
@@ -101,7 +103,7 @@ def signal_summary(value,operation=None):
         elif op=='continuous_convolution':reading=['El resultado es una aproximación numérica. La parte regular de las entradas se interpola linealmente entre puntos y se considera nula fuera del intervalo almacenado. Los impulsos ideales se conservan por su posición y peso.']
         elif op=='continuous_correlation':reading=['El eje es el retardo temporal en segundos. La segunda señal se invierte y se conjuga antes de la convolución. La aproximación y su normalización dependen del modelo de los registros.']
         elif op=='sampling':reading=['El reloj es t = t₀ + (n−n₀)/Fs. La duración entre la primera y la última muestra es (N−1)/Fs. Muestrear no recupera información que se pierda por aliasing.']
-        elif op=='reconstruction':reading=['Se reconstruye entre la primera y la última muestra, usando Fs y el tiempo inicial visibles al calcular. ZOH mantiene el valor; lineal une puntos; SINC utiliza el registro finito completo y supone cero fuera. No se recupera información perdida por aliasing ni se muestran colas SINC infinitas.']
+        elif op=='reconstruction':reading=['Se reconstruye entre la primera y la última muestra, usando el reloj registrado o los valores del formulario si activaste la opción de reinterpretación. Los campos también completan los datos que falten. ZOH mantiene el valor; lineal une puntos; SINC utiliza el registro finito completo y supone cero fuera. No se recupera información perdida por aliasing ni se muestran colas SINC infinitas.']
         elif op=='resample_rational':
             rows=[('Multiplicador L',str(meta['up'])),('Divisor M',str(meta['down'])),('Fs de entrada',number(meta['input_rate_hz'])+' muestras/s'),('Coeficientes del filtro',str(meta['filter_taps']))]
             sections.append(Section('Conversión de tasa',rows=rows))
@@ -110,6 +112,9 @@ def signal_summary(value,operation=None):
             formulas=[Formula('p[n] = (x[n]+x[-n])/2','Parte par: p[n] = (x[n]+x[−n])/2'),Formula('q[n] = (x[n]-x[-n])/2','Parte impar: q[n] = (x[n]−x[−n])/2')]
             reading=['La señal se extiende con ceros fuera del registro; se conserva el soporte reflejado. La suma de ambas componentes recupera la señal sobre ese soporte.']
         if reading or formulas:sections.append(Section('Cómo leer el resultado',paragraphs=reading,formulas=formulas))
+        if meta.get('inverse_model'):
+            from .inverse_fourier_report import numeric_section
+            sections.append(numeric_section(meta['inverse_model'],'h' if op=='frequency_filter_impulse' else 'x'))
         from .distributions import dirac_terms
         terms=dirac_terms(signal)
         if terms:

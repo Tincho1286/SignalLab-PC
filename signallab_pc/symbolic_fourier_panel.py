@@ -137,6 +137,8 @@ class SymbolicFourierPanel(QWidget):
                 if self.last[0] != key or not self.sample_button.isEnabled():
                     return
                 signal=Signal([complex(*v) for v in data['samples']],data['origin'],1,'n','DTFT inversa','discrete','',{'operation':'inverse_dtft_expression_samples','scope':result['scope'],'source_expression':result['input_expression']})
+                from .temporal_formula import attach_temporal_formula
+                attach_temporal_formula(signal,result)
                 output_id=self.window.publish(signal,operation='Muestras de DTFT inversa',parents=[key]);self.output.show_result(signal);self.output.result_ids=[output_id];self.tabs.setTabVisible(1,True);self.tabs.setCurrentIndex(1)
                 open_result_plot(self.output, self)
                 self._sampled_plot = (key, request, self.output.canvas)
@@ -158,6 +160,9 @@ class SymbolicFourierPanel(QWidget):
             temporal=data['variable']=='t'
             signal=Signal([complex(*v) for v in data['samples']],data['origin'],data['step'],'s' if temporal else result['frequency_units'],'x(t)' if temporal else 'X(w)','continuous' if temporal else 'frequency',data['expression'],
                 {'operation':'fourier_expression_samples','scope':data['scope'],'source_condition':result['condition'],'convention':result['convention']})
+            if temporal:
+                from .temporal_formula import attach_temporal_formula
+                attach_temporal_formula(signal,result)
             hide_plot(self.masked.canvas)
             self.tabs.setTabVisible(self.masked_index,False)
             self.window.publish(signal,operation='Muestreo de resultado Fourier algebraico',parents=[key]);self.output.show_result(signal);self.tabs.setTabVisible(1,True);self.tabs.setCurrentIndex(1)

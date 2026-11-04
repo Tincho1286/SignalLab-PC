@@ -239,6 +239,8 @@ class TransformLab(QWidget):
                 signal=None;values=result.get('numeric_samples')
                 if values:
                     signal=Signal([complex(*v) for v in values],result['origin'],1,'n','Z inversa','discrete',metadata={'operation':'z_inverse_expression','roc':result['roc'],'expression':result['result']})
+                    from .temporal_formula import attach_temporal_formula
+                    attach_temporal_formula(signal,result)
                     self.window.publish(signal,operation='Muestras de Z inversa',parents=[key])
                 record=(request,result,key,snapshot,signal);self.records[record_key]=record
                 if self.record_key()==record_key:self.display_record(record)

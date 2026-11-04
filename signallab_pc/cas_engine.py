@@ -8,10 +8,14 @@ from .impulse_pairs import impulse
 from .cas_domains import bare, substitute, with_domain, scoped_result, solve_scalar, intrinsic_system_domain, function_domain
 
 
+SERIALIZED_CONSTANTS={name:getattr(sp,name) for name in ('EulerGamma','Catalan','GoldenRatio','TribonacciConstant')}
+
+
 CONSTANTS={'pi':sp.pi,'e':sp.E,'i':sp.I,'j':sp.I,'oo':sp.oo,'infinity':sp.oo,
     'zoo':sp.zoo,'nan':sp.nan,'true':sp.true,'false':sp.false,
     'reals':sp.S.Reals,'complexes':sp.S.Complexes,'integers':sp.S.Integers,
-    'naturals':sp.S.Naturals,'naturals0':sp.S.Naturals0,'emptyset':sp.S.EmptySet}
+    'naturals':sp.S.Naturals,'naturals0':sp.S.Naturals0,'emptyset':sp.S.EmptySet,
+    **{name.lower():value for name,value in SERIALIZED_CONSTANTS.items()}}
 FUNCTIONS={name:getattr(sp,name) for name in ('sin','cos','tan','asin','acos','atan','atan2',
     'sinh','cosh','tanh','asinh','acosh','atanh','exp','log','polylog','lerchphi','sqrt','factorial','binomial','gamma','erf','erfc',
     'simplify','expand','factor','cancel','together','apart','trigsimp','expand_trig','powsimp',
@@ -43,9 +47,6 @@ HEADS.update(MutableDenseMatrix=sp.MutableDenseMatrix,ImmutableDenseMatrix=sp.Im
 HEADS[sp.CRootOf.__name__]=sp.CRootOf
 from sympy.functions.elementary.piecewise import ExprCondPair
 HEADS['ExprCondPair']=ExprCondPair
-
-
-SERIALIZED_CONSTANTS={name:getattr(sp,name) for name in ('EulerGamma','Catalan','GoldenRatio','TribonacciConstant')}
 
 
 def restore(source):

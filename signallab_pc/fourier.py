@@ -108,14 +108,17 @@ def synthesize_discrete(coefficients):
 
 
 def ctft(x, start, stop, count):
+    omega=grid(start,stop,count)
+    return ctft_on_grid(x,omega,(float(stop)-float(start))/(len(omega)-1))
+
+
+def ctft_on_grid(x, omega, step):
     if x.domain != "continuous" or x.step <= 0:
         raise ValueError("La CTFT numérica requiere un registro temporal con paso positivo en segundos.")
-    omega = grid(start, stop, count)
     from .distributions import dirac_terms
     impulses=dirac_terms(x)
     values = _sum(x.values,x.axis,omega,factors=(x.step,)) if np.any(x.values) else np.zeros(omega.size,dtype=complex)
     for position,weight in impulses:values+=weight*np.exp(-1j*omega*position)
-    step = (float(stop)-float(start))/(len(omega)-1)
     result = Signal(_finite_output(values, "La CTFT"), float(omega[0]),step,"rad/s",f"CTFT_{x.name}","frequency","",
         {"operation": "CTFT_rectangle", "input_start": x.origin, "input_step": x.step,
          "input_dirac_terms": [[t,[float(w.real),float(w.imag)]] for t,w in impulses],

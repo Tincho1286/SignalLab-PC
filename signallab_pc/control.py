@@ -149,8 +149,8 @@ def forced_response(system, source, interpolation="linear"):
         "operation":"forced_response", "initial_rest":True,
         "initial_rest_at":source.origin, "input_name":source.name,
         "input_interpolation":("discrete sequence" if expected=="discrete" else interpolation),
-        "b":[[v.real,v.imag] for v in system.b],
-        "a":[[v.real,v.imag] for v in system.a],
+        "b":result.metadata.get("b",[[v.real,v.imag] for v in system.b]),
+        "a":result.metadata.get("a",[[v.real,v.imag] for v in system.a]),
         "finite_window":True,
         "scope":"Estado inicial nulo al inicio del registro. No incluye la cola posterior a la ventana de entrada.",
     }
