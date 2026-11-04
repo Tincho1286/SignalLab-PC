@@ -169,6 +169,10 @@ class SystemAnalysisPanel(QWidget):
         from .transform_context import result_roc
         frequency=expression.variable=='w'
         if frequency and expression.units not in ('rad/s','rad/muestra'):raise ValueError('Definí una unidad de frecuencia única: rad/s o rad/muestra. No se convierte entre ellas automáticamente.')
+        from .cas_system_context import record_context
+        context=record_context(record)
+        target_domain='analog' if expression.variable=='s' or frequency and expression.units=='rad/s' else 'digital'
+        if context and context.get('preserved') and context.get('domain')!=target_domain:raise ValueError('El sistema de origen pertenece a otro dominio. Una sustitución de letras no convierte H(s) en H(z); usá la herramienta de conversión o definí una transferencia nueva.')
         self.domain.setCurrentIndex(0 if expression.variable=='s' or frequency and expression.units=='rad/s' else 1);self.definition_mode.setCurrentIndex(2 if frequency else 1);self.transfer_formula.setText(expression.source)
         self._preserved_system=None;self._preserved_formula=None;self.input_id=key
         self._formula_context=deepcopy(record);self._formula_context_signature=(self.transfer_formula.text(),self.domain.currentIndex())
@@ -176,7 +180,8 @@ class SystemAnalysisPanel(QWidget):
         self.roc_choice.setCurrentIndex({'right':0,'left':1,'radius':2,'line':2}.get(spec.get('mode'),3) if spec else 3)
         if spec and ('radius' in spec or 'sigma' in spec):self.roc_radius.setText(str(spec.get('radius',spec.get('sigma'))))
         from .system_clock import remember_period
-        remember_period(self,self.window.project.sample_period(key) if key else None)
+        from .transform_context import result_period
+        remember_period(self,result_period(record) if context is not None else self.window.project.sample_period(key) if key else result_period(record))
         from .symbolic import parse,S,Z
         self.set_definition_capabilities(not frequency and bool(parse(expression.source).is_rational_function(S if expression.variable=='s' else Z)))
         self.note.setText('Fórmula cargada para análisis. Se conservan sus condiciones y soporte de origen; no se fuerza una conversión a coeficientes.')
@@ -257,6 +262,8 @@ class SystemAnalysisPanel(QWidget):
                     from .analytic_frequency import analyze_expression
                     from .system_clock import UNSET
                     exact,data=analyze_expression(exact,request,omega_grid,period=None if period is UNSET else period,logarithmic=logarithmic,margins=with_margins)
+                from .system_clock import UNSET
+                exact['sample_period_s']=system.sample_period_s if system is not None else None if period is UNSET else period
                 return exact,system,data
             def accept(result):
                 exact,system,data=result
@@ -271,7 +278,7 @@ class SystemAnalysisPanel(QWidget):
                 elif analytic:self.input_id=definition
                 if data is not None:self.draw_frequency()
                 else:
-                    self.figure.clear();empty=self.figure.add_subplot(111);empty.set_axis_off();empty.text(.5,.5,'Asigná valores a los parámetros para obtener la respuesta numérica.',ha='center',va='center',wrap=True,transform=empty.transAxes);self.canvas.draw_idle()
+                    self.figure.clear();empty=self.figure.add_subplot(111);empty.set_axis_off();empty.text(.5,.5,exact.get('frequency_notice','Asigná valores a los parámetros para obtener la respuesta numérica.'),ha='center',va='center',wrap=True,transform=empty.transAxes);self.canvas.draw_idle()
                 self.result_actions.set_result(self.system,self.input_id);self.result_actions.setEnabled(True)
                 message=exact.get('analysis_limits','La fórmula se conserva con sus parámetros y condiciones.') if analytic else ('El sistema conserva '+str(system.advance)+' muestras de avance. Podés exportarlo o reutilizarlo para análisis y Z inversa con ROC. La simulación causal no reemplaza ese avance por un retardo.' if system is not None and system.advance else 'La fórmula conserva parámetros libres. Asignales valores para exportar o reutilizar un sistema numérico.' if system is None else '')
                 self.reuse_note.setText(message);self.reuse_note.setVisible(bool(message))

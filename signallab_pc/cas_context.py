@@ -9,10 +9,12 @@ def remember(state,cell,context):
     state.setdefault('result_contexts',{})[str(cell)]=deepcopy(context)
 
 def imported(data,value,notices):
-    if data.get('variable',data.get('coordinate_variable'))!='w' or not isinstance(value,sp.Expr):return {}
+    from .cas_system_context import imported as imported_system
+    context=imported_system(data,value,notices)
+    if data.get('variable',data.get('coordinate_variable'))!='w' or not isinstance(value,sp.Expr):return context
     unit=data.get('frequency_units','')
-    if unit not in ('','rad/s','rad/muestra','incompatible'):return {}
-    return dict(frequency_units=unit,coordinate_variable='w',frequency_condition=data.get('frequency_condition','True'),origin_conditions=list(notices))
+    if unit not in ('','rad/s','rad/muestra','incompatible'):return context
+    return {**context,**dict(frequency_units=unit,coordinate_variable='w',frequency_condition=data.get('frequency_condition','True'),origin_conditions=list(notices))}
 
 def frequency_assumptions(calculator):
     from .cas_assumptions import symbol
@@ -29,6 +31,11 @@ def frequency_assumptions(calculator):
     return conditions
 
 def combine(calculator,value,source,notices):
+    from .cas_system_context import combine as combine_system
+    return {**frequency_context(calculator,value,source,notices),**combine_system(calculator,value,notices)}
+
+
+def frequency_context(calculator,value,source,notices):
     if not isinstance(value,sp.Expr):return {}
     contexts=[c for c in calculator.contexts if c.get('coordinate_variable')=='w']
     from .cas_engine import normalize

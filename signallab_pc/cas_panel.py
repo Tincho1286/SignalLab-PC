@@ -123,7 +123,7 @@ class CasWorksheet(QWidget):
             if 'error' in answer:entry.update(status='error',error=answer['error'])
             else:
                 self.state=answer.pop('state');entry.update(status='done',answer=answer);self.selected=cell
-                saved={name:answer[name] for name in ('text','presentation','notices','expression','symbols','assumptions','calculation_notes','provenance','frequency_units','frequency_condition','coordinate_variable','origin_conditions','context_rewrite') if name in answer}
+                saved={name:answer[name] for name in ('text','presentation','notices','expression','symbols','assumptions','calculation_notes','provenance','frequency_units','frequency_condition','coordinate_variable','origin_conditions','context_rewrite','system_context') if name in answer}
                 saved['encoded_value']=self.state['results'][str(cell)]
                 entry['result_id']=self.window.publish({'cas_answer':saved,'source':source},title='CAS · '+source,operation='Resultado CAS',parents=parents)
                 self.variables.clear()
@@ -254,7 +254,7 @@ class CasWorksheet(QWidget):
                     name=node.func.id if isinstance(node.func,ast.Name) else '';node=self.generic_visit(node)
                     if name in ('Eq','Ne') and len(node.args)==2:return ast.Compare(left=node.args[0],ops=[ast.Eq() if name=='Eq' else ast.NotEq()],comparators=[node.args[1]])
                     if name in ('And','Or'):return ast.BoolOp(op=ast.And() if name=='And' else ast.Or(),values=node.args)
-                    if isinstance(node.func,ast.Name):node.func.id={'Abs':'abs','Heaviside':'heaviside','conjugate':'conj'}.get(name,name)
+                    if isinstance(node.func,ast.Name):node.func.id={'abs':'abs','heaviside':'heaviside','step':'step','conjugate':'conj','dirac':'dirac','diracdelta':'dirac','impulse':'impulse'}.get(name.lower(),name)
                     return node
             tree=Rewrite().visit(ast.parse(expression,mode='eval'));ast.fix_missing_locations(tree);expression=ast.unparse(tree)
             from .workspaces import ROUTES

@@ -69,8 +69,8 @@ def parse(expression):
                 return fn(*args)
         raise ValueError("Sintaxis no admitida. Use fórmulas matemáticas; no se admiten atributos, índices ni código Python.")
     result=visit(tree.body)
-    from .singularities import extend_removable
-    return extend_removable(result)
+    from .impulse_pairs import complete_products
+    return complete_products(result)
 
 
 def execute(request):

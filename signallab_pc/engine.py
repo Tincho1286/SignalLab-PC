@@ -122,6 +122,9 @@ def _visit(node, x):
                     if np.any(active):
                         product=np.ones(np.count_nonzero(active),dtype=np.complex128)
                         for value in remaining:product*=_visit(value,np.asarray(x)[active])
+                        if np.any(~np.isfinite(product)):
+                            ordinary='*'.join('('+ast.unparse(value)+')' for value in remaining)
+                            product=evaluate_expression(ordinary,np.asarray(x)[active])
                         answer[active]=weight[active]*product
                     return answer
         return _BIN[type(node.op)](_visit(node.left, x), _visit(node.right, x))
@@ -153,6 +156,10 @@ def _visit(node, x):
             return _piecewise(*node.args, x)
         if node.func.id.lower()=='heaviside' and len(node.args)==2:
             return _FUNCS['heaviside'](*[_visit(arg,x) for arg in node.args])
+        if node.func.id.lower() in ('dirac','diracdelta','impulse') and len(node.args)==2:
+            order=np.asarray(_visit(node.args[1],x))
+            if np.any(order!=0):raise ExpressionError('Las derivadas de Dirac no son muestras discretas. Usá diferencias de impulsos o el cálculo continuo algebraico.')
+            return _FUNCS['impulse'](_visit(node.args[0],x))
         if node.func.id.lower()=='kroneckerdelta' and len(node.args)==2:
             return np.asarray(_visit(node.args[0],x))==np.asarray(_visit(node.args[1],x))
         fn = _FUNCS.get(node.func.id.lower())

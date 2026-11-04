@@ -163,4 +163,65 @@ class ShiftedPairContracts(unittest.TestCase):
                 for index in (delay-1,delay,delay+1):self.assertEqual(sp.simplify(value.subs(N,index)),int(index==delay))
 
 
+    def test_elementary_aliases_work_in_numeric_symbolic_cas_and_notation(self):
+        from signallab_pc.engine import evaluate_expression
+        from signallab_pc.continuous_expression import sample_continuous
+        from signallab_pc.distributions import dirac_terms
+        from signallab_pc.signal_notation import read
+        from signallab_pc.cas_engine import calculate,restore
+        from signallab_pc.symbolic import T
+        for alias in ('Dirac','DIRAC','diracdelta','DiracDelta','Impulse','IMPULSE'):
+            with self.subTest(alias=alias):
+                np.testing.assert_array_equal(evaluate_expression(alias+'(n)',np.arange(-1,2)),[0,1,0])
+                self.assertEqual(parse(alias+'(t)'),sp.DiracDelta(T))
+                value=read(alias+'(n)',('n',));self.assertEqual(value,sp.KroneckerDelta(N,0))
+                result=calculate(dict(cell=1,source=alias+'(n)'))
+                self.assertEqual(restore(result['state']['results']['1']).func,sp.KroneckerDelta)
+                continuous=sample_continuous(alias+'(t)',-1,.5,5)
+                self.assertEqual(dirac_terms(continuous),[(0.,1+0j)]);np.testing.assert_array_equal(continuous.values,0)
+                self.assertEqual(execute(dict(operation='laplace',expression=alias+'(t)'))['result'],'1')
+        k=sp.Symbol('k',integer=True)
+        self.assertEqual(read('Impulse(k)',('k',)),sp.KroneckerDelta(k,0))
+        np.testing.assert_array_equal(evaluate_expression('DIRACDELTA(n,0)',np.arange(-1,2)),[0,1,0])
+
+    def test_step_and_heaviside_keep_their_border_values_in_both_domains(self):
+        from signallab_pc.engine import evaluate_expression
+        from signallab_pc.continuous_expression import sample_continuous
+        from signallab_pc.signal_notation import read
+        from signallab_pc.cas_engine import calculate,restore
+        for name,border in [('Step',1),('STEP',1),('step',1),('Heaviside',sp.Rational(1,2)),('HEAVISIDE',sp.Rational(1,2))]:
+            with self.subTest(name=name):
+                text=name+'(n)';np.testing.assert_array_equal(evaluate_expression(text,np.arange(-1,2)),[0,float(border),1])
+                self.assertEqual(read(text,('n',)).subs(N,0),border)
+                c=calculate(dict(cell=1,source=name+'(0)'));self.assertEqual(restore(c['state']['results']['1']),border)
+                np.testing.assert_array_equal(sample_continuous(name+'(t)',-1,1,3).values,[0,float(border),1])
+                result=self.transform(text);actual=parse(result['branches'][0]['expression'])
+                self.assertEqual(sp.simplify(actual-(1/(1-1/Z)+border-1)),0)
+                self.assertEqual(execute(dict(operation='laplace',expression=name+'(t)'))['result'],'1/s')
+        np.testing.assert_array_equal(evaluate_expression('Heaviside(n,0)',np.arange(-1,2)),[0,0,1])
+
+    def test_gated_removable_values_are_completed_before_impulses_and_steps(self):
+        from signallab_pc.engine import evaluate_expression
+        from signallab_pc.symbolic import T,S
+        for name,expected in [('Dirac',1),('Impulse',1),('Step',1),('Heaviside',sp.Rational(1,2))]:
+            with self.subTest(name=name):
+                text=f'sin(pi*n)/(pi*n)*{name}(n)'
+                self.assertEqual(sp.simplify(parse(text).subs(N,0)),expected)
+                self.assertEqual(evaluate_expression(text,np.arange(-1,2))[1],complex(expected))
+                result=self.transform(text,lower='-oo');self.assertTrue(result['evaluated'])
+                self.assertEqual(sp.simplify(parse(result['result'])-expected),0)
+        for operation in ('laplace','fourier_angular'):
+            result=execute(dict(operation=operation,expression='sin(t)/t*Dirac(t)'));self.assertTrue(result['evaluated']);self.assertEqual(parse(result['result']),1)
+        result=execute(dict(operation='laplace',expression='sin(t)/t*DiracDelta(t,2)'))
+        self.assertTrue(result['evaluated']);self.assertEqual(sp.simplify(parse(result['result'])-(S**2-sp.Rational(1,3))),0)
+
+    def test_gated_true_poles_and_explicit_discontinuities_are_not_completed(self):
+        from signallab_pc.engine import evaluate_expression
+        for name in ('Dirac','Impulse','Step','Heaviside'):
+            with self.subTest(name=name),self.assertRaises(ValueError):evaluate_expression(f'{name}(n)/n',np.arange(-1,2))
+        explicit='Piecewise((7,n==0),(sin(pi*n)/(pi*n),True))*Dirac(n)'
+        self.assertEqual(self.transform(explicit,lower='-oo')['result'],'7')
+        with self.assertRaises(ValueError):execute(dict(operation='laplace',expression='Piecewise((7,t==0),(sin(t)/t,True))*Dirac(t)'))
+
+
 if __name__=='__main__':unittest.main()

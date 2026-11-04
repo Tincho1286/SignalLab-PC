@@ -26,6 +26,7 @@ class Definition:
 
     def integral_expression(self):
         """Isolated ordinary point values have zero measure, unlike impulses."""
+        if self.expression.has(sp.DiracDelta):return self.expression
         def strip(piece):
             if piece.has(sp.DiracDelta) or piece.args[-1].cond is not sp.true or any(condition.free_symbols-{self.variable} for _,condition in piece.args):return piece
             kept=[]

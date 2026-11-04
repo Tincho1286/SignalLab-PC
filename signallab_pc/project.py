@@ -105,6 +105,12 @@ class Project:
                     try:period=1/float(data.get('metadata',{}).get('sample_rate_hz'))
                     except (ValueError,TypeError,ZeroDivisionError,OverflowError):period=None
                     if period is not None and math.isfinite(period) and period>0:periods.add(period)
+            if kind=='calculation' and isinstance(data.get('cas_answer'),dict) and 'system_context' in data['cas_answer']:
+                from .transform_context import result_period
+                clock=result_period(data);periods=set() if clock is None else {clock}
+            elif kind=='calculation' and isinstance(data.get('result'),dict) and 'sample_period_s' in data['result']:
+                from .transform_context import result_period
+                clock=result_period(data);periods=set() if clock is None else {clock}
             if periods is None:
                 periods=set()
                 for parent in record['parents']:periods.update(visit(parent))

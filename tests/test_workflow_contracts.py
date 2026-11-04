@@ -176,6 +176,23 @@ class WorkflowContracts(unittest.TestCase):
             text,path=diagnostic(seen[0],worker.failure_details,'Health probe',folder)
             self.assertEqual(path.parent,Path(folder));self.assertIn('ArithmeticError',path.read_text(encoding='utf-8'));self.assertIn('Referencia:',text)
 
+    def test_cas_system_roc_and_clock_reach_analysis_and_survive_reload(self):
+        from signallab_pc.cas_panel import CasWorksheet
+        from signallab_pc.cas_transfer import payload
+        for domain,roc,period in [('digital',{'mode':'left'},.01),('analog',{'mode':'left'},None)]:
+            system=Transfer([1],[1,-.5] if domain=='digital' else [1,.5],domain=domain,roc=roc,sample_period_s=period);key=self.host.publish(system)
+            sheet=CasWorksheet(self.host);self.widgets.append(sheet);sheet.import_result(payload(system),'Sistema',key)
+            sheet.input.setPlainText('simplify(r1)');sheet.input.evaluateRequested.emit();self.assertEqual(sheet.entries[-1]['status'],'done')
+            saved=self.host.project.get(sheet.entries[-1]['result_id']);self.assertEqual(saved['cas_answer']['system_context']['roc'],roc)
+            sheet.send_result('digital' if domain=='digital' else 'analog');panel=self.host.pages[self.host.current_operation].panel
+            self.assertEqual(panel.roc_choice.currentIndex(),1);panel.count.setText('17');panel.calculate_button.click();self.assertEqual(self.warnings,[])
+            self.assertEqual(panel.system.roc,roc);self.assertEqual(panel.system.sample_period_s,period)
+            self.assertIsNone(panel.frequency_data)
+            with tempfile.TemporaryDirectory() as directory:
+                path=Path(directory)/'system.json';self.host.project.export_record(panel._definition_id,path);panel.system_import.open_file(path)
+                panel.calculate_button.click();self.assertEqual(self.warnings,[]);self.assertEqual(panel.system.roc,roc)
+                self.assertEqual(panel.system.sample_period_s,period)
+
     def test_cas_worksheet_rewrite_and_send_to_frequency_analysis(self):
         from signallab_pc.cas_panel import CasWorksheet
         from signallab_pc.cas_transfer import payload

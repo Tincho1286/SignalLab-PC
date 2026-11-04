@@ -1,3 +1,3 @@
 """SignalLab PC: herramientas de señales y sistemas."""
 
-__version__ = "1.5.8"
+__version__ = "1.5.9"

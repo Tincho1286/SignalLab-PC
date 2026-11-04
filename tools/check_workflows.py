@@ -9,7 +9,7 @@ def worker(destination):
     sys.path[:0]=[str(ROOT),str(ROOT/'tests')]
     suite=unittest.defaultTestLoader.loadTestsFromName('test_workflow_contracts.WorkflowContracts')
     result=unittest.TextTestRunner(verbosity=2).run(suite)
-    record=dict(contract='system-expression-workflows-v1',passed=result.wasSuccessful() and result.testsRun>=15 and not result.skipped,tests=result.testsRun,failures=len(result.failures),errors=len(result.errors),skipped=len(result.skipped),checks=['impulse_alias_transport','transform_button','result_library','system_import','general_hs','export_reload','rational_regression','bilateral_boundary_analysis','dtft_plot_visibility','dtft_system_reuse','qt_error_visibility','presentation_failure_recovery','worker_diagnostic','cas_frequency_context','conditional_dtft_plot_export'])
+    record=dict(contract='system-expression-workflows-v1',passed=result.wasSuccessful() and result.testsRun>=16 and not result.skipped,tests=result.testsRun,failures=len(result.failures),errors=len(result.errors),skipped=len(result.skipped),checks=['cas_system_context','impulse_alias_transport','transform_button','result_library','system_import','general_hs','export_reload','rational_regression','bilateral_boundary_analysis','dtft_plot_visibility','dtft_system_reuse','qt_error_visibility','presentation_failure_recovery','worker_diagnostic','cas_frequency_context','conditional_dtft_plot_export'])
     Path(destination).write_text(json.dumps(record,indent=2),encoding='utf-8')
     return 0 if record['passed'] else 1
 

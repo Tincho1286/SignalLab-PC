@@ -111,4 +111,63 @@ class HealthExchangeContracts(unittest.TestCase):
         text=transform_summary(request,result).plain_text();self.assertNotIn('Sum(',text);self.assertIn('DTFT',text)
         exported=payload(dict(request=request,result=result));self.assertEqual(exported['variable'],'w');self.assertNotIn('Sum(',exported['source'])
 
+
+    def test_cas_equivalent_systems_preserve_roc_and_clock_through_reimport(self):
+        from signallab_pc.filters import Transfer
+        from signallab_pc.transform_context import result_roc,result_period
+        for domain,roc,period in [('digital',{'mode':'left'},.01),('digital',{'mode':'radius','radius':1},.02),('analog',{'mode':'line','sigma':-2},None)]:
+            original=Transfer([1],[1,-.5],domain=domain,roc=roc,sample_period_s=period)
+            result=import_result(dict(cell=1,payload=payload(original)))
+            for cell,source in [(2,'simplify(r1)'),(3,'foo:=factor(r2)'),(4,'foo')]:
+                result=calculate(dict(cell=cell,state=result['state'],source=source));record={'cas_answer':result}
+                self.assertEqual(result_roc(record),roc);self.assertEqual(result_period(record),period)
+            result=import_result(dict(cell=5,payload=payload(record)))
+            self.assertEqual(result_roc({'cas_answer':result}),roc);self.assertEqual(result_period({'cas_answer':result}),period)
+
+    def test_cas_changed_system_binding_and_assumption_do_not_inherit_roc(self):
+        from signallab_pc.filters import Transfer
+        from signallab_pc.transform_context import result_roc,result_period
+        original=import_result(dict(cell=1,payload=payload(Transfer([1],[1,-.5],roc={'mode':'left'},sample_period_s=.01))))
+        for source in ('2*r1','diff(r1,z)','r1/r1','subst(r1,z,2)'):
+            result=calculate(dict(cell=2,state=original['state'],source=source));self.assertFalse(result['system_context']['preserved'])
+            self.assertIsNone(result_roc({'cas_answer':result}));self.assertIsNone(result_period({'cas_answer':result}))
+        binding=calculate(dict(cell=2,state=original['state'],source='z:=2'))
+        result=calculate(dict(cell=3,state=binding['state'],source='simplify(r1)'));self.assertFalse(result['system_context']['preserved'])
+        p=dict(kind='expression',source='sqrt(z^2)',variable='z',system_roc={'mode':'right'})
+        r=import_result(dict(cell=1,payload=p));a=calculate(dict(cell=2,state=r['state'],source='assume(z>0)'))
+        changed=calculate(dict(cell=3,state=a['state'],source='simplify(r1)'));self.assertFalse(changed['system_context']['preserved'])
+
+    def test_cas_conflicting_roc_and_clocks_are_not_chosen_arbitrarily(self):
+        from signallab_pc.filters import Transfer
+        for changed in (dict(roc={'mode':'right'},sample_period_s=.01),dict(roc={'mode':'left'},sample_period_s=.02)):
+            state=import_result(dict(cell=1,payload=payload(Transfer([1],[1,-.5],roc={'mode':'left'},sample_period_s=.01))))['state']
+            state=import_result(dict(cell=2,state=state,payload=payload(Transfer([1],[1,-.5],**changed))))['state']
+            r=calculate(dict(cell=3,state=state,source='r1+r2-r2'));self.assertFalse(r['system_context']['preserved'])
+
+    def test_cas_project_clock_is_explicit_and_survives_export(self):
+        from signallab_pc.filters import Transfer
+        project=Project();system=Transfer([1],[1,-.5],roc={'mode':'left'},sample_period_s=.01);parent=project.add(system)
+        imported=import_result(dict(cell=1,payload=payload(system)))
+        same=calculate(dict(cell=2,state=imported['state'],source='simplify(r1)'))
+        same_id=project.add({'cas_answer':same},parents=[parent]);self.assertEqual(project.sample_period(same_id),.01)
+        changed=calculate(dict(cell=3,state=same['state'],source='2*r2'))
+        changed_id=project.add({'cas_answer':changed},parents=[same_id]);self.assertIsNone(project.sample_period(changed_id))
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'cas.json';project.export_record(same_id,path);loaded=Project();loaded.merge(path)
+            self.assertEqual(loaded.sample_period(loaded.records()[-1]['id']),.01)
+
+    def test_nonrational_causal_z_retains_physical_dtft_after_cas(self):
+        import sympy as sp
+        from signallab_pc.symbolic import W,parse
+        from signallab_pc.analytic_frequency import analyze_expression
+        request=dict(operation='z_expression',expression='sin(pi*(n-4)/2)/(pi*(n-4))',lower='0',upper='oo')
+        record=dict(request=request,result=execute(request));initial=import_result(dict(cell=1,payload=payload(record)))
+        answer=calculate(dict(cell=2,state=initial['state'],source='simplify(r1)'));self.assertTrue(answer['system_context']['preserved'])
+        value=expression_result({'cas_answer':answer});exact=execute(dict(operation='system_formula',expression=value.source,domain='digital'))
+        omega=np.array([0.,float(sp.pi/4),float(sp.pi/2),float(3*sp.pi/4)])
+        exact,data=analyze_expression(exact,dict(domain='digital',source_calculation={'cas_answer':answer}),omega)
+        self.assertIn('DTFT calculada',exact['frequency_interpretation']);self.assertTrue(np.isnan(data.response[2]))
+        want=execute(dict(operation='dtft_expression',expression=request['expression'],lower='0',upper='oo'))
+        target=parse(want['result']);assert_allclose(data.response[[0,1,3]],[complex(target.subs(W,w).evalf()) for w in omega[[0,1,3]]],atol=2e-12)
+
 if __name__=='__main__':unittest.main()

@@ -4,6 +4,9 @@ from copy import deepcopy
 
 def result_roc(value):
     if not isinstance(value,dict):return None
+    from .cas_system_context import record_context
+    context=record_context(value)
+    if context is not None:return deepcopy(context.get('roc')) if context.get('preserved') else None
     request=value.get('request',{});result=value.get('result',{})
     if 'roc_spec' in request:return deepcopy(request['roc_spec'])
     if request.get('operation')=='inverse_laplace':
@@ -38,3 +41,13 @@ def result_roc(value):
     if hint in ('right','left'):return {'mode':hint}
     if request.get('operation')=='z_finite' or 'roc_finite_plane' in result:return {'mode':'right'}
     return None
+
+
+def result_period(value):
+    from .cas_system_context import record_context
+    from .system_clock import validate_period
+    context=record_context(value)
+    if context is not None:return validate_period(context.get('period'),context.get('domain')) if context.get('preserved') else None
+    if not isinstance(value,dict):return None
+    result=value.get('result',{})
+    return validate_period(result.get('sample_period_s'))

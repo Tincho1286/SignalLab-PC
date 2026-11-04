@@ -156,6 +156,9 @@ def read(source_text,integer_names=()):
     names={name:sp.Symbol(name,integer=True) for name in integer_names}
     constants={'pi':sp.pi,'e':sp.E,'E':sp.E,'i':sp.I,'I':sp.I,'j':sp.I,'oo':sp.oo,'True':sp.true,'False':sp.false}
     constructors={'Piecewise':lambda *pairs:sp.Piecewise(*pairs,evaluate=False),'KroneckerDelta':sp.KroneckerDelta,'DiracDelta':sp.DiracDelta,'Heaviside':sp.Heaviside,'step':lambda arg:sp.Heaviside(arg,1),'impulse':lambda arg:sp.DiracDelta(arg) if any(v.name in ('t','x','w') for v in arg.free_symbols) else sp.KroneckerDelta(arg,0),'binomial':lambda *args:sp.binomial(*args,evaluate=False),'factorial':lambda arg:sp.factorial(arg,evaluate=False),'sqrt':sp.sqrt,'exp':sp.exp,'sin':sp.sin,'cos':sp.cos,'tan':sp.tan,'Abs':sp.Abs,'abs':sp.Abs,'conjugate':sp.conjugate,'conj':sp.conjugate,'re':sp.re,'im':sp.im,'log':sp.log,'And':sp.And,'Or':sp.Or,'Eq':lambda a,b:sp.Eq(a,b,evaluate=False),'Ne':lambda a,b:sp.Ne(a,b,evaluate=False),'Integral':sp.Integral,'Sum':sp.Sum,'Derivative':sp.Derivative}
+    from .impulse_pairs import impulse
+    folded={name.lower():fn for name,fn in constructors.items()}
+    folded.update(dirac=impulse,diracdelta=impulse,impulse=impulse)
     def visit(node):
         if isinstance(node,ast.Name):return constants.get(node.id,names.setdefault(node.id,sp.Symbol(node.id)))
         if isinstance(node,ast.Constant):
@@ -179,7 +182,7 @@ def read(source_text,integer_names=()):
         if isinstance(node,ast.BoolOp):return (sp.And if isinstance(node.op,ast.And) else sp.Or)(*[visit(arg) for arg in node.values])
         if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and not node.keywords:
             if not re.fullmatch('[A-Za-z][A-Za-z0-9_]*',node.func.id):raise ValueError('Nombre no matemático')
-            arguments=[visit(arg) for arg in node.args];fn=constructors.get(node.func.id)
+            arguments=[visit(arg) for arg in node.args];fn=folded.get(node.func.id.lower())
             if node.func.id in ('CRootOf','RootOf','RootSum'):raise ValueError('Conservar la raíz algebraica sin reconstruirla')
             return fn(*arguments) if fn else sp.Function(node.func.id)(*arguments)
         raise ValueError('Sintaxis no matemática')
@@ -188,7 +191,7 @@ def read(source_text,integer_names=()):
 
 @lru_cache(maxsize=256)
 def normalize_source(text,discrete=False):
-    if not any(token in text for token in ('Piecewise','KroneckerDelta','Heaviside','step(','impulse(')):return text
+    if not any(token in text.lower() for token in ('piecewise','kroneckerdelta','heaviside','step(','impulse(','dirac(' ,'diracdelta(')):return text
     try:
         integers=('n','k') if discrete or 'KroneckerDelta' in text else ()
         return source(read(text,integers))

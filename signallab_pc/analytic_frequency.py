@@ -119,7 +119,9 @@ def analyze_expression(exact,request,omega,*,period=None,logarithmic=False,margi
     if frequency_only:interpretation='Respuesta en frecuencia ingresada directamente. Su existencia y soporte se conservan cuando proviene de una DTFT; no se infiere una ROC abierta de Z.'
     origin=request.get('source_calculation')
     for _ in range(8):
-        nested=origin.get('result',{}).get('source_calculation') if isinstance(origin,dict) else None
+        context=origin.get('cas_answer',{}).get('system_context',{}) if isinstance(origin,dict) else {}
+        nested=context.get('source_calculation') if context.get('preserved') else None
+        if nested is None:nested=origin.get('result',{}).get('source_calculation') if isinstance(origin,dict) else None
         if not isinstance(nested,dict):break
         origin=nested
     source=origin.get('request',{}) if isinstance(origin,dict) else {}

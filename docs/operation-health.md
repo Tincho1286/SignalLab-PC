@@ -11,6 +11,8 @@ Las notas públicas describen las mejoras aplicadas y las limitaciones conocidas
 
 - **1.5.8 — Operation Health 3:** impulsos discretos compartidos, pares de Fourier y escalado de derivadas de Dirac en Laplace.
 
+- **1.5.9 — Operation Health 4:** expresiones compartidas entre dominios, coeficientes en impulsos/escalones y contexto de sistemas en CAS.
+
 ## Hallazgos tratados
 
 | ID | Hallazgo | Entrega |
@@ -34,6 +36,12 @@ Las notas públicas describen las mejoras aplicadas y las limitaciones conocidas
 | OH-017 | Fourier e inversa dejaban pendientes pares básicos de constantes, polinomios y exponenciales. | 1.5.8 |
 | OH-018 | Las derivadas de Dirac con argumento escalado podían perder su factor en Laplace. | 1.5.8 |
 | OH-019 | Las distribuciones continuas podían entrar en operaciones de producto sin una validación explícita. | 1.5.8 |
+| OH-020 | El lector de fórmulas no reconocía las mismas variantes de nombres que los motores de cálculo. | 1.5.9 |
+| OH-021 | La continuidad aplicada al producto con un impulso podía borrar su muestra. | 1.5.9 |
+| OH-022 | Un polo en el coeficiente de un impulso podía sustituirse por cero mediante un límite del producto. | 1.5.9 |
+| OH-023 | Una reescritura equivalente de sistema en CAS perdía su ROC. | 1.5.9 |
+| OH-024 | Un resultado CAS modificado podía recuperar un reloj de sus antecesores. | 1.5.9 |
+| OH-025 | El paso de una Z no racional por CAS perdía la definición utilizada para obtener su DTFT física. | 1.5.9 |
 
 ## Continuidad hacia la estable
 

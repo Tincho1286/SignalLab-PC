@@ -74,7 +74,7 @@ TOPICS=[
 FUNCTION_BLOCKS=[
 [
 ('Dónde se usa esta referencia','Estas páginas explican las funciones que se escriben en los campos de señales y en las herramientas algebraicas especializadas. La calculadora CAS tiene su propia página, porque admite más comandos y un entorno de variables distinto.'),
-('Cómo escribir una fórmula','Usá paréntesis y multiplicación explícita, como 2*sin(pi*n/4). Las potencias admiten ^ o ** y los decimales llevan punto. En el evaluador numérico, Impulse(n) e impulse(n) son equivalentes.'),
+('Cómo escribir una fórmula','Usá paréntesis y multiplicación explícita, como 2*sin(pi*n/4). Las potencias admiten ^ o ** y los decimales llevan punto. Los nombres de las funciones elementales admiten mayúsculas o minúsculas en la carga numérica, el cálculo algebraico y el CAS. Dirac, DiracDelta e Impulse representan el impulso correspondiente al dominio elegido: usá n para una secuencia y t para tiempo continuo. Step y Heaviside funcionan en ambos dominios; Step(0)=1 y Heaviside(0)=1/2. Heaviside permite indicar otro valor en el borde, por ejemplo Heaviside(n,0).'),
 ('Qué representa cada letra','En señales discretas usá n; en tiempo continuo, t; y en frecuencia angular, w. La herramienta determina el dominio: cambiar la letra no transforma una señal continua en discreta. pi y e son constantes, e i es la unidad imaginaria.'),
 ('Cómo leer los ejemplos','Los ejemplos siguientes muestran el significado de cada función y cómo desplazarla o escalarla. Recordá elegir un intervalo que incluya la parte que querés ver: una fórmula puede ser válida y quedar fuera de la ventana dibujada.')],
 [

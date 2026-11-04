@@ -5,10 +5,33 @@ from .jobs import checkpoint
 
 def impulse(argument,order=0):
     argument=sp.sympify(argument);order=sp.sympify(order)
-    if any(v.name=='n' for v in argument.free_symbols) and not any(v.name in ('t','x','w','omega','tau') for v in argument.free_symbols):
+    if any(v.name in ('n','k') for v in argument.free_symbols) and not any(v.name in ('t','x','w','omega','tau') for v in argument.free_symbols):
         if order!=0:raise ValueError('El impulso discreto no tiene derivadas de Dirac. Usá impulse(n-a) o diferencias de impulsos.')
         return sp.KroneckerDelta(argument,0)
     return sp.DiracDelta(argument,order)
+
+
+def complete_products(expression):
+    """Complete ordinary coefficients before applying an impulse, not across it."""
+    from .singularities import extend_removable
+    if not expression.has(sp.KroneckerDelta,sp.DiracDelta,sp.Heaviside):return extend_removable(expression)
+    if isinstance(expression,sp.Add):
+        singular=[term for term in expression.args if term.has(sp.KroneckerDelta,sp.DiracDelta,sp.Heaviside)]
+        ordinary=extend_removable(sp.Add(*(term for term in expression.args if term not in singular),evaluate=False))
+        return sp.Add(ordinary,*(complete_products(term) for term in singular),evaluate=False)
+    if isinstance(expression,sp.Mul):
+        factors=[]
+        def flatten(value):
+            if isinstance(value,sp.Mul):
+                for factor in value.args:flatten(factor)
+            else:factors.append(value)
+        flatten(expression)
+        gates=[factor for factor in factors if factor.has(sp.KroneckerDelta,sp.DiracDelta,sp.Heaviside)]
+        ordinary=[factor for factor in factors if factor not in gates]
+        if gates and ordinary:
+            coefficient=extend_removable(sp.Mul(*ordinary,evaluate=False))
+            return sp.Mul(coefficient,*gates,evaluate=False)
+    return expression if expression.has(sp.KroneckerDelta,sp.DiracDelta,sp.Heaviside) else extend_removable(expression)
 
 
 def impulse_integral(term,variable,kernel,lower=-sp.oo,upper=sp.oo):
@@ -35,18 +58,23 @@ def impulse_integral(term,variable,kernel,lower=-sp.oo,upper=sp.oo):
     ensure_working_set(int(order)+1,bytes_per_sample=8192,live_arrays=8)
     # Products with a jump at the impulse have no canonical sifting value.
     real=sp.Dummy('coordinate',real=True)
+    from .expression_definition import Definition
+    regular_weight=Definition('',weight,variable,'continuous').integral_expression()
     if weight.has(variable):
         for level in range(int(order)+1):
-            checkpoint();factor=sp.diff(weight,variable,level)
+            checkpoint();factor=sp.diff(regular_weight,variable,level)
             if factor.has(sp.DiracDelta):raise ValueError('El factor de Dirac no es suficientemente suave en su posición. Indicá el peso del impulso por separado.')
-            at=factor.subs(variable,position)
-            if at.has(sp.nan,sp.zoo,sp.oo,-sp.oo) or factor.has(sp.Heaviside,sp.Piecewise,sp.sign,sp.Abs):
+            at=weight.subs(variable,position) if level==0 else factor.subs(variable,position)
+            if at.has(sp.nan,sp.zoo,sp.oo,-sp.oo) or weight.has(sp.Heaviside,sp.Piecewise,sp.sign,sp.Abs):
                 left=sp.limit(factor.xreplace({variable:real}),real,position,dir='-')
                 right=sp.limit(factor.xreplace({variable:real}),real,position,dir='+')
-                if sp.simplify(left-right)!=0 or sp.simplify(left-at)!=0 or at.is_finite is not True:
+                if sp.simplify(left-right)!=0 or left.is_finite is not True or (level==0 and sp.simplify(left-at)!=0):
                     raise ValueError('El factor de Dirac es discontinuo o no está definido en su posición. Indicá su peso explícitamente.')
     checkpoint()
-    answer=(-1)**order*sp.diff(weight*kernel,variable,int(order)).subs(variable,position)/(sp.Abs(scale)*scale**order)
+    derivative=sp.diff(regular_weight*kernel,variable,int(order))
+    sampled=derivative.subs(variable,position)
+    if sampled.has(sp.nan,sp.zoo,sp.oo,-sp.oo) or (order and weight.has(sp.Piecewise)):sampled=sp.limit(derivative.xreplace({variable:real}),real,position)
+    answer=(-1)**order*sampled/(sp.Abs(scale)*scale**order)
     if answer.has(sp.nan,sp.zoo,sp.oo,-sp.oo,sp.Limit,sp.Derivative):return None
     return sp.simplify(answer) if inside is sp.true else sp.Piecewise((sp.simplify(answer),inside),(0,True))
 

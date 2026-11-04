@@ -25,10 +25,12 @@ def payload(value,window=None,seen=None):
     if isinstance(value,dict):
         if value.get('format')=='signallab-expression-grid':raise ValueError('Este registro contiene posiciones no definidas. Enviá la expresión algebraica al CAS; no se descartan las filas N/D.')
         if 'cas_answer' in value and value['cas_answer'].get('encoded_value'):
-            answer=value['cas_answer'];return {'kind':'encoded','encoded':answer['encoded_value'],'conditions':answer.get('notices',[]),'provenance':answer.get('provenance'),'frequency_units':answer.get('frequency_units',''),'frequency_condition':answer.get('frequency_condition','True'),'coordinate_variable':answer.get('coordinate_variable')}
+            answer=value['cas_answer'];return {'kind':'encoded','encoded':answer['encoded_value'],'conditions':answer.get('notices',[]),'provenance':answer.get('provenance'),'frequency_units':answer.get('frequency_units',''),'frequency_condition':answer.get('frequency_condition','True'),'coordinate_variable':answer.get('coordinate_variable'),'system_context':answer.get('system_context')}
         expression=expression_result(value)
         if expression is not None:
-            return {'kind':'expression','source':expression.source,'variable':expression.variable,'conditions':list(expression.conditions),
+            from .transform_context import result_roc,result_period
+            from .cas_system_context import origin
+            return {'kind':'expression','source':expression.source,'variable':expression.variable,'conditions':list(expression.conditions),'system_roc':result_roc(value),'period':result_period(value),'system_origin':origin(value),
                     'encoded':value.get('result',{}).get('cas_encoded'),'numeric_source':expression.numerical_source,'frequency_units':expression.units,'frequency_condition':value.get('cas_answer',{}).get('frequency_condition',value.get('result',{}).get('frequency_condition',value.get('result',{}).get('condition','True'))),'provenance':{name:value.get('result',{}).get(name) for name in ('input_definition','calculation_notes','calculation_status') if name in value.get('result',{})}}
         if isinstance(value.get('result'),dict) and value['result'].get('operation')=='signal_measures_expression':
             data={name:{'expression':value['result'][name]['exact']} for name in ('energy','mean_square','rms')}
@@ -85,6 +87,7 @@ def send_to_cas(window,key=None,*,value=None,label=None):
             value=window.project.get(key)
         data=payload(value,window)
         if data is None:raise ValueError('Este informe no contiene una expresión ni valores matemáticos para el CAS.')
+        if key is not None and data.get('kind')=='expression' and data.get('variable')=='z' and data.get('period') is None:data['period']=window.project.sample_period(key)
         if label is None:
             label=next((r['title'] for r in window.project.headers() if r['id']==key),getattr(value,'name','Resultado calculado'))
         window.open_cas();page=window.pages[window.current_operation];page.import_result(data,label,key)

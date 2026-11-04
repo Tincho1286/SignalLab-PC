@@ -40,7 +40,7 @@ def translate(source, *, symbolic):
                 return ast.BoolOp(op=ast.And() if name=='and' else ast.Or(),values=node.args)
             if name in ('eq','ne') and len(node.args)==2:
                 return ast.Compare(left=node.args[0],ops=[ast.Eq() if name=='eq' else ast.NotEq()],comparators=[node.args[1]])
-            if not symbolic:node.func.id={'Abs':'abs','Heaviside':'heaviside','conjugate':'conj','DiracDelta':'dirac'}.get(node.func.id,node.func.id)
+            if not symbolic:node.func.id={'abs':'abs','heaviside':'heaviside','step':'step','conjugate':'conj','dirac':'dirac','diracdelta':'dirac','impulse':'impulse'}.get(name,node.func.id)
             return node
     def piecewise(condition,value,otherwise):
         return ast.Call(func=ast.Name(id='Piecewise',ctx=ast.Load()),args=[ast.Tuple(elts=[value,condition],ctx=ast.Load()),ast.Tuple(elts=[otherwise,ast.Constant(value=True)],ctx=ast.Load())],keywords=[])

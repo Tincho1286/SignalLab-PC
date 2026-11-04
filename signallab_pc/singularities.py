@@ -43,7 +43,10 @@ def repair_values(expression,variable,coordinates,values):
         matched=list(set(matched))
         if len(matched)>1:raise ValueError('La precisión del eje no distingue varias singularidades exactas en '+str(point)+'.')
         exact_point=matched[0] if matched else point
-        exact=finite_extension(expression,variable,exact_point)
+        exact=expression.subs(variable,exact_point)
+        if exact.is_finite is not True:
+            if expression.has(sp.KroneckerDelta,sp.Heaviside):raise ValueError('La muestra no está definida. Completá el factor que multiplica al impulso o escalón; no se levanta un polo tomando límites del producto a través de su salto.')
+            exact=finite_extension(expression,variable,exact_point)
         if exact.free_symbols:raise ValueError('El límite conserva parámetros sin valor: '+str(exact))
         value=complex(exact.evalf(17))
         if not np.isfinite(value):raise ValueError('El límite es finito, pero excede el rango numérico disponible.')
@@ -63,6 +66,9 @@ def numeric_expression(source):
             return ast.Call(func=ast.Name(id='Piecewise',ctx=ast.Load()),args=[ast.Tuple(elts=[left,condition],ctx=ast.Load()),ast.Tuple(elts=[right,ast.Constant(True)],ctx=ast.Load())],keywords=[])
         def visit_Call(self,node):
             node=self.generic_visit(node)
+            if isinstance(node.func,ast.Name) and node.func.id.lower() in ('dirac','diracdelta','impulse'):
+                if len(node.args)==1 or len(node.args)==2 and isinstance(node.args[1],ast.Constant) and node.args[1].value==0:
+                    return ast.Call(func=ast.Name(id='KroneckerDelta',ctx=ast.Load()),args=[node.args[0],ast.Constant(value=0)],keywords=[])
             if isinstance(node.func,ast.Name) and node.func.id.lower()=='where' and len(node.args)==3:
                 return self.piece(node.args[0],node.args[1],node.args[2])
             return node
