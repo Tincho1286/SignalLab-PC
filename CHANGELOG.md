@@ -2,6 +2,15 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.5**.
 
+## 1.6.9 · estable
+
+- Dominios, exclusiones y supuestos conservados al operar y resolver en el CAS.
+- Condiciones por tramos, sustitución en listas, conversión de matrices y reutilización segura de respuestas en frecuencia.
+- Escalado previo a la FFT en la STFT.
+- Correcciones de las preliminares 1.6.6 a 1.6.8 incluidas en la entrega estable.
+
+[Notas de la entrega](docs/releases/v1.6.9.md)
+
 ## 1.6.8 · preliminar
 
 - Cancelaciones exactas y límites impares en Z inversa por contorno.

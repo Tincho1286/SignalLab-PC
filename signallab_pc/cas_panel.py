@@ -123,7 +123,7 @@ class CasWorksheet(QWidget):
             if 'error' in answer:entry.update(status='error',error=answer['error'])
             else:
                 self.state=answer.pop('state');entry.update(status='done',answer=answer);self.selected=cell
-                saved={name:answer[name] for name in ('text','presentation','notices','expression','symbols','assumptions','calculation_notes','provenance','frequency_units','frequency_condition','coordinate_variable','origin_conditions','context_rewrite','system_context') if name in answer}
+                saved={name:answer[name] for name in ('text','presentation','notices','expression','symbols','assumptions','calculation_notes','provenance','frequency_units','frequency_condition','coordinate_variable','origin_conditions','context_rewrite','system_context','domain_condition','domain_symbols','domain_condition_implicit') if name in answer}
                 saved['encoded_value']=self.state['results'][str(cell)]
                 entry['result_id']=self.window.publish({'cas_answer':saved,'source':source},title='CAS · '+source,operation='Resultado CAS',parents=parents)
                 self.variables.clear()
@@ -230,9 +230,11 @@ class CasWorksheet(QWidget):
         answer=entry['answer'];expression=answer.get('expression')
         try:
             if not expression:raise ValueError('Seleccioná un resultado que sea una expresión escalar. Las listas, matrices y ecuaciones pueden copiarse desde Resultado.')
-            symbols=answer.get('symbols',[])
+            symbols=sorted(set(answer.get('symbols',[])) | set(answer.get('domain_symbols',[])))
             if len(symbols)>1:raise ValueError('Asigná valores a los parámetros antes de enviar una expresión de una sola variable.')
             if destination=='frequency':
+                if symbols and symbols!=['w']:raise ValueError('Para analizar una respuesta en frecuencia usá w como variable en CAS.')
+                if answer.get('context_rewrite') is False:raise ValueError('Las condiciones de este resultado deben resolverse en CAS antes de graficarlo.')
                 from .result_expressions import ExpressionResult
                 from .workspaces import ROUTES
                 units=answer.get('frequency_units','')
@@ -244,6 +246,8 @@ class CasWorksheet(QWidget):
                 self.window.open_tool(ROUTES['system_analysis',0]);panel=self.window.pages[self.window.current_operation].panel
                 key=entry.get('result_id');panel.load_expression(ExpressionResult(expression,'w',tuple(answer.get('notices',())),units),key,self.window.project.get(key) if key else None)
                 self.window.statusBar().showMessage('Respuesta CAS copiada con su unidad y condiciones. Calculá el análisis.');return
+            from .result_expressions import check_cas_destination
+            check_cas_destination(answer,destination)
             target=('t' if destination=='continuous' else 'n') if destination in ('continuous','discrete') else ('s' if destination=='analog' else 'z')
             if destination in ('analog','digital') and symbols and symbols[0] not in (target,'x'):
                 raise ValueError('Para esta transferencia usá '+target+' como variable de la fórmula en CAS.')

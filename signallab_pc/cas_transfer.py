@@ -25,7 +25,7 @@ def payload(value,window=None,seen=None):
     if isinstance(value,dict):
         if value.get('format')=='signallab-expression-grid':raise ValueError('Este registro contiene posiciones no definidas. Enviá la expresión algebraica al CAS; no se descartan las filas N/D.')
         if 'cas_answer' in value and value['cas_answer'].get('encoded_value'):
-            answer=value['cas_answer'];return {'kind':'encoded','encoded':answer['encoded_value'],'conditions':answer.get('notices',[]),'provenance':answer.get('provenance'),'frequency_units':answer.get('frequency_units',''),'frequency_condition':answer.get('frequency_condition','True'),'coordinate_variable':answer.get('coordinate_variable'),'system_context':answer.get('system_context')}
+            answer=value['cas_answer'];return {'kind':'encoded','encoded':answer['encoded_value'],'conditions':answer.get('notices',[]),'provenance':answer.get('provenance'),'frequency_units':answer.get('frequency_units',''),'frequency_condition':answer.get('frequency_condition','True'),'coordinate_variable':answer.get('coordinate_variable'),'system_context':answer.get('system_context'),'domain_condition':answer.get('domain_condition')}
         expression=expression_result(value)
         if expression is not None:
             from .transform_context import result_roc,result_period

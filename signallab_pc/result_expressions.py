@@ -14,7 +14,7 @@ def expression_result(value):
     cas=value.get('cas_answer')
     if isinstance(cas,dict):
         source=cas.get('expression');symbols=cas.get('symbols',[])
-        if not source and cas.get('encoded_value') is not None:source=cas.get('text')
+        symbols=sorted(set(symbols) | set(cas.get('domain_symbols',())))
         if not source:return None
         known=[v for v in symbols if v in ('n','t','s','z','w')]
         variable=cas.get('coordinate_variable') if not known and cas.get('coordinate_variable') else known[0] if len(known)==1 else 'mixed' if len(known)>1 else symbols[0] if len(symbols)==1 else None
@@ -58,11 +58,23 @@ def signal_source(source):
     return to_numeric(source)
 
 
+def check_cas_destination(answer,destination):
+    if not answer.get('domain_condition') or destination in ('copy','cas'):
+        return
+    if destination in ('system','analog','digital','inverse') and answer.get('domain_condition_implicit'):
+        return
+    if destination in ('system','frequency') and answer.get('coordinate_variable')=='w' and answer.get('context_rewrite') is True:
+        return
+    raise ValueError('Este destino no aplica las condiciones de validez del CAS. Revisá la condición en el informe y definí allí el dominio antes de reutilizar la fórmula.')
+
+
 def send_expression(window,key,destination):
     from PySide6.QtWidgets import QApplication
     from .workspaces import ROUTES
-    expression=expression_result(window.project.get(key))
+    record=window.project.get(key)
+    expression=expression_result(record)
     if expression is None:raise ValueError('Este resultado no contiene una expresión única evaluada.')
+    check_cas_destination(record.get('cas_answer',{}),destination)
     text=expression.source;v=expression.variable
     if destination=='copy':QApplication.clipboard().setText(text);return
     if destination=='cas':

@@ -70,7 +70,16 @@ def time_frequency(source,length,overlap,nfft,window,beta=5):
     values=np.empty((nfft,frames),dtype=complex)
     for column in range(frames):
         checkpoint(column/frames);start=column*hop;chunk=np.zeros(length,dtype=complex);part=source.values[start:start+length];chunk[:len(part)]=part
-        values[:,column]=fftshift(fft(chunk*weights,nfft))/gain
+        scale=max(np.max(abs(chunk.real)),np.max(abs(chunk.imag)))
+        if not scale:
+            values[:,column]=0
+            continue
+        normalized=chunk.real/scale+1j*(chunk.imag/scale)
+        spectrum=fftshift(fft(normalized*weights,nfft))/gain
+        with np.errstate(over='ignore',invalid='ignore'):
+            values[:,column]=spectrum*scale
+        if not np.all(np.isfinite(values[:,column])):
+            raise ValueError('El espectro de una ventana supera el rango numérico disponible.')
     dt=source.step if source.domain=='continuous' else 1.
     frequency=fftshift(fftfreq(nfft,d=dt))*2*np.pi
     centers=source.origin+(np.arange(frames)*hop+(length-1)/2)*source.step

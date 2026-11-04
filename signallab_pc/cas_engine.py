@@ -5,6 +5,7 @@ from sympy.core.function import FunctionClass,AppliedUndef
 from sympy.core.relational import Relational
 from .resources import ensure_working_set
 from .impulse_pairs import impulse
+from .cas_domains import bare, substitute, with_domain, scoped_result, solve_scalar, intrinsic_system_domain
 
 
 CONSTANTS={'pi':sp.pi,'e':sp.E,'i':sp.I,'j':sp.I,'oo':sp.oo,'infinity':sp.oo,
@@ -26,7 +27,7 @@ FUNCTIONS.update({'sinc':lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.
     'rref':lambda a:a.rref(),'diag':sp.diag,'eye':sp.eye,'zeros':sp.zeros,'ones':sp.ones,
     'eq':lambda a,b:sp.Eq(a,b,evaluate=False),'ne':lambda a,b:sp.Ne(a,b,evaluate=False)})
 FUNCTIONS.update({'int':sp.integrate,'derive':sp.diff,
-    'trig2exp':lambda value:value.rewrite(sp.exp),
+    'trig2exp':lambda value: value.applyfunc(lambda entry:entry.rewrite(sp.exp)) if isinstance(value,sp.MatrixBase) else value.rewrite(sp.exp),
     'exp2trig':lambda value:value.replace(lambda v:v.func==sp.exp,lambda v:sp.cos(v.args[0]/sp.I)+sp.I*sp.sin(v.args[0]/sp.I))})
 SPECIAL={'assume','solve','solve_real','linsolve','approx','evalf','exact','subst','purge','ans'}
 NAME=re.compile(r'[A-Za-z][A-Za-z0-9_]*\Z')
@@ -106,6 +107,7 @@ class Calculator:
         self.assumptions=state.setdefault('assumptions',{});self.assumption_changes=set()
         self.contexts=[];self.domain_restrictions=[];self.referenced_axes=set()
         self.locals={};self.undefined=set();self._resolving=set();self.numeric_root=False
+        self.frequency_axis_removed=False
 
     def resolve(self,value):
         if isinstance(value,list):return [self.resolve(v) for v in value]
@@ -116,27 +118,43 @@ class Calculator:
             if replacements:value=value.xreplace(replacements)
         return value
 
+    def recall_domain(self,context):
+        self.contexts.append(context)
+        if context.get('domain_condition'):
+            condition=restore(context['domain_condition'])
+        elif context.get('frequency_condition') not in (None,'True'):
+            from .symbolic import parse
+            condition=bare(parse(context['frequency_condition']))
+        else:return
+        replacements={s:self.resolve(self.variables[s.name]) for s in condition.free_symbols
+                      if s.name in self.variables and s.name not in self.locals}
+        self.domain_restrictions.append(bare(condition.xreplace(replacements)))
+
     def name(self,name):
         if name=='w':self.referenced_axes.add(name)
         if name in self.locals:return self.locals[name]
         if name.lower() in CONSTANTS:return CONSTANTS[name.lower()]
         if name.lower()=='ans':
             if self.state['ans'] is None:raise ValueError('Todavía no hay un resultado para ans.')
-            self.contexts.append(self.state.get('result_contexts',{}).get(str(self.state['ans']),{}))
+            self.recall_domain(self.state.get('result_contexts',{}).get(str(self.state['ans']),{}))
             return self.resolve(restore(self.state['results'][str(self.state['ans'])]))
         if re.fullmatch(r'r[0-9]+',name):
             if name[1:] not in self.state['results']:raise ValueError(name+' no tiene un resultado válido.')
-            self.contexts.append(self.state.get('result_contexts',{}).get(name[1:],{}))
+            self.recall_domain(self.state.get('result_contexts',{}).get(name[1:],{}))
             return self.resolve(restore(self.state['results'][name[1:]]))
         if not NAME.fullmatch(name):raise ValueError('Usá nombres de letras, números y guion bajo, comenzando con una letra.')
         if name in self.variables:
-            self.contexts.append(self.state.get('name_contexts',{}).get(name,{}))
             if name in self._resolving:raise ValueError('Hay una definición circular en '+name+'. Purgá ese nombre antes de usarlo.')
             self._resolving.add(name)
-            try:return self.resolve(self.variables[name])
+            try:
+                self.recall_domain(self.state.get('name_contexts',{}).get(name,{}))
+                return self.resolve(self.variables[name])
             finally:self._resolving.remove(name)
-        from .cas_assumptions import symbol
-        return symbol(name,self.assumptions)
+        from .cas_assumptions import symbol,solution_domain
+        value=symbol(name,self.assumptions)
+        if name in self.assumptions:
+            self.domain_restrictions.append(sp.Contains(sp.Symbol(name),solution_domain(value,self.assumptions)))
+        return value
 
     def parse(self,source):
         source=normalize(source,self.functions,self.variables)
@@ -147,6 +165,13 @@ class Calculator:
             text=text.replace('_','');exponent=re.search(r'[eE]([+-]?\d+)',text)
             if exponent:ensure_working_set(abs(int(exponent[1]))+len(text),bytes_per_sample=32,live_arrays=6)
             return sp.Rational(text)
+        def collect(node):
+            start=len(self.domain_restrictions)
+            value=visit(node)
+            condition=sp.And(*self.domain_restrictions[start:])
+            del self.domain_restrictions[start:]
+            return value,condition
+
         def visit(node):
             if isinstance(node,ast.Constant):
                 if isinstance(node.value,bool):return sp.true if node.value else sp.false
@@ -156,6 +181,8 @@ class Calculator:
                     text=ast.get_source_segment(source,node)
                     return decimal(text[:-1])*sp.I
             if isinstance(node,ast.Name):return self.name(node.id)
+            if isinstance(node,ast.UnaryOp) and isinstance(node.op,(ast.Not,ast.Invert)):
+                return sp.Not(visit(node.operand))
             if isinstance(node,ast.UnaryOp) and isinstance(node.op,(ast.USub,ast.UAdd)):
                 value=visit(node.operand);return -value if isinstance(node.op,ast.USub) else value
             if isinstance(node,ast.BinOp):
@@ -164,10 +191,10 @@ class Calculator:
                 if isinstance(node.op,ast.Sub):return a-b
                 if isinstance(node.op,ast.Mult):return a*b
                 if isinstance(node.op,ast.Div):
-                    if isinstance(b,sp.Expr):self.domain_restrictions.append(sp.Ne(b,0))
+                    if isinstance(b,sp.Expr):self.domain_restrictions.append(sp.Ne(bare(b),0))
                     return a/b
                 if isinstance(node.op,ast.Pow):
-                    if isinstance(a,sp.Expr) and isinstance(b,sp.Expr) and b.is_negative is True:self.domain_restrictions.append(sp.Ne(a,0))
+                    if isinstance(a,sp.Expr) and isinstance(b,sp.Expr) and b.is_negative is True:self.domain_restrictions.append(sp.Ne(bare(a),0))
                     if isinstance(a,sp.Integer) and isinstance(b,sp.Integer) and b>0:
                         estimated=max(1,abs(int(a)).bit_length())*b//8+1
                         ensure_working_set(int(estimated),bytes_per_sample=1,live_arrays=4)
@@ -202,11 +229,11 @@ class Calculator:
                     if not node.args:raise ValueError('Usá assume(x>0) o assume(x,real).')
                     if len(node.args)==2 and isinstance(node.args[0],ast.Name) and isinstance(node.args[1],ast.Name) and node.args[1].id.lower() in PROPERTIES:
                         name=node.args[0].id
-                        if name in self.variables or name in self.functions or name in self.locals or not isinstance(self.name(name),sp.Symbol):raise ValueError('Purgá el nombre antes de aplicarle supuestos: purge('+name+').')
+                        if name in self.variables or name in self.functions or name in self.locals or not isinstance(collect(node.args[0])[0],sp.Symbol):raise ValueError('Purgá el nombre antes de aplicarle supuestos: purge('+name+').')
                         constrain(name,self.assumptions,property_name=node.args[1].id.lower());self.assumption_changes.add(name)
                     else:
                         for arg in node.args:
-                            condition=visit(arg)
+                            condition,_=collect(arg)
                             conditions=list(condition.args) if isinstance(condition,sp.And) else [condition]
                             for item in conditions:
                                 if not isinstance(item,Relational) or len(item.free_symbols)!=1:raise ValueError('Cada supuesto debe comparar un símbolo libre con una constante real finita.')
@@ -217,16 +244,41 @@ class Calculator:
                 if key=='ans':
                     if node.args:raise ValueError('Usá ans o r1, r2, … para recuperar resultados.')
                     return self.name('ans')
-                args=[visit(arg) for arg in node.args]
+                if key=='piecewise' and all(isinstance(arg,(ast.List,ast.Tuple)) and len(arg.elts)==2 for arg in node.args):
+                    pairs=[];defined=[];remaining=sp.true
+                    for arg in node.args:
+                        value,value_domain=collect(arg.elts[0]);test,test_domain=collect(arg.elts[1])
+                        defined.append(sp.And(remaining,test_domain,bare(test),value_domain))
+                        remaining=sp.And(remaining,test_domain,sp.Not(bare(test)))
+                        pairs.append((value,test))
+                    self.domain_restrictions.append(sp.Or(*defined))
+                    return sp.Piecewise(*pairs)
+                evaluated=[collect(arg) for arg in node.args]
+                args=[value for value,_ in evaluated]
+                domains=[domain for _,domain in evaluated]
                 if name in self.functions:
-                    self.contexts.append(self.state.get('name_contexts',{}).get(name,{}))
+                    context=self.state.get('name_contexts',{}).get(name,{})
+                    self.contexts.append(context)
                     parameters,body=self.functions[name]
                     if len(args)!=len(parameters):raise ValueError(name+' requiere '+str(len(parameters))+' argumentos.')
-                    return self.resolve(body.xreplace({sp.Symbol(param):arg for param,arg in zip(parameters,args)}))
-                if key in SPECIAL or name=='N':return self.special('approx' if name=='N' else key,args)
+                    replacements={sp.Symbol(param):arg for param,arg in zip(parameters,args)}
+                    if context.get('domain_condition'):
+                        domain=restore(context['domain_condition'])
+                        domain=domain.xreplace({s:bare(self.resolve(self.variables[s.name])) for s in domain.free_symbols if s.name in self.variables and s.name not in parameters})
+                        domain=domain.subs({p:bare(a) for p,a in replacements.items()},simultaneous=True)
+                        self.domain_restrictions.append(domain)
+                    self.domain_restrictions.extend(domains)
+                    return self.resolve(body.xreplace(replacements))
+                if key in SPECIAL or name=='N':
+                    return self.special('approx' if name=='N' else key,args,domains)
+                self.domain_restrictions.extend(scoped_result(key,args,domains))
+                if key in {'limit','integrate','int','integral','sum','summation','prod','product'}:
+                    bounds=args[1:2] if key=='limit' or len(args)==4 else args[1:]
+                    for bound in bounds:
+                        if isinstance(bound,(list,tuple,sp.Tuple)):bound=bound[0] if bound else None
+                        if isinstance(bound,sp.Symbol) and bound.name=='w':self.frequency_axis_removed=True
                 fn=FUNCTIONS.get(key)
                 if fn is not None:
-                    if key=='nsolve':self.numeric_root=True
                     if key=='factorial' and args and isinstance(args[0],sp.Integer) and args[0]>100:
                         try:digits=int(math.lgamma(float(args[0])+1)/math.log(10))+1
                         except (OverflowError,ValueError):raise ValueError('El tamaño de ese factorial excede los recursos numéricos disponibles.')
@@ -240,11 +292,18 @@ class Calculator:
                     if key in {'limit'} and len(args)==4 and args[3] in (sp.Symbol('left'),sp.Symbol('right')):args[3]='-' if str(args[3])=='left' else '+'
                     if key in {'integrate','int','sum','summation','prod','product'} and len(args)==4:args=[args[0],tuple(args[1:])]
                     if key in {'det','inv','transpose','rank','trace','eigenvalues','nullspace','rref'} and (not args or not isinstance(args[0],sp.MatrixBase)):raise ValueError('Esta operación requiere matrix([[…],[…]]).')
-                    result=fn(*args)
+                    if key=='nsolve':
+                        self.numeric_root=True
+                        try:result=fn(*args)
+                        except ZeroDivisionError as exc:raise ValueError('La búsqueda numérica encontró una división por cero. Probá otra aproximación inicial.') from exc
+                    else:result=fn(*args)
                     if key=='nsolve' and len(args)>1:
                         from .cas_assumptions import solution_domain
                         variables=args[1] if isinstance(args[1],(list,tuple,sp.Tuple)) else [args[1]]
                         values=list(result) if isinstance(result,sp.MatrixBase) else [result]
+                        condition=sp.And(*domains).xreplace({bare(v):bare(a) for v,a in zip(variables,values)})
+                        if condition is not sp.true:
+                            raise ValueError('La raíz numérica no cumple el dominio de la ecuación o no se pudo verificar.')
                         for variable,value in zip(variables,values):
                             if isinstance(variable,sp.Symbol) and variable.name in self.assumptions and solution_domain(variable,self.assumptions).contains(value) is not sp.true:raise ValueError('La raíz numérica no cumple los supuestos de '+variable.name+' o no se pudo verificar. Elegí otra aproximación inicial.')
                     return result
@@ -253,7 +312,8 @@ class Calculator:
             raise ValueError('Escribí una expresión matemática. No se admiten atributos, archivos ni instrucciones de Python.')
         return visit(tree.body)
 
-    def special(self,name,args):
+    def special(self,name,args,domains):
+        if name not in {'subst','solve','solve_real','linsolve'}:self.domain_restrictions.extend(domains)
         if name in {'approx','evalf'}:
             if not 1<=len(args)<=2:raise ValueError('Usá approx(expr) o approx(expr,dígitos).')
             digits=args[1] if len(args)==2 else sp.Integer(15)
@@ -277,37 +337,44 @@ class Calculator:
             return approximate(args[0])
         if name=='exact':return sp.nsimplify(*args)
         if name=='subst':
-            if len(args)==2 and isinstance(args[1],dict):return args[0].subs(args[1],simultaneous=True)
-            if len(args)==2 and isinstance(args[1],sp.Equality):return args[0].subs(args[1].lhs,args[1].rhs,simultaneous=True)
-            if len(args)==3:return args[0].subs(args[1],args[2],simultaneous=True)
-            raise ValueError('Usá subst(expr,x,valor) o subst(expr,{x:valor,y:valor}).')
+            if len(args)==2 and isinstance(args[1],dict):pairs=list(args[1].items())
+            elif len(args)==2 and isinstance(args[1],sp.Equality):pairs=[(args[1].lhs,args[1].rhs)]
+            elif len(args)==3:pairs=[(args[1],args[2])]
+            else:raise ValueError('Usá subst(expr,x,valor) o subst(expr,{x:valor,y:valor}).')
+            if not all(isinstance(a,sp.Expr) and isinstance(b,sp.Expr) for a,b in pairs):
+                raise ValueError('Cada reemplazo debe indicar dos expresiones escalares.')
+            mapping=[(bare(old),bare(new)) for old,new in pairs]
+            self.domain_restrictions.append(domains[0].subs(mapping,simultaneous=True))
+            # The old variable's assumptions apply to the original expression,
+            # while any assumptions used by the replacement still apply there.
+            replaced={symbol for old,_ in mapping for symbol in old.free_symbols}
+            supplied={symbol for _,new in mapping for symbol in new.free_symbols}
+            if sp.Symbol('w') in replaced-supplied:self.frequency_axis_removed=True
+            for domain in domains[1:]:
+                self.domain_restrictions.extend(term for term in sp.And.make_args(domain)
+                                                if not term.free_symbols & (replaced-supplied))
+            return substitute(args[0],pairs)
         if name in {'solve','solve_real','linsolve'}:
             if len(args)!=2:raise ValueError('Indicá ecuación y variable: solve(expr,x), o una lista de ecuaciones y variables.')
             expression,variables=args
+            condition=sp.And(*domains)
             if isinstance(variables,(tuple,list,sp.Tuple)):
                 if name=='solve_real':raise ValueError('Solve_real resuelve una variable real. Para sistemas usá solve o linsolve y revisá sus soluciones.')
                 if not all(isinstance(v,sp.Symbol) for v in variables):raise ValueError('Las incógnitas deben ser símbolos libres; purgá sus valores asignados.')
                 result=(sp.linsolve if name=='linsolve' else sp.nonlinsolve)(expression,variables)
-                if any(v.name in self.assumptions for v in variables):
-                    from .cas_assumptions import solution_domain
-                    if not isinstance(result,sp.FiniteSet):raise ValueError('La solución con supuestos conserva parámetros; resolvé sin supuestos y revisá sus condiciones.')
-                    accepted=[]
-                    for row in result:
-                        checks=[solution_domain(v,self.assumptions).contains(item) for v,item in zip(variables,row)]
-                        if any(check is sp.false for check in checks):continue
-                        if any(check is not sp.true for check in checks):raise ValueError('No se pudieron verificar todos los supuestos de la solución paramétrica. No se devuelve como incondicional.')
-                        accepted.append(row)
-                    result=sp.FiniteSet(*accepted)
-                return result
+                return with_domain(result,tuple(variables),condition)
             if not isinstance(variables,sp.Symbol):raise ValueError('La incógnita debe ser un símbolo libre; usá purge(nombre) si tiene un valor asignado.')
             if isinstance(expression,Relational) and not isinstance(expression,sp.Equality):
                 if name!='solve_real':raise ValueError('Para desigualdades usá solve_real(expr,x).')
                 from .cas_assumptions import solution_domain
-                return sp.solve_univariate_inequality(expression,variables,relational=False).intersect(solution_domain(variables,self.assumptions))
+                domain=solution_domain(variables,self.assumptions).intersect(sp.S.Reals)
+                try:result=sp.solve_univariate_inequality(expression,variables,relational=False).intersect(domain)
+                except NotImplementedError:result=sp.ConditionSet(variables,expression,domain)
+                return with_domain(result,variables,condition)
             from .cas_assumptions import solution_domain
             domain=solution_domain(variables,self.assumptions)
             if name=='solve_real':domain=domain.intersect(sp.S.Reals)
-            return sp.solveset(expression,variables,domain=domain)
+            return with_domain(solve_scalar(expression,variables,domain),variables,condition)
         raise ValueError('Comando no disponible.')
 
 
@@ -352,6 +419,8 @@ def calculate(request):
             calculator.variables[name]=value;calculator.functions.pop(name,None);defined=name
     else:value=calculator.parse(source)
     if isinstance(value,sp.Integer):ensure_working_set(max(1,int(value).bit_length()*30103//100000),bytes_per_sample=32,live_arrays=6)
+    domain=sp.And(*calculator.domain_restrictions)
+    if domain is sp.false:raise ValueError('El valor está fuera del dominio de la expresión o de los supuestos con los que se obtuvo.')
     encoded=encode(value);restore(encoded)
     state.update(variables={name:encode(v) for name,v in calculator.variables.items()},functions={name:{'parameters':params,'body':encode(body)} for name,(params,body) in calculator.functions.items()})
     state['results'][str(cell)]=encoded;state['ans']=cell
@@ -361,7 +430,13 @@ def calculate(request):
     if isinstance(value,sp.Basic) and value.has(sp.zoo,sp.nan):notice.append('El resultado no representa un valor finito definido.')
     if defined:notice.append('Definición guardada: '+defined+'.')
     from .cas_context import combine,remember
-    context=combine(calculator,value,body if assignment else source,notice);remember(state,cell,context)
+    context=combine(calculator,value,body if assignment else source,notice)
+    if domain is not sp.true:
+        context['domain_condition']=encode(domain)
+        context['domain_symbols']=sorted({symbol.name for symbol in domain.free_symbols})
+        context['domain_condition_implicit']=intrinsic_system_domain(value,domain)
+        notice.append('Condición de validez de la expresión: '+str(domain)+'.')
+    remember(state,cell,context)
     if defined:state.setdefault('name_contexts',{})[name]=context
     from .cas_assumptions import descriptions
     assumption_rows=descriptions(calculator.assumptions)

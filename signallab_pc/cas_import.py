@@ -67,7 +67,7 @@ def _value(data,notices):
 
 def import_result(request):
     state=copy.deepcopy(request.get('state') or empty_state());cell=int(request['cell']);notices=[]
-    value=_value(request['payload'],notices);encoded=encode(value)
+    value=_value(request['payload'],notices);encoded=encode(value);restore(encoded)
     state['results'][str(cell)]=encoded;state['ans']=cell
     expression=sp.sstr(value) if isinstance(value,sp.Expr) else None
     from .cas_context import imported,remember
