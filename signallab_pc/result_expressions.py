@@ -78,8 +78,7 @@ def send_expression(window,key,destination):
         if v in ('s','t'):
             stored=window.project.get(key);request=stored.get('request',{}) if isinstance(stored,dict) else {};result=stored.get('result',{}) if isinstance(stored,dict) else {}
             panel.load_laplace_context({'interpretation':'bilateral'} if v=='t' else request,result,inverse=v=='s')
-        if v=='z':
-            stored=window.project.get(key).get('result',{});panel.roc.setCurrentIndex(1 if stored.get('inverse_roc_hint')=='left' else 0)
+        if destination=='inverse':panel.load_transform_context(window.project.get(key))
         panel._library_source=(text,key);panel._library_conditions=tuple(expression.conditions)
         panel.set_copy_note('Expresión cargada desde Resultados.'+(' Condiciones: '+'; '.join(expression.conditions) if expression.conditions else ''))
     elif destination=='system':

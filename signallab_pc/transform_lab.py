@@ -60,6 +60,7 @@ class TransformLab(QWidget):
             form.setRowVisible(self.copy_note,inverse and bool(self.copy_note.text()))
             self.note.setText(('Los valores y el primer índice definen la secuencia finita; cero fuera de ella.' if finite else 'Índices inclusivos. Se admiten enteros, -oo y oo; cero fuera del soporte indicado.') if z and index==0 else (('Exterior: términos derechos.' if self.roc.currentIndex()==0 else 'Interior: términos izquierdos para los polos no nulos.' if self.roc.currentIndex()==1 else 'El radio elige un anillo sin polos; no fija sus bordes.')+' El intervalo numérico no limita la fórmula.') if z and inverse else 'Los valores y el primer índice definen el registro; cero fuera de él.' if finite else 'Ingresá X(s). La inversa se interpreta como causal: cero para t<0.' if inverse else 'Ingresá x(t). Laplace unilateral integra desde 0−; los valores para t<0 no intervienen.')
             if not z and bilateral:self.note.setText('Ingresá X(s) racional; admite un factor global exp(-d*s). La ROC decide el soporte de cada término. σ elige una franja, no sus bordes.' if inverse else 'Ingresá la señal completa, incluyendo t<0. Usá escalones o tramos para indicar su soporte. Se calcula la zona común de convergencia de ambas mitades.')
+            if inverse and ((z and self.roc.currentIndex()<0) or (not z and bilateral and self.laplace_roc.currentIndex()<0)):self.note.setText('El resultado de origen no especifica una ROC. Seleccioná la región de convergencia antes de calcular la inversa; no se supone un soporte causal.')
             tracked=[self.mode]
             if not z:tracked.append(self.interpretation)
             if bilateral and inverse:
@@ -100,6 +101,16 @@ class TransformLab(QWidget):
         if hint and self.interpretation.currentIndex()==1:
             self.laplace_roc.setCurrentIndex({'right':0,'left':1,'line':2}.get(hint.get('laplace_roc'),0))
             if hint.get('sigma') is not None:self.sigma.setText(str(hint['sigma']))
+    def load_transform_context(self,record):
+        from .transform_context import result_roc
+        spec=result_roc(record)
+        if self.kind=='z':
+            self.roc.setCurrentIndex({'right':0,'left':1,'radius':2}.get(spec.get('mode'),-1) if spec else -1)
+            if spec and 'radius' in spec:self.radius.setText(str(spec['radius']))
+        else:
+            self.interpretation.setCurrentIndex(1)
+            self.laplace_roc.setCurrentIndex({'right':0,'left':1,'line':2}.get(spec.get('mode'),-1) if spec else -1)
+            if spec and 'sigma' in spec:self.sigma.setText(str(spec['sigma']))
     def select_legacy(self,key):
         self.mode.setCurrentIndex(1 if key in (('symbolic',1),('symbolic',3),('course_tools','inverse_z')) else 0)
         if key==('symbolic',2):self.use_finite_input()
@@ -107,6 +118,9 @@ class TransformLab(QWidget):
         from .phase_summary import transfer_formula
         expression=transfer_formula(system,digits=17)[0].text.split('=',1)[1].strip()
         self.mode.setCurrentIndex(1);self.expression.setText(expression);self._system_source=(expression,key)
+        if system.roc is None:
+            if self.kind=='z':self.roc.setCurrentIndex(-1)
+            else:self.interpretation.setCurrentIndex(1);self.laplace_roc.setCurrentIndex(-1)
         if self.kind=='z' and system.roc is not None:
             self.roc.setCurrentIndex({'right':0,'left':1,'radius':2}[system.roc['mode']])
             if 'radius' in system.roc:self.radius.setText(str(system.roc['radius']))
@@ -153,6 +167,7 @@ class TransformLab(QWidget):
             self.roc.setCurrentIndex(1 if result.get('inverse_roc_hint')=='left' else 0)
             if request['operation']=='z_finite':self.include_samples.setChecked(True);self.sample_scope.setCurrentIndex(1)
         else:self.load_laplace_context(request,result,inverse=True)
+        self.load_transform_context({'request':request,'result':result})
         condition=branches[0]['condition'] if branches else result.get('convergence',result.get('roc_finite_plane',''))
         self.set_copy_note('Se copió la expresión del último resultado.'+(' Condición original: '+condition+'. Elegí una ROC compatible para recuperar la misma señal.' if self.kind=='z' else (' La ROC se trasladó a la inversa; comprobá sus condiciones.' if result.get('inverse_laplace_hint') else ' Elegí una ROC compatible con las condiciones de la directa.' if request.get('interpretation')=='bilateral' else ' La inversa usa interpretación causal.')))
         self._inverse_source=(expression,record[2])
@@ -175,10 +190,10 @@ class TransformLab(QWidget):
             from .result_expressions import ExpressionResult
             from .transform_context import result_roc
             domain='digital' if self.kind=='z' else 'analog'
-            origin={'request':record[0],'result':record[1]} if record is not None and not inverse else None
-            roc_spec=({'mode':['right','left','radius'][self.roc.currentIndex()],**({'radius':real_field(self.radius)} if self.roc.currentIndex()==2 else {})} if self.kind=='z' and inverse else ({'mode':['right','left','line'][self.laplace_roc.currentIndex()],**({'sigma':real_field(self.sigma)} if self.laplace_roc.currentIndex()==2 else {})} if self.interpretation.currentIndex()==1 else {'mode':'right'}) if self.kind=='laplace' and inverse else result_roc(origin) if origin else None)
+            origin={'request':record[0],'result':record[1]} if record is not None and not inverse else self.window.project.get(parents[0]) if parents else None
+            roc_spec=({'mode':['right','left','radius'][self.roc.currentIndex()],**({'radius':real_field(self.radius)} if self.roc.currentIndex()==2 else {})} if self.kind=='z' and inverse and self.roc.currentIndex()>=0 else ({'mode':['right','left','line'][self.laplace_roc.currentIndex()],**({'sigma':real_field(self.sigma)} if self.laplace_roc.currentIndex()==2 else {})} if self.interpretation.currentIndex()==1 and self.laplace_roc.currentIndex()>=0 else {'mode':'right'} if self.interpretation.currentIndex()==0 else None) if self.kind=='laplace' and inverse else result_roc(origin) if origin else None)
             self.window.open_tool(ROUTES['system_analysis',0]);panel=self.window.pages[self.window.current_operation].panel
-            boundary=origin is not None and bool(origin['result'].get('boundary_dtft'))
+            boundary=isinstance(origin,dict) and bool(origin.get('result',{}).get('boundary_dtft'))
             panel.load_expression(ExpressionResult(expression,'w' if boundary else 'z' if domain=='digital' else 's',units='rad/muestra' if boundary else ''),parents[0] if parents else None,origin,roc_spec)
             self.window.statusBar().showMessage('Fórmula copiada como H('+('exp(iw)' if boundary else 'z' if domain=='digital' else 's')+'). Calculá el análisis con sus condiciones originales.')
         except Exception as exc:QMessageBox.warning(self,'No se pudo analizar como sistema',str(exc))
@@ -187,6 +202,7 @@ class TransformLab(QWidget):
         inverse=self.mode.currentIndex()==1
         if self.kind=='z':
             if inverse:
+                if self.roc.currentIndex()<0:invalid(self.roc,'elegí una región de convergencia.','La misma expresión puede representar secuencias distintas según su ROC.')
                 if self.roc.currentIndex()==2:real_field(self.radius,minimum=0,strict=True)
                 if self.include_samples.isChecked() and self.sample_scope.currentIndex()==0:
                     integer_field(self.start);integer_field(self.count,minimum=1)
@@ -195,7 +211,9 @@ class TransformLab(QWidget):
                 low=None if lower_text=='-oo' else integer_field(self.lower)
                 high=None if upper_text=='oo' else integer_field(self.upper)
                 if low is not None and high is not None and high<low:invalid(self.upper,'debe ser mayor o igual al primer índice.','Los límites son inclusivos; usá oo para un soporte sin final.')
-        elif inverse and self.interpretation.currentIndex()==1 and self.laplace_roc.currentIndex()==2:real_field(self.sigma)
+        elif inverse and self.interpretation.currentIndex()==1:
+            if self.laplace_roc.currentIndex()<0:invalid(self.laplace_roc,'elegí una región de convergencia.','La misma expresión puede representar señales distintas según su ROC.')
+            if self.laplace_roc.currentIndex()==2:real_field(self.sigma)
 
     def calculate(self):
         try:

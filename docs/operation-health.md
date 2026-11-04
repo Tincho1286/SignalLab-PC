@@ -42,6 +42,7 @@ Las notas públicas describen las mejoras aplicadas y las limitaciones conocidas
 | OH-023 | Una reescritura equivalente de sistema en CAS perdía su ROC. | 1.5.9 |
 | OH-024 | Un resultado CAS modificado podía recuperar un reloj de sus antecesores. | 1.5.9 |
 | OH-025 | El paso de una Z no racional por CAS perdía la definición utilizada para obtener su DTFT física. | 1.5.9 |
+| OH-026 | El envío de Resultados a una inversa omitía la ROC y podía seleccionar una secuencia derecha. | 1.5.9 |
 
 ## Continuidad hacia la estable
 

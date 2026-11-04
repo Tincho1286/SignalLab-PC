@@ -25,7 +25,10 @@ class Host:
     def _run_operation(self,label,compute,accept):accept(compute())
     def open_tool(self,route):
         self.current_operation=tuple(route)
-        if self.current_operation not in self.pages:self.pages[self.current_operation]=SimpleNamespace(panel=SystemAnalysisPanel(self))
+        if self.current_operation not in self.pages:
+            if self.current_operation in (ROUTES['transform_lab','z'],ROUTES['transform_lab','laplace']):panel=TransformLab(self,'z' if self.current_operation==ROUTES['transform_lab','z'] else 'laplace')
+            else:panel=SystemAnalysisPanel(self)
+            self.pages[self.current_operation]=SimpleNamespace(panel=panel)
     def send_system(self,*args):raise AssertionError('An expression must not be converted before choosing analysis capabilities.')
     def choose_record(self,*args,**kwargs):return None
 
@@ -175,6 +178,36 @@ class WorkflowContracts(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             text,path=diagnostic(seen[0],worker.failure_details,'Health probe',folder)
             self.assertEqual(path.parent,Path(folder));self.assertIn('ArithmeticError',path.read_text(encoding='utf-8'));self.assertIn('Referencia:',text)
+
+    def test_cas_library_inverse_preserves_roc_and_requires_unknown_selection(self):
+        from signallab_pc.cas_panel import CasWorksheet
+        from signallab_pc.cas_transfer import payload
+        from signallab_pc.result_expressions import send_expression
+        from signallab_pc.signal_notation import read
+        from signallab_pc.symbolic import N,T
+        for domain,roc in [('digital',{'mode':'left'}),('digital',{'mode':'radius','radius':.75}),('analog',{'mode':'left'}),('analog',{'mode':'line','sigma':-1})]:
+            system=Transfer([1],[1,-.5] if domain=='digital' else [1,.5],domain=domain,roc=roc);key=self.host.publish(system)
+            sheet=CasWorksheet(self.host);self.widgets.append(sheet);sheet.import_result(payload(system),'Sistema',key)
+            sheet.input.setPlainText('simplify(r1)');sheet.input.evaluateRequested.emit();self.assertEqual(sheet.entries[-1]['status'],'done')
+            result_id=sheet.entries[-1]['result_id'];send_expression(self.host,result_id,'inverse');panel=self.host.pages[self.host.current_operation].panel
+            if domain=='digital':
+                self.assertEqual(panel.roc.currentIndex(),1 if roc['mode']=='left' else 2);panel.include_samples.setChecked(False)
+                if roc['mode']=='radius':self.assertEqual(float(panel.radius.text()),.75)
+            else:
+                self.assertEqual(panel.interpretation.currentIndex(),1);self.assertEqual(panel.laplace_roc.currentIndex(),1 if roc['mode']=='left' else 2)
+                if roc['mode']=='line':self.assertEqual(float(panel.sigma.text()),-1)
+            panel.analyze_system.click();self.assertEqual(self.warnings,[])
+            analysis=self.host.pages[self.host.current_operation].panel;self.assertEqual(analysis.roc_choice.currentIndex(),1 if roc['mode']=='left' else 2)
+            self.host.open_tool(ROUTES['transform_lab','z' if domain=='digital' else 'laplace'])
+            panel.calculate_button.click();self.assertEqual(self.warnings,[]);self.assertTrue(panel.last['evaluated'])
+            value=read(panel.last['result'],('n',))
+            if domain=='digital':self.assertAlmostEqual(float(value.subs(N,-1)),-2 if roc['mode']=='left' else 0)
+            else:self.assertAlmostEqual(float(value.subs(next(v for v in value.free_symbols if v.name=='t'),-1)),-float(np.exp(.5)))
+            sheet.input.setPlainText('2*r2');sheet.input.evaluateRequested.emit();changed=sheet.entries[-1]['result_id']
+            send_expression(self.host,changed,'inverse');panel=self.host.pages[self.host.current_operation].panel
+            self.assertEqual((panel.roc if domain=='digital' else panel.laplace_roc).currentIndex(),-1)
+            before=len(self.host.project.records());panel.calculate_button.click();self.assertEqual(len(self.host.project.records()),before)
+            self.assertEqual(len(self.warnings),1);self.warnings.clear()
 
     def test_cas_system_roc_and_clock_reach_analysis_and_survive_reload(self):
         from signallab_pc.cas_panel import CasWorksheet
