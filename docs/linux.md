@@ -4,11 +4,11 @@ El portable Linux incluye la aplicación, Python y las bibliotecas numéricas y 
 
 ## Descargar y abrir
 
-Descargá `SignalLab-PC-1.6.0-linux-x86_64.tar.gz` desde [SignalLab PC 1.6.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.0). Descomprimilo y abrí el ejecutable `SignalLab-PC` que está dentro de su carpeta. Desde una terminal:
+Descargá `SignalLab-PC-1.6.5-linux-x86_64.tar.gz` desde [SignalLab PC 1.6.5](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.5). Descomprimilo y abrí el ejecutable `SignalLab-PC` que está dentro de su carpeta. Desde una terminal:
 
 ```sh
-tar -xzf SignalLab-PC-1.6.0-linux-x86_64.tar.gz
-cd SignalLab-PC-1.6.0-linux-x86_64
+tar -xzf SignalLab-PC-1.6.5-linux-x86_64.tar.gz
+cd SignalLab-PC-1.6.5-linux-x86_64
 ./SignalLab-PC
 ```
 

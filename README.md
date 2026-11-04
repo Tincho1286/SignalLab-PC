@@ -40,12 +40,11 @@ El [catálogo de herramientas](docs/tools.md) explica dónde encontrar cada oper
 
 ## Descargar y empezar
 
-Los portables incluyen Python y las dependencias de la aplicación. Descargá la versión 1.6.0 para Windows o Linux; las entregas anteriores permanecen disponibles en Releases.
+Los portables incluyen Python y las dependencias de la aplicación. Descargá la versión 1.6.5 para Windows o Linux. Las entregas anteriores están en Releases.
 
 | Edición | Windows x64 | Linux x86_64 | Novedades |
 | --- | --- | --- | --- |
-| **Estable · 1.6.0** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.0/SignalLab-PC-1.6.0.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.0/SignalLab-PC-1.6.0-linux-x86_64.tar.gz) | [Notas de la estable](docs/releases/v1.6.0.md) |
-| **Preliminar · 1.6.5** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5-preview/SignalLab-PC-1.6.5.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5-preview/SignalLab-PC-1.6.5-linux-x86_64.tar.gz) | [Notas de la preliminar](docs/releases/v1.6.5-preview.md) |
+| **Estable · 1.6.5** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SignalLab-PC-1.6.5.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.5/SignalLab-PC-1.6.5-linux-x86_64.tar.gz) | [Notas de la estable](docs/releases/v1.6.5.md) |
 
 Las versiones preliminares agrupan mejoras de cálculo, intercambio de resultados e importación. Las [notas de versiones](docs/releases/README.md) describen los cambios y sus límites; la [documentación de mantenimiento](docs/maintenance.md) resume las áreas revisadas.
 
@@ -57,7 +56,7 @@ Para comenzar un cálculo, buscá una herramienta, completá sus entradas y pres
 
 Los informes presentan las expresiones con notación matemática y explican las condiciones necesarias para interpretarlas. Según el método, distinguen una solución simbólica, una aproximación numérica o un cálculo que todavía no pudo resolverse.
 
-Las figuras se abren en ventanas independientes y las señales discretas se representan mediante tallos. La [guía de gráficos y cursores](docs/cursors.md) explica las opciones de medición de la preliminar, incluida la lectura de valores y diferencias entre dos puntos.
+Las figuras se abren en ventanas independientes y las señales discretas se representan mediante tallos. La [guía de gráficos y cursores](docs/cursors.md) explica las opciones de medición, incluida la lectura de valores y diferencias entre dos puntos.
 
 La biblioteca **Resultados** conserva las salidas calculadas para continuar el trabajo. Podés enviar una expresión al CAS, reutilizar un sistema o exportar los datos en los [formatos compatibles](docs/file-formats.md). Si modificás una entrada, el resultado anterior se mantiene hasta que vuelvas a calcular.
 

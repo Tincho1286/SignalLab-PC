@@ -23,7 +23,7 @@ La [guía de primeros pasos](getting-started.md) recorre un cálculo completo. P
 
 ## Versiones y objetivos
 
-La [estable 1.6.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.0) es la descarga principal para Windows y Linux. La [preliminar 1.6.5](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.5-preview) busca la longitud FIR mínima que cumple las tolerancias también con Kaiser. Las [notas de versiones](releases/README.md) describen el alcance de cada entrega.
+La [versión estable 1.6.5](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.5) está disponible para Windows y Linux. El diseño FIR por bandas busca la longitud mínima que cumple las tolerancias también con Kaiser. Las [notas de versiones](releases/README.md) describen los cambios de cada entrega.
 
 El [historial de cambios](../CHANGELOG.md) reúne lo que ya fue publicado. La [hoja de objetivos](roadmap.md) describe las mejoras pendientes, sin asignarlas de antemano a una versión. Los [documentos históricos](history/README.md) conservan información de etapas anteriores del proyecto.
 
