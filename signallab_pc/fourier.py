@@ -17,7 +17,8 @@ def grid(start, stop, count):
     if not math.isfinite(start) or not math.isfinite(stop) or stop <= start or count < 2:
         raise ValueError("La rejilla requiere extremos finitos crecientes y al menos dos puntos.")
     ensure_working_set(count, live_arrays=10)
-    values = np.linspace(start, stop, count)
+    step = (stop-start)/(count-1)
+    values = start+step*np.arange(count)
     if not np.isfinite(values).all() or np.any(np.diff(values) <= 0):
         raise ValueError("El paso de la rejilla no se distingue con precisión float64.")
     return values
@@ -44,17 +45,11 @@ def _sum(values, input_axis, output_axis, sign=-1):
     return _finite_output(result, "La transformada")
 
 
-def _frequency_signal(values, frequencies, name, units, metadata):
-    return Signal(values, float(frequencies[0]), float(frequencies[1]-frequencies[0]),
-                  units, name, "frequency", "", metadata)
-
-
 def dtft(x, start=-math.pi, stop=math.pi, count=1025):
     _discrete(x)
     from .fourier_phase import dtft_angles
     omega = grid(start, stop, count)
     step = (float(stop)-float(start))/(count-1)
-    omega = float(start) + step*np.arange(omega.size)
     local, shift = dtft_angles(omega, float(start), float(stop), int(x.origin))
     values = _sum(x.values, np.arange(x.values.size, dtype=float), local) * shift
     result = Signal(values, float(start), step, 'rad/muestra', f'DTFT_{x.name}', 'frequency', '',
@@ -114,7 +109,8 @@ def ctft(x, start, stop, count):
     impulses=dirac_terms(x)
     values = _sum(x.values, x.axis, omega)*x.step if np.any(x.values) else np.zeros(omega.size,dtype=complex)
     for position,weight in impulses:values+=weight*np.exp(-1j*omega*position)
-    result = _frequency_signal(_finite_output(values, "La CTFT"), omega, f"CTFT_{x.name}", "rad/s",
+    step = (float(stop)-float(start))/(len(omega)-1)
+    result = Signal(_finite_output(values, "La CTFT"), float(omega[0]),step,"rad/s",f"CTFT_{x.name}","frequency","",
         {"operation": "CTFT_rectangle", "input_start": x.origin, "input_step": x.step,
          "input_dirac_terms": [[t,[float(w.real),float(w.imag)]] for t,w in impulses],
          "convention": "dt*sum regular(tk) exp(-j*w*tk) plus exact Fourier terms of Dirac impulses, when present; finite regular window quadrature"})
@@ -144,7 +140,7 @@ def ictft(spectrum, start, stop, count):
     if len(weighted) == 1: weighted[:] = 0
     else: weighted[0] *= .5; weighted[-1] *= .5
     values = _sum(weighted, spectrum.axis, time, sign=1)*spectrum.step/(2*np.pi)
-    result = Signal(_finite_output(values, "La inversa de Fourier"), float(time[0]), float(time[1]-time[0]),
+    result = Signal(_finite_output(values, "La inversa de Fourier"), float(time[0]), (float(stop)-float(start))/(len(time)-1),
                   "s", "ICTFT", "continuous", "",
                   {"operation": "ICTFT", "convention": "Trapezoidal quadrature over finite frequency window; 1/(2*pi)"})
     from .quality_steps import numeric_fourier
@@ -186,7 +182,7 @@ def synthesize_continuous(coefficients, start, stop, count):
     time = grid(start, stop, count)
     omega = coefficients.axis*(2*np.pi/period)
     values = _sum(coefficients.values, omega, time, sign=1)
-    return Signal(values, float(time[0]), float(time[1]-time[0]), "s", "Síntesis_FS", "continuous", "",
+    return Signal(values, float(time[0]), (float(stop)-float(start))/(len(time)-1), "s", "Síntesis_FS", "continuous", "",
                   {"operation": "continuous_series_synthesis", "harmonics": int(coefficients.values.size),
                    "convention": "Finite sum of harmonics; may exhibit Gibbs near jumps"})
 
@@ -214,15 +210,21 @@ def spectral_density(x, rate, *, method="welch", segment=256, overlap=128,
     hop = segment-overlap
     blocks = 1+(x.values.size-segment)//hop
     power = np.zeros(segment)
-    divisor = segment if method == "legacy" else rate*energy
-    if not math.isfinite(divisor) or divisor <= 0:
-        raise ValueError("La escala espectral queda fuera del rango numérico.")
+    normalization=math.sqrt(segment) if method=='legacy' else math.sqrt(rate)*math.sqrt(energy)
+    norm_mantissa,norm_exponent=math.frexp(normalization)
     for block in range(blocks):
         checkpoint(block/blocks)
         values = x.values[block*hop:block*hop+segment]
-        if remove_mean: values = values-np.mean(values)
-        transformed = np.fft.fft(values*weights)
-        estimate = np.abs(transformed / math.sqrt(divisor))**2
+        scale=float(max(np.max(abs(values.real)),np.max(abs(values.imag))))
+        if scale:
+            values=values.real/scale+1j*(values.imag/scale)
+            if remove_mean:values=values-np.mean(values)
+            transformed=np.fft.fft(values*weights)
+            mantissa,exponent=math.frexp(scale)
+            with np.errstate(over='ignore',under='ignore',invalid='ignore'):
+                amplitude=np.ldexp(abs(transformed)*(mantissa/norm_mantissa),exponent-norm_exponent)
+                estimate=amplitude**2
+        else:estimate=np.zeros(segment)
         if not np.all(np.isfinite(estimate)):
             raise FloatingPointError("La potencia espectral excede float64.")
         power += (estimate-power)/(block+1)
@@ -252,6 +254,12 @@ def energy_density(spectrum):
                   {"operation": "energy_density", "discrete_spectrum": bool(spectrum.metadata.get("discrete_spectrum")) or spectrum.metadata.get("operation") in {"DFT","stft"}, "convention": "|X|²; integral dω/(2π) over shown band is partial energy"})
 
 
+def is_complete_dft(spectrum):
+    return (spectrum.domain=='frequency' and spectrum.units=='rad/muestra'
+            and spectrum.metadata.get('operation')=='DFT' and spectrum.step>0
+            and np.isclose(spectrum.values.size*spectrum.step,math.tau,rtol=1e-10,atol=0))
+
+
 def energy_report(spectrum, source=None, density=None):
     """Explain finite-band quadrature and the conditions for a Parseval check."""
     if density is None:density=energy_density(spectrum)
@@ -266,9 +274,7 @@ def energy_report(spectrum, source=None, density=None):
            f'Energía integrada en ese intervalo: {area:.12g}',
            'La integración usa trapecios y no duplica una banda positiva.']
     if count<2:lines+=['Un solo punto no define una banda de integración: el intervalo tiene ancho cero.']
-    operation=spectrum.metadata.get('operation')
-    complete_fft=(operation=='DFT' and spectrum.units=='rad/muestra' and np.isclose(count*spectrum.step,2*np.pi,rtol=1e-10,atol=0))
-    if complete_fft:
+    if is_complete_dft(spectrum):
         energy=float(np.sum(power/count))
         if not np.isfinite(energy):raise ValueError('La suma de Parseval excede el rango numérico.')
         lines+=['','Parseval de la DFT',f'Suma |X[k]|²/N = {energy:.12g}',

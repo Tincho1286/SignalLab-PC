@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.6.8-preview](v1.6.8-preview.md) | Transformadas, ejes y cálculo espectral | Preliminar |
 | [1.6.7-preview](v1.6.7-preview.md) | Fourier inversa, intercambio de señales y precisión numérica | Preliminar |
 | [1.6.6-preview](v1.6.6-preview.md) | Reutilización de datos, ROC y precisión numérica | Preliminar |
 | [1.6.5](v1.6.5.md) | Longitud mínima automática para FIR Kaiser | Estable |

@@ -29,6 +29,7 @@ def validate_discrete_clocks(x,w):
 
 def multiply_signals(x,w):
     if x.domain!=w.domain or x.domain not in ('discrete','continuous'):raise ValueError('Las dos entradas deben ser discretas o las dos continuas.')
+    if x.units!=w.units:raise ValueError('Las entradas deben compartir el mismo tipo de eje, por ejemplo dos señales en n o dos registros en segundos.')
     ensure_working_set(len(x.values)+len(w.values),live_arrays=8)
     if x.domain=='discrete':
         validate_discrete_clocks(x,w)
@@ -42,7 +43,6 @@ def multiply_signals(x,w):
         from .distributions import regular_only
         regular_only(x,'El producto de muestras');regular_only(w,'El producto de muestras')
         if x.step<=0 or w.step<=0:raise ValueError('Los registros continuos deben tener un paso positivo.')
-        if x.units!=w.units:raise ValueError('Los ejes temporales deben usar las mismas unidades.')
         from .continuous import interpolate_record
         values=x.values*interpolate_record(w,x.axis)
         scope='Producto evaluado en los instantes de la primera señal. La segunda se interpola linealmente y vale cero fuera de su intervalo. El registro resultante aproxima el producto continuo entre sus muestras.'
@@ -83,7 +83,7 @@ def window_impulse(h,window='hamming',beta=8.6,retard=True,custom=None,*,length=
             if not math.isfinite(rate) or rate<=0:raise ValueError('El reloj registrado de h[n] debe tener una tasa positiva y finita.')
             metadata['sample_rate_hz']=rate
             if 'time_start_s' in h.metadata:metadata['time_start_s']=float(h.metadata['time_start_s'])+(origin-h.origin)/rate
-        taper=Signal(values,origin,1,'n','Ventana '+window_name,'discrete','',metadata)
+        taper=Signal(values,origin,1,h.units,'Ventana '+window_name,'discrete','',metadata)
     else:taper=custom;window_name='propia: '+custom.name
     raw=multiply_signals(taper,h).copy_with(name='h[n] enventanada')
     if 'sample_rate_hz' not in raw.metadata and 'sample_rate_hz' in h.metadata:

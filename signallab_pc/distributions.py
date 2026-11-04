@@ -14,6 +14,8 @@ def dirac_terms(source):
     return [(t,w) for t,w in sorted(result.items()) if w]
 
 def regular_only(source,operation):
+    if source.domain=='frequency' and source.metadata.get('distribution'):
+        raise ValueError(operation+' requiere valores ordinarios. Las líneas espectrales contienen pesos de Dirac.')
     if dirac_terms(source):raise ValueError(operation+' requiere una señal ordinaria. Esta entrada incluye impulsos Dirac, que no son muestras de altura finita. Usá una operación que los trate explícitamente.')
 
 def attach_terms(metadata,terms):

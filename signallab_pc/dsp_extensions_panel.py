@@ -50,6 +50,11 @@ class DspExtensionsPanel(QWidget):
             self.figure=Figure();self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumHeight(260);map_layout.addWidget(NavigationToolbar2QT(self.canvas,self));map_layout.addWidget(self.canvas,1)
             self.tabs.addTab(map_page,'Espectrograma');self.tabs.addTab(self.view,'Espectro de una ventana');out.addWidget(self.tabs,1);self.tabs.hide();self.empty_output=QLabel('El espectrograma aparecerá después de calcular.');self.empty_output.setObjectName('muted');out.addWidget(self.empty_output)
         else:out.addWidget(self.view,1)
+    def receive(self,source,key=None):
+        index={'discrete':0,'continuous':1}[source.domain]
+        self.domain.setCurrentIndex(index)
+        self.sources[index].set_source(source,key)
+
     def calculate(self):
         try:
             source=self.sources[self.domain.currentIndex() if len(self.sources)>1 else 0].read();parents=[self.sources[self.domain.currentIndex() if len(self.sources)>1 else 0].reference_id];snapshot=self.state.snapshot()

@@ -30,11 +30,12 @@ def statistics(source,component,bins):
     average=np.mean(scaled);centered=scaled-average
     with np.errstate(over='ignore',invalid='ignore'):
         mean=average*scale;variance=float(np.mean(np.abs(centered)**2)*scale*scale);power=float(np.mean(np.abs(scaled)**2)*scale*scale)
-    if not np.isfinite([mean.real,mean.imag,variance,power]).all():raise ValueError('Las estadísticas exceden la precisión numérica disponible. Reducí la escala de amplitudes.')
+    corrected_variance=variance*(n/(n-1)) if n>1 else None
+    if not np.isfinite([mean.real,mean.imag,variance,power,corrected_variance if n>1 else 0.]).all():raise ValueError('Las estadísticas exceden la precisión numérica disponible. Reducí la escala de amplitudes.')
     data={'real':values.real,'imag':values.imag,'magnitude':np.abs(values)}[component]
     density,edges=np.histogram(data,bins=bins,density=True)
     if not np.isfinite(density).all() or not np.isfinite(edges).all():raise ValueError('El histograma no es representable con esta escala de amplitudes.')
-    return {'samples':n,'mean_real':float(mean.real),'mean_imag':float(mean.imag),'variance_N':variance,'variance_N_minus_1':variance*n/(n-1) if n>1 else None,'mean_square':power,'rms':float(np.sqrt(power)),
+    return {'samples':n,'mean_real':float(mean.real),'mean_imag':float(mean.imag),'variance_N':variance,'variance_N_minus_1':corrected_variance,'mean_square':power,'rms':float(np.sqrt(power)),
         'histogram_component':component,'histogram_edges':edges.tolist(),'histogram_density':density.tolist(),
         'scope':'Estadísticas del registro: varianza = promedio de |x−media|². N−1 es la corrección habitual bajo hipótesis de muestras independientes e idénticamente distribuidas; no demuestra esas hipótesis.'}
 

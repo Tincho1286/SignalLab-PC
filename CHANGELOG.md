@@ -2,6 +2,15 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.5**.
 
+## 1.6.8 · preliminar
+
+- Cancelaciones exactas y límites impares en Z inversa por contorno.
+- Energía por bins de DFT, conservación del eje de Fourier continua y validación de líneas espectrales.
+- Escalado en PSD, normalización de ganancia y varianza con divisor N−1.
+- Dominio correcto al enviar señales a Hilbert y STFT, validación de ejes en productos y diagnóstico portable actualizado.
+
+[Notas de la entrega](docs/releases/v1.6.8-preview.md)
+
 ## 1.6.7 · preliminar
 
 - Fase precisa en la DTFT inversa y validación de las entradas de Fourier inversa.

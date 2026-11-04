@@ -17,7 +17,7 @@ def run(destination):
         import matplotlib
         from PySide6.QtWidgets import QApplication
         from .workbench import WorkbenchWindow as ToolboxWindow
-        from .navigation import MENUS
+        from .workspaces import ROUTES
         from .state_space import StateModel
         from .model import Signal
         from .operations import dft, idft
@@ -35,9 +35,9 @@ def run(destination):
         app = QApplication.instance() or QApplication([])
         window = ToolboxWindow()
         assert window.category == 'Inicio'
-        menu=next(action.menu() for action in window.menuBar().actions() if action.text()=='Control')
-        menu.actions()[1].trigger()
-        item=next(item for item in MENUS['Control'] if item[2]=='simulation')
+        item=ROUTES['state_space','simulation']
+        window.open_tool(item)
+        assert window.current_operation==item
         panel=window.pages[tuple(item)].panel
         model=panel.read_model()
         time,output,states=model.simulate(np.ones(11),step=.1)
@@ -56,12 +56,14 @@ def run(destination):
         from .sampling import sample_expression
         from .project_picker import ProjectPicker
         from .report_view import ReportView
-        sampling_item=next(item for item in MENUS['Muestreo'] if item[1]=='sampling' and item[2]==0)
+        sampling_item=ROUTES['sampling',0]
         window.open_tool(sampling_item);window.resize(1366,768);window.show()
         page=window.pages[tuple(sampling_item)];page.panel._accept_signal(sample_expression('cos(2*pi*t)',0,100,101))
-        app.processEvents();page.output.canvas.draw()
-        assert page.output.canvas.isVisible() and page.output.canvas.height()>=260
-        assert page.result_tabs.currentIndex()==0
+        from .plot_view import open_result_plot
+        open_result_plot(page.output,window)
+        app.processEvents()
+        assert page.output.canvas.isVisible() and page.output.canvas.figure.axes
+        assert window.stack.currentWidget().active_page is page
         picker=ProjectPicker(window,'signal',domains=['discrete']);picker.search.setText('Muestrear')
         assert len(picker.visible)==1 and picker.selected_id
         picker.accept_selection();assert picker.result()==1
@@ -75,12 +77,12 @@ def run(destination):
         assert measure['energy']['exact']=='1' and measure['mean_square']['exact']=='0'
         sampled=run_request({'operation':'signal_measures_window','expression':'1+i*n','domain':'discrete','start':'-1','stop':'2'})
         assert sampled['energy']==10 and len(sampled['samples'])==4
-        measure_item=next(item for item in MENUS['Señales'] if item[1]=='expression_measures' and item[2]=='global')
+        measure_item=ROUTES['expression_measures','global']
         window.open_tool(measure_item);app.processEvents()
         assert window.pages[tuple(measure_item)].panel.expression.text()=='exp(-abs(t))'
         report['checks']['packaged_symbolic_measures_and_window'] = True
         report['checks']['expression_measure_menu'] = True
-        window.project.dirty=False;window.close()
+        window.hide();window.deleteLater()
         report["versions"] = {"numpy": np.__version__, "scipy": scipy.__version__,
                               "sympy": sympy.__version__, "matplotlib": matplotlib.__version__}
         report["ok"] = True

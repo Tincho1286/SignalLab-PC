@@ -1,4 +1,5 @@
 """Herramientas generales de diseño y análisis para Sistemas y Señales."""
+import math
 import numpy as np
 from scipy import signal as sp
 from .model import Signal
@@ -251,17 +252,36 @@ def convert_system(system,period,method):
     return bundle('Conversión de sistemas\n\n'+note+'\nT: '+str(period)+' s',systems=[result])
 
 def normalize_gain(system,omega,target):
-    if target<=0:raise ValueError('El módulo objetivo debe ser positivo.')
+    target=float(target)
+    if not math.isfinite(target) or target<=0:raise ValueError('El módulo objetivo debe ser positivo y finito.')
     value=system.response(np.array([omega]))[0];magnitude=abs(value)
     if not np.isfinite(magnitude) or magnitude==0:raise ValueError('No se puede normalizar sobre un cero o un punto singular.')
+    target_mantissa,target_exponent=math.frexp(target)
+    source_mantissa,source_exponent=math.frexp(magnitude)
+    mantissa=target_mantissa/source_mantissa
+    exponent=target_exponent-source_exponent
+
+    def rescale(values):
+        base,power=np.frexp(values)
+        with np.errstate(over='ignore',under='ignore'):
+            output=np.ldexp(base*mantissa,power+exponent)
+        if not np.isfinite(output).all() or np.any((values!=0)&(output==0)):
+            raise ValueError('Los coeficientes normalizados exceden el rango representable.')
+        return output
+
     if system.sos is not None:
-        sections=system.sos.copy();sections[0,:3]*=target/magnitude
+        sections=system.sos.copy();sections[0,:3]=rescale(sections[0,:3])
         result=Transfer.from_sos(sections,'Sistema normalizado',sample_period_s=system.sample_period_s)
-    else:result=Transfer(system.b*(target/magnitude),system.a,system.domain,'Sistema normalizado',advance=system.advance,sample_period_s=system.sample_period_s)
+    else:
+        numerator=rescale(system.b.real)+1j*rescale(system.b.imag)
+        result=Transfer(numerator,system.a,system.domain,'Sistema normalizado',advance=system.advance,sample_period_s=system.sample_period_s)
     result.advance=system.advance
     from copy import deepcopy
     result.roc=deepcopy(system.roc)
-    return bundle(f'Normalización de ganancia\n\nFrecuencia angular: {omega:g}\nMódulo previo: {magnitude:.12g}\nMódulo objetivo: {target:g}\nFactor aplicado: {target/magnitude:.12g}\n\nSe modifica sólo la ganancia; la fase y las posiciones de polos y ceros se conservan.',systems=[result])
+    try:factor=f'{math.ldexp(mantissa,exponent):.12g}'
+    except OverflowError:factor=f'{mantissa:.12g} × 2^{exponent}'
+    if factor=='0':factor=f'{mantissa:.12g} × 2^{exponent}'
+    return bundle(f'Normalización de ganancia\n\nFrecuencia angular: {omega:g}\nMódulo previo: {magnitude:.12g}\nMódulo objetivo: {target:g}\nFactor aplicado: {factor}\n\nSe modifica sólo la ganancia; la fase y las posiciones de polos y ceros se conservan.',systems=[result])
 
 def phase_structure(system):
     from .phase_adjustment import factor_phase
@@ -272,7 +292,9 @@ def inverse_z_contour(system,mode,radius,start,count,points):
     if system.domain!='digital':raise ValueError('Se requiere una transferencia discreta.')
     if count<1 or points<2*count:raise ValueError('Usá N≥1 y al menos 2N puntos de contorno.')
     ensure_working_set(int(points+count),live_arrays=14)
-    zeros,poles=system.poles_zeros();radii=abs(poles)
+    from .transfer_plane import effective_plane_system,evaluate_plane,plane_poles
+    system=effective_plane_system(system)
+    radii=abs(plane_poles(system))
     if mode=='causal':radius=max(1.,float(np.max(radii)) if radii.size else 0)*1.2
     elif mode=='anticausal':
         if not radii.size or np.any(radii==0):raise ValueError('No hay un disco interior no nulo compatible; revisá polos en cero y términos de avance/retardo.')
@@ -280,10 +302,11 @@ def inverse_z_contour(system,mode,radius,start,count,points):
     elif mode=='stable':radius=1.
     if radius<=0 or not np.isfinite(radius):raise ValueError('El radio debe ser positivo y finito.')
     if np.any(np.isclose(radii,radius,rtol=1e-9,atol=1e-12)):raise ValueError('El contorno coincide con un polo; elegí un radio dentro de una ROC abierta.')
-    if max(abs(start),abs(start+count-1))>=points//2:raise ValueError('Aumentá los puntos de contorno para que |n| sea menor que la mitad de ellos.')
-    theta=2*np.pi*np.arange(points)/points;q=np.exp(-1j*theta)/radius
-    h=np.polyval(system.b[::-1],q)/np.polyval(system.a[::-1],q)
-    if system.advance:h*=q**(-system.advance)
+    if 2*max(abs(start),abs(start+count-1))>=points:raise ValueError('Aumentá los puntos de contorno para que |n| sea menor que la mitad de ellos.')
+    theta=2*np.pi*np.arange(points)/points
+    h=evaluate_plane(system,radius*np.exp(1j*theta))
+    if not np.isfinite(h).all():
+        raise ValueError('La respuesta sobre el contorno excede el rango numérico o contiene un polo.')
     coeff=np.fft.ifft(h);indices=np.arange(start,start+count)
     with np.errstate(over='ignore',invalid='ignore'):values=coeff[indices%points]*np.power(radius,indices.astype(float))
     if not np.all(np.isfinite(values)):raise ValueError('La aproximación excede el rango numérico; acercá el radio a 1 o acortá el intervalo.')
@@ -294,12 +317,30 @@ def inverse_z_contour(system,mode,radius,start,count,points):
 def band_energy(spectrum,low,high):
     if spectrum.domain!='frequency' or spectrum.units not in ('rad/s','rad/muestra'):raise ValueError('Se requiere un espectro X(ω) en rad/s o rad/muestra, no una densidad ya elevada al cuadrado.')
     if spectrum.metadata.get('distribution') or spectrum.metadata.get('operation') in ('energy_density','spectral_density','welch','periodogram','continuous_fourier_series','discrete_fourier_series'):raise ValueError('Ingresá X(ω), no una densidad espectral.')
+    from .fourier import is_complete_dft
     x=spectrum.axis
-    if spectrum.step<=0 or not x[0]<=low<high<=x[-1]:raise ValueError('La banda debe estar contenida en el eje creciente del espectro.')
-    axis=np.r_[low,x[(x>low)&(x<high)],high];power=np.interp(axis,x,abs(spectrum.values)**2)
-    value=float(np.trapezoid(power,axis)/(2*np.pi));total=float(np.trapezoid(abs(spectrum.values)**2,x)/(2*np.pi))
+    if is_complete_dft(spectrum):
+        from .fourier_phase import bin_frequency
+        count=len(x)
+        expected=bin_frequency(-(count//2),count)
+        if abs(spectrum.origin-expected)<=8*np.finfo(float).eps:
+            x=bin_frequency(np.arange(count)-count//2,count)
+            first,last=-np.pi,np.pi
+        else:
+            first,last=spectrum.origin,spectrum.origin+math.tau
+        if not first<=low<high<=last:
+            raise ValueError('La banda debe quedar dentro de un período de la DFT.')
+        power=abs(spectrum.values/np.sqrt(count))**2
+        value=float(np.sum(power[(x>=low)&(x<high)]))
+        total=float(np.sum(power))
+        rule='Suma |X[k]|²/N sobre los bins de la banda [inicio, fin). El extremo derecho queda disponible para la banda siguiente. La suma sobre el período completo verifica Parseval.'
+    else:
+        if spectrum.step<=0 or not x[0]<=low<high<=x[-1]:raise ValueError('La banda debe estar contenida en el eje creciente del espectro.')
+        axis=np.r_[low,x[(x>low)&(x<high)],high];power=np.interp(axis,x,abs(spectrum.values)**2)
+        value=float(np.trapezoid(power,axis)/(2*np.pi));total=float(np.trapezoid(abs(spectrum.values)**2,x)/(2*np.pi))
+        rule='Integración trapezoidal de una densidad interpolada. La banda es exactamente la indicada. Para un espectro continuo de intervalo finito, la energía sólo es parcial.'
     if not np.isfinite(value) or not np.isfinite(total):raise ValueError('La energía excede el rango numérico.')
-    return bundle(f'Energía espectral por banda\n\nE = (1/(2*pi)) integral |X(ω)|² dω\nBanda: [{low:g}, {high:g}] {spectrum.units}\nEnergía en la banda: {value:.12g}\nEnergía del intervalo disponible: {total:.12g}\n\nIntegración trapezoidal de una densidad interpolada. La banda es exactamente la indicada: no se duplica una banda positiva. Para una señal continua, el intervalo espectral finito sólo aproxima la energía total. Para una secuencia, Parseval integra un período completo de 2π. No usar coeficientes de serie ni PSD de una señal periódica como si fueran un espectro continuo.')
+    return bundle(f'Energía espectral por banda\n\nBanda: [{low:g}, {high:g}] {spectrum.units}\nEnergía en la banda: {value:.12g}\nEnergía del intervalo disponible: {total:.12g}\n\n{rule}')
 
 def periodic_lines(coefficients,period):
     if coefficients.domain!='discrete':raise ValueError('Ingresá los coeficientes c[k] de la serie, con k entero.')
