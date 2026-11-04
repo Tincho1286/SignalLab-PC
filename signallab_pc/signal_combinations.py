@@ -4,15 +4,8 @@ import numpy as np
 from .model import Signal
 from .operations import add_sequences,_finite_output
 from .windowing import validate_discrete_clocks
+from .continuous import interpolate_record
 from .resources import ensure_working_set
-
-
-def _interpolate(source,axis):
-    points=source.axis
-    # Snap only sub-sample roundoff at the endpoints, not exterior intervals.
-    tolerance=min(source.step/4,max(4*math.ulp(float(points[0])),4*math.ulp(float(points[-1]))))
-    adjusted=np.where(np.abs(axis-points[0])<=tolerance,points[0],np.where(np.abs(axis-points[-1])<=tolerance,points[-1],axis))
-    return np.interp(adjusted,points,source.values.real,left=0,right=0)+1j*np.interp(adjusted,points,source.values.imag,left=0,right=0)
 
 
 def sum_signals(x,h):
@@ -41,7 +34,7 @@ def sum_signals(x,h):
     step=span/intervals if intervals else spacing
     # Construct the same uniform axis the returned Signal will expose.
     result=Signal(np.zeros(count),start,step,x.units,'Suma de señales','continuous')
-    values=_interpolate(x,result.axis)+_interpolate(h,result.axis)
+    values=interpolate_record(x,result.axis)+interpolate_record(h,result.axis)
     metadata['scope']='Suma sobre el intervalo completo de ambos registros. Cada parte ordinaria se interpola linealmente y vale cero fuera de sus datos. La rejilla uniforme usa una resolución basada en el menor paso de entrada y ajusta el paso para abarcar ambos extremos. Entre muestras es una aproximación; no equivale a recuperar información que no estaba en las entradas.'
     if x.units=='s':
         metadata['time_start_s']=start;rate=1/step

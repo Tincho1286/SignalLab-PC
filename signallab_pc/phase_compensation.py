@@ -8,6 +8,8 @@ from .jobs import checkpoint
 
 def design_compensator(system,low,high,taps,delay,gain=1.,regularization=1e-4):
     if system.domain!='digital' or np.any(system.b.imag) or np.any(system.a.imag):raise ValueError('El compensador FIR de esta opción requiere un sistema digital con coeficientes reales.')
+    from .system_conditions import require_causal_roc
+    require_causal_roc(system,operation='La compensación FIR requiere un sistema causal.')
     if not np.isfinite([low,high,gain,regularization]).all() or not 0<=low<high<=np.pi:raise ValueError('La banda debe cumplir 0 ≤ Desde < Hasta ≤ pi rad/muestra, con datos finitos.')
     if gain<=0 or regularization<0:raise ValueError('La ganancia objetivo debe ser positiva y la regularización no negativa.')
     if isinstance(taps,bool) or int(taps)!=taps or taps<1 or isinstance(delay,bool) or int(delay)!=delay or delay<0:raise ValueError('Usá una cantidad positiva de coeficientes y un retardo entero no negativo.')

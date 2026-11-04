@@ -168,10 +168,12 @@ class FourierPanel(QWidget):
 
     def psd(self):
         source, rate = self._source(), real_field(self.rate)
-        kwargs = dict(method=["welch", "periodogram", "legacy"][self.estimator.currentIndex()],
-                      segment=integer_field(self.segment), overlap=integer_field(self.overlap),
-                      window=["boxcar", "hann", "hamming", "blackman", "kaiser"][self.window.currentIndex()],
-                      beta=real_field(self.beta), remove_mean=self.demean.isChecked())
+        method=["welch", "periodogram", "legacy"][self.estimator.currentIndex()]
+        window=["boxcar", "hann", "hamming", "blackman", "kaiser"][self.window.currentIndex()]
+        kwargs=dict(method=method,window=window,beta=real_field(self.beta) if window=='kaiser' else 0.,
+                    remove_mean=self.demean.isChecked())
+        if method=='welch':
+            kwargs.update(segment=integer_field(self.segment),overlap=integer_field(self.overlap))
         self._job(lambda: fourier.spectral_density(source, rate, **kwargs))
 
     def compare(self):

@@ -94,3 +94,31 @@ def dft_origin_phase(indices, length, origin):
         cycles = np.fromiter(((int(index)*offset % length)/length for index in indices),
                              dtype=float, count=len(indices))
     return np.exp(-1j*math.tau*cycles)
+
+
+def periodic_phase(origin, size, start, count):
+    """Phase e^(i*origin*n) without converting an absolute index to float."""
+    offset = origin/math.tau
+    cycles = _simple_cycles(origin)
+    if abs(offset*size) < 2**52:
+        nearest_bin = round(offset*size)
+        if bin_frequency(nearest_bin,size)==origin:
+            cycles = Fraction(nearest_bin,size)
+        elif abs(origin-(-math.pi+math.pi/size))<=4*math.ulp(origin):
+            cycles = Fraction(1-size,2*size)
+    if cycles is not None:
+        angle = _angles(count,cycles.numerator*start,cycles.numerator,cycles.denominator,1)
+    else:
+        import mpmath
+
+        context = mpmath.mp.clone()
+        context.dps = 50 + max(0,math.frexp(abs(origin))[1]//3)
+        period = 2*context.pi
+        initial = float(context.fmod(context.mpf(origin)*start,period))
+        increment = float(context.fmod(context.mpf(origin),period))
+        angle = initial+increment*np.arange(count)
+    return np.exp(1j*angle)
+
+
+def periodic_indices(start, count, size):
+    return (np.arange(count,dtype=np.int64)+start%size)%size

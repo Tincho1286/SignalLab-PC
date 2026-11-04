@@ -124,9 +124,19 @@ def ctft(x, start, stop, count):
     return result
 
 
+def is_power_spectrum(source):
+    return source.metadata.get('operation') in {'energy_density','spectral_density','welch','periodogram'}
+
+
+def require_complex_spectrum(source):
+    if is_power_spectrum(source):
+        raise ValueError('La inversa necesita el espectro complejo original X. La densidad espectral conserva el módulo al cuadrado y pierde la fase.')
+
+
 def ictft(spectrum, start, stop, count):
     from .distributions import regular_only
     regular_only(spectrum,'La Fourier inversa numérica de muestras; usá la inversa algebraica para distribuciones')
+    require_complex_spectrum(spectrum)
     if spectrum.domain != "frequency" or spectrum.units != "rad/s" or spectrum.step <= 0:
         raise ValueError("La inversa requiere un espectro con eje uniforme en rad/s y paso positivo.")
     time = grid(start, stop, count)
@@ -236,7 +246,7 @@ def energy_density(spectrum):
     if spectrum.units not in {'rad/s','rad/muestra'}:raise ValueError('Definí el eje del espectro en rad/s o rad/muestra.')
     if spectrum.metadata.get('distribution') or spectrum.metadata.get('operation') in {'continuous_fourier_series','discrete_fourier_series'}:
         raise ValueError('Los coeficientes de serie y los pesos de deltas describen una señal periódica. Usá Potencia periódica y líneas espectrales; no se puede elevar una delta al cuadrado como una muestra ordinaria.')
-    if spectrum.metadata.get('operation') in {'energy_density','spectral_density','welch','periodogram'}:raise ValueError('La entrada ya es una densidad. Cargá una señal o su espectro complejo X.')
+    if is_power_spectrum(spectrum):raise ValueError('La entrada ya es una densidad. Cargá una señal o su espectro complejo X.')
     values = _finite_output(abs(spectrum.values)**2, "La densidad de energía")
     return Signal(values, spectrum.origin, spectrum.step, spectrum.units, "Densidad_energía", "frequency", "",
                   {"operation": "energy_density", "discrete_spectrum": bool(spectrum.metadata.get("discrete_spectrum")) or spectrum.metadata.get("operation") in {"DFT","stft"}, "convention": "|X|²; integral dω/(2π) over shown band is partial energy"})

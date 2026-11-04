@@ -139,7 +139,12 @@ def reconstruct(x, rate, start, factor, method):
         raise ValueError("t0 debe ser finito.")
     if method not in {"zoh", "linear", "sinc"}:
         raise ValueError("Elegí ZOH, lineal o SINC.")
-    interpolated = resample(x, factor, method)
+    from copy import copy
+    # Interpolation is local to the record. Its physical axis is set below.
+    local=copy(x)
+    local.origin=0
+    local.metadata={}
+    interpolated = resample(local, factor, method)
     step = 1 / rate / factor
     end = start + (interpolated.values.size - 1)*step
     if not math.isfinite(end) or step <= 0 or start+step == start or end-step == end:
@@ -185,7 +190,9 @@ def quantize(x, bits, low, high, method="round", align_zero=False, first=0, last
     if align_zero and not low <= 0 <= high:
         raise ValueError("Alinear cero requiere que el rango incluya cero.")
     levels = 1 << bits
-    step = (high-low)/(levels-1)
+    span=high-low
+    wide=not math.isfinite(span)
+    step=high/(levels-1)-low/(levels-1) if wide else span/(levels-1)
     if not math.isfinite(step) or step <= 0:
         raise ValueError("El paso de cuantización queda fuera del rango numérico.")
     kzero = min(levels-1, max(0, math.floor(-low/step + .5))) if align_zero else 0
@@ -196,10 +203,22 @@ def quantize(x, bits, low, high, method="round", align_zero=False, first=0, last
     ensure_working_set(int(x.values.size), live_arrays=14)
     original = x.values.real
     clipped = np.clip(original, low, high)
-    codes = clipped/step+kzero if align_zero else (clipped-low)/step
+    if align_zero:
+        codes=clipped/step+kzero
+    elif wide:
+        scale=max(-low,high)
+        codes=(clipped/scale-low/scale)/(step/scale)
+    else:
+        codes=(clipped-low)/step
     codes = np.floor(codes+.5) if method == "round" else np.floor(codes)
     codes = np.clip(codes, 0, levels-1)
-    values = (codes-kzero)*step if align_zero else low+codes*step
+    if align_zero:
+        values=(codes-kzero)*step
+    elif wide:
+        fraction=codes/(levels-1)
+        values=(1-fraction)*low+fraction*high
+    else:
+        values=low+codes*step
     error = _finite_output(values-original, "El error de cuantización")
     last = x.values.size-1 if last is None else last
     if any(isinstance(v, bool) or not isinstance(v, (int, np.integer)) for v in (first, last)) or not 0 <= first <= last < x.values.size:

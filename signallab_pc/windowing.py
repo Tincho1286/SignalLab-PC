@@ -43,9 +43,8 @@ def multiply_signals(x,w):
         regular_only(x,'El producto de muestras');regular_only(w,'El producto de muestras')
         if x.step<=0 or w.step<=0:raise ValueError('Los registros continuos deben tener un paso positivo.')
         if x.units!=w.units:raise ValueError('Los ejes temporales deben usar las mismas unidades.')
-        axis=x.axis;other=w.axis
-        sampled=np.interp(axis,other,w.values.real,left=0,right=0)+1j*np.interp(axis,other,w.values.imag,left=0,right=0)
-        values=x.values*sampled
+        from .continuous import interpolate_record
+        values=x.values*interpolate_record(w,x.axis)
         scope='Producto evaluado en los instantes de la primera señal. La segunda se interpola linealmente y vale cero fuera de su intervalo. El registro resultante aproxima el producto continuo entre sus muestras.'
     metadata={k:x.metadata[k] for k in ('sample_rate_hz','time_start_s') if k in x.metadata}
     metadata.update(operation='signal_product',input_names=[x.name,w.name],input_x_expression=x.expression,input_w_expression=w.expression,scope=scope,second_origin=w.origin,second_step=w.step)

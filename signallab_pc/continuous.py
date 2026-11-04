@@ -1,4 +1,6 @@
 """Operaciones sobre registros continuos interpolados linealmente y nulos fuera."""
+import math
+
 import numpy as np
 from scipy.signal import convolve
 from .model import Signal
@@ -11,6 +13,14 @@ def _validate(x):
     if x.domain!='continuous' or x.step<=0 or x.values.size<2:
         raise ValueError('Se requiere un registro continuo con al menos dos puntos y paso positivo.')
     if x.units!='s':raise ValueError('El eje temporal debe estar expresado en segundos.')
+
+
+def interpolate_record(source,axis):
+    points=source.axis
+    # Snap only sub-sample roundoff at the endpoints, not exterior intervals.
+    tolerance=min(source.step/4,max(4*math.ulp(float(points[0])),4*math.ulp(float(points[-1]))))
+    adjusted=np.where(np.abs(axis-points[0])<=tolerance,points[0],np.where(np.abs(axis-points[-1])<=tolerance,points[-1],axis))
+    return np.interp(adjusted,points,source.values.real,left=0,right=0)+1j*np.interp(adjusted,points,source.values.imag,left=0,right=0)
 
 
 def convolution(x,h):

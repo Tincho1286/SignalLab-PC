@@ -39,6 +39,9 @@ from .signal_plot import plot_samples
 from .signal_plot import configure_signal_axis, is_discrete_plot, validate_overlay
 
 def signal_destinations(value,items):
+    from .fourier import is_power_spectrum
+    if is_power_spectrum(value):
+        items=[item for item in items if item[1:3] not in (('inverse_dtft',0),('fourier',3))]
     return [item for item in items if (item[1:3]==('basic','idft') and ops.is_centered_dft(value)) or (item[1:3]==('transform_lab','z') and value.domain=='discrete') or (item[1]=='basic' and item[2] in ('generate','measures') and value.domain in {'continuous','discrete'}) or (item[1]=='dsp_extensions' and item[2] in ('hilbert','stft') and value.domain in {'continuous','discrete'}) or (item[1]=='frequency_filter' and value.domain in {'discrete','continuous','frequency'} and (value.domain!='frequency' or value.units in {'rad/s','rad/muestra'})) or item[3] in ({'discrete','pair'} if value.domain=='discrete' else {'continuous','continuous_pair'} if value.domain=='continuous' else set()) or (item[1]=='systems' and item[2]==9 and value.domain in {'discrete','continuous'}) or (item[1]=='course_tools' and item[2]=='band' and value.domain=='frequency' and value.units in {'rad/s','rad/muestra'}) or (item[1]=='correlation' and value.domain==('continuous' if item[2] else 'discrete')) or (item[1]=='signal_editor' and value.domain in {'discrete','continuous'}) or (item[1]=='rational_resampling' and value.domain=='discrete') or (item[1:3]==('sampling',5) and value.domain=='discrete') or (item[1:3]==('fourier',6) and value.domain in {'discrete','continuous','frequency'}) or (item[1]=='fourier' and item[2] in (3,6) and value.domain=='frequency' and (item[2]!=3 or value.units=='rad/s')) or (item[1]=='inverse_dtft' and value.domain=='frequency' and value.units=='rad/muestra') or ((item[1]=='signal_product' or item[1:3]==('basic','sum')) and value.domain in {'discrete','continuous'}) or (item[1:3]==('state_space','simulation') and value.domain in {'discrete','continuous'})]
 
 def system_destinations(value,items):
@@ -703,6 +706,17 @@ class ToolPage(QWidget):
         if kind=='fourier' and index==7:
             from .input_clock import bind_clock
             form.insertRow(0,bind_clock(source,self.panel.rate))
+            def update_psd_fields(*_):
+                welch=self.panel.estimator.currentIndex()==0
+                for field in (self.panel.segment,self.panel.overlap):
+                    form.setRowVisible(field,welch)
+                    field.setProperty('calculationInput',welch)
+                kaiser=self.panel.window.currentIndex()==4
+                form.setRowVisible(self.panel.beta,kaiser)
+                self.panel.beta.setProperty('calculationInput',kaiser)
+            self.panel.estimator.currentIndexChanged.connect(update_psd_fields)
+            self.panel.window.currentIndexChanged.connect(update_psd_fields)
+            update_psd_fields()
         from .result_state import ResultState
         source_widgets=set(source.findChildren(QWidget)) if source is not None else set()
         tracked=[]
@@ -937,6 +951,10 @@ class ToolboxWindow(SignalLabWindow):
             if key is None:key=self.publish(value,operation='Resultado enviado a densidad de energía')
             self.stack.currentWidget().panel.receive(self.project.get(key),key)
             self.statusBar().showMessage('Entrada cargada en Densidad de energía.')
+            return
+        if item[1]=='signal_editor':
+            if key is None:key=self.publish(value,operation='Resultado enviado al editor de muestras')
+            self.stack.currentWidget().panel.receive(self.project.get(key),key)
             return
         if item[1]=='frequency_filter':
             panel=self.stack.currentWidget().panel

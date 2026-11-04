@@ -5,38 +5,8 @@ import numpy as np
 
 from .model import Signal
 from .fourier import ctft,_sum
+from .fourier_phase import periodic_indices,periodic_phase
 from .resources import ensure_working_set
-
-
-def _periodic_phase(origin, size, start, count):
-    """Phase e^(i*origin*n) without converting an absolute index to float."""
-    from fractions import Fraction
-    from .fourier_phase import _angles, _simple_cycles, bin_frequency
-
-    offset = origin/math.tau
-    cycles = _simple_cycles(origin)
-    if abs(offset*size) < 2**52:
-        nearest_bin = round(offset*size)
-        if bin_frequency(nearest_bin,size)==origin:
-            cycles = Fraction(nearest_bin,size)
-        elif abs(origin-(-math.pi+math.pi/size))<=4*math.ulp(origin):
-            cycles = Fraction(1-size,2*size)
-    if cycles is not None:
-        angle = _angles(count,cycles.numerator*start,cycles.numerator,cycles.denominator,1)
-    else:
-        import mpmath
-
-        context = mpmath.mp.clone()
-        context.dps = 50 + max(0,math.frexp(abs(origin))[1]//3)
-        period = 2*context.pi
-        initial = float(context.fmod(context.mpf(origin)*start,period))
-        increment = float(context.fmod(context.mpf(origin),period))
-        angle = initial+increment*np.arange(count)
-    return np.exp(1j*angle)
-
-
-def _periodic_indices(start, count, size):
-    return (np.arange(count,dtype=np.int64)+start%size)%size
 
 
 def analyze(response,domain,start,count,step,source=None):
@@ -76,17 +46,17 @@ def analyze(response,domain,start,count,step,source=None):
                 values=values[:-1].copy()
                 values[0]=.5*values[0]+.5*last
             coefficients=np.fft.ifft(values)
-            phase=_periodic_phase(response.origin,independent,first,length)
-            return coefficients[_periodic_indices(first,length,independent)]*phase
+            phase=periodic_phase(response.origin,independent,first,length)
+            return coefficients[periodic_indices(first,length,independent)]*phase
 
         impulse=inverse(response.values,start,count)
         approximation='periodic inverse Fourier'
         if source is not None:
             samples=source.values.size
             ensure_working_set(samples+size,live_arrays=12)
-            phase=_periodic_phase(response.origin,independent,int(source.origin),samples)
+            phase=periodic_phase(response.origin,independent,int(source.origin),samples)
             folded=np.zeros(independent,dtype=complex)
-            np.add.at(folded,_periodic_indices(int(source.origin),samples,independent),source.values*phase.conj())
+            np.add.at(folded,periodic_indices(int(source.origin),samples,independent),source.values*phase.conj())
             spectrum=np.fft.fft(folded)
             if closed:spectrum=np.r_[spectrum,spectrum[0]]
             x=Signal(spectrum,response.origin,response.step,unit,'DTFT_'+source.name,'frequency',

@@ -2,6 +2,15 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.5**.
 
+## 1.6.7 · preliminar
+
+- Fase precisa en la DTFT inversa y validación de las entradas de Fourier inversa.
+- Extremos del producto continuo, carga en el editor y campos del periodograma según el método.
+- Validación de la ROC para compensación FIR y reloj en convolución por bloques.
+- Escalado seguro en Hilbert, cuantización de rangos amplios y reconstrucción con eje físico independiente.
+
+[Notas de la entrega](docs/releases/v1.6.7-preview.md)
+
 ## 1.6.6 · preliminar
 
 - Selección correcta de la entrada reutilizada en Densidad de energía y conservación del reloj en convolución, PSD y edición de ejes.

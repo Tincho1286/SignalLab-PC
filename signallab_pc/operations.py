@@ -150,9 +150,8 @@ def even_odd_parts(x: Signal) -> tuple[Signal, Signal]:
     )
 
 
-def linear_convolution(x: Signal, h: Signal) -> Signal:
-    """Convolución lineal completa y[n]=sum x[k]h[n-k], incluidos índices negativos."""
-    _discrete(x); _discrete(h)
+def convolution_clock(x,h):
+    """Share the physical output clock across linear-convolution algorithms."""
     clock = {}
     left_rate = x.metadata.get('sample_rate_hz')
     right_rate = h.metadata.get('sample_rate_hz')
@@ -168,6 +167,13 @@ def linear_convolution(x: Signal, h: Signal) -> Signal:
             if not np.isfinite(start_s):
                 raise ValueError('El instante inicial de la convolución excede el rango numérico.')
             clock.update(time_start_s=start_s,time_mapping='t = time_start_s + (n-origin)/sample_rate_hz')
+    return clock
+
+
+def linear_convolution(x: Signal, h: Signal) -> Signal:
+    """Convolución lineal completa y[n]=sum x[k]h[n-k], incluidos índices negativos."""
+    _discrete(x); _discrete(h)
+    clock = convolution_clock(x,h)
     count = x.values.size + h.values.size - 1
     ensure_working_set(count, live_arrays=7)
     y = scipy_signal.convolve(x.values, h.values, mode="full", method="auto")
