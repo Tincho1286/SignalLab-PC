@@ -356,4 +356,46 @@ class WorkflowContracts(unittest.TestCase):
         assert_allclose(signal.values, [0,0,1,.5,1/3])
 
 
+    def test_fir_window_switch_ignores_hidden_manual_length(self):
+        from signallab_pc.course_tools_panel import CourseToolsPanel
+        panel=CourseToolsPanel(self.host,'fir');self.widgets.append(panel)
+        panel.show();self.app.processEvents()
+        self.assertTrue(panel.form.isRowVisible(panel.fields['taps']))
+        self.assertTrue(panel.form.isRowVisible(panel.fields['search']))
+        panel.fields['taps'].setText('entrada manual inválida')
+        panel.fields['search'].setText('entrada manual inválida')
+        panel.fields['window'].setCurrentIndex(panel.fields['window'].findData('hamming'))
+        self.assertFalse(panel.form.isRowVisible(panel.fields['taps']))
+        self.assertFalse(panel.form.isRowVisible(panel.fields['search']))
+        panel.calculate_button.click()
+        self.assertEqual(self.warnings,[])
+        self.assertEqual(sum(isinstance(item,Transfer) for item in panel.items),1)
+        self.assertIn('Búsqueda automática',panel.report.toPlainText())
+
+
+    def test_vertical_range_keeps_db_samples_and_frequency_zoom(self):
+        from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+        from matplotlib.figure import Figure
+        from signallab_pc.plot_limits_dialog import VerticalRangeDialog
+        from signallab_pc.plot_scale import apply_stable_scale
+        figure=Figure();canvas=FigureCanvasQTAgg(figure);self.widgets.append(canvas)
+        axis=figure.add_subplot(211);axis.set_ylabel('Módulo (dB)')
+        frequencies=np.linspace(0,np.pi,401)
+        values=np.where(frequencies<.3*np.pi,0.,-48.-8*np.sin(20*frequencies)**2)
+        values[-1]=-400.
+        line=axis.plot(frequencies,values)[0];axis.set_xlim(.1,3.1)
+        phase=figure.add_subplot(212);phase.set_ylabel('Fase (rad)');phase.plot(frequencies,-frequencies)
+        original_phase=phase.get_ylim();original_x=axis.get_xlim()
+        self.assertEqual(apply_stable_scale(figure),[axis]);self.assertGreater(axis.get_ylim()[0],-100)
+        dialog=VerticalRangeDialog(canvas);self.widgets.append(dialog)
+        dialog.mode.setCurrentIndex(dialog.mode.findData('full'));dialog.apply()
+        apply_stable_scale(figure);self.assertLessEqual(axis.get_ylim()[0],-400)
+        dialog=VerticalRangeDialog(canvas);self.widgets.append(dialog)
+        dialog.mode.setCurrentIndex(dialog.mode.findData('manual'))
+        dialog.minimum.setText('-70');dialog.maximum.setText('2');dialog.apply()
+        apply_stable_scale(figure);self.assertEqual(axis.get_ylim(),(-70.,2.))
+        self.assertEqual(axis.get_xlim(),original_x);self.assertEqual(phase.get_ylim(),original_phase)
+        assert_allclose(line.get_ydata(),values)
+
+
 if __name__=='__main__':unittest.main()

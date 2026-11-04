@@ -32,7 +32,13 @@ def analyze(response,domain,start,count,step,source=None):
         x=(dtft if domain=='discrete' else ctft)(source,float(w[0]),float(w[-1]),len(w))
         y=x.copy_with(values=x.values*response.values,name='Espectro de salida Y = H·X')
         y.metadata={**x.metadata,'filter_expression':response.expression,'filter_model':'frequency_response'}
-        output=Signal(inverse(y.values,source.axis),source.origin,source.step,source.units,'Salida filtrada y',domain,'',{'operation':'frequency_filter_output','filter_expression':response.expression,'approximation':'finite-grid inverse Fourier','frequency_start':float(w[0]),'frequency_stop':float(w[-1]),'frequency_points':len(w)})
+        clock = {key:source.metadata[key] for key in ('sample_rate_hz','time_start_s','time_mapping')
+                 if key in source.metadata}
+        metadata = {**clock, 'operation':'frequency_filter_output', 'filter_expression':response.expression,
+                    'approximation':'finite-grid inverse Fourier', 'frequency_start':float(w[0]),
+                    'frequency_stop':float(w[-1]), 'frequency_points':len(w)}
+        output = source.copy_with(values=inverse(y.values,source.axis), name='Salida filtrada y',
+                                  expression='', metadata=metadata)
         outputs.extend([x,y,output])
     report='Filtro definido en frecuencia\n\nH(ω) indica cuánto amplifica y retrasa cada componente sinusoidal. La definición puede tener tramos y valores complejos.\n\nY(ω) = H(ω) X(ω)\n\nLa respuesta al impulso y la salida se calculan por integración numérica (regla del trapecio). Aumentá la cantidad de frecuencias para estudiar la convergencia cerca de discontinuidades. No se ajusta un FIR ni un IIR.\n\nUn filtro ideal con corte abrupto puede tener respuesta infinita en el tiempo y no ser causal. El tramo de h mostrado no es toda la respuesta ni un FIR equivalente. La salida se muestra sobre el mismo intervalo de la entrada; no representa su cola completa.\n\n'+('En discreto se integra un período de −π a π. Una rejilla finita produce repetición numérica en el tiempo; ampliá su resolución para separar las réplicas del intervalo que estudiás.' if domain=='discrete' else 'En continuo se integra sólo la banda de frecuencias indicada. La energía fuera de esa banda se omite: un pasaaltos ideal requiere una banda cada vez más amplia para aproximar su efecto. El impulso de Dirac de una ganancia constante no se representa exactamente mediante esta cuadratura.')+'\n\nExportar H conserva sus muestras y su fórmula. Se puede volver a cargar en esta herramienta. Los menús que requieren coeficientes b/a describen otro tipo de representación.'
     if midpoint:report=report.replace('regla del trapecio','regla del punto medio sobre un período completo; no evalúa ±π')

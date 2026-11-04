@@ -62,6 +62,13 @@ def install_enlarge(toolbar):
     detail=QAction('Detalle vertical',toolbar);detail.setCheckable(True);detail.setChecked(bool(getattr(canvas.figure,'_signallab_detail_vertical',False)))
     detail.setToolTip('Ajustar la escala a los valores originales, incluso variaciones muy pequeñas. Desactivado evita amplificar variaciones menores que 10⁻¹⁰ de la referencia visual (al menos 1). No se redondean ni se borran datos. El zoom manual sigue disponible.')
     toolbar.addSeparator();toolbar.addAction(detail);canvas._signallab_detail_action=detail
+    vertical_range = QAction('Escala vertical…',toolbar)
+    vertical_range.setToolTip('Elegí un panel y ajustá su rango vertical automático, completo o manual.')
+    def choose_vertical_range():
+        from .plot_limits_dialog import VerticalRangeDialog
+        VerticalRangeDialog(canvas,window).exec()
+    vertical_range.triggered.connect(choose_vertical_range)
+    toolbar.addAction(vertical_range)
     scale_note=QLabel();scale_note.setWordWrap(True);scale_note.setStyleSheet('color:'+C['muted']+';font-size:9pt;');scale_note.hide();content.addWidget(scale_note);canvas._signallab_scale_note=scale_note
     def vertical_detail(enabled):
         from .plot_scale import set_vertical_detail
@@ -159,7 +166,10 @@ def install_figure_layout(canvas):
         protected=prepare_figure(canvas.figure)
         note=getattr(canvas,'_signallab_scale_note',None)
         if note is not None:
-            note.setText('Escala estable en '+str(len(protected))+' panel(es). Los valores se conservan. Activá «Detalle vertical» para ver sus pequeñas variaciones.' if protected else '')
+            if any(getattr(axis,'_signallab_db_focused',False) for axis in protected):
+                note.setText('Vista en dB enfocada en el paso y los lóbulos. Para ver los nulos profundos, elegí «Escala vertical» y «Rango completo».')
+            else:
+                note.setText('Escala estable en '+str(len(protected))+' panel(es). Activá «Detalle vertical» para ver pequeñas variaciones.' if protected else '')
             note.setVisible(bool(protected))
         return original_draw(*args,**kwargs)
     def print_figure(*args,**kwargs):

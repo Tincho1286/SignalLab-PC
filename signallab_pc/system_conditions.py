@@ -2,7 +2,7 @@
 import numpy as np
 
 
-def require_causal_roc(system):
+def require_causal_roc(system, *, operation='Esta simulación parte de condiciones iniciales causales.'):
     """Protect initial-value simulations from an incompatible explicit ROC."""
     if system.roc is None or system.roc['mode'] == 'right':
         return
@@ -10,8 +10,7 @@ def require_causal_roc(system):
     if not np.isposinf(convergence(system)['outer']):
         inverse = 'Transformada Z inversa' if system.domain == 'digital' else 'Laplace inversa bilateral'
         raise ValueError('La ROC del sistema incluye una cola anticausal. '
-                         'Esta simulación parte de condiciones iniciales causales. '
-                         'Para obtener h con la ROC seleccionada, usá ' + inverse + '.')
+                         + operation + ' Para obtener h con la ROC seleccionada, usá ' + inverse + '.')
 
 
 def record(system):

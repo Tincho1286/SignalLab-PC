@@ -66,7 +66,9 @@ def design_filter(wp,ws,dp,ds,method,period=1,taps=0,window="kaiser",search=0):
         estimated,beta=sp.kaiserord(attenuation,width/np.pi)
         if window not in {'boxcar','hann','hamming','blackman','kaiser','bartlett'}:raise ValueError('Ventana no admitida.')
         if search<0:raise ValueError('La cota de búsqueda debe ser no negativa.')
-        if window!='kaiser' and not taps and not search:raise ValueError('Para esta ventana indicá longitud o una cota de búsqueda; la estimación automática corresponde a Kaiser.')
+        if window!='kaiser' and not taps and not search:
+            from .amplitude_design import design
+            return design(wp, ws, dp, ds, method, period, window=window)
         chosen_window=('kaiser',beta) if window=='kaiser' else window
         if taps<0:raise ValueError('La longitud debe ser no negativa.')
         count=int(taps) if taps else int(estimated)

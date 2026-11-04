@@ -46,12 +46,65 @@ def _restore(axis):
     axis._signallab_stable_y=None
 
 
+def _db_limits(siblings, low, high):
+    labels = [_text(axis) for axis in siblings]
+    if not all('db' in label and any(word in label for word in ('modulo','magnitud','amplitud')) for label in labels):
+        return None
+    tails, peaks, references = [], [], []
+    for axis in siblings:
+        reference = getattr(axis,'_signallab_db_reference',None)
+        if reference is not None and np.isfinite(reference):
+            references.append(reference)
+        for line in axis.lines:
+            if not line.get_visible() or line.get_transform()!=axis.transData or getattr(line,'_signallab_probe',False):
+                continue
+            values = np.ma.asarray(line.get_ydata(orig=False),dtype=float).compressed()
+            values = values[np.isfinite(values)]
+            if values.size:
+                tails.append(float(np.quantile(values,.05)))
+                peaks.append(float(np.max(values)))
+    if not tails:
+        return None
+    floor = min(high-55., max(high-100., min(tails)-6.), min(peaks)-10.)
+    if references:
+        floor = min(floor,min(references)-12.)
+    if floor-low < 12.:
+        return None
+    return floor, high+max(3.,.04*(high-floor))
+
+
+def vertical_axes(figure):
+    return [axis for axis in figure.axes if axis.get_visible() and axis.axison
+            and axis.name=='rectilinear' and axis.get_aspect()=='auto'
+            and getattr(axis,'_colorbar',None) is None]
+
+
+def set_vertical_range(axis, mode, bounds=None):
+    """Select an axis policy while leaving samples and x limits intact."""
+    if mode not in ('auto','full','manual'):
+        raise ValueError('Modo de escala vertical inválido.')
+    if mode == 'manual':
+        if bounds is None or not all(math.isfinite(v) for v in bounds) or bounds[0]>=bounds[1]:
+            raise ValueError('Ingresá límites finitos y crecientes.')
+        if axis.get_yscale()=='log' and bounds[0]<=0:
+            raise ValueError('En escala logarítmica ambos límites deben ser positivos.')
+    for sibling in axis.get_shared_y_axes().get_siblings(axis):
+        sibling._signallab_y_mode = mode
+        sibling._signallab_stable_y = None
+        sibling._signallab_db_focused = False
+    if mode == 'manual':
+        axis.set_ylim(*bounds,auto=False)
+    else:
+        axis.set_autoscaley_on(True)
+        axis.autoscale_view(scalex=False,scaley=True)
+
+
 def apply_stable_scale(figure):
     """Return protected axes; never modify artists or explicit/manual limits."""
+    for axis in figure.axes:
+        axis._signallab_db_focused = False
     ranges={axis:_range(axis) for axis in figure.axes if _eligible(axis)}
-    if getattr(figure,'_signallab_detail_vertical',False):
-        for axis in figure.axes:_restore(axis)
-        return []
+    global_detail = getattr(figure,'_signallab_detail_vertical',False)
     component_reference=max([1.]+[max(abs(bounds[0]),abs(bounds[1])) for axis,bounds in ranges.items() if bounds and any(label in _text(axis) for label in ('parte real','parte imaginaria'))])
     protected=[];handled=set()
     for axis in figure.axes:
@@ -62,11 +115,22 @@ def apply_stable_scale(figure):
         if any(sibling not in ranges or not sibling.get_autoscaley_on() for sibling in siblings):
             for sibling in siblings:sibling._signallab_stable_y=None
             continue
+        if any(getattr(sibling,'_signallab_y_mode','full' if global_detail else 'auto')=='full' for sibling in siblings):
+            for sibling in siblings:_restore(sibling)
+            continue
         available=[ranges[sibling] for sibling in siblings if ranges[sibling] is not None]
         if not available:
             for sibling in siblings:_restore(sibling)
             continue
         low=min(bounds[0] for bounds in available);high=max(bounds[1] for bounds in available);peak=max(abs(low),abs(high))
+        focused = _db_limits(siblings,low,high)
+        if focused is not None:
+            axis.set_ylim(*focused,auto=None)
+            for sibling in siblings:
+                sibling._signallab_stable_y = tuple(sibling.get_ylim())
+                sibling._signallab_db_focused = True
+                protected.append(sibling)
+            continue
         reference=max(1.,peak,component_reference if any(any(label in _text(sibling) for label in ('parte real','parte imaginaria')) for sibling in siblings) else 1.)
         threshold=SMALL_VARIATION*reference
         if peak<=threshold:
@@ -93,5 +157,6 @@ def set_vertical_detail(figure,enabled):
     # This explicit action adjusts y only; the user's frequency/time zoom
     # and every underlying sample, coefficient and distribution stay intact.
     for axis in figure.axes:
-        if _eligible(axis):
+        if _eligible(axis) and getattr(axis,'_signallab_y_mode','auto')!='manual':
+            axis._signallab_y_mode = 'full' if enabled else 'auto'
             axis._signallab_stable_y=None;axis.set_autoscaley_on(True);axis.autoscale_view(scalex=False,scaley=True)

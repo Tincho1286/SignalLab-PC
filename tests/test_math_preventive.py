@@ -282,4 +282,63 @@ class PreventiveContracts(unittest.TestCase):
         assert_allclose(data.values[0],expected,atol=2e-15)
 
 
+    def test_causal_state_realization_respects_an_explicit_roc(self):
+        from signallab_pc.state_space import StateModel
+        from signallab_pc.realization import realize_system
+        for system in (Transfer([1],[1,-2],roc={'mode':'left'},sample_period_s=.125),
+                       Transfer([1],[1,-1],'analog',roc={'mode':'line','sigma':0.})):
+            with self.assertRaisesRegex(ValueError,'ROC.*anticausal'):
+                StateModel.from_transfer(system)
+            with self.assertRaisesRegex(ValueError,'ROC.*anticausal'):
+                realize_system(system)
+        causal=Transfer([1],[1,-2],roc={'mode':'radius','radius':3.},sample_period_s=.125)
+        model=StateModel.from_transfer(causal)
+        self.assertEqual(model.to_transfer().roc,{'mode':'right'})
+        assert_allclose(model.simulate([1,0,0,0])[1][:,0],[1,2,4,8])
+
+    def test_state_frequency_resolves_singularities_per_channel(self):
+        from signallab_pc.state_space import StateModel
+        # This triangular basis hides the diagonal input-output transfer.
+        A=[[0,-1],[0,-1]];B=[[1,1],[0,1]];C=[[1,-1],[0,1]];D=[[0,0],[0,0]]
+        model=StateModel(A,B,C,D)
+        response=model.response([0.,.5])
+        self.assertTrue(np.isnan(response[0,0,0]))
+        assert_allclose([response[0,0,1],response[0,1,0],response[0,1,1]],[0,0,1])
+        assert_allclose(response[1],np.diag([-2j,1/(1+.5j)]),atol=2e-15)
+        digital=StateModel([[-1,0],[0,.5]],np.eye(2),np.eye(2),D,.125)
+        response=digital.response([np.pi],normalized=True)[0]
+        self.assertTrue(np.isnan(response[0,0]))
+        assert_allclose([response[0,1],response[1,0],response[1,1]],[0,0,-2/3])
+
+    def test_frequency_filter_output_preserves_clock_for_resampling(self):
+        from signallab_pc.frequency_filter import analyze
+        from signallab_pc.model import Signal
+        from signallab_pc.sampling import resample_rational
+        source=Signal([1,2,3],5,metadata={'sample_rate_hz':8000.,'time_start_s':.25})
+        response=Signal(np.ones(129),-np.pi,np.pi/64,'rad/muestra','H','frequency')
+        output=analyze(response,'discrete',-4,9,1,source)[0][-1]
+        assert_allclose(output.values,source.values,atol=2e-14)
+        self.assertEqual(output.origin,5)
+        reused=resample_rational(output,2,1)
+        self.assertEqual(reused.metadata['sample_rate_hz'],16000.)
+        self.assertEqual(reused.metadata['time_start_s'],.25)
+
+    def test_nonkaiser_fir_search_starts_at_the_smallest_valid_length(self):
+        from scipy.signal import firwin, freqz
+        from signallab_pc.amplitude_design import design
+        wp=.3*np.pi;ws=.5*np.pi
+        result=design([wp],[ws],.05,.01,'kaiser',taps=200,search=2,window='hamming')
+        b=result['systems'][0].b
+        self.assertTrue(result['specification_met'])
+        self.assertEqual(len(b),31)
+        w=np.unique(np.r_[np.linspace(0,np.pi,4097),wp,ws])
+        for length in range(2,len(b)):
+            trial=firwin(length,(wp+ws)/2,window='hamming',fs=2*np.pi,scale=False)
+            h=abs(freqz(trial,worN=w)[1]);passing=h[w<=wp]
+            self.assertTrue(np.min(passing)<.95 or np.max(passing)>1.05 or np.max(h[w>=ws])>.01)
+        high=design([.7*np.pi],[.4*np.pi],.05,.04,'kaiser',window='hann')
+        self.assertTrue(high['specification_met'])
+        self.assertEqual(len(high['systems'][0].b)%2,1)
+
+
 if __name__=='__main__':unittest.main()

@@ -2,6 +2,15 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.0**.
 
+## 1.6.3 · preliminar
+
+- Longitud FIR automática para ventanas distintas de Kaiser en el diseño por bandas.
+- Cálculo FIR más rápido y escala vertical ajustable por panel en los gráficos.
+- Validación de la ROC al convertir a espacio de estados y límites de frecuencia por canal.
+- Reloj conservado al reutilizar la salida del filtrado en frecuencia.
+
+[Notas de la entrega](docs/releases/v1.6.3-preview.md)
+
 ## 1.6.2 · preliminar
 
 - Intersección correcta de las ROC y Z inversa de sumas racionales y logarítmicas.

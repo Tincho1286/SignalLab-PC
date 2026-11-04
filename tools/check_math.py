@@ -8,7 +8,7 @@ CONTRACT='mathematical-families-v2'
 FAMILIES={
     'transforms':('test_math_reliability.MathematicalReliabilityTests',21),
     'transform_properties':('test_math_shifted_pairs.ShiftedPairContracts',18),
-    'preventive_regressions':('test_math_preventive.PreventiveContracts',24),
+    'preventive_regressions':('test_math_preventive.PreventiveContracts',28),
     'health_exchange':('test_health_exchange.HealthExchangeContracts',20),
     'expression_systems':('test_math_expression_systems.ExpressionSystemContracts',8),
     'scalar_input':('test_math_contracts.ScalarContracts',5),

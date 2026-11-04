@@ -241,7 +241,7 @@ class StateSpacePanel(QWidget):
             self.model_actions.set_result(model,model_id)
             self.set_channels(omega,channels,names,'ω (rad/muestra)' if digital else 'Ω (rad/s)',False)
             self.report.setPlainText(f'{model.outputs} × {model.inputs} canales · {count} frecuencias\nPuntos no finitos: {missing}\n\nLa vista conjunta muestra hasta 16 canales. El selector permite ver cualquiera de ellos; el CSV incluye todos. Los puntos singulares se conservan como no disponibles, sin reemplazarlos por ceros.')
-        self.run('Calculando matriz de respuesta…',lambda:model.response(omega/model.dt if digital else omega),accept)
+        self.run('Calculando matriz de respuesta…',lambda:model.response(omega, normalized=digital),accept)
 
     def set_channels(self,coordinates,channels,names,xlabel,discrete):
         if getattr(self,'_plot_axis_kind',None)!=xlabel:

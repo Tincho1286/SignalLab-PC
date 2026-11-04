@@ -57,6 +57,8 @@ def _stage(system):
 
 
 def realize_system(system,advance=0):
+    from .system_conditions import require_causal_roc
+    require_causal_roc(system, operation='La realización con estados iniciales requiere una ROC causal.')
     if advance or system.advance:raise ValueError('H(z) contiene un avance temporal. Una cadena causal de retardos no realiza esa fórmula completa; no se reemplaza el avance por un retardo.')
     ensure_working_set(max(len(system.b),len(system.a)),live_arrays=8)
     cascade=system.sos is not None

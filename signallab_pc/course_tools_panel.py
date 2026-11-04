@@ -87,7 +87,19 @@ class CourseToolsPanel(QWidget):
             self.band_edges.kind.currentIndexChanged.connect(update_amplitudes);self.fields['tolerance_units'].currentIndexChanged.connect(update_amplitudes);update_amplitudes()
             if action=='fir':
                 choice('window' ,'Ventana',[(name,name) for name in ('kaiser','boxcar','hann','hamming','blackman','bartlett')]);field('taps','Cantidad de coeficientes (0 = estimar Kaiser)','0');field('search','Buscar menor longitud hasta (0 = sin búsqueda)','0')
-                hint('Coeficientes: 51 significa orden 50. Cero estima con Kaiser. Buscar hasta: cero desactiva la búsqueda; otro entero fija la mayor longitud a probar con la ventana elegida.')
+                hint('Opciones de Kaiser. Podés fijar una longitud, usar la estimación o indicar un límite de búsqueda.')
+                self.window_length_note = QLabel()
+                self.window_length_note.setWordWrap(True)
+                form.addRow(self.window_length_note)
+                def update_window_length(*_):
+                    is_kaiser = self.fields['window'].currentData() == 'kaiser'
+                    for key in ('taps','search'):
+                        form.setRowVisible(self.fields[key], is_kaiser)
+                        self.fields[key].setProperty('calculationInput', is_kaiser)
+                    self.window_length_note.setText('Kaiser admite longitud manual o estimada.' if is_kaiser else
+                        'Longitud automática. Se elige la primera cantidad de coeficientes que cumple las tolerancias de esta ventana.')
+                self.fields['window'].currentIndexChanged.connect(update_window_length)
+                update_window_length()
             else:
                 choice('method','Método',[('Butterworth digital','butter'),('Chebyshev I digital','cheby1'),('Chebyshev II digital','cheby2'),('Elíptico (Cauer) digital','ellip'),('Comparar las cuatro familias digitales','compare'),('Butterworth + bilineal con predeformación','bilinear'),('Butterworth + invarianza al impulso','impulse')]);field('period','T de la transformación (s)','1')
                 if action=='analog':
@@ -266,7 +278,9 @@ class CourseToolsPanel(QWidget):
                 args=(wp,ws,self.scalar('dp'),self.scalar('ds'),self.fields['method'].currentData());job=lambda:design(*args,amplitudes=amplitudes,units=units,analog=True)
             elif action in ('fir','iir'):
                 wp,ws=self.band_edges.bands()
-                args=(wp,ws,self.scalar('dp'),self.scalar('ds'),'kaiser' if action=='fir' else self.fields['method'].currentData(),self.scalar('period') if action=='iir' and self.fields['method'].currentData() in ('bilinear','impulse') else 1,self.integer('taps') if action=='fir' else 0,self.fields['window'].currentData() if action=='fir' else 'kaiser',self.integer('search') if action=='fir' else 0);job=lambda:calc.design_filter(*args)
+                window = self.fields['window'].currentData() if action=='fir' else 'kaiser'
+                kaiser = action=='fir' and window=='kaiser'
+                args=(wp,ws,self.scalar('dp'),self.scalar('ds'),'kaiser' if action=='fir' else self.fields['method'].currentData(),self.scalar('period') if action=='iir' and self.fields['method'].currentData() in ('bilinear','impulse') else 1,self.integer('taps') if kaiser else 0,window,self.integer('search') if kaiser else 0);job=lambda:calc.design_filter(*args)
                 from .amplitude_design import design
                 amplitudes=[self.scalar('amplitude_low')]+([self.scalar('amplitude_high')] if self.band_edges.kind.currentData()=='bandstop' else []);units=self.fields['tolerance_units'].currentData()
                 job=lambda:design(*args,amplitudes=amplitudes,units=units)
@@ -469,7 +483,10 @@ class CourseToolsPanel(QWidget):
         if self.comparing_systems:
             axes[0].legend(fontsize=8)
             self.view.label.setText('Filtro seleccionado: '+value.name)
-        if spec and mode!=2:self.draw_specifications(axes[0],spec,linear=linear)
+        if spec and mode!=2:
+            if not linear:
+                axes[0]._signallab_db_reference = 20*np.log10(spec['stop_upper'])
+            self.draw_specifications(axes[0],spec,linear=linear)
         from .signal_plot import configure_axis
         configure_axis(axes[-1],units='rad/muestra' if value.domain=='digital' else 'rad/s')
         if previous is not None:axes[-1].set_xlim(previous)

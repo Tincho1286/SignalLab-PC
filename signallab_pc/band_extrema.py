@@ -12,6 +12,22 @@ def intervals(wp, ws, kind, end):
     return [(0., wp[0]), (wp[1], end)], [(ws[0], ws[1])]
 
 
+def fir_magnitude(system):
+    """Fast single-frequency magnitude for FIR extremum refinement."""
+    taps = system.b
+    indices = np.arange(len(taps), dtype=float)
+    if not np.any(taps.imag) and np.array_equal(taps, taps[::-1]):
+        centered = indices-(len(taps)-1)/2
+        real = taps.real.copy()
+
+        def magnitude(omega):
+            return abs(float(np.dot(real,np.cos(omega*centered))))
+    else:
+        def magnitude(omega):
+            return abs(np.dot(taps,np.exp(-1j*omega*indices)))
+    return magnitude
+
+
 def measure(system, wp, ws, kind):
     analog = system.domain == 'analog'; edges = np.r_[wp, ws].astype(float)
     scale = float(np.sqrt(edges.min())*np.sqrt(edges.max()))
@@ -50,9 +66,13 @@ def measure(system, wp, ws, kind):
         order = np.argsort(np.r_[base, seeds]);base = np.r_[base, seeds][order];h = np.r_[h, values][order]
         base, indices = np.unique(base, return_index=True);h = h[indices]
     failures = 0
+    fast_fir = fir_magnitude(system) if not analog and system.sos is None and len(system.a)==1 else None
     def value(u):
         if analog and u>=1:return infinity
-        return float(abs(system.response(np.array([from_u(u)]))[0]))
+        w = from_u(u)
+        if fast_fir is not None:
+            return fast_fir(w)
+        return float(abs(system.response(np.array([w]))[0]))
     def band(lo, hi):
         nonlocal failures
         low, high = float(to_u(lo)), (1. if np.isinf(hi) else float(to_u(hi)))

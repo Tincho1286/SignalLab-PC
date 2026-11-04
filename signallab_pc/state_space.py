@@ -50,19 +50,10 @@ class StateModel:
             controllability_rank=int(np.linalg.matrix_rank(ctr)),observability_rank=int(np.linalg.matrix_rank(obs)),stability=stability,
             rank_method='SVD con tolerancia max(shape)*sigma_max*eps; depende de escala y condicionamiento',stability_tolerance=float(tolerance),
             scope='Estabilidad interna del modelo; no se cancelan modos no controlables o no observables.')
-    def response(self,omega):
-        """omega en rad/s para ambos dominios; digital usa exp(i*omega*dt)."""
-        omega=np.asarray(omega,dtype=float)
-        if omega.ndim!=1 or not np.isfinite(omega).all():raise ValueError('Frecuencias: vector real finito en rad/s.')
-        ensure_working_set(max(1,int(omega.size)*self.inputs*self.outputs+self.states**2),live_arrays=12)
-        result=np.full((omega.size,self.outputs,self.inputs),complex(np.nan,np.nan));identity=np.eye(self.states)
-        for k,value in enumerate(omega):
-            if k%128==0:checkpoint(k/max(1,len(omega)))
-            if self.states==0:result[k]=self.D;continue
-            point=1j*value if self.dt is None else np.exp(1j*value*self.dt)
-            try:result[k]=self.C@np.linalg.solve(point*identity-self.A,self.B)+self.D
-            except np.linalg.LinAlgError:pass
-        result[~np.isfinite(result)]=complex(np.nan,np.nan);checkpoint(1);return result
+    def response(self,omega,*,normalized=False):
+        """Evaluate in rad/s, or in rad/muestra for a normalized digital grid."""
+        from .state_frequency import response
+        return response(self, omega, normalized=normalized)
     def discretize(self,dt,method='zoh'):
         if self.dt is not None:raise ValueError('El modelo ya es discreto.')
         dt=float(dt)
@@ -75,9 +66,9 @@ class StateModel:
     def to_transfer(self,input_index=0,output_index=0):
         if not 0<=input_index<self.inputs or not 0<=output_index<self.outputs:raise ValueError('Canal de entrada o salida fuera de rango.')
         ensure_working_set(max(1,self.states**2),live_arrays=12);checkpoint()
-        if not self.states:return Transfer([self.D[output_index,input_index]],[1],self.domain,self.name,sample_period_s=self.dt)
+        if not self.states:return Transfer([self.D[output_index,input_index]],[1],self.domain,self.name,sample_period_s=self.dt,roc={'mode':'right'})
         b,a=ss2tf(self.A,self.B,self.C,self.D,input=input_index)
-        return Transfer(b[output_index],a,self.domain,f'{self.name}: y{output_index+1}/u{input_index+1}',sample_period_s=self.dt)
+        return Transfer(b[output_index],a,self.domain,f'{self.name}: y{output_index+1}/u{input_index+1}',sample_period_s=self.dt,roc={'mode':'right'})
     @classmethod
     def from_transfer(cls,system,dt=None):
         from .realization import realize_system
