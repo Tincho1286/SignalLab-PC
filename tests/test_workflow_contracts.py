@@ -352,6 +352,45 @@ class WorkflowContracts(unittest.TestCase):
         density=filt.copy_with(metadata={'operation':'energy_density'})
         with self.assertRaisesRegex(ValueError,'misma clase'):compare(filt,density)
 
+    def test_piecewise_cas_and_report_use_readable_mathematical_conditions(self):
+        from signallab_pc.frequency_filter_panel import FrequencyFilterPanel
+        from signallab_pc.cas_presentation import presentation_html
+        from signallab_pc.cas_engine import calculate
+        from signallab_pc.math_display import latex
+        from signallab_pc.vector_math import render_latex
+        from signallab_pc.expression_structure import parse_cases,periodic_display
+        from signallab_pc.report_view import ReportView
+        panel=FrequencyFilterPanel(self.host);self.widgets.append(panel)
+        panel.h.expression.setText('Piecewise((1,abs(w)<=pi/5),(0,(abs(w)>pi/5) & (abs(w)<=pi/2)),(2,(abs(w)>pi/2) & (abs(w)<=pi)))')
+        panel.calculate_button.click();panel.cas_definition.trigger()
+        sheet=self.host.pages[self.host.current_operation]
+        answer=sheet.entries[-1]['answer']
+        body=presentation_html(sheet.report,answer['presentation'],900)
+        self.assertNotIn('<pre',body)
+        self.assertIn('Frecuencia dentro del período',body)
+        self.assertNotIn('Fuera de estos casos',body)
+        partial='Piecewise((1,Abs(-pi+Mod(w+pi,2*pi))<pi/5))'
+        partial_view=ReportView();self.widgets.append(partial_view)
+        self.assertIn('Fuera de estos casos',partial_view._render_formula(partial))
+        shown,definitions=periodic_display(answer['presentation']['text'])
+        self.assertEqual(len(definitions),1)
+        cases=parse_cases(shown)
+        self.assertEqual([value for value,_ in cases[0]],['1','0','2'])
+        for expression,expected in [('subst(r1,w,0)','1'),('subst(r1,w,pi/3)','0'),('subst(r1,w,3*pi/4)','2')]:
+            result=calculate(dict(cell=2,state=sheet.state,source=expression))
+            self.assertEqual(result['expression'],expected)
+        self.assertEqual(latex('Eq(0,n)'),'n=0')
+        self.assertEqual(latex('Eq(n,0)'),'n=0')
+        self.assertEqual(latex('Ne(n,0)'),r'n\neq 0')
+        for expression in ('Eq(n,0)','Abs(w)','Mod(w+pi,2*pi)','(w>0) & (w<=pi)','And(w>0,w<pi)'):
+            render_latex(latex(expression))
+        view=ReportView();self.widgets.append(view)
+        formula=view._render_formula('h[n] = '+self.host.project.get(panel.impulse_key)['result']['result'])
+        self.assertIsNotNone(formula)
+        nested='Piecewise((1,w<0),(Piecewise((2,w<1),(3,True)),True))'
+        self.assertEqual(parse_cases(nested),([('1','w < 0'),('2','w < 1')],'3'))
+        self.assertEqual(self.warnings,[])
+
     def test_ideal_filter_sends_each_formula_and_selected_samples(self):
         from signallab_pc.frequency_filter_panel import FrequencyFilterPanel
         from signallab_pc.cas_engine import restore

@@ -8,15 +8,18 @@ def math_formula(latex,size=17):
     return render_latex(latex,size=size,color=C['text'])
 
 def presentation_html(view,value,width,size=17):
-    def wrapped(text):return html.escape(str(text)).replace('\n','<br>')
     def present(value,width):
         kind=value['kind']
         if kind=='scalar':
+            text=value.get('text','')
+            if 'piecewise' in text.lower():
+                structured=view._render_formula(text,math_size=size)
+                if structured:return structured
             try:
                 formula=math_formula(value['latex'],size)
                 note='<p style="color:'+C['muted']+'">Fórmula extensa · desplazamiento horizontal disponible; Ampliar resultado abre una vista aparte.</p>' if formula.width>width else ''
                 return note+'<p>'+view.vector_math_html(formula,value.get('text',''))+'</p>'
-            except Exception:return '<p style="font-family:Consolas">'+wrapped(value.get('pretty',value['text']))+'</p>'
+            except Exception:return '<pre style="font-family:Consolas">'+html.escape(value.get('pretty',value['text']))+'</pre>'
         if kind=='matrix':
             columns=min(value['columns'],8,max(1,int((width-60)//70)));cell_width=max(18,(width-40)/max(1,columns)-12)
             rows=''.join('<tr>'+''.join('<td align="center" style="padding:3px 6px">'+present(cell,cell_width)+'</td>' for cell in row[:columns])+'</tr>' for row in value['cells'])

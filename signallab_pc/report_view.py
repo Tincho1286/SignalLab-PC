@@ -9,7 +9,7 @@ from PySide6.QtCore import QUrl,Qt,QByteArray,QBuffer,QIODevice
 from PySide6.QtGui import QTextDocument,QImage,QPainter,QColor
 from .math_display import formula_vector
 from .vector_math import MathImageHandler,retint_formula
-from .expression_structure import parse_cases
+from .expression_structure import parse_cases,periodic_display,covers_display_period
 from .signal_notation import normalize_source
 
 from .theme_tokens import COLORS as C,colorize
@@ -161,12 +161,12 @@ class ReportView(QTextBrowser):
         body.append('<p style="color:#95a9bf">Presentación con hasta 12 cifras significativas. El modelo conserva la precisión numérica de sus coeficientes.</p>')
         self._raw='\n\n'.join(raw)
         self.setHtml('<html><body style="font-family:Segoe UI;font-size:11pt;color:#dce4ef;margin:18px">'+''.join(body)+'</body></html>')
-    def _render_formula(self,source,numeric=False,leading_dot=False):
+    def _render_formula(self,source,numeric=False,leading_dot=False,math_size=15):
         try:
             # Numerical output is already normalized. Re-reading its decimals
             # as exact rationals would create huge fractions in every mode.
-            render=lambda value:self._render_formula(value,numeric=numeric)
-            if len(source)>1000:return None
+            render=lambda value:self._render_formula(value,numeric=numeric,math_size=math_size)
+            if len(source)>12000:return None
             equation=re.fullmatch(r'([A-Za-z]\w*(?:(?:\([^=]*\))|(?:\[[^=]*\]))?)\s*=\s*(.+)',source.strip())
             if equation:
                 discrete=bool(re.search(r'\[\s*[nk]\s*\]',equation[1]))
@@ -174,6 +174,18 @@ class ReportView(QTextBrowser):
                 if left and right:return left+' = '+right if numeric else '<table><tr><td>'+left+'</td><td> = </td><td>'+right+'</td></tr></table>'
                 return None
             if not numeric:source=normalize_source(source)
+            displayed,definitions=periodic_display(source)
+            if definitions:
+                main=render(displayed)
+                if main:
+                    if covers_display_period(displayed,definitions):
+                        main=main.replace('<p>Fuera de estos casos no hay un valor definido.</p>','')
+                    rows=[]
+                    for name,value in definitions:
+                        definition=render(name+' = '+value)
+                        if not definition:return None
+                        rows.append('<p>'+definition+'</p>')
+                    return '<p>Frecuencia dentro del período</p>'+''.join(rows)+main
             cases=parse_cases(source)
             rows=[]
             if cases:
@@ -207,6 +219,7 @@ class ReportView(QTextBrowser):
                         if not shown:return None
                         body.append('<table><tr><td>'+render(name)+'</td><td> = </td><td>'+shown+'</td></tr></table>')
                     return '<br>'.join(body)
+            if len(source)>1000:return None
             if numeric:
                 from .math_display import numeric_presentation
                 source=numeric_presentation(source)
@@ -222,13 +235,13 @@ class ReportView(QTextBrowser):
                         text=ast.unparse(term)
                         if isinstance(term,ast.BinOp) and isinstance(term.op,(ast.Add,ast.Sub)):text='('+text+')'
                         if positive and index==0:text='+'+text
-                        fragment=self._render_formula(text,numeric=True,leading_dot=index>0)
+                        fragment=self._render_formula(text,numeric=True,leading_dot=index>0,math_size=math_size)
                         if not fragment:return None
                         fragments.append(fragment)
                     # Separate factors may wrap; the dot belongs to its factor,
                     # so a continued product cannot be mistaken for a new sum.
                     return ' '.join(fragments)
-            return self.vector_math_html(formula_vector(source,leading_dot),source)
+            return self.vector_math_html(formula_vector(source,leading_dot,size=math_size),source)
         except Exception:return None
     def appendPlainText(self,text):self.setPlainText(self._raw+'\n\n'+str(text))
     def toPlainText(self):

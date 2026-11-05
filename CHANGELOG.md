@@ -2,6 +2,15 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.11**.
 
+## 1.6.15 · Preliminar
+
+- Presentación matemática de funciones por tramos en CAS e informes.
+- Igualdades, desigualdades, valor absoluto y coordenadas periódicas legibles.
+- Casos sucesivos en una tabla y tamaño de fórmula uniforme.
+- Nombre de los índices k en Ventanas y resolución.
+
+[Notas de la preliminar](docs/releases/v1.6.15-preview.md)
+
 ## 1.6.14 · Preliminar
 
 - Tablas e integrales periódicas en CAS.

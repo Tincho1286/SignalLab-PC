@@ -133,6 +133,10 @@ def source(expression):return SignalPrinter({'order':'none'}).doprint(normalize(
 
 
 class SignalLatexPrinter(LatexPrinter):
+    def _print_Mod(self,value,exp=None):
+        dividend,divisor=value.args
+        result=r'\left('+self._print(dividend)+r'\right)\,\mathrm{mod}\,\left('+self._print(divisor)+r'\right)'
+        return result if exp is None else r'\left('+result+r'\right)^{'+exp+'}'
     def _print_Heaviside(self,value,exp=None):
         argument,edge=value.args;discrete=argument.is_integer is True
         default=sp.S.One if discrete else sp.S.Half
@@ -155,7 +159,7 @@ def read(source_text,integer_names=()):
     if len(text)>5000 or sum(1 for _ in ast.walk(tree))>500:raise ValueError('Expresión extensa')
     names={name:sp.Symbol(name,integer=True) for name in integer_names}
     constants={'pi':sp.pi,'e':sp.E,'E':sp.E,'i':sp.I,'I':sp.I,'j':sp.I,'oo':sp.oo,'True':sp.true,'False':sp.false}
-    constructors={'Piecewise':lambda *pairs:sp.Piecewise(*pairs,evaluate=False),'KroneckerDelta':sp.KroneckerDelta,'DiracDelta':sp.DiracDelta,'Heaviside':sp.Heaviside,'step':lambda arg:sp.Heaviside(arg,1),'impulse':lambda arg:sp.DiracDelta(arg) if any(v.name in ('t','x','w') for v in arg.free_symbols) else sp.KroneckerDelta(arg,0),'binomial':lambda *args:sp.binomial(*args,evaluate=False),'factorial':lambda arg:sp.factorial(arg,evaluate=False),'sqrt':sp.sqrt,'exp':sp.exp,'sin':sp.sin,'cos':sp.cos,'tan':sp.tan,'Abs':sp.Abs,'abs':sp.Abs,'conjugate':sp.conjugate,'conj':sp.conjugate,'re':sp.re,'im':sp.im,'log':sp.log,'And':sp.And,'Or':sp.Or,'Eq':lambda a,b:sp.Eq(a,b,evaluate=False),'Ne':lambda a,b:sp.Ne(a,b,evaluate=False),'Integral':sp.Integral,'Sum':sp.Sum,'Derivative':sp.Derivative}
+    constructors={'Piecewise':lambda *pairs:sp.Piecewise(*pairs,evaluate=False),'KroneckerDelta':sp.KroneckerDelta,'DiracDelta':sp.DiracDelta,'Heaviside':sp.Heaviside,'step':lambda arg:sp.Heaviside(arg,1),'impulse':lambda arg:sp.DiracDelta(arg) if any(v.name in ('t','x','w') for v in arg.free_symbols) else sp.KroneckerDelta(arg,0),'binomial':lambda *args:sp.binomial(*args,evaluate=False),'factorial':lambda arg:sp.factorial(arg,evaluate=False),'sqrt':sp.sqrt,'exp':sp.exp,'sin':sp.sin,'cos':sp.cos,'tan':sp.tan,'Abs':sp.Abs,'abs':sp.Abs,'conjugate':sp.conjugate,'conj':sp.conjugate,'re':sp.re,'im':sp.im,'log':sp.log,'Mod':sp.Mod,'And':sp.And,'Or':sp.Or,'Eq':lambda a,b:sp.Eq(a,b,evaluate=False),'Ne':lambda a,b:sp.Ne(a,b,evaluate=False),'Integral':sp.Integral,'Sum':sp.Sum,'Derivative':sp.Derivative}
     from .impulse_pairs import impulse
     folded={name.lower():fn for name,fn in constructors.items()}
     folded.update(dirac=impulse,diracdelta=impulse,impulse=impulse)

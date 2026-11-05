@@ -34,6 +34,13 @@ def latex(source):
             left=unsigned_negative(node.left)
             if left is not None:return ast.BinOp(left=left,op=node.op,right=node.right)
         return None
+    def constant(node):
+        if isinstance(node,ast.Constant):return isinstance(node.value,(int,float,complex,bool))
+        if isinstance(node,ast.Name):return node.id.lower() in ('pi','e','i','j','oo','infinity','true','false')
+        if isinstance(node,ast.UnaryOp):return constant(node.operand)
+        if isinstance(node,ast.BinOp):return constant(node.left) and constant(node.right)
+        if isinstance(node,ast.Call):return all(constant(arg) for arg in node.args)
+        return False
     def visit(n,parent=0):
         priority=100
         if isinstance(n,ast.Constant) and isinstance(n.value,(int,float,complex)):
@@ -43,13 +50,19 @@ def latex(source):
         elif isinstance(n,ast.Name) and re.fullmatch(r'[A-Za-z][A-Za-z0-9_]*',n.id):
             greek={'pi','omega','tau','alpha','beta','gamma','delta','theta','sigma','lambda','phi','epsilon'}
             result=('\\'+n.id) if n.id in greek else r'\infty' if n.id in ('oo','infinity') else n.id if len(n.id)==1 else r'\mathit{'+n.id.replace('_',r'\_')+'}'
+            subscript=re.fullmatch(r'([A-Za-z])_([A-Za-z0-9]+)',n.id)
+            if subscript:result=subscript[1]+'_{'+subscript[2]+'}'
             numbered=re.fullmatch(r'([A-Za-z]+)_?([0-9]+)',n.id)
             if numbered:result=numbered[1]+'_{'+numbered[2]+'}'
         elif isinstance(n,ast.Subscript):
             result=visit(n.value)+r'\left['+visit(n.slice)+r'\right]'
+        elif isinstance(n,ast.UnaryOp) and isinstance(n.op,(ast.Not,ast.Invert)):
+            priority=3;result=r'\neg '+wrapped(visit(n.operand))
         elif isinstance(n,ast.UnaryOp) and isinstance(n.op,(ast.USub,ast.UAdd)):
             priority=30;result=('-' if isinstance(n.op,ast.USub) else '+')+visit(n.operand,priority)
         elif isinstance(n,ast.BinOp):
+            if isinstance(n.op,(ast.BitAnd,ast.BitOr)):
+                return visit(ast.BoolOp(op=ast.And() if isinstance(n.op,ast.BitAnd) else ast.Or(),values=[n.left,n.right]),parent)
             positive=unsigned_negative(n.right) if isinstance(n.op,ast.Add) else None
             if positive is not None:return visit(ast.BinOp(left=n.left,op=ast.Sub(),right=positive),parent)
             if isinstance(n.op,ast.Div):result=r'\frac{'+visit(n.left)+'}{'+visit(n.right)+'}'
@@ -58,13 +71,16 @@ def latex(source):
                 if isinstance(n.left,ast.BinOp) and isinstance(n.left.op,ast.Div):base=wrapped(base)
                 result='{'+base+'}^{'+visit(n.right)+'}'
             else:
-                op={ast.Add:'+',ast.Sub:'-',ast.Mult:r'\cdot ',ast.Mod:r'\bmod '}.get(type(n.op))
+                op={ast.Add:'+',ast.Sub:'-',ast.Mult:r'\cdot ',ast.Mod:r'\,\mathrm{mod}\,'}.get(type(n.op))
                 if op is None:raise ValueError('Operador no admitido')
                 priority=10 if isinstance(n.op,(ast.Add,ast.Sub)) else 20
                 result=visit(n.left,priority)+op+visit(n.right,priority+1 if isinstance(n.op,(ast.Sub,ast.Mod)) else priority)
         elif isinstance(n,ast.Compare):
             priority=5;ops={ast.Lt:'<',ast.LtE:r'\leq ',ast.Gt:'>',ast.GtE:r'\geq ',ast.Eq:'=',ast.NotEq:r'\neq '}
-            result=visit(n.left,6)+''.join(ops[type(op)]+visit(v,6) for op,v in zip(n.ops,n.comparators))
+            left=n.left;comparators=n.comparators
+            if len(n.ops)==1 and isinstance(n.ops[0],(ast.Eq,ast.NotEq)) and constant(left) and not constant(comparators[0]):
+                left,comparators=comparators[0],[left]
+            result=visit(left,6)+''.join(ops[type(op)]+visit(v,6) for op,v in zip(n.ops,comparators))
         elif isinstance(n,ast.BoolOp):
             priority=2 if isinstance(n.op,ast.And) else 1
             result=(r'\ \mathrm{y}\ ' if isinstance(n.op,ast.And) else r'\ \mathrm{o}\ ').join(visit(v,priority) for v in n.values)
@@ -72,8 +88,18 @@ def latex(source):
             variable,lower,upper=map(visit,n.args[1].elts)
             result=(r'\int_{'+lower+'}^{'+upper+'}'+visit(n.args[0],20)+r'\,d'+variable if n.func.id=='Integral' else r'\sum_{'+variable+'='+lower+'}^{'+upper+'}'+visit(n.args[0],20))
         elif isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and re.fullmatch(r'[A-Za-z][A-Za-z0-9_]*',n.func.id) and not n.keywords:
-            args=','.join(visit(arg) for arg in n.args);name=n.func.id
-            if name.lower()=='kroneckerdelta' and len(n.args)==2:
+            name=n.func.id;lower=name.lower()
+            relations={'eq':ast.Eq,'ne':ast.NotEq,'lt':ast.Lt,'le':ast.LtE,'gt':ast.Gt,'ge':ast.GtE}
+            if lower in relations and len(n.args)==2:
+                return visit(ast.Compare(left=n.args[0],ops=[relations[lower]()],comparators=[n.args[1]]),parent)
+            if lower in ('and','or'):
+                return visit(ast.BoolOp(op=ast.And() if lower=='and' else ast.Or(),values=n.args),parent)
+            if lower=='not' and len(n.args)==1:
+                return r'\neg '+wrapped(visit(n.args[0]))
+            if lower=='mod' and len(n.args)==2:
+                return visit(ast.BinOp(left=n.args[0],op=ast.Mod(),right=n.args[1]),parent)
+            args=','.join(visit(arg) for arg in n.args)
+            if lower=='kroneckerdelta' and len(n.args)==2:
                 a,b=n.args
                 if isinstance(a,ast.Constant) and a.value==0:a,b=b,a
                 argument=a if isinstance(b,ast.Constant) and b.value==0 else ast.BinOp(left=a,op=ast.Sub(),right=b)
@@ -107,6 +133,6 @@ def formula_png(source,leading_dot=False):
 
 def formula_image(source,leading_dot=False):return QImage.fromData(formula_png(source,leading_dot))
 
-def formula_vector(source,leading_dot=False):
+def formula_vector(source,leading_dot=False,size=15):
     from .vector_math import render_latex
-    return render_latex((r'\cdot ' if leading_dot else '')+latex(source))
+    return render_latex((r'\cdot ' if leading_dot else '')+latex(source),size=size)

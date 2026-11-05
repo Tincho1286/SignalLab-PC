@@ -35,7 +35,7 @@ def window_fft(x,length,nfft,window,beta,points):
     fft=Signal(spectrum,float(omega[0]),2*np.pi/nfft,'rad/muestra','DFT de la señal enventanada','frequency','',{'operation':'DFT','nfft':nfft,'window_length':length,'window':window,'kaiser_beta':beta if window=='kaiser' else None,'input_origin':x.origin})
     dense=dtft(v,-np.pi,np.pi,points)
     window_spectrum=dtft(w,-np.pi,np.pi,points)
-    coeff=Signal(raw,0,1,'k','Coeficientes DFT para inversión','discrete','',{'operation':'DFT','source_origin':x.origin,'nfft':nfft,'input_clock':clock})
+    coeff=Signal(raw,0,1,'k','Índices k de la DFT (0 a N−1)','discrete','',{'operation':'DFT','source_origin':x.origin,'nfft':nfft,'input_clock':clock})
     energy=float(np.sum(abs(v.values)**2));spectral=float(np.sum(abs(raw)**2)/nfft)
     return bundle(f'Ventanas y resolución espectral\n\nLongitud observada: {length}\nNFFT: {nfft}\nCeros agregados: {nfft-length}\nSeparación entre bins: {2*np.pi/nfft:.9g} rad/muestra\nVentana: {window}, simétrica\nGanancia coherente: {np.mean(weights):.9g}\n\nEnergía temporal: {energy:.12g}\nSuma |X[k]|²/NFFT: {spectral:.12g}\n\nLa FFT no se normaliza hacia adelante. Su fase en rad/muestra respeta el origen de la entrada. La DFT invertible conserva el origen y el reloj de la entrada para la inversa. Se puede elegir un eje local desde cero. La DTFT usa los índices originales.\n\nAgregar ceros densifica la rejilla, pero no mejora la resolución física. Aumentar la duración y cambiar la ventana modifica el ancho del lóbulo y la fuga. Se usan las primeras L muestras; no se supone que aumentar NFFT agrega información.',[fft,dense,v,w,window_spectrum,coeff])
 
