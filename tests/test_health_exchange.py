@@ -105,6 +105,34 @@ class HealthExchangeContracts(unittest.TestCase):
         grid=execute(dict(operation='expression_grid',expression='1/w',allow_undefined=True,variable='w',start=-1,stop=1,count=3))
         self.assertFalse(can_send(grid))
         with self.assertRaisesRegex(ValueError,'no se descartan'):payload(grid)
+    def test_cas_resolves_report_samples_after_project_reimport(self):
+        from signallab_pc.result_journal import snapshot
+        project=Project()
+        signal=Signal([1,2+3j],origin=-2)
+        signal_key=project.add(signal)
+        host=SimpleNamespace(project=project,published_value_id=lambda value:signal_key)
+        report=project.add({'report':'Respuesta','calculated_data':snapshot(signal,host)},parents=[signal_key])
+        self.assertTrue(can_send(project.get(report)))
+        expected=payload(signal)
+        self.assertEqual(payload(project.get(report),host),expected)
+        host.published_value_id=lambda value:None
+        self.assertEqual(payload(snapshot(signal,host),host),expected)
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'result.json';project.export_record(report,path)
+            reloaded=Project();self.assertEqual(reloaded.merge(path),2)
+            loaded=reloaded.headers()[-1]['id']
+            self.assertEqual(payload(reloaded.get(loaded),SimpleNamespace(project=reloaded)),expected)
+
+    def test_unresolved_formula_cannot_be_imported_as_result_metadata(self):
+        for result in (
+            {'evaluated':False,'output_variable':'w','result':'Sum(a[n], (n, 0, oo))','frequency_points':501},
+            {'evaluated':True,'branches':[{'expression':'1'},{'expression':'0'}]},
+        ):
+            with self.subTest(result=result):
+                record={'request':{'operation':'dtft_expression'},'result':result}
+                self.assertFalse(can_send(record))
+                self.assertIsNone(payload(record))
+
     def test_bilateral_z_report_and_cas_export_use_calculated_fourier_result(self):
         from signallab_pc.result_summary import transform_summary
         request=dict(operation='z_expression',expression='sin(0.5*pi*(n-4))/(pi*(n-4))',lower='-oo',upper='oo');result=execute(request)

@@ -29,6 +29,12 @@ class Host:
             if self.current_operation in (ROUTES['transform_lab','z'],ROUTES['transform_lab','laplace']):panel=TransformLab(self,'z' if self.current_operation==ROUTES['transform_lab','z'] else 'laplace')
             else:panel=SystemAnalysisPanel(self)
             self.pages[self.current_operation]=SimpleNamespace(panel=panel)
+    def open_cas(self):
+        from signallab_pc.cas_panel import CasWorksheet
+        from signallab_pc.cas_reference import CAS_ROUTE
+        if CAS_ROUTE not in self.pages:self.pages[CAS_ROUTE]=CasWorksheet(self)
+        self.current_operation=CAS_ROUTE
+
     def send_system(self,*args):raise AssertionError('An expression must not be converted before choosing analysis capabilities.')
     def choose_record(self,*args,**kwargs):return None
 
@@ -42,7 +48,7 @@ class WorkflowContracts(unittest.TestCase):
         self.exception_patch=patch('sys.excepthook',side_effect=lambda kind,value,tb:self.warnings.append(kind.__name__+': '+str(value)));self.exception_patch.start()
     def tearDown(self):
         self.exception_patch.stop();self.warning_patch.stop()
-        for widget in [*self.widgets,*[p.panel for p in self.host.pages.values()],self.host.bar]:widget.close();widget.deleteLater()
+        for widget in [*self.widgets,*[getattr(p,"panel",p) for p in self.host.pages.values()],self.host.bar]:widget.close();widget.deleteLater()
         self.app.processEvents()
     def transform(self):
         panel=TransformLab(self.host,'z');self.widgets.append(panel);panel.expression.setText(SOURCE);panel.lower.setText('0');panel.upper.setText('oo');panel.calculate_button.click()
@@ -260,6 +266,43 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(sheet.entries[-1]['status'],'done');saved=self.host.project.get(sheet.entries[-1]['result_id']);self.assertEqual(saved['cas_answer']['frequency_units'],'rad/muestra')
         sheet.send_result('frequency');panel=self.calculated_analysis();self.assertEqual(panel.definition_mode.currentIndex(),2)
         self.assertEqual(panel.frequency_data.units,'rad/muestra');self.assertEqual(self.warnings,[])
+
+    def test_dtft_send_button_preserves_frequency_exclusions(self):
+        from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
+        panel=SymbolicFourierPanel(self.host,discrete=True);self.widgets.append(panel)
+        panel.expression.setText('1/n');panel.lower.setText('1')
+        panel.calculate_button.click();panel.to_cas_button.click()
+        sheet=self.host.pages[self.host.current_operation]
+        self.assertEqual(self.warnings,[])
+        self.assertEqual(sheet.entries[-1]['status'],'done',sheet.entries[-1].get('error'))
+        self.assertEqual(sheet.entries[-1]['answer']['frequency_units'],'rad/muestra')
+        sheet.input.setPlainText('subst(r1,w,0)');sheet.input.evaluateRequested.emit()
+        self.assertEqual(sheet.entries[-1]['status'],'error')
+        self.assertIn('fuera del dominio',sheet.entries[-1]['error'])
+        sheet.input.setPlainText('subst(r1,w,pi)');sheet.input.evaluateRequested.emit()
+        self.assertEqual(sheet.entries[-1]['status'],'done',sheet.entries[-1].get('error'))
+        self.assertEqual(sheet.entries[-1]['answer']['expression'],'-log(2)')
+
+    def test_ideal_filter_sends_each_formula_and_selected_samples(self):
+        from signallab_pc.frequency_filter_panel import FrequencyFilterPanel
+        from signallab_pc.cas_engine import restore
+        panel=FrequencyFilterPanel(self.host);self.widgets.append(panel)
+        panel.h.expression.setText('Piecewise((1, (w >= -pi/2) & (w <= pi/2)), (0, True))')
+        panel.calculate_button.click()
+        self.assertTrue(panel.cas_definition.isEnabled())
+        self.assertTrue(panel.cas_impulse.isEnabled())
+        panel.cas_definition.trigger();sheet=self.host.pages[self.host.current_operation]
+        self.assertEqual(sheet.input.toPlainText(),'r1')
+        panel.cas_impulse.trigger()
+        self.assertEqual(sheet.input.toPlainText(),'r2')
+        self.assertEqual(sheet.entries[-1]['status'],'done',sheet.entries[-1].get('error'))
+        check=execute(dict(operation='cas_worksheet',state=sheet.state,cell=3,source='subst(r2,n,0)'))
+        self.assertEqual(check['expression'],'1/2')
+        sheet.input.setPlainText('simplify(r2)')
+        panel.selector.setCurrentIndex(1);panel.cas_samples.trigger()
+        self.assertEqual(sheet.input.toPlainText(),'simplify(r2)')
+        self.assertEqual(restore(sheet.state['results']['3']).shape,(65,2))
+        self.assertEqual(self.warnings,[])
 
     def test_conditional_dtft_plot_and_export_keep_undefined_frequency(self):
         from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel

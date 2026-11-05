@@ -31,7 +31,7 @@ class CasInput(QPlainTextEdit):
 class CasWorksheet(QWidget):
     def __init__(self,window):
         super().__init__();self.window=window;self.state=self._empty();self.entries=[];self.pending=None;self.selected=None
-        self.commands=[];self.command_position=0;self.draft='';self._submitting=False;self._serial=0;self.math_size=17;self.formula_dialogs=[]
+        self.commands=[];self.command_position=0;self.draft='';self._submitting=False;self._serial=0;self._automatic_reference=None;self.math_size=17;self.formula_dialogs=[]
         root=QVBoxLayout(self);root.setContentsMargins(10,8,10,8);root.setSpacing(6)
         self.toolbar=QToolBar();self.toolbar.setObjectName('casToolbar');self.toolbar.setMovable(False);root.addWidget(self.toolbar)
         groups=[('Álgebra',[
@@ -105,6 +105,7 @@ class CasWorksheet(QWidget):
         source=self.input.toPlainText().strip()
         if not source:self.input.setFocus();return
         if not self._ready():return
+        self._automatic_reference=None
         parents=self._parents(source)
         self.commands.append(source);self.command_position=len(self.commands);self.draft='';self.input.clear()
         self._submit({'operation':'cas_worksheet','source':source},source,parents)
@@ -131,7 +132,10 @@ class CasWorksheet(QWidget):
                     node=QTreeWidgetItem([name,value[:200]]);node.setToolTip(1,value);self.variables.addTopLevelItem(node)
                 self.variables.resizeColumnToContents(0)
                 if imported:
-                    if not self.input.toPlainText().strip():self.input.setPlainText('r'+str(cell))
+                    current=self.input.toPlainText().strip()
+                    if not current or current==self._automatic_reference:
+                        self._automatic_reference='r'+str(cell)
+                        self.input.setPlainText(self._automatic_reference)
                     self.window.statusBar().showMessage('Resultado disponible en CAS como r'+str(cell)+'. Podés usar simplify, factor, expand o cualquier otra operación de la hoja.')
             self.render();self.input.setFocus()
         try:self.window._run_operation('Importando resultado al CAS…' if imported else 'Calculando en la hoja CAS…',compute,accept)
@@ -222,7 +226,7 @@ class CasWorksheet(QWidget):
     def new_sheet(self):
         if self.pending:return
         if self.entries and QMessageBox.question(self,'Nueva hoja CAS','¿Vaciar la hoja y sus variables? Podés exportarla antes de continuar.',QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.Cancel,QMessageBox.StandardButton.Cancel)!=QMessageBox.StandardButton.Yes:return
-        self.state=self._empty();self.entries=[];self.selected=None;self._serial=0;self.commands=[];self.command_position=0;self.variables.clear();self.input.clear();self.render()
+        self.state=self._empty();self.entries=[];self.selected=None;self._serial=0;self._automatic_reference=None;self.commands=[];self.command_position=0;self.variables.clear();self.input.clear();self.render()
 
     def send_result(self,destination):
         entry=self.selected_entry()

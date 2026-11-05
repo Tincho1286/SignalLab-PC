@@ -33,7 +33,7 @@ class SymbolicFourierPanel(QWidget):
         scope=QLabel('La expresión algebraica y sus muestras se conservan como objetos distintos, vinculados por su procedencia. Las distribuciones y las expresiones no resueltas no se convierten en muestras finitas.');scope.setWordWrap(True);numeric_form.addRow(scope)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);layout.setContentsMargins(0,0,0,0);root.addWidget(right,2)
-        actions=QHBoxLayout();self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setEnabled(False);self.to_cas_button.clicked.connect(self.to_cas);actions.addWidget(self.to_cas_button);actions.addStretch();layout.addLayout(actions)
+        actions=QHBoxLayout();self.to_cas_button=QPushButton('Enviar expresión a CAS');self.to_cas_button.setToolTip('Envía la última expresión calculada y sus condiciones. Para enviar muestras, usá el menú del registro numérico.');self.to_cas_button.setEnabled(False);self.to_cas_button.clicked.connect(self.to_cas);actions.addWidget(self.to_cas_button);actions.addStretch();layout.addLayout(actions)
         self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.report.setReadOnly(True);self.tabs.addTab(report_panel(self.report),'Expresión y condiciones')
         from .plot_actions import install_result_button
         install_result_button(self.tabs,self.sample_button)
@@ -165,7 +165,7 @@ class SymbolicFourierPanel(QWidget):
                 attach_temporal_formula(signal,result)
             hide_plot(self.masked.canvas)
             self.tabs.setTabVisible(self.masked_index,False)
-            self.window.publish(signal,operation='Muestreo de resultado Fourier algebraico',parents=[key]);self.output.show_result(signal);self.tabs.setTabVisible(1,True);self.tabs.setCurrentIndex(1)
+            output_id=self.window.publish(signal,operation='Muestreo de resultado Fourier algebraico',parents=[key]);self.output.show_result(signal);self.output.result_ids=[output_id];self.tabs.setTabVisible(1,True);self.tabs.setCurrentIndex(1)
             open_result_plot(self.output, self)
             self._sampled_plot = (key, request, self.output.canvas)
         self.window._run_operation('Evaluando expresión resuelta…',lambda:run_request(request),accept)

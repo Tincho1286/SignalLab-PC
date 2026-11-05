@@ -20,9 +20,9 @@ FUNCTIONS={name:getattr(sp,name) for name in ('sin','cos','tan','asin','acos','a
     'sinh','cosh','tanh','asinh','acosh','atanh','exp','log','polylog','lerchphi','sqrt','factorial','binomial','gamma','erf','erfc',
     'simplify','expand','factor','cancel','together','apart','trigsimp','expand_trig','powsimp',
     'diff','integrate','limit','series','summation','product','dsolve','nsolve','laplace_transform','inverse_laplace_transform',
-    'gcd','lcm','div','rem','factorint')}
+    'gcd','lcm','div','rem','factorint','floor','ceiling','sign','conjugate')}
 FUNCTIONS.update({'sinc':lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x)/(sp.pi*x),True)),'abs':sp.Abs,'ln':sp.log,'re':sp.re,'im':sp.im,'conj':sp.conjugate,
-    'arg':sp.arg,'mod':sp.Mod,'piecewise':sp.Piecewise,'heaviside':sp.Heaviside,'diracdelta':impulse,'dirac':impulse,'impulse':impulse,
+    'arg':sp.arg,'mod':sp.Mod,'and':sp.And,'or':sp.Or,'not':sp.Not,'piecewise':sp.Piecewise,'heaviside':sp.Heaviside,'diracdelta':impulse,'dirac':impulse,'impulse':impulse,
     'step':lambda value:sp.Heaviside(value,1),'kroneckerdelta':sp.KroneckerDelta,
     'integral':sp.Integral,'derivative':sp.Derivative,'sum':sp.summation,'prod':sp.product,
     'matrix':sp.Matrix,'vector':lambda value:sp.Matrix(value),'det':lambda a:a.det(),
@@ -232,6 +232,8 @@ class Calculator:
                         ensure_working_set(int(estimated),bytes_per_sample=1,live_arrays=4)
                     return a**b
                 if isinstance(node.op,ast.Mod):return a%b
+                if isinstance(node.op,ast.BitAnd):return sp.And(a,b)
+                if isinstance(node.op,ast.BitOr):return sp.Or(a,b)
             if isinstance(node,(ast.List,ast.Tuple,ast.Set)):
                 values=[visit(v) for v in node.elts]
                 if isinstance(node,ast.Set):return sp.FiniteSet(*values)

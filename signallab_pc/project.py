@@ -43,6 +43,22 @@ def decode(kind,data):
     raise ValueError('Tipo de registro desconocido.')
 
 
+def _remap_calculated_references(value,mapping):
+    if isinstance(value,dict):
+        if len(value)==1:
+            for field in ('result_id','record'):
+                key=value.get(field)
+                if isinstance(key,str) and key in mapping:
+                    value[field]=mapping[key]
+                    return
+        if ('dtype' in value and 'shape' in value) or set(value)=={'type','data'}:return
+        items=value.values()
+    elif isinstance(value,list):items=value
+    else:return
+    for item in items:
+        if isinstance(item,(dict,list)):_remap_calculated_references(item,mapping)
+
+
 class Project:
     def __init__(self):
         self._records={};self.dirty=False
@@ -152,6 +168,10 @@ class Project:
         json.dumps(records,allow_nan=False)
         imported={}
         for old,record in staging.items():
-            record['id']=mapping[old];record['parents']=[mapping[p] for p in record['parents']];imported[record['id']]=record
+            record['id']=mapping[old];record['parents']=[mapping[p] for p in record['parents']]
+            if record['kind']=='calculation' and 'calculated_data' in record['data']:
+                data=record['data']
+                _remap_calculated_references(data['calculated_data'],mapping)
+            imported[record['id']]=record
         self._records.update(imported);self.dirty=self.dirty or bool(imported)
         return len(imported)

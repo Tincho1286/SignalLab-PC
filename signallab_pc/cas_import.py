@@ -12,13 +12,13 @@ def _number(value):
 def _complex(pair):return _number(pair[0])+sp.I*_number(pair[1])
 
 
-def _expression(text,variable=None):
+def _expression(text):
     if re.search(r'\b(?:CRootOf|RootOf|RootSum)\s*\(',text):raise ValueError('Este resultado antiguo no conserva la raíz algebraica para CAS. Recalculalo con esta versión para exportarlo exactamente.')
     calculator=Calculator(empty_state())
     calculator.locals={'n':sp.Symbol('n',integer=True),'k':sp.Symbol('k',integer=True),'t':sp.Symbol('t',real=True),'w':sp.Symbol('w',real=True)}
     value=calculator.parse(text)
     if calculator.undefined:raise ValueError('La expresión contiene funciones sin definición: '+', '.join(sorted(calculator.undefined)))
-    return value
+    return value,sp.And(*calculator.domain_restrictions)
 
 
 def _symbol(name):
@@ -36,8 +36,17 @@ def _value(data,notices):
         if data.get('encoded'):return restore(data['encoded'])
         if data.get('numeric_source'):
             notices.append('Se importó la expresión numérica disponible; sus decimales son aproximaciones, no coeficientes algebraicos exactos.')
-            return _expression(data['numeric_source'],data.get('variable'))
-        return _expression(data['source'],data.get('variable'))
+        value,condition=_expression(data.get('numeric_source') or data['source'])
+        if data.get('variable')=='w' and data.get('frequency_condition') not in (None,'True'):
+            from .symbolic import parse
+            from .cas_domains import bare
+            condition=sp.And(condition,bare(parse(data['frequency_condition'])))
+        if condition is not sp.true and data.get('variable') in ('w','n','t'):
+            if data.get('domain_condition'):
+                condition=sp.And(condition,restore(data['domain_condition']))
+            data['domain_condition']=encode(condition)
+            notices.append('Condición de validez de la fórmula: '+str(condition)+'.')
+        return value
     if kind=='number':return _number(data['value'])
     if kind=='complex':return _complex(data['value'])
     if kind=='matrix':return sp.Matrix(data['rows'],data['cols'],[_complex(v) for v in data['values']])
@@ -59,7 +68,7 @@ def _value(data,notices):
         notices.append('Tupla de matrices en orden (A, B, C, D). Usá rN[0], rN[1], rN[2] y rN[3].'+(' T='+str(data['period'])+' s.' if data.get('period') is not None else ' Modelo continuo.'))
         return tuple(_value({'kind':'matrix',**matrix},notices) for matrix in data['matrices'])
     if kind=='measures':
-        notices.extend(data.get('conditions',[]));return {_symbol(k):_expression(v['expression']) for k,v in data['items'].items()}
+        notices.extend(data.get('conditions',[]));return {_symbol(k):_expression(v['expression'])[0] for k,v in data['items'].items()}
     if kind=='mapping':return {_symbol(k):_value(v,notices) for k,v in data['items'].items()}
     if kind=='list':return [_value(v,notices) for v in data['items']]
     raise ValueError('Este tipo de resultado no tiene una representación CAS disponible.')
@@ -67,11 +76,12 @@ def _value(data,notices):
 
 def import_result(request):
     state=copy.deepcopy(request.get('state') or empty_state());cell=int(request['cell']);notices=[]
-    value=_value(request['payload'],notices);encoded=encode(value);restore(encoded)
+    data=dict(request['payload'])
+    value=_value(data,notices);encoded=encode(value);restore(encoded)
     state['results'][str(cell)]=encoded;state['ans']=cell
     expression=sp.sstr(value) if isinstance(value,sp.Expr) else None
     from .cas_context import imported,remember
-    context=imported(request['payload'],value,notices);remember(state,cell,context)
+    context=imported(data,value,notices);remember(state,cell,context)
     calculator=Calculator(state)
     from .cas_assumptions import descriptions
     return {**context,'state':state,'encoded_value':encoded,'text':signal_source(value) if isinstance(value,sp.Expr) else str(value),'presentation':presentation(value),

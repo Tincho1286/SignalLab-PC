@@ -9,13 +9,36 @@ from .result_expressions import expression_result
 from .resources import ensure_working_set
 
 
+def _result_reference(value):
+    if len(value)==1:
+        key=value.get('result_id',value.get('record'))
+        if isinstance(key,str):return key
+    return None
+
+
+def _typed_snapshot(value):
+    return set(value)=={'type','data'} and value['type'] in ('signal','system','state_space')
+
+
+def _unavailable_formula(value):
+    result=value.get('result')
+    return isinstance(result,dict) and (
+        result.get('evaluated') is False or len(result.get('branches',[]))>1
+    )
+
+
 def can_send(value):
     if isinstance(value,(Signal,Transfer,StateModel)):return True
-    if isinstance(value,dict) and (expression_result(value) is not None or 'cas_answer' in value):return True
+    if isinstance(value,dict):
+        if expression_result(value) is not None or 'cas_answer' in value:return True
+        if _unavailable_formula(value):return False
     if is_dataclass(value):return can_send(asdict(value))
     if isinstance(value,(int,float,complex,np.number,np.ndarray)):return True
     if isinstance(value,dict) and value.get('format')=='signallab-expression-grid':return False
-    if isinstance(value,dict):return 'record' in value or any(can_send(v) for k,v in value.items() if k not in ('request','report','specifications'))
+    if isinstance(value,dict):
+        return _result_reference(value) is not None or _typed_snapshot(value) or any(
+            can_send(v) for k,v in value.items() if k not in ('request','report','specifications')
+        )
     if isinstance(value,(tuple,list)):return any(can_send(v) for v in value)
     return False
 
@@ -33,6 +56,7 @@ def payload(value,window=None,seen=None):
             return {'kind':'expression','source':expression.source,'variable':expression.variable,'conditions':list(expression.conditions),'system_roc':result_roc(value),'period':result_period(value),'system_origin':origin(value),
                     'domain_condition':value.get('result',{}).get('cas_domain_condition'),
                     'encoded':value.get('result',{}).get('cas_encoded'),'numeric_source':expression.numerical_source,'frequency_units':expression.units,'frequency_condition':value.get('cas_answer',{}).get('frequency_condition',value.get('result',{}).get('frequency_condition',value.get('result',{}).get('condition','True'))),'provenance':{name:value.get('result',{}).get(name) for name in ('input_definition','calculation_notes','calculation_status') if name in value.get('result',{})}}
+        if _unavailable_formula(value):return None
         if isinstance(value.get('result'),dict) and value['result'].get('operation')=='signal_measures_expression':
             data={name:{'expression':value['result'][name]['exact']} for name in ('energy','mean_square','rms')}
             return {'kind':'measures','items':data,'conditions':[value['result']['scope'],value['result']['classification']]}
@@ -60,10 +84,13 @@ def payload(value,window=None,seen=None):
         if isinstance(value,float) and not math.isfinite(value):return {'kind':'expression','source':'oo' if value>0 else '-oo' if value<0 else 'nan','conditions':[]}
         return {'kind':'number','value':value}
     if isinstance(value,dict):
-        if 'record' in value and window is not None:
-            key=value['record']
+        key=_result_reference(value)
+        if key is not None and window is not None:
             if key in seen:raise ValueError('Referencia circular en los resultados.')
             return payload(window.project.get(key),window,seen|{key})
+        if _typed_snapshot(value):
+            from .project import decode
+            return payload(decode(value['type'],value['data']),window,seen)
         if set(value)=={'real','imag'}:return {'kind':'complex','value':[value['real'],value['imag']]}
         if set(value)>={'shape','values'} and 'dtype' in value:
             shape=value['shape']
@@ -87,7 +114,7 @@ def send_to_cas(window,key=None,*,value=None,label=None):
             if key is None:raise ValueError('Calculá o seleccioná un resultado primero.')
             value=window.project.get(key)
         data=payload(value,window)
-        if data is None:raise ValueError('Este informe no contiene una expresión ni valores matemáticos para el CAS.')
+        if data is None:raise ValueError('Este resultado requiere una expresión evaluada o datos numéricos para enviarse al CAS.')
         if key is not None and data.get('kind')=='expression' and data.get('variable')=='z' and data.get('period') is None:data['period']=window.project.sample_period(key)
         if label is None:
             label=next((r['title'] for r in window.project.headers() if r['id']==key),getattr(value,'name','Resultado calculado'))

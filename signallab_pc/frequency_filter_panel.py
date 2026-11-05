@@ -1,12 +1,12 @@
 from .numeric_input import real_field,integer_field
 """Entrada visual de H por tramos, respuesta al impulso y filtrado espectral."""
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QCheckBox,QPushButton,QLabel,QScrollArea,QTabWidget,QMessageBox
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QCheckBox,QPushButton,QToolButton,QMenu,QLabel,QScrollArea,QTabWidget,QMessageBox
 from .report_view import ReportView,report_panel
 from .frequency_filter import analyze
 
 class FrequencyFilterPanel(QWidget):
     def __init__(self,window):
-        super().__init__();self.window=window;self.results=[]
+        super().__init__();self.window=window;self.results=[];self.result_keys=[];self.impulse_key=None
         from .toolbox import LocalInput,ResultView
         root=QHBoxLayout(self);controls=QWidget();form=QFormLayout(controls)
         self.domain=QComboBox();self.domain.addItems(['Discreto · ω en rad/muestra','Continuo · Ω en rad/s']);form.addRow('Dominio',self.domain)
@@ -32,7 +32,14 @@ class FrequencyFilterPanel(QWidget):
         self.algebraic_key=None
         self.algebraic_button=QPushButton('Abrir H en Fourier inversa algebraica')
         self.algebraic_button.setEnabled(False);self.algebraic_button.clicked.connect(self.open_algebraic)
-        right.addWidget(self.algebraic_button)
+        actions=QHBoxLayout();actions.addWidget(self.algebraic_button)
+        self.cas_button=QToolButton();self.cas_button.setText('Enviar a CAS')
+        self.cas_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        menu=QMenu(self.cas_button);self.cas_button.setMenu(menu)
+        self.cas_definition=menu.addAction('Fórmula de H(w)',lambda: self.send_to_cas(self.algebraic_key))
+        self.cas_impulse=menu.addAction('Fórmula de la respuesta al impulso',lambda: self.send_to_cas(self.impulse_key))
+        self.cas_samples=menu.addAction('Muestras del resultado seleccionado',self.send_samples_to_cas)
+        self.cas_button.setEnabled(False);actions.addWidget(self.cas_button);actions.addStretch();right.addLayout(actions)
         from .result_state import ResultState
         self.state=ResultState([self.domain,self.operation,self.start,self.count,self.step,self.periodic],self.calculate_button,[self.h,self.xd,self.xc]);right.insertWidget(0,self.state)
         self.update_domain()
@@ -79,13 +86,13 @@ class FrequencyFilterPanel(QWidget):
                 for value in values:
                     keys.append(self.window.publish(value,operation='Filtro por respuesta en frecuencia'))
                     self.selector.addItem(value.name)
-                self.algebraic_key=None;sections=[]
+                self.result_keys=keys;self.algebraic_key=None;self.impulse_key=None;sections=[]
                 if algebra:
                     self.algebraic_key=self.window.publish({'result':algebra['definition']},title='Definición algebraica H(w)',
                         operation='Filtro por respuesta en frecuencia',parents=[keys[0]])
                     if algebra['inverse']:
                         inverse=algebra['inverse']
-                        self.window.publish({'result':inverse},title='Expresión algebraica de la respuesta al impulso',
+                        self.impulse_key=self.window.publish({'result':inverse},title='Expresión algebraica de la respuesta al impulso',
                             operation='Filtro por respuesta en frecuencia',parents=[self.algebraic_key,keys[1]])
                         sections.append(exact_section(inverse,'h'))
                 sections.append(numeric_section(values[1].metadata['inverse_model'],'h'))
@@ -110,6 +117,23 @@ class FrequencyFilterPanel(QWidget):
 
     def display(self,*_):
         index=self.selector.currentIndex()
-        if 0<=index<len(self.results):self.view.show_result(self.results[index])
+        if 0<=index<len(self.results):
+            self.view.show_result(self.results[index])
+            self.view.result_ids=[self.result_keys[index]]
+        self.cas_definition.setEnabled(self.algebraic_key is not None)
+        self.cas_impulse.setEnabled(self.impulse_key is not None)
+        self.cas_samples.setEnabled(0<=index<len(self.result_keys))
+        self.cas_button.setEnabled(bool(self.result_keys))
+
+    def send_to_cas(self,key):
+        if key is not None:
+            from .cas_transfer import send_to_cas
+            send_to_cas(self.window,key)
+
+    def send_samples_to_cas(self):
+        index=self.selector.currentIndex()
+        if 0<=index<len(self.result_keys):
+            self.send_to_cas(self.result_keys[index])
+
     def receive_response(self,value):
         self.domain.setCurrentIndex(0 if value.units=='rad/muestra' else 1);self.h.set_source(value)
