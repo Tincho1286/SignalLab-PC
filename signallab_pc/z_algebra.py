@@ -61,12 +61,41 @@ def direct(request):
 
 def inverse(request):
     from .z_inverse import inverse as rational_inverse
+    from .transform_samples import NumericSamplingError
+    request = dict(request)
+    scope = None
     if request.get('complete_finite'):
-        value=sp.cancel(parse(request['expression']))
-        if not value.is_rational_function(Z):raise ValueError('El soporte finito completo requiere un polinomio de Laurent en z.')
-        num,den=map(lambda v:sp.Poly(v,Z),sp.fraction(value))
-        if len(den.terms())!=1:raise ValueError('X(z) no es un polinomio de Laurent finito. Elegí un intervalo de muestras para esta secuencia infinita.')
-        power=den.monoms()[0][0]
-        support=[power-m[0] for m,c in num.terms() if c!=0]
-        request=dict(request,start=min(support) if support else 0,count=max(support)-min(support)+1 if support else 1,include_samples=True)
-    return rational_inverse(request)
+        value = sp.cancel(parse(request['expression']))
+        support = None
+        if value.is_rational_function(Z):
+            num, den = (sp.Poly(v, Z) for v in sp.fraction(value))
+            if len(den.terms()) == 1:
+                power = den.monoms()[0][0]
+                support = [power-m[0] for m, c in num.terms() if c != 0]
+        if support is not None:
+            request.update(start=min(support) if support else 0,
+                           count=max(support)-min(support)+1 if support else 1)
+            scope = 'finite_complete'
+        else:
+            # Output samples never restrict the existence of an algebraic inverse.
+            # An infinite sequence uses the requested viewport, not a truncation
+            # of its formula or a one-sample placeholder from the GUI.
+            request.setdefault('start', -16)
+            request.setdefault('count', 65)
+            scope = 'interval'
+    try:
+        result = rational_inverse(request)
+    except NumericSamplingError as exc:
+        # Keep valid algebra and ROC if only optional double-precision samples
+        # fail. Invalid input, incompatible ROC and cancellation still propagate.
+        result = rational_inverse(dict(request, include_samples=False))
+        result['numeric_notice'] = ('La expresión algebraica y su ROC se calcularon. '
+                                    'No se generó el gráfico del intervalo: '+str(exc))
+    if scope:
+        result['sample_scope'] = scope
+        if scope == 'interval':
+            result['sample_scope_notice'] = ('El soporte no es finito. La fórmula describe la secuencia completa; '
+                'las muestras muestran sólo el intervalo elegido, sin truncar la señal original.')
+        else:
+            result['sample_scope_notice'] = 'Las muestras abarcan el soporte finito completo; fuera de él la secuencia es cero.'
+    return result

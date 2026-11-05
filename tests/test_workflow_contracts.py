@@ -572,4 +572,26 @@ class WorkflowContracts(unittest.TestCase):
         assert_allclose(line.get_ydata(),values)
 
 
+
+    def test_inverse_z_automatic_scope_does_not_block_an_infinite_sequence(self):
+        panel=TransformLab(self.host,'z');self.widgets.append(panel)
+        panel.mode.setCurrentIndex(1);panel.sample_scope.setCurrentIndex(1)
+        panel.expression.setText('-18/(z+1)');panel.start.setText('-2');panel.count.setText('7')
+        panel.calculate_button.click()
+        self.assertEqual(self.warnings,[]);self.assertTrue(panel.last['evaluated'])
+        self.assertEqual(panel.last['origin'],-2)
+        self.assertEqual([v[0] for v in panel.last['numeric_samples']],[0,0,0,-18,18,-18,18])
+        self.assertIn('El soporte no es finito',panel.report.toPlainText())
+        self.assertFalse(panel.start.isHidden());self.assertFalse(panel.count.isHidden())
+        self.assertTrue(panel.to_cas_button.isEnabled());self.assertTrue(panel.reuse_button.isEnabled())
+        panel.expression.setText('z^2+3/z');panel.calculate_button.click()
+        self.assertEqual(self.warnings,[]);self.assertEqual(panel.last['origin'],-2)
+        self.assertEqual([v[0] for v in panel.last['numeric_samples']],[1,0,0,3])
+        panel.expression.setText('1/(1-1000000/z)');panel.start.setText('0');panel.count.setText('65')
+        panel.calculate_button.click()
+        self.assertEqual(self.warnings,[]);self.assertTrue(panel.last['evaluated'])
+        self.assertIsNone(panel.last['numeric_samples']);self.assertIn('No se generó el gráfico',panel.report.toPlainText())
+        self.assertTrue(panel.to_cas_button.isEnabled());self.assertTrue(panel.reuse_button.isEnabled())
+
+
 if __name__=='__main__':unittest.main()

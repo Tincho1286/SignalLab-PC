@@ -16,7 +16,7 @@ class TransformLab(QWidget):
         root=QHBoxLayout(self);left=QWidget();form=QFormLayout(left);self.form=form;form.setProperty("stackFields",True)
         self.mode=QComboBox();self.mode.addItems(['Directa','Inversa']);form.addRow('Operación',ChoiceButtons(self.mode))
         self.direct_input=QComboBox();self.direct_input.addItems(['Expresión x[n]','Secuencia finita']);self.direct_buttons=ChoiceButtons(self.direct_input);form.addRow('Definición de la secuencia',self.direct_buttons)
-        self.sample_scope=QComboBox();self.sample_scope.addItems(['Intervalo elegido','Soporte finito completo']);form.addRow('Muestras de la inversa',self.sample_scope)
+        self.sample_scope=QComboBox();self.sample_scope.addItems(['Intervalo elegido','Automático según el soporte']);self.sample_scope.setToolTip('Si el soporte es finito se muestra completo. Si es infinito se usa el intervalo de visualización indicado. La fórmula siempre describe la secuencia completa.');form.addRow('Muestras de la inversa',self.sample_scope)
         self.load_expression_button=QPushButton('Cargar expresión…');self.load_expression_button.clicked.connect(self.choose_expression);form.addRow(self.load_expression_button)
         self.interpretation=QComboBox();self.interpretation.addItems(['Unilateral / causal','Bilateral · con ROC']);form.addRow('Interpretación',self.interpretation)
         self.laplace_roc=QComboBox();self.laplace_roc.addItems(['A la derecha de todos los polos','A la izquierda de todos los polos','Franja que contiene una línea elegida']);form.addRow('Región de convergencia (ROC)',self.laplace_roc)
@@ -60,7 +60,7 @@ class TransformLab(QWidget):
             for field in (self.lower,self.upper):form.setRowVisible(field,z and not inverse and not finite)
             form.setRowVisible(self.roc,z and inverse);form.setRowVisible(self.radius,z and inverse and self.roc.currentIndex()==2)
             form.setRowVisible(self.include_samples,z and inverse)
-            for field in (self.start,self.count):form.setRowVisible(field,samples and self.sample_scope.currentIndex()==0)
+            for field in (self.start,self.count):form.setRowVisible(field,samples)
             form.setRowVisible(self.copy_note,inverse and bool(self.copy_note.text()))
             self.note.setText(('Los valores y el primer índice definen la secuencia finita; cero fuera de ella.' if finite else 'Índices inclusivos. Se admiten enteros, -oo y oo; cero fuera del soporte indicado.') if z and index==0 else (('Exterior: términos derechos.' if self.roc.currentIndex()==0 else 'Interior: términos izquierdos para los polos no nulos.' if self.roc.currentIndex()==1 else 'El radio elige un anillo sin polos; no fija sus bordes.')+' El intervalo numérico no limita la fórmula.') if z and inverse else 'Los valores y el primer índice definen el registro; cero fuera de él.' if finite else 'Ingresá X(s). La inversa se interpreta como causal: cero para t<0.' if inverse else 'Ingresá x(t). Laplace unilateral integra desde 0−; los valores para t<0 no intervienen.')
             if not z and bilateral:self.note.setText('Ingresá X(s) racional; admite un factor global exp(-d*s). La ROC decide el soporte de cada término. σ elige una franja, no sus bordes.' if inverse else 'Ingresá la señal completa, incluyendo t<0. Usá escalones o tramos para indicar su soporte. Se calcula la zona común de convergencia de ambas mitades.')
@@ -78,7 +78,7 @@ class TransformLab(QWidget):
             if z and inverse:
                 tracked += [self.roc,self.include_samples,self.sample_scope]
                 if self.roc.currentIndex()==2:tracked.append(self.radius)
-                if samples and self.sample_scope.currentIndex()==0:tracked += [self.start,self.count]
+                if samples:tracked += [self.start,self.count]
             self.result_state.widgets=tracked;self.result_state.sources=[self.source] if finite else []
             if changed:self.display_record(self.records.get(self.record_key()))
             self.update_system_action()
@@ -216,7 +216,7 @@ class TransformLab(QWidget):
             if inverse:
                 if self.roc.currentIndex()<0:invalid(self.roc,'elegí una región de convergencia.','La misma expresión puede representar secuencias distintas según su ROC.')
                 if self.roc.currentIndex()==2:real_field(self.radius,minimum=0,strict=True)
-                if self.include_samples.isChecked() and self.sample_scope.currentIndex()==0:
+                if self.include_samples.isChecked():
                     integer_field(self.start);integer_field(self.count,minimum=1)
             elif self.direct_input.currentIndex()==0:
                 lower_text=self.lower.text().strip().replace('−','-');upper_text=self.upper.text().strip()
@@ -240,7 +240,7 @@ class TransformLab(QWidget):
                     request.update(laplace_roc=['right','left','line'][self.laplace_roc.currentIndex()],sigma=self.sigma.text())
             elif index==0 and not finite:request.update(operation='z_expression',lower=self.lower.text(),upper=self.upper.text())
             elif index==1:
-                samples=self.include_samples.isChecked();request.update(operation='z_inverse_expression',complete_finite=samples and self.sample_scope.currentIndex()==1,roc=['right','left','radius'][self.roc.currentIndex()],radius=self.radius.text(),include_samples=samples,start=integer_field(self.start) if samples and self.sample_scope.currentIndex()==0 else 0,count=integer_field(self.count) if samples and self.sample_scope.currentIndex()==0 else 1)
+                samples=self.include_samples.isChecked();request.update(operation='z_inverse_expression',complete_finite=samples and self.sample_scope.currentIndex()==1,roc=['right','left','radius'][self.roc.currentIndex()],radius=self.radius.text(),include_samples=samples,start=integer_field(self.start) if samples else 0,count=integer_field(self.count) if samples else 1)
             else:
                 source=self.source.read();request.pop('expression',None);request.update(operation='z_finite',origin=int(source.origin),samples=[[v.real,v.imag] for v in source.values]);parents=[self.source.reference_id] if self.source.reference_id else []
             source=getattr(self,'_library_source',None)

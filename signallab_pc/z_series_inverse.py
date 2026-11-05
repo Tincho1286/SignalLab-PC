@@ -1,5 +1,5 @@
 """Inverse Z pairs for convergent reciprocal-power tails."""
-import math
+from .transform_samples import sample_pair
 from dataclasses import dataclass
 
 import sympy as sp
@@ -161,10 +161,7 @@ def inverse_tails(request, raw):
                 j = term.side * (index-term.delay)
                 if j >= term.first:
                     value += gain * base**j / (j+offset)**term.order
-            result = complex(value)
-            if not math.isfinite(result.real) or not math.isfinite(result.imag):
-                raise ValueError('Las muestras exceden el rango numérico.')
-            samples.append([result.real, result.imag])
+            samples.append(sample_pair(value))
 
     zero_included = not right and all(term.edge <= 0 for term in tails) and (not rational_result or rational_result['zero_included'])
     infinity_included = not left and all(term.edge >= 0 for term in tails) and (not rational_result or rational_result['infinity_included'])

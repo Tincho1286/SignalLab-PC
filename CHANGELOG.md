@@ -4,6 +4,9 @@ Las versiones estables y preliminares se distribuyen en [GitHub Releases](https:
 
 ## 1.6.15 · Estable
 
+- La inversa Z separa la expresión completa de las muestras del gráfico. El modo automático admite secuencias infinitas; los desbordes de muestras conservan fórmula y ROC.
+- Las ecuaciones en diferencias reconocen cancelaciones a cero antes de analizar grados polinómicos.
+
 - Los informes de filtros muestran mínimos y máximos de cada banda de paso y rechazo, sus frecuencias y los límites permitidos.
 
 - Presentación matemática de funciones por tramos en CAS e informes.

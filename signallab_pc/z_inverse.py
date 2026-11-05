@@ -1,5 +1,6 @@
 """Exact rational Z inversion without expanding or simplifying radical roots."""
 import math
+from .transform_samples import NumericSamplingError, sample_pair
 import sympy as sp
 from .partial_fractions import apart_list
 import mpmath as mp
@@ -161,7 +162,7 @@ def inverse(request, *, sample_sink=None):
             if offset%64==0:checkpoint(.5+.4*offset/max(1,count))
             if causal_exact is not None:
                 exact = (causal_exact[n] if n>=0 else sp.S.Zero) + sum(c for index,c in impulses if index==n)
-                value = as_mp(exact) if sample_sink is not None else complex(exact)
+                value = as_mp(exact) if sample_sink is not None else exact
             else:
                 value=context.mpc(0)
                 for index,c in impulses:
@@ -173,14 +174,12 @@ def inverse(request, *, sample_sink=None):
                     elif info['right'] and n>=order:value+=c*math.comb(n-1,order-1)*info['value']**(n-order)
                     elif not info['right'] and n<=0:value+=c*(-1)**order*math.comb(order-n-1,order-1)*info['value']**(n-order)
                 if real_input:
-                    if abs(value.imag)>context.mpf('1e-55')*max(1,abs(value)):raise ValueError('La cancelación de términos requiere más precisión para obtener muestras fiables.')
+                    if abs(value.imag)>context.mpf('1e-55')*max(1,abs(value)):raise NumericSamplingError('La cancelación de términos requiere más precisión para obtener muestras fiables.')
                     value=context.mpc(value.real,0)
             if sample_sink is not None:
                 sample_sink.append(value)
                 continue
-            value = complex(value)
-            if not math.isfinite(value.real) or not math.isfinite(value.imag):raise ValueError('Las muestras exceden el rango numérico.')
-            samples.append([value.real,value.imag])
+            samples.append(sample_pair(value))
     zero_included=not inner and den.eval(0).is_zero is False
     infinity_included=not outer and num.degree()<=den.degree()
     roc=f'{low} '+('≤' if zero_included else '<')+f' |z| < {high}'

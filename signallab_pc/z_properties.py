@@ -1,5 +1,6 @@
 """Linearity, time shifts and geometric Z pairs before general partial fractions."""
 import math
+from .transform_samples import sample_pair
 import sympy as sp
 from .symbolic import parse,Z,N,T,S,W
 from .numeric_modes import PoleValues
@@ -97,9 +98,7 @@ def inverse_pairs(request, raw=None, *, sample_sink=None):
             if sample_sink is not None:
                 sample_sink.append(value)
                 continue
-            value=complex(value)
-            if not math.isfinite(value.real) or not math.isfinite(value.imag):raise ValueError('Las muestras exceden el rango numérico.')
-            samples.append([value.real,value.imag])
+            samples.append(sample_pair(value))
     from .cas_engine import encode
     text=SignalPrinter({'order':'none'}).doprint(result)
     conditions=[sp.Ne(pole,0) for pole in sides if pole.free_symbols and pole.is_zero is not False]

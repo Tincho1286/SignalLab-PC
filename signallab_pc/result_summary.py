@@ -222,9 +222,11 @@ def transform_summary(request,result):
     paragraphs=[result['scope']] if result.get('scope') else []
     if op=='z_inverse_expression':
         values=result.get('numeric_samples')
-        if values:paragraphs.append('La tabla y la figura muestran sólo el intervalo de índices elegido, en doble precisión. La fórmula describe la secuencia completa. Otra ROC puede producir otra secuencia para la misma X(z).')
+        if result.get('sample_scope_notice'):paragraphs.append(result['sample_scope_notice'])
+        if result.get('numeric_notice'):paragraphs.append(result['numeric_notice'])
+        if values:paragraphs.append('La tabla y la figura muestran las muestras en doble precisión. La fórmula describe la secuencia completa. Otra ROC puede producir otra secuencia para la misma X(z).')
         elif result.get('parameters'):paragraphs.append('La expresión conserva parámetros. Asignales valores antes de obtener muestras numéricas.')
-        else:paragraphs.append('Se obtuvo la expresión sin generar un registro numérico. Activá Graficar un intervalo si querés consultar muestras.')
+        elif not result.get('numeric_notice'):paragraphs.append('Se obtuvo la expresión sin generar un registro numérico. Activá Graficar un intervalo si querés consultar muestras.')
     if paragraphs:sections.append(Section('Cómo interpretarlo',paragraphs=paragraphs))
     return Summary(title,sections)
 

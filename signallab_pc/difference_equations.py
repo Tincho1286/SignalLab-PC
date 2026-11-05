@@ -104,10 +104,10 @@ def unilateral(value,start,parts=False):
 
 
 def forward_inverse(expression):
-    if expression==0:return sp.S.Zero,False
     from .z_inverse import inverse
     from .cas_engine import restore
     expression=sp.cancel(expression)
+    if expression==0:return sp.S.Zero,False
     numerator,denominator=map(lambda v:sp.Poly(v,Z),sp.fraction(expression))
     delay=max(0,int(denominator.degree()-numerator.degree()))
     # Decompose X(z)/z, then advance the inverse one index. This avoids

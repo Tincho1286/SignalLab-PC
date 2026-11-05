@@ -5,6 +5,7 @@ import sympy as sp
 from signallab_pc.symbolic import execute,parse,N,T,S,Z,W
 from signallab_pc.cas_engine import restore
 from signallab_pc.expression_definition import prepare
+from signallab_pc.result_summary import transform_summary
 from signallab_pc.transform_status import finalize
 
 
@@ -154,5 +155,53 @@ class MathematicalReliabilityTests(unittest.TestCase):
         self.equivalent(expression(r),1);self.assertTrue(r['calculation_notes']);self.assertTrue(r['input_definition']['extensions'])
         self.assertTrue(r['derivation'])
 
+
+    def request(self, expression, **options):
+        return dict(operation='z_inverse_expression', expression=expression,
+                    roc='right', start=-2, count=7, **options)
+
+    def test_automatic_scope_keeps_infinite_inverse_and_requested_viewport(self):
+        for expression in ['-18/(z+1)', '(1-2/z)/(1-1/(2*z))', 'log(1-1/(2*z))']:
+            request=self.request(expression, complete_finite=True)
+            actual=execute(request)
+            expected=execute(dict(request,complete_finite=False))
+            self.assertTrue(actual['evaluated'])
+            self.assertEqual(actual['sample_scope'],'interval')
+            self.assertEqual(actual['origin'],-2)
+            self.assertEqual(actual['numeric_samples'],expected['numeric_samples'])
+            self.assertEqual(restore(actual['cas_encoded']),restore(expected['cas_encoded']))
+            self.assertEqual(actual['roc'],expected['roc'])
+            self.assertIn('El soporte no es finito',transform_summary(request,actual).plain_text())
+        result=execute(self.request('-18/(z+1)',complete_finite=True))
+        self.assertEqual([x[0] for x in result['numeric_samples']],[0,0,0,-18,18,-18,18])
+
+    def test_automatic_scope_covers_finite_advances_delays_and_zero(self):
+        for expression,origin,values in [('1-18/z',0,[1,-18]),('z^2+3/z',-2,[1,0,0,3]),('0',0,[0])]:
+            result=execute(self.request(expression,complete_finite=True))
+            self.assertTrue(result['evaluated']);self.assertEqual(result['sample_scope'],'finite_complete')
+            self.assertEqual(result['origin'],origin)
+            self.assertEqual([x[0] for x in result['numeric_samples']],values)
+
+    def test_sample_overflow_does_not_destroy_formula_roc_or_cas_export(self):
+        for expression in ['1-10^400/z','1/(1-1000000/z)','1/(z^3-1000000000000000000)', 'log(1-1000000/z)']:
+            request=self.request(expression);request.update(start=0,count=65)
+            actual=execute(request);expected=execute(dict(request,include_samples=False))
+            self.assertTrue(actual['evaluated']);self.assertIsNone(actual['numeric_samples'])
+            self.assertEqual(restore(actual['cas_encoded']),restore(expected['cas_encoded']))
+            self.assertEqual(actual['roc'],expected['roc'])
+            self.assertIn('No se generó el gráfico',actual['numeric_notice'])
+            report=transform_summary(request,actual).plain_text()
+            self.assertIn(actual['numeric_notice'],report)
+            self.assertNotIn('Activá Graficar',report)
+
+    def test_invalid_roc_and_inputs_are_still_rejected(self):
+        for expression,extra in [('1/(z-1)',{'roc':'radius','radius':'1'}),('sin(n)',{}),('1/z',{'count':0})]:
+            request=self.request(expression);request.update(extra)
+            with self.assertRaises(ValueError):execute(request)
+
+    def test_difference_equation_cancellation_is_zero_before_degree_analysis(self):
+        from signallab_pc.difference_equations import forward_inverse
+        for expression in ['1-1','(z-1)/(z-1)-1']:
+            self.assertEqual(forward_inverse(parse(expression)),(sp.S.Zero,False))
 
 if __name__=='__main__':unittest.main()
