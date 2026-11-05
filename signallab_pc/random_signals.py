@@ -21,10 +21,9 @@ def generate(kind,count,mean,std,probability,seed,origin=0):
     return Signal(values,origin,1,'n',{'gaussian':'Ruido gaussiano','uniform':'Ruido uniforme','bernoulli':'Secuencia Bernoulli'}[kind],'discrete','',
         {'operation':'random_generation','distribution':kind,'seed':seed,'generator':'PCG64','numpy_version':np.__version__,'theoretical_mean':expected_mean,'theoretical_variance':expected_variance,'scope':'Una realización finita de muestras pseudoaleatorias independientes; no prueba estacionariedad ni ergodicidad.'})
 
-def statistics(source,component,bins):
+def statistics(source,component,bins,*,histogram_notice=None):
     values=source.values;n=len(values)
-    if bins<1:raise ValueError('La cantidad de intervalos del histograma debe ser positiva.')
-    ensure_working_set(n+bins,live_arrays=10)
+    ensure_working_set(n,live_arrays=10)
     scale=float(max(np.max(np.abs(values.real)),np.max(np.abs(values.imag))))
     scaled=values/scale if scale else values
     average=np.mean(scaled);centered=scaled-average
@@ -32,11 +31,21 @@ def statistics(source,component,bins):
         mean=average*scale;variance=float(np.mean(np.abs(centered)**2)*scale*scale);power=float(np.mean(np.abs(scaled)**2)*scale*scale)
     corrected_variance=variance*(n/(n-1)) if n>1 else None
     if not np.isfinite([mean.real,mean.imag,variance,power,corrected_variance if n>1 else 0.]).all():raise ValueError('Las estadísticas exceden la precisión numérica disponible. Reducí la escala de amplitudes.')
-    data={'real':values.real,'imag':values.imag,'magnitude':np.abs(values)}[component]
-    density,edges=np.histogram(data,bins=bins,density=True)
-    if not np.isfinite(density).all() or not np.isfinite(edges).all():raise ValueError('El histograma no es representable con esta escala de amplitudes.')
+    from .auxiliary import optional
+    def histogram():
+        if histogram_notice:raise ValueError(histogram_notice)
+        if isinstance(bins,bool) or not isinstance(bins,(int,np.integer)) or bins<1:
+            raise ValueError('La cantidad de intervalos del histograma debe ser un entero positivo.')
+        ensure_working_set(n+int(bins),live_arrays=10)
+        data={'real':values.real,'imag':values.imag,'magnitude':np.abs(values)}[component]
+        with np.errstate(all='ignore'):density,edges=np.histogram(data,bins=bins,density=True)
+        if not np.isfinite(density).all() or not np.isfinite(edges).all():
+            raise ValueError('El histograma no es representable con esta escala de amplitudes.')
+        return density,edges
+    result,notice=optional('Histograma',histogram)
+    density,edges=result if result is not None else (np.array([]),np.array([]))
     return {'samples':n,'mean_real':float(mean.real),'mean_imag':float(mean.imag),'variance_N':variance,'variance_N_minus_1':corrected_variance,'mean_square':power,'rms':float(np.sqrt(power)),
-        'histogram_component':component,'histogram_edges':edges.tolist(),'histogram_density':density.tolist(),
+        'histogram_notice':notice,'histogram_component':component,'histogram_edges':edges.tolist(),'histogram_density':density.tolist(),
         'scope':'Estadísticas del registro: varianza = promedio de |x−media|². N−1 es la corrección habitual bajo hipótesis de muestras independientes e idénticamente distribuidas; no demuestra esas hipótesis.'}
 
 

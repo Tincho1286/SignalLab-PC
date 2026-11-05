@@ -49,11 +49,16 @@ class RandomPanel(QWidget):
                     meta=signal.metadata;self.report.setPlainText(f"Distribución: { {'gaussian':'Gaussiana','uniform':'Uniforme','bernoulli':'Bernoulli'}[kind] }\nMuestras: {signal.values.size}\nSemilla: {meta['seed']}\nMedia teórica: {meta['theoretical_mean']}\nVarianza teórica: {meta['theoretical_variance']}\n\nLa generación produce muestras independientes del modelo elegido. Usá Estadísticas e histograma para medir esta realización, o Usar señal en… para filtrarla.")
                 self.window._run_operation('Generando señal aleatoria…',lambda:random_signals.generate(*args),accept)
             else:
-                source=self.source.read();parent=self.source.reference_id;component=['real','imag','magnitude'][self.component.currentIndex()];bins=integer_field(self.bins)
+                source=self.source.read();parent=self.source.reference_id;component=['real','imag','magnitude'][self.component.currentIndex()]
+                from .auxiliary import optional
+                bins,bins_notice=optional('Intervalos del histograma',lambda:integer_field(self.bins))
                 def accept(data):
                     self.window.publish(data,title='Estadísticas de '+source.name,operation='Estadísticas de registro',parents=[parent] if parent else [])
                     self.output.show_result(source)
                     self.report.setPlainText(f"Registro: {source.name}\nMuestras: {data['samples']}\nMedia real: {data['mean_real']}\nMedia imaginaria: {data['mean_imag']}\nVarianza con divisor N: {data['variance_N']}\nVarianza con divisor N−1: {data['variance_N_minus_1'] if data['variance_N_minus_1'] is not None else 'No definida con una muestra'}\nValor cuadrático medio: {data['mean_square']}\nRMS: {data['rms']}\n\n"+data['scope']+'\n\nEl histograma estima una densidad por intervalos, no una distribución exacta. El área total es 1; la altura depende del ancho de cada intervalo.')
+                    if data.get('histogram_notice'):self.report.appendPlainText('\n'+data['histogram_notice'])
                     self.figure.clear();axis=self.figure.add_subplot(111);edges=np.asarray(data['histogram_edges']);axis.bar(edges[:-1],data['histogram_density'],width=np.diff(edges),align='edge',alpha=.8);axis.set_xlabel({'real':'Parte real','imag':'Parte imaginaria','magnitude':'Módulo'}[component]);axis.set_ylabel('Densidad estimada');axis.grid(alpha=.2);self.figure.tight_layout();self.canvas.draw_idle();self.tabs.setCurrentIndex(1)
-                self.window._run_operation('Calculando estadísticas…',lambda:random_signals.statistics(source,component,bins),accept)
+                    if data.get('histogram_notice'):
+                        axis.clear();axis.set_axis_off();axis.text(.5,.5,data['histogram_notice'],ha='center',va='center',wrap=True,transform=axis.transAxes);self.canvas.draw_idle()
+                self.window._run_operation('Calculando estadísticas…',lambda:random_signals.statistics(source,component,bins,histogram_notice=bins_notice),accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá las entradas',str(exc))

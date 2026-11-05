@@ -678,4 +678,16 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(rational.result.result.metadata['time_start_s'],2.)
 
 
+
+    def test_statistics_survive_an_unavailable_histogram(self):
+        from signallab_pc.random_panel import RandomPanel
+        panel=RandomPanel(self.host,'statistics');self.widgets.append(panel)
+        panel.source.set_source(Signal([1,2,3]))
+        for bins in ['0','mal','1000000000000000']:
+            panel.bins.setText(bins);panel.calculate()
+            self.assertEqual(self.warnings,[])
+            self.assertIn('Media real: 2.0',panel.report.toPlainText())
+            self.assertIn('El resultado principal se conserva',panel.report.toPlainText())
+
+
 if __name__=='__main__':unittest.main()
