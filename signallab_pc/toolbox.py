@@ -61,6 +61,8 @@ def populate_signal_menu(menu,window,value,key):
         area=entry['area']
         if area not in groups:groups[area]=menu.addMenu(AREA_BY_ID[area][1])
         groups[area].addAction(destination_label(entry,item),lambda checked=False,target=item:window.send_signal(value,key,target))
+    if key is not None and hasattr(window,'focus_result'):
+        menu.addAction('Ver en Resultados',lambda:window.focus_result(key))
     return list(groups.values())
 
 
@@ -215,12 +217,11 @@ class LocalInput(QGroupBox):
 
 class ResultView(QWidget):
     def __init__(self,details=True):
-        super().__init__();self.result=None;self.result_ids=[];self.expression_key=None;self.details=details;layout=QVBoxLayout(self);root=layout
+        super().__init__();self.result=None;self.result_ids=[];self.expression_key=None;self.details=details;self.show_action_bar=True;layout=QVBoxLayout(self);root=layout
         from .active_stack import ActiveTabs
         self.views=ActiveTabs();layout.addWidget(self.views,1);plot=QWidget();layout=QVBoxLayout(plot);self.views.addTab(plot,'Gráfico')
         self.actions=QWidget();action_layout=QVBoxLayout(self.actions);action_layout.setContentsMargins(0,0,0,0)
-        self.label=QLabel('El resultado aparecerá aquí.');self.label.setWordWrap(True);action_layout.addWidget(self.label)
-        bar=QHBoxLayout();action_layout.addLayout(bar)
+        self.label=QLabel('El resultado aparecerá aquí.');self.label.setWordWrap(True);bar=QHBoxLayout();action_layout.addLayout(bar);action_layout.addWidget(self.label)
         self.send=QPushButton('Usar señal en…');self.send.setProperty('actionRole','reuse');self.send.setEnabled(False);self.send_menu=QMenu(self.send);self.send.setMenu(self.send_menu);self.send_menu.aboutToShow.connect(self.prepare_send);bar.addWidget(self.send)
         self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas')
         self.cas_menu=QMenu(self.cas_button);self.cas_button.setMenu(self.cas_menu)
@@ -243,7 +244,7 @@ class ResultView(QWidget):
         self.empty=QLabel('El resultado aparecerá después de calcular.');self.empty.setObjectName('muted');self.empty.setWordWrap(True);root.insertWidget(0,self.empty);self.views.hide();self.actions.hide()
         self.development=ReportView();self.development_index=self.views.addTab(report_panel(self.development),'Desarrollo');self.views.setTabVisible(self.development_index,False)
     def show_content(self):
-        self.empty.hide();self.views.show();self.actions.show()
+        self.empty.hide();self.views.show();self.actions.setVisible(self.show_action_bar)
     def show_result(self,result,*,source=None,operation=None):
         candidates=result if isinstance(result,tuple) else (result,)
         if all(isinstance(value,Signal) for value in candidates):validate_overlay(candidates)
@@ -366,6 +367,11 @@ class ResultView(QWidget):
     def prepare_send(self):
         self.send_menu.clear();self.send_menu_refs=[];self.send_action_refs=[];window=self.window()
         signals=self.result if isinstance(self.result,tuple) else (self.result,)
+        if self.expression_key:
+            from .result_expressions import populate_reuse_menu
+            formula=self.send_menu.addMenu('Fórmula del resultado')
+            populate_reuse_menu(formula,window,self.expression_key)
+            self.send_menu_refs.append(formula)
         if not all(isinstance(value,Signal) for value in signals):return
         for index,value in enumerate(signals):
             if not isinstance(value,Signal):continue
@@ -1026,7 +1032,7 @@ class ToolboxWindow(SignalLabWindow):
             return
         if item[1]=='frequency_filter':
             panel=self.stack.currentWidget().panel
-            if value.domain=='frequency':panel.receive_response(value)
+            if value.domain=='frequency':panel.receive_response(value,key)
             else:
                 panel.domain.setCurrentIndex(0 if value.domain=='discrete' else 1);panel.operation.setCurrentIndex(1)
                 (panel.xd if value.domain=='discrete' else panel.xc).set_source(value,key)

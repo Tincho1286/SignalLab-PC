@@ -40,7 +40,7 @@ class StateModelResultActions(QWidget):
     def __init__(self,owner,source_action):
         super().__init__();self.owner=owner;self.source_action=source_action;self.model=None;self.key=None
         row=QHBoxLayout(self);row.setContentsMargins(0,0,0,0)
-        self.reuse=QPushButton('Usar modelo calculado en…');self.reuse.setProperty('actionRole','reuse');self.menu=QMenu(self.reuse);self.reuse.setMenu(self.menu);self.menu.aboutToShow.connect(self.prepare_menu);row.addWidget(self.reuse)
+        self.reuse=QPushButton('Usar modelo en…');self.reuse.setProperty('actionRole','reuse');self.menu=QMenu(self.reuse);self.reuse.setMenu(self.menu);self.menu.aboutToShow.connect(self.prepare_menu);row.addWidget(self.reuse)
         self.reuse.setToolTip('Copia el último modelo calculado, aunque hayas modificado los campos. El destino conserva su propio resultado hasta que calcules allí.')
         self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas')
         self.cas_button.clicked.connect(self.send_to_cas);row.addWidget(self.cas_button)

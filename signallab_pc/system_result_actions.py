@@ -9,10 +9,9 @@ class SystemResultActions(QWidget):
         menu.addAction('Polos y ceros',self.roots)
         menu.addAction('Respuesta en frecuencia',lambda:self.send_to(('system_analysis',0)))
         self.temporal_action=menu.addAction('Respuesta temporal',lambda:self.send_to(('systems',9)))
-        row.addWidget(self.analysis)
         self.reuse=QPushButton('Usar filtro en…');self.reuse.setProperty('actionRole','reuse');self.reuse_menu=QMenu(self.reuse);self.reuse.setMenu(self.reuse_menu);self.reuse_menu.aboutToShow.connect(self.prepare_reuse);row.addWidget(self.reuse)
         self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas')
-        self.cas_button.clicked.connect(self.send_to_cas);row.addWidget(self.cas_button)
+        self.cas_button.clicked.connect(self.send_to_cas);row.addWidget(self.cas_button);row.addWidget(self.analysis)
         self.export_button=QPushButton('Exportar filtro…');self.export_button.clicked.connect(lambda:self.owner.export_transfer(self.system) if self.system is not None else None);row.addWidget(self.export_button)
         self.set_result(None)
     def set_result(self,system,key=None):

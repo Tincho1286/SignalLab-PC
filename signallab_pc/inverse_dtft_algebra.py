@@ -26,7 +26,7 @@ def inverse_expression(request):
         return attach({'operation':'DTFT inversa algebraica','result':source(exact),'display_result':source(exact),
             'evaluated':True,'condition':'True','output_variable':'n','frequency_units':'rad/muestra',
             'input_expression':request['expression'],
-            'scope':'Se integró cada banda de frecuencia en un período. La fórmula en n incluye el valor en el origen.'},definition)
+            'scope':'Se integró cada banda de frecuencia en un período. La fórmula en n incluye el valor en el origen.'},definition,exact=exact)
     equivalent=rational_z(value)
     if equivalent is not None and not equivalent.free_symbols-{Z}:
         from .z_inverse import inverse
@@ -46,7 +46,7 @@ def inverse_expression(request):
     answer={'operation':'DTFT inversa algebraica','result':source(result),'display_result':source(result),'evaluated':evaluated,
         'condition':'True','output_variable':'n','frequency_units':'rad/muestra','input_expression':request['expression'],
         'scope':'x[n] = (1/2π) ∫ de −π a π X(ω)e^(iωn)dω, para n entero. La entrada representa un período y se extiende periódicamente. Si queda una integral sin resolver, no se declara una expresión evaluada.'}
-    return attach(answer,definition)
+    return attach(answer,definition,exact=result)
 
 
 def sample_expression(request):
@@ -55,15 +55,15 @@ def sample_expression(request):
     start,count=int(start),int(count)
     if max(abs(start),abs(start+count-1))>2**53:raise ValueError('Los índices exceden la precisión de float64.')
     ensure_working_set(count,live_arrays=12)
-    value=parse(request['expression']);equivalent=rational_z(value)
-    if equivalent is not None and not equivalent.free_symbols-{Z}:
+    result=request.get('solved') or inverse_expression(request)
+    if result.get('z_equivalent'):
         from .z_inverse import inverse
-        result=inverse({'expression':str(equivalent),'roc':'radius','radius':'1','include_samples':True,'start':start,'count':count})
-        return {'samples':result['numeric_samples'],'origin':start}
-    result=inverse_expression(request)
+        numerical=inverse({'expression':result['z_equivalent'],'roc':'radius','radius':'1','include_samples':True,'start':start,'count':count})
+        return {'samples':numerical['numeric_samples'],'origin':start}
     if not result['evaluated']:raise ValueError('La integral todavía no está resuelta. Usá la DTFT inversa numérica para integrar una rejilla de frecuencia.')
     from .signal_notation import read
-    expression=read(result['result'],('n',))
+    from .cas_engine import restore
+    expression=restore(result['cas_encoded']) if result.get('cas_encoded') else read(result['result'],('n',))
     if expression.free_symbols-{N}:raise ValueError('Asigná valores a los parámetros antes de generar muestras.')
     if expression.has(sp.DiracDelta,sp.Integral):raise ValueError('Esta expresión no admite muestras finitas ordinarias.')
     from .singularities import sample_symbolic

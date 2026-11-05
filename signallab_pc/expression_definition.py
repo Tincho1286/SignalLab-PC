@@ -84,7 +84,12 @@ def prepare(source,variable,domain,support=None,conditions=(),support_kind='sign
     return Definition(str(source),expression,variable,domain,support,support_kind,tuple(dict(r) for r in records.values()),tuple(map(str,conditions)))
 
 
-def attach(result,definition):
+def attach(result,definition,*,exact=None,condition=None):
+    if exact is not None and result.get('evaluated'):
+        from .cas_engine import encode
+        result['cas_encoded']=encode(exact)
+        if condition is not None and condition is not sp.true:
+            result['cas_domain_condition']=encode(condition)
     result['input_definition']=definition.metadata()
     if definition.extensions:
         from .transform_status import merge_notes

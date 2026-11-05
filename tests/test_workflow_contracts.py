@@ -14,6 +14,7 @@ from signallab_pc.system_analysis_panel import SystemAnalysisPanel
 from signallab_pc.transform_lab import TransformLab
 from signallab_pc.symbolic import execute
 from signallab_pc.filters import Transfer
+from signallab_pc.model import Signal
 
 SOURCE='sin(0.3*pi*(n-4))/(pi*(n-4))'
 
@@ -27,6 +28,9 @@ class Host:
         self.current_operation=tuple(route)
         if self.current_operation not in self.pages:
             if self.current_operation in (ROUTES['transform_lab','z'],ROUTES['transform_lab','laplace']):panel=TransformLab(self,'z' if self.current_operation==ROUTES['transform_lab','z'] else 'laplace')
+            elif route[1] in ('dtft_symbolic','fourier_symbolic'):
+                from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
+                panel=SymbolicFourierPanel(self,inverse=bool(route[2]),discrete=route[1]=='dtft_symbolic')
             else:panel=SystemAnalysisPanel(self)
             self.pages[self.current_operation]=SimpleNamespace(panel=panel)
     def open_cas(self):
@@ -156,9 +160,24 @@ class WorkflowContracts(unittest.TestCase):
         self.assertTrue(window.isVisible());assert_allclose(panel.output.result.values, 0)
 
     def test_dtft_result_reused_as_frequency_system(self):
-        from signallab_pc.result_expressions import send_expression
         request=dict(operation='dtft_expression',expression='sin(0.3*pi*(n-4))/(pi*(n-4))',lower='-oo',upper='oo')
-        key=self.host.publish(dict(request=request,result=execute(request)));send_expression(self.host,key,'system');panel=self.calculated_analysis()
+        from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
+        source=SymbolicFourierPanel(self.host,discrete=True);self.widgets.append(source)
+        source.expression.setText(request['expression']);source.lower.setText('-oo');source.upper.setText('oo')
+        source.calculate_button.click()
+        source.to_cas_button.menu().aboutToShow.emit()
+        source.to_cas_button.menu().actions()[0].trigger()
+        sheet=self.host.pages[self.host.current_operation]
+        self.assertEqual(sheet.entries[-1]['status'],'done',sheet.entries[-1].get('error'))
+        sheet.input.setPlainText('subst(r1,w,3*pi/10)');sheet.calculate()
+        from signallab_pc.cas_engine import restore
+        import sympy as sp
+        expected=sp.exp(-sp.I*4*3*sp.pi/10)/2
+        self.assertEqual(sp.simplify(restore(sheet.state['results']['2'])-expected),0)
+        source.reuse_button.menu().aboutToShow.emit()
+        action=next(action for action in source.reuse_button.menu().actions() if action.text()=='Analizar como sistema H(w)')
+        action.trigger()
+        panel=self.calculated_analysis()
         assert_allclose(panel.frequency_data.magnitude[:30],1,atol=1e-13);assert_allclose(panel.frequency_data.magnitude[31:],0,atol=1e-13)
         self.assertEqual(panel.definition_mode.currentIndex(),2);self.assertIsNone(panel.system)
 
@@ -271,7 +290,9 @@ class WorkflowContracts(unittest.TestCase):
         from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
         panel=SymbolicFourierPanel(self.host,discrete=True);self.widgets.append(panel)
         panel.expression.setText('1/n');panel.lower.setText('1')
-        panel.calculate_button.click();panel.to_cas_button.click()
+        panel.calculate_button.click()
+        panel.to_cas_button.menu().aboutToShow.emit()
+        panel.to_cas_button.menu().actions()[0].trigger()
         sheet=self.host.pages[self.host.current_operation]
         self.assertEqual(self.warnings,[])
         self.assertEqual(sheet.entries[-1]['status'],'done',sheet.entries[-1].get('error'))
@@ -289,6 +310,25 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(sheet.entries[-1]['status'],'done',sheet.entries[-1].get('error'))
         self.assertEqual(sheet.entries[-1]['answer']['expression'],'-log(2)')
 
+    def test_discrete_bins_do_not_become_temporal_filter_inputs(self):
+        from signallab_pc.operations import dft
+        from signallab_pc.windowing import multiply_signals,window_impulse
+        from signallab_pc.state_simulation_inputs import prepare_inputs
+        from signallab_pc.state_space import StateModel
+        bins=dft(Signal([1,2,3]))
+        model=StateModel([[.5]],[[1]],[[1]],[[0]],dt=1)
+        for operation in (lambda:multiply_signals(bins,bins),lambda:window_impulse(bins),
+                          lambda:prepare_inputs(model,[bins])):
+            with self.assertRaisesRegex(ValueError,'señal temporal'):operation()
+
+    def test_spectral_roles_remain_distinct_in_comparison_and_energy(self):
+        from signallab_pc.fourier import energy_density
+        from signallab_pc.result_comparison import compare
+        filt=Signal([1,1,1],-1,1,'rad/muestra',domain='frequency',metadata={'operation':'frequency_filter'})
+        with self.assertRaisesRegex(ValueError,'respuesta de un filtro'):energy_density(filt)
+        density=filt.copy_with(metadata={'operation':'energy_density'})
+        with self.assertRaisesRegex(ValueError,'misma clase'):compare(filt,density)
+
     def test_ideal_filter_sends_each_formula_and_selected_samples(self):
         from signallab_pc.frequency_filter_panel import FrequencyFilterPanel
         from signallab_pc.cas_engine import restore
@@ -300,8 +340,15 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(panel.reuse_button.text(),'Usar filtro en…')
         self.assertIs(panel.cas_button.parentWidget(),panel.reuse_button.parentWidget())
         self.assertIs(panel.view.actions.parentWidget(),panel.tabs.parentWidget())
+        panel.reuse_button.menu().aboutToShow.emit()
+        inverse=next(action for action in panel.reuse_button.menu().actions() if action.text()=='DTFT inversa algebraica')
+        inverse.trigger()
+        destination=self.host.pages[self.host.current_operation].panel
+        self.assertIn('Piecewise',destination.expression.text())
         panel.cas_definition.trigger();sheet=self.host.pages[self.host.current_operation]
         self.assertEqual(sheet.input.toPlainText(),'r1')
+        response=execute(dict(operation='cas_worksheet',state=sheet.state,cell=3,source='subst(r1,w,pi)'))
+        self.assertEqual(response['expression'],'0')
         panel.cas_impulse.trigger()
         self.assertEqual(sheet.input.toPlainText(),'r2')
         self.assertEqual(sheet.entries[-1]['status'],'done',sheet.entries[-1].get('error'))
@@ -310,7 +357,9 @@ class WorkflowContracts(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'fuera del dominio'):
             execute(dict(operation='cas_worksheet',state=sheet.state,cell=3,source='subst(r2,n,1/2)'))
         sheet.input.setPlainText('simplify(r2)')
-        panel.selector.setCurrentIndex(1);panel.cas_samples.trigger()
+        panel.selector.setCurrentIndex(1)
+        self.assertEqual(panel.reuse_button.text(),'Usar señal en…')
+        panel.cas_samples.trigger()
         self.assertEqual(sheet.input.toPlainText(),'simplify(r2)')
         self.assertEqual(restore(sheet.state['results']['3']).shape,(65,2))
         self.assertEqual(self.warnings,[])

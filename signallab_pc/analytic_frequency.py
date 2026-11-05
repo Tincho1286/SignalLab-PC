@@ -117,7 +117,7 @@ def smooth_frequency_derivative(frequency,omega):
     jumps=np.zeros(omega.shape,dtype=bool)
     if np.any(candidates):
         a,b=_sample(frequency,left[candidates]),_sample(frequency,right[candidates])
-        jumps[candidates]=~np.isfinite(a)|~np.isfinite(b)|(abs(a-b)>1e-8*np.maximum(1,np.maximum(abs(a),abs(b))))
+        jumps[candidates]=~np.isfinite(a)|~np.isfinite(b)|(abs(a-b)>1e-8*np.maximum(abs(a),abs(b)))
     return derivative,jumps
 
 

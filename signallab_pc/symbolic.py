@@ -127,13 +127,13 @@ def _execute(request):
             from .dtft_pairs import direct as dtft_pairs
             spectrum=dtft_pairs(value)
             if spectrum is not None:
-                return attach({'operation':'dtft_expression','result':str(spectrum),'condition':'True','output_variable':'w','evaluated':True,'method':'sinc_rectangle_pair','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se aplicaron el par sinc/rectángulo, la linealidad, el desplazamiento y la traslación en frecuencia, conservando las muestras definidas por continuidad. Las imágenes espectrales se suman cuando se superponen. El espectro es 2π-periódico; en cada salto toma el promedio de los límites laterales.'},definition)
+                return attach({'operation':'dtft_expression','result':str(spectrum),'condition':'True','output_variable':'w','evaluated':True,'method':'sinc_rectangle_pair','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se aplicaron el par sinc/rectángulo, la linealidad, el desplazamiento y la traslación en frecuencia, conservando las muestras definidas por continuidad. Las imágenes espectrales se suman cuando se superponen. El espectro es 2π-periódico; en cada salto toma el promedio de los límites laterales.'},definition,exact=spectrum)
         from .z_direct_pairs import direct_pairs
         try:pair=direct_pairs(value,lower,upper)
         except (sp.PolynomialError,NotImplementedError):pair=None
         if pair is not None and not pair['empty'] and sp.simplify(pair['condition'].subs(Z,sp.exp(sp.I*W))) is sp.true:
             result=sp.simplify(pair['result'].subs(Z,sp.exp(sp.I*W)))
-            return attach({'operation':'dtft_expression','result':str(result),'condition':'True','output_variable':'w','evaluated':not result.has(sp.Sum,sp.oo,sp.zoo,sp.nan),'method':'shared_discrete_pairs','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se usa la misma secuencia de índices enteros que en Z, incluyendo sus valores por continuidad. La evaluación z=exp(i*w) se aplica sólo cuando las condiciones calculadas permiten todo el círculo unitario.'},definition)
+            return attach({'operation':'dtft_expression','result':str(result),'condition':'True','output_variable':'w','evaluated':not result.has(sp.Sum,sp.oo,sp.zoo,sp.nan),'method':'shared_discrete_pairs','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se usa la misma secuencia de índices enteros que en Z, incluyendo sus valores por continuidad. La evaluación z=exp(i*w) se aplica sólo cuando las condiciones calculadas permiten todo el círculo unitario.'},definition,exact=result)
         if pair is not None:
             condition=sp.simplify(pair['boundary_condition'].subs(Z,sp.exp(sp.I*W)))
             if condition is not sp.false:
@@ -141,7 +141,7 @@ def _execute(request):
                 if not result.has(sp.Sum,sp.oo,sp.zoo,sp.nan):
                     return attach({'operation':'dtft_expression','result':str(result),'condition':str(condition),'output_variable':'w','evaluated':True,'method':'certified_boundary_pairs','frequency_units':'rad/muestra',
                         'convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic',
-                        'scope':'La convergencia sobre el círculo unitario se comprueba por separado de la ROC abierta de Z. Las potencias recíprocas utilizan convergencia absoluta o el criterio de Dirichlet fuera de las frecuencias resonantes indicadas. No se sustituye z=exp(i*w) sin comprobar la convergencia de la serie ordinaria.'},definition)
+                        'scope':'La convergencia sobre el círculo unitario se comprueba por separado de la ROC abierta de Z. Las potencias recíprocas utilizan convergencia absoluta o el criterio de Dirichlet fuera de las frecuencias resonantes indicadas. No se sustituye z=exp(i*w) sin comprobar la convergencia de la serie ordinaria.'},definition,exact=result,condition=condition)
         term=sp.simplify(value*sp.exp(-sp.I*W*N))
         result=sp.simplify(sp.summation(term,(N,lower,upper)))
         if result.has(sp.Sum) and term!=0:
@@ -160,7 +160,7 @@ def _execute(request):
         return attach({'operation':'dtft_expression','result':str(result),'condition':'True','output_variable':'w',
                 'evaluated':not result.has(sp.Sum),'frequency_units':'rad/muestra',
                 'convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic',
-                'scope':'Secuencia indicada entre límites inclusivos; cero fuera si los límites son finitos. Las condiciones y ramas de convergencia permanecen dentro de la expresión.'},definition)
+                'scope':'Secuencia indicada entre límites inclusivos; cero fuera si los límites son finitos. Las condiciones y ramas de convergencia permanecen dentro de la expresión.'},definition,exact=result)
     if operation in ('fourier_angular','inverse_fourier_angular'):
         frequency=sp.Dummy('frequency',real=True)
         from .expression_definition import prepare,attach
@@ -174,7 +174,7 @@ def _execute(request):
                 return attach({'operation':operation,'result':str(exact),'condition':'True','evaluated':True,
                     'output_variable':'t','frequency_units':'rad/s',
                     'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
-                    'scope':'Inversa por integración de bandas y pares de Fourier. Los valores aislados de frecuencia tienen medida nula.'},definition)
+                    'scope':'Inversa por integración de bandas y pares de Fourier. Los valores aislados de frecuencia tienen medida nula.'},definition,exact=exact)
         from .impulse_pairs import fourier_pairs
         known,regular=fourier_pairs(value,W if inverse else T,T if inverse else W,inverse=inverse)
         if regular==0:answer=(sp.S.Zero,sp.true)
@@ -192,13 +192,16 @@ def _execute(request):
         return attach({'operation':operation,'result':str(result),'condition':str(condition),
                 'evaluated':evaluated,'output_variable':'t' if inverse else 'w',
                 'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)' if inverse else 'X(w) = integral x(t) exp(-i*w*t) dt',
-                'frequency_units':'rad/s','scope':'Transformada bilateral. Las condiciones simbólicas acompañan la expresión; no se asume soporte causal.'},definition)
+                'frequency_units':'rad/s','scope':'Transformada bilateral. Las condiciones simbólicas acompañan la expresión; no se asume soporte causal.'},definition,exact=result,condition=condition)
     if operation == 'expression_grid':
         import numpy as np
         from .operations import _finite_output
         variable={'t':T,'w':W}.get(request['variable'])
         if variable is None:raise ValueError('Elegí t o w como variable de muestreo.')
-        value=parse(expression)
+        if request.get('encoded'):
+            from .cas_engine import restore
+            value=restore(request['encoded'])
+        else:value=parse(expression)
         if value.has(sp.DiracDelta,sp.FourierTransform,sp.InverseFourierTransform,sp.Integral,sp.Sum):
             raise ValueError('Una distribución o integral sin evaluar no se puede convertir en muestras finitas.')
         condition=parse(request.get('condition','True'))

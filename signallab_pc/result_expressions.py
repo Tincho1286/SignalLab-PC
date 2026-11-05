@@ -48,7 +48,7 @@ def expression_destinations(expression):
     if v=='tau':destinations.append(('Crear señal continua desde la correlación','signal'))
     if v=='n':destinations.append(('Enventanar como h[n] de un FIR','fir_window'))
     if v in ('s','z'):destinations += [('Transformada '+('Z inversa' if v=='z' else 'de Laplace inversa'),'inverse'),('Analizar como H('+v+')','system')]
-    if v=='w' and expression.units in ('rad/s','rad/muestra'):destinations.append(('Analizar respuesta en frecuencia','system'))
+    if v=='w' and expression.units in ('rad/s','rad/muestra'):destinations.append(('Analizar como sistema H(w)','system'))
     if v=='w' and expression.units=='rad/s':destinations.append(('Fourier continua inversa','fourier_inverse'))
     if v=='w' and expression.units in ('','rad/muestra'):
         destinations.extend([('DTFT inversa algebraica','inverse_dtft'),('DTFT inversa numérica','inverse_dtft_numeric')])
@@ -64,7 +64,7 @@ def check_cas_destination(answer,destination):
     if not answer.get('domain_condition') or destination in ('copy','cas'):
         return
     coordinate=answer.get('coordinate_variable')
-    if coordinate in ('n','k','t','tau'):
+    if coordinate in ('n','k','t','tau','w'):
         from .cas_context import coordinate_domain
         from .cas_engine import restore
         import sympy as sp
@@ -88,13 +88,25 @@ def check_cas_destination(answer,destination):
     raise ValueError('Este destino no aplica las condiciones de validez del CAS. Revisá la condición en el informe y definí allí el dominio antes de reutilizar la fórmula.')
 
 
-def populate_reuse_menu(menu,window,key):
+def populate_reuse_menu(menu,window,key,*,before=None):
     if key is None:return
     expression=window.project.expression(key)
     if expression is None:return
+    from PySide6.QtGui import QAction
     for label,destination in expression_destinations(expression):
         if destination=='cas':continue
-        menu.addAction(label,lambda checked=False,target=destination:send_expression(window,key,target))
+        action=QAction(label,menu)
+        action.triggered.connect(lambda checked=False,target=destination:reuse_expression(window,key,target))
+        if before is None:menu.addAction(action)
+        else:menu.insertAction(before,action)
+
+
+def reuse_expression(window,key,destination):
+    from PySide6.QtWidgets import QMessageBox
+    try:
+        send_expression(window,key,destination)
+    except (ValueError,TypeError,SyntaxError,KeyError) as exc:
+        QMessageBox.warning(window,'No se pudo reutilizar el resultado',str(exc))
 
 
 def send_expression(window,key,destination):

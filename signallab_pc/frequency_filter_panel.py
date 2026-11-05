@@ -27,9 +27,10 @@ class FrequencyFilterPanel(QWidget):
         form.addRow(self.periodic)
         self.form=form;self.operation.currentIndexChanged.connect(self.update_inputs);self.domain.currentIndexChanged.connect(self.update_domain)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);left=QVBoxLayout();left.addWidget(scroll);self.calculate_button=QPushButton('Calcular');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);left.addWidget(self.calculate_button);root.addLayout(left,1)
-        right=QVBoxLayout();self.selector=QComboBox();self.selector.currentIndexChanged.connect(self.display);right.addWidget(self.selector)
+        right=QVBoxLayout();self.selector=QComboBox();self.selector.currentIndexChanged.connect(self.display)
         self.tabs=QTabWidget();self.view=ResultView();self.report=ReportView()
         right.addWidget(self.view.actions)
+        right.addWidget(self.selector)
         self.tabs.addTab(self.view,'Gráfico y valores');self.tabs.addTab(report_panel(self.report),'Fórmula e informe')
         right.addWidget(self.tabs);root.addLayout(right,2)
         self.algebraic_key=None
@@ -61,7 +62,8 @@ class FrequencyFilterPanel(QWidget):
     def calculate(self):
         try:
             digital=self.domain.currentIndex()==0;domain='discrete' if digital else 'continuous';unit='rad/muestra' if digital else 'rad/s'
-            response=self.h._read().copy_with(name='Respuesta H(ω)')
+            response=self.h.read().copy_with(name='Respuesta H(ω)')
+            parents=[self.h.reference_id] if self.h.reference_id else []
             if self.h.mode.currentIndex()==2 and response.units!=unit:raise ValueError('La respuesta importada debe usar '+unit+'.')
             from .signal_semantics import require_frequency_response
             require_frequency_response(response)
@@ -84,7 +86,7 @@ class FrequencyFilterPanel(QWidget):
                 self.results=values;self.selector.blockSignals(True);self.selector.clear()
                 keys=[]
                 for value in values:
-                    keys.append(self.window.publish(value,operation='Filtro por respuesta en frecuencia'))
+                    keys.append(self.window.publish(value,operation='Filtro por respuesta en frecuencia',parents=parents))
                     self.selector.addItem(value.name)
                 self.result_keys=keys;self.algebraic_key=None;self.impulse_key=None;sections=[]
                 if algebra:
@@ -107,18 +109,17 @@ class FrequencyFilterPanel(QWidget):
             self.window._run_operation('Calculando filtro por tramos…',compute,accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá la definición',str(exc))
     def add_filter_destinations(self):
-        if self.algebraic_key is None:return
-        from PySide6.QtWidgets import QMenu
         from .result_expressions import populate_reuse_menu
+        index=self.selector.currentIndex()
+        key=self.algebraic_key if index==0 else self.impulse_key if index==1 else None
         menu=self.reuse_button.menu()
-        definition=QMenu('Fórmula de H(w)',menu)
-        populate_reuse_menu(definition,self.window,self.algebraic_key)
-        items=menu.actions()
-        if items:menu.insertMenu(items[0],definition)
-        else:menu.addMenu(definition)
-        previous=getattr(self,'_definition_menu',None)
-        if previous is not None:previous.deleteLater()
-        self._definition_menu=definition
+        if key is not None:
+            before=menu.actions()[0] if menu.actions() else None
+            populate_reuse_menu(menu,self.window,key,before=before)
+        if index!=0 and self.algebraic_key is not None:
+            definition=menu.addMenu('Filtro H(w)')
+            populate_reuse_menu(definition,self.window,self.algebraic_key)
+            self.view.send_menu_refs.append(definition)
 
     def display(self,*_):
         index=self.selector.currentIndex()
@@ -129,9 +130,8 @@ class FrequencyFilterPanel(QWidget):
         self.cas_impulse.setEnabled(self.impulse_key is not None)
         self.cas_samples.setEnabled(0<=index<len(self.result_keys))
         self.cas_button.setEnabled(bool(self.result_keys));self.cas_button.setVisible(bool(self.result_keys))
-        if self.algebraic_key is not None:
+        if index==0:
             self.reuse_button.setText('Usar filtro en…')
-            self.reuse_button.setEnabled(True);self.reuse_button.setVisible(True)
 
     def send_to_cas(self,key):
         if key is not None:
@@ -143,5 +143,5 @@ class FrequencyFilterPanel(QWidget):
         if 0<=index<len(self.result_keys):
             self.send_to_cas(self.result_keys[index])
 
-    def receive_response(self,value):
-        self.domain.setCurrentIndex(0 if value.units=='rad/muestra' else 1);self.h.set_source(value)
+    def receive_response(self,value,key=None):
+        self.domain.setCurrentIndex(0 if value.units=='rad/muestra' else 1);self.h.set_source(value,key)

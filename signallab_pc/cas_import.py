@@ -33,17 +33,19 @@ def _value(data,notices):
     if kind=='expression':
         notices.extend(data.get('conditions',[]))
         if data.get('variable') in ('n','k'):notices.append('La expresión de origen usa un índice entero. Los supuestos y definiciones de la hoja CAS se aplicarán al operar con este resultado.')
-        if data.get('encoded'):return restore(data['encoded'])
-        if data.get('numeric_source'):
-            notices.append('Se importó la expresión numérica disponible; sus decimales son aproximaciones, no coeficientes algebraicos exactos.')
-        value,condition=_expression(data.get('numeric_source') or data['source'])
-        if data.get('variable')=='w' and data.get('frequency_condition') not in (None,'True'):
+        from .cas_domains import bare
+        if data.get('encoded'):
+            value,condition=restore(data['encoded']),sp.true
+        else:
+            if data.get('numeric_source'):
+                notices.append('Se importó la expresión numérica disponible; sus decimales son aproximaciones, no coeficientes algebraicos exactos.')
+            value,condition=_expression(data.get('numeric_source') or data['source'])
+        if data.get('domain_condition'):
+            condition=sp.And(condition,bare(restore(data['domain_condition'])))
+        elif data.get('variable')=='w' and data.get('frequency_condition') not in (None,'True'):
             from .symbolic import parse
-            from .cas_domains import bare
             condition=sp.And(condition,bare(parse(data['frequency_condition'])))
-        if condition is not sp.true and data.get('variable') in ('w','n','t','tau'):
-            if data.get('domain_condition'):
-                condition=sp.And(condition,restore(data['domain_condition']))
+        if condition is not sp.true:
             data['domain_condition']=encode(condition)
             notices.append('Condición de validez de la fórmula: '+str(condition)+'.')
         return value

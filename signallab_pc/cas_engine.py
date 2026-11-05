@@ -22,7 +22,7 @@ FUNCTIONS={name:getattr(sp,name) for name in ('sin','cos','tan','asin','acos','a
     'diff','integrate','limit','series','summation','product','dsolve','nsolve','laplace_transform','inverse_laplace_transform',
     'gcd','lcm','div','rem','factorint','floor','ceiling','sign','conjugate')}
 FUNCTIONS.update({'sinc':lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x)/(sp.pi*x),True)),'abs':sp.Abs,'ln':sp.log,'re':sp.re,'im':sp.im,'conj':sp.conjugate,
-    'arg':sp.arg,'mod':sp.Mod,'ceil':sp.ceiling,'and':sp.And,'or':sp.Or,'not':sp.Not,'piecewise':sp.Piecewise,'heaviside':sp.Heaviside,'diracdelta':impulse,'dirac':impulse,'impulse':impulse,
+    'arg':sp.arg,'mod':sp.Mod,'ceil':sp.ceiling,'and':sp.And,'or':sp.Or,'not':sp.Not,'piecewise':sp.Piecewise,'where':lambda condition,value,otherwise:sp.Piecewise((value,condition),(otherwise,True)),'heaviside':sp.Heaviside,'diracdelta':impulse,'dirac':impulse,'impulse':impulse,
     'step':lambda value:sp.Heaviside(value,1),'kroneckerdelta':sp.KroneckerDelta,
     'integral':sp.Integral,'derivative':sp.Derivative,'sum':sp.summation,'prod':sp.product,
     'matrix':sp.Matrix,'vector':lambda value:sp.Matrix(value),'det':lambda a:a.det(),
@@ -306,9 +306,16 @@ class Calculator:
                 if key=='ans':
                     if node.args:raise ValueError('Usá ans o r1, r2, … para recuperar resultados.')
                     return self.name('ans')
-                if key=='piecewise' and all(isinstance(arg,(ast.List,ast.Tuple)) and len(arg.elts)==2 for arg in node.args):
+                if key=='where' and len(node.args)==3:
+                    test,value,otherwise=node.args
+                    piecewise_args=[ast.Tuple(elts=[value,test]),ast.Tuple(elts=[otherwise,ast.Constant(value=True)])]
+                elif key=='piecewise' and all(isinstance(arg,(ast.List,ast.Tuple)) and len(arg.elts)==2 for arg in node.args):
+                    piecewise_args=node.args
+                else:
+                    piecewise_args=None
+                if piecewise_args is not None:
                     pairs=[];defined=[];remaining=sp.true
-                    for arg in node.args:
+                    for arg in piecewise_args:
                         value,value_domain=collect(arg.elts[0]);test,test_domain=collect(arg.elts[1])
                         defined.append(sp.And(remaining,test_domain,bare(test),value_domain))
                         remaining=sp.And(remaining,test_domain,sp.Not(bare(test)))

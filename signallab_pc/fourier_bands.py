@@ -85,15 +85,20 @@ def frequency_definition(request):
     from .symbolic import parse,W,N,T,S,Z
     from .expression_dialects import to_symbolic
     from .signal_notation import source
+    from .cas_engine import encode
     text=to_symbolic(request['expression'])
     value=parse(text)
     if value.has(N,T,S,Z):raise ValueError('La definición de frecuencia usa w.')
     discrete=request.get('domain')=='discrete'
     output=N if discrete else T
-    exact=inverse_bands(value,W,output,discrete=discrete) if not discrete or request.get('canonical_period',True) else None
+    canonical=not discrete or request.get('canonical_period',True)
+    try:
+        exact=inverse_bands(value,W,output,discrete=discrete) if canonical else None
+    except (NotImplementedError, ValueError, TypeError, ArithmeticError):
+        exact=None
     inverse=None
     if exact is not None:
-        inverse={'result':source(exact),'output_variable':str(output),'evaluated':True,
+        inverse={'result':source(exact),'output_variable':str(output),'evaluated':True,'cas_encoded':encode(exact),
                  'scope':'Inversa de la definición algebraica completa. Los valores aislados de la frecuencia tienen medida nula.'}
     elif discrete and request.get('canonical_period',True) and not value.has(sp.Piecewise) and sp.count_ops(value)<48:
         from .inverse_dtft_algebra import rational_z
@@ -110,8 +115,9 @@ def frequency_definition(request):
     scope='Definición algebraica en frecuencia, separada de su rejilla numérica.'
     if discrete and request.get('canonical_period',True) and exact is not None and value.has(sp.Piecewise,sp.Heaviside):
         if not value.has(sp.Mod):
-            text=source(value.xreplace({W:sp.Mod(W+sp.pi,2*sp.pi)-sp.pi}))
+            value=value.xreplace({W:sp.Mod(W+sp.pi,2*sp.pi)-sp.pi})
+            text=source(value)
         scope+=' En discreto, la banda entre −π y π se repite cada 2π.'
     return {'definition':{'result':text,'output_variable':'w','frequency_units':'rad/muestra' if discrete else 'rad/s',
-                          'evaluated':True,'scope':scope},
+                          'evaluated':True,'cas_encoded':encode(value),'scope':scope},
             'inverse':inverse}

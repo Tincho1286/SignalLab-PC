@@ -33,17 +33,17 @@ class SymbolicFourierPanel(QWidget):
         scope=QLabel('La expresión algebraica y sus muestras se conservan como objetos distintos, vinculados por su procedencia. Las distribuciones y las expresiones no resueltas no se convierten en muestras finitas.');scope.setWordWrap(True);numeric_form.addRow(scope)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);layout.setContentsMargins(0,0,0,0);root.addWidget(right,2)
-        actions=QHBoxLayout()
-        self.reuse_button=QPushButton('Usar señal en…' if inverse else 'Usar expresión en…')
+        actions=QHBoxLayout();actions.setContentsMargins(0,0,0,0)
+        self.reuse_button=QPushButton('Usar señal en…' if inverse else 'Usar espectro en…')
         self.reuse_button.setProperty('actionRole','reuse');self.reuse_button.setEnabled(False)
         menu=QMenu(self.reuse_button);self.reuse_button.setMenu(menu)
         menu.aboutToShow.connect(self.prepare_reuse);actions.addWidget(self.reuse_button)
-        self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setProperty('actionRole','cas');self.to_cas_button.setToolTip('Envía la última expresión calculada y sus condiciones. Para enviar muestras, usá el menú del registro numérico.');self.to_cas_button.setEnabled(False);self.to_cas_button.clicked.connect(self.to_cas);actions.addWidget(self.to_cas_button);actions.addStretch();layout.addLayout(actions)
+        self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setProperty('actionRole','cas');self.to_cas_button.setToolTip('Envía la última expresión calculada y sus condiciones. El menú también permite enviar las muestras si generaste un registro.');self.to_cas_button.setEnabled(False);self.to_cas_button.setMenu(QMenu(self.to_cas_button));self.to_cas_button.menu().aboutToShow.connect(self.prepare_cas);actions.addWidget(self.to_cas_button);actions.addStretch();layout.addLayout(actions)
         self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.report.setReadOnly(True);self.tabs.addTab(report_panel(self.report),'Expresión y condiciones')
         from .plot_actions import install_result_button
         install_result_button(self.tabs,self.sample_button)
         self.report.setPlainText('Ingresá la expresión y calculá. Si el resultado admite valores numéricos, aparecerán los campos para graficarlo.')
-        self.output=ResultView();self.tabs.addTab(self.output,'Registro numérico');self.tabs.setTabVisible(1,False)
+        self.output=ResultView();self.output.show_action_bar=False;self.tabs.addTab(self.output,'Registro numérico');self.tabs.setTabVisible(1,False)
         from .expression_grid_view import ExpressionGridView
         self.masked=ExpressionGridView();self.masked_index=self.tabs.addTab(self.masked,'Valores condicionados');self.tabs.setTabVisible(self.masked_index,False)
         self.steps=ReportView();self.steps_index=self.tabs.addTab(report_panel(self.steps),'Desarrollo');self.tabs.setTabVisible(self.steps_index,False)
@@ -71,6 +71,17 @@ class SymbolicFourierPanel(QWidget):
         from .result_expressions import populate_reuse_menu
         menu=self.reuse_button.menu();menu.clear()
         if self.last is not None:populate_reuse_menu(menu,self.window,self.last[0])
+        if self.tabs.isTabVisible(1) and self.output.result_ids:
+            from .toolbox import populate_signal_menu
+            samples=menu.addMenu('Muestras del registro numérico')
+            self._sample_routes=populate_signal_menu(samples,self.window,self.output.result,self.output.result_ids[0])
+    def prepare_cas(self):
+        menu=self.to_cas_button.menu();menu.clear()
+        menu.addAction('Fórmula del resultado',self.to_cas)
+        if self.tabs.isTabVisible(1) and self.output.result_ids:
+            from .cas_transfer import send_to_cas
+            key=self.output.result_ids[0]
+            menu.addAction('Muestras del registro numérico',lambda:send_to_cas(self.window,key))
     def to_cas(self):
         if self.last is not None:
             from .cas_transfer import send_to_cas
@@ -138,7 +149,7 @@ class SymbolicFourierPanel(QWidget):
         key,result=self.last
         if not result['evaluated']:return
         if self.discrete and self.inverse:
-            try:request=dict(operation='inverse_dtft_samples',expression=result['input_expression'],start=integer_field(self.start),count=integer_field(self.count))
+            try:request=dict(operation='inverse_dtft_samples',expression=result['input_expression'],solved=result,start=integer_field(self.start),count=integer_field(self.count))
             except ValueError as exc:QMessageBox.warning(self,'Revisá los índices',str(exc));return
             if self.reopen_plot(key, request):
                 return
@@ -152,7 +163,7 @@ class SymbolicFourierPanel(QWidget):
                 open_result_plot(self.output, self)
                 self._sampled_plot = (key, request, self.output.canvas)
             self.window._run_operation('Evaluando DTFT inversa…',lambda:run_request(request),accept);return
-        try:request=dict(operation='expression_grid',expression=result['result'],variable=result['output_variable'],condition=result['condition'],allow_undefined=True,start=real_field(self.start),stop=real_field(self.stop),count=integer_field(self.count))
+        try:request=dict(operation='expression_grid',expression=result['result'],variable=result['output_variable'],condition=result['condition'],encoded=result.get('cas_encoded'),allow_undefined=True,start=real_field(self.start),stop=real_field(self.stop),count=integer_field(self.count))
         except ValueError as exc:QMessageBox.warning(self,'Revisá la rejilla',str(exc));return
         if self.reopen_plot(key, request):
             return

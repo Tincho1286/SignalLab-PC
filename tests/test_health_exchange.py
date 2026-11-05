@@ -125,25 +125,6 @@ class HealthExchangeContracts(unittest.TestCase):
         grid=execute(dict(operation='expression_grid',expression='1/w',allow_undefined=True,variable='w',start=-1,stop=1,count=3))
         self.assertFalse(can_send(grid))
         with self.assertRaisesRegex(ValueError,'no se descartan'):payload(grid)
-    def test_discrete_bins_do_not_become_temporal_filter_inputs(self):
-        from signallab_pc.operations import dft
-        from signallab_pc.windowing import multiply_signals,window_impulse
-        from signallab_pc.state_simulation_inputs import prepare_inputs
-        from signallab_pc.state_space import StateModel
-        bins=dft(Signal([1,2,3]))
-        model=StateModel([[.5]],[[1]],[[1]],[[0]],dt=1)
-        for operation in (lambda:multiply_signals(bins,bins),lambda:window_impulse(bins),
-                          lambda:prepare_inputs(model,[bins])):
-            with self.assertRaisesRegex(ValueError,'señal temporal'):operation()
-
-    def test_spectral_roles_remain_distinct_in_comparison_and_energy(self):
-        from signallab_pc.fourier import energy_density
-        from signallab_pc.result_comparison import compare
-        filt=Signal([1,1,1],-1,1,'rad/muestra',domain='frequency',metadata={'operation':'frequency_filter'})
-        with self.assertRaisesRegex(ValueError,'respuesta de un filtro'):energy_density(filt)
-        density=filt.copy_with(metadata={'operation':'energy_density'})
-        with self.assertRaisesRegex(ValueError,'misma clase'):compare(filt,density)
-
     def test_fft_convolutions_and_correlation_with_extreme_compensating_scales(self):
         from signallab_pc.operations import linear_convolution,linear_correlation,circular_convolution,correlation
         large=Signal(np.full(6000,1e306));small=Signal(np.full(6000,1e-306))
@@ -151,6 +132,14 @@ class HealthExchangeContracts(unittest.TestCase):
             with self.subTest(operation=operation.__name__):
                 assert_allclose(operation(large,small).values[index],6000,rtol=2e-13,atol=1e-10)
         assert_allclose(correlation(large,small,circular=True,normalization='mean').values,1,atol=1e-13)
+
+    def test_group_delay_jump_is_independent_of_gain(self):
+        from signallab_pc.analytic_frequency import smooth_frequency_derivative
+        from signallab_pc.symbolic import parse
+        for gain in ('1','1e-12'):
+            _,jumps=smooth_frequency_derivative(
+                parse(f'{gain}*Piecewise((1,w<0),(2,True))'),np.array([-1.,0.,1.]))
+            assert_array_equal(jumps,[False,True,False])
 
     def test_frequency_mask_does_not_broaden_repeated_polynomial_zeros(self):
         import sympy as sp

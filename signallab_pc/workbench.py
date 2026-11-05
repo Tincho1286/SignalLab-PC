@@ -322,7 +322,9 @@ class WorkbenchWindow(ToolboxWindow):
             node=QTreeWidgetItem([record['title'],{'signal':'Señal','system':'Sistema','state_space':'Estados','calculation':'Cálculo'}.get(record['kind'],record['kind']),operation_label(record['operation'])]);node.setData(0,Qt.ItemDataRole.UserRole,record['id']);self.workspace_tree.addTopLevelItem(node)
         self.workspace_tree.resizeColumnToContents(0)
     def open_workspace_record(self,node,column=0):
-        key=node.data(0,Qt.ItemDataRole.UserRole);self.show_menu('Proyecto');self.include_inputs.setChecked(True);self.result_search.clear();self.result_kind.setCurrentIndex(0);self.refresh_project()
+        self.focus_result(node.data(0,Qt.ItemDataRole.UserRole))
+    def focus_result(self,key):
+        self.show_menu('Proyecto');self.include_inputs.setChecked(True);self.result_search.clear();self.result_kind.setCurrentIndex(0);self.refresh_project()
         index=next((i for i,r in enumerate(self.visible_records) if r['id']==key),-1)
         if index>=0:self.project_list.setCurrentRow(index)
     def _run_operation(self,message,function,on_success):
