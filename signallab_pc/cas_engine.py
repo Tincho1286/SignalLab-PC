@@ -376,6 +376,9 @@ class Calculator:
                         self.numeric_root=True
                         try:result=fn(*args)
                         except ZeroDivisionError as exc:raise ValueError('La búsqueda numérica encontró una división por cero. Probá otra aproximación inicial.') from exc
+                    elif key in ('integrate','int'):
+                        from .cas_integrals import integrate
+                        result=integrate(*args)
                     else:result=fn(*args)
                     if key=='nsolve' and len(args)>1:
                         from .cas_assumptions import solution_domain

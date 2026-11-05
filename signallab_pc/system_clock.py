@@ -41,11 +41,44 @@ def common_rate(*sources):
         raise ValueError('Las secuencias registran distintas tasas de muestreo. Igualá sus relojes antes de combinarlas.')
     return rates[0]
 
+def spectrum_clock(source,metadata=None):
+    metadata=source.metadata if metadata is None else metadata
+    return {'input_origin':int(source.origin),'input_clock':{
+        key:metadata[key] for key in ('sample_rate_hz','time_start_s') if key in metadata}}
+
+
+def inverse_spectrum_clock(spectrum,start,count):
+    clock=spectrum.metadata.get('input_clock',{})
+    if not isinstance(clock,dict):raise ValueError('El reloj de origen del espectro no es válido.')
+    rate=clock.get('sample_rate_hz')
+    if rate is None:
+        period=spectrum.metadata.get('period_s') if spectrum.data_kind=='frequency_response' else None
+        if period is None:return {}
+        period=validate_period(period)
+        rate=1/period
+        clock={'time_start_s':0.}
+        origin=0
+    else:
+        origin=spectrum.metadata.get('input_origin')
+    from .sampling import positive_finite
+    rate=positive_finite(rate,'Fs de origen del espectro')
+    result={'sample_rate_hz':rate}
+    if type(origin) is int and 'time_start_s' in clock:
+        t0=float(clock['time_start_s'])+(start-origin)/rate
+        validate_clock_resolution(t0,rate,count)
+        result['time_start_s']=t0
+    return result
+
+
 def input_metadata(system,source):
+    return input_period_metadata(system.sample_period_s,source)
+
+
+def input_period_metadata(period,source):
     if source.domain!='discrete':raise ValueError('La entrada del filtro discreto debe ser una secuencia.')
     from .signal_semantics import require_temporal
     require_temporal(source)
-    metadata=dict(source.metadata);rate=metadata.get('sample_rate_hz');period=system.sample_period_s
+    metadata=dict(source.metadata);rate=metadata.get('sample_rate_hz')
     if rate is not None:
         rate=float(rate)
         if not math.isfinite(rate) or rate<=0:raise ValueError('La entrada debe registrar una tasa de muestreo positiva y finita.')

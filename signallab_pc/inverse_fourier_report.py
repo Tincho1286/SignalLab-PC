@@ -53,7 +53,11 @@ def from_signal(spectrum):
     import math
     from .symbolic_process import run_request
     discrete=spectrum.units=='rad/muestra'
-    try:return run_request({'operation':'frequency_definition','expression':spectrum.expression,
-                            'domain':'discrete' if discrete else 'continuous',
-                            'canonical_period':not discrete or math.isclose(spectrum.origin,-math.pi,rel_tol=0,abs_tol=8e-15)})
+    request={'operation':'frequency_definition','expression':spectrum.expression,
+             'domain':'discrete' if discrete else 'continuous'}
+    if discrete:
+        start=float(spectrum.origin)
+        request['period_origin']=('-pi' if math.isclose(start,-math.pi,rel_tol=0,abs_tol=8e-15) else
+                                  'pi' if math.isclose(start,math.pi,rel_tol=0,abs_tol=8e-15) else repr(start))
+    try:return run_request(request)
     except (ValueError,SyntaxError,OSError):return None

@@ -20,6 +20,15 @@ def bounded(values):
         return _ldexp(values,-exponent),exponent
 
 
+def fft_values(values, *, size=None, inverse=False):
+    """Keep butterfly sums in range until the FFT normalization is applied."""
+    if size is not None:
+        values=values[:size]
+    scaled,exponent=bounded(values)
+    transform=np.fft.ifft if inverse else np.fft.fft
+    return restore_scale(transform(scaled,n=size),exponent)
+
+
 def restore_scale(values, exponent, *factors):
     mantissa=1.
     for factor in factors:

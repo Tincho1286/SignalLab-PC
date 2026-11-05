@@ -7,6 +7,8 @@ from .model import Signal
 from .fourier import ctft_on_grid,_sum
 from .fourier_phase import periodic_indices,periodic_phase
 from .resources import ensure_working_set
+from .operations import _finite_output
+from .spectral_scaling import bounded,restore_scale,fft_values
 
 
 def analyze(response,domain,start,count,step,source=None,*,allow_periodic=False):
@@ -33,7 +35,10 @@ def analyze(response,domain,start,count,step,source=None,*,allow_periodic=False)
         raise ValueError('La señal y el filtro deben usar el mismo dominio temporal.')
 
     from .inverse_fourier_report import numeric_model
+    source_clock=source.metadata if source is not None else {}
+    impulse_clock={}
     if digital:
+        from .system_clock import input_period_metadata,inverse_spectrum_clock,spectrum_clock,validate_period
         if start!=int(start) or step!=1:raise ValueError('La salida discreta requiere inicio entero y paso 1.')
         start=int(start)
         limit=np.iinfo(np.int64)
@@ -43,6 +48,10 @@ def analyze(response,domain,start,count,step,source=None,*,allow_periodic=False)
         if not closed and not math.isclose(size*response.step,math.tau,rel_tol=1e-12):
             raise ValueError('H debe cubrir un período completo de 2π rad/muestra, con o sin el extremo repetido.')
         independent=size-int(closed)
+        period=validate_period(response.metadata.get('period_s'))
+        impulse_clock=inverse_spectrum_clock(response,start,count)
+        if source is not None:
+            source_clock=input_period_metadata(period,source)
         folded_input=source is not None and source.values.size>independent
         if folded_input and not allow_periodic:
             raise ValueError(f'La rejilla tiene {independent} frecuencias independientes para {source.values.size} muestras. Aumentá la rejilla o activá el plegado periódico de la entrada.')
@@ -52,7 +61,7 @@ def analyze(response,domain,start,count,step,source=None,*,allow_periodic=False)
                 last=values[-1]
                 values=values[:-1].copy()
                 values[0]=.5*values[0]+.5*last
-            coefficients=np.fft.ifft(values)
+            coefficients=_finite_output(fft_values(values,inverse=True),'La inversa de H o de Y')
             phase=periodic_phase(response.origin,independent,first,length)
             return coefficients[periodic_indices(first,length,independent)]*phase,coefficients
 
@@ -64,11 +73,12 @@ def analyze(response,domain,start,count,step,source=None,*,allow_periodic=False)
             ensure_working_set(samples+size,live_arrays=12)
             phase=periodic_phase(response.origin,independent,int(source.origin),samples)
             folded=np.zeros(independent,dtype=complex)
-            np.add.at(folded,periodic_indices(int(source.origin),samples,independent),source.values*phase.conj())
-            spectrum=np.fft.fft(folded)
+            scaled,exponent=bounded(source.values)
+            np.add.at(folded,periodic_indices(int(source.origin),samples,independent),scaled*phase.conj())
+            spectrum=_finite_output(restore_scale(np.fft.fft(folded),exponent),'La DTFT de la entrada')
             if closed:spectrum=np.r_[spectrum,spectrum[0]]
             x=Signal(spectrum,response.origin,response.step,unit,'DTFT_'+source.name,'frequency',
-                     metadata={'operation':'DTFT','input_origin':int(source.origin),'input_length':samples})
+                     metadata={'operation':'DTFT',**spectrum_clock(source,source_clock),'input_length':samples})
             y_values=spectrum*response.values
             output_values,_=inverse(y_values,int(source.origin),samples)
     else:
@@ -87,12 +97,12 @@ def analyze(response,domain,start,count,step,source=None,*,allow_periodic=False)
 
     grid_metadata={'frequency_start':float(w[0]),'frequency_stop':float(w[-1]),'frequency_points':size}
     h=Signal(impulse,start,step,'n' if digital else 's','Respuesta al impulso h',domain,
-             metadata={**grid_metadata,'operation':'frequency_filter_impulse','approximation':approximation,'inverse_model':inverse_model})
+             metadata={**grid_metadata,**impulse_clock,'operation':'frequency_filter_impulse','approximation':approximation,'inverse_model':inverse_model})
     outputs=[response,h]
     if source is not None:
         y=x.copy_with(values=y_values,name='Espectro de salida Y = H·X',
                       metadata={**x.metadata,'filter_expression':response.expression,'filter_model':'frequency_response'})
-        clock={key:source.metadata[key] for key in ('sample_rate_hz','time_start_s','time_mapping') if key in source.metadata}
+        clock={key:source_clock[key] for key in ('sample_rate_hz','time_start_s','time_mapping') if key in source_clock}
         metadata={**clock,**grid_metadata,'operation':'frequency_filter_output',
                   'filter_expression':response.expression,'approximation':approximation}
         output=source.copy_with(values=output_values,name='Salida filtrada y',expression='',metadata=metadata)

@@ -60,6 +60,12 @@ def signal_source(source):
     return to_numeric(source)
 
 
+def frequency_validity(record):
+    if not isinstance(record,dict):return 'True'
+    result=record.get('cas_answer') or record.get('result',{})
+    return result.get('frequency_condition') or result.get('condition') or 'True'
+
+
 def check_cas_destination(answer,destination):
     if not answer.get('domain_condition') or destination in ('copy','cas'):
         return
@@ -83,7 +89,7 @@ def check_cas_destination(answer,destination):
             try:
                 if intrinsic_system_domain(parse(answer['expression']),restore(answer['domain_condition']),analysis=True):return
             except (SyntaxError,ValueError,TypeError):pass
-    if destination in ('system','frequency') and answer.get('coordinate_variable')=='w' and answer.get('context_rewrite') is True:
+    if destination in ('system','frequency','fourier_inverse','inverse_dtft','inverse_dtft_numeric') and answer.get('coordinate_variable')=='w' and answer.get('context_rewrite') is True:
         return
     raise ValueError('Este destino no aplica las condiciones de validez del CAS. Revisá la condición en el informe y definí allí el dominio antes de reutilizar la fórmula.')
 
@@ -163,5 +169,7 @@ def send_expression(window,key,destination):
     elif destination=='inverse_dtft_numeric':
         window.open_tool(ROUTES['inverse_dtft',0]);panel=window.pages[window.current_operation].panel
         prepared=signal_source(expression.numerical_source or text);panel.source.mode.setCurrentIndex(0);panel.source.frequency_units.setCurrentIndex(1);panel.source.expression.setText(prepared);panel.source._expression_origin=(panel.source.expression.text(),key)
+        panel.source._expression_frequency_condition=frequency_validity(record)
+        panel.source._expression_conditions=expression.conditions
     else:raise ValueError('Destino de expresión no disponible.')
     window.statusBar().showMessage('Expresión cargada desde Resultados. Revisá sus condiciones y calculá en el destino.')

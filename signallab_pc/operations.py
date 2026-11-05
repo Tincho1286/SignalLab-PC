@@ -214,7 +214,8 @@ def dft(x: Signal, length: int | None = None, *, centered: bool = False) -> Sign
     n = int(n)
     ensure_working_set(n, bytes_per_sample=16, live_arrays=8)
     # La convención NumPy es sum x[n] exp(-2*pi*i*k*n/N), sin normalizar hacia delante.
-    values = np.fft.fft(x.values, n=n)
+    from .spectral_scaling import fft_values
+    values = fft_values(x.values, size=n)
     values = _finite_output(values, "La DFT")
     action = "unchanged" if n == x.values.size else ("zero padded" if n > x.values.size else "truncated at N")
     metadata = {"operation": "DFT", "input_length": int(x.values.size), "N": n,
@@ -249,7 +250,8 @@ def idft(X: Signal, *, restore_origin=False) -> Signal:
         if X.data_kind=='harmonics':raise ValueError('Para coeficientes de serie usá la síntesis de Fourier, que emplea otra normalización.')
     ensure_working_set(n, bytes_per_sample=16, live_arrays=8)
     coefficients = np.fft.ifftshift(X.values) if centered else X.values
-    values = _finite_output(np.fft.ifft(coefficients), "La IDFT")
+    from .spectral_scaling import fft_values
+    values = _finite_output(fft_values(coefficients,inverse=True), "La IDFT")
     metadata={"operation":"IDFT","N":n,
               "convention":"(1/N) sum X[k] exp(+2*pi*i*k*m/N), m is stored output offset from 0"}
     origin=0

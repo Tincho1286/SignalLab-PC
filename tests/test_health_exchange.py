@@ -263,4 +263,103 @@ class HealthExchangeContracts(unittest.TestCase):
         want=execute(dict(operation='dtft_expression',expression=request['expression'],lower='0',upper='oo'))
         target=parse(want['result']);assert_allclose(data.response[[0,1,3]],[complex(target.subs(W,w).evalf()) for w in omega[[0,1,3]]],atol=2e-12)
 
+    def test_cas_preserves_matrix_nonfinite_markers_and_integrates_wrapped_band(self):
+        import sympy as sp
+        from signallab_pc.cas_engine import restore
+        from signallab_pc.result_journal import snapshot
+        table={'calculated_data':snapshot(np.array([1.,np.nan,np.inf]),None)}
+        result=import_result(dict(cell=1,payload=payload(table)))
+        values=restore(result['encoded_value'])
+        self.assertEqual(values.shape,(3,1));self.assertIs(values[1,0],sp.nan);self.assertEqual(values[2,0],sp.oo)
+        definition=execute(dict(operation='frequency_definition',domain='discrete',period_origin='0',
+                                expression='where(w<=pi/3,1,0)'))['definition']
+        result=import_result(dict(cell=1,payload=payload({'result':definition})))
+        area=calculate(dict(cell=2,state=result['state'],source='integrate(r1,(w,-5*pi,5*pi))'))
+        self.assertEqual(restore(area['state']['results']['2']),5*sp.pi/3)
+
+    def test_period_origin_and_folded_bands_round_trip(self):
+        import sympy as sp
+        from signallab_pc.symbolic import N
+        from signallab_pc.cas_engine import restore
+        for origin,expected in [('0',sp.Rational(1,6)),('-pi',sp.Rational(2,3)),('-pi/6',sp.Rational(1,4))]:
+            result=execute(dict(operation='frequency_definition',expression='where(w<=pi/3,1,0)',
+                                domain='discrete',period_origin=origin))
+            inverse=execute(dict(operation='inverse_dtft_expression',expression=result['definition']['result']))
+            for solved in (result['inverse'],inverse):
+                self.assertEqual(restore(solved['cas_encoded']).subs(N,0),expected)
+        direct=execute(dict(operation='inverse_dtft_expression',period_origin='0',
+                            expression='where(w<=pi/3,1,0)'))
+        self.assertEqual(restore(direct['cas_encoded']).subs(N,0),sp.Rational(1,6))
+        response=execute(dict(operation='frequency_definition',domain='discrete',period_origin='0',
+                              expression='1/(1-exp(-i*w)/2)'))['definition']
+        self.assertTrue(execute(dict(operation='inverse_dtft_expression',expression=response['result']))['z_equivalent'])
+        expression='sin(pi*(n-2)/5)/(pi*(n-2))*exp(i*9*pi*n/10)'
+        spectrum=execute(dict(operation='dtft_expression',expression=expression,lower='-oo',upper='oo'))
+        inverse=execute(dict(operation='inverse_dtft_expression',expression=spectrum['result']))
+        self.assertTrue(inverse['evaluated'])
+        samples=execute(dict(operation='inverse_dtft_samples',expression=spectrum['result'],solved=inverse,start=-3,count=9))
+        expected=np.sinc((np.arange(-3,6)-2)/5)*np.exp(1j*.9*np.pi*np.arange(-3,6))/5
+        assert_allclose([complex(*v) for v in samples['samples']],expected,atol=3e-15)
+
+    def test_dtft_inverse_keeps_full_spectral_line_at_period_seam(self):
+        from signallab_pc.symbolic import N
+        from signallab_pc.cas_engine import restore
+        for expression in ('2*pi*Dirac(w-pi)','2*pi*Dirac(w+pi)','pi*(Dirac(w-pi)+3*Dirac(w+pi))'):
+            result=execute(dict(operation='inverse_dtft_expression',expression=expression))
+            self.assertEqual([restore(result['cas_encoded']).subs(N,n) for n in (-2,-1,0,1,2)],[1,-1,1,-1,1])
+
+    def test_inverse_rejects_missing_frequency_bands_and_keeps_isolated_limits(self):
+        from signallab_pc.inverse_dtft import inverse_dtft
+        for operation in ('inverse_dtft_expression','inverse_fourier_angular'):
+            with self.assertRaisesRegex(ValueError,'tramos faltantes'):
+                execute(dict(operation=operation,expression='1',input_frequency_condition='w>0'))
+        result=execute(dict(operation='inverse_dtft_expression',expression='1',input_frequency_condition='Ne(w,0)'))
+        self.assertTrue(result['evaluated'])
+        spectrum=Signal([1]*4,0,np.pi/2,'rad/muestra',domain='frequency',
+                        metadata={'source_frequency_condition':'Ne(w,0)'})
+        with self.assertRaisesRegex(ValueError,'fuera del dominio'):
+            inverse_dtft(spectrum,0,4)
+
+    def test_inverse_fft_final_values_remain_finite_and_clock_follows_indices(self):
+        from signallab_pc.operations import idft
+        from signallab_pc.inverse_dtft import inverse_dtft
+        from signallab_pc.fourier import dtft
+        from signallab_pc.frequency_filter import analyze
+        spectrum=Signal([1e308]*4,-np.pi,np.pi/2,'rad/muestra',domain='frequency')
+        for signal in (idft(Signal([1e308]*4)),inverse_dtft(spectrum,0,4),analyze(spectrum,'discrete',0,4,1)[0][1]):
+            assert_array_equal(signal.values,[1e308,0,0,0])
+        source=Signal([1,0,0],5,metadata={'sample_rate_hz':100,'time_start_s':8.})
+        restored=inverse_dtft(dtft(source,-np.pi,np.pi,65),3,6)
+        self.assertEqual(restored.metadata['sample_rate_hz'],100)
+        self.assertAlmostEqual(restored.metadata['time_start_s'],7.98)
+
+    def test_ideal_conversion_preserves_clock_and_rejects_empty_sampled_band(self):
+        from signallab_pc.ideal_conversion import convert_response
+        from signallab_pc.frequency_filter import analyze
+        with self.assertRaisesRegex(ValueError,'no muestrea'):
+            convert_response('1',.01,'impulse',32,.05)
+        response=convert_response('1',.1,'impulse',33,10)['signals'][0]
+        source=Signal([1,0],3)
+        values,_=analyze(response,'discrete',-2,5,1,source)
+        self.assertEqual(values[1].metadata['sample_rate_hz'],10)
+        self.assertAlmostEqual(values[1].metadata['time_start_s'],-.2)
+        self.assertAlmostEqual(values[-1].metadata['time_start_s'],.3)
+        with self.assertRaisesRegex(ValueError,'no coincide'):
+            analyze(response,'discrete',0,3,1,source.copy_with(metadata={'sample_rate_hz':20}))
+
+    def test_quantization_tracks_selected_roc_and_trig_masks_keep_close_points(self):
+        import sympy as sp
+        from signallab_pc.symbolic import W
+        from signallab_pc.analytic_frequency import _condition_mask
+        from signallab_pc.filters import Transfer
+        from signallab_pc.precision import Encoding,quantize_coefficients
+        from signallab_pc.transfer_plane import convergence
+        source=Transfer([1],[1,-.74],roc={'mode':'radius','radius':.5})
+        stored=quantize_coefficients(source,Encoding('fixed',2,1))['system']
+        self.assertEqual(convergence(stored)['outer'],.5)
+        self.assertEqual(source.roc['radius'],.5)
+        axis=np.array([0.,1e-50,1e-16,1e-8,np.pi,2*np.pi])
+        assert_array_equal(_condition_mask(sp.Ne(sp.cos(W),1),axis),[False,True,True,True,True,False])
+        assert_array_equal(_condition_mask(sp.Ne(sp.sin(W),0),axis),[False,True,True,True,False,False])
+
 if __name__=='__main__':unittest.main()

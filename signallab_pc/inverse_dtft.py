@@ -14,6 +14,8 @@ def inverse_dtft(spectrum,start,count):
     regular_only(spectrum,'La DTFT inversa numérica de muestras; usá la inversa algebraica para distribuciones')
     require_complex_spectrum(spectrum)
     if spectrum.domain!='frequency' or spectrum.units!='rad/muestra':raise ValueError('La DTFT inversa necesita X(ω) en rad/muestra. No usa frecuencias en rad/s ni Hz.')
+    from .inverse_frequency_domain import require_defined_samples
+    require_defined_samples(spectrum)
     if isinstance(start,bool) or int(start)!=start:raise ValueError('El primer índice n debe ser entero.')
     start=int(start);count=positive_integer(count,'Cantidad de muestras');last=start+count-1
     limit=np.iinfo(np.int64)
@@ -28,14 +30,17 @@ def inverse_dtft(spectrum,start,count):
     values=spectrum.values.copy()
     if closed:
         values=values[:-1];values[0]=spectrum.values[0]/2+spectrum.values[-1]/2
-    length=len(values);coefficients=np.fft.ifft(values)
+    from .spectral_scaling import fft_values
+    length=len(values);coefficients=fft_values(values,inverse=True)
     origin=float(spectrum.origin)
     indices=periodic_indices(start,count,length)
     multiplier=periodic_phase(origin,length,start,count)
     result=_finite_output(coefficients[indices]*multiplier,'La DTFT inversa');checkpoint(1)
     from .inverse_fourier_report import numeric_model
+    from .system_clock import inverse_spectrum_clock
+    clock=inverse_spectrum_clock(spectrum,start,count)
     return Signal(result,start,1,'n','DTFT inversa · '+spectrum.name,'discrete','',{
-        'operation':'inverse_dtft','convention':'x[n] = integral_over_one_period X(w)*exp(i*w*n) dw / (2*pi)',
+        **clock,'operation':'inverse_dtft','convention':'x[n] = integral_over_one_period X(w)*exp(i*w*n) dw / (2*pi)',
         'frequency_units':'rad/muestra','frequency_origin':origin,'frequency_step':step,'frequency_samples':size,
         'inverse_model':numeric_model('periodic',origin,step,coefficients),
         'independent_frequencies':length,'quadrature':'Trapezoidal: extremos con peso 1/2' if closed else 'Periódica: sin duplicar el extremo',

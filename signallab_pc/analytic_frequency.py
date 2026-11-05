@@ -53,6 +53,44 @@ def _sample(value,omega,repair=False,eligible=None,extensions=None,role='H'):
     return result
 
 
+def _refine_periodic_zeros(difference,omega,ambiguous):
+    from .symbolic import W
+    from .fourier_phase import _simple_cycles
+    from .jobs import checkpoint
+    import math
+    from fractions import Fraction
+    import mpmath
+    context=mpmath.mp.clone()
+    evaluator=sp.lambdify(W,difference,modules=[context,'mpmath'])
+    for index in np.flatnonzero(ambiguous):
+        checkpoint()
+        point=float(omega.flat[index])
+        cycle=_simple_cycles(point)
+        if cycle is None and 0<abs(point)<1e4:
+            # Grids can accumulate one ULP when constructing an intended
+            # rational multiple of pi. Never conflate a nonzero point with 0.
+            nearby=Fraction(point/math.tau).limit_denominator(4096)
+            if nearby and abs(float(nearby)*math.tau-point)<=2*math.ulp(point):
+                cycle=nearby
+        if cycle is not None:
+            exact=difference.subs(W,2*sp.pi*sp.Rational(cycle.numerator,cycle.denominator))
+            zero=exact.is_zero
+            if zero is None and not exact.free_symbols and sp.count_ops(exact)<128:
+                zero=sp.simplify(sp.expand_complex(exact)).is_zero
+            if zero is not None:
+                ambiguous.flat[index]=zero
+                continue
+        # A double near zero can be much smaller than machine epsilon; the
+        # identity cos(x)-1 loses two powers of x when evaluated by subtraction.
+        digits=max(55,45-2*int(math.log10(abs(point)))) if point else 55
+        try:
+            with context.workdps(digits):
+                ambiguous.flat[index]=evaluator(context.mpf(point))==0
+        except (TypeError,ValueError,OverflowError,ZeroDivisionError,NameError):
+            pass
+    return ambiguous
+
+
 def _condition_mask(condition,omega):
     """Conservatively hide machine-indistinguishable resonances, never fill them."""
     if condition is sp.true:return np.ones(omega.shape,dtype=bool)
@@ -75,6 +113,8 @@ def _condition_mask(condition,omega):
         if polynomial and sp.degree(difference,W)<=32:
             # Zero multiplicity should not increase the radius of exclusion.
             difference=sp.Poly(difference,W).sqf_part().as_expr()
+        if not polynomial and difference.is_Pow and difference.exp.is_Integer and difference.exp>0:
+            difference=difference.base
         observed=_sample(difference,omega)
         terms=sp.Add.make_args(difference)
         scale=sum(abs(_sample(term,omega)) for term in terms) if len(terms)>1 else abs(observed)
@@ -82,6 +122,8 @@ def _condition_mask(condition,omega):
         # machine approximations to their exact zeros.
         tolerance=64*np.finfo(float).eps*(scale if polynomial else np.maximum(1,scale))
         equal=abs(observed)<=tolerance
+        if not polynomial and equal.any() and difference.has(sp.sin,sp.cos,sp.tan,sp.exp):
+            equal=_refine_periodic_zeros(difference,omega,equal)
         return np.isfinite(observed)&np.isfinite(scale)&(equal if condition.func==sp.Eq else ~equal)
     from .symbolic import W
     function=sp.lambdify(W,condition,modules='numpy')

@@ -2,6 +2,14 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.11**.
 
+## 1.6.14 · Preliminar
+
+- Tablas e integrales periódicas en CAS.
+- Fourier inversa por bandas y líneas espectrales, origen del período y condiciones de frecuencia.
+- Escala de FFT, reloj digital y región de convergencia al cuantizar.
+
+[Notas de la preliminar](docs/releases/v1.6.14-preview.md)
+
 ## 1.6.13 · Preliminar
 
 - Compatibilidad de resultados, escala de convolución y correlación y reloj físico de muestreo.

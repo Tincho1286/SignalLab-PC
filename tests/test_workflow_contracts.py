@@ -286,6 +286,29 @@ class WorkflowContracts(unittest.TestCase):
         sheet.send_result('frequency');panel=self.calculated_analysis();self.assertEqual(panel.definition_mode.currentIndex(),2)
         self.assertEqual(panel.frequency_data.units,'rad/muestra');self.assertEqual(self.warnings,[])
 
+    def test_dtft_numeric_input_copy_preserves_period_origin_and_domain(self):
+        import sympy as sp
+        from signallab_pc.cas_engine import restore
+        from signallab_pc.symbolic import N
+        from signallab_pc.inverse_dtft_panel import InverseDtftPanel
+        from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
+        from signallab_pc.fourier_workflow import prepare_fourier_inputs
+        numeric=InverseDtftPanel(self.host)
+        algebra=SymbolicFourierPanel(self.host,inverse=True,discrete=True)
+        self.widgets.extend((numeric,algebra))
+        numeric.source.origin.setText('0')
+        numeric.source.expression.setText('where(w<=pi/3,1,0)')
+        numeric.source._expression_origin=(numeric.source.expression.text(),None)
+        numeric.source._expression_frequency_condition='w>=0'
+        one=SimpleNamespace(panel=numeric,tool_item=ROUTES['inverse_dtft',0])
+        two=SimpleNamespace(panel=algebra,tool_item=ROUTES['dtft_symbolic',1])
+        prepare_fourier_inputs(one,two).apply()
+        self.assertEqual(algebra._frequency_origin,'0')
+        self.assertEqual(algebra._frequency_condition,'w>=0')
+        algebra.calculate_button.click()
+        self.assertEqual(self.warnings,[])
+        self.assertEqual(restore(algebra.last[1]['cas_encoded']).subs(N,0),sp.Rational(1,6))
+
     def test_dtft_send_button_preserves_frequency_exclusions(self):
         from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
         panel=SymbolicFourierPanel(self.host,discrete=True);self.widgets.append(panel)

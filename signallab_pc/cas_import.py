@@ -5,7 +5,13 @@ from .cas_engine import Calculator,empty_state,restore,encode,presentation
 from .signal_notation import source as signal_source
 
 
+NONFINITE={'NaN':sp.nan,'+infinity':sp.oo,'-infinity':-sp.oo}
+
+
 def _number(value):
+    if isinstance(value,dict) and set(value)=={'nonfinite'}:
+        try:return NONFINITE[value['nonfinite']]
+        except KeyError as exc:raise ValueError('Marcador numérico desconocido en el resultado guardado.') from exc
     return sp.Integer(value) if isinstance(value,(int,bool)) else sp.Float(value,17)
 
 

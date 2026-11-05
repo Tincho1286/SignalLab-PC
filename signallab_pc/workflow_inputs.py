@@ -25,6 +25,7 @@ def copy_local_input(src,dst):
     origin=getattr(src,'_expression_origin',None)
     dst._expression_origin=(dst.expression.text(),origin[1]) if origin and origin[0]==src.expression.text() else None
     dst._expression_conditions=getattr(src,'_expression_conditions',()) if dst._expression_origin else ();dst.fingerprint=None
+    dst._expression_frequency_condition=getattr(src,'_expression_frequency_condition','True') if dst._expression_origin else 'True'
 
 def prepare_inputs(source,target):
     from .toolbox import LocalInput

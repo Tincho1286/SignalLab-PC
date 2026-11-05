@@ -34,6 +34,15 @@ def complete_products(expression):
     return expression if expression.has(sp.KroneckerDelta,sp.DiracDelta,sp.Heaviside) else extend_removable(expression)
 
 
+def affine_impulse(delta,variable):
+    try:polynomial=sp.Poly(delta.args[0],variable)
+    except sp.PolynomialError:return None
+    if polynomial.degree()!=1:return None
+    scale=polynomial.nth(1);position=sp.cancel(-polynomial.nth(0)/scale)
+    if scale.is_real is not True or scale.is_zero is not False or position.is_real is not True:return None
+    return scale,position
+
+
 def impulse_integral(term,variable,kernel,lower=-sp.oo,upper=sp.oo):
     """Sifting of one affine Dirac derivative; None means no certified pair.
 
@@ -45,11 +54,9 @@ def impulse_integral(term,variable,kernel,lower=-sp.oo,upper=sp.oo):
     if len(atoms)!=1:raise ValueError('No se define el producto de impulsos Dirac. Separá sus pesos mediante una suma.')
     delta=next(iter(atoms));weight=term.extract_multiplicatively(delta)
     if weight is None or weight.has(sp.DiracDelta):raise ValueError('No se definen potencias, recíprocos ni productos de Dirac como funciones ordinarias.')
-    try:polynomial=sp.Poly(delta.args[0],variable)
-    except sp.PolynomialError:return None
-    if polynomial.degree()!=1:return None
-    scale=polynomial.nth(1);position=sp.cancel(-polynomial.nth(0)/scale)
-    if scale.is_real is not True or scale.is_zero is not False or position.is_real is not True:return None
+    affine=affine_impulse(delta,variable)
+    if affine is None:return None
+    scale,position=affine
     inside=sp.And(position>=lower,position<=upper)
     if inside is sp.false:return sp.S.Zero
     order=delta.args[1] if len(delta.args)>1 else sp.S.Zero
@@ -77,6 +84,27 @@ def impulse_integral(term,variable,kernel,lower=-sp.oo,upper=sp.oo):
     answer=(-1)**order*sampled/(sp.Abs(scale)*scale**order)
     if answer.has(sp.nan,sp.zoo,sp.oo,-sp.oo,sp.Limit,sp.Derivative):return None
     return sp.simplify(answer) if inside is sp.true else sp.Piecewise((sp.simplify(answer),inside),(0,True))
+
+
+def inverse_periodic_impulses(value,frequency,index,lower,upper):
+    """Count the periodic seam once, with full weight for a single endpoint."""
+    if not value.has(sp.DiracDelta):return sp.S.Zero,value
+    known=[];remaining=[];ends={lower:[],upper:[]}
+    kernel=sp.exp(sp.I*frequency*index)
+    for term in sp.Add.make_args(sp.expand_mul(value)):
+        checkpoint()
+        deltas=term.atoms(sp.DiracDelta)
+        answer=impulse_integral(term,frequency,kernel,lower,upper) if deltas else None
+        if answer is None:
+            remaining.append(term)
+            continue
+        affine=affine_impulse(next(iter(deltas)),frequency)
+        position=affine[1]
+        if position in ends:ends[position].append(answer)
+        else:known.append(answer)
+    left,right=ends.values()
+    seam=sp.Add(*left,*right)/(2 if left and right else 1)
+    return (sp.Add(*known)+seam)/(2*sp.pi),sp.Add(*remaining)
 
 
 def fourier_pairs(value,variable,output,*,inverse=False):

@@ -179,8 +179,12 @@ class LocalInput(QGroupBox):
     def read(self):
         value=self._read()
         origin=getattr(self,'_expression_origin',None)
-        if self.mode.currentIndex()==0 and origin and origin[0]==self.expression.text() and getattr(self,'_expression_conditions',()):
-            value.metadata['source_conditions']=list(self._expression_conditions)
+        if self.mode.currentIndex()==0 and origin and origin[0]==self.expression.text():
+            if getattr(self,'_expression_conditions',()):
+                value.metadata['source_conditions']=list(self._expression_conditions)
+            condition=getattr(self,'_expression_frequency_condition','True')
+            if condition!='True':
+                value.metadata['source_frequency_condition']=condition
         if self.project_window:
             if self.mode.currentIndex()==2 and self.loaded_reference_id:
                 self.reference_id=self.loaded_reference_id;return value

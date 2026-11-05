@@ -87,6 +87,37 @@ def represent(source,encoding):
     return result
 
 
+def _quantized_roc(source,stored):
+    from .filters import validate_roc
+    from .transfer_plane import convergence,plane_poles
+    specification=validate_roc(source.roc)
+    if specification is None or specification['mode']!='radius':
+        return specification,'Se conserva la elección de ROC del original.' if specification else 'La ROC original no está especificada.'
+    convergence(source)
+    def radii(system):
+        values=np.abs(plane_poles(system))
+        return np.sort(values[values>0])
+    previous,actual=radii(source),radii(stored)
+    if len(previous)==len(actual):
+        inside=int(np.count_nonzero(previous<specification['radius']))
+        low=float(actual[inside-1]) if inside else 0.
+        high=float(actual[inside]) if inside<len(actual) else math.inf
+        radius=specification['radius']
+        if not low<radius<high or np.any(np.isclose(actual,radius,rtol=64*np.finfo(float).eps,atol=0)):
+            if math.isfinite(high):
+                radius=low+(high-low)/2
+            else:
+                radius=max(1.,low)*1.5
+        if math.isfinite(radius) and low<radius<high:
+            stored.roc={'mode':'radius','radius':radius}
+            try:convergence(stored)
+            except ValueError:pass
+            else:
+                note='Se conserva el anillo por su orden radial, con '+str(inside)+' polos de radio no nulo en el interior.'
+                return stored.roc,note
+    return None,'La cuantización cambió los polos de forma que el anillo original no se puede identificar. Elegí una ROC para el filtro cuantizado antes de invertirlo.'
+
+
 def quantize_coefficients(system,encoding,preserve_sections=True):
     if system.advance:raise ValueError('Este estudio utiliza una realización causal. El sistema con avance se puede analizar sin cambiar su fórmula en Análisis de sistemas.')
     if system.domain!='digital':raise ValueError('Esta comparación de coeficientes utiliza H(z).')
@@ -129,10 +160,10 @@ def quantize_coefficients(system,encoding,preserve_sections=True):
     error=stored/maximum-original/maximum;finite_error=error[valid]
     metrics={'changed':sum(row['original']!=row['stored'] for row in rows),'saturated':sum(row['saturated'] for row in rows),'components':len(rows),'response_scale':maximum,'scaled_response_error_max':float(np.max(abs(finite_error))) if len(finite_error) else None,'undefined_points':int(np.count_nonzero(~valid)),
         'original_pole_radius':float(np.max(abs(original_poles),initial=0)),'stored_pole_radius':float(np.max(abs(stored_poles),initial=0)),'original_poles':system.stability(original_poles),'stored_poles':result.stability(stored_poles)}
-    result.roc=system.roc
+    result.roc,roc_note=_quantized_roc(system,result)
     from .coefficient_sensitivity import diagnose
     sensitivity=diagnose(system,result,original_poles,stored_poles,sections)
-    return {'sensitivity':sensitivity,'source':system,'system':result,'encoding':encoding,'sections':bool(sections),'rows':rows,'omega':w,'original_response':original,'stored_response':stored,'metrics':metrics}
+    return {'sensitivity':sensitivity,'roc_note':roc_note,'source':system,'system':result,'encoding':encoding,'sections':bool(sections),'rows':rows,'omega':w,'original_response':original,'stored_response':stored,'metrics':metrics}
 
 
 def precision_summary(data):
@@ -147,7 +178,7 @@ def precision_summary(data):
         else:rows.append(('Código con signo',data['code']))
         return Summary('Representación numérica',[Section('Resultado',rows=rows),Section('Referencia y redondeo',paragraphs=[data['reference_note'],'Punto fijo usa complemento a dos, saturación y el redondeo o truncamiento elegidos. IEEE 754 usa redondeo al más cercano con empates al par, incluidos subnormales y cero con signo. La palabra completa se conserva al exportar el resultado.'])])
     metrics=data['metrics'];formula,compact=transfer_formula(data['system'],'Hq')
-    sections=[Section('Filtro cuantizado',formulas=[formula],paragraphs=['Se cuantiza el almacenamiento de los coeficientes normalizados de H(z). a[0]=1 es una constante implícita de la recurrencia y no se redondea ni satura.'])]
+    sections=[Section('Filtro cuantizado',formulas=[formula],paragraphs=['Se cuantiza el almacenamiento de los coeficientes normalizados de H(z). a[0]=1 es una constante implícita de la recurrencia y no se redondea ni satura.',data.get('roc_note','')])]
     if compact:sections.append(Section('Coeficientes de la fórmula',rows=[('b[k]',', '.join(number(v) for v in data['system'].b)),('a[k]',', '.join(number(v) for v in data['system'].a))]))
     sections+=[Section('Formato y realización',rows=[('Formato',data['encoding'].name),('Estructura','Cascada SOS conservada' if data['sections'] else 'Polinomios directos'),('Componentes cuantizadas',metrics['components']),('Componentes modificadas',metrics['changed']),('Saturaciones',metrics['saturated'])]),
         Section('Efecto sobre los polos',rows=[('Radio máximo original',number(metrics['original_pole_radius'])),('Radio máximo cuantizado',number(metrics['stored_pole_radius'])),('Polos originales',metrics['original_poles']),('Polos cuantizados',metrics['stored_poles'])],paragraphs=['Se comparan los polos del denominador, sin cancelar ceros próximos. Un polo sobre el círculo unidad no es estrictamente estable. Una transferencia externa con cancelaciones puede ocultar modos internos.']),

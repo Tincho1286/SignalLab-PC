@@ -16,6 +16,10 @@ def _result_reference(value):
     return None
 
 
+def _marked_number(value):
+    return set(value)=={'nonfinite'} and value['nonfinite'] in ('NaN','+infinity','-infinity')
+
+
 def _typed_snapshot(value):
     return set(value)=={'type','data'} and value['type'] in ('signal','system','state_space')
 
@@ -39,7 +43,7 @@ def can_send(value):
     if isinstance(value,(int,float,complex,np.number,np.ndarray)):return True
     if isinstance(value,dict) and value.get('format')=='signallab-expression-grid':return False
     if isinstance(value,dict):
-        return _result_reference(value) is not None or _typed_snapshot(value) or any(
+        return _result_reference(value) is not None or _typed_snapshot(value) or _marked_number(value) or any(
             can_send(v) for k,v in value.items() if k not in ('request','report','specifications')
         )
     if isinstance(value,(tuple,list)):return any(can_send(v) for v in value)
@@ -94,6 +98,7 @@ def payload(value,window=None,seen=None):
         if _typed_snapshot(value):
             from .project import decode
             return payload(decode(value['type'],value['data']),window,seen)
+        if _marked_number(value):return {'kind':'number','value':value}
         if set(value)=={'real','imag'}:return {'kind':'complex','value':[value['real'],value['imag']]}
         if set(value)>={'shape','values'} and 'dtype' in value:
             shape=value['shape']

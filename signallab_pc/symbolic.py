@@ -168,6 +168,8 @@ def _execute(request):
         definition=prepare(expression,W if inverse else T,'frequency' if inverse else 'continuous',(-sp.oo,sp.oo),request.get('input_conditions',()),'integration_interval');value=definition.integral_expression()
         if value.has(T if inverse else W):raise ValueError('La entrada contiene la variable de salida; usá otro nombre para ese parámetro.')
         if inverse:
+            from .inverse_frequency_domain import require_inverse_domain
+            require_inverse_domain(request,value,sp.S.Reals,W)
             from .fourier_bands import inverse_bands
             exact=inverse_bands(value,W,T,discrete=False)
             if exact is not None:
@@ -188,7 +190,7 @@ def _execute(request):
         if not inverse:
             result=result.subs(frequency,W/(2*sp.pi));condition=condition.subs(frequency,W/(2*sp.pi))
         result=sp.simplify(result+known)
-        evaluated=not result.has(sp.FourierTransform,sp.InverseFourierTransform,sp.Integral)
+        evaluated=not result.has(sp.FourierTransform,sp.InverseFourierTransform,sp.Integral,sp.oo,sp.zoo,sp.nan)
         return attach({'operation':operation,'result':str(result),'condition':str(condition),
                 'evaluated':evaluated,'output_variable':'t' if inverse else 'w',
                 'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)' if inverse else 'X(w) = integral x(t) exp(-i*w*t) dt',

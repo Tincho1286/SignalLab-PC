@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.6.14-preview](v1.6.14-preview.md) | Fourier inversa, CAS y conservación del reloj y la ROC | Preliminar |
 | [1.6.13-preview](v1.6.13-preview.md) | Compatibilidad de datos y precisión numérica | Preliminar |
 | [1.6.12-preview](v1.6.12-preview.md) | CAS, reutilización y respuestas temporales | Preliminar |
 | [1.6.11](v1.6.11.md) | Fórmulas de respuesta temporal y filtros ideales | Estable |

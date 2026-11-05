@@ -31,6 +31,11 @@ def _numeric_conditions(field):
     return tuple(conditions)
 
 
+def _frequency_condition(field,attribute):
+    origin=getattr(field,'_expression_origin',None)
+    return getattr(field,attribute,'True') if origin and origin[0]==field.expression.text() else 'True'
+
+
 def _support(panel):
     conditions=[]
     if panel.lower.text().strip() not in ('-oo','-infinity'):conditions.append('(n >= ('+panel.lower.text()+'))')
@@ -64,6 +69,12 @@ def prepare_fourier_inputs(source,target):
             first=real_field(field.origin);step=real_field(field.step);last=first+(count-1)*step
             if count<2 or step<=0 or not math.isfinite(last) or last<=first:raise ValueError('El intervalo numérico requiere al menos dos puntos y un paso positivo que distinga sus extremos.')
         text=to_symbolic(field.expression.text());conditions=list(_numeric_conditions(field))
+        validity=_frequency_condition(field,'_expression_frequency_condition') if inverse else 'True'
+        period_origin=None
+        if discrete and inverse:
+            if not any(math.isclose(span,math.tau,rel_tol=1e-10,abs_tol=1e-12) for span in ((count-1)*step,count*step)):
+                raise ValueError('La rejilla de entrada debe cubrir un período de 2π.')
+            period_origin=field.origin.text()
         if not discrete:
             start=field.origin.text();stop='('+start+')+('+field.count.text()+'-1)*('+field.step.text()+')';variable='w' if inverse else 't'
             from .continuous_expression import has_dirac,finite_definition
@@ -72,12 +83,14 @@ def prepare_fourier_inputs(source,target):
                 text=finite_definition(field.expression.text(),first,last)
                 conditions.append('Las posiciones y pesos de Dirac se conservaron en precisión numérica, incluidos los impulsos de los extremos, sin multiplicarlos por una ventana ambigua.')
             else:text='Piecewise((('+text+'), ('+variable+'>=('+start+')) and ('+variable+'<=('+stop+'))), (0, True))'
+            if inverse and validity!='True':
+                validity='('+validity+') or (w<('+start+')) or (w>('+stop+'))'
             conditions.append('La definición se limita al intervalo de entrada '+start+' … '+stop+'. Dentro se integra la fórmula; el método numérico usa una cuadratura de sus muestras.')
         def copy_to_algebraic():
             dst.expression.setText(text)
             if discrete and not inverse:
                 dst.lower.setText(field.origin.text());dst.upper.setText('('+field.origin.text()+')+('+field.count.text()+')-1')
-            dst._expression_origin=(dst.expression.text(),_origin(field));dst._input_conditions=tuple(conditions);dst.input_id=_origin(field);dst.refresh_origin()
+            dst._expression_origin=(dst.expression.text(),_origin(field));dst._input_conditions=tuple(conditions);dst._frequency_condition=validity;dst._frequency_origin=period_origin;dst.input_id=_origin(field);dst.refresh_origin()
             if discrete and inverse:
                 src_panel=getattr(source,'panel',None);dst.start.setText(src_panel.start.text());dst.count.setText(src_panel.count.text())
         return InputCopy([copy_to_algebraic], 'Se copiaron la fórmula y su soporte finito. Calculá aquí para obtener la expresión algebraica.' if not (discrete and inverse) else 'Se copiaron X(ω) y los índices de salida. La fórmula describe un período completo; calculá aquí para obtener x[n].')
@@ -87,6 +100,7 @@ def prepare_fourier_inputs(source,target):
         dst.mode.setCurrentIndex(0);dst.expression.setText(text)
         if dst.kind=='frequency':dst.frequency_units.setCurrentText('rad/muestra' if discrete else 'rad/s')
         dst._expression_origin=(dst.expression.text(),_origin(field));dst._expression_conditions=field._input_conditions if field._expression_origin and field._expression_origin[0]==field.expression.text() else ()
+        dst._expression_frequency_condition=_frequency_condition(field,'_frequency_condition') if inverse else 'True'
         if discrete and not inverse:
             try:
                 lower=integer_field(field.lower);upper=integer_field(field.upper)

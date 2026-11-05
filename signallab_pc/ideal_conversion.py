@@ -28,10 +28,15 @@ def convert_response(expression,period,method,count=2049,support=None):
         if not np.isfinite(radius):raise ValueError('T·Ωmáx excede el rango numérico.')
         bound=math.ceil((radius+np.pi)/(2*np.pi))
         values=np.zeros(count,dtype=complex)
+        sampled_support=False
         for k in range(-bound,bound+1):
             checkpoint((k+bound)/(2*bound+1));analog=(omega+2*np.pi*k)/period
             mask=np.abs(analog)<=support
-            if np.any(mask):values[mask]+=evaluate_expression(expression,analog[mask])
+            if np.any(mask):
+                sampled_support=True
+                values[mask]+=evaluate_expression(expression,analog[mask])
+        if not sampled_support:
+            raise ValueError('La rejilla no muestrea el soporte analógico declarado. Aumentá los puntos de frecuencia antes de convertir.')
         convention='h[n] = T ha(nT); Hd(exp(jω)) = Σk Ha(j(ω+2πk)/T)'
         note='Se suman todas las réplicas del soporte finito declarado. Fuera de |Ω| ≤ Ωmáx se define Ha=0. Puede aparecer aliasing si T·Ωmáx supera π. Para una respuesta de soporte infinito, recortarla cambia el filtro; no se afirma una conversión exacta del original.'
     else:raise ValueError('Elegí bilineal o invarianza al impulso.')

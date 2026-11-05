@@ -20,7 +20,7 @@ class SymbolicFourierPanel(QWidget):
         note=QLabel('DTFT inversa: x[n] = ∫ de −π a π X(w) exp(iwn) dw / (2π), con n entero.' if discrete and inverse else 'DTFT: X(w) = Σ x[n] exp(−iwn). w en rad/muestra; espectro periódico cada 2π.' if discrete else 'Inversa: x(t) = ∫ X(w) exp(iwt) dw / (2π).' if inverse else 'Directa: X(w) = ∫ x(t) exp(−iwt) dt.');note.setWordWrap(True);form.addRow(note)
         choose=QPushButton('Copiar un resultado algebraico…');choose.clicked.connect(self.choose);form.addRow(choose)
         self.source_note=QLabel();self.source_note.setWordWrap(True);self.source_note.setObjectName('muted');form.addRow(self.source_note);self.source_note.hide()
-        self._expression_origin=None;self._input_conditions=();self.expression.textChanged.connect(self.refresh_origin)
+        self._expression_origin=None;self._input_conditions=();self._frequency_condition='True';self._frequency_origin=None;self.expression.textChanged.connect(self.refresh_origin)
         self.calculate_button=QPushButton('Calcular transformada algebraica');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);form.addRow(self.calculate_button)
         from .result_state import ResultState
         self.result_state=ResultState([self.expression]+([self.lower,self.upper] if discrete and not inverse else []),self.calculate_button);form.insertRow(0,self.result_state)
@@ -102,12 +102,18 @@ class SymbolicFourierPanel(QWidget):
             QMessageBox.information(self,'Unidad incompatible','No se convierte automáticamente entre rad/s y rad/muestra.');return
         text=result.numerical_source or result.source
         self.expression.setText(text);self.input_id=key;self._expression_origin=(self.expression.text(),key);self._input_conditions=result.conditions
+        from .result_expressions import frequency_validity
+        self._frequency_condition=frequency_validity(self.window.project.get(key)) if key and self.inverse else 'True'
+        self._frequency_origin=None
         if self.discrete and not self.inverse:self.lower.setText('-oo');self.upper.setText('oo')
         self.refresh_origin()
     def calculate(self):
         request=dict(operation='inverse_dtft_expression' if self.discrete and self.inverse else 'dtft_expression' if self.discrete else 'inverse_fourier_angular' if self.inverse else 'fourier_angular',expression=self.expression.text())
         intact=self._expression_origin and self._expression_origin[0]==request['expression'];parent=self._expression_origin[1] if intact else None
         request['input_conditions']=list(self._input_conditions) if intact else []
+        if intact and self.inverse:
+            request['input_frequency_condition']=self._frequency_condition
+            if self._frequency_origin is not None:request['period_origin']=self._frequency_origin
         if self.discrete and not self.inverse:request.update(lower=self.lower.text(),upper=self.upper.text())
         snapshot=self.result_state.snapshot()
         def accept(result):

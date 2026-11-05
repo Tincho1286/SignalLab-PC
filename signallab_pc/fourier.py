@@ -9,7 +9,7 @@ from .operations import _discrete, _finite_output
 from .resources import ensure_working_set
 from .sampling import positive_integer, positive_finite
 from .jobs import checkpoint
-from .spectral_scaling import bounded, restore_scale
+from .spectral_scaling import bounded, restore_scale, fft_values
 
 
 def grid(start, stop, count):
@@ -54,8 +54,9 @@ def dtft(x, start=-math.pi, stop=math.pi, count=1025):
     step = (float(stop)-float(start))/(count-1)
     local, shift = dtft_angles(omega, float(start), float(stop), int(x.origin))
     values = _sum(x.values, np.arange(x.values.size, dtype=float), local) * shift
+    from .system_clock import spectrum_clock
     result = Signal(values, float(start), step, 'rad/muestra', f'DTFT_{x.name}', 'frequency', '',
-        {"operation": "DTFT", "input_origin": int(x.origin), "input_length": int(x.values.size),
+        {"operation": "DTFT", **spectrum_clock(x), "input_length": int(x.values.size),
          "frequency_bounds": [float(start), float(stop)],
          "convention": "sum x[n] exp(-j*w*n); finite record, zero outside"})
     from .quality_steps import numeric_fourier
@@ -76,7 +77,9 @@ def dtft_with_dft(x,start,stop,count):
     omega = bin_frequency(indices, n)
     if np.any(np.diff(omega) <= 0):
         raise ValueError('La precisión numérica no distingue todos los bins solicitados.')
-    values = np.fft.fft(x.values)[indices % n] * dft_origin_phase(indices, n, int(x.origin))
+    with np.errstate(over='ignore',invalid='ignore'):
+        values = fft_values(x.values)[indices % n] * dft_origin_phase(indices, n, int(x.origin))
+    values = _finite_output(values,'Los bins de la DFT')
     return spectrum,(omega,values)
 
 
@@ -144,6 +147,8 @@ def ictft(spectrum, start, stop, count):
     require_complex_spectrum(spectrum)
     if spectrum.domain != "frequency" or spectrum.units != "rad/s" or spectrum.step <= 0:
         raise ValueError("La inversa requiere un espectro con eje uniforme en rad/s y paso positivo.")
+    from .inverse_frequency_domain import require_defined_samples
+    require_defined_samples(spectrum)
     time = grid(start, stop, count)
     weighted = spectrum.values.copy()
     if len(weighted)<2:raise ValueError('Fourier inversa por cuadratura requiere al menos dos frecuencias. Para líneas espectrales usá la inversa algebraica.')
