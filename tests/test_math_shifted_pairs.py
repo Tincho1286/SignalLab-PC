@@ -32,6 +32,16 @@ class ShiftedPairContracts(unittest.TestCase):
                 for w,height in [(0,gain),(a/2,gain),(a,sp.Rational(gain,2)),(sp.pi,0),(2*sp.pi,gain)]:
                     self.assertEqual(sp.simplify(value.subs(W,w)-height*sp.exp(-sp.I*w*delay)),0)
 
+    def test_shifted_sinc_round_trip_removes_frequency_coordinate(self):
+        direct=execute(dict(operation='dtft_expression',expression='sin(0.3*pi*(n-4))/(pi*(n-4))',lower='-oo',upper='oo'))
+        inverse=execute(dict(operation='inverse_dtft_expression',expression=direct['result']))
+        self.assertTrue(inverse['evaluated'])
+        from signallab_pc.signal_notation import read
+        result=read(inverse['result'],('n',))
+        self.assertEqual(result.free_symbols,{N})
+        self.assertEqual(result.subs(N,4),sp.Rational(3,10))
+        self.assertEqual(sp.simplify(result.subs(N,5)-sp.sin(3*sp.pi/10)/sp.pi),0)
+
     def test_equivalent_grouping_trig_forms_and_assigned_sample(self):
         from signallab_pc.dtft_pairs import direct
         from signallab_pc.z_direct_pairs import direct_pairs

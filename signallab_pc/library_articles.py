@@ -295,7 +295,7 @@ add(('difference_equation',0),'Esta herramienta resuelve ecuaciones lineales en 
 
 add(('window_signal',0),'Podés generar las ventanas del diseño FIR como señales independientes. Así se puede estudiar su forma, su DTFT, su DFT o su transformada Z sin tener que crear primero un filtro.',
 'En Señales → Crear una señal elegí Ventana. Seleccioná el tipo y la longitud L, que es la cantidad total de muestras. Definí el índice inicial o activá Centrar alrededor de cero. Kaiser agrega el parámetro β. No se necesita una señal previa ni una respuesta al impulso h[n].',
-'La salida muestra tallos discretos, tabla e informe con la definición y el intervalo. Exportar guarda las muestras e índices en JSON/CSV. Usar en otra herramienta permite llevarla a Fourier o Transformada Z; en Z se abre Muestras finitas con el registro ya cargado. También podés elegirla desde Resultados para multiplicarla por otra señal o usarla como ventana propia de un FIR.',
+'La salida muestra tallos discretos, tabla e informe con la definición y el intervalo. Exportar guarda las muestras e índices en JSON/CSV. Usar señal en… permite llevarla a Fourier o Transformada Z; en Z se abre Muestras finitas con el registro ya cargado. También podés elegirla desde Resultados para multiplicarla por otra señal o usarla como ventana propia de un FIR.',
 'Se generan ventanas simétricas, como las de filtros FIR. No se añade una normalización de ganancia ni una repetición periódica. Desplazar el origen modifica la fase de la DTFT, pero mantiene su módulo. Con longitud par, el centro puede estar entre índices y el pico muestreado puede ser menor que uno. L=1 produce una sola muestra de valor uno. Los valores numéricos conservan la precisión disponible.')
 
 def article_blocks(route):

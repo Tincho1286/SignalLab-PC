@@ -2,7 +2,7 @@ from .numeric_input import real_field,integer_field
 from .report_view import ReportView,report_panel
 from .expression_editor import ExpressionEditor
 """Fourier algebraica angular y registro numérico derivado de su resultado."""
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineEdit,QPushButton,QLabel,QPlainTextEdit,QScrollArea,QMessageBox,QTabWidget
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineEdit,QPushButton,QLabel,QPlainTextEdit,QScrollArea,QMessageBox,QTabWidget,QMenu
 from .symbolic_process import run_request
 from .model import Signal
 
@@ -33,7 +33,12 @@ class SymbolicFourierPanel(QWidget):
         scope=QLabel('La expresión algebraica y sus muestras se conservan como objetos distintos, vinculados por su procedencia. Las distribuciones y las expresiones no resueltas no se convierten en muestras finitas.');scope.setWordWrap(True);numeric_form.addRow(scope)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);layout.setContentsMargins(0,0,0,0);root.addWidget(right,2)
-        actions=QHBoxLayout();self.to_cas_button=QPushButton('Enviar expresión a CAS');self.to_cas_button.setToolTip('Envía la última expresión calculada y sus condiciones. Para enviar muestras, usá el menú del registro numérico.');self.to_cas_button.setEnabled(False);self.to_cas_button.clicked.connect(self.to_cas);actions.addWidget(self.to_cas_button);actions.addStretch();layout.addLayout(actions)
+        actions=QHBoxLayout()
+        self.reuse_button=QPushButton('Usar señal en…' if inverse else 'Usar expresión en…')
+        self.reuse_button.setProperty('actionRole','reuse');self.reuse_button.setEnabled(False)
+        menu=QMenu(self.reuse_button);self.reuse_button.setMenu(menu)
+        menu.aboutToShow.connect(self.prepare_reuse);actions.addWidget(self.reuse_button)
+        self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setProperty('actionRole','cas');self.to_cas_button.setToolTip('Envía la última expresión calculada y sus condiciones. Para enviar muestras, usá el menú del registro numérico.');self.to_cas_button.setEnabled(False);self.to_cas_button.clicked.connect(self.to_cas);actions.addWidget(self.to_cas_button);actions.addStretch();layout.addLayout(actions)
         self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.report.setReadOnly(True);self.tabs.addTab(report_panel(self.report),'Expresión y condiciones')
         from .plot_actions import install_result_button
         install_result_button(self.tabs,self.sample_button)
@@ -62,6 +67,10 @@ class SymbolicFourierPanel(QWidget):
         from .plot_view import enlarge_plot
         enlarge_plot(self._sampled_plot[2], self)
         return True
+    def prepare_reuse(self):
+        from .result_expressions import populate_reuse_menu
+        menu=self.reuse_button.menu();menu.clear()
+        if self.last is not None:populate_reuse_menu(menu,self.window,self.last[0])
     def to_cas(self):
         if self.last is not None:
             from .cas_transfer import send_to_cas
@@ -99,7 +108,7 @@ class SymbolicFourierPanel(QWidget):
             self.tabs.setTabVisible(1, False)
             self.tabs.setTabVisible(self.masked_index, False)
             self.last = (key, result)
-            self.to_cas_button.setEnabled(result['evaluated'])
+            self.to_cas_button.setEnabled(result['evaluated']);self.reuse_button.setEnabled(result['evaluated'])
             self.tabs.setCurrentIndex(0)
             self.result_state.accept(snapshot)
             self.refresh_sample_action()

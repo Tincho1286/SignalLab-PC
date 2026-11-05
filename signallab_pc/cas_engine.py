@@ -22,7 +22,7 @@ FUNCTIONS={name:getattr(sp,name) for name in ('sin','cos','tan','asin','acos','a
     'diff','integrate','limit','series','summation','product','dsolve','nsolve','laplace_transform','inverse_laplace_transform',
     'gcd','lcm','div','rem','factorint','floor','ceiling','sign','conjugate')}
 FUNCTIONS.update({'sinc':lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x)/(sp.pi*x),True)),'abs':sp.Abs,'ln':sp.log,'re':sp.re,'im':sp.im,'conj':sp.conjugate,
-    'arg':sp.arg,'mod':sp.Mod,'and':sp.And,'or':sp.Or,'not':sp.Not,'piecewise':sp.Piecewise,'heaviside':sp.Heaviside,'diracdelta':impulse,'dirac':impulse,'impulse':impulse,
+    'arg':sp.arg,'mod':sp.Mod,'ceil':sp.ceiling,'and':sp.And,'or':sp.Or,'not':sp.Not,'piecewise':sp.Piecewise,'heaviside':sp.Heaviside,'diracdelta':impulse,'dirac':impulse,'impulse':impulse,
     'step':lambda value:sp.Heaviside(value,1),'kroneckerdelta':sp.KroneckerDelta,
     'integral':sp.Integral,'derivative':sp.Derivative,'sum':sp.summation,'prod':sp.product,
     'matrix':sp.Matrix,'vector':lambda value:sp.Matrix(value),'det':lambda a:a.det(),
@@ -111,9 +111,9 @@ class Calculator:
         self.state=state;self.variables={name:restore(value) for name,value in state['variables'].items()}
         self.functions={name:(value['parameters'],restore(value['body'])) for name,value in state['functions'].items()}
         self.assumptions=state.setdefault('assumptions',{});self.assumption_changes=set()
-        self.contexts=[];self.domain_restrictions=[];self.referenced_axes=set()
+        self.contexts=[];self.domain_restrictions=[];self.referenced_axes=set();self.coordinate_symbols={}
         self.locals={};self.undefined=set();self._resolving=set();self.numeric_root=False
-        self.frequency_axis_removed=False
+        self.frequency_axis_removed=False;self.removed_coordinates=set()
         self.operation_notices=[]
 
     def resolve(self,value):
@@ -127,6 +127,15 @@ class Calculator:
 
     def recall_domain(self,context):
         self.contexts.append(context)
+        from .cas_context import coordinate_domain
+        coordinate=context.get('coordinate_variable')
+        domain=coordinate_domain(coordinate)
+        if domain is not None:
+            symbol=sp.Symbol(coordinate)
+            value=self.resolve(self.variables[coordinate]) if coordinate in self.variables and coordinate not in self.locals else symbol
+            if not isinstance(value,sp.Expr):
+                raise ValueError('La coordenada '+coordinate+' requiere un valor escalar.')
+            self.domain_restrictions.append(sp.Contains(bare(value),domain))
         if context.get('domain_condition'):
             condition=restore(context['domain_condition'])
         elif context.get('frequency_condition') not in (None,'True'):
@@ -158,7 +167,8 @@ class Calculator:
                 return self.resolve(self.variables[name])
             finally:self._resolving.remove(name)
         from .cas_assumptions import symbol,solution_domain
-        value=symbol(name,self.assumptions)
+        value=self.coordinate_symbols.get(name) if name not in self.assumptions else None
+        if value is None:value=symbol(name,self.assumptions)
         if name in self.assumptions:
             self.domain_restrictions.append(sp.Contains(sp.Symbol(name),solution_domain(value,self.assumptions)))
         return value
@@ -168,6 +178,18 @@ class Calculator:
         try:tree=ast.parse(source,mode='eval')
         except SyntaxError as exc:raise ValueError('Revisá paréntesis y operadores. Usá una expresión por cálculo y := para asignar.') from exc
         ensure_working_set(sum(1 for _ in ast.walk(tree)),bytes_per_sample=1024,live_arrays=8)
+        from .cas_context import coordinate_domain
+        for node in ast.walk(tree):
+            if not isinstance(node,ast.Name):continue
+            name=node.id
+            if name.lower()=='ans' or re.fullmatch(r'r[0-9]+',name):
+                cell=self.state.get('ans') if name.lower()=='ans' else name[1:]
+                context=self.state.get('result_contexts',{}).get(str(cell),{})
+            else:context=self.state.get('name_contexts',{}).get(name,{})
+            coordinate=context.get('coordinate_variable')
+            domain=coordinate_domain(coordinate)
+            if domain is not None:
+                self.coordinate_symbols[coordinate]=sp.Symbol(coordinate,integer=True) if domain is sp.S.Integers else sp.Symbol(coordinate,real=True)
         def decimal(text):
             text=text.replace('_','');exponent=re.search(r'[eE]([+-]?\d+)',text)
             if exponent:ensure_working_set(abs(int(exponent[1]))+len(text),bytes_per_sample=32,live_arrays=6)
@@ -246,8 +268,14 @@ class Calculator:
                 if len(values)!=len(node.ops):raise ValueError('Comparación no admitida.')
                 return values[0] if len(values)==1 else sp.And(*values)
             if isinstance(node,ast.Subscript):
-                value=visit(node.value);index=visit(node.slice)
-                if not isinstance(value,(list,tuple,sp.Tuple,sp.MatrixBase)):raise ValueError('Sólo se indexan listas y matrices, desde cero.')
+                value=visit(node.value)
+                if isinstance(value,dict):
+                    index=visit(node.slice)
+                    try:return value[index]
+                    except (KeyError,TypeError) as exc:
+                        raise ValueError('Esa clave no está en el resultado. Claves disponibles: '+', '.join(map(str,value))+'.') from exc
+                index=visit(node.slice)
+                if not isinstance(value,(list,tuple,sp.Tuple,sp.MatrixBase)):raise ValueError('Sólo se indexan listas, matrices y resultados con claves.')
                 indices=index if isinstance(index,tuple) else (index,)
                 if not all(isinstance(v,sp.Integer) for v in indices):raise ValueError('Los índices deben ser enteros.')
                 return value[tuple(map(int,indices)) if len(indices)>1 else int(indices[0])]
@@ -394,7 +422,8 @@ class Calculator:
             # while any assumptions used by the replacement still apply there.
             replaced={symbol for old,_ in mapping for symbol in old.free_symbols}
             supplied={symbol for _,new in mapping for symbol in new.free_symbols}
-            if sp.Symbol('w') in replaced-supplied:self.frequency_axis_removed=True
+            self.removed_coordinates.update(symbol.name for symbol in replaced-supplied)
+            if 'w' in self.removed_coordinates:self.frequency_axis_removed=True
             for domain in domains[1:]:
                 self.domain_restrictions.extend(term for term in sp.And.make_args(domain)
                                                 if not term.free_symbols & (replaced-supplied))

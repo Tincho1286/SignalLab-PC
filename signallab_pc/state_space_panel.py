@@ -96,7 +96,16 @@ class StateSpacePanel(QWidget):
             from .system_result_actions import SystemResultActions
             self.system_actions=SystemResultActions(window);layout.addWidget(self.system_actions)
         else:
-            self.model_actions=StateModelResultActions(window,action);layout.addWidget(self.model_actions)
+            self.model_actions=StateModelResultActions(window,action);layout.insertWidget(0,self.model_actions)
+        if action=='simulation':
+            from PySide6.QtWidgets import QMenu
+            bar=QHBoxLayout();layout.insertLayout(1,bar)
+            self.reuse_signal=QPushButton('Usar señal en…');self.reuse_signal.setProperty('actionRole','reuse')
+            self.signal_menu=QMenu(self.reuse_signal);self.reuse_signal.setMenu(self.signal_menu)
+            self.signal_menu.aboutToShow.connect(self.prepare_signal_reuse);bar.addWidget(self.reuse_signal)
+            self.cas_signal=QPushButton('Enviar salida a CAS');self.cas_signal.setProperty('actionRole','cas')
+            self.cas_signal.clicked.connect(self.send_signal_to_cas);bar.addWidget(self.cas_signal);bar.addStretch()
+            self.reuse_signal.setEnabled(False);self.cas_signal.setEnabled(False)
         self.report.setPlainText('Completá el modelo y presioná '+labels[action]+'. Los resultados se guardan en la biblioteca.')
         empty=self.figure.add_subplot(111);empty.set_axis_off();empty.text(.5,.5,'El resultado aparecerá aquí',ha='center',va='center',color='#91a0b5',transform=empty.transAxes)
         tracked=[self.domain,self.step,*self.fields.values()]
@@ -226,17 +235,35 @@ class StateSpacePanel(QWidget):
                 Section('Modelo y condición inicial',formulas=[Formula(equation,equation),Formula(output_equation,output_equation)],rows=[('Estado al inicio del registro','['+', '.join(number(value) for value in initial)+']')],paragraphs=['El estado inicial se aplica al primer índice o instante cargado. No se simula ni se presupone la historia anterior.']),
                 Section('Interpretación',paragraphs=['En discreto, las fórmulas de entrada se evalúan en n entero, conservando el origen de cada secuencia. T describe el reloj físico; no escala el índice n.' if grid.discrete else 'Se mantiene cada entrada constante entre instantes (ZOH). La propagación usa la exponencial matricial; es exacta para ese modelo por tramos, salvo redondeo numérico.','Entradas, estados, salidas y datos del cálculo quedan en Resultados. El selector muestra cualquier salida; la vista conjunta dibuja hasta 16 y el CSV exporta todas.'])])
             self._simulation_formula_report=(summary,output_ids)
+            self.reuse_signal.setEnabled(True);self.cas_signal.setEnabled(True)
             self.show_simulation_formula()
         self.run('Simulando sistema…',lambda:model.simulate(grid.values,step=grid.step,initial=initial),accept)
+
+    def simulation_channel_id(self):
+        saved=getattr(self,'_simulation_formula_report',None)
+        if saved is None:return None
+        _,keys=saved
+        selected=self.plot_channel.currentData()
+        return keys[selected if selected is not None and 0<=selected<len(keys) else 0]
+
+    def prepare_signal_reuse(self):
+        from .toolbox import populate_signal_menu
+        self.signal_menu.clear();key=self.simulation_channel_id()
+        if key:populate_signal_menu(self.signal_menu,self.window,self.window.project.get(key),key)
+
+    def send_signal_to_cas(self):
+        from .cas_transfer import send_to_cas
+        key=self.simulation_channel_id()
+        if key:send_to_cas(self.window,key)
 
     def show_simulation_formula(self,*_):
         saved=getattr(self,'_simulation_formula_report',None)
         if saved is None:return
         from .temporal_formula import sections as temporal_sections
-        summary,keys=saved
-        selected=self.plot_channel.currentData()
-        index=selected if selected is not None and 0<=selected<len(keys) else 0
-        channel=self.window.project.get(keys[index])
+        summary,_=saved
+        channel=self.window.project.get(self.simulation_channel_id())
+        self.cas_signal.setText('Enviar '+channel.name+' a CAS')
+        self.reuse_signal.setToolTip('Reutilizar '+channel.name+' en otra herramienta.')
         formulas=temporal_sections(channel)
         note=Section('Canal de la fórmula',paragraphs=[channel.name+' · Elegí otro canal en el selector del gráfico para consultar su expresión.'])
         self.report.set_readable(Summary(summary.title,[note,*formulas,*summary.sections]))

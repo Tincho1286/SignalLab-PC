@@ -7,6 +7,13 @@ def numeric_model(kind,origin,step,values):
             'values':[[float(v.real),float(v.imag)] for v in values[:8]]}
 
 
+def stored_model(signal):
+    # Arithmetic and index transforms may carry source metadata for provenance.
+    if signal.metadata.get('operation') in ('inverse_dtft','frequency_filter_impulse'):
+        return signal.metadata.get('inverse_model')
+    return None
+
+
 def numeric_section(model,symbol):
     length=model['size'];origin=number(model['origin']);step=number(model['step'])
     periodic=model['kind']=='periodic'

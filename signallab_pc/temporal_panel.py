@@ -159,7 +159,7 @@ class TemporalPanel(QWidget):
                 signal_id=self.window.publish(signal,operation=title,parents=[key]+parents);self.output.show_result(signal);self.output.result_ids=[signal_id]
                 formula=signal.metadata.get('temporal_formula')
                 if formula:
-                    self.window.publish({'result':{'result':formula['source'],'display_result':formula['expression'],
+                    self.output.expression_key=self.window.publish({'result':{'result':formula['source'],'display_result':formula['expression'],
                         'display_numeric':formula['numeric'],'output_variable':formula['variable'],'evaluated':True,'scope':formula['scope']}},
                         title='Expresión temporal · '+title,operation=title,parents=[signal_id,key])
                 self.result_tabs.setTabVisible(1,custom);self.result_tabs.setCurrentIndex(0)

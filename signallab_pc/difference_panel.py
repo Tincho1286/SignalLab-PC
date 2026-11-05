@@ -44,23 +44,29 @@ class DifferencePanel(QWidget):
         self.rest.toggled.connect(configure);self.start.textChanged.connect(configure);self.coefficients.textChanged.connect(configure);configure()
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();box=QVBoxLayout(right);box.setContentsMargins(0,0,0,0);root.addWidget(right,2)
+        actions=QHBoxLayout();box.addLayout(actions)
+        self.use_button=QPushButton('Usar resultado en…');self.use_button.setProperty('actionRole','reuse');self.use_button.setEnabled(False);actions.addWidget(self.use_button)
+        self.use_menu=QMenu(self.use_button);self.use_button.setMenu(self.use_menu);self.use_menu.aboutToShow.connect(self.prepare_reuse)
+        self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas');self.cas_button.setEnabled(False);actions.addWidget(self.cas_button);actions.addStretch()
+        self.cas_menu=QMenu(self.cas_button);self.cas_button.setMenu(self.cas_menu);self.cas_menu.aboutToShow.connect(self.prepare_cas)
         self.tabs=QTabWidget();box.addWidget(self.tabs,1);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Solución')
         self.output=ResultView();self.tabs.addTab(self.output,'Muestras de y[n]');self.tabs.setTabVisible(1,False)
-        self.use_button=QPushButton('Usar expresión en…');self.use_button.setEnabled(False);box.addWidget(self.use_button)
-        self.use_menu=QMenu(self.use_button);self.use_button.setMenu(self.use_menu);self.use_menu.aboutToShow.connect(self.prepare_reuse)
         self.steps=ReportView();self.steps_index=self.tabs.addTab(report_panel(self.steps),'Desarrollo');self.tabs.setTabVisible(self.steps_index,False)
 
     def prepare_reuse(self):
         self.use_menu.clear()
         if self.result is None:return
-        from .result_expressions import expression_result,expression_destinations,send_expression
+        from .result_expressions import populate_reuse_menu
+        for title,key in [('Usar señal y[n] en…',self.result_key),('Usar sistema H(z) en…',self.transfer_key)]:
+            if key is not None and self.window.project.expression(key):
+                populate_reuse_menu(self.use_menu.addMenu(title),self.window,key)
+
+    def prepare_cas(self):
+        self.cas_menu.clear()
+        from .cas_transfer import send_to_cas
         for title,key in [('Solución y[n]',self.result_key),('H(z) · condiciones iniciales nulas',self.transfer_key)]:
-            if key is None:continue
-            expression=expression_result(self.window.project.get(key))
-            if expression:
-                menu=self.use_menu.addMenu(title)
-                for label,destination in expression_destinations(expression):
-                    menu.addAction(label,lambda checked=False,target=destination,record=key:send_expression(self.window,record,target))
+            if key is not None and self.window.project.expression(key):
+                self.cas_menu.addAction(title,lambda checked=False,record=key:send_to_cas(self.window,record))
 
     def calculate(self):
         try:
@@ -73,7 +79,7 @@ class DifferencePanel(QWidget):
                 self.result={'request':request,'result':result};self.result_key=self.window.publish(self.result,title='Solución de ecuación en diferencias',operation='Ecuación en diferencias',parents=parents)
                 transfer={'request':{'operation':'difference_equation_transfer','domain':'digital'},'result':{'operation':'Transferencia de ecuación en diferencias','result':result['system_expression'],'output_variable':'z','evaluated':True,'scope':'Transferencia desde f[n] hacia y[n] bajo condiciones iniciales nulas; no incluye la respuesta del historial.'}}
                 self.transfer_key=self.window.publish(transfer,title='H(z) de ecuación en diferencias',operation='Transferencia desde f[n]',parents=[self.result_key])
-                self.report.set_readable(summary(request,result));self.use_button.setEnabled(True)
+                self.report.set_readable(summary(request,result));self.use_button.setEnabled(True);self.cas_button.setEnabled(True)
                 from .transform_steps import summary as steps_summary
                 self.steps.set_readable(steps_summary(result.get('derivation',[])));self.tabs.setTabVisible(self.steps_index,bool(result.get('derivation')))
                 values=result.get('numeric_samples');self.tabs.setTabVisible(1,values is not None)

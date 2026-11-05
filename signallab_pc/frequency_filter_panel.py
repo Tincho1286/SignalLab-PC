@@ -1,6 +1,6 @@
 from .numeric_input import real_field,integer_field
 """Entrada visual de H por tramos, respuesta al impulso y filtrado espectral."""
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QCheckBox,QPushButton,QToolButton,QMenu,QLabel,QScrollArea,QTabWidget,QMessageBox
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QCheckBox,QPushButton,QLabel,QScrollArea,QTabWidget,QMessageBox
 from .report_view import ReportView,report_panel
 from .frequency_filter import analyze
 
@@ -28,18 +28,18 @@ class FrequencyFilterPanel(QWidget):
         self.form=form;self.operation.currentIndexChanged.connect(self.update_inputs);self.domain.currentIndexChanged.connect(self.update_domain)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);left=QVBoxLayout();left.addWidget(scroll);self.calculate_button=QPushButton('Calcular');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);left.addWidget(self.calculate_button);root.addLayout(left,1)
         right=QVBoxLayout();self.selector=QComboBox();self.selector.currentIndexChanged.connect(self.display);right.addWidget(self.selector)
-        self.tabs=QTabWidget();self.view=ResultView();self.report=ReportView();self.tabs.addTab(self.view,'Gráfico y valores');self.tabs.addTab(report_panel(self.report),'Fórmula e informe');right.addWidget(self.tabs);root.addLayout(right,2)
+        self.tabs=QTabWidget();self.view=ResultView();self.report=ReportView()
+        right.addWidget(self.view.actions)
+        self.tabs.addTab(self.view,'Gráfico y valores');self.tabs.addTab(report_panel(self.report),'Fórmula e informe')
+        right.addWidget(self.tabs);root.addLayout(right,2)
         self.algebraic_key=None
-        self.algebraic_button=QPushButton('Abrir H en Fourier inversa algebraica')
-        self.algebraic_button.setEnabled(False);self.algebraic_button.clicked.connect(self.open_algebraic)
-        actions=QHBoxLayout();actions.addWidget(self.algebraic_button)
-        self.cas_button=QToolButton();self.cas_button.setText('Enviar a CAS')
-        self.cas_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
-        menu=QMenu(self.cas_button);self.cas_button.setMenu(menu)
+        self.reuse_button=self.view.send
+        self.reuse_button.menu().aboutToShow.connect(self.add_filter_destinations)
+        self.cas_button=self.view.cas_button
+        menu=self.view.cas_menu;menu.aboutToShow.disconnect(self.view.prepare_cas)
         self.cas_definition=menu.addAction('Fórmula de H(w)',lambda: self.send_to_cas(self.algebraic_key))
         self.cas_impulse=menu.addAction('Fórmula de la respuesta al impulso',lambda: self.send_to_cas(self.impulse_key))
         self.cas_samples=menu.addAction('Muestras del resultado seleccionado',self.send_samples_to_cas)
-        self.cas_button.setEnabled(False);actions.addWidget(self.cas_button);actions.addStretch();right.addLayout(actions)
         from .result_state import ResultState
         self.state=ResultState([self.domain,self.operation,self.start,self.count,self.step,self.periodic],self.calculate_button,[self.h,self.xd,self.xc]);right.insertWidget(0,self.state)
         self.update_domain()
@@ -101,19 +101,24 @@ class FrequencyFilterPanel(QWidget):
                     sections.extend(temporal_sections(values[2]))
                 sections.append(Section('Cómo interpretarlo',paragraphs=report.split('\n\n')[1:]))
                 summary=Summary('Filtro definido en frecuencia',sections)
-                self.algebraic_button.setText('Abrir H en DTFT inversa algebraica' if digital else 'Abrir H en Fourier inversa algebraica')
-                self.algebraic_button.setEnabled(self.algebraic_key is not None)
                 self.selector.blockSignals(False);self.report.set_readable(summary)
                 self.window.publish({'report':summary.plain_text()},title='Filtro por tramos',operation='Informe de filtro por tramos',parents=keys[:2])
                 self.display();self.tabs.setCurrentIndex(1);self.state.accept(snapshot)
             self.window._run_operation('Calculando filtro por tramos…',compute,accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá la definición',str(exc))
-    def open_algebraic(self):
+    def add_filter_destinations(self):
         if self.algebraic_key is None:return
-        from .result_expressions import send_expression
-        expression=self.window.project.expression(self.algebraic_key)
-        destination='inverse_dtft' if expression.units=='rad/muestra' else 'fourier_inverse'
-        send_expression(self.window,self.algebraic_key,destination)
+        from PySide6.QtWidgets import QMenu
+        from .result_expressions import populate_reuse_menu
+        menu=self.reuse_button.menu()
+        definition=QMenu('Fórmula de H(w)',menu)
+        populate_reuse_menu(definition,self.window,self.algebraic_key)
+        items=menu.actions()
+        if items:menu.insertMenu(items[0],definition)
+        else:menu.addMenu(definition)
+        previous=getattr(self,'_definition_menu',None)
+        if previous is not None:previous.deleteLater()
+        self._definition_menu=definition
 
     def display(self,*_):
         index=self.selector.currentIndex()
@@ -123,7 +128,10 @@ class FrequencyFilterPanel(QWidget):
         self.cas_definition.setEnabled(self.algebraic_key is not None)
         self.cas_impulse.setEnabled(self.impulse_key is not None)
         self.cas_samples.setEnabled(0<=index<len(self.result_keys))
-        self.cas_button.setEnabled(bool(self.result_keys))
+        self.cas_button.setEnabled(bool(self.result_keys));self.cas_button.setVisible(bool(self.result_keys))
+        if self.algebraic_key is not None:
+            self.reuse_button.setText('Usar filtro en…')
+            self.reuse_button.setEnabled(True);self.reuse_button.setVisible(True)
 
     def send_to_cas(self,key):
         if key is not None:

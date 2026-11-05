@@ -2,6 +2,14 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.11**.
 
+## 1.6.12 · Preliminar
+
+- Reutilización y CAS junto al informe, con fórmulas y muestras como resultados separados.
+- Dominios discretos y continuos en CAS, inversas de bandas con retardo y respuestas temporales coherentes con sus datos.
+- Validación de ROC en precisión finita y de integrales bilaterales divergentes.
+
+[Notas de la preliminar](docs/releases/v1.6.12-preview.md)
+
 ## 1.6.11 · Hotfix
 
 - Actualización del CAS para DTFT algebraica, filtros ideales y resultados reimportados.

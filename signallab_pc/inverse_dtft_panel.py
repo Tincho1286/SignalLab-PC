@@ -51,7 +51,7 @@ class InverseDtftPanel(QWidget):
                 sections=[]
                 if exact:
                     sections.append(exact_section(exact,'x'))
-                    self.window.publish({'result':exact},title='Expresión algebraica de x[n]',operation='DTFT inversa algebraica',parents=[key])
+                    self.output.expression_key=self.window.publish({'result':exact},title='Expresión algebraica de x[n]',operation='DTFT inversa algebraica',parents=[key])
                 sections.append(numeric_section(result.metadata['inverse_model'],'x'))
                 self.report.set_readable(Summary('DTFT inversa numérica',sections+[
                     Section('Regla de la transformada',formulas=[Formula('x[n] = Integral(X(w)*exp(i*w*n),(w,-pi,pi))/(2*pi)','x[n] = (1/2π) ∫ de −π a π X(ω)e^(iωn)dω')]),

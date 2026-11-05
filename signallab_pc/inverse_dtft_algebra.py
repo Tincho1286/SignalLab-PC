@@ -39,6 +39,9 @@ def inverse_expression(request):
     try:result=sp.integrate(value*sp.exp(sp.I*W*N),(W,-sp.pi,sp.pi),conds='piecewise')/(2*sp.pi)
     except (NotImplementedError,ValueError):result=integral/(2*sp.pi)
     result=sp.simplify(result)
+    if result.has(W):
+        # A bound frequency left free by conditional integration is not x[n].
+        result=integral/(2*sp.pi)
     evaluated=not result.has(sp.Integral,sp.Sum) and not result.has(sp.oo,-sp.oo,sp.zoo,sp.nan)
     answer={'operation':'DTFT inversa algebraica','result':source(result),'display_result':source(result),'evaluated':evaluated,
         'condition':'True','output_variable':'n','frequency_units':'rad/muestra','input_expression':request['expression'],

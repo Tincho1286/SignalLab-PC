@@ -1,5 +1,5 @@
 """One transform document: explicit inputs, conditions and optional output samples."""
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QComboBox,QLineEdit,QLabel,QPushButton,QScrollArea,QMessageBox,QCheckBox,QTabWidget
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QComboBox,QLineEdit,QLabel,QPushButton,QScrollArea,QMessageBox,QCheckBox,QTabWidget,QMenu
 from .expression_editor import ExpressionEditor
 from .report_view import ReportView,report_panel
 from .symbolic_process import run_request
@@ -38,8 +38,12 @@ class TransformLab(QWidget):
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(left);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);layout.setContentsMargins(0,0,0,0);root.addWidget(right,2)
         result_actions=QHBoxLayout();layout.addLayout(result_actions)
+        self.reuse_button=QPushButton('Usar expresión en…')
+        self.reuse_button.setProperty('actionRole','reuse');self.reuse_button.setEnabled(False)
+        menu=QMenu(self.reuse_button);self.reuse_button.setMenu(menu);menu.aboutToShow.connect(self.prepare_reuse)
+        result_actions.addWidget(self.reuse_button)
         self.copy_inverse=QPushButton('Copiar resultado a la inversa');self.copy_inverse.clicked.connect(self.to_inverse);self.copy_inverse.hide();result_actions.addWidget(self.copy_inverse)
-        self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setToolTip('Abrir la expresión del último resultado calculado como una celda de la hoja CAS.');self.to_cas_button.clicked.connect(self.to_cas);self.to_cas_button.hide();result_actions.addWidget(self.to_cas_button)
+        self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setProperty('actionRole','cas');self.to_cas_button.setToolTip('Abrir la expresión del último resultado calculado como una celda de la hoja CAS.');self.to_cas_button.clicked.connect(self.to_cas);self.to_cas_button.hide();result_actions.addWidget(self.to_cas_button)
         self.analyze_system=QPushButton();self.analyze_system.clicked.connect(self.to_system);result_actions.addWidget(self.analyze_system);result_actions.addStretch()
         self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Expresión y condiciones')
         self.output=ResultView();self.tabs.addTab(self.output,'Muestras de la inversa');self.tabs.setTabVisible(1,False)
@@ -142,6 +146,7 @@ class TransformLab(QWidget):
     def display_record(self,record):
         self.to_cas_button.setText('Enviar a CAS');self.to_cas_button.show();self.to_cas_button.setEnabled(False);self.copy_inverse.hide();self.tabs.setTabVisible(1,False);self.tabs.setTabVisible(self.steps_index,False);self.tabs.setCurrentIndex(0)
         if record is None:
+            self.reuse_button.setEnabled(False)
             self.last=None;self.result_state.completed=None;self.report.setPlainText('Completá la entrada y calculá. Aquí aparecerán la expresión y sus condiciones.');self.update_system_action();return
         request,result,key,snapshot,signal=record;self.last=result;self.report.set_readable(transform_summary(request,result));self.result_state.accept(snapshot)
         from .transform_steps import summary as steps_summary
@@ -149,9 +154,16 @@ class TransformLab(QWidget):
         if result.get('boundary_dtft'):self.to_cas_button.setText('Enviar DTFT al CAS')
         self.to_cas_button.setEnabled(bool(result.get('boundary_dtft')) or result.get('evaluated',True) and len(result.get('branches',[]))<=1)
         direct=request['operation'] not in ('inverse_laplace','z_inverse_expression')
+        self.reuse_button.setText('Usar expresión en…' if direct else 'Usar señal en…')
+        self.reuse_button.setEnabled(self.to_cas_button.isEnabled())
         self.copy_inverse.setVisible(direct and result.get('evaluated',True) and len(result.get('branches',[]))<=1)
         if signal is not None:self.output.show_result(signal);self.tabs.setTabVisible(1,True)
         self.update_system_action()
+    def prepare_reuse(self):
+        from .result_expressions import populate_reuse_menu
+        menu=self.reuse_button.menu();menu.clear()
+        record=self.records.get(self.record_key())
+        if record is not None:populate_reuse_menu(menu,self.window,record[2])
     def to_cas(self):
         record=self.records.get(self.record_key())
         if record is not None:

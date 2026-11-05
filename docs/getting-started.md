@@ -12,7 +12,7 @@ En la [última versión estable](https://github.com/Tincho1286/SignalLab-PC/rele
 2. Completá las entradas de esa herramienta. Las señales pueden definirse por fórmula, tramos, muestras, archivo o resultado compatible, según la operación.
 3. Presioná **Calcular** o **Ctrl+Enter**.
 4. Consultá el informe, la tabla y las figuras. Los gráficos se abren en ventanas independientes para aprovechar la pantalla.
-5. Exportá la salida o elegí **Usar en otra herramienta** para continuar el análisis.
+5. Exportá la salida o elegí **Usar señal en…**, **Usar filtro en…** o el menú de reutilización que corresponda para continuar el análisis.
 
 Cada herramienta conserva sus parámetros. No hace falta crear una señal global para comenzar. Si una operación usa dos señales, cada entrada tiene su fórmula, archivo, origen y resultado de referencia.
 

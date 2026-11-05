@@ -267,8 +267,10 @@ class CasWorksheet(QWidget):
             tree=Rewrite().visit(ast.parse(expression,mode='eval'));ast.fix_missing_locations(tree);expression=ast.unparse(tree)
             from .workspaces import ROUTES
             if destination in ('continuous','discrete'):
+                from .expression_dialects import to_numeric
+                expression=to_numeric(expression);tree=ast.parse(expression,mode='eval')
                 from .engine import _FUNCS
-                unsupported={node.func.id for node in ast.walk(tree) if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id not in {*_FUNCS,'Piecewise','where'}}
+                unsupported={node.func.id for node in ast.walk(tree) if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id.lower() not in {*_FUNCS,'piecewise','where'}}
                 if unsupported:raise ValueError('La expresión conserva funciones no evaluables como señal: '+', '.join(sorted(unsupported))+'.')
                 self.window.open_tool(ROUTES['basic','generate']);page=self.window.pages[self.window.current_operation];page.source_domain.setCurrentIndex(0 if destination=='discrete' else 1)
                 source=page.first;source.mode.setCurrentIndex(0);source.expression.setText(expression)

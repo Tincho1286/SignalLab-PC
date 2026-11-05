@@ -4,15 +4,32 @@ import sympy as sp
 
 def inverse_bands(value, frequency, time, *, discrete):
     domain=sp.Interval(-sp.pi,sp.pi) if discrete else sp.S.Reals
+    if discrete:
+        # This wrapping is the representation emitted by the direct DTFT.
+        # On the integration interval it equals its argument almost everywhere.
+        wrapped={term:frequency+sp.pi for term in value.atoms(sp.Mod)
+                 if sp.expand(term.args[0]-frequency-sp.pi)==0 and sp.expand(term.args[1]-2*sp.pi)==0}
+        value=value.xreplace(wrapped)
     piece=sp.piecewise_fold(value.rewrite(sp.Piecewise) if value.has(sp.Heaviside) else value)
     if not isinstance(piece,sp.Piecewise):
         if piece.has(frequency) or piece.has(sp.nan,sp.zoo,sp.oo,-sp.oo):return None
         return piece*(sp.KroneckerDelta(time,0) if discrete else sp.DiracDelta(time))
-    # The automatic path only handles comparisons with linear band edges.
-    # General piecewise expressions can still use the symbolic transform.
+    def gain_and_delay(amplitude):
+        # A linear phase in a band represents a time shift of its inverse.
+        if not amplitude.has(frequency):return amplitude,sp.S.Zero
+        amplitude=sp.powsimp(amplitude,combine='exp')
+        gain,phase=amplitude.as_independent(frequency,as_Add=False)
+        if phase==1:return gain,sp.S.Zero
+        if phase.func is not sp.exp:return None
+        exponent=sp.expand(phase.args[0]);slope=exponent.coeff(frequency)
+        remainder=exponent-slope*frequency;delay=sp.simplify(sp.I*slope)
+        if remainder.has(frequency) or delay.has(frequency) or delay.is_real is not True:return None
+        return gain*sp.exp(remainder),delay
+
+    # Linear frequency comparisons certify the intervals of each band.
     from sympy.core.relational import Relational
     for amplitude,condition in piece.args:
-        if amplitude.has(frequency):return None
+        if gain_and_delay(amplitude) is None:return None
         for relation in condition.atoms(Relational):
             edge=(relation.lhs-relation.rhs).xreplace({sp.Abs(frequency):frequency})
             if edge.free_symbols-{frequency} or not edge.is_polynomial(frequency) or sp.degree(edge,frequency)>1:return None
@@ -22,7 +39,7 @@ def inverse_bands(value, frequency, time, *, discrete):
     for amplitude,region in pairs:
         for segment in region.args if isinstance(region,sp.Union) else (region,):
             if isinstance(segment,sp.FiniteSet) or segment is sp.S.EmptySet:continue
-            if not isinstance(segment,sp.Interval) or amplitude.has(frequency,sp.nan,sp.zoo,sp.oo,-sp.oo):
+            if not isinstance(segment,sp.Interval) or amplitude.has(sp.nan,sp.zoo,sp.oo,-sp.oo):
                 return None
             intervals.append((amplitude,segment.start,segment.end))
             if len(intervals)>128:return None
@@ -33,22 +50,33 @@ def inverse_bands(value, frequency, time, *, discrete):
     if not discrete:
         left=next((amplitude for amplitude,a,_ in intervals if a==-sp.oo),None)
         right=next((amplitude for amplitude,_,b in intervals if b==sp.oo),None)
-        if left is None or right is None or sp.simplify(left-right)!=0:return None
+        if left is None or right is None or left.has(frequency) or sp.simplify(left-right)!=0:return None
         baseline=left
     from .jobs import checkpoint
-    at_zero=sp.S.Zero;terms=[]
+    groups={}
     for amplitude,lower,upper in intervals:
         checkpoint()
         amplitude=sp.simplify(amplitude-baseline)
         if amplitude==0:continue
         if lower==-sp.oo or upper==sp.oo:return None
+        band=gain_and_delay(amplitude)
+        if band is None:return None
+        gain,delay=band
+        shifted=time-delay
         width=upper-lower;center=(lower+upper)/2
-        at_zero+=amplitude*width/(2*sp.pi)
-        terms.append(amplitude*sp.exp(sp.I*center*time)*sp.sin(width*time/2))
-    ordinary=sp.Add(*terms)/(sp.pi*time)
-    at_zero=sp.simplify(at_zero)
-    if ordinary==0 and discrete:regular=at_zero*sp.KroneckerDelta(time,0)
-    else:regular=sp.Piecewise((at_zero,sp.Eq(time,0)),(ordinary,True))
+        origin,terms=groups.setdefault(delay,([],[]))
+        origin.append(gain*width/(2*sp.pi))
+        terms.append(gain*sp.exp(sp.I*center*shifted)*sp.sin(width*shifted/2))
+    inverse=[]
+    for delay,(origin,terms) in groups.items():
+        shifted=time-delay
+        numerator=sp.Add(*terms)
+        at_origin=sp.simplify(sp.Add(*origin))
+        if numerator==0 and discrete:
+            inverse.append(at_origin*sp.KroneckerDelta(time,delay))
+        else:
+            inverse.append(sp.Piecewise((at_origin,sp.Eq(time,delay)),(numerator/(sp.pi*shifted),True)))
+    regular=sp.Add(*inverse)
     return regular if discrete else regular+baseline*sp.DiracDelta(time)
 
 
@@ -79,6 +107,11 @@ def frequency_definition(request):
                 except ValueError:result=None
                 if result and result.get('evaluated',True):
                     inverse={**result,'output_variable':'n','evaluated':True}
+    scope='Definición algebraica en frecuencia, separada de su rejilla numérica.'
+    if discrete and request.get('canonical_period',True) and exact is not None and value.has(sp.Piecewise,sp.Heaviside):
+        if not value.has(sp.Mod):
+            text=source(value.xreplace({W:sp.Mod(W+sp.pi,2*sp.pi)-sp.pi}))
+        scope+=' En discreto, la banda entre −π y π se repite cada 2π.'
     return {'definition':{'result':text,'output_variable':'w','frequency_units':'rad/muestra' if discrete else 'rad/s',
-                          'evaluated':True,'scope':'Definición algebraica en frecuencia, separada de su rejilla numérica.'},
+                          'evaluated':True,'scope':scope},
             'inverse':inverse}

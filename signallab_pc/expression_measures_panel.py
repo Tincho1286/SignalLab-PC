@@ -3,7 +3,7 @@ from .numeric_input import real_field,integer_field
 import json
 from pathlib import Path
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QFormLayout,QLineEdit,QComboBox,QPushButton,QLabel,QScrollArea,QSplitter,QTabWidget,QMessageBox,QFileDialog
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QFormLayout,QLineEdit,QComboBox,QPushButton,QLabel,QScrollArea,QSplitter,QTabWidget,QMessageBox,QFileDialog,QMenu,QHBoxLayout
 from .report_view import ReportView,report_panel
 from .expression_editor import ExpressionEditor
 from .symbolic_process import run_request
@@ -38,7 +38,16 @@ class ExpressionMeasuresPanel(QWidget):
         note=QLabel('La ventana genera una señal reutilizable. Su energía y promedio son locales: no reemplazan el análisis de todo el eje. En discreto se incluyen todos los índices de inicio a final.');note.setWordWrap(True);form.addRow(note)
         self.save_report=QPushButton('Guardar informe…');self.save_report.clicked.connect(self.save)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(300);split.addWidget(scroll)
-        results=QWidget();result_layout=QVBoxLayout(results);result_layout.setContentsMargins(0,0,0,0);result_layout.addWidget(self.save_report,0,Qt.AlignmentFlag.AlignRight)
+        results=QWidget();result_layout=QVBoxLayout(results);result_layout.setContentsMargins(0,0,0,0)
+        actions=QHBoxLayout();result_layout.addLayout(actions)
+        self.measure_window_key=None;self.sample_key=None
+        self.reuse_signal=QPushButton('Usar señal en…');self.reuse_signal.setProperty('actionRole','reuse')
+        self.signal_menu=QMenu(self.reuse_signal);self.reuse_signal.setMenu(self.signal_menu)
+        self.signal_menu.aboutToShow.connect(self.prepare_signal_reuse);self.reuse_signal.setEnabled(False);actions.addWidget(self.reuse_signal)
+        self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas')
+        self.cas_menu=QMenu(self.cas_button);self.cas_button.setMenu(self.cas_menu)
+        self.cas_menu.aboutToShow.connect(self.prepare_cas);self.cas_button.setEnabled(False);actions.addWidget(self.cas_button)
+        actions.addWidget(self.save_report);actions.addStretch()
         self.tabs=QTabWidget();result_layout.addWidget(self.tabs,1);split.addWidget(results);split.setSizes([350,740]);split.setStretchFactor(1,1)
         from .plot_actions import install_result_button
         install_result_button(self.tabs,self.sample_button)
@@ -51,6 +60,21 @@ class ExpressionMeasuresPanel(QWidget):
         for field in (self.expression, self.lower, self.upper, self.period):
             field.textChanged.connect(self.refresh_sample_action)
         self.domain.currentIndexChanged.connect(self.change_domain);self.domain.currentIndexChanged.connect(self.refresh_origin)
+    def prepare_signal_reuse(self):
+        from .toolbox import populate_signal_menu
+        self.signal_menu.clear()
+        if self.sample_key:
+            populate_signal_menu(self.signal_menu,self.window,self.window.project.get(self.sample_key),self.sample_key)
+
+    def prepare_cas(self):
+        from .cas_transfer import send_to_cas,can_send
+        self.cas_menu.clear()
+        for label,key in (('Medidas algebraicas',self.last[2] if self.last else None),
+                          ('Medidas de la ventana',self.measure_window_key),
+                          ('Muestras de la ventana',self.sample_key)):
+            if key and can_send(self.window.project.get(key)):
+                self.cas_menu.addAction(label,lambda checked=False,k=key:send_to_cas(self.window,k))
+
     def refresh_sample_action(self, *_):
         current = self.last is not None and self.last[0] == self.request()
         self.sample_button.setEnabled(current)
@@ -93,6 +117,8 @@ class ExpressionMeasuresPanel(QWidget):
             self.tabs.setTabVisible(1, False)
             self.tabs.setTabVisible(2, False)
             self.last=(request,result,key);self.sample_button.setEnabled(request==self.request())
+            self.measure_window_key=None;self.sample_key=None
+            self.reuse_signal.setEnabled(False);self.cas_button.setEnabled(True)
             from .result_summary import expression_measure_summary
             self.report.set_readable(expression_measure_summary(request,result));self.tabs.setCurrentIndex(0)
         self.window._run_operation('Calculando medidas algebraicas…',lambda:run_request(request),accept)
@@ -112,7 +138,10 @@ class ExpressionMeasuresPanel(QWidget):
                 summary={k:v for k,v in data.items() if k!='samples'}
                 report_id=self.window.publish({'request':request,'result':summary},title='Medidas de ventana · '+definition['expression'],operation='Aproximación de energía y potencia',parents=[parent])
                 signal=Signal([complex(*v) for v in data['samples']],data['origin'],data['step'],'s' if data['domain']=='continuous' else 'n',definition['expression'],data['domain'],definition['expression'],{'operation':'expression_measure_window','energy':data['energy'],'mean_square':data['mean_square'],'rms':data['rms'],'scope':data['scope'],'method':data['method']})
-                self.window.publish(signal,operation='Muestras de expresión analizada',parents=[report_id]);self.output.show_result(signal)
+                self.measure_window_key=report_id
+                self.sample_key=self.window.publish(signal,operation='Muestras de expresión analizada',parents=[report_id])
+                self.output.show_result(signal);self.output.result_ids=[self.sample_key]
+                self.output.send.hide();self.output.cas_button.hide();self.reuse_signal.setEnabled(True)
                 self.tabs.setTabVisible(1, True)
                 self.tabs.setTabVisible(2, True)
                 self.numeric_report.setPlainText('Medidas de la ventana\n\nEnergía: '+str(data['energy'])+'\nPromedio cuadrático: '+str(data['mean_square'])+'\nRMS: '+str(data['rms'])+'\nMétodo: '+data['method']+'\n\n'+data['scope'])

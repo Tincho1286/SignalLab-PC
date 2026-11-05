@@ -71,7 +71,9 @@ def simulate(system,source,encoding,*,preserve_sections=True,initial=(0,),tail=6
     if system.advance:raise ValueError('Esta simulación utiliza retardos causales y no admite un avance temporal. Consultá frecuencia o Z inversa con ROC para el sistema completo.')
     if system.domain!='digital' or source.domain!='discrete':raise ValueError('La ejecución de precisión finita requiere H(z) y una secuencia discreta.')
     if isinstance(tail,bool) or int(tail)!=tail or tail<0:raise ValueError('Los ceros agregados al final deben ser un entero no negativo.')
+    from .system_conditions import require_causal_roc
     from .system_clock import input_metadata
+    require_causal_roc(system)
     clock=input_metadata(system,source)
     tail=int(tail);count=source.values.size+tail
     limit=np.iinfo(np.int64)

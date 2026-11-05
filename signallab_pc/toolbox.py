@@ -51,6 +51,17 @@ def signal_destinations(value,items):
         items=[item for item in items if item[1]!='frequency_filter']
     return [item for item in items if (item[1:3]==('basic','idft') and ops.is_centered_dft(value)) or (item[1:3]==('transform_lab','z') and value.domain=='discrete') or (item[1]=='basic' and item[2] in ('generate','measures') and value.domain in {'continuous','discrete'}) or (item[1]=='dsp_extensions' and item[2] in ('hilbert','stft') and value.domain in {'continuous','discrete'}) or (item[1]=='frequency_filter' and value.domain in {'discrete','continuous','frequency'} and (value.domain!='frequency' or value.units in {'rad/s','rad/muestra'})) or item[3] in ({'discrete','pair'} if value.domain=='discrete' else {'continuous','continuous_pair'} if value.domain=='continuous' else set()) or (item[1]=='systems' and item[2]==9 and value.domain in {'discrete','continuous'}) or (item[1]=='course_tools' and item[2]=='band' and value.domain=='frequency' and value.units in {'rad/s','rad/muestra'}) or (item[1]=='correlation' and value.domain==('continuous' if item[2] else 'discrete')) or (item[1]=='signal_editor' and value.domain in {'discrete','continuous'}) or (item[1]=='rational_resampling' and value.domain=='discrete') or (item[1:3]==('sampling',5) and value.domain=='discrete') or (item[1:3]==('fourier',6) and value.domain in {'discrete','continuous','frequency'}) or (item[1]=='fourier' and item[2] in (3,6) and value.domain=='frequency' and (item[2]!=3 or value.units=='rad/s')) or (item[1]=='inverse_dtft' and value.domain=='frequency' and value.units=='rad/muestra') or ((item[1]=='signal_product' or item[1:3]==('basic','sum')) and value.domain in {'discrete','continuous'}) or (item[1:3]==('state_space','simulation') and value.domain in {'discrete','continuous'})]
 
+def populate_signal_menu(menu,window,value,key):
+    from .tool_catalog import compact_destinations,AREA_BY_ID,destination_label
+    groups={}
+    candidates=signal_destinations(value,[item for items in MENUS.values() for item in items])
+    for entry,item in compact_destinations(candidates):
+        area=entry['area']
+        if area not in groups:groups[area]=menu.addMenu(AREA_BY_ID[area][1])
+        groups[area].addAction(destination_label(entry,item),lambda checked=False,target=item:window.send_signal(value,key,target))
+    return list(groups.values())
+
+
 def system_destinations(value,items):
     keys={('system_analysis',0),('interconnection',0),('systems',9),('systems',6),('course_tools','convert'),('course_tools','gain')}
     if value.domain=='digital':keys|={('course_tools','phase'),('course_tools','inverse_z'),('sampling',5),('random_model','model')}
@@ -202,12 +213,17 @@ class LocalInput(QGroupBox):
 
 class ResultView(QWidget):
     def __init__(self,details=True):
-        super().__init__();self.result=None;self.result_ids=[];self.details=details;layout=QVBoxLayout(self);root=layout
+        super().__init__();self.result=None;self.result_ids=[];self.expression_key=None;self.details=details;layout=QVBoxLayout(self);root=layout
         from .active_stack import ActiveTabs
         self.views=ActiveTabs();layout.addWidget(self.views,1);plot=QWidget();layout=QVBoxLayout(plot);self.views.addTab(plot,'Gráfico')
-        bar=QHBoxLayout();self.label=QLabel('El resultado aparecerá aquí.');bar.addWidget(self.label,1)
-        self.send=QPushButton('Usar en otra herramienta…');self.send.setProperty('actionRole','reuse');self.send.setEnabled(False);self.send_menu=QMenu(self.send);self.send.setMenu(self.send_menu);self.send_menu.aboutToShow.connect(self.prepare_send);bar.addWidget(self.send)
-        self.save=QPushButton('Exportar datos…');self.save.setEnabled(False);self.save.clicked.connect(self.export);bar.addWidget(self.save);self.actions=QWidget();self.actions.setLayout(bar);bar.setContentsMargins(0,0,0,0);root.insertWidget(0,self.actions)
+        self.actions=QWidget();action_layout=QVBoxLayout(self.actions);action_layout.setContentsMargins(0,0,0,0)
+        self.label=QLabel('El resultado aparecerá aquí.');self.label.setWordWrap(True);action_layout.addWidget(self.label)
+        bar=QHBoxLayout();action_layout.addLayout(bar)
+        self.send=QPushButton('Usar señal en…');self.send.setProperty('actionRole','reuse');self.send.setEnabled(False);self.send_menu=QMenu(self.send);self.send.setMenu(self.send_menu);self.send_menu.aboutToShow.connect(self.prepare_send);bar.addWidget(self.send)
+        self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas')
+        self.cas_menu=QMenu(self.cas_button);self.cas_button.setMenu(self.cas_menu)
+        self.cas_menu.aboutToShow.connect(self.prepare_cas);bar.addWidget(self.cas_button)
+        self.save=QPushButton('Exportar datos…');self.save.setEnabled(False);self.save.clicked.connect(self.export);bar.addWidget(self.save);bar.addStretch();root.insertWidget(0,self.actions)
         self.plot_mode=QComboBox();self.plot_mode.addItems(['Módulo y fase','Parte real e imaginaria']);self.plot_mode.setAccessibleName('Representación del resultado');self.plot_mode.currentIndexChanged.connect(self.draw_signal);layout.addWidget(self.plot_mode)
         self.dft_axis=QComboBox()
         self.dft_axis.addItems(['Frecuencia ω (rad/muestra)','Índice k centrado'])
@@ -229,7 +245,7 @@ class ResultView(QWidget):
     def show_result(self,result,*,source=None,operation=None):
         candidates=result if isinstance(result,tuple) else (result,)
         if all(isinstance(value,Signal) for value in candidates):validate_overlay(candidates)
-        self.show_content();self.result=result;self.save.setEnabled(True);self.figure.clear()
+        self.show_content();self.result=result;self.expression_key=None;self.save.setEnabled(True);self.figure.clear()
         signals=result if isinstance(result,tuple) else (result,)
         numeric=all(isinstance(value,Signal) for value in signals)
         self.dft_axis.setVisible(numeric and all(ops.is_centered_dft(value) for value in signals))
@@ -238,8 +254,12 @@ class ResultView(QWidget):
         self.views.setTabVisible(0,numeric);self.views.setTabVisible(1,self.details or not numeric);self.views.setTabVisible(self.details_index,self.details and numeric and any(signal.metadata for signal in signals));self.views.tabBar().show()
         window=self.window();self.result_ids=[window.published_signal_id(value) if isinstance(value,Signal) and hasattr(window,'published_signal_id') else None for value in signals]
         from .cas_transfer import can_send
-        reusable=(isinstance(signals[0],Signal) and hasattr(window,'send_signal')) or (hasattr(window,'open_cas') and can_send(result))
+        reusable=isinstance(signals[0],Signal) and hasattr(window,'send_signal')
+        self.send.setText('Usar filtro en…' if numeric and signals[0].data_kind=='frequency_response' else
+                          'Usar señal en…' if numeric and signals[0].data_kind=='temporal' else 'Usar resultado en…')
         self.send.setEnabled(reusable);self.send.setVisible(reusable)
+        cas=hasattr(window,'open_cas') and can_send(result)
+        self.cas_button.setEnabled(cas);self.cas_button.setVisible(cas)
         if isinstance(signals[0],Signal):
             domain=signals[0].domain
             if getattr(self,'_shown_domain',None)!=domain:
@@ -329,26 +349,27 @@ class ResultView(QWidget):
             if axis.get_legend_handles_labels()[0]:axis.legend()
         if polar:axes[1].set_title('10 log10 de la densidad; cero → −∞, no trazado' if density else 'Fase principal; no se dibuja donde el módulo es cero',fontsize=9)
         self.figure.tight_layout();self.canvas.draw_idle()
+    def prepare_cas(self):
+        self.cas_menu.clear();window=self.window()
+        from .cas_transfer import send_to_cas,can_send
+        if self.expression_key:
+            self.cas_menu.addAction('Fórmula del resultado',lambda:send_to_cas(window,self.expression_key))
+        values=self.result if isinstance(self.result,tuple) else (self.result,)
+        for index,value in enumerate(values):
+            if not can_send(value):continue
+            key=self.result_ids[index] if index<len(self.result_ids) else None
+            label=value.name if isinstance(value,Signal) and len(values)>1 else 'Muestras del resultado' if isinstance(value,Signal) else 'Resultado calculado'
+            self.cas_menu.addAction(label,lambda checked=False,k=key,v=value:send_to_cas(window,k,value=v))
+
     def prepare_send(self):
         self.send_menu.clear();self.send_menu_refs=[];self.send_action_refs=[];window=self.window()
         signals=self.result if isinstance(self.result,tuple) else (self.result,)
-        from .cas_transfer import send_to_cas,can_send
-        if not all(isinstance(value,Signal) for value in signals):
-            if can_send(self.result):self.send_menu.addAction('Calculadora CAS',lambda:send_to_cas(window,value=self.result))
-            return
+        if not all(isinstance(value,Signal) for value in signals):return
         for index,value in enumerate(signals):
             if not isinstance(value,Signal):continue
-            root=self.send_menu.addMenu('Parte par' if index==0 else 'Parte impar') if len(signals)>1 else self.send_menu
+            root=self.send_menu.addMenu(value.name) if len(signals)>1 else self.send_menu
             self.send_menu_refs.append(root)
-            root.addAction('Calculadora CAS',lambda checked=False,v=value:send_to_cas(window,window.published_signal_id(v),value=v))
-            root.addSeparator()
-            from .tool_catalog import compact_destinations,AREA_BY_ID,destination_label
-            groups={}
-            candidates=signal_destinations(value,[item for items in MENUS.values() for item in items])
-            for entry,item in compact_destinations(candidates):
-                area=entry['area']
-                if area not in groups:groups[area]=root.addMenu(AREA_BY_ID[area][1]);self.send_menu_refs.append(groups[area])
-                self.send_action_refs.append(groups[area].addAction(destination_label(entry,item),lambda checked=False,it=item,v=value,key=self.result_ids[index]:window.send_signal(v,key,it)))
+            self.send_menu_refs.extend(populate_signal_menu(root,window,value,self.result_ids[index]))
             self.send_action_refs.extend(root.actions())
         self.send_action_refs.extend(self.send_menu.actions())
     def export(self):
@@ -602,7 +623,9 @@ class ToolPage(QWidget):
         # Sólo los controles desplazan; los resultados ocupan el alto disponible.
         controls=next(scroll for scroll in self.panel.findChildren(QScrollArea) if scroll.widget() is selector.parentWidget())
         split=QSplitter(Qt.Orientation.Horizontal);split.setChildrenCollapsible(False);split.addWidget(controls);controls.setMinimumWidth(300)
-        self.result_tabs=QTabWidget();split.addWidget(self.result_tabs);split.setStretchFactor(1,1);split.setSizes([350,740]);root.addWidget(split,1)
+        results=QWidget();results_layout=QVBoxLayout(results);results_layout.setContentsMargins(0,0,0,0)
+        results_layout.addWidget(self.output.actions)
+        self.result_tabs=QTabWidget();results_layout.addWidget(self.result_tabs,1);split.addWidget(results);split.setStretchFactor(1,1);split.setSizes([350,740]);root.addWidget(split,1)
         report=self.panel.report;report.setMaximumHeight(16777215)
         if hasattr(self.panel,'canvas'):
             plot=QWidget();plot_box=QVBoxLayout(plot);plot_box.setContentsMargins(0,0,0,0)

@@ -11,6 +11,8 @@ class SystemResultActions(QWidget):
         self.temporal_action=menu.addAction('Respuesta temporal',lambda:self.send_to(('systems',9)))
         row.addWidget(self.analysis)
         self.reuse=QPushButton('Usar filtro en…');self.reuse.setProperty('actionRole','reuse');self.reuse_menu=QMenu(self.reuse);self.reuse.setMenu(self.reuse_menu);self.reuse_menu.aboutToShow.connect(self.prepare_reuse);row.addWidget(self.reuse)
+        self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas')
+        self.cas_button.clicked.connect(self.send_to_cas);row.addWidget(self.cas_button)
         self.export_button=QPushButton('Exportar filtro…');self.export_button.clicked.connect(lambda:self.owner.export_transfer(self.system) if self.system is not None else None);row.addWidget(self.export_button)
         self.set_result(None)
     def set_result(self,system,key=None):
@@ -22,11 +24,14 @@ class SystemResultActions(QWidget):
         if self.system is not None:self.owner.send_system(self.system,self.key,ROUTES[key])
     def roots(self):
         if self.system is not None:self.owner.open_root_analysis(self.system,self.key)
+    def send_to_cas(self):
+        if self.system is not None:
+            from .cas_transfer import send_to_cas
+            send_to_cas(self.owner,self.key,value=self.system)
+
     def prepare_reuse(self):
         self.reuse_menu.clear()
         if self.system is None:return
-        from .cas_transfer import send_to_cas
-        self.reuse_menu.addAction('Calculadora CAS',lambda:send_to_cas(self.owner,self.key,value=self.system));self.reuse_menu.addSeparator()
         from .toolbox import system_destinations
         from .tool_catalog import compact_destinations,AREA_BY_ID,normalized_key,destination_label
         from .navigation import MENUS

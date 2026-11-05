@@ -1,7 +1,7 @@
 from .report_view import ReportView,report_panel
 from .expression_editor import ExpressionEditor
 """Convolución de expresiones con soporte y convergencia explícitos."""
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineEdit,QComboBox,QPushButton,QPlainTextEdit,QLabel,QMessageBox,QScrollArea
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineEdit,QComboBox,QPushButton,QPlainTextEdit,QLabel,QMessageBox,QScrollArea,QMenu
 from .symbolic_process import run_request
 
 class ConvolutionAlgebraPanel(QWidget):
@@ -19,10 +19,23 @@ class ConvolutionAlgebraPanel(QWidget):
         note=QLabel('R(tau) = ∫ x(t) conjugada(y(t−tau)) dt. Si indicás un periodo, ambas expresiones deben ser periódicas con ese periodo; no se normaliza la integral.' if correlation else 'En modo causal, las fórmulas valen para t ≥ 0. En modo bilateral, incluí los escalones o tramos que definan el soporte.');note.setWordWrap(True);form.addRow(note)
         self.calculate_button=QPushButton('Calcular correlación algebraica' if correlation else 'Calcular convolución algebraica');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);form.addRow(self.calculate_button)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
-        self.report=ReportView();self.report.setReadOnly(True);root.addWidget(report_panel(self.report),2)
+        right=QVBoxLayout();root.addLayout(right,2);actions=QHBoxLayout();right.addLayout(actions)
+        self.result_key=None
+        self.reuse=QPushButton('Usar expresión en…' if correlation else 'Usar señal en…');self.reuse.setProperty('actionRole','reuse')
+        self.reuse_menu=QMenu(self.reuse);self.reuse.setMenu(self.reuse_menu);self.reuse_menu.aboutToShow.connect(self.prepare_reuse);actions.addWidget(self.reuse)
+        self.cas=QPushButton('Enviar a CAS');self.cas.setProperty('actionRole','cas');self.cas.clicked.connect(self.send_to_cas);actions.addWidget(self.cas);actions.addStretch()
+        self.reuse.setEnabled(False);self.cas.setEnabled(False)
+        self.report=ReportView();self.report.setReadOnly(True);right.addWidget(report_panel(self.report),1)
         self.report.setPlainText('El resultado algebraico y sus condiciones quedarán guardados en el proyecto. Si el motor no resuelve la integral, se mostrará como pendiente de evaluación.')
         from .result_state import ResultState
         self.result_state=ResultState([self.left,self.right,self.support,self.period],self.calculate_button);form.insertRow(0,self.result_state)
+    def prepare_reuse(self):
+        from .result_expressions import populate_reuse_menu
+        self.reuse_menu.clear();populate_reuse_menu(self.reuse_menu,self.window,self.result_key)
+    def send_to_cas(self):
+        if self.result_key is not None:
+            from .cas_transfer import send_to_cas
+            send_to_cas(self.window,self.result_key)
     def calculate(self):
         request=dict(operation='continuous_correlation' if self.correlation else 'continuous_convolution',left=self.left.text(),right=self.right.text(),causal=self.support.currentIndex()==0)
         from .expression_import import expression_context
@@ -30,7 +43,8 @@ class ConvolutionAlgebraPanel(QWidget):
         if self.correlation:request["period"]=self.period.text().strip()
         calculated_inputs=self.result_state.snapshot()
         def accept(result):
-            self.window.publish({'request':request,'result':result},title='Correlación algebraica' if self.correlation else 'Convolución algebraica',operation=request['operation'],parents=parents)
+            self.result_key=self.window.publish({'request':request,'result':result},title='Correlación algebraica' if self.correlation else 'Convolución algebraica',operation=request['operation'],parents=parents)
+            self.cas.setEnabled(result['evaluated']);self.reuse.setEnabled(result['evaluated'])
             self.result_state.accept(calculated_inputs)
             self.report.setPlainText(('R(tau) = ' if self.correlation else 'y(t) = ')+result['result']+'\n\n'+result['scope']+'\n\n'+('Integral evaluada.' if result['evaluated'] else 'El motor dejó la integral sin evaluar.'))
         self.window._run_operation('Calculando integral algebraica…',lambda:run_request(request),accept)

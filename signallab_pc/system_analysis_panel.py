@@ -73,7 +73,9 @@ class SystemAnalysisPanel(QWidget):
         right=QWidget();layout=QVBoxLayout(right);root.addWidget(right,2)
         layout.addWidget(self.result_actions);self.frequency_export=QPushButton('Exportar respuesta…');self.frequency_export.clicked.connect(self.export_response);self.frequency_export.setEnabled(False);self.result_actions.layout().addWidget(self.frequency_export);self.result_actions.hide()
         self.expression_actions=QWidget();expression_row=QHBoxLayout(self.expression_actions);expression_row.setContentsMargins(0,0,0,0)
-        expression_reuse=QPushButton('Usar expresión en…');self.expression_menu=QMenu(expression_reuse);expression_reuse.setMenu(self.expression_menu);self.expression_menu.aboutToShow.connect(self.prepare_expression_reuse);expression_row.addWidget(expression_reuse)
+        expression_reuse=QPushButton('Usar sistema en…');expression_reuse.setProperty('actionRole','reuse');self.expression_menu=QMenu(expression_reuse);expression_reuse.setMenu(self.expression_menu);self.expression_menu.aboutToShow.connect(self.prepare_expression_reuse);expression_row.addWidget(expression_reuse)
+        expression_cas=QPushButton('Enviar a CAS');expression_cas.setProperty('actionRole','cas')
+        expression_cas.clicked.connect(self.send_expression_to_cas);expression_row.addWidget(expression_cas)
         expression_export=QPushButton('Exportar definición…');expression_export.clicked.connect(self.export_expression);expression_row.addWidget(expression_export)
         self.expression_frequency_export=QPushButton('Exportar respuesta…');self.expression_frequency_export.clicked.connect(self.export_response);expression_row.addWidget(self.expression_frequency_export)
         layout.addWidget(self.expression_actions);self.expression_actions.hide();self._definition_id=None;self._formula_context=None
@@ -191,8 +193,12 @@ class SystemAnalysisPanel(QWidget):
     def prepare_expression_reuse(self):
         self.expression_menu.clear()
         if not self._definition_id:return
-        from .result_expressions import send_expression
-        for label,destination in [('Copiar fórmula','copy'),('Calculadora CAS','cas')]:self.expression_menu.addAction(label,lambda checked=False,target=destination:send_expression(self.window,self._definition_id,target))
+        from .result_expressions import populate_reuse_menu
+        populate_reuse_menu(self.expression_menu,self.window,self._definition_id)
+    def send_expression_to_cas(self):
+        if self._definition_id:
+            from .cas_transfer import send_to_cas
+            send_to_cas(self.window,self._definition_id)
     def export_expression(self):
         if not self._definition_id:return
         path,_=QFileDialog.getSaveFileName(self,'Exportar definición del sistema','sistema_expresion.json','Resultado SignalLab (*.json)')

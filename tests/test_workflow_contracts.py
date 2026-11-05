@@ -276,6 +276,12 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(self.warnings,[])
         self.assertEqual(sheet.entries[-1]['status'],'done',sheet.entries[-1].get('error'))
         self.assertEqual(sheet.entries[-1]['answer']['frequency_units'],'rad/muestra')
+        response=self.host.publish({'result':{'result':'exp(I*w)','output_variable':'w','frequency_units':'rad/muestra'}})
+        from signallab_pc.cas_transfer import payload
+        from signallab_pc.cas_import import import_result
+        typed=import_result({'cell':1,'payload':payload(self.host.project.get(response))})
+        transformed=execute(dict(operation='cas_worksheet',state=typed['state'],cell=2,source='conj(r1)'))
+        self.assertEqual(transformed['expression'],'exp(-I*w)')
         sheet.input.setPlainText('subst(r1,w,0)');sheet.input.evaluateRequested.emit()
         self.assertEqual(sheet.entries[-1]['status'],'error')
         self.assertIn('fuera del dominio',sheet.entries[-1]['error'])
@@ -287,17 +293,22 @@ class WorkflowContracts(unittest.TestCase):
         from signallab_pc.frequency_filter_panel import FrequencyFilterPanel
         from signallab_pc.cas_engine import restore
         panel=FrequencyFilterPanel(self.host);self.widgets.append(panel)
-        panel.h.expression.setText('Piecewise((1, (w >= -pi/2) & (w <= pi/2)), (0, True))')
+        panel.h.expression.setText('Piecewise((exp(-2*i*w), (w >= -pi/2) & (w <= pi/2)), (0, True))')
         panel.calculate_button.click()
         self.assertTrue(panel.cas_definition.isEnabled())
         self.assertTrue(panel.cas_impulse.isEnabled())
+        self.assertEqual(panel.reuse_button.text(),'Usar filtro en…')
+        self.assertIs(panel.cas_button.parentWidget(),panel.reuse_button.parentWidget())
+        self.assertIs(panel.view.actions.parentWidget(),panel.tabs.parentWidget())
         panel.cas_definition.trigger();sheet=self.host.pages[self.host.current_operation]
         self.assertEqual(sheet.input.toPlainText(),'r1')
         panel.cas_impulse.trigger()
         self.assertEqual(sheet.input.toPlainText(),'r2')
         self.assertEqual(sheet.entries[-1]['status'],'done',sheet.entries[-1].get('error'))
-        check=execute(dict(operation='cas_worksheet',state=sheet.state,cell=3,source='subst(r2,n,0)'))
+        check=execute(dict(operation='cas_worksheet',state=sheet.state,cell=3,source='subst(r2,n,2)'))
         self.assertEqual(check['expression'],'1/2')
+        with self.assertRaisesRegex(ValueError,'fuera del dominio'):
+            execute(dict(operation='cas_worksheet',state=sheet.state,cell=3,source='subst(r2,n,1/2)'))
         sheet.input.setPlainText('simplify(r2)')
         panel.selector.setCurrentIndex(1);panel.cas_samples.trigger()
         self.assertEqual(sheet.input.toPlainText(),'simplify(r2)')

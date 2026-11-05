@@ -85,7 +85,8 @@ def sections(signal):
                               paragraphs=[exact.get('scope','La expresión describe el modelo asociado al registro.')]))
     recurrence=_recurrence(signal,symbol)
     if recurrence is not None:output.append(recurrence)
-    if meta.get('inverse_model'):return output
+    from .inverse_fourier_report import stored_model
+    if stored_model(signal):return output
     count=int(signal.values.size)
     if discrete:
         first=int(signal.origin);last=first+count-1

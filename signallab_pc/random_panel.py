@@ -46,7 +46,7 @@ class RandomPanel(QWidget):
                 args=(kind,integer_field(self.count),real_field(self.mean) if kind!='bernoulli' else 0,real_field(self.std) if kind!='bernoulli' else 1,real_field(self.probability) if kind=='bernoulli' else .5,integer_field(self.seed),integer_field(self.origin))
                 def accept(signal):
                     self.window.publish(signal,operation='Generación aleatoria');self.output.show_result(signal);self.tabs.setCurrentIndex(0)
-                    meta=signal.metadata;self.report.setPlainText(f"Distribución: { {'gaussian':'Gaussiana','uniform':'Uniforme','bernoulli':'Bernoulli'}[kind] }\nMuestras: {signal.values.size}\nSemilla: {meta['seed']}\nMedia teórica: {meta['theoretical_mean']}\nVarianza teórica: {meta['theoretical_variance']}\n\nLa generación produce muestras independientes del modelo elegido. Usá Estadísticas e histograma para medir esta realización, o Usar en otra herramienta para filtrarla.")
+                    meta=signal.metadata;self.report.setPlainText(f"Distribución: { {'gaussian':'Gaussiana','uniform':'Uniforme','bernoulli':'Bernoulli'}[kind] }\nMuestras: {signal.values.size}\nSemilla: {meta['seed']}\nMedia teórica: {meta['theoretical_mean']}\nVarianza teórica: {meta['theoretical_variance']}\n\nLa generación produce muestras independientes del modelo elegido. Usá Estadísticas e histograma para medir esta realización, o Usar señal en… para filtrarla.")
                 self.window._run_operation('Generando señal aleatoria…',lambda:random_signals.generate(*args),accept)
             else:
                 source=self.source.read();parent=self.source.reference_id;component=['real','imag','magnitude'][self.component.currentIndex()];bins=integer_field(self.bins)

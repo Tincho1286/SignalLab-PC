@@ -15,7 +15,7 @@ def _complex(pair):return _number(pair[0])+sp.I*_number(pair[1])
 def _expression(text):
     if re.search(r'\b(?:CRootOf|RootOf|RootSum)\s*\(',text):raise ValueError('Este resultado antiguo no conserva la raíz algebraica para CAS. Recalculalo con esta versión para exportarlo exactamente.')
     calculator=Calculator(empty_state())
-    calculator.locals={'n':sp.Symbol('n',integer=True),'k':sp.Symbol('k',integer=True),'t':sp.Symbol('t',real=True),'w':sp.Symbol('w',real=True)}
+    calculator.locals={'n':sp.Symbol('n',integer=True),'k':sp.Symbol('k',integer=True),'t':sp.Symbol('t',real=True),'w':sp.Symbol('w',real=True),'tau':sp.Symbol('tau',real=True)}
     value=calculator.parse(text)
     if calculator.undefined:raise ValueError('La expresión contiene funciones sin definición: '+', '.join(sorted(calculator.undefined)))
     return value,sp.And(*calculator.domain_restrictions)
@@ -41,7 +41,7 @@ def _value(data,notices):
             from .symbolic import parse
             from .cas_domains import bare
             condition=sp.And(condition,bare(parse(data['frequency_condition'])))
-        if condition is not sp.true and data.get('variable') in ('w','n','t'):
+        if condition is not sp.true and data.get('variable') in ('w','n','t','tau'):
             if data.get('domain_condition'):
                 condition=sp.And(condition,restore(data['domain_condition']))
             data['domain_condition']=encode(condition)
@@ -68,7 +68,9 @@ def _value(data,notices):
         notices.append('Tupla de matrices en orden (A, B, C, D). Usá rN[0], rN[1], rN[2] y rN[3].'+(' T='+str(data['period'])+' s.' if data.get('period') is not None else ' Modelo continuo.'))
         return tuple(_value({'kind':'matrix',**matrix},notices) for matrix in data['matrices'])
     if kind=='measures':
-        notices.extend(data.get('conditions',[]));return {_symbol(k):_expression(v['expression'])[0] for k,v in data['items'].items()}
+        notices.extend(data.get('conditions',[]))
+        notices.append('Cada medida tiene una clave. Por ejemplo, usá rN[energy] para obtener la energía.')
+        return {_symbol(k):_expression(v['expression'])[0] for k,v in data['items'].items()}
     if kind=='mapping':return {_symbol(k):_value(v,notices) for k,v in data['items'].items()}
     if kind=='list':return [_value(v,notices) for v in data['items']]
     raise ValueError('Este tipo de resultado no tiene una representación CAS disponible.')

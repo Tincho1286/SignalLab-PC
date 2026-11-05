@@ -112,9 +112,10 @@ def signal_summary(value,operation=None):
             formulas=[Formula('p[n] = (x[n]+x[-n])/2','Parte par: p[n] = (x[n]+x[−n])/2'),Formula('q[n] = (x[n]-x[-n])/2','Parte impar: q[n] = (x[n]−x[−n])/2')]
             reading=['La señal se extiende con ceros fuera del registro; se conserva el soporte reflejado. La suma de ambas componentes recupera la señal sobre ese soporte.']
         if reading or formulas:sections.append(Section('Cómo leer el resultado',paragraphs=reading,formulas=formulas))
-        if meta.get('inverse_model'):
-            from .inverse_fourier_report import numeric_section
-            sections.append(numeric_section(meta['inverse_model'],'h' if op=='frequency_filter_impulse' else 'x'))
+        from .inverse_fourier_report import numeric_section,stored_model
+        inverse=stored_model(signal)
+        if inverse:
+            sections.append(numeric_section(inverse,'h' if op=='frequency_filter_impulse' else 'x'))
         from .distributions import dirac_terms
         terms=dirac_terms(signal)
         if terms:

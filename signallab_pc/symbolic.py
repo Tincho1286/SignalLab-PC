@@ -239,7 +239,8 @@ def _execute(request):
             limits=(T,0,duration)
         else:limits=(T,-sp.oo,sp.oo)
         result=sp.simplify(sp.integrate(integrand,limits))
-        return {'operation':'continuous_correlation','result':str(result),'evaluated':not result.has(sp.Integral),
+        from .transform_status import closed
+        return {'operation':'continuous_correlation','result':str(result),'evaluated':closed(result),
                 'output_variable':'tau','period':str(duration) if period else None,
                 'scope':'Integral de un periodo, sin normalizar. Las expresiones deben ser periódicas con el periodo indicado.' if period else 'Correlación bilateral sin normalizar. Las expresiones incluyen su soporte y condiciones de convergencia.',
                 'convention':'R(tau) = integral x(t) conjugate(h(t-tau)) dt'}
@@ -250,7 +251,8 @@ def _execute(request):
         limits=(tau,0,T) if causal else (tau,-sp.oo,sp.oo)
         integral=sp.simplify(sp.integrate(integrand,limits))
         result=sp.Piecewise((integral,T>=0),(0,True)) if causal else integral
-        return {'operation':'continuous_convolution','result':str(result),'evaluated':not result.has(sp.Integral),
+        from .transform_status import closed
+        return {'operation':'continuous_convolution','result':str(result),'evaluated':closed(result),'output_variable':'t',
                 'scope':'Ambas entradas son cero para t<0; las fórmulas indicadas valen para t>=0.' if causal else 'Convolución bilateral; las expresiones deben incluir su soporte y cumplir las condiciones de convergencia.',
                 'convention':'integral x(tau) h(t-tau) d tau'}
     if operation == 'system_frequency_expression':

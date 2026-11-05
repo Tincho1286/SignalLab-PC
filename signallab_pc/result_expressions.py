@@ -45,6 +45,7 @@ def expression_destinations(expression):
     if v in ('n','t'):destinations += [('Crear señal '+('discreta' if v=='n' else 'continua'),'signal'),('Transformada '+('Z directa' if v=='n' else 'de Laplace directa'),'direct'),('Energía y potencia','measures')]
     if v in ('n','t'):destinations.append(('Transformar esta señal','transform_signal'))
     if v in ('n','t'):destinations.extend([('Sumar con otra señal','sum'),('Multiplicar por otra señal','product')])
+    if v=='tau':destinations.append(('Crear señal continua desde la correlación','signal'))
     if v=='n':destinations.append(('Enventanar como h[n] de un FIR','fir_window'))
     if v in ('s','z'):destinations += [('Transformada '+('Z inversa' if v=='z' else 'de Laplace inversa'),'inverse'),('Analizar como H('+v+')','system')]
     if v=='w' and expression.units in ('rad/s','rad/muestra'):destinations.append(('Analizar respuesta en frecuencia','system'))
@@ -62,6 +63,13 @@ def signal_source(source):
 def check_cas_destination(answer,destination):
     if not answer.get('domain_condition') or destination in ('copy','cas'):
         return
+    coordinate=answer.get('coordinate_variable')
+    if coordinate in ('n','k','t','tau'):
+        from .cas_context import coordinate_domain
+        from .cas_engine import restore
+        import sympy as sp
+        condition=restore(answer['domain_condition'])
+        if condition==sp.Contains(sp.Symbol(coordinate),coordinate_domain(coordinate)):return
     if destination in ('system','analog','digital','inverse') and answer.get('domain_condition_implicit'):
         return
     if destination in ('system','digital'):
@@ -78,6 +86,15 @@ def check_cas_destination(answer,destination):
     if destination in ('system','frequency') and answer.get('coordinate_variable')=='w' and answer.get('context_rewrite') is True:
         return
     raise ValueError('Este destino no aplica las condiciones de validez del CAS. Revisá la condición en el informe y definí allí el dominio antes de reutilizar la fórmula.')
+
+
+def populate_reuse_menu(menu,window,key):
+    if key is None:return
+    expression=window.project.expression(key)
+    if expression is None:return
+    for label,destination in expression_destinations(expression):
+        if destination=='cas':continue
+        menu.addAction(label,lambda checked=False,target=destination:send_expression(window,key,target))
 
 
 def send_expression(window,key,destination):
@@ -120,6 +137,9 @@ def send_expression(window,key,destination):
         field.mode.setCurrentIndex(0);field.expression.setText(prepared);field._expression_origin=(field.expression.text(),key)
         if destination!='fir_window':panel.show_source(field)
     elif destination=='signal':
+        if v=='tau':
+            import re
+            text=re.sub(r'\btau\b','t',text)
         window.open_tool(ROUTES['basic','generate']);page=window.pages[window.current_operation];page.source_domain.setCurrentIndex(0 if v=='n' else 1)
         prepared=signal_source(expression.numerical_source or text);page.first.mode.setCurrentIndex(0);page.first.expression.setText(prepared);page.first._expression_origin=(page.first.expression.text(),key)
     elif destination=='measures':

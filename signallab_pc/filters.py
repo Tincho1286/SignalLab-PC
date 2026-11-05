@@ -261,6 +261,7 @@ class Transfer:
         require_causal_roc(self)
         from .system_clock import input_metadata
         clock=input_metadata(self,x)
+        clock.pop('excitation',None)
         ensure_working_set(int(x.values.size), live_arrays=5)
         has_history = bool(np.any(previous_inputs) or np.any(previous_outputs))
         from .transfer_plane import causal_sections, effective_system
@@ -293,7 +294,9 @@ class Transfer:
         ensure_working_set(count, live_arrays=6)
         values = np.zeros(count) if kind == "impulse" else np.ones(count)
         values[0] = 1
-        return self.apply(Signal(values,name=kind,metadata={'excitation':kind,'input_name':kind}))
+        result=self.apply(Signal(values,name=kind))
+        result.metadata['excitation']=kind
+        return result
 
 
 def fir(kind, taps, f1, f2=None, window="hamming", beta=8.6):

@@ -38,7 +38,7 @@ def convert_response(expression,period,method,count=2049,support=None):
     checkpoint(1)
     metadata={'operation':'frequency_filter','time_domain':'discrete','conversion':method,'period_s':period,'analog_expression':expression,'support_rad_s':support if method=='impulse' else None,'convention':convention,'scope':'sampled frequency response; not finite rational coefficients'}
     response=Signal(_finite_output(values,'La conversión ideal'),float(omega[0]),float(step),'rad/muestra','Filtro digital por respuesta en frecuencia','frequency',metadata=metadata)
-    report='Conversión de filtro analógico ideal o por tramos\n\n'+convention+'\n\nT = '+str(period)+' s\n'+note+'\n\nEl resultado es una respuesta en frecuencia muestreada. Usá «Usar en otra herramienta» → «Filtros ideales y por tramos» para obtener h[n] o aplicarlo a una señal. La inversión de esta rejilla es una aproximación; un salto ideal exige refinarla. No se fabrican coeficientes b/a de un filtro ideal.'
+    report='Conversión de filtro analógico ideal o por tramos\n\n'+convention+'\n\nT = '+str(period)+' s\n'+note+'\n\nEl resultado es una respuesta en frecuencia muestreada. Usá «Usar filtro en…» → «Filtros ideales y por tramos» para obtener h[n] o aplicarlo a una señal. La inversión de esta rejilla es una aproximación; un salto ideal exige refinarla. No se fabrican coeficientes b/a de un filtro ideal.'
     return {'report':report,'signals':[response],'systems':[]}
 
 
