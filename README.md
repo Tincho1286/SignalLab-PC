@@ -45,6 +45,7 @@ Los portables incluyen Python y las dependencias de la aplicación. Descargá la
 | Edición | Windows x64 | Linux x86_64 | Novedades |
 | --- | --- | --- | --- |
 | **Estable · 1.6.11 Hotfix** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.11/SignalLab-PC-1.6.11.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.11/SignalLab-PC-1.6.11-linux-x86_64.tar.gz) | [Notas de la estable](docs/releases/v1.6.11.md) |
+| **Preliminar · 1.6.12** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.12-preview/SignalLab-PC-1.6.12.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.12-preview/SignalLab-PC-1.6.12-linux-x86_64.tar.gz) | [Notas de la preliminar](docs/releases/v1.6.12-preview.md) |
 
 La 1.6.11 Hotfix muestra las fórmulas de las respuestas temporales y permite reutilizar filtros por tramos en Fourier algebraica. La actualización del CAS conserva las condiciones de la DTFT y permite enviar fórmulas y muestras desde Filtros ideales. Las [notas de la 1.6.11](docs/releases/v1.6.11.md) detallan los cambios.
 
