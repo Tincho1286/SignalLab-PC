@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.6.11" src="https://img.shields.io/badge/estable-1.6.11-71d7c4?style=flat-square&amp;labelColor=172632"></a>
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.6.15" src="https://img.shields.io/badge/estable-1.6.15-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
   <img alt="Windows y Linux portables" src="https://img.shields.io/badge/Windows%20%2B%20Linux-portables-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Desarrollado con Python" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
@@ -40,14 +40,13 @@ El [catálogo de herramientas](docs/tools.md) explica dónde encontrar cada oper
 
 ## Descargar y empezar
 
-Los portables incluyen Python y las dependencias de la aplicación. Descargá la versión 1.6.11 para Windows o Linux. Las entregas anteriores están en Releases.
+Los portables incluyen Python y las dependencias de la aplicación. Descargá la versión 1.6.15 para Windows o Linux. Las entregas anteriores están en Releases.
 
 | Edición | Windows x64 | Linux x86_64 | Novedades |
 | --- | --- | --- | --- |
-| **Estable · 1.6.11 Hotfix** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.11/SignalLab-PC-1.6.11.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.11/SignalLab-PC-1.6.11-linux-x86_64.tar.gz) | [Notas de la estable](docs/releases/v1.6.11.md) |
-| **Preliminar · 1.6.15** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.15-preview/SignalLab-PC-1.6.15.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.15-preview/SignalLab-PC-1.6.15-linux-x86_64.tar.gz) | [Notas de la preliminar](docs/releases/v1.6.15-preview.md) |
+| **Estable · 1.6.15** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.15/SignalLab-PC-1.6.15.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.15/SignalLab-PC-1.6.15-linux-x86_64.tar.gz) | [Notas de la estable](docs/releases/v1.6.15.md) |
 
-La 1.6.11 Hotfix muestra las fórmulas de las respuestas temporales y permite reutilizar filtros por tramos en Fourier algebraica. La actualización del CAS conserva las condiciones de la DTFT y permite enviar fórmulas y muestras desde Filtros ideales. Las [notas de la 1.6.11](docs/releases/v1.6.11.md) detallan los cambios.
+La 1.6.15 reúne mejoras del CAS, Fourier inversa y el intercambio de resultados. Las fórmulas por tramos se presentan con notación matemática y los cálculos conservan sus condiciones y su reloj de muestreo. Las [notas de la 1.6.15](docs/releases/v1.6.15.md) detallan los cambios.
 
 En Windows, abrí el ejecutable descargado. En Linux, descomprimí el paquete y ejecutá `SignalLab-PC` dentro de su carpeta; consultá los [requisitos e instrucciones de Linux](docs/linux.md) para comprobar la compatibilidad de tu sistema.
 

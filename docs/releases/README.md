@@ -4,7 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
-| [1.6.15-preview](v1.6.15-preview.md) | Fórmulas por tramos y notación matemática en CAS e informes | Preliminar |
+| [1.6.15](v1.6.15.md) | CAS, Fourier inversa, precisión numérica e intercambio de resultados | Estable |
 | [1.6.14-preview](v1.6.14-preview.md) | Fourier inversa, CAS y conservación del reloj y la ROC | Preliminar |
 | [1.6.13-preview](v1.6.13-preview.md) | Compatibilidad de datos y precisión numérica | Preliminar |
 | [1.6.12-preview](v1.6.12-preview.md) | CAS, reutilización y respuestas temporales | Preliminar |
