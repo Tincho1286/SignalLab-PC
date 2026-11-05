@@ -1,6 +1,6 @@
 """Linearity, time shifts and geometric Z pairs before general partial fractions."""
 import math
-from .transform_samples import sample_pair
+from .transform_samples import sample_pair, sample_budget
 import sympy as sp
 from .symbolic import parse,Z,N,T,S,W
 from .numeric_modes import PoleValues
@@ -83,8 +83,9 @@ def inverse_pairs(request, raw=None, *, sample_sink=None):
     infinity_included=not left_poles and sp.limit(reduced,Z,sp.oo).is_finite is True
     start=int(request.get('start',-16));count=int(request.get('count',65))
     if count<1:raise ValueError('Usá una cantidad positiva de muestras.')
-    ensure_working_set(count,bytes_per_sample=1024,live_arrays=10);samples=[]
+    samples=[]
     if request.get('include_samples',True) and numeric:
+        sample_budget(count,bytes_per_sample=1024,live_arrays=10)
         modes=[(values.value(c),d,values.value(p) if p is not None else None,m,right) for c,d,p,m,right in numeric_terms]
         for offset,n in enumerate(range(start,start+count)):
             if offset%64==0:checkpoint()

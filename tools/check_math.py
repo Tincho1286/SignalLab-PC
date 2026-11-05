@@ -6,7 +6,7 @@ ROOT=Path(__file__).resolve().parents[1]
 CONTRACT='mathematical-families-v2'
 # Requiring each named family prevents a missing import/file from becoming a pass.
 FAMILIES={
-    'transforms':('test_math_reliability.MathematicalReliabilityTests',26),
+    'transforms':('test_math_reliability.MathematicalReliabilityTests',34),
     'transform_properties':('test_math_shifted_pairs.ShiftedPairContracts',18),
     'preventive_regressions':('test_math_preventive.PreventiveContracts',28),
     'health_exchange':('test_health_exchange.HealthExchangeContracts',20),

@@ -56,25 +56,40 @@ def _formula(system,symbol):
     return result
 
 
-def enrich_conversion(result,original,period,method,references=(),*,input_expression=None):
-    references=list(map(float,references))
-    if any(not math.isfinite(v) or v<=0 for v in references):raise ValueError('Los cortes analógicos de referencia deben ser positivos y finitos, en rad/s.')
+def enrich_conversion(result,original,period,method,references=(),*,input_expression=None,reference_notice=None):
+    from .auxiliary import optional
+    notices=[reference_notice] if reference_notice else []
+    def read_references():
+        values=list(map(float,references))
+        if any(not math.isfinite(v) or v<=0 for v in values):raise ValueError('Los cortes analógicos de referencia deben ser positivos y finitos, en rad/s.')
+        return values
+    checked,notice=optional('Cortes de referencia',read_references)
+    references=checked or []
+    if notice:notices.append(notice)
     forward=method in ('bilinear','impulse')
-    source_measure=half_power(original,references) if original is not None else None
+    source_measure,notice=optional('Cortes medidos de entrada',lambda:half_power(original,references)) if original is not None else (None,None)
+    if notice:notices.append(notice)
     edges=references or (source_measure['frequencies'] if forward and source_measure else [])
     from .course_tools import map_analog_frequency
     mappings=[]
     for edge in edges:
-        raw=edge*period
-        if not math.isfinite(raw):raise ValueError('Ωc·T excede el rango numérico; revisá el corte y el período.')
-        mapped=abs(map_analog_frequency(edge,period,method))
-        mappings.append({'analog':edge,'digital':mapped,'unwrapped':raw,'aliased':method=='impulse' and raw>math.pi})
+        def mapping():
+            raw=edge*period
+            if not math.isfinite(raw):raise ValueError('Ωc·T excede el rango numérico.')
+            mapped=abs(map_analog_frequency(edge,period,method))
+            return {'analog':edge,'digital':mapped,'unwrapped':raw,'aliased':method=='impulse' and raw>math.pi}
+        mapped,notice=optional('Mapeo del corte de referencia',mapping)
+        if mapped is not None:mappings.append(mapped)
+        if notice:notices.append(notice)
     info={'method':method,'period':float(period),'references_entered':bool(references),'mappings':mappings,'ideal':original is None,
           'input':_formula(original,'Ha' if original.domain=='analog' else 'Hd') if original is not None else {'expression':'Ha(w) = '+input_expression,'text':'Ha(w) = '+input_expression},
           'source_measurement':source_measure,'outputs':[],'base_report':result['report']}
     for index,system in enumerate(result['systems']):
+        measurement,notice=optional('Cortes medidos de '+system.name,lambda:half_power(system))
+        if notice:notices.append(notice)
         info['outputs'].append({'name':system.name,'domain':system.domain,'formula':_formula(system,'Hd' if system.domain=='digital' else 'Ha'+str(index+1)),
-                                'measurement':half_power(system),'index':index})
+                                'measurement':measurement,'index':index})
+    info['notices']=notices
     result['conversion_details']=info;result['report']=conversion_summary(info).plain_text()
     return result
 
@@ -103,9 +118,12 @@ def conversion_summary(info):
         sections.append(Section('Frecuencias de referencia',paragraphs=['No se detectaron cortes analógicos con el criterio automático. Podés indicar uno o varios Ωc de referencia en el formulario; ese dato sólo se usa para mostrar el mapeo y no modifica el filtro.']))
     for output in info['outputs']:
         sections.append(definition('Transferencia resultante · '+output['name'],output['formula']))
-        measurement=output['measurement'];unit='rad/muestra' if output['domain']=='digital' else 'rad/s'
+        measurement=output['measurement']
+        if measurement is None:continue
+        unit='rad/muestra' if output['domain']=='digital' else 'rad/s'
         rows=[('Cruces de media potencia',', '.join(number(v) for v in measurement['frequencies'])+' '+unit if measurement['frequencies'] else 'No detectados en el intervalo evaluado'),('Ganancia de referencia',number(measurement['reference_gain'])),('Intervalo evaluado',number(measurement['range'][0])+' … '+number(measurement['range'][1])+' '+unit)]
         sections.append(Section('Cortes medidos en el resultado',rows=rows,paragraphs=['Se busca |H|=referencia/√2, equivalente a −3.0103 dB. La referencia toma el máximo de la rejilla y, para H(s), su límite conocido en infinito si es mayor. Este criterio de media potencia no equivale a cualquier borde de tolerancia de un diseño. La rejilla y el refinamiento numérico pueden omitir cruces muy estrechos.']))
+    if info.get('notices'):sections.append(Section('Mediciones complementarias no disponibles',paragraphs=info['notices']))
     if info.get('ideal') or method=='impulse_inverse':sections.append(Section('Alcance de la conversión',paragraphs=[info['base_report']]))
     sections.append(Section('Lectura y uso',paragraphs=['Los cortes de referencia sólo muestran el mapeo: no rediseñan ni predeforman la transferencia ingresada. El módulo puede verse en amplitud lineal o en dB desde los controles del resultado y desde la barra del gráfico. La transferencia calculada puede exportarse o reutilizarse en las demás herramientas.']))
     return Summary('Conversión analógico / digital',sections)

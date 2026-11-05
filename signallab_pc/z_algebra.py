@@ -83,6 +83,18 @@ def inverse(request):
             request.setdefault('start', -16)
             request.setdefault('count', 65)
             scope = 'interval'
+    sampling_notice = None
+    if request.get('include_samples', True):
+        from .scalar_expression import integer_value
+        try:
+            request['start'] = integer_value(str(request.get('start', -16)))
+            request['count'] = integer_value(str(request.get('count', 65)))
+            if request['count'] < 1:raise ValueError('La cantidad de muestras debe ser positiva.')
+        except ValueError as exc:
+            sampling_notice = 'No se generó el gráfico del intervalo: '+str(exc)+' La fórmula y su ROC se conservan.'
+            request.update(include_samples=False, start=0, count=1)
+    else:
+        request.update(start=0, count=1)
     try:
         result = rational_inverse(request)
     except NumericSamplingError as exc:
@@ -91,11 +103,13 @@ def inverse(request):
         result = rational_inverse(dict(request, include_samples=False))
         result['numeric_notice'] = ('La expresión algebraica y su ROC se calcularon. '
                                     'No se generó el gráfico del intervalo: '+str(exc))
+    if sampling_notice:result['numeric_notice'] = sampling_notice
     if scope:
         result['sample_scope'] = scope
         if scope == 'interval':
             result['sample_scope_notice'] = ('El soporte no es finito. La fórmula describe la secuencia completa; '
-                'las muestras muestran sólo el intervalo elegido, sin truncar la señal original.')
+                'el intervalo elegido se usa únicamente para generar muestras, sin truncar la señal original.')
         else:
-            result['sample_scope_notice'] = 'Las muestras abarcan el soporte finito completo; fuera de él la secuencia es cero.'
+            result['sample_scope_notice'] = ('Las muestras abarcan el soporte finito completo; fuera de él la secuencia es cero.'
+                if result.get('numeric_samples') is not None else 'Se detectó un soporte finito; fuera de él la secuencia es cero. La fórmula completa se conserva.')
     return result

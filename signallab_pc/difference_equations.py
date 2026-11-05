@@ -148,7 +148,7 @@ def solve(request):
     if coefficients[0]==0:raise ValueError('a₀ no puede ser cero: debe permitir despejar y[n].')
     order=len(coefficients)-1;start=integer_value(request.get('start',0));count=integer_value(request.get('count',64))
     if count<1:raise ValueError('La cantidad de muestras debe ser positiva.')
-    ensure_working_set(count+order*order,bytes_per_sample=2048,live_arrays=12)
+    ensure_working_set(order*order,bytes_per_sample=2048,live_arrays=12)
     history=[sp.S.Zero]*order if request.get('rest',True) else [exact_constant(v,parameters=True) for v in request['initial']]
     if len(history)!=order:raise ValueError('Cargá '+str(order)+' valores: y['+str(start-1)+'], y['+str(start-2)+'], …, y['+str(start-order)+'].')
     if any(v.has(N,T,Z,S,W,sp.nan,sp.zoo,sp.oo,-sp.oo) for v in history):raise ValueError('Las condiciones iniciales deben ser constantes finitas.')
@@ -178,24 +178,33 @@ def solve(request):
     if not parameters:
         import numpy as np
         from scipy.signal import lfilter,lfiltic
-        a=np.array([complex(sp.N(v,18)) for v in coefficients]);initial=np.array([complex(sp.N(v,18)) for v in history])
-        inputs=[]
-        for i in range(count):
-            if i%64==0:checkpoint(i/max(count,1))
-            value=complex(sp.N(forcing.subs(N,start+i),18))
-            if not math.isfinite(value.real) or not math.isfinite(value.imag):raise ValueError('f[n] no tiene valor finito en n='+str(start+i)+'.')
-            inputs.append(value)
-        raw_a=a.copy();a=a/a[0];b=np.array([complex(sp.N(1/coefficients[0],18))])
-        if not np.isfinite(a).all() or not np.isfinite(b).all() or not np.isfinite(initial).all():
-            numeric_notice='La solución algebraica se conserva, pero los parámetros exceden el rango de las muestras numéricas.'
-        else:
-            zi=lfiltic(b,a,initial)
-            values=lfilter(b,a,np.asarray(inputs),zi=zi)[0]
-            if not np.isfinite(values).all():numeric_notice='La solución algebraica se conserva, pero la recurrencia excede el rango numérico en el intervalo elegido. Reducí la cantidad de muestras.'
-            else:
-                numeric=[[float(v.real),float(v.imag)] for v in values]
-                from .equation_checks import difference
-                residual_check=difference(request,{'origin':start,'numeric_samples':numeric},arrays=(raw_a,initial,values,np.asarray(inputs)))
+        from .transform_samples import sample_pair,sample_budget,NumericSamplingError
+        try:
+            sample_budget(count,bytes_per_sample=2048,live_arrays=12)
+            a=np.array([complex(*sample_pair(sp.cancel(v/coefficients[0]))) for v in coefficients])
+            initial=np.array([complex(*sample_pair(v)) for v in history])
+            inputs=[]
+            for i in range(count):
+                if i%64==0:checkpoint(i/max(count,1))
+                exact_input=forcing.subs(N,start+i)
+                if exact_input.is_finite is False:
+                    raise ValueError('f[n] no tiene valor finito en n='+str(start+i)+'.')
+                inputs.append(complex(*sample_pair(sp.cancel(exact_input/coefficients[0]))))
+            b=np.array([1.+0j]);zi=lfiltic(b,a,initial)
+            with np.errstate(all='ignore'):values=lfilter(b,a,np.asarray(inputs),zi=zi)[0]
+            if not np.isfinite(values).all():
+                raise NumericSamplingError('La recurrencia excede el rango numérico en el intervalo elegido.')
+            numeric=[sample_pair(v) for v in values]
+            from .equation_checks import difference
+            from .auxiliary import optional
+            checked,check_notice=optional('Comprobación del residuo',lambda:difference(request,{'origin':start,'numeric_samples':numeric},arrays=(a,initial,values,np.asarray(inputs))))
+            if checked is not None:
+                residual_check=checked;residual_check['normalized_equation']=True
+                residual_check['scope']+=' El residuo corresponde a la ecuación dividida por a₀; el máximo absoluto usa esa escala.'
+            elif check_notice:residual_check['status']=check_notice
+        except NumericSamplingError as exc:
+            numeric=None
+            numeric_notice='La solución algebraica se conserva. No se generaron muestras: '+str(exc)
     def text(value):
         if numeric_display:
             from .numeric_modes import expression_source

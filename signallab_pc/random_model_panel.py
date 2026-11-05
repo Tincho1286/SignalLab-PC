@@ -72,7 +72,9 @@ class RandomModelPanel(QWidget):
                 job=lambda:models.analyze(*args);parents=[self.source_key] if self.source_key else []
             else:
                 source=self.source.read();args=(source,integer_field(self.order),lag,points);job=lambda:models.fit_ar(*args);parents=[self.source.reference_id] if self.source.reference_id else []
-            generate=self.generate.isChecked();generation=(integer_field(self.count),integer_field(self.seed),integer_field(self.origin)) if generate else None
+            from .auxiliary import optional
+            generate=self.generate.isChecked()
+            generation,generation_notice=optional('Datos de la realización',lambda:(integer_field(self.count),integer_field(self.seed),integer_field(self.origin))) if generate else (None,None)
             snapshot=self.state.snapshot()
             computed={}
             period=self.sample_period_s
@@ -80,13 +82,20 @@ class RandomModelPanel(QWidget):
                 model=job()
                 if self.action=='model':model.system.sample_period_s=period
                 computed['model']=model;values=list(model.signals)
-                if generation is not None:values.insert(0,models.realization(model,*generation))
+                realization,notice=optional('Realización del proceso',lambda:models.realization(model,*generation)) if generation is not None else (None,generation_notice)
+                if realization is not None:values.insert(0,realization)
+                computed['generation_notice']=notice
                 return {'system':model.system,'signals':values,'noise_mean':model.noise_mean,'noise_variance':model.noise_variance,'process_mean':model.mean,'process_variance':model.variance,'fit':model.fit}
             def accept(result):
                 model=computed.pop('model');values=result['signals'];self.model=model;self.signals=values
                 system_key=self.window.publish(model.system,operation='Modelo de proceso aleatorio',parents=parents)
                 self.records=[self.window.publish(value,operation=value.name,parents=[system_key,*parents]) for value in values]
-                summary=models.summary(model);self.report.set_readable(summary)
+                summary=models.summary(model)
+                notice=computed.pop('generation_notice',None)
+                if notice:
+                    from .result_summary import Section
+                    summary.sections.append(Section('Realización no generada',paragraphs=[notice]))
+                self.report.set_readable(summary)
                 self.selector.blockSignals(True);self.selector.clear();self.selector.addItems([value.name for value in values]);self.selector.blockSignals(False)
                 self.actions.set_result(model.system,system_key);self.actions.show();self.tabs.setCurrentIndex(0);self.state.accept(snapshot)
             self.window._run_operation('Calculando el modelo aleatorio…',compute,accept)

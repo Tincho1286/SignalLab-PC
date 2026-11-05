@@ -317,9 +317,11 @@ class CourseToolsPanel(QWidget):
             if action=='convert':
                 from .conversion_details import enrich_conversion
                 conversion_job=job;conversion_method=self.fields['ideal_method' if ideal_conversion else 'method'].currentData();conversion_period=self.scalar('period')
-                references=self.vector('analog_cutoffs') if conversion_method in ('bilinear','impulse') and self.fields['analog_cutoffs'].text().strip() else []
+                from .auxiliary import optional
+                references,reference_notice=optional('Cortes de referencia',lambda:self.vector('analog_cutoffs')) if conversion_method in ('bilinear','impulse') and self.fields['analog_cutoffs'].text().strip() else ([],None)
+                references=references or []
                 conversion_source=None if ideal_conversion else system;conversion_expression=self.ideal_expression.text() if ideal_conversion else None
-                job=lambda:enrich_conversion(conversion_job(),conversion_source,conversion_period,conversion_method,references,input_expression=conversion_expression)
+                job=lambda:enrich_conversion(conversion_job(),conversion_source,conversion_period,conversion_method,references,input_expression=conversion_expression,reference_notice=reference_notice)
             if ideal_conversion:
                 from .expression_import import expression_context
                 imported_parents,imported_conditions=expression_context(self.ideal_expression);parents.extend(imported_parents)

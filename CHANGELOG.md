@@ -2,6 +2,15 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.15**.
 
+## 1.6.16 · Preliminar
+
+- Separación de resultados principales y gráficos, registros y mediciones complementarias.
+- Conservación de fórmulas y modelos ante límites de memoria o de representación numérica.
+- Normalización exacta de coeficientes y detección de componentes demasiado pequeñas para representarse.
+- Conservación de resultados CAS y transformadas si falla su presentación o desarrollo explicativo.
+
+[Notas de la preliminar](docs/releases/v1.6.16-preview.md)
+
 ## 1.6.15 · Estable
 
 - La inversa Z separa la expresión completa de las muestras del gráfico. El modo automático admite secuencias infinitas; los desbordes de muestras conservan fórmula y ROC.

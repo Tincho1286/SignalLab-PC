@@ -472,6 +472,14 @@ def presentation(value):
     return {'kind':'scalar','latex':latex(shown),'text':source(shown) if isinstance(shown,sp.Expr) else str(shown),'pretty':sp.pretty(shown,use_unicode=True)}
 
 
+def present_result(value):
+    from .auxiliary import presentation as show
+    from .signal_notation import source as signal_source
+    plain,plain_notice=show('Texto matemático',lambda:signal_source(value) if isinstance(value,sp.Expr) else str(value),lambda:str(value))
+    data,view_notice=show('Vista matemática',lambda:presentation(value),lambda:{'kind':'scalar','text':plain,'pretty':plain,'latex':''})
+    return plain,data,[n for n in (plain_notice,view_notice) if n]
+
+
 def calculate(request):
     import copy,sys
     # Exact integer output is bounded by available memory, not Python's text-digit guard.
@@ -530,11 +538,12 @@ def calculate(request):
     for name,description in assumption_rows:
         if name in calculator.assumption_changes:notice.append('Supuestos de '+name+': '+description+'.')
     from .signal_notation import source as signal_source
-    plain=signal_source(value) if isinstance(value,sp.Expr) else str(value)
+    plain,view,presentation_notices=present_result(value)
+    notice.extend(presentation_notices)
     expression=None;symbols=[]
     if isinstance(value,sp.Expr) and not isinstance(value,sp.MatrixExpr):
         symbols=sorted(str(v) for v in value.free_symbols);expression=sp.sstr(value)
-    return {**context,'state':state,'text':plain,'presentation':presentation(value),'notices':notice,'expression':expression,'symbols':symbols,
+    return {**context,'state':state,'text':plain,'presentation':view,'notices':notice,'expression':expression,'symbols':symbols,
         'assumptions':assumption_rows,
         'variables':[(name,str(calculator.resolve(value))) for name,value in calculator.variables.items()],
         'functions':[(name+'('+', '.join(params)+')',str(body)) for name,(params,body) in calculator.functions.items()]}

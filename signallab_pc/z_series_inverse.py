@@ -1,5 +1,5 @@
 """Inverse Z pairs for convergent reciprocal-power tails."""
-from .transform_samples import sample_pair
+from .transform_samples import sample_pair, sample_budget
 from dataclasses import dataclass
 
 import sympy as sp
@@ -148,7 +148,7 @@ def inverse_tails(request, raw):
         count = int(request.get('count', 65))
         if count < 1:
             raise ValueError('Usá una cantidad positiva de muestras.')
-        ensure_working_set(count, bytes_per_sample=1024, live_arrays=10)
+        sample_budget(count, bytes_per_sample=1024, live_arrays=10)
         from .numeric_modes import PoleValues
         numbers = PoleValues()
         numeric_tails = [(term, numbers.value(term.gain), numbers.value(term.base), numbers.value(term.offset)) for term in tails]

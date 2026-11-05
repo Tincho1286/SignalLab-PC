@@ -68,19 +68,28 @@ class FrequencyFilterPanel(QWidget):
             from .signal_semantics import require_frequency_response
             require_frequency_response(response)
             response.units=unit;response.metadata={**response.metadata,'operation':'frequency_filter','time_domain':domain}
-            start=integer_field(self.start) if digital else self.scalar(self.start)
-            count=integer_field(self.count);step=self.scalar(self.step)
+            from .auxiliary import optional
+            interval,interval_notice=optional('Intervalo de la respuesta temporal',lambda:(integer_field(self.start) if digital else self.scalar(self.start),integer_field(self.count),self.scalar(self.step)))
             source=(self.xd if digital else self.xc).read() if self.operation.currentIndex()==1 else None
             allow_periodic=digital and self.periodic.isChecked()
             snapshot=self.state.snapshot()
             from .inverse_fourier_report import from_signal,exact_section,numeric_section
             from .result_summary import Summary,Section
             def compute():
-                values,report=analyze(response,domain,start,int(count),step,source,allow_periodic=allow_periodic)
-                return values,report,from_signal(response)
+                algebra=from_signal(response)
+                def numerical():
+                    if interval is None:raise ValueError(interval_notice)
+                    start,count,step=interval
+                    return analyze(response,domain,start,count,step,source,allow_periodic=allow_periodic)
+                numerical_result,notice=optional('Muestras de la respuesta temporal',numerical)
+                if numerical_result is None:
+                    if algebra is None:raise ValueError(notice)
+                    return [response],notice,algebra
+                values,report=numerical_result
+                return values,report,algebra
             def accept(result):
                 values,report,algebra=result
-                if algebra and algebra['inverse']:
+                if len(values)>1 and algebra and algebra['inverse']:
                     from .temporal_formula import attach_temporal_formula
                     attach_temporal_formula(values[1],algebra['inverse'])
                 self.results=values;self.selector.blockSignals(True);self.selector.clear()
@@ -95,9 +104,10 @@ class FrequencyFilterPanel(QWidget):
                     if algebra['inverse']:
                         inverse=algebra['inverse']
                         self.impulse_key=self.window.publish({'result':inverse},title='Expresión algebraica de la respuesta al impulso',
-                            operation='Filtro por respuesta en frecuencia',parents=[self.algebraic_key,keys[1]])
+                            operation='Filtro por respuesta en frecuencia',parents=[self.algebraic_key]+keys[1:2])
                         sections.append(exact_section(inverse,'h'))
-                sections.append(numeric_section(values[1].metadata['inverse_model'],'h'))
+                if len(values)>1:sections.append(numeric_section(values[1].metadata['inverse_model'],'h'))
+                else:sections.append(Section('Vista temporal no generada',paragraphs=[report]))
                 if len(values)>2:
                     from .temporal_formula import sections as temporal_sections
                     sections.extend(temporal_sections(values[2]))
@@ -116,6 +126,10 @@ class FrequencyFilterPanel(QWidget):
         if key is not None:
             before=menu.actions()[0] if menu.actions() else None
             populate_reuse_menu(menu,self.window,key,before=before)
+        if self.impulse_key is not None and len(self.results)==1:
+            impulse=menu.addMenu('Respuesta al impulso h')
+            populate_reuse_menu(impulse,self.window,self.impulse_key)
+            self.view.send_menu_refs.append(impulse)
         if index!=0 and self.algebraic_key is not None:
             definition=menu.addMenu('Filtro H(w)')
             populate_reuse_menu(definition,self.window,self.algebraic_key)

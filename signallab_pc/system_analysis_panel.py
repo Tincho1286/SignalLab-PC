@@ -237,10 +237,14 @@ class SystemAnalysisPanel(QWidget):
                 from copy import deepcopy
                 request['source_calculation']=deepcopy(self._formula_context)
             preserved=getattr(self,'_preserved_system',None) if (self.definition_mode.currentIndex()==0 and (self.b.text(),self.a.text(),self.domain.currentIndex())==getattr(self,'_preserved_definition',None)) or (self.definition_mode.currentIndex()==1 and (self.transfer_formula.text(),self.domain.currentIndex())==getattr(self,'_preserved_formula',None)) else None
-            start,stop,count=real_field(self.w0),real_field(self.w1),integer_field(self.count,minimum=2)
+            from .auxiliary import optional
             logarithmic=self.frequency_scale.currentIndex()==1;with_margins=self.margins.isChecked()
-            from .validation import ordered_interval
-            ordered_interval(self.w0,self.w1,start,stop,logarithmic=logarithmic)
+            def read_grid():
+                start,stop,count=real_field(self.w0),real_field(self.w1),integer_field(self.count,minimum=2)
+                from .validation import ordered_interval
+                ordered_interval(self.w0,self.w1,start,stop,logarithmic=logarithmic)
+                return start,stop,count
+            grid_request,grid_notice=optional('Intervalo de frecuencia',read_grid)
             from .system_clock import editor_period,apply_period
             period=editor_period(self)
             digital=request['domain']=='digital'
@@ -248,12 +252,15 @@ class SystemAnalysisPanel(QWidget):
             request['roc_spec']=roc_spec
             parent=self.input_id;calculated_inputs=self.result_state.snapshot()
             def compute():
-                omega_grid=frequency_grid(start,stop,count,logarithmic)
                 if preserved is not None:
                     exact={'transfer':'B(z^(-1))/A(z^(-1))' if preserved.domain=='digital' else 'B(s)/A(s)','factored':'Cascada de secciones' if preserved.sos is not None else 'Numerador y denominador del filtro calculado','scope':'Se analizan los coeficientes numéricos cargados, con su realización preservada. B y A se definen en las tablas de coeficientes.','numeric_b':[[v.real,v.imag] for v in preserved.b],'numeric_a':[[v.real,v.imag] for v in preserved.a]}
                     from .phase_summary import transfer_formula
                     exact['transfer']=transfer_formula(preserved,digits=17)[0].text.split('=',1)[1].strip();exact['advance']=preserved.advance
                 else:exact=run_request(request)
+                omega_grid=None
+                notice=grid_notice
+                if grid_request is not None:
+                    omega_grid,notice=optional('Rejilla de frecuencia',lambda:frequency_grid(*grid_request,logarithmic))
                 system=None;data=None
                 if 'numeric_b' in exact:
                     origin=request.get('source_calculation',{})
@@ -270,14 +277,17 @@ class SystemAnalysisPanel(QWidget):
                     information=convergence(system);exact['roc']=information['text']
                     from .system_conditions import record
                     exact['mathematical_conditions']=record(system)
-                    if not information['known'] or information['unit'] is True:data=analyze_frequency(system,omega_grid,logarithmic=logarithmic,margins=with_margins)
-                    else:exact['frequency_notice']='La ROC no contiene la frontera de Fourier. Se conservan la expresión y el análisis en el plano complejo: '+information['text']
-                elif exact.get('model_kind') in ('expression','frequency'):
+                    if omega_grid is not None and (not information['known'] or information['unit'] is True):
+                        data,notice=optional('Respuesta en frecuencia',lambda:analyze_frequency(system,omega_grid,logarithmic=logarithmic,margins=with_margins))
+                    elif information['known'] and information['unit'] is not True:exact['frequency_notice']='La ROC no contiene la frontera de Fourier. Se conservan la expresión y el análisis en el plano complejo: '+information['text']
+                elif omega_grid is not None and exact.get('model_kind') in ('expression','frequency'):
                     request['roc_spec']=None;request['impulse']=False
                     from .analytic_frequency import analyze_expression
                     from .system_clock import UNSET
-                    exact,data=analyze_expression(exact,request,omega_grid,period=None if period is UNSET else period,logarithmic=logarithmic,margins=with_margins)
+                    analyzed,notice=optional('Respuesta de la expresión',lambda:analyze_expression(exact,request,omega_grid,period=None if period is UNSET else period,logarithmic=logarithmic,margins=with_margins))
+                    if analyzed is not None:exact,data=analyzed
                 from .system_clock import UNSET
+                if notice:exact['frequency_notice']=' '.join(filter(None,(exact.get('frequency_notice'),notice)))
                 exact['sample_period_s']=system.sample_period_s if system is not None else None if period is UNSET else period
                 return exact,system,data
             def accept(result):
@@ -290,14 +300,14 @@ class SystemAnalysisPanel(QWidget):
                 if system is not None:
                     self.system=system
                     if self.system is not None:self.input_id=self.window.publish(system,operation='Aproximación numérica de la definición',parents=[definition])
-                elif analytic:self.input_id=definition
+                else:self.input_id=definition
                 if data is not None:self.draw_frequency()
                 else:
                     self.figure.clear();empty=self.figure.add_subplot(111);empty.set_axis_off();empty.text(.5,.5,exact.get('frequency_notice','Asigná valores a los parámetros para obtener la respuesta numérica.'),ha='center',va='center',wrap=True,transform=empty.transAxes);self.canvas.draw_idle()
                 self.result_actions.set_result(self.system,self.input_id);self.result_actions.setEnabled(True)
-                message=exact.get('analysis_limits','La fórmula se conserva con sus parámetros y condiciones.') if analytic else ('El sistema conserva '+str(system.advance)+' muestras de avance. Podés exportarlo o reutilizarlo para análisis y Z inversa con ROC. La simulación causal no reemplaza ese avance por un retardo.' if system is not None and system.advance else 'La fórmula conserva parámetros libres. Asignales valores para exportar o reutilizar un sistema numérico.' if system is None else '')
+                message=exact.get('analysis_limits','La fórmula se conserva con sus parámetros y condiciones.') if analytic else ('El sistema conserva '+str(system.advance)+' muestras de avance. Podés exportarlo o reutilizarlo para análisis y Z inversa con ROC. La simulación causal no reemplaza ese avance por un retardo.' if system is not None and system.advance else exact.get('numeric_notice','La fórmula conserva parámetros libres. Asignales valores para exportar o reutilizar un sistema numérico.') if system is None else '')
                 self.reuse_note.setText(message);self.reuse_note.setVisible(bool(message))
-                self.empty.hide();self.result_tabs.show();self.result_actions.setVisible(not analytic);self.expression_actions.setVisible(analytic);self.expression_frequency_export.setEnabled(data is not None);self.result_tabs.setTabVisible(1,data is not None);self.result_tabs.setTabVisible(self.transfer_index,system is not None);self.result_tabs.setTabVisible(2,system is not None);self.result_tabs.setTabEnabled(2,system is not None);self.result_tabs.setTabVisible(3,system is not None)
+                self.empty.hide();self.result_tabs.show();self.result_actions.setVisible(system is not None);self.expression_actions.setVisible(analytic or system is None);self.expression_frequency_export.setEnabled(data is not None);self.result_tabs.setTabVisible(1,data is not None);self.result_tabs.setTabVisible(self.transfer_index,system is not None);self.result_tabs.setTabVisible(2,system is not None);self.result_tabs.setTabEnabled(2,system is not None);self.result_tabs.setTabVisible(3,system is not None)
                 self.result_tabs.setCurrentIndex(0)
                 summary=frequency_summary(exact,data)
                 from .result_summary import Section

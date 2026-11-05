@@ -195,7 +195,7 @@ class MathematicalReliabilityTests(unittest.TestCase):
             self.assertNotIn('Activá Graficar',report)
 
     def test_invalid_roc_and_inputs_are_still_rejected(self):
-        for expression,extra in [('1/(z-1)',{'roc':'radius','radius':'1'}),('sin(n)',{}),('1/z',{'count':0})]:
+        for expression,extra in [('1/(z-1)',{'roc':'radius','radius':'1'}),('sin(n)',{})]:
             request=self.request(expression);request.update(extra)
             with self.assertRaises(ValueError):execute(request)
 
@@ -203,5 +203,104 @@ class MathematicalReliabilityTests(unittest.TestCase):
         from signallab_pc.difference_equations import forward_inverse
         for expression in ['1-1','(z-1)/(z-1)-1']:
             self.assertEqual(forward_inverse(parse(expression)),(sp.S.Zero,False))
+
+    def test_optional_z_sampling_limits_do_not_block_exact_formulas(self):
+        for formula in ['1/(z-1/2)','z/(z-1/2)','log(1-1/(2*z))']:
+            base=dict(operation='z_inverse_expression',expression=formula,roc='right')
+            exact=execute(dict(base,include_samples=False))
+            for samples in (False,True):
+                result=execute(dict(base,include_samples=samples,count=10**15))
+                self.assertTrue(result['evaluated']);self.assertIsNone(result['numeric_samples'])
+                self.assertEqual(restore(result['cas_encoded']),restore(exact['cas_encoded']))
+                if samples:self.assertIn('memoria',result['numeric_notice'])
+        for start,count in [('mal','65'),('0','0'),('0','3/2')]:
+            result=execute(dict(base,start=start,count=count))
+            self.assertTrue(result['evaluated']);self.assertIsNone(result['numeric_samples'])
+            self.assertIn('numeric_notice',result)
+
+    def test_optional_samples_never_replace_nonzero_underflow_by_zero(self):
+        from signallab_pc.transform_samples import sample_pair,NumericSamplingError
+        for number in [sp.exp(-1000),sp.I*sp.exp(-1000),1+sp.I*sp.exp(-1000)]:
+            with self.assertRaises(NumericSamplingError):sample_pair(number)
+        result=execute(dict(operation='z_inverse_expression',expression='exp(-1000)*z/(z-1/2)',start=0,count=3))
+        self.assertTrue(result['evaluated']);self.assertIsNone(result['numeric_samples'])
+        self.assertIn('no nula',result['numeric_notice'])
+        self.assertEqual(sample_pair(sp.S.Zero),[0.,0.])
+
+    def test_system_exact_scaling_precedes_float_conversion(self):
+        common=execute(dict(operation='system_analysis',domain='digital',b=['10^400'],a=['10^400','-10^400/2']))
+        self.assertEqual(common['numeric_b'],[[1.,0.]])
+        self.assertEqual(common['numeric_a'],[[1.,0.],[-.5,0.]])
+        for coefficient in ['10^400','exp(-1000)']:
+            result=execute(dict(operation='system_analysis',domain='digital',b=[coefficient],a=['1','-1/2']))
+            self.assertTrue(result['evaluated']);self.assertIn('numeric_notice',result)
+            self.assertNotIn('numeric_b',result);self.assertIn('transfer',result)
+        with self.assertRaises(ValueError):execute(dict(operation='system_analysis',domain='digital',b=['1'],a=['0']))
+
+    def test_difference_optional_sampling_and_exact_common_factor(self):
+        request=dict(operation='difference_equation',coefficients=['1','-1/2'],expression='10^400',count=8)
+        result=execute(request)
+        self.assertTrue(result['evaluated']);self.assertIsNone(result['numeric_samples']);self.assertIn('numeric_notice',result)
+        result=execute(dict(request,coefficients=['10^400','-10^400/2']))
+        self.assertEqual([v[0] for v in result['numeric_samples']],[2-2**(-n) for n in range(8)])
+        self.assertTrue(result['residual_check']['normalized_equation'])
+        result=execute(dict(request,expression='1',count=10**15))
+        self.assertTrue(result['evaluated']);self.assertIsNone(result['numeric_samples']);self.assertIn('memoria',result['numeric_notice'])
+        result=execute(dict(request,expression='exp(-1000)'))
+        self.assertTrue(result['evaluated']);self.assertIsNone(result['numeric_samples']);self.assertIn('no nula',result['numeric_notice'])
+        with self.assertRaises(ValueError):execute(dict(request,expression='1/(n-2)'))
+
+    def test_conversion_reference_measurements_do_not_discard_converted_filters(self):
+        from unittest.mock import patch
+        from signallab_pc.filters import Transfer
+        from signallab_pc.course_tools import convert_system
+        from signallab_pc.conversion_details import enrich_conversion
+        analog=Transfer([1],[1,1],'analog')
+        converted=convert_system(analog,.1,'bilinear');system=converted['systems'][0]
+        result=enrich_conversion(converted,analog,.1,'bilinear',[-1])
+        self.assertIs(result['systems'][0],system);self.assertTrue(result['conversion_details']['notices'])
+        with patch('signallab_pc.conversion_details.half_power',side_effect=ValueError('medición fuera de rango')):
+            result=enrich_conversion(convert_system(analog,.1,'bilinear'),analog,.1,'bilinear')
+        self.assertIn('Transferencia resultante',result['report']);self.assertIn('se conserva',result['report'])
+
+    def test_optional_worker_explanation_cannot_erase_a_valid_transform(self):
+        from unittest.mock import patch
+        from signallab_pc.symbolic_process import worker
+        with tempfile.TemporaryDirectory() as folder:
+            source=Path(folder)/'source.json';destination=Path(folder)/'result.json'
+            source.write_text(json.dumps(dict(operation='z_inverse_expression',expression='-18/(z+1)',include_samples=False)),encoding='utf-8')
+            with patch('signallab_pc.transform_steps.build',side_effect=RuntimeError('fallo de explicación')),patch('signallab_pc.runtime_diagnostics.diagnostic'):
+                code=worker(source,destination)
+            result=json.loads(destination.read_text(encoding='utf-8'))
+            self.assertEqual(code,0);self.assertTrue(result['evaluated']);self.assertIn('cas_encoded',result)
+            self.assertTrue(result['derivation_notice']);self.assertNotIn('error',result)
+
+    def test_optional_cas_presentation_preserves_exact_state_and_imports(self):
+        from unittest.mock import patch
+        from signallab_pc.cas_engine import calculate,empty_state
+        from signallab_pc.cas_import import import_result
+        from signallab_pc.cas_transfer import payload
+        with patch('signallab_pc.cas_engine.presentation',side_effect=ValueError('fallo de formato')),patch('signallab_pc.runtime_diagnostics.diagnostic'):
+            result=calculate(dict(source='factor(z^2-1)',cell=1,state=empty_state()))
+            self.assertEqual(sp.expand(restore(result['state']['results']['1'])),Z**2-1)
+            self.assertTrue(result['notices']);self.assertEqual(result['presentation']['latex'],'')
+            calculation=dict(request=dict(operation='z_inverse_expression',expression='1-18/z'),result=execute(dict(operation='z_inverse_expression',expression='1-18/z',include_samples=False)))
+            imported=import_result(dict(payload=payload(calculation),cell=1,state=empty_state()))
+            self.assertEqual(restore(imported['encoded_value']),restore(calculation['result']['cas_encoded']))
+            self.assertTrue(imported['notices']);self.assertTrue(imported['presentation']['text'])
+
+    def test_optional_stages_do_not_hide_cancellation_or_primary_errors(self):
+        from signallab_pc.auxiliary import optional,presentation
+        from signallab_pc.jobs import OperationCancelled
+        def cancelled():raise OperationCancelled('cancelado')
+        with self.assertRaises(OperationCancelled):optional('Vista',cancelled)
+        with self.assertRaises(OperationCancelled):presentation('Vista',cancelled,lambda:None)
+        def wrong_name():raise NameError('error de programa')
+        from unittest.mock import patch
+        with patch('signallab_pc.runtime_diagnostics.diagnostic') as diagnostic:
+            value,notice=optional('Análisis',wrong_name)
+        self.assertIsNone(value);self.assertIn('falló',notice);diagnostic.assert_called_once()
+        with self.assertRaises(ValueError):execute(dict(operation='z_inverse_expression',expression='sin(n)'))
+
 
 if __name__=='__main__':unittest.main()

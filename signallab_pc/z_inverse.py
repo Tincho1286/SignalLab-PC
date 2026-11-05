@@ -1,6 +1,6 @@
 """Exact rational Z inversion without expanding or simplifying radical roots."""
 import math
-from .transform_samples import NumericSamplingError, sample_pair
+from .transform_samples import NumericSamplingError, sample_pair, sample_budget
 import sympy as sp
 from .partial_fractions import apart_list
 import mpmath as mp
@@ -143,9 +143,9 @@ def inverse(request, *, sample_sink=None):
         display_terms=[]
     start=int(request.get('start',-16));count=int(request.get('count',65))
     if count<1:raise ValueError('Usá una cantidad positiva de muestras.')
-    ensure_working_set(count,bytes_per_sample=1024,live_arrays=10)
     samples=[]
     if request.get('include_samples',True) and numeric:
+        sample_budget(count,bytes_per_sample=1024,live_arrays=10)
         end=start+count-1;causal_exact=None
         # Initial samples of rational-coefficient causal models are inexpensive
         # to obtain exactly by recurrence. Distant indices use modal evaluation;

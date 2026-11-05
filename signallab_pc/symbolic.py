@@ -307,11 +307,17 @@ def _execute(request):
                 'exact_b':[str(v) for v in b],'exact_a':[str(v) for v in a],
                 'scope':'Representación algebraica de los coeficientes ingresados. Simplificar H no prueba estabilidad interna ni identifica una ROC.',
                 'parameters':sorted(str(v) for coefficient in b+a for v in coefficient.free_symbols)}
+        result.update(evaluated=True,output_variable=str(variable))
         if not any(v.free_symbols for v in b+a):
-            numeric=[numerical_value(v) for v in b+a]
-            if any(not math.isfinite(v.real) or not math.isfinite(v.imag) for v in numeric):raise ValueError('Los coeficientes exceden la precisión numérica disponible.')
-            result['numeric_b']=[[v.real,v.imag] for v in numeric[:len(b)]]
-            result['numeric_a']=[[v.real,v.imag] for v in numeric[len(b):]]
+            normalizer=next(v for v in a if v!=0)
+            try:
+                numeric=[numerical_value(sp.cancel(v/normalizer)) for v in b+a]
+            except ValueError as exc:
+                result['numeric_notice']='La definición algebraica se calculó; no se obtuvo una realización numérica: '+str(exc)
+                result['frequency_notice']=result['numeric_notice']
+            else:
+                result['numeric_b']=[[v.real,v.imag] for v in numeric[:len(b)]]
+                result['numeric_a']=[[v.real,v.imag] for v in numeric[len(b):]]
         if request.get('impulse') and domain=='analog':
             impulse=sp.inverse_laplace_transform(expression,S,T)
             result['causal_impulse']=str(impulse)

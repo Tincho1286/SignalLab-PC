@@ -64,16 +64,15 @@ class FirWindowPanel(QWidget):
             h_key=self.h.reference_id
             name=self.window_type.currentData();beta=real_field(self.beta) if name=='kaiser' else 0;retard=self.retard.isChecked();snapshot=self.state.snapshot()
             parents=[field.reference_id for field in ([self.h,self.w] if custom is not None else [self.h]) if field.reference_id]
-            error='';grid=None
-            try:grid=frequency_grid(*self.frequency.request('digital'))
-            except ValueError as exc:error=str(exc)
+            from .auxiliary import optional
+            grid,error=optional('Rejilla de frecuencia',lambda:frequency_grid(*self.frequency.request('digital')))
             frequency_snapshot=self.frequency.state.snapshot()
             def compute():
                 result=window_impulse(h,name,beta,retard,custom,length=size,start=origin)
-                data=analyze_frequency(result.system,grid) if grid is not None else None
-                return result,data
+                data,notice=optional('Respuesta en frecuencia',lambda:analyze_frequency(result.system,grid)) if grid is not None else (None,error)
+                return result,data,notice
             def accept(pair):
-                result,data=pair;self.result=result;self.system=result.system
+                result,data,notice=pair;self.result=result;self.system=result.system
                 entries=[('h[n] cargada',result.original,h_key),('Ventana w[n]',result.window,None),('Producto h[n]·w[n]',result.windowed,None)]
                 if result.delay:entries.append(('h[n] retardada para el FIR',result.impulse,None))
                 keys={};self.series_values=[];self.series_keys=[];self.selector.blockSignals(True);self.selector.clear()
@@ -83,9 +82,10 @@ class FirWindowPanel(QWidget):
                 self.selector.setCurrentIndex(len(entries)-1);self.selector.blockSignals(False)
                 impulse_key=keys[id(result.impulse)];system_key=self.window.publish(result.system,operation='FIR desde h[n] enventanada',parents=[impulse_key]);self.actions.set_result(result.system,system_key)
                 if data is not None:self.frequency.set_result(result.system,data,frequency_snapshot)
-                else:self.frequency.clear_result(result.system);self.frequency.note.setText(error)
+                else:self.frequency.clear_result(result.system);self.frequency.note.setText(notice)
                 summary=transfer_summary(result.system)
                 summary.sections.insert(0,Section('Enventanado',rows=[('Ventana',result.window_name),('Longitud L de la ventana (muestras)',str(len(result.window.values))),('Orden nominal M = L−1',str(len(result.window.values)-1)),('Índices de la ventana',str(result.window.origin)+' a '+str(result.window.origin+len(result.window.values)-1)),('Primer índice de h cargada',str(h.origin)),('Primer índice del FIR',str(result.impulse.origin)),('Retardo agregado D',str(result.delay)+' muestras')],formulas=[Formula('h_w[n] = h[n]*w[n]','h_w[n] = h[n] · w[n]'),Formula('h_F[n] = h_w[n-'+str(result.delay)+']','h_F[n] = h_w[n−'+str(result.delay)+']')],paragraphs=['La longitud y ubicación de la ventana se eligen por separado de h[n]. La salida conserva el intervalo de la ventana. Para una fórmula se evalúa h[n] en esos índices; para un registro finito se usa cero fuera de sus datos. El orden efectivo puede cambiar si hay extremos nulos o desplazamientos. El producto conserva su ganancia; podés ajustarla desde Normalizar ganancia. El retardo usa el inicio del registro, no busca un retardo mínimo.']))
+                if notice:summary.sections.append(Section('Vista de frecuencia',paragraphs=[notice]))
                 self.report.set_readable(summary);self.window.publish({'report':self.report.toPlainText()},title='Enventanado de h[n] · '+result.window_name,operation='Informe de FIR enventanado',parents=[system_key]);self.state.accept(snapshot);self.show_series()
             self.window._run_operation('Enventanando h[n]…',compute,accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá h[n] y la ventana',str(exc))

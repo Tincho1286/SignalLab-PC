@@ -1,7 +1,7 @@
 """Build exact CAS objects from mathematical result payloads in the isolated worker."""
 import re,unicodedata,copy
 import sympy as sp
-from .cas_engine import Calculator,empty_state,restore,encode,presentation
+from .cas_engine import Calculator,empty_state,restore,encode,present_result
 from .signal_notation import source as signal_source
 
 
@@ -94,7 +94,8 @@ def import_result(request):
     context=imported(data,value,notices);remember(state,cell,context)
     calculator=Calculator(state)
     from .cas_assumptions import descriptions
-    return {**context,'state':state,'encoded_value':encoded,'text':signal_source(value) if isinstance(value,sp.Expr) else str(value),'presentation':presentation(value),
+    plain,view,presentation_notices=present_result(value);notices.extend(presentation_notices)
+    return {**context,'state':state,'encoded_value':encoded,'text':plain,'presentation':view,
             'expression':expression,'symbols':sorted(str(v) for v in value.free_symbols) if isinstance(value,sp.Basic) else [],
             'provenance':copy.deepcopy(request['payload'].get('provenance')),'notices':list(dict.fromkeys(notices)),'assumptions':descriptions(calculator.assumptions),'variables':[(k,str(v)) for k,v in calculator.variables.items()],
             'functions':[(name+'('+', '.join(params)+')',str(body)) for name,(params,body) in calculator.functions.items()]}

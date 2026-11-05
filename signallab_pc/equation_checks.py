@@ -59,11 +59,11 @@ def difference(request,result,arrays=None):
 def section(data,discrete=False):
     from .result_summary import Section,Formula,number
     rows=[('Estado',data['status'])]
-    if 'normalized_max' in data:rows.extend([('Máximo residuo normalizado',number(data['normalized_max'])),('Índice del máximo',str(data['worst_index'])),('Intervalo comprobado',str(data['interval'][0])+' a '+str(data['interval'][1])),('Máximo absoluto',number(data['absolute_max']) if data['absolute_max'] is not None else 'Fuera del rango de doble precisión')])
+    if 'normalized_max' in data:rows.extend([('Máximo residuo normalizado',number(data['normalized_max'])),('Índice del máximo',str(data['worst_index'])),('Intervalo comprobado',str(data['interval'][0])+' a '+str(data['interval'][1])),('Máximo absoluto de la ecuación dividida por a₀' if data.get('normalized_equation') else 'Máximo absoluto',number(data['absolute_max']) if data['absolute_max'] is not None else 'Fuera del rango de doble precisión')])
     rows.extend(('Condición inicial · derivada '+str(v['derivative']),'Cumple por límite derecho' if v['satisfied'] else 'Residuo: '+v['residual']) for v in data.get('initial',[]))
     formulas=[]
     if data.get('symbolic_residual') is not None:formulas.append(Formula('r(t) = '+data['symbolic_residual'],'r(t) = '+data['symbolic_residual']))
-    if discrete:formulas.append(Formula('r[n] = Sum(a[k]*y[n-k],(k,0,M))-f[n]','r[n] = Σ a[k]·y[n−k] − f[n]'))
+    if discrete:formulas.append(Formula('r[n] = (Sum(a[k]*y[n-k],(k,0,M))-f[n])/a[0]' if data.get('normalized_equation') else 'r[n] = Sum(a[k]*y[n-k],(k,0,M))-f[n]', 'r[n] = (Σ a[k]·y[n−k] − f[n])/a₀' if data.get('normalized_equation') else 'r[n] = Σ a[k]·y[n−k] − f[n]'))
     paragraphs=[data.get('scope','')]
     if discrete:paragraphs.append('Se normaliza |r[n]| por Σ|a[k]·y[n−k]|+|f[n]|. Si todos los términos son cero, el residuo normalizado es cero. Un valor cercano al redondeo mide coherencia numérica; no se convierte en una prueba de exactitud simbólica.')
     return Section('Comprobación de la solución',rows=rows,formulas=formulas,paragraphs=paragraphs)

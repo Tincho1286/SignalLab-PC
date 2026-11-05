@@ -286,7 +286,7 @@ class SystemsPanel(QWidget):
         view=getattr(self,'design_frequency',None)
         frequency_error=None
         try:frequency_request=view.request(args[3]) if view is not None else None
-        except ValueError as exc:frequency_request=None;frequency_error=str(exc)
+        except (ValueError,ArithmeticError) as exc:frequency_request=None;frequency_error=str(exc)
         frequency_snapshot=view.state.snapshot() if view is not None else None
         def compute():
             system=from_poles_zeros(*args)
@@ -294,8 +294,8 @@ class SystemsPanel(QWidget):
             data=None;error=frequency_error
             if frequency_request is not None:
                 from .frequency_analysis import frequency_grid,analyze_frequency
-                try:data=analyze_frequency(system,frequency_grid(*frequency_request))
-                except ValueError as exc:error=str(exc)
+                from .auxiliary import optional
+                data,error=optional('Respuesta en frecuencia',lambda:analyze_frequency(system,frequency_grid(*frequency_request)))
             return system,(zeros,poles,system.domain,system.stability(poles)),data,error
         def accept(result):
             draft=[self.fields[key].text() for key in ('zeros','poles','gain')];draft_domain=self.domain.currentIndex()

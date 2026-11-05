@@ -216,8 +216,6 @@ class TransformLab(QWidget):
             if inverse:
                 if self.roc.currentIndex()<0:invalid(self.roc,'elegí una región de convergencia.','La misma expresión puede representar secuencias distintas según su ROC.')
                 if self.roc.currentIndex()==2:real_field(self.radius,minimum=0,strict=True)
-                if self.include_samples.isChecked():
-                    integer_field(self.start);integer_field(self.count,minimum=1)
             elif self.direct_input.currentIndex()==0:
                 lower_text=self.lower.text().strip().replace('−','-');upper_text=self.upper.text().strip()
                 low=None if lower_text=='-oo' else integer_field(self.lower)
@@ -240,7 +238,7 @@ class TransformLab(QWidget):
                     request.update(laplace_roc=['right','left','line'][self.laplace_roc.currentIndex()],sigma=self.sigma.text())
             elif index==0 and not finite:request.update(operation='z_expression',lower=self.lower.text(),upper=self.upper.text())
             elif index==1:
-                samples=self.include_samples.isChecked();request.update(operation='z_inverse_expression',complete_finite=samples and self.sample_scope.currentIndex()==1,roc=['right','left','radius'][self.roc.currentIndex()],radius=self.radius.text(),include_samples=samples,start=integer_field(self.start) if samples else 0,count=integer_field(self.count) if samples else 1)
+                samples=self.include_samples.isChecked();request.update(operation='z_inverse_expression',complete_finite=samples and self.sample_scope.currentIndex()==1,roc=['right','left','radius'][self.roc.currentIndex()],radius=self.radius.text(),include_samples=samples,start=self.start.text() if samples else 0,count=self.count.text() if samples else 1)
             else:
                 source=self.source.read();request.pop('expression',None);request.update(operation='z_finite',origin=int(source.origin),samples=[[v.real,v.imag] for v in source.values]);parents=[self.source.reference_id] if self.source.reference_id else []
             source=getattr(self,'_library_source',None)

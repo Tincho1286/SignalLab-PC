@@ -594,4 +594,69 @@ class WorkflowContracts(unittest.TestCase):
         self.assertTrue(panel.to_cas_button.isEnabled());self.assertTrue(panel.reuse_button.isEnabled())
 
 
+    def test_system_definition_survives_invalid_frequency_view(self):
+        panel=SystemAnalysisPanel(self.host);self.widgets.append(panel)
+        panel.definition_mode.setCurrentIndex(1);panel.domain.setCurrentIndex(1)
+        panel.transfer_formula.setText('1/(1-1/(2*z))');panel.w0.setText('pi');panel.w1.setText('0')
+        panel.calculate()
+        self.assertEqual(self.warnings,[]);self.assertIsNotNone(panel._definition_id)
+        self.assertIsNotNone(panel.system);self.assertIsNone(panel.frequency_data)
+        self.assertIn('Intervalo de frecuencia',panel.report.toPlainText())
+        panel.w0.setText('0');panel.w1.setText('pi');panel.count.setText('1000000000000000');panel.calculate()
+        self.assertEqual(self.warnings,[]);self.assertIsNotNone(panel.system);self.assertIsNone(panel.frequency_data)
+        self.assertIn('Rejilla de frecuencia',panel.report.toPlainText())
+
+    def test_system_exact_only_definition_remains_reusable(self):
+        from signallab_pc.result_expressions import expression_result
+        panel=SystemAnalysisPanel(self.host);self.widgets.append(panel)
+        panel.definition_mode.setCurrentIndex(1);panel.domain.setCurrentIndex(1)
+        panel.transfer_formula.setText('10^400/(1-1/(2*z))');panel.calculate()
+        self.assertEqual(self.warnings,[]);self.assertIsNotNone(panel._definition_id)
+        self.assertIsNone(panel.system);self.assertIsNone(panel.frequency_data)
+        self.assertFalse(panel.expression_actions.isHidden())
+        record=self.host.project.get(panel._definition_id)
+        self.assertEqual(expression_result(record).variable,'z')
+        self.assertIn('realización numérica',panel.report.toPlainText())
+
+    def test_z_invalid_view_fields_preserve_formula_and_finite_automatic_scope(self):
+        panel=TransformLab(self.host,'z');self.widgets.append(panel);panel.mode.setCurrentIndex(1)
+        panel.expression.setText('-18/(z+1)');panel.start.setText('mal');panel.count.setText('0');panel.calculate()
+        self.assertEqual(self.warnings,[]);self.assertTrue(panel.last['evaluated'])
+        self.assertIsNone(panel.last['numeric_samples']);self.assertTrue(panel.to_cas_button.isEnabled())
+        self.assertIn('No se generó el gráfico',panel.report.toPlainText())
+        panel.sample_scope.setCurrentIndex(1);panel.expression.setText('1-18/z');panel.calculate()
+        self.assertEqual(self.warnings,[]);self.assertEqual([v[0] for v in panel.last['numeric_samples']],[1,-18])
+
+    def test_fir_window_design_survives_frequency_memory_limit(self):
+        from signallab_pc.fir_window_panel import FirWindowPanel
+        panel=FirWindowPanel(self.host);self.widgets.append(panel)
+        panel.h.expression.setText('1');panel.length.setText('9')
+        panel.frequency.count.setText('1000000000000000');panel.calculate()
+        self.assertEqual(self.warnings,[]);self.assertIsNotNone(panel.system)
+        self.assertIsNone(panel.frequency.data);self.assertTrue(len(panel.series_keys)>0)
+        self.assertIn('Rejilla de frecuencia',panel.report.toPlainText())
+
+    def test_ideal_filter_retains_formula_cas_and_reuse_when_temporal_view_fails(self):
+        from signallab_pc.frequency_filter_panel import FrequencyFilterPanel
+        panel=FrequencyFilterPanel(self.host);self.widgets.append(panel)
+        panel.h.expression.setText('where(abs(w)<=pi/2,1,0)');panel.h.count.setText('33');panel.h.step.setText('pi/16')
+        panel.count.setText('1');panel.calculate()
+        self.assertEqual(self.warnings,[]);self.assertIsNotNone(panel.algebraic_key);self.assertIsNotNone(panel.impulse_key)
+        self.assertTrue(panel.cas_impulse.isEnabled());self.assertTrue(panel.cas_definition.isEnabled())
+        self.assertIn('Vista temporal no generada',panel.report.toPlainText())
+        panel.reuse_button.menu().aboutToShow.emit()
+        self.assertTrue(any(a.text()=='Respuesta al impulso h' for a in panel.reuse_button.menu().actions()))
+        panel.start.setText('mal');panel.count.setText('65');panel.calculate()
+        self.assertEqual(self.warnings,[]);self.assertIsNotNone(panel.impulse_key)
+
+    def test_random_model_survives_optional_realization_errors(self):
+        from signallab_pc.random_model_panel import RandomModelPanel
+        panel=RandomModelPanel(self.host,'model');self.widgets.append(panel)
+        panel.count.setText('-1');panel.calculate()
+        self.assertEqual(self.warnings,[]);self.assertIsNotNone(panel.model);self.assertTrue(panel.records)
+        self.assertIn('Realización no generada',panel.report.toPlainText())
+        panel.count.setText('1024');panel.seed.setText('mal');panel.calculate()
+        self.assertEqual(self.warnings,[]);self.assertIsNotNone(panel.model)
+
+
 if __name__=='__main__':unittest.main()
