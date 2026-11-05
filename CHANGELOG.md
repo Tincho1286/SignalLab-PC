@@ -4,6 +4,8 @@ Las versiones estables y preliminares se distribuyen en [GitHub Releases](https:
 
 ## 1.6.11 · Hotfix
 
+- Actualización del CAS para DTFT algebraica, filtros ideales y resultados reimportados.
+
 - Fórmulas en los informes de respuesta temporal, con recurrencias y condiciones iniciales para sistemas discretos.
 - Expresión de la respuesta al impulso en filtros por tramos e inversas de Fourier con un informe del resultado calculado.
 - Ajustes de validación y reutilización de datos entre herramientas.
