@@ -4,6 +4,8 @@ Las versiones estables y preliminares se distribuyen en [GitHub Releases](https:
 
 ## 1.6.15 · Estable
 
+- Los informes de filtros muestran mínimos y máximos de cada banda de paso y rechazo, sus frecuencias y los límites permitidos.
+
 - Presentación matemática de funciones por tramos en CAS e informes.
 - Igualdades, desigualdades, valor absoluto y coordenadas periódicas legibles.
 - Casos sucesivos en una tabla y tamaño de fórmula uniforme.

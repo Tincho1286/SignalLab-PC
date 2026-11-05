@@ -110,12 +110,20 @@ def evaluate(system, spec):
     except ValueError as exc:return False, str(exc)
     unit = 'rad/s' if system.domain=='analog' else 'rad/muestra'
     def at(w):return '∞' if np.isinf(w) else format(w, '.12g')
-    rows = [];excess = -np.inf
-    for index, (v, low, high, amplitude) in enumerate(zip(metrics['passing'], spec['pass_lower'], spec['pass_upper_bands'], spec['amplitudes'])):
+    rows = ['Los extremos corresponden al módulo |H| en amplitud lineal, dentro de cada banda exigida. Las bandas de transición no se incluyen.'];excess = -np.inf
+    passing, stopping = intervals(spec['wp'], spec['ws'], spec['kind'], np.inf if system.domain=='analog' else np.pi)
+    def extrema(label, index, bounds, values, requirement):
+        lo, hi = bounds
+        rows.extend([
+            f'{label} {index+1} · {at(lo)} ≤ ω ≤ {at(hi)} {unit}. {requirement}',
+            f'Mínimo |H| = {values["minimum"]:.12g}, en ω = {at(values["minimum_at"])} {unit}.',
+            f'Máximo |H| = {values["maximum"]:.12g}, en ω = {at(values["maximum_at"])} {unit}.'])
+    for index, (v, low, high, amplitude, bounds) in enumerate(zip(metrics['passing'], spec['pass_lower'], spec['pass_upper_bands'], spec['amplitudes'], passing)):
         excess = max(excess, low-v['minimum'], v['maximum']-high)
-        rows.append(f'Paso {index+1}: objetivo {amplitude:.12g}; permitido [{low:.12g}, {high:.12g}]. Mínimo {v["minimum"]:.12g} en ω={at(v["minimum_at"])} {unit}; máximo {v["maximum"]:.12g} en ω={at(v["maximum_at"])} {unit}.')
-    v = max(metrics['stopping'], key=lambda item:item['maximum']);excess = max(excess, v['maximum']-spec['stop_upper'])
-    rows.append(f'Rechazo: máximo {v["maximum"]:.12g} en ω={at(v["maximum_at"])} {unit}; límite {spec["stop_upper"]:.12g}.')
+        extrema('Paso', index, bounds, v, f'Objetivo {amplitude:.12g}; permitido [{low:.12g}, {high:.12g}].')
+    for index, (v, bounds) in enumerate(zip(metrics['stopping'], stopping)):
+        excess = max(excess, v['maximum']-spec['stop_upper'])
+        extrema('Rechazo', index, bounds, v, f'Permitido [0, {spec["stop_upper"]:.12g}].')
     accepted = excess<=0 and not metrics['failed_refinements']
     scale = max(*spec['pass_upper_bands'], spec['stop_upper'])
     verdict = 'dentro de tolerancias.' if accepted else 'al límite numérico; no se declara cumplimiento estricto.' if 0<excess<=1e-10*scale else 'fuera de tolerancias o con extremos pendientes de resolver; revisá el diseño.'
