@@ -26,7 +26,9 @@ def pieces(expression,lower,upper,*,preserve_structure=False):
     # Keep the explicitly completed sample separate before integer identities
     # such as sin(pi*n)=0 simplify the regular branch.
     value=expression.replace(lambda v:v.func in (sp.Heaviside,sp.KroneckerDelta),lambda v:v.rewrite(sp.Piecewise))
-    value=sp.piecewise_fold(value)
+    # Resolve real absolute values and signs into their actual supports before
+    # looking for geometric tails. An even exponential has two different ratios.
+    value=sp.piecewise_fold(value.rewrite(sp.Piecewise))
     def branch(value):return value if preserve_structure else sp.simplify(value)
     if not isinstance(value,sp.Piecewise):return [(branch(value),lower,upper)]
     try:parts=value.as_expr_set_pairs()

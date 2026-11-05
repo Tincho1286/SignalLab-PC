@@ -302,8 +302,6 @@ class Transfer:
 def fir(kind, taps, f1, f2=None, window="hamming", beta=8.6):
     """Frecuencias en ciclos/muestra; no normaliza la ganancia, como SSFIR."""
     taps = positive_integer(taps, "Cantidad de coeficientes")
-    if taps < 3:
-        raise ValueError("Un FIR requiere al menos tres coeficientes.")
     if kind not in {"lowpass", "highpass", "bandpass", "bandstop"}:
         raise ValueError("Tipo FIR desconocido.")
     if kind in {"highpass", "bandstop"} and taps % 2 == 0:

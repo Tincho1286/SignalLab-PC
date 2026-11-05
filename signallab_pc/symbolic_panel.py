@@ -33,17 +33,26 @@ class SymbolicPanel(QWidget):
             form.setRowVisible(self.expression,index!=2)
             form.setRowVisible(self.count,index==3)
             form.setRowVisible(self.coefficients,index==4)
-            form.setRowVisible(self.initial,index==4)
+            form.setRowVisible(self.initial,index==4 and self.ode_order()!=0)
             help_text.setText(["Laplace unilateral: x(t), con t ≥ 0. Ejemplo: exp(-t).",
                 "Inversa causal. Ejemplo: 1/(s+1). Revisá los supuestos del resultado.",
                 "Se utiliza la secuencia de entrada, con sus índices originales.",
                 "Expansión racional alrededor de z=infinito. Ejemplo: z/(z-1/2). Otra ROC puede definir otra señal.",
                 "a0·y + a1·y′ + … = f(t). Indicá una condición inicial por derivada."][index])
-        self.operation.currentIndexChanged.connect(select_operation);select_operation(0)
+        self.operation.currentIndexChanged.connect(select_operation);self.coefficients.textChanged.connect(lambda *_:select_operation(self.operation.currentIndex()));select_operation(0)
         from PySide6.QtWidgets import QTabWidget
         from .report_view import report_panel
         self.result_tabs=QTabWidget();root.addWidget(self.result_tabs,2);self.report=ReportView();self.report.setReadOnly(True);self.result_tabs.addTab(report_panel(self.report),'Resultado');self.steps=ReportView();self.steps_index=self.result_tabs.addTab(report_panel(self.steps),'Desarrollo');self.result_tabs.setTabVisible(self.steps_index,False)
         self.report.setPlainText("Las operaciones simbólicas se ejecutan por separado. Cancelar detiene ese proceso y conserva el último resultado. Una transformada que el motor deja sin evaluar se informa como pendiente de resolución.")
+
+    def ode_order(self):
+        from .coefficient_editor import split_coefficients
+        from .scalar_expression import exact_constant
+        try:
+            coefficients=[exact_constant(v,parameters=True) for v in split_coefficients(self.coefficients.text())]
+            while coefficients and coefficients[-1]==0:coefficients.pop()
+            return len(coefficients)-1
+        except (ValueError,SyntaxError):return None
 
     def _button(self,form,title,callback):
         button=QPushButton(title)
@@ -63,8 +72,9 @@ class SymbolicPanel(QWidget):
             request.update(origin=int(source.origin),samples=[[float(v.real),float(v.imag)] for v in source.values])
         if operation=="inverse_z":request["count"]=integer_field(self.count)
         if operation=="ode":
-            request.update(coefficients=[v.strip() for v in self.coefficients.text().split(",")],
-                           initial=[v.strip() for v in self.initial.text().split(",")])
+            from .coefficient_editor import split_coefficients
+            request.update(coefficients=split_coefficients(self.coefficients.text()),
+                           initial=[] if self.ode_order()==0 else split_coefficients(self.initial.text()))
         def accept(result):
             self.result={"request":request,"result":result}
             remember=getattr(self.owner,"_remember_calculation",None)

@@ -73,5 +73,10 @@ def ode_summary(request,result):
     from .result_summary import Summary,Section,Formula
     equation=' + '.join('('+v+')*'+('y(t)' if j==0 else 'Derivative(y(t),(t,'+str(j)+'))') for j,v in enumerate(request['coefficients']))+' == '+request['expression']
     sections=[Section('Ecuación',formulas=[Formula(equation,equation)]),Section('Solución para t≥0',formulas=[Formula('y(t) = '+result['result'],'y(t) = '+result['result'])]),Section('Condiciones iniciales',rows=[('Derivada '+str(j)+' en 0+',v) for j,v in enumerate(request['initial'])]),Section('Transformada obtenida',formulas=[Formula('Y(s) = '+result['Y(s)'],'Y(s) = '+result['Y(s)'])])]
+    if result.get('order')==0:
+        sections=[s for s in sections if s.title not in ('Condiciones iniciales','Transformada obtenida')]
+        sections.append(Section('Método',paragraphs=['No hay derivadas activas: se obtiene y(t) dividiendo f(t) por a₀. No se necesitan condiciones iniciales independientes.']))
+    if result.get('condition'):
+        sections.append(Section('Dominio y condiciones',rows=[('Válido cuando',result['condition'])],paragraphs=[result.get('scope','')]))
     if result.get('residual_check'):sections.append(section(result['residual_check']))
     return Summary('Ecuación diferencial',sections)

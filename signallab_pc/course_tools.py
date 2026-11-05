@@ -18,7 +18,7 @@ def frequency_response(system,count=2049):
 
 def window_fft(x,length,nfft,window,beta,points):
     if x.domain!='discrete':raise ValueError('Se requiere una secuencia discreta.')
-    if not 2<=length<=x.values.size:raise ValueError('La longitud de ventana debe estar entre 2 y la cantidad de muestras de entrada.')
+    if not 1<=length<=x.values.size:raise ValueError('La longitud de ventana debe estar entre 1 y la cantidad de muestras de entrada.')
     if nfft<length:raise ValueError('NFFT debe ser al menos la longitud de ventana; no se recorta la señal silenciosamente.')
     if points<2:raise ValueError('Usá al menos dos frecuencias para la DTFT.')
     if beta<0:raise ValueError('β debe ser no negativo.')
@@ -87,7 +87,7 @@ def design_filter(wp,ws,dp,ds,method,period=1,taps=0,window="kaiser",search=0):
                 if 'dentro de tolerancias.' in spec_report(trial_system,wp,ws,kind,dp,ds):found=candidate;break
             if found is None:raise ValueError('No se encontró una longitud que cumpla en la rejilla hasta la cota indicada. Aumentá la cota o cambiá la ventana/tolerancias.')
             count=found;searched=True
-        if count<2:raise ValueError('Usá al menos dos coeficientes.')
+        if count<1:raise ValueError('Usá al menos un coeficiente.')
         if kind in ('highpass','bandstop') and count%2==0:
             if taps:raise ValueError('Con ganancia no nula en π, un FIR simétrico requiere longitud impar.')
             count+=1

@@ -690,4 +690,51 @@ class WorkflowContracts(unittest.TestCase):
             self.assertIn('El resultado principal se conserva',panel.report.toPlainText())
 
 
+    def test_bilateral_absolute_exponential_reuses_as_system_with_matching_frequency(self):
+        panel=TransformLab(self.host,'z');self.widgets.append(panel)
+        panel.expression.setText('2^(-abs(n))');panel.lower.setText('-oo');panel.upper.setText('oo');panel.calculate()
+        self.assertEqual(self.warnings,[]);self.assertTrue(panel.last['evaluated']);panel.analyze_system.click()
+        analysis=self.calculated_analysis();data=analysis.frequency_data
+        assert_allclose(data.response,3/(5-4*np.cos(data.omega)),rtol=3e-12,atol=3e-12)
+
+    def test_continuous_sinc_fourier_can_be_imported_inverted_and_reused(self):
+        from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
+        from signallab_pc.result_expressions import expression_result
+        from signallab_pc.cas_import import import_result
+        from signallab_pc.cas_transfer import payload
+        from signallab_pc.cas_engine import empty_state,restore
+        from signallab_pc.symbolic import T
+        panel=SymbolicFourierPanel(self.host);self.widgets.append(panel)
+        panel.expression.setText('sin(t)/t');panel.calculate()
+        self.assertEqual(self.warnings,[]);self.assertTrue(panel.last[1]['evaluated'])
+        record=self.host.project.get(panel.last[0])
+        imported=import_result(dict(payload=payload(record),state=empty_state(),cell=1))
+        self.assertIsNotNone(restore(imported['encoded_value']))
+        inverse=SymbolicFourierPanel(self.host,inverse=True);self.widgets.append(inverse)
+        inverse.load_expression(expression_result(record),panel.last[0]);inverse.calculate()
+        self.assertEqual(self.warnings,[]);self.assertTrue(inverse.last[1]['evaluated'])
+        formula=restore(inverse.last[1]['cas_encoded'])
+        self.assertAlmostEqual(complex(formula.subs(T,1).evalf()).real,float(np.sin(1)),places=12)
+
+    def test_memoryless_equation_panels_ignore_unused_history_fields(self):
+        from signallab_pc.difference_panel import DifferencePanel
+        from signallab_pc.symbolic_panel import SymbolicPanel
+        difference=DifferencePanel(self.host);self.widgets.append(difference)
+        difference.coefficients.setText('2, 0');difference.expression.setText('1')
+        difference.rest.setChecked(False);difference.initial.setText('mal');difference.calculate()
+        self.assertEqual(self.warnings,[]);self.assertEqual(difference.result['result']['order'],0)
+        self.assertFalse(difference.initial.isVisible())
+        symbolic=SymbolicPanel(self.host);self.widgets.append(symbolic);symbolic.operation.setCurrentIndex(4)
+        symbolic.coefficients.setText('2,0');symbolic.initial.setText('mal');symbolic.expression.setText('sin(t^2)');symbolic.calculate()
+        self.assertEqual(self.warnings,[]);self.assertEqual(symbolic.result['result']['order'],0)
+        self.assertIn('Sin',symbolic.result['result']['scope']);self.assertFalse(symbolic.initial.isVisible())
+
+    def test_discrete_temporal_response_accepts_one_sample(self):
+        from signallab_pc.temporal_panel import TemporalPanel
+        panel=TemporalPanel(self.host);self.widgets.append(panel)
+        panel.set_system(Transfer([2],[1]));panel.count.setText('1');panel.calculate()
+        self.assertEqual(self.warnings,[])
+        assert_allclose(panel.output.result.values,[2]);self.assertEqual(len(panel.output.result.values),1)
+
+
 if __name__=='__main__':unittest.main()

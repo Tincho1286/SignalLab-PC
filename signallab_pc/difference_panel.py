@@ -39,6 +39,9 @@ class DifferencePanel(QWidget):
                     coefficients.pop()
                 order=len(coefficients)-1
                 indices=', '.join('y['+str(start-k)+']' for k in range(1,min(order,4)+1))+(', …' if order>4 else '')
+                if order==0:
+                    form.setRowVisible(self.initial,False);self.initial.setProperty('calculationInput',False)
+                    self.initial_note.setText('Sin memoria: y[n]=f[n]/a₀. No se necesitan valores anteriores.');return
                 self.initial_note.setText('Se toman '+str(max(0,order))+' valores anteriores iguales a cero.' if rest else 'Cargá '+str(max(0,order))+' valores en este orden: '+indices+'. El primero es el más cercano a n₀.')
             except ValueError:self.initial_note.setText('Indicá coeficientes y un índice inicial entero.')
         self.rest.toggled.connect(configure);self.start.textChanged.connect(configure);self.coefficients.textChanged.connect(configure);configure()
@@ -70,7 +73,12 @@ class DifferencePanel(QWidget):
 
     def calculate(self):
         try:
-            request={'operation':'difference_equation','expression':self.expression.text(),'coefficients':split_coefficients(self.coefficients.text()),'initial':split_coefficients(self.initial.text()) if not self.rest.isChecked() else [],'rest':self.rest.isChecked(),'start':integer_field(self.start),'count':integer_field(self.count)}
+            from .scalar_expression import exact_constant
+            coefficients=split_coefficients(self.coefficients.text())
+            active=[exact_constant(v,parameters=True) for v in coefficients]
+            while active and active[-1]==0:active.pop()
+            needs_history=len(active)>1 and not self.rest.isChecked()
+            request={'operation':'difference_equation','expression':self.expression.text(),'coefficients':coefficients,'initial':split_coefficients(self.initial.text()) if needs_history else [],'rest':self.rest.isChecked(),'start':integer_field(self.start),'count':integer_field(self.count)}
             from .expression_import import expression_context
             parents,conditions=expression_context(self.expression);request['input_conditions']=conditions
             snapshot=self.state.snapshot()

@@ -303,4 +303,84 @@ class MathematicalReliabilityTests(unittest.TestCase):
         with self.assertRaises(ValueError):execute(dict(operation='z_inverse_expression',expression='sin(n)'))
 
 
+    def test_continuous_sinc_pairs_keep_shift_modulation_width_and_edge_values(self):
+        for width,delay,carrier in [(sp.pi/3,sp.Rational(3,2),sp.Rational(2,7)),(-2*sp.pi/5,-2,sp.S.Zero),(sp.S.Zero,1,2)]:
+            source=f'(1+i/2)*sin(({width})*(t-({delay})))/(t-({delay}))*exp(i*({carrier})*t)'
+            result=execute(dict(operation='fourier_angular',expression=source))
+            self.assertTrue(result['evaluated']);actual=restore(result['cas_encoded'])
+            if width==0:self.equivalent(actual,0);continue
+            radius=abs(width)
+            for w,fraction in [(carrier,1),(carrier+radius,sp.Rational(1,2)),(carrier-radius,sp.Rational(1,2)),(carrier+2*radius,0)]:
+                want=(1+sp.I/2)*sp.pi*sp.sign(width)*sp.exp(-sp.I*(w-carrier)*delay)*fraction
+                self.equivalent(sp.simplify(actual.subs(W,w)),sp.simplify(want))
+
+    def test_fourier_envelope_properties_avoid_generic_unresolved_integrals(self):
+        base=4*sp.exp(-3*sp.I*W)/(4+W**2)
+        gaussian=sp.sqrt(sp.pi/2)*sp.exp(-W**2/8)*sp.exp(-sp.Rational(3,2)*sp.I*W)
+        cases=[('exp(-2*abs(t-3))*cos(3*t+pi/4)',(sp.exp(sp.I*sp.pi/4)*base.subs(W,W-3)+sp.exp(-sp.I*sp.pi/4)*base.subs(W,W+3))/2),
+               ('t*exp(-2*abs(t-3))',sp.I*sp.diff(base,W)),
+               ('exp(-2*(t-3/2)^2)*cos(3*t)',(gaussian.subs(W,W-3)+gaussian.subs(W,W+3))/2),
+               ('(t-2)^2*exp(-3*(t-2))*Step(t-2)',2*sp.exp(-2*sp.I*W)/(3+sp.I*W)**3),
+               ('exp(2*(t+1))*Step(-t-1)',sp.exp(sp.I*W)/(2-sp.I*W))]
+        for source,want in cases:
+            with self.subTest(source=source):
+                result=execute(dict(operation='fourier_angular',expression=source));self.assertTrue(result['evaluated'])
+                actual=restore(result['cas_encoded'])
+                for w in [sp.S.Zero,sp.Rational(2,7),sp.Rational(7,5)]:
+                    self.assertLess(abs(complex((actual-want).subs(W,w).evalf(18))),3e-12)
+
+    def test_fourier_distribution_pairs_survive_ordinary_pair_extraction(self):
+        cases=[('cos(t)^2',sp.pi*sp.DiracDelta(W)+sp.pi*(sp.DiracDelta(W-2)+sp.DiracDelta(W+2))/2),('1',2*sp.pi*sp.DiracDelta(W)),('sin(2*t)',-sp.I*sp.pi*(sp.DiracDelta(W-2)-sp.DiracDelta(W+2))),
+               ('t^2',-2*sp.pi*sp.DiracDelta(W,2)),('sin(t)/t+t',sp.Piecewise((sp.pi,abs(W)<1),(sp.pi/2,sp.Eq(abs(W),1)),(0,True))+2*sp.pi*sp.I*sp.DiracDelta(W,1))]
+        for source,want in cases:
+            result=execute(dict(operation='fourier_angular',expression=source))
+            self.assertTrue(result['evaluated']);self.equivalent(restore(result['cas_encoded']),want)
+
+    def test_bilateral_absolute_exponential_uses_both_tail_supports(self):
+        for r,delay in [(sp.Rational(1,2),-3),(sp.Rational(1,3),2)]:
+            source=f'2*({r})^abs(n-({delay}))'
+            result=execute(dict(operation='z_expression',expression=source,lower='-oo',upper='oo'))
+            actual=expression(result);want=2*Z**(-delay)*(1-r**2)/((1-r/Z)*(1-r*Z))
+            self.equivalent(actual,want)
+            transformed=execute(dict(operation='dtft_expression',expression=source,lower='-oo',upper='oo'))
+            self.assertTrue(transformed['evaluated']);actual=restore(transformed['cas_encoded'])
+            want=2*sp.exp(-sp.I*W*delay)*(1-r**2)/(1-2*r*sp.cos(W)+r**2)
+            for w in (sp.S.Zero,sp.pi/3,sp.pi):self.assertLess(abs(complex((actual-want).subs(W,w).evalf(18))),3e-13)
+
+    def test_zero_order_equations_solve_without_transform_or_initial_history(self):
+        request=dict(operation='difference_equation',expression='sin(n^2)',coefficients=['2','0','0'],rest=False,initial=['mal'],start=-2,count=5)
+        result=execute(request);self.assertTrue(result['closed_form']);self.assertEqual(result['order'],0)
+        self.equivalent(restore(result['cas_encoded']),sp.sin(N**2)/2)
+        from numpy.testing import assert_allclose
+        assert_allclose([v[0] for v in result['numeric_samples']],[float(sp.sin(n*n)/2) for n in range(-2,3)],atol=1e-15)
+        ode=execute(dict(operation='ode',expression='sin(t^2)',coefficients=['2','0'],initial=[]))
+        self.assertTrue(ode['evaluated']);self.equivalent(parse(ode['result']),sp.sin(T**2)/2)
+        self.assertEqual(ode['output_variable'],'t');self.assertEqual(ode['order'],0)
+        for kind in ('difference_equation','ode'):
+            with self.assertRaises(ValueError):execute(dict(operation=kind,expression='1',coefficients=['0','0'],initial=[]))
+
+    def test_short_firs_and_one_sample_window_fft_are_valid(self):
+        from signallab_pc.filters import fir
+        from signallab_pc.course_tools import window_fft
+        from signallab_pc.model import Signal
+        from scipy.signal import firwin
+        from numpy.testing import assert_allclose
+        for length in (1,2):
+            for window in ('boxcar','hamming'):
+                result=fir('lowpass',length,.2,window=window)
+                assert_allclose(result.b,firwin(length,.2,fs=1.,window=window,scale=False),atol=1e-15)
+        with self.assertRaises(ValueError):fir('highpass',2,.2)
+        result=window_fft(Signal([2],origin=5),1,1,'boxcar',0,9)
+        assert_allclose(result['signals'][0].values,[2])
+        self.assertEqual(result['signals'][0].metadata['nfft'],1)
+
+    def test_ode_results_keep_time_variable_and_domain_for_reuse(self):
+        from signallab_pc.result_expressions import expression_result
+        for coefficients,initial in [(['2','0'],[]),(['1','1'],['0'])]:
+            request=dict(operation='ode',expression='1',coefficients=coefficients,initial=initial)
+            result=execute(request);self.assertTrue(result['evaluated'])
+            definition=expression_result({'request':request,'result':result})
+            self.assertEqual(definition.variable,'t');self.assertTrue(any('t >= 0' in c for c in definition.conditions))
+
+
 if __name__=='__main__':unittest.main()

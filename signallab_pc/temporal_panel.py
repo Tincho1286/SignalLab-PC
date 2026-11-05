@@ -120,7 +120,7 @@ class TemporalPanel(QWidget):
                 title='Respuesta a entrada definida'
             else:
                 count=integer_field(self.count);kind='step' if self.stimulus.currentIndex()==0 else 'impulse'
-                if count<2:raise ValueError('Usá al menos dos puntos o muestras.')
+                if count<(1 if digital else 2):raise ValueError('Usá al menos una muestra discreta o dos puntos continuos.')
                 duration=real_field(self.duration) if not digital else None
                 from .temporal_formula import add_excitation_formula
                 def operation():

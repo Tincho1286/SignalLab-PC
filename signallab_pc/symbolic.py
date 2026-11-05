@@ -178,7 +178,10 @@ def _execute(request):
                     'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
                     'scope':'Inversa por integración de bandas y pares de Fourier. Los valores aislados de frecuencia tienen medida nula.'},definition,exact=exact)
         from .impulse_pairs import fourier_pairs
-        known,regular=fourier_pairs(value,W if inverse else T,T if inverse else W,inverse=inverse)
+        from .fourier_ordinary_pairs import pairs as ordinary_pairs
+        ordinary,regular=ordinary_pairs(value,W if inverse else T,T if inverse else W,inverse=inverse)
+        known,regular=fourier_pairs(regular,W if inverse else T,T if inverse else W,inverse=inverse)
+        known+=ordinary
         if regular==0:answer=(sp.S.Zero,sp.true)
         elif inverse:
             answer=sp.inverse_fourier_transform(regular.subs(W,2*sp.pi*frequency),frequency,T,noconds=False)
@@ -189,7 +192,9 @@ def _execute(request):
         condition=sp.sympify(condition)
         if not inverse:
             result=result.subs(frequency,W/(2*sp.pi));condition=condition.subs(frequency,W/(2*sp.pi))
-        result=sp.simplify(result+known)
+        # Certified pairs already preserve readable shifts and modulation.
+        # A global simplify can spend minutes combining these into one fraction.
+        result=sp.Add(result,known) if regular==0 else sp.simplify(result+known)
         evaluated=not result.has(sp.FourierTransform,sp.InverseFourierTransform,sp.Integral,sp.oo,sp.zoo,sp.nan)
         return attach({'operation':operation,'result':str(result),'condition':str(condition),
                 'evaluated':evaluated,'output_variable':'t' if inverse else 'w',
@@ -389,21 +394,31 @@ def _execute(request):
         from .expression_definition import prepare
         coefficients=[exact_constant(value,parameters=True) for value in request["coefficients"]]
         while coefficients and coefficients[-1] == 0: coefficients.pop()
-        if len(coefficients)<2: raise ValueError("Se requiere una EDO de orden >=1.")
+        if not coefficients:raise ValueError("La ecuación no determina y(t): todos sus coeficientes son cero.")
         initial=[exact_constant(value,parameters=True) for value in request["initial"]]
         order=len(coefficients)-1
         if len(initial)!=order: raise ValueError("Ingrese una condición inicial por derivada de orden 0 hasta orden-1.")
         definition=prepare(expression,T,'continuous',(sp.S.Zero,sp.oo),support_kind='unilateral_0minus')
         forcing_expression=definition.integral_expression()
         if forcing_expression.has(N,S,Z,W):raise ValueError('La entrada de la EDO debe estar expresada en t.')
+        if order==0:
+            result=sp.cancel(forcing_expression/coefficients[0])
+            return {'input_definition':definition.metadata(),'calculation_notes':list(definition.extensions),
+                'operation':'Ecuación algebraica sin derivadas','order':0,'result':str(result),'output_variable':'t',
+                'condition':str(sp.And(T>=0,sp.Ne(coefficients[0],0))),
+                'Y(s)':str(sp.LaplaceTransform(forcing_expression,T,S)/coefficients[0]),
+                'forcing_convergence':'No es necesaria una transformada para despejar esta ecuación.',
+                'scope':'t >= 0. Sin términos de derivadas: y(t)=f(t)/a₀; no hay condiciones iniciales independientes.',
+                'evaluated':not result.has(sp.Integral,sp.Limit,sp.nan,sp.zoo,sp.oo)}
         from .impulse_pairs import unilateral_laplace
         forcing, plane, condition=unilateral_laplace(forcing_expression,T,S)
         polynomial=sum(value*S**j for j,value in enumerate(coefficients))
         correction=sum(coefficients[j]*sum(S**(j-1-k)*initial[k] for k in range(j)) for j in range(1,order+1))
         transformed=sp.cancel((forcing+correction)/polynomial)
         result=sp.inverse_laplace_transform(transformed,S,T)
-        return {"input_definition":definition.metadata(),"calculation_notes":list(definition.extensions),"operation":"EDO lineal de coeficientes constantes", "result":str(result), "Y(s)":str(transformed),
+        return {"input_definition":definition.metadata(),"calculation_notes":list(definition.extensions),"operation":"EDO lineal de coeficientes constantes", "order":order, "result":str(result), "Y(s)":str(transformed),
                 "forcing_convergence":f"Re(s) > {plane}; {condition}",
                 "scope":"t >= 0 con las condiciones iniciales indicadas; a0*y+a1*y'+...=f(t)",
-                "evaluated":not result.has(sp.InverseLaplaceTransform,sp.LaplaceTransform)}
+                "output_variable":"t", "condition":str(sp.And(T>=0,sp.Ne(coefficients[-1],0))),
+                "evaluated":not result.has(sp.InverseLaplaceTransform,sp.LaplaceTransform,sp.Integral,sp.Limit,sp.nan,sp.zoo,sp.oo)}
     raise ValueError("Operación simbólica desconocida.")

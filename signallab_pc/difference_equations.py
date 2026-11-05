@@ -144,12 +144,12 @@ def solve(request):
     coefficients=[exact_constant(v,parameters=True) for v in request['coefficients']]
     if any(v.has(N,T,Z,S,W) or v.has(sp.nan,sp.zoo,sp.oo,-sp.oo) for v in coefficients):raise ValueError('Los coeficientes deben ser constantes finitas, independientes de n.')
     while coefficients and coefficients[-1]==0:coefficients.pop()
-    if len(coefficients)<2:raise ValueError('Se requiere una ecuación en diferencias de orden al menos 1.')
+    if not coefficients:raise ValueError('La ecuación no determina y[n]: todos sus coeficientes son cero.')
     if coefficients[0]==0:raise ValueError('a₀ no puede ser cero: debe permitir despejar y[n].')
     order=len(coefficients)-1;start=integer_value(request.get('start',0));count=integer_value(request.get('count',64))
     if count<1:raise ValueError('La cantidad de muestras debe ser positiva.')
     ensure_working_set(order*order,bytes_per_sample=2048,live_arrays=12)
-    history=[sp.S.Zero]*order if request.get('rest',True) else [exact_constant(v,parameters=True) for v in request['initial']]
+    history=[] if order==0 else [sp.S.Zero]*order if request.get('rest',True) else [exact_constant(v,parameters=True) for v in request['initial']]
     if len(history)!=order:raise ValueError('Cargá '+str(order)+' valores: y['+str(start-1)+'], y['+str(start-2)+'], …, y['+str(start-order)+'].')
     if any(v.has(N,T,Z,S,W,sp.nan,sp.zoo,sp.oo,-sp.oo) for v in history):raise ValueError('Las condiciones iniciales deben ser constantes finitas.')
     definition=prepare(request['expression'],N,'discrete',(sp.Integer(start),sp.oo),support_kind='recurrence_input')
@@ -157,18 +157,21 @@ def solve(request):
     if forcing.has(T,Z,S,W,sp.DiracDelta):raise ValueError('Usá n en f[n] e impulse(n−k) para impulsos discretos. No uses t, z ni DiracDelta.')
     denominator=sum(a*Z**(-j) for j,a in enumerate(coefficients))
     correction=-sum(coefficients[j]*sum(history[r-1]*Z**(-(j-r)) for r in range(1,j+1)) for j in range(1,order+1))
-    zero_input,numeric_display=forward_inverse(sp.cancel(correction/denominator))
     transformed=None;closed=True
-    try:
-        transformed_parts=unilateral(forcing,start,parts=True)
-        transformed=sp.cancel(sum(transformed_parts,sp.S.Zero));zero_state=sp.S.Zero
-        for part in transformed_parts:
-            component,display=forward_inverse(sp.cancel(part/denominator));zero_state+=component;numeric_display|=display
-    except NoRationalTransform:
-        kernel,display=forward_inverse(sp.cancel(1/denominator));numeric_display|=display
-        k=sp.Symbol('k',integer=True)
-        zero_state=sp.Sum(kernel.subs(N,N-k)*forcing.subs(N,start+k),(k,0,N));closed=False
-    def shift(value):return value.subs(N,N-start) if start else value
+    if order==0:
+        zero_input=sp.S.Zero;zero_state=sp.cancel(forcing/coefficients[0]);numeric_display=False
+    else:
+        zero_input,numeric_display=forward_inverse(sp.cancel(correction/denominator))
+        try:
+            transformed_parts=unilateral(forcing,start,parts=True)
+            transformed=sp.cancel(sum(transformed_parts,sp.S.Zero));zero_state=sp.S.Zero
+            for part in transformed_parts:
+                component,display=forward_inverse(sp.cancel(part/denominator));zero_state+=component;numeric_display|=display
+        except NoRationalTransform:
+            kernel,display=forward_inverse(sp.cancel(1/denominator));numeric_display|=display
+            k=sp.Symbol('k',integer=True)
+            zero_state=sp.Sum(kernel.subs(N,N-k)*forcing.subs(N,start+k),(k,0,N));closed=False
+    def shift(value):return value.subs(N,N-start) if start and order else value
     exact=shift(zero_input+zero_state)
     if not exact.has(sp.CRootOf,sp.Sum) and sp.count_ops(exact)<250:exact=sp.factor_terms(sp.simplify(exact))
     condition='n >= '+str(start)
@@ -215,7 +218,7 @@ def solve(request):
             'zero_input':text(shift(zero_input)),'zero_state':text(shift(zero_state)),'system_expression':str(sp.cancel(1/denominator)),
             'unilateral_output':str(sp.cancel((transformed+correction)/denominator)) if transformed is not None else None,
             'scope':'La ecuación se impone desde n='+str(start)+'. Los valores anteriores indicados son condiciones iniciales; no se supone ni se reconstruye una historia infinita. La fórmula se aplica sólo en ese dominio. La cantidad de muestras controla el gráfico y la tabla, no trunca la solución algebraica.',
-            'method':'Transformada Z unilateral y propiedades racionales' if closed else 'Respuesta de entrada cero más convolución discreta finita; no se obtuvo forma cerrada para la entrada'}
+            'method':'Despeje algebraico de una ecuación sin memoria' if order==0 else 'Transformada Z unilateral y propiedades racionales' if closed else 'Respuesta de entrada cero más convolución discreta finita; no se obtuvo forma cerrada para la entrada'}
 
 
 def summary(request,result):

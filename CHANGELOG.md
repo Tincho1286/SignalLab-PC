@@ -2,6 +2,15 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.15**.
 
+## 1.6.17 · Preliminar
+
+- Pares ordinarios de Fourier y propiedades para sinc, exponenciales y gaussianas.
+- Reconocimiento de exponenciales bilaterales en Z y DTFT.
+- Conservación de pares polinómicos y de cancelaciones antes de transformar.
+- Ecuaciones sin memoria, reutilización de fórmulas temporales y registros mínimos válidos.
+
+[Notas de la preliminar](docs/releases/v1.6.17-preview.md)
+
 ## 1.6.16 · Preliminar
 
 - Separación de resultados principales y gráficos, registros y mediciones complementarias.

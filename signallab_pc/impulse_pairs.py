@@ -108,31 +108,39 @@ def inverse_periodic_impulses(value,frequency,index,lower,upper):
 
 
 def fourier_pairs(value,variable,output,*,inverse=False):
-    """Separate certified impulse/modulated-polynomial pairs from regular terms."""
+    """Extract certified distributions without breaking ordinary cancellations."""
     known=[];remaining=[];kernel=sp.exp((sp.I if inverse else -sp.I)*variable*output)
     divisor=2*sp.pi if inverse else sp.S.One
-    for term in sp.Add.make_args(sp.expand_mul(value.rewrite(sp.exp))):
+    def polynomial_pair(term):
+        rate=sp.S.Zero;factors=[]
+        for factor in sp.Mul.make_args(term):
+            if factor.func==sp.exp and factor.has(variable):
+                slope=sp.diff(factor.args[0],variable);offset=sp.simplify(factor.args[0]-slope*variable)
+                if slope.has(variable) or offset.has(variable):return None
+                rate+=slope;factors.append(sp.exp(offset))
+            else:factors.append(factor)
+        carrier=sp.simplify(rate/sp.I)
+        if carrier.is_real is not True:return None
+        try:polynomial=sp.Poly(sp.Mul(*factors),variable)
+        except sp.PolynomialError:return None
+        argument=output+carrier if inverse else output-carrier
+        multiplier=-sp.I if inverse else sp.I;scale=sp.S.One if inverse else 2*sp.pi
+        return scale*sp.Add(*(c*multiplier**m[0]*sp.DiracDelta(argument,m[0]) for m,c in polynomial.terms()))
+    for term in sp.Add.make_args(value):
         checkpoint()
         if term.has(sp.DiracDelta):
             answer=impulse_integral(term,variable,kernel)
             if answer is not None:known.append(answer/divisor);continue
             remaining.append(term);continue
-        rate=sp.S.Zero;factors=[]
-        for factor in sp.Mul.make_args(term):
-            if factor.func==sp.exp and factor.has(variable):
-                slope=sp.diff(factor.args[0],variable)
-                offset=sp.simplify(factor.args[0]-slope*variable)
-                if slope.has(variable) or offset.has(variable):factors.append(factor);continue
-                rate+=slope;factors.append(sp.exp(offset))
-            else:factors.append(factor)
-        carrier=sp.simplify(rate/sp.I)
-        if carrier.is_real is not True:remaining.append(term);continue
-        try:polynomial=sp.Poly(sp.Mul(*factors),variable)
-        except sp.PolynomialError:remaining.append(term);continue
-        argument=output+carrier if inverse else output-carrier
-        multiplier=-sp.I if inverse else sp.I
-        scale=sp.S.One if inverse else 2*sp.pi
-        known.append(scale*sp.Add(*[coefficient*multiplier**power[0]*sp.DiracDelta(argument,power[0]) for power,coefficient in polynomial.terms()]))
+        direct=polynomial_pair(term)
+        if direct is not None:known.append(direct);continue
+        # Rewrite trigonometric carriers only. Rewriting all powers can turn
+        # t**2 into exp(2*log(t)), losing even the basic polynomial table.
+        trigonometric=term.replace(lambda node:node.func in (sp.sin,sp.cos),lambda node:node.rewrite(sp.exp))
+        rewritten=sp.Add.make_args(sp.expand(trigonometric,power_base=False,power_exp=False))
+        candidates=[polynomial_pair(item) for item in rewritten]
+        if all(item is not None for item in candidates):known.extend(candidates)
+        else:remaining.append(term)
     return sp.Add(*known),sp.Add(*remaining)
 
 
