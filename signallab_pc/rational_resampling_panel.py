@@ -36,7 +36,10 @@ class RationalResamplingPanel(QWidget):
     def calculate(self):
         try:
             source=self.source.read();parent=self.source.reference_id
-            arguments=dict(rate=real_field(self.rate),start=real_field(self.start),override_clock=self.override.isChecked(),half_width=integer_field(self.width),beta=real_field(self.beta),boundary='zero' if self.boundary.currentIndex()==0 else 'line')
+            override=self.override.isChecked()
+            rate=real_field(self.rate) if override or source.metadata.get('sample_rate_hz') is None else None
+            start=real_field(self.start) if override or source.metadata.get('time_start_s') is None else None
+            arguments=dict(rate=rate,start=start,override_clock=override,half_width=integer_field(self.width),beta=real_field(self.beta),boundary='zero' if self.boundary.currentIndex()==0 else 'line')
             up,down=integer_field(self.up),integer_field(self.down);calculated_inputs=self.result_state.snapshot()
             def accept(result):
                 self.window.publish(result,operation='Cambio racional de tasa con antialias',parents=[parent] if parent else [])

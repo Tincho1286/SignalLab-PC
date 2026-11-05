@@ -659,4 +659,23 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(self.warnings,[]);self.assertIsNotNone(panel.model)
 
 
+
+    def test_sampling_only_validates_controls_used_by_the_selected_operation(self):
+        from signallab_pc.sampling_panel import SamplingPanel
+        self.host.signal=Signal([1,2,3]);self.host._set_signal=lambda signal:setattr(self.host,'signal',signal)
+        panel=SamplingPanel(self.host);self.widgets.append(panel)
+        panel.rate_method.setCurrentIndex(1);panel.factor.setText('2');panel.phase.setText('mal')
+        panel.change_rate();self.assertEqual(self.warnings,[])
+        assert_allclose(self.host.signal.values,[1,0,2,0,3]);self.assertFalse(panel.phase.isEnabled())
+        panel.rate_method.setCurrentIndex(0)
+        with self.assertRaises(ValueError):panel.change_rate()
+        from signallab_pc.rational_resampling_panel import RationalResamplingPanel
+        rational=RationalResamplingPanel(self.host);self.widgets.append(rational)
+        rational.source.set_source(Signal([1,2,3],metadata={'sample_rate_hz':10.,'time_start_s':2.}))
+        rational.rate.setText('mal');rational.start.setText('mal');rational.up.setText('2');rational.down.setText('1')
+        rational.calculate();self.assertEqual(self.warnings,[])
+        self.assertEqual(rational.result.result.metadata['sample_rate_hz'],20.)
+        self.assertEqual(rational.result.result.metadata['time_start_s'],2.)
+
+
 if __name__=='__main__':unittest.main()

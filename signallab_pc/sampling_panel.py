@@ -38,6 +38,7 @@ class SamplingPanel(QWidget):
         self.rate_method = QComboBox()
         self.rate_method.addItems(["Diezmar (sin filtro)", "Expandir con ceros", "Interpolar lineal", "Interpolar ZOH", "Interpolar SINC"])
         form.addRow("Método", self.rate_method)
+        self.rate_method.currentIndexChanged.connect(lambda index:self.phase.setEnabled(index==0))
         self._button(form, "Aplicar cambio de tasa", self.change_rate)
         self._section(form, "Reconstruir en tiempo continuo")
         self.reconstruction = QComboBox(); self.reconstruction.addItems(["ZOH", "Lineal", "SINC"])
@@ -131,8 +132,9 @@ class SamplingPanel(QWidget):
         self.report.set_readable(alias_summary(result))
 
     def change_rate(self):
-        source, factor, phase = self._source(), integer_field(self.factor), integer_field(self.phase)
+        source, factor = self._source(), integer_field(self.factor)
         method = ["decimate", "expand", "linear", "zoh", "sinc"][self.rate_method.currentIndex()]
+        phase = integer_field(self.phase) if method == 'decimate' else 0
         self._job("Cambiando tasa…", lambda: sampling.resample(source, factor, method, phase), self._accept_signal)
 
     def reconstruct(self):
