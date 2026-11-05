@@ -29,6 +29,8 @@ def validate_discrete_clocks(x,w):
 
 def multiply_signals(x,w):
     if x.domain!=w.domain or x.domain not in ('discrete','continuous'):raise ValueError('Las dos entradas deben ser discretas o las dos continuas.')
+    from .signal_semantics import require_temporal
+    require_temporal(x);require_temporal(w)
     if x.units!=w.units:raise ValueError('Las entradas deben compartir el mismo tipo de eje, por ejemplo dos señales en n o dos registros en segundos.')
     ensure_working_set(len(x.values)+len(w.values),live_arrays=8)
     if x.domain=='discrete':
@@ -62,7 +64,10 @@ class WindowedFir:
 
 def window_impulse(h,window='hamming',beta=8.6,retard=True,custom=None,*,length=None,start=None):
     if h.domain!='discrete':raise ValueError('La respuesta h[n] debe ser una secuencia discreta.')
+    from .signal_semantics import require_temporal
+    require_temporal(h)
     if custom is not None and custom.domain!='discrete':raise ValueError('La ventana propia debe ser una secuencia discreta.')
+    if custom is not None:require_temporal(custom)
     size=len(custom.values) if custom is not None else len(h.values) if length is None else length
     origin=custom.origin if custom is not None else h.origin if start is None else start
     if int(size)!=size or size<1:raise ValueError('La longitud L de la ventana debe ser un entero positivo.')

@@ -22,6 +22,8 @@ def prepare_inputs(model,sources):
     if len(sources)!=model.inputs:raise ValueError('Se requiere una señal por cada canal de entrada del modelo.')
     discrete=model.dt is not None;kind='discrete' if discrete else 'continuous'
     if any(source.domain!=kind for source in sources):raise ValueError('Las entradas deben tener el mismo dominio que el modelo.')
+    from .signal_semantics import require_temporal
+    for source in sources:require_temporal(source)
     first=sources[0];count=len(first.values);origin=first.origin;step=model.dt if discrete else first.step
     ensure_working_set(count*(model.inputs+model.outputs+model.states),live_arrays=8)
     if step<=0 or not math.isfinite(step):raise ValueError('El paso de entrada debe ser positivo y finito.')

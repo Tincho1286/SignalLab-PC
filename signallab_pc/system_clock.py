@@ -32,6 +32,15 @@ def common_period(*systems):
     if any(not math.isclose(period,periods[0],rel_tol=1e-12,abs_tol=0) for period in periods):raise ValueError('Los sistemas registran distintos períodos de muestreo. Igualá su reloj antes de conectarlos; no se cambia la tasa automáticamente.')
     return periods[0]
 
+def common_rate(*sources):
+    from .sampling import positive_finite
+    rates=[positive_finite(rate,'Fs registrada') for source in sources
+           if (rate:=source.metadata.get('sample_rate_hz')) is not None]
+    if not rates:return None
+    if any(not math.isclose(rate,rates[0],rel_tol=1e-12,abs_tol=0) for rate in rates[1:]):
+        raise ValueError('Las secuencias registran distintas tasas de muestreo. Igualá sus relojes antes de combinarlas.')
+    return rates[0]
+
 def input_metadata(system,source):
     if source.domain!='discrete':raise ValueError('La entrada del filtro discreto debe ser una secuencia.')
     from .signal_semantics import require_temporal

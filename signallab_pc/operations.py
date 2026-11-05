@@ -156,18 +156,13 @@ def even_odd_parts(x: Signal) -> tuple[Signal, Signal]:
 def convolution_clock(x,h):
     """Share the physical output clock across linear-convolution algorithms."""
     clock = {}
-    left_rate = x.metadata.get('sample_rate_hz')
-    right_rate = h.metadata.get('sample_rate_hz')
-    from .sampling import positive_finite
-    rates=[positive_finite(rate,'Fs registrada') for rate in (left_rate,right_rate) if rate is not None]
-    if len(rates)==2 and not np.isclose(*rates,rtol=1e-12,atol=0):
-        raise ValueError('Las secuencias tienen distintas tasas de muestreo. Igualá sus relojes antes de convolucionar.')
-    if rates:
-        clock['sample_rate_hz']=rates[0]
+    from .system_clock import common_rate,validate_clock_resolution
+    rate=common_rate(x,h)
+    if rate is not None:
+        clock['sample_rate_hz']=rate
         if 'time_start_s' in x.metadata and 'time_start_s' in h.metadata:
-            from .system_clock import validate_clock_resolution
             start_s=float(x.metadata['time_start_s'])+float(h.metadata['time_start_s'])
-            validate_clock_resolution(start_s,rates[0],x.values.size+h.values.size-1)
+            validate_clock_resolution(start_s,rate,x.values.size+h.values.size-1)
             clock.update(time_start_s=start_s,time_mapping='t = time_start_s + (n-origin)/sample_rate_hz')
     return clock
 
@@ -178,7 +173,9 @@ def linear_convolution(x: Signal, h: Signal) -> Signal:
     clock = convolution_clock(x,h)
     count = x.values.size + h.values.size - 1
     ensure_working_set(count, live_arrays=7)
-    y = scipy_signal.convolve(x.values, h.values, mode="full", method="auto")
+    from .spectral_scaling import bounded,restore_scale
+    a,ea=bounded(x.values);b,eb=bounded(h.values)
+    y=restore_scale(scipy_signal.convolve(a,b,mode="full",method="auto"),ea+eb)
     start = int(x.origin) + int(h.origin)
     result = Signal(_finite_output(y, "La convolución"), start, 1, x.units,
                   f"{x.name}*{h.name}", "discrete", "",
@@ -195,11 +192,16 @@ def linear_correlation(x: Signal, h: Signal) -> Signal:
     _discrete(x); _discrete(h)
     count = x.values.size + h.values.size - 1
     ensure_working_set(count, live_arrays=7)
-    r = scipy_signal.correlate(x.values, h.values, mode="full", method="auto")
+    from .system_clock import common_rate
+    from .spectral_scaling import bounded,restore_scale
+    rate=common_rate(x,h)
+    a,ea=bounded(x.values);b,eb=bounded(h.values)
+    r=restore_scale(scipy_signal.correlate(a,b,mode="full",method="auto"),ea+eb)
     start = int(x.origin) - int(h.origin) - (h.values.size - 1)
     return Signal(_finite_output(r, "La correlación"), start, 1, x.units,
                   f"r_{x.name}{h.name}", "discrete", "",
-                  {"operation": "linear_cross_correlation", "inputs": [x.name, h.name],
+                  {**({'sample_rate_hz':rate} if rate is not None else {}),
+                   "operation": "linear_cross_correlation", "inputs": [x.name, h.name],
                    "convention": "r[l]=sum_n x[n] conjugate(h[n-l]); zero outside support"})
 
 
@@ -278,10 +280,15 @@ def circular_convolution(x: Signal, h: Signal) -> Signal:
     _discrete(x); _discrete(h)
     n = max(x.values.size, h.values.size)
     ensure_working_set(n, live_arrays=10)
-    values = np.fft.ifft(np.fft.fft(x.values, n) * np.fft.fft(h.values, n))
+    from .system_clock import common_rate
+    from .spectral_scaling import bounded,restore_scale
+    rate=common_rate(x,h)
+    a,ea=bounded(x.values);b,eb=bounded(h.values)
+    values=restore_scale(np.fft.ifft(np.fft.fft(a,n)*np.fft.fft(b,n)),ea+eb)
     return Signal(_finite_output(values, "La convolución circular"), 0, 1, x.units,
                   f"{x.name}*c{h.name}", "discrete", "",
-                  {"operation": "circular_convolution", "period": int(n),
+                  {**({'sample_rate_hz':rate} if rate is not None else {}),
+                   "operation": "circular_convolution", "period": int(n),
                    "convention": "stored offsets from zero; zero pad to max length",
                    "input_origins": [int(x.origin), int(h.origin)]})
 
@@ -296,6 +303,8 @@ def correlation(x: Signal, h: Signal | None = None, *, circular: bool = False,
     if h is None:
         h = x
     _discrete(x); _discrete(h)
+    from .system_clock import common_rate
+    rate=common_rate(x,h)
     if normalization not in {"sum", "energy", "mean"}:
         raise ValueError("Escala desconocida: use sum, energy o mean.")
     if normalization == "mean" and not circular:
@@ -317,15 +326,16 @@ def correlation(x: Signal, h: Signal | None = None, *, circular: bool = False,
         left, right = unit_energy(x), unit_energy(h)
     if circular:
         n = x.values.size
-        values = np.fft.ifft(np.fft.fft(left.values) * np.conj(np.fft.fft(right.values)))
+        from .spectral_scaling import bounded,restore_scale
+        a,ea=bounded(left.values);b,eb=bounded(right.values)
+        factor=1/n if normalization=="mean" else 1.
+        values=restore_scale(np.fft.ifft(np.fft.fft(a)*np.conj(np.fft.fft(b))),ea+eb,factor)
         values = np.roll(values, (int(x.origin) - int(h.origin)) % n)
         result = Signal(_finite_output(values, "La correlación circular"), 0, 1, "retardo",
                         f"r_{x.name}{h.name}", "discrete")
     else:
         result = linear_correlation(left, right)
-    if normalization == "mean":
-        result = result.copy_with(values=result.values / max(x.values.size, h.values.size))
-    result.metadata = {"operation": "correlation", "circular": circular,
+    result.metadata = {**({'sample_rate_hz':rate} if rate is not None else {}), "operation": "correlation", "circular": circular,
         "normalization": normalization, "inputs": [x.name, h.name],
         "convention": "sum x[n] conj(h[n-l]); no mean subtraction; no overlap correction",
         "period": int(x.values.size) if circular else None}

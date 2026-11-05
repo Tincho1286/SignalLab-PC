@@ -95,7 +95,8 @@ def resample(x, factor, method, phase=0):
         if rate is not None:
             rate = positive_finite(rate, "Fs de entrada")
             metadata["sample_rate_hz"] = positive_finite(rate / factor, "Fs de salida")
-            metadata["time_start_s"] = float(metadata.get("time_start_s", 0)) + phase / rate
+            if 'time_start_s' in metadata:
+                metadata["time_start_s"] = float(metadata["time_start_s"]) + phase / rate
     else:
         if method not in {"expand", "linear", "zoh", "sinc"}:
             raise ValueError("Método de remuestreo desconocido.")
@@ -294,7 +295,7 @@ def fixed_point(value, integer_bits, fractional_bits, method="round"):
             "saturation_error_exact": str(source-clipped/scale),
             "conversion_error_exact": str(clipped/scale-represented), "rounding": method}
 
-def resample_rational(x, up, down, *, rate=None, start=None, half_width=10, beta=5.0, boundary='zero'):
+def resample_rational(x, up, down, *, rate=None, start=None, half_width=10, beta=5.0, boundary='zero', override_clock=False):
     """Conversión L/M con FIR polifásico simétrico, alineado al primer instante.
 
     Fuente: scipy.signal.resample_poly. La extensión fuera del registro es
@@ -309,9 +310,22 @@ def resample_rational(x, up, down, *, rate=None, start=None, half_width=10, beta
     if boundary=='line' and x.values.size<2:raise ValueError('La extensión lineal requiere al menos dos muestras.')
     beta=float(beta)
     if not math.isfinite(beta) or beta<0:raise ValueError('Beta Kaiser debe ser finito y no negativo.')
-    rate=positive_finite(rate if rate is not None else x.metadata.get('sample_rate_hz',0),'Fs de entrada')
+    known_rate=x.metadata.get('sample_rate_hz')
+    known_start=x.metadata.get('time_start_s')
+    if not override_clock:
+        if known_rate is not None:
+            known_rate=positive_finite(known_rate,'Fs registrada')
+            if rate is not None and not math.isclose(float(rate),known_rate,rel_tol=1e-12,abs_tol=0):
+                raise ValueError('Fs difiere del reloj registrado. Activá la reinterpretación explícita para usar otra tasa.')
+            rate=known_rate
+        if known_start is not None:
+            known_start=float(known_start)
+            if start is not None and float(start)!=known_start:
+                raise ValueError('El tiempo inicial difiere del reloj registrado. Activá la reinterpretación explícita para cambiarlo.')
+            start=known_start
+    rate=positive_finite(rate if rate is not None else known_rate or 0,'Fs de entrada')
     output_rate=positive_finite(rate*(up/down),'Fs de salida')
-    start=float(x.metadata.get('time_start_s',0) if start is None else start)
+    start=float((known_start if known_start is not None else 0) if start is None else start)
     if not math.isfinite(start):raise ValueError('El tiempo inicial debe ser finito.')
     count=(int(x.values.size)*up+down-1)//down
     taps=1 if up==down else 2*half_width*max(up,down)+1

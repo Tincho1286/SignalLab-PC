@@ -13,47 +13,159 @@ def split_top(text,separators):
         elif depth==0 and c in separators:parts.append(text[start:i].strip());start=i+1
     parts.append(text[start:].strip());return parts
 
+_TOKEN=re.compile(
+    r"\s+|(?:\d+\.(?![*/^'])\d*|\.\d+|\d+)(?:[eE][+-]?\d+)?|"
+    r"[^\W\d]\w*|\.'|\.\*|\./|\.\^|<=|>=|==|~=|[+\-*/^':(),<>\[\];]"
+)
+_PRECEDENCE={'<':5,'<=':5,'>':5,'>=':5,'==':5,'~=':5,':':10,
+             '+':20,'-':20,'*':30,'.*':30,'/':30,'./':30,
+             '^':40,'.^':40,"'":40,".'":40}
+_BINOPS={'+':ast.Add,'-':ast.Sub,'*':ast.Mult,'.*':ast.MatMult,'/':ast.Div,'./':ast.FloorDiv,
+         '^':ast.Pow,'.^':ast.Pow}
+_COMPARISONS={'<':ast.Lt,'<=':ast.LtE,'>':ast.Gt,'>=':ast.GtE,'==':ast.Eq,'~=':ast.NotEq}
+
+
+def _lex(text):
+    tokens=[];cursor=0
+    while cursor<len(text):
+        token=_TOKEN.match(text,cursor)
+        if token is None:raise ValueError('Símbolo no admitido en la expresión MATLAB: '+text[cursor:cursor+12])
+        if not token[0].isspace():tokens.append((token[0],cursor,token.end()))
+        cursor=token.end()
+    return tokens
+
+
+class _MatlabExpression:
+    def __init__(self,text):
+        self.text=text;self.tokens=_lex(text);self.position=0
+
+    def peek(self):
+        return self.tokens[self.position][0] if self.position<len(self.tokens) else ''
+
+    def take(self,expected=None):
+        token=self.peek()
+        if not token or expected is not None and token!=expected:raise ValueError('Expresión MATLAB incompleta.')
+        self.position+=1
+        return token
+
+    def prefix(self):
+        start=self.position;token=self.take()
+        if token in ('+','-'):
+            return ast.UnaryOp(ast.UAdd() if token=='+' else ast.USub(),self.read(35))
+        if token=='(':
+            value=self.read();self.take(')');return value
+        if token=='[':
+            depth=1
+            while depth:
+                next_token=self.take()
+                if next_token=='[':depth+=1
+                if next_token==']':depth-=1
+            return ast.Constant(self.text[self.tokens[start][1]:self.tokens[self.position-1][2]])
+        if token[0].isdigit() or token.startswith('.') and len(token)>1 and token[1].isdigit():
+            number=ast.Constant(float(token) if any(c in token for c in '.eE') else int(token))
+            if self.peek() in ('i','j') and self.tokens[start][2]==self.tokens[self.position][1]:
+                return ast.BinOp(number,ast.Mult(),ast.Name(self.take()))
+            return number
+        if token.isidentifier():
+            name=ast.Name(token)
+            if self.peek()!='(':return name
+            self.take('(');args=[]
+            if self.peek()!=')':
+                args.append(self.read())
+                while self.peek()==',':
+                    self.take(',');args.append(self.read())
+            self.take(')')
+            return ast.Call(name,args,[])
+        raise ValueError('Se esperaba un valor o una expresión entre paréntesis.')
+
+    def read(self,minimum=0):
+        left=self.prefix()
+        while _PRECEDENCE.get(self.peek(),-1)>=minimum:
+            operator=self.take();precedence=_PRECEDENCE[operator]
+            if operator in ("'",".'"):
+                call=ast.Call(ast.Name('transpose'),[left],[])
+                call.matlab_transpose=operator
+                left=call
+                continue
+            right=self.read(precedence+1)
+            if operator==':':
+                args=[left,right]
+                if self.peek()==':':
+                    self.take(':');args.append(self.read(precedence+1))
+                call=ast.Call(ast.Name('colon'),args,[])
+                call.matlab_colon=True
+                left=call
+            elif operator in _COMPARISONS:
+                left=ast.Compare(left,[_COMPARISONS[operator]()],[right])
+            else:
+                left=ast.BinOp(left,_BINOPS[operator](),right)
+                if operator in ('^','.^'):left.matlab_power=operator
+        return left
+
+
+def _array_cells(row):
+    cells=[];start=0;depth=0
+    for match in re.finditer(r'[\s,]+|[\[(\])]',row):
+        token=match[0]
+        if token in ('[','('):depth+=1
+        elif token in (']',')'):depth-=1
+        elif depth==0:
+            before=row[start:match.start()].rstrip();after=row[match.end():]
+            if not before or not after:continue
+            complete=before[-1].isalnum() or before[-1] in ".)]'"
+            next_cell=after[0].isalnum() or after[0] in '[(' or after[0]=='.' and len(after)>1 and after[1].isdigit()
+            signed=after[0] in '+-' and len(after)>1 and not after[1].isspace()
+            call=after.startswith('(') and before[-1].isalpha()
+            if ',' in token or complete and (signed or next_cell and not call):
+                cells.append(before);start=match.end()
+    cells.append(row[start:].strip())
+    return cells
+
+
+def _colon(args):
+    nums=[float(np.asarray(arg).item()) for arg in args]
+    start,step,stop=(nums[0],1.,nums[1]) if len(nums)==2 else nums
+    if not np.isfinite(nums).all() or step==0:raise ValueError('Rango no finito o paso cero.')
+    if start!=stop and (stop>start)!=(step>0):return np.empty((1,0))
+    ratio=(stop-start)/step
+    if not math.isfinite(ratio):raise ValueError('La longitud del rango excede el rango numérico.')
+    nearest=round(ratio)
+    at_endpoint=abs(ratio-nearest)<=4*math.ulp(ratio)
+    count=(nearest if at_endpoint else math.floor(ratio))+1
+    ensure_working_set(count,live_arrays=6)
+    values=start+step*np.arange(count)
+    if at_endpoint and count>1:values[-1]=stop
+    return values.reshape(1,-1)
+
+
 def expression(text,variables):
     text=text.strip()
-    if text.endswith(".'"):return np.asarray(expression(text[:-2],variables)).T
-    if text.endswith("'"):return np.asarray(expression(text[:-1],variables)).conj().T
-    if text.startswith('[') and text.endswith(']'):
-        rows=[]
-        for row in split_top(text[1:-1],';\n'):
-            cells=split_top(row,',')
-            if len(cells)==1:
-                # Space-separated literals and variable names; compound cells use commas.
-                if re.fullmatch(r'[\w.+\-\s]+',row):cells=row.split()
-            values=[np.atleast_2d(expression(c,variables)) for c in cells if c]
-            if values:
-                if len({a.shape[0] for a in values})!=1:raise ValueError('La concatenación horizontal requiere la misma cantidad de filas.')
-                ensure_working_set(sum(a.size for a in values),live_arrays=6)
-                rows.append(np.concatenate(values,axis=1))
-        if not rows:return np.empty((1,0))
-        if len({r.shape[1] for r in rows})!=1:raise ValueError('La concatenación vertical requiere la misma cantidad de columnas.')
-        ensure_working_set(sum(a.size for a in rows),live_arrays=6)
-        return np.concatenate(rows,axis=0)
-    colon=split_top(text,':')
-    if len(colon)>1:
-        if len(colon) not in (2,3):raise ValueError('Rango no válido.')
-        nums=[float(np.asarray(expression(x,variables)).item()) for x in colon]
-        start,step,stop=(nums[0],1.,nums[1]) if len(nums)==2 else nums
-        if not np.isfinite(nums).all() or step==0:raise ValueError('Rango no finito o paso cero.')
-        count=max(0,math.floor((stop-start)/step+1e-10)+1);ensure_working_set(count,live_arrays=6)
-        return (start+step*np.arange(count)).reshape(1,-1)
-    text=re.sub(r'(?<=[0-9.])([ij])\b',r'*\1',text)
-    operators={'.*':'@','./':'//','.^':'**','^':'**'}
-    chunks=[];powers={};position=0;cursor=0
-    for operator in re.finditer(r'\.\*|\./|\.\^|\^',text):
-        prefix=text[cursor:operator.start()];token=operator[0]
-        chunks.extend((prefix,operators[token]));position+=len(prefix.encode('utf-8'))
-        if token in ('^','.^'):powers[position]=token
-        position+=len(operators[token]);cursor=operator.end()
-    text=''.join((*chunks,text[cursor:]))
-    offsets=[0,*[match.end() for match in re.finditer(rb'\n',text.encode('utf-8'))]]
-    tree=ast.parse(text,mode='eval')
+    if text.startswith('['):
+        depth=0
+        for index,char in enumerate(text):
+            if char=='[':depth+=1
+            if char==']':depth-=1
+            if depth==0:break
+        if depth==0 and index==len(text)-1:
+            rows=[]
+            for row in split_top(text[1:-1],';\n'):
+                cells=_array_cells(row)
+                values=[np.atleast_2d(expression(c,variables)) for c in cells if c]
+                if values:
+                    if len({a.shape[0] for a in values})!=1:raise ValueError('La concatenación horizontal requiere la misma cantidad de filas.')
+                    ensure_working_set(sum(a.size for a in values),live_arrays=6)
+                    rows.append(np.concatenate(values,axis=1))
+            if not rows:return np.empty((1,0))
+            if len({r.shape[1] for r in rows})!=1:raise ValueError('La concatenación vertical requiere la misma cantidad de columnas.')
+            ensure_working_set(sum(a.size for a in rows),live_arrays=6)
+            return np.concatenate(rows,axis=0)
+    parser=_MatlabExpression(text)
+    tree=parser.read()
+    if parser.peek():raise ValueError('Operador o separador inesperado: '+parser.peek())
     def run(node):
-        if isinstance(node,ast.Constant) and isinstance(node.value,(int,float,complex)):return node.value
+        if isinstance(node,ast.Constant):
+            if isinstance(node.value,str):return expression(node.value,variables)
+            return node.value
         if isinstance(node,ast.Name):
             if node.id in variables:return variables[node.id]
             if node.id in ('pi','i','j'):return np.pi if node.id=='pi' else 1j
@@ -73,10 +185,7 @@ def expression(text,variables):
                 return a/b
             if isinstance(node.op,ast.FloorDiv):return a/b
             if isinstance(node.op,ast.Pow):
-                left=offsets[node.left.end_lineno-1]+node.left.end_col_offset
-                right=offsets[node.right.lineno-1]+node.right.col_offset
-                operator=next(token for pos,token in powers.items() if left<=pos<right)
-                if operator=='^' and (np.size(a)>1 or np.size(b)>1):
+                if node.matlab_power=='^' and (np.size(a)>1 or np.size(b)>1):
                     raise ValueError('La potencia matricial ^ no se importa. Usá .^ para potencias elemento a elemento.')
                 base=np.asarray(a,dtype=complex if np.iscomplexobj(a) else float)
                 if not np.iscomplexobj(base) and np.any(base<0) and (np.iscomplexobj(b) or np.any(np.asarray(b)!=np.trunc(b))):
@@ -88,6 +197,11 @@ def expression(text,variables):
                 if isinstance(op,cls):return fn(a,b)
         if isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and not node.keywords:
             args=[run(a) for a in node.args];name=node.func.id
+            if getattr(node,'matlab_colon',False):return _colon(args)
+            transpose=getattr(node,'matlab_transpose',None)
+            if transpose:
+                value=np.asarray(args[0])
+                return value.conj().T if transpose=="'" else value.T
             unary={'sin':np.sin,'cos':np.cos,'tan':np.tan,'exp':np.exp,'sqrt':np.emath.sqrt,'abs':np.abs,'real':np.real,'imag':np.imag,'conj':np.conj,'log':np.emath.log,'log10':np.emath.log10,'sinc':np.sinc}
             if name in unary and len(args)==1:return unary[name](*args)
             if name=='complex' and len(args)==2:return np.asarray(args[0])+1j*np.asarray(args[1])
@@ -102,7 +216,7 @@ def expression(text,variables):
                 ensure_working_set(math.prod(shape),live_arrays=6)
                 return (np.zeros if name=='zeros' else np.ones)(shape)
         raise ValueError('Expresión no admitida. Exportá las variables a .mat desde MATLAB para importar este cálculo.')
-    with np.errstate(all='raise'):return run(tree.body)
+    with np.errstate(all='raise'):return run(tree)
 
 def read_script(path):
     text=Path(path).read_text(encoding='utf-8-sig');text=re.sub(r'%[^\n]*','',text);text=re.sub(r'\.\.\.\s*\n',' ',text)

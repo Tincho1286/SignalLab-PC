@@ -30,7 +30,10 @@ def _unavailable_formula(value):
 def can_send(value):
     if isinstance(value,(Signal,Transfer,StateModel)):return True
     if isinstance(value,dict):
-        if expression_result(value) is not None or 'cas_answer' in value:return True
+        if 'cas_answer' in value:
+            answer=value['cas_answer']
+            return isinstance(answer,dict) and (bool(answer.get('encoded_value')) or expression_result(value) is not None)
+        if expression_result(value) is not None:return True
         if _unavailable_formula(value):return False
     if is_dataclass(value):return can_send(asdict(value))
     if isinstance(value,(int,float,complex,np.number,np.ndarray)):return True
@@ -47,7 +50,7 @@ def payload(value,window=None,seen=None):
     seen=set() if seen is None else seen
     if isinstance(value,dict):
         if value.get('format')=='signallab-expression-grid':raise ValueError('Este registro contiene posiciones no definidas. Enviá la expresión algebraica al CAS; no se descartan las filas N/D.')
-        if 'cas_answer' in value and value['cas_answer'].get('encoded_value'):
+        if isinstance(value.get('cas_answer'),dict) and value['cas_answer'].get('encoded_value'):
             answer=value['cas_answer'];return {'kind':'encoded','encoded':answer['encoded_value'],'conditions':answer.get('notices',[]),'provenance':answer.get('provenance'),'frequency_units':answer.get('frequency_units',''),'frequency_condition':answer.get('frequency_condition','True'),'coordinate_variable':answer.get('coordinate_variable'),'system_context':answer.get('system_context'),'domain_condition':answer.get('domain_condition'),'context_rewrite':answer.get('context_rewrite')}
         expression=expression_result(value)
         if expression is not None:

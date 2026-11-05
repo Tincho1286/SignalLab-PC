@@ -8,7 +8,7 @@ def signal_kind(domain, units, metadata):
     if domain=='discrete' and (units=='bin k' or operation=='DFT'):return 'dft_bins'
     if units=='k' or operation in {'continuous_fourier_series','discrete_fourier_series'}:return 'harmonics'
     if domain!='frequency':return 'temporal'
-    if operation in {'frequency_filter','frequency_response'}:return 'frequency_response'
+    if operation in {'frequency_filter','frequency_response','state_space_frequency'}:return 'frequency_response'
     if operation in {'DFT','DTFT','CTFT_rectangle','stft'}:return 'spectrum'
     return 'frequency_values'
 

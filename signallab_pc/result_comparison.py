@@ -5,7 +5,9 @@ from .filters import Transfer
 
 
 def compatible(a,b):
-    return isinstance(a,Signal) and isinstance(b,Signal) and a.domain==b.domain and a.units==b.units or isinstance(a,Transfer) and isinstance(b,Transfer) and a.domain==b.domain
+    if isinstance(a,Signal) and isinstance(b,Signal):
+        return (a.domain,a.units,a.data_kind)==(b.domain,b.units,b.data_kind)
+    return isinstance(a,Transfer) and isinstance(b,Transfer) and a.domain==b.domain
 
 
 def errors(a,b):
@@ -32,7 +34,7 @@ def _physical_axis(source):
 
 
 def compare(a,b,start=0.,stop=np.pi,count=2001,*,alignment='index'):
-    if not compatible(a,b):raise ValueError('Elegí dos señales del mismo dominio y unidades, o dos sistemas del mismo dominio.')
+    if not compatible(a,b):raise ValueError('Elegí resultados de la misma clase, dominio y unidades, o dos sistemas del mismo dominio.')
     from .resources import ensure_working_set
     if isinstance(a,Signal):
         ensure_working_set(a.values.size+b.values.size,live_arrays=12)
@@ -134,7 +136,7 @@ class ComparisonDialog(QDialog):
     def choose_b(self,*_):
         selected=self.b.currentData();self.b.clear();key=self.a.currentData();a=self.descriptions.get(key,{})
         for candidate,b in self.descriptions.items():
-            if candidate!=key and a.get('kind')==b['kind'] and a.get('domain')==b['domain'] and (b['kind']=='system' or a.get('units')==b['units']):self.b.addItem(self.titles[candidate],candidate)
+            if candidate!=key and a.get('kind')==b['kind'] and a.get('domain')==b['domain'] and (b['kind']=='system' or (a.get('units'),a.get('data_kind'))==(b['units'],b['data_kind'])):self.b.addItem(self.titles[candidate],candidate)
         index=self.b.findData(selected)
         if index>=0:self.b.setCurrentIndex(index)
         discrete=a.get('domain')=='discrete'

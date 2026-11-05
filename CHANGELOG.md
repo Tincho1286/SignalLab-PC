@@ -2,6 +2,14 @@
 
 Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.11**.
 
+## 1.6.13 · Preliminar
+
+- Compatibilidad de resultados, escala de convolución y correlación y reloj físico de muestreo.
+- Máscaras de frecuencia, bordes en DTFT y expresión de Fourier continua inversa.
+- Lectura de operaciones, matrices y rangos de MATLAB.
+
+[Notas de la preliminar](docs/releases/v1.6.13-preview.md)
+
 ## 1.6.12 · Preliminar
 
 - Reutilización y CAS junto al informe, con fórmulas y muestras como resultados separados.

@@ -32,6 +32,13 @@ class ShiftedPairContracts(unittest.TestCase):
                 for w,height in [(0,gain),(a/2,gain),(a,sp.Rational(gain,2)),(sp.pi,0),(2*sp.pi,gain)]:
                     self.assertEqual(sp.simplify(value.subs(W,w)-height*sp.exp(-sp.I*w*delay)),0)
 
+    def test_modulated_sinc_preserves_both_band_edge_limits(self):
+        result=self.transform('cos(pi*n/3)*sin(pi*n/4)/(pi*n)','dtft_expression','-oo')
+        self.assertTrue(result['evaluated']);self.assertEqual(result['method'],'sinc_rectangle_pair')
+        spectrum=parse(result['result'])
+        for point,expected in [(0,0),(sp.pi/12,sp.Rational(1,4)),(sp.pi/3,sp.Rational(1,2)),(7*sp.pi/12,sp.Rational(1,4)),(sp.pi,0)]:
+            self.assertEqual(sp.simplify(spectrum.subs(W,point)-expected),0)
+
     def test_shifted_sinc_round_trip_removes_frequency_coordinate(self):
         direct=execute(dict(operation='dtft_expression',expression='sin(0.3*pi*(n-4))/(pi*(n-4))',lower='-oo',upper='oo'))
         inverse=execute(dict(operation='inverse_dtft_expression',expression=direct['result']))

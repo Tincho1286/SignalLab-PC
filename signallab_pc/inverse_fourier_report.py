@@ -9,7 +9,7 @@ def numeric_model(kind,origin,step,values):
 
 def stored_model(signal):
     # Arithmetic and index transforms may carry source metadata for provenance.
-    if signal.metadata.get('operation') in ('inverse_dtft','frequency_filter_impulse'):
+    if signal.metadata.get('operation') in ('inverse_dtft','frequency_filter_impulse','ICTFT'):
         return signal.metadata.get('inverse_model')
     return None
 

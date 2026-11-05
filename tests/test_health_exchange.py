@@ -25,6 +25,26 @@ class HealthExchangeContracts(unittest.TestCase):
             savemat(path,dict(n=axis,x=np.array([1.,2.,3.])))
             result=make_signal(MatlabFile(path),'x',0,'discrete','n')
             assert_array_equal(result.axis,axis);self.assertEqual(result.origin,2**53+1)
+    def test_matlab_arithmetic_uses_matlab_precedence_and_matrix_whitespace(self):
+        from signallab_pc.matlab_import import read_script
+        with tempfile.TemporaryDirectory() as directory:
+            path=Path(directory)/'syntaxis.m'
+            path.write_text(
+                "a=[1,2]; b=[3,4]; c=a+b'; d=(a+b)'; "
+                "p=2^3^2; q=2^(3^2); x=[1 + 2]; y=[1 -2]; "
+                "stop=0:0.1:0.299999999999; exact=0:0.1:0.3; "
+                "inside=sin(0:pi/2:pi);",encoding='utf-8')
+            variables=read_script(path)
+        assert_array_equal(variables['c'],[[4,5],[5,6]])
+        assert_array_equal(variables['d'],[[4],[6]])
+        self.assertEqual(variables['p'],64)
+        self.assertEqual(variables['q'],512)
+        assert_array_equal(variables['x'],[[3]])
+        assert_array_equal(variables['y'],[[1,-2]])
+        assert_allclose(variables['stop'],[[0,.1,.2]],rtol=0,atol=1e-15)
+        assert_allclose(variables['exact'],[[0,.1,.2,.3]],rtol=0,atol=1e-15)
+        assert_allclose(variables['inside'],[[0,1,0]],rtol=0,atol=1e-15)
+
     def test_mat_axis_is_never_rounded_to_consecutive_indices(self):
         for axis in (np.array([0.,1.0000000001,2.]),np.array([2**53,2**53+1,2**53+2],dtype=float)):
             data=SimpleNamespace(path=Path('fixture.mat'),load={'x':np.ones(3),'n':axis}.__getitem__)
@@ -105,6 +125,62 @@ class HealthExchangeContracts(unittest.TestCase):
         grid=execute(dict(operation='expression_grid',expression='1/w',allow_undefined=True,variable='w',start=-1,stop=1,count=3))
         self.assertFalse(can_send(grid))
         with self.assertRaisesRegex(ValueError,'no se descartan'):payload(grid)
+    def test_discrete_bins_do_not_become_temporal_filter_inputs(self):
+        from signallab_pc.operations import dft
+        from signallab_pc.windowing import multiply_signals,window_impulse
+        from signallab_pc.state_simulation_inputs import prepare_inputs
+        from signallab_pc.state_space import StateModel
+        bins=dft(Signal([1,2,3]))
+        model=StateModel([[.5]],[[1]],[[1]],[[0]],dt=1)
+        for operation in (lambda:multiply_signals(bins,bins),lambda:window_impulse(bins),
+                          lambda:prepare_inputs(model,[bins])):
+            with self.assertRaisesRegex(ValueError,'señal temporal'):operation()
+
+    def test_spectral_roles_remain_distinct_in_comparison_and_energy(self):
+        from signallab_pc.fourier import energy_density
+        from signallab_pc.result_comparison import compare
+        filt=Signal([1,1,1],-1,1,'rad/muestra',domain='frequency',metadata={'operation':'frequency_filter'})
+        with self.assertRaisesRegex(ValueError,'respuesta de un filtro'):energy_density(filt)
+        density=filt.copy_with(metadata={'operation':'energy_density'})
+        with self.assertRaisesRegex(ValueError,'misma clase'):compare(filt,density)
+
+    def test_fft_convolutions_and_correlation_with_extreme_compensating_scales(self):
+        from signallab_pc.operations import linear_convolution,linear_correlation,circular_convolution,correlation
+        large=Signal(np.full(6000,1e306));small=Signal(np.full(6000,1e-306))
+        for operation,index in ((linear_convolution,5999),(linear_correlation,5999),(circular_convolution,0)):
+            with self.subTest(operation=operation.__name__):
+                assert_allclose(operation(large,small).values[index],6000,rtol=2e-13,atol=1e-10)
+        assert_allclose(correlation(large,small,circular=True,normalization='mean').values,1,atol=1e-13)
+
+    def test_frequency_mask_does_not_broaden_repeated_polynomial_zeros(self):
+        import sympy as sp
+        from signallab_pc.analytic_frequency import _condition_mask
+        from signallab_pc.symbolic import W
+        axis=np.array([0.,1e-9,1e-8,1e-6])
+        for order in (1,2,6):
+            assert_array_equal(_condition_mask(sp.Ne(W**order,0),axis),[False,True,True,True])
+        assert_array_equal(_condition_mask(sp.Ne(sp.sin(W),0),np.array([0.,.5,np.pi])),[False,True,False])
+
+    def test_sampling_clock_cannot_be_mixed_or_fabricated(self):
+        from signallab_pc.operations import linear_correlation,circular_convolution,correlation
+        from signallab_pc.sampling import resample,resample_rational
+        one=Signal([1,2,3],metadata={'sample_rate_hz':100})
+        other=Signal([1,2,3],metadata={'sample_rate_hz':200})
+        for operation in (linear_correlation,correlation,circular_convolution):
+            with self.assertRaisesRegex(ValueError,'distintas tasas'):operation(one,other)
+        self.assertNotIn('time_start_s',resample(one,2,'decimate',1).metadata)
+        self.assertEqual(resample(one,2,'decimate',1).metadata['sample_rate_hz'],50)
+        with self.assertRaisesRegex(ValueError,'reinterpretación'):resample_rational(one,1,1,rate=200)
+        self.assertEqual(resample_rational(one,1,1,rate=200,override_clock=True).metadata['sample_rate_hz'],200)
+
+    def test_inverse_fourier_report_and_cas_picker_retain_data_roles(self):
+        from signallab_pc.fourier import ictft
+        from signallab_pc.result_summary import signal_summary
+        source=Signal([1,1,1],-1,1,'rad/s',domain='frequency')
+        inverse=ictft(source,-1,1,3)
+        self.assertIn('Expresión de la aproximación calculada',signal_summary(inverse).plain_text())
+        self.assertFalse(can_send({'cas_answer':{'text':'formula'}}))
+
     def test_cas_resolves_report_samples_after_project_reimport(self):
         from signallab_pc.result_journal import snapshot
         project=Project()

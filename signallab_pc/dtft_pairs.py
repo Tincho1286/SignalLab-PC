@@ -16,7 +16,11 @@ def direct(expression):
     if sp.simplify(generic)==0:return None  # Finite support uses the shared discrete table, not the sinc pair.
     spectrum=sp.S.Zero
     if generic!=0:
-        for term in sp.Add.make_args(sp.expand_mul(generic)):
+        expanded=sp.expand_mul(generic)
+        if sp.count_ops(expanded)<=128:
+            from sympy.simplify.fu import TR8
+            expanded=sp.expand_mul(TR8(expanded))
+        for term in sp.Add.make_args(expanded):
             trigonometric=[node for node in term.atoms(sp.sin,sp.cos) if node.has(N)]
             if len(trigonometric)!=1:return None
             sine=trigonometric[0]

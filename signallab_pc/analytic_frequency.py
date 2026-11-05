@@ -70,12 +70,17 @@ def _condition_mask(condition,omega):
         if not difference.free_symbols:
             equal=difference.is_zero
             if equal is not None:return np.full(omega.shape,equal==(condition.func==sp.Eq),dtype=bool)
+        from .symbolic import W
+        polynomial=difference.free_symbols<={W} and difference.is_polynomial(W)
+        if polynomial and sp.degree(difference,W)<=32:
+            # Zero multiplicity should not increase the radius of exclusion.
+            difference=sp.Poly(difference,W).sqf_part().as_expr()
         observed=_sample(difference,omega)
         terms=sp.Add.make_args(difference)
         scale=sum(abs(_sample(term,omega)) for term in terms) if len(terms)>1 else abs(observed)
         # Single trigonometric terms still need a small tolerance for
         # machine approximations to their exact zeros.
-        tolerance=64*np.finfo(float).eps*np.maximum(1,scale)
+        tolerance=64*np.finfo(float).eps*(scale if polynomial else np.maximum(1,scale))
         equal=abs(observed)<=tolerance
         return np.isfinite(observed)&np.isfinite(scale)&(equal if condition.func==sp.Eq else ~equal)
     from .symbolic import W
