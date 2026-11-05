@@ -45,8 +45,11 @@ Los portables incluyen Python y las dependencias de la aplicación. Descargá la
 | Edición | Windows x64 | Linux x86_64 | Novedades |
 | --- | --- | --- | --- |
 | **Estable · 1.6.15** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.15/SignalLab-PC-1.6.15.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.15/SignalLab-PC-1.6.15-linux-x86_64.tar.gz) | [Notas de la estable](docs/releases/v1.6.15.md) |
+| **Preliminar · 1.6.16** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.16-preview/SignalLab-PC-1.6.16.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.16-preview/SignalLab-PC-1.6.16-linux-x86_64.tar.gz) | [Notas de la preliminar](docs/releases/v1.6.16-preview.md) |
 
 La 1.6.15 reúne mejoras del CAS, Fourier inversa y el intercambio de resultados. Las fórmulas por tramos se presentan con notación matemática y los cálculos conservan sus condiciones y su reloj de muestreo. El informe de filtros también muestra los extremos de cada banda y sus frecuencias. La inversa Z conserva la fórmula completa con soporte finito o infinito y separa las limitaciones del gráfico. Las [notas de la 1.6.15](docs/releases/v1.6.15.md) detallan los cambios.
+
+La [preliminar 1.6.16](docs/releases/v1.6.16-preview.md) separa los resultados matemáticos de sus gráficos y registros complementarios. Conserva las expresiones y modelos cuando una vista no está disponible e informa la etapa pendiente.
 
 En Windows, abrí el ejecutable descargado. En Linux, descomprimí el paquete y ejecutá `SignalLab-PC` dentro de su carpeta; consultá los [requisitos e instrucciones de Linux](docs/linux.md) para comprobar la compatibilidad de tu sistema.
 
