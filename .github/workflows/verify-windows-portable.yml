@@ -1,0 +1,94 @@
+name: Verify packaged Windows portable
+on:
+  workflow_dispatch:
+    inputs:
+      build_run:
+        description: Successful portable build run
+        required: true
+        type: string
+      source_sha:
+        description: Exact source commit of that build
+        required: true
+        type: string
+      binary_sha:
+        description: Expected SHA-256 of the Windows executable
+        required: true
+        type: string
+      filename:
+        description: Exact executable name
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    runs-on: windows-2022
+    timeout-minutes: 8
+    steps:
+      - name: Set up Python for artifact verification
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12.10'
+      - name: Verify artifact identity and execute the packaged self-check
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BUILD_RUN: ${{ inputs.build_run }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          BINARY_SHA: ${{ inputs.binary_sha }}
+          PORTABLE_FILENAME: ${{ inputs.filename }}
+        run: |
+          @'
+          import hashlib,json,os,re,subprocess,urllib.request,urllib.parse,zipfile
+          from pathlib import Path
+          run=os.environ['BUILD_RUN'];source=os.environ['SOURCE_SHA'];expected=os.environ['BINARY_SHA'];filename=os.environ['PORTABLE_FILENAME']
+          if not re.fullmatch(r'[0-9]+',run) or not re.fullmatch(r'[a-f0-9]{40}',source) or not re.fullmatch(r'[a-f0-9]{64}',expected) or not re.fullmatch(r'SignalLab-PC-[0-9.]+[.]exe',filename):
+              raise RuntimeError('Invalid build identity.')
+          class Redirect(urllib.request.HTTPRedirectHandler):
+              def redirect_request(self,req,fp,code,msg,headers,newurl):
+                  forwarded=super().redirect_request(req,fp,code,msg,headers,newurl)
+                  if forwarded and urllib.parse.urlsplit(req.full_url).netloc!=urllib.parse.urlsplit(newurl).netloc:
+                      forwarded.remove_header('Authorization')
+                  return forwarded
+          opener=urllib.request.build_opener(Redirect())
+          headers={'Authorization':'Bearer '+os.environ['GH_TOKEN'],'Accept':'application/vnd.github+json','User-Agent':'SignalLab-portable-verification'}
+          base='https://api.github.com/repos/Tincho1286/SignalLab-PC'
+          def api(path):
+              with opener.open(urllib.request.Request(base+path,headers=headers),timeout=60) as response:return json.load(response)
+          build=api('/actions/runs/'+run)
+          if build['head_sha']!=source or build['conclusion']!='success':raise RuntimeError('The build is not successful for the expected source.')
+          artifacts=api('/actions/runs/'+run+'/artifacts?per_page=40')['artifacts']
+          matches=[a for a in artifacts if a['name']=='SignalLab-PC-unsigned-'+run and not a['expired']]
+          if len(matches)!=1:raise RuntimeError('Expected a unique unsigned Windows artifact.')
+          artifact=matches[0];archive=Path('portable.zip');digest=hashlib.sha256();size=0
+          with opener.open(urllib.request.Request(artifact['archive_download_url'],headers=headers),timeout=90) as response,archive.open('wb') as dest:
+              for chunk in iter(lambda:response.read(4*1024**2),b''):
+                  digest.update(chunk);size+=len(chunk);dest.write(chunk)
+          if size!=artifact['size_in_bytes'] or 'sha256:'+digest.hexdigest()!=artifact['digest']:raise RuntimeError('Artifact archive integrity mismatch.')
+          with zipfile.ZipFile(archive) as package:
+              if package.namelist()!=[filename]:raise RuntimeError('Unexpected artifact members.')
+              binary=Path(filename)
+              with package.open(filename) as content,binary.open('wb') as dest:
+                  for chunk in iter(lambda:content.read(4*1024**2),b''):dest.write(chunk)
+          digest=hashlib.sha256()
+          with binary.open('rb') as stream:
+              for chunk in iter(lambda:stream.read(4*1024**2),b''):digest.update(chunk)
+          if digest.hexdigest()!=expected:raise RuntimeError('Windows executable integrity mismatch.')
+          destination=Path('portable-self-check-windows.json')
+          subprocess.run([str(binary.resolve()),'--self-check',str(destination.resolve())],check=True,timeout=180)
+          result=json.loads(destination.read_text(encoding='utf-8'))
+          if not result.get('ok') or not result.get('frozen') or not result.get('checks') or not all(result['checks'].values()):
+              raise RuntimeError('The packaged Windows self-check failed.')
+          result.update(source_commit=source,binary_sha256=expected,build_run=run,verification_environment='GitHub Actions windows-2022',verification_run=os.environ['GITHUB_RUN_ID'])
+          destination.write_text(json.dumps(result,indent=2),encoding='utf-8')
+          print('Verified the packaged executable for source '+source)
+          '@ | python -B -X utf8 -
+          if ($LASTEXITCODE -ne 0) { throw 'The packaged self-check did not pass.' }
+      - name: Preserve packaged self-check report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: windows-portable-verification-${{ github.run_id }}
+          path: portable-self-check-windows.json
+          if-no-files-found: error
+          retention-days: 7
