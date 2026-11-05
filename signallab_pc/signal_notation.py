@@ -162,6 +162,8 @@ def read(source_text,integer_names=()):
     constructors={'Piecewise':lambda *pairs:sp.Piecewise(*pairs,evaluate=False),'KroneckerDelta':sp.KroneckerDelta,'DiracDelta':sp.DiracDelta,'Heaviside':sp.Heaviside,'step':lambda arg:sp.Heaviside(arg,1),'impulse':lambda arg:sp.DiracDelta(arg) if any(v.name in ('t','x','w') for v in arg.free_symbols) else sp.KroneckerDelta(arg,0),'binomial':lambda *args:sp.binomial(*args,evaluate=False),'factorial':lambda arg:sp.factorial(arg,evaluate=False),'sqrt':sp.sqrt,'exp':sp.exp,'sin':sp.sin,'cos':sp.cos,'tan':sp.tan,'Abs':sp.Abs,'abs':sp.Abs,'conjugate':sp.conjugate,'conj':sp.conjugate,'re':sp.re,'im':sp.im,'log':sp.log,'Mod':sp.Mod,'And':sp.And,'Or':sp.Or,'Eq':lambda a,b:sp.Eq(a,b,evaluate=False),'Ne':lambda a,b:sp.Ne(a,b,evaluate=False),'Integral':sp.Integral,'Sum':sp.Sum,'Derivative':sp.Derivative}
     from .impulse_pairs import impulse
     folded={name.lower():fn for name,fn in constructors.items()}
+    from .hyperbolic import symbolic_functions
+    folded.update(symbolic_functions())
     folded.update(dirac=impulse,diracdelta=impulse,impulse=impulse)
     def visit(node):
         if isinstance(node,ast.Name):return constants.get(node.id,names.setdefault(node.id,sp.Symbol(node.id)))

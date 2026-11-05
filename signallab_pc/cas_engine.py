@@ -33,6 +33,8 @@ FUNCTIONS.update({'sinc':lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.
 FUNCTIONS.update({'int':sp.integrate,'derive':sp.diff,
     'trig2exp':lambda value: value.applyfunc(lambda entry:entry.rewrite(sp.exp)) if isinstance(value,sp.MatrixBase) else value.rewrite(sp.exp),
     'exp2trig':lambda value:value.replace(lambda v:v.func==sp.exp,lambda v:sp.cos(v.args[0]/sp.I)+sp.I*sp.sin(v.args[0]/sp.I))})
+from .hyperbolic import symbolic_functions
+FUNCTIONS.update(symbolic_functions())
 SPECIAL={'assume','solve','solve_real','linsolve','approx','evalf','exact','subst','purge','ans'}
 NAME=re.compile(r'[A-Za-z][A-Za-z0-9_]*\Z')
 

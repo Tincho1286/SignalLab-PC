@@ -203,6 +203,8 @@ def expression(text,variables):
                 value=np.asarray(args[0])
                 return value.conj().T if transpose=="'" else value.T
             unary={'sin':np.sin,'cos':np.cos,'tan':np.tan,'exp':np.exp,'sqrt':np.emath.sqrt,'abs':np.abs,'real':np.real,'imag':np.imag,'conj':np.conj,'log':np.emath.log,'log10':np.emath.log10,'sinc':np.sinc}
+            from .hyperbolic import NUMERIC
+            unary.update(NUMERIC)
             if name in unary and len(args)==1:return unary[name](*args)
             if name=='complex' and len(args)==2:return np.asarray(args[0])+1j*np.asarray(args[1])
             if name=='linspace' and len(args) in (2,3):

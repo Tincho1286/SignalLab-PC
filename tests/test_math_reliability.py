@@ -356,6 +356,13 @@ class MathematicalReliabilityTests(unittest.TestCase):
         ode=execute(dict(operation='ode',expression='sin(t^2)',coefficients=['2','0'],initial=[]))
         self.assertTrue(ode['evaluated']);self.equivalent(parse(ode['result']),sp.sin(T**2)/2)
         self.assertEqual(ode['output_variable'],'t');self.assertEqual(ode['order'],0)
+        for point,source in [(0,'Piecewise((7,t==0),(sin(t)/t,True))'),(1,'Piecewise((7,t==1),(t,True))')]:
+            answer=execute(dict(operation='ode',expression=source,coefficients=['2','0'],initial=[]))
+            self.equivalent(parse(answer['result']).subs(T,point),sp.Rational(7,2))
+        source='Piecewise((7,t==0),(sin(t)/t,True))'
+        transformed=execute(dict(operation='fourier_angular',expression=source))
+        self.equivalent(restore(transformed['cas_encoded']).subs(W,0),sp.pi)
+
         for kind in ('difference_equation','ode'):
             with self.assertRaises(ValueError):execute(dict(operation=kind,expression='1',coefficients=['0','0'],initial=[]))
 
@@ -381,6 +388,75 @@ class MathematicalReliabilityTests(unittest.TestCase):
             result=execute(request);self.assertTrue(result['evaluated'])
             definition=expression_result({'request':request,'result':result})
             self.assertEqual(definition.variable,'t');self.assertTrue(any('t >= 0' in c for c in definition.conditions))
+
+
+    def test_hyperbolic_shared_vocabulary_and_complex_branches(self):
+        import numpy as np
+        from numpy.testing import assert_allclose
+        from signallab_pc.hyperbolic import NAMES,ALIASES,NUMERIC
+        from signallab_pc.engine import evaluate_expression
+        from signallab_pc.signal_notation import read,latex
+        from signallab_pc.singularities import sample_symbolic
+        from signallab_pc.scalar_expression import constant_value
+        from signallab_pc.analytic_frequency import _sample
+        from signallab_pc.matlab_import import expression as matlab_expression
+        from signallab_pc.cas_engine import calculate,empty_state
+        values=[sp.Integer(-2),-sp.Rational(1,2),sp.Integer(0),sp.Rational(1,2),sp.Integer(2),-2*sp.I,2*sp.I,1+sp.I,-1-sp.I]
+        for name in (*NAMES,*ALIASES):
+            canonical=ALIASES.get(name,name);fn=getattr(sp,canonical)
+            for exact in values:
+                expected=fn(exact)
+                if expected.is_finite is not True:continue
+                want=complex(expected.evalf(17));source=name+'('+sp.sstr(exact).replace('I','i')+')'
+                with self.subTest(function=name,value=exact):
+                    with np.errstate(all='ignore'):actual=NUMERIC[name](complex(exact))
+                    assert_allclose(actual,want,rtol=2e-14,atol=2e-14)
+                    assert_allclose(constant_value(source),want,rtol=2e-14,atol=2e-14)
+            with self.subTest(function=name,transport=True):
+                want=complex(fn(sp.Rational(1,2)).evalf(17))
+                assert_allclose(evaluate_expression(name+'(x)',np.array([.5])),[want],rtol=2e-14,atol=2e-14)
+                assert_allclose(sample_symbolic(parse(name+'(t)'),T,[.5]),[want],rtol=2e-14,atol=2e-14)
+                assert_allclose(_sample(parse(name+'(w)'),np.array([.5])),[want],rtol=2e-14,atol=2e-14)
+                assert_allclose(matlab_expression(name+'(x)',{'x':np.array([.5])}),[want],rtol=2e-14,atol=2e-14)
+                value=read(name+'(t)');self.assertFalse(value.atoms(sp.core.function.AppliedUndef));self.assertIn('t',latex(value))
+                result=calculate(dict(state=empty_state(),source=name+'(1/2)',cell=1))
+                assert_allclose(complex(restore(result['state']['results']['1']).evalf(17)),want,atol=2e-14)
+
+    def test_hyperbolic_poles_and_principal_cut_sampling(self):
+        import numpy as np
+        from numpy.testing import assert_allclose
+        from signallab_pc.hyperbolic import NUMERIC
+        from signallab_pc.singularities import sample_symbolic
+        from signallab_pc.engine import evaluate_expression
+        from signallab_pc.cas_domains import function_domain
+        for name in ('csch','coth','asech','acsch'):
+            with self.subTest(pole=name),np.errstate(all='ignore'):
+                self.assertFalse(np.isfinite(NUMERIC[name](0)))
+                self.assertEqual(function_domain(name,[sp.S.Zero]),sp.false)
+        for source,coords in [('atanh(t)',[2,-2]),('asinh(i*t)',[-2,2]),('acoth(t)',[0,.5,-.5]),('asech(t)',[-.5,.5]),('acsch(i*t)',[-.5,.5])]:
+            with self.subTest(source=source):
+                value=parse(source);want=[complex(value.subs(T,sp.Rational(str(x))).evalf(17)) for x in coords]
+                assert_allclose(sample_symbolic(value,T,coords),want,atol=2e-14)
+                assert_allclose(evaluate_expression(source,np.asarray(coords)),want,atol=2e-14)
+
+    def test_hyperbolic_transform_pairs_and_convergence(self):
+        from signallab_pc.fourier_ordinary_pairs import pairs
+        for name,want in [('sinh',1/(S**2-1)),('cosh',S/(S**2-1))]:
+            with self.subTest(transform='laplace',function=name):
+                result=execute(dict(operation='laplace',expression=name+'(t)'))
+                self.assertTrue(result['evaluated']);self.equivalent(expression(result),want)
+        q=sp.exp(sp.Rational(1,3))
+        for name,want in [('sinh',(Z/(Z-q)-Z/(Z-1/q))/2),('cosh',(Z/(Z-q)+Z/(Z-1/q))/2)]:
+            with self.subTest(transform='z',function=name):
+                result=self.direct(name+'(n/3)');self.assertTrue(result['evaluated']);self.equivalent(expression(result),want)
+        for name,want in [('cosh',1/(1+W**2)+3/(9+W**2)),('sinh',1/(1+W**2)-3/(9+W**2))]:
+            # sinh(t) is odd, so its transform is imaginary and odd.
+            if name=='sinh':want=1/(1+sp.I*W)/2+1/(3-sp.I*W)/2-1/(3+sp.I*W)/2-1/(1-sp.I*W)/2
+            with self.subTest(transform='fourier',function=name):
+                result=execute(dict(operation='fourier_angular',expression='exp(-2*abs(t))*'+name+'(t)'))
+                self.assertTrue(result['evaluated']);self.equivalent(expression(result),want)
+        found,remainder=pairs(parse('exp(-abs(t))*cosh(2*t)'),T,W)
+        self.assertEqual(found,0);self.assertNotEqual(remainder,0)
 
 
 if __name__=='__main__':unittest.main()

@@ -45,6 +45,10 @@ _FUNCS = {"sin": np.sin, "cos": np.cos, "tan": np.tan, "exp": np.exp,
           "sinc": np.sinc}
 
 
+from .hyperbolic import NUMERIC as _HYPERBOLIC
+_FUNCS.update(_HYPERBOLIC)
+
+
 class ExpressionError(ValueError):
     pass
 

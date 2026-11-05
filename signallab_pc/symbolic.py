@@ -20,6 +20,10 @@ FUNCTIONS = {"sinc": lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x
              "step": lambda x:sp.Heaviside(x,1), "impulse": impulse, "kroneckerdelta":sp.KroneckerDelta, "piecewise": sp.Piecewise, "where":lambda condition,value,otherwise:sp.Piecewise((value,condition),(otherwise,True)), "conj": sp.conjugate, "re": sp.re, "im": sp.im}
 
 
+from .hyperbolic import symbolic_functions
+FUNCTIONS.update(symbolic_functions())
+
+
 def parse(expression):
     source = expression.strip().replace("π", "pi").replace("−", "-").replace("^", "**")
     source = re.sub(r"(?<=[0-9.)])\s*[iIjJ]\b", "*i", source)
@@ -399,7 +403,9 @@ def _execute(request):
         order=len(coefficients)-1
         if len(initial)!=order: raise ValueError("Ingrese una condición inicial por derivada de orden 0 hasta orden-1.")
         definition=prepare(expression,T,'continuous',(sp.S.Zero,sp.oo),support_kind='unilateral_0minus')
-        forcing_expression=definition.integral_expression()
+        # Algebraic equations hold at the assigned points too. Only actual
+        # integral/Laplace paths may ignore isolated ordinary point values.
+        forcing_expression=definition.expression if order==0 else definition.integral_expression()
         if forcing_expression.has(N,S,Z,W):raise ValueError('La entrada de la EDO debe estar expresada en t.')
         if order==0:
             result=sp.cancel(forcing_expression/coefficients[0])

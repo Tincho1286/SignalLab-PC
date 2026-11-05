@@ -38,6 +38,7 @@ class CasWorksheet(QWidget):
             ('Simplificar','simplify(expr)'),('Desarrollar','expand(expr)'),('Factorizar','factor(expr)'),
             ('Unificar fracción','together(expr)'),('Fracciones parciales','apart(expr,x)'),('Sustituir','subst(expr,x,valor)'),
             ('Aproximar','approx(expr,15)'),('Proponer forma exacta','exact(expr)'),('Declarar supuesto','assume(x>0)'),('Exponenciales a trigonometría','exp2trig(expr)'),('Trigonometría a exponenciales','trig2exp(expr)')]),
+            ('Hiperbólicas',[(name,name+'(x)') for name in ('sinh','cosh','tanh','sech','csch','coth','asinh','acosh','atanh','asech','acsch','acoth')]),
             ('Cálculo',[('Derivar','diff(expr,x)'),('Integral','integrate(expr,x)'),('Integral definida','integrate(expr,x,a,b)'),
             ('Límite','limit(expr,x,0)'),('Serie','series(expr,x,0,6)'),('Sumatoria','sum(expr,n,a,b)'),('Producto','prod(expr,n,a,b)')]),
             ('Ecuaciones',[('Resolver en complejos','solve(expr,x)'),('Resolver en reales','solve_real(expr,x)'),

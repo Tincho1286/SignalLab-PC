@@ -89,7 +89,8 @@ def _numeric_kronecker(left,right,delta_range=None):
 def sample_symbolic(expression,variable,coordinates):
     # The built-in printer emits a scalar ternary even with a module override.
     numeric=expression.xreplace({delta:sp.Function('_sample_delta')(*delta.args) for delta in expression.atoms(sp.KroneckerDelta)})
-    function=sp.lambdify(variable,numeric,modules=[{'sqrt':np.emath.sqrt,'log':np.emath.log,'_sample_delta':_numeric_kronecker},'scipy','numpy'])
+    from .hyperbolic import NUMERIC
+    function=sp.lambdify(variable,numeric,modules=[NUMERIC,{'sqrt':np.emath.sqrt,'log':np.emath.log,'_sample_delta':_numeric_kronecker},'scipy','numpy'])
     with np.errstate(all='ignore'):
         try:values=function(np.asarray(coordinates,dtype=float))
         except ZeroDivisionError:values=np.full(np.asarray(coordinates).shape,complex(np.nan,np.nan))

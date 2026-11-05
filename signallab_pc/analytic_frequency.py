@@ -24,7 +24,8 @@ def _sample(value,omega,repair=False,eligible=None,extensions=None,role='H'):
     from .symbolic import W
     value=value.xreplace({sp.zoo:sp.nan,sp.oo:sp.nan,-sp.oo:sp.nan})
     try:
-        function=sp.lambdify(W,value,modules=[{'sqrt':np.emath.sqrt,'log':np.emath.log},'scipy','numpy'])
+        from .hyperbolic import NUMERIC
+        function=sp.lambdify(W,value,modules=[NUMERIC,{'sqrt':np.emath.sqrt,'log':np.emath.log},'scipy','numpy'])
         with np.errstate(all='ignore'):result=function(omega)
         result=np.broadcast_to(np.asarray(result,dtype=complex),omega.shape).copy()
     except (NameError,TypeError):
@@ -126,7 +127,8 @@ def _condition_mask(condition,omega):
             equal=_refine_periodic_zeros(difference,omega,equal)
         return np.isfinite(observed)&np.isfinite(scale)&(equal if condition.func==sp.Eq else ~equal)
     from .symbolic import W
-    function=sp.lambdify(W,condition,modules='numpy')
+    from .hyperbolic import NUMERIC
+    function=sp.lambdify(W,condition,modules=[NUMERIC,'numpy'])
     with np.errstate(all='ignore'):return np.broadcast_to(np.asarray(function(omega),dtype=bool),omega.shape).copy()
 
 

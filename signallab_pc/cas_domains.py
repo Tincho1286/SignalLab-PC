@@ -29,15 +29,19 @@ def substitute(value, pairs):
 
 def function_domain(command, args):
     if not args or not isinstance(args[0],sp.Expr):return sp.true
+    from .hyperbolic import ALIASES
+    command=ALIASES.get(command,command)
     value=bare(args[0])
     if command=='tan':return sp.Ne(sp.cos(value),0)
-    if command=='tanh':return sp.Ne(sp.cosh(value),0)
+    if command in {'tanh','sech'}:return sp.Ne(sp.cosh(value),0)
+    if command in {'csch','coth'}:return sp.Ne(sp.sinh(value),0)
+    if command in {'asech','acsch'}:return sp.Ne(value,0)
     if command in {'log','ln'}:
         if len(args)==2 and isinstance(args[1],sp.Expr):
             base=bare(args[1]);return sp.And(sp.Ne(value,0),sp.Ne(base,0),sp.Ne(base,1))
         return sp.Ne(value,0)
     if command=='atan':return sp.Ne(value**2+1,0)
-    if command=='atanh':return sp.Ne(value**2-1,0)
+    if command in {'atanh','acoth'}:return sp.Ne(value**2-1,0)
     if command in {'gamma','factorial'}:
         pole=sp.And(sp.Eq(sp.im(value),0),sp.Eq(sp.re(value),sp.floor(sp.re(value))),
                     sp.re(value)<=(0 if command=='gamma' else -1))

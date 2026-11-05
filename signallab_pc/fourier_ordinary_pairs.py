@@ -56,6 +56,13 @@ def pairs(value, variable, output, *, inverse=False):
             if all(v is not None for v in results):cache[term]=sp.Add(*results)
             return cache[term]
 
+        # Hyperbolic linearity is valid only when every exponential term has
+        # an ordinary convergent pair. Never infer convergence from a rewrite.
+        if term.has(sp.sinh,sp.cosh):
+            expanded=sp.expand_mul(term.replace(lambda v:v.func in (sp.sinh,sp.cosh),lambda v:v.rewrite(sp.exp)))
+            result=match(expanded)
+            if result is not None:cache[term]=result;return result
+
         # Isolate certified real modulation even when stored in the same exp
         # as a decaying envelope. Exponential sums split without branch choices.
         carrier=sp.S.Zero;factors=[]
@@ -78,10 +85,13 @@ def pairs(value, variable, output, *, inverse=False):
             if len(absolute)==1:
                 node=absolute[0];affine=linear(node.args[0]);weight=exponent.coeff(node)
                 rest=sp.simplify(exponent-weight*node)
-                if affine is not None and not rest.has(variable):
+                try:polynomial=sp.Poly(rest,variable)
+                except sp.PolynomialError:polynomial=None
+                if affine is not None and polynomial is not None and polynomial.degree()<=1:
                     a,b=affine;decay=sp.simplify(-weight*sp.Abs(a));d=sp.cancel(-b/a)
-                    if decay.is_positive is True and decay.is_finite is True:
-                        result=sp.exp(rest)*sp.exp(-sp.I*q*d)*2*decay/(decay**2+q**2)
+                    slope=polynomial.nth(1)
+                    if decay.is_finite is True and slope.is_finite is True and sp.re(decay-slope).is_positive is True and sp.re(decay+slope).is_positive is True:
+                        result=sp.exp(polynomial.eval(d))*sp.exp(-sp.I*q*d)*(1/(decay-slope+sp.I*q)+1/(decay+slope-sp.I*q))
             if result is None:
                 try:p=sp.Poly(exponent,variable)
                 except sp.PolynomialError:p=None
