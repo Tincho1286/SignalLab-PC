@@ -33,4 +33,5 @@ Para trabajar con el código, consultá la [guía de desarrollo](development/REA
 
 La [licencia del proyecto](license.md) explica las condiciones de uso y redistribución. También están disponibles la [política de privacidad](privacy.md), los [avisos del proyecto](../NOTICE.md) y las [licencias de terceros](../THIRD_PARTY_NOTICES.md).
 
-La [preliminar 1.6.16](releases/v1.6.16-preview.md) mejora la conservación de resultados cuando no puede generarse una vista complementaria. La 1.6.15 continúa como versión estable.
+
+La [preliminar 1.6.17](releases/v1.6.17-preview.md) amplía los pares fundamentales de transformadas y corrige restricciones en ecuaciones y registros mínimos. La 1.6.15 continúa como versión estable.
