@@ -23,7 +23,7 @@ La [guía de primeros pasos](getting-started.md) recorre un cálculo completo. P
 
 ## Versiones y objetivos
 
-La [estable 1.6.17 · Importante](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.17) es la descarga principal para Windows y Linux. Incorpora funciones hiperbólicas y mejoras en transformadas, ecuaciones y conservación de resultados. Las [notas de versiones](releases/README.md) describen el alcance de cada entrega.
+La [estable 1.7.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.7.0) es la descarga principal para Windows y Linux. Reúne numerosas mejoras de estabilidad y fiabilidad matemática en cálculos, condiciones y reutilización de resultados. Las [notas de versiones](releases/README.md) describen el alcance de cada entrega.
 
 El [historial de cambios](../CHANGELOG.md) reúne lo que ya fue publicado. La [hoja de objetivos](roadmap.md) describe las mejoras pendientes, sin asignarlas de antemano a una versión. Los [documentos históricos](history/README.md) conservan información de etapas anteriores del proyecto.
 
