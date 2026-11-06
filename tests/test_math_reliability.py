@@ -409,7 +409,7 @@ class MathematicalReliabilityTests(unittest.TestCase):
                 if expected.is_finite is not True:continue
                 want=complex(expected.evalf(17));source=name+'('+sp.sstr(exact).replace('I','i')+')'
                 with self.subTest(function=name,value=exact):
-                    with np.errstate(all='ignore'):actual=NUMERIC[name](complex(exact))
+                    with np.errstate(all='raise'):actual=NUMERIC[name](complex(exact))
                     assert_allclose(actual,want,rtol=2e-14,atol=2e-14)
                     assert_allclose(constant_value(source),want,rtol=2e-14,atol=2e-14)
             with self.subTest(function=name,transport=True):
@@ -433,6 +433,9 @@ class MathematicalReliabilityTests(unittest.TestCase):
             with self.subTest(pole=name),np.errstate(all='ignore'):
                 self.assertFalse(np.isfinite(NUMERIC[name](0)))
                 self.assertEqual(function_domain(name,[sp.S.Zero]),sp.false)
+        from signallab_pc.matlab_import import expression as matlab_expression
+        with np.errstate(all='raise'):
+            assert_allclose(matlab_expression('acoth(x)',{'x':np.array([0,.5,-.5])}),[1j*np.pi/2,complex(sp.acoth(sp.Rational(1,2)).evalf()),complex(sp.acoth(-sp.Rational(1,2)).evalf())],atol=2e-14)
         for source,coords in [('atanh(t)',[2,-2]),('asinh(i*t)',[-2,2]),('acoth(t)',[0,.5,-.5]),('asech(t)',[-.5,.5]),('acsch(i*t)',[-.5,.5])]:
             with self.subTest(source=source):
                 value=parse(source);want=[complex(value.subs(T,sp.Rational(str(x))).evalf(17)) for x in coords]

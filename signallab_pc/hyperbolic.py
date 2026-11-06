@@ -26,7 +26,8 @@ def _inverse(value,kind):
         return np.where((z.imag==0)&(z.real>1),np.conj(result),result)
     if kind=='acoth':
         # acoth(0)=i*pi/2 on the CAS principal branch, not atanh(infinity).
-        return np.where(z==0,1j*np.pi/2,_inverse(np.divide(1.,z),'atanh'))
+        reciprocal=np.divide(1.,z,out=np.zeros_like(z),where=z!=0)
+        return np.where(z==0,1j*np.pi/2,_inverse(reciprocal,'atanh'))
     inverse=np.divide(1.,z)
     return _inverse(inverse,'acosh' if kind=='asech' else 'asinh')
 
