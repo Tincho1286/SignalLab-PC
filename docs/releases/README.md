@@ -4,6 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
+| [1.7.0](v1.7.0.md) | Numerosas mejoras de estabilidad, fiabilidad matemática y biblioteca | Estable |
 | [1.6.17](v1.6.17.md) | Funciones hiperbólicas, transformadas y conservación de resultados | Estable · Importante |
 | [1.6.16-preview](v1.6.16-preview.md) | Cálculos independientes de gráficos y registros complementarios | Preliminar |
 | [1.6.15](v1.6.15.md) | CAS, Fourier inversa, precisión numérica e intercambio de resultados | Estable |

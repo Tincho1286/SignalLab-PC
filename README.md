@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.6.17" src="https://img.shields.io/badge/estable-1.6.17-71d7c4?style=flat-square&amp;labelColor=172632"></a>
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.7.0" src="https://img.shields.io/badge/estable-1.7.0-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
   <img alt="Windows y Linux portables" src="https://img.shields.io/badge/Windows%20%2B%20Linux-portables-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Desarrollado con Python" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
@@ -40,13 +40,13 @@ El [catálogo de herramientas](docs/tools.md) explica dónde encontrar cada oper
 
 ## Descargar y empezar
 
-Los portables incluyen Python y las dependencias de la aplicación. Descargá la versión 1.6.17 para Windows o Linux. Las entregas anteriores están en Releases.
+Los portables incluyen Python y las dependencias de la aplicación. Descargá la versión 1.7.0 para Windows o Linux. Las entregas anteriores están en Releases.
 
 | Edición | Windows x64 | Linux x86_64 | Novedades |
 | --- | --- | --- | --- |
-| **Estable · Importante · 1.6.17** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.17/SignalLab-PC-1.6.17.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.6.17/SignalLab-PC-1.6.17-linux-x86_64.tar.gz) | [Notas de la versión](docs/releases/v1.6.17.md) |
+| **Estable · 1.7.0** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.7.0/SignalLab-PC-1.7.0.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.7.0/SignalLab-PC-1.7.0-linux-x86_64.tar.gz) | [Notas de la versión](docs/releases/v1.7.0.md) |
 
-La 1.6.17 incorpora funciones hiperbólicas compartidas por las herramientas y amplía los pares fundamentales de transformadas. También conserva las fórmulas cuando una vista complementaria no puede generarse y corrige restricciones en ecuaciones y registros mínimos. Las [notas de la 1.6.17](docs/releases/v1.6.17.md) detallan estas mejoras.
+La 1.7.0 reúne numerosas mejoras de estabilidad y fiabilidad matemática en transformadas, sistemas, filtros y CAS. Conserva con mayor precisión las condiciones de los resultados y amplía los procedimientos registrados y la biblioteca de ayuda. Las [notas de la 1.7.0](docs/releases/v1.7.0.md) describen estas mejoras.
 
 
 

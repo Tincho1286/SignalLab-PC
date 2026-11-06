@@ -1,6 +1,16 @@
 # Historial de cambios
 
-Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.6.17 · Importante**.
+Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.7.0 · Mejoras de estabilidad**.
+
+## 1.7.0 · Estable · Mejoras de estabilidad
+
+- Numerosas correcciones de estabilidad y fiabilidad en transformadas, sistemas, filtros y CAS.
+- ROC, causalidad, condiciones iniciales y prehistoria conservadas en los resultados y comprobaciones.
+- Conversión bilineal exacta, impulsos consistentes y energía FFT protegida frente a desbordamientos.
+- Procedimientos registrados y reutilización de transferencias exactas en el CAS.
+- Biblioteca organizada en catorce categorías, con once ejemplos y referencias cruzadas.
+
+[Notas de la versión](docs/releases/v1.7.0.md)
 
 ## 1.6.17 · Estable · Importante
 

@@ -1,6 +1,21 @@
 {
   "releases": [
     {
+      "tag": "v1.7.0",
+      "title": "Mejoras de estabilidad y fiabilidad matemática",
+      "channel": "stable",
+      "summary": "Numerosas correcciones de estabilidad en cálculos, condiciones matemáticas y reutilización de resultados.",
+      "changes": [
+        "Conversión bilineal exacta e integrales de Dirac coherentes.",
+        "ROC, condiciones iniciales y prehistoria comprobadas.",
+        "Procedimientos registrados y biblioteca con once ejemplos."
+      ],
+      "limits": [
+        "La precisión numérica y el alcance del cálculo simbólico se indican en cada resultado."
+      ],
+      "notes": "docs/releases/v1.7.0.md"
+    },
+    {
       "tag": "v1.3.1-preview",
       "title": "Cursor libre y temas oscuros",
       "channel": "preview",
