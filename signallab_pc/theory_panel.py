@@ -68,6 +68,10 @@ class TheoryPanel(QWidget):
             else:
                 for paragraph in content.split('\n\n'):body.append('<p style="line-height:150%">'+html.escape(paragraph).replace('\n','<br>')+'</p>')
             if index==0:append_illustrations()
+        if section.get('related'):
+            body.append('<h2>Temas relacionados</h2>')
+            blocks.append(('Temas relacionados','\n'.join(title for _,title in section['related'])))
+            for identifier,title in section['related']:body.append('<p><a href="library:article/'+identifier+'">'+html.escape(title)+'</a></p>')
         if section.get('examples'):
             body.append('<h2>Ejemplos resueltos</h2>')
             blocks.append(('Ejemplos resueltos','\n'.join(title for _,title in section['examples'])))
@@ -87,6 +91,10 @@ class TheoryPanel(QWidget):
         self.text.setHtml('<html><body style="font-family:Segoe UI;color:#dce4ef;font-size:11pt;margin:20px">'+''.join(body)+'</body></html>')
     def follow_reference(self,url):
         if url.scheme()!='library':return
+        if url.path().startswith('article/'):
+            identifier=url.path().split('/',1)[1];self.kind.setCurrentIndex(0);self.search.clear();self.filter('')
+            for index,section in enumerate(self.filtered):
+                if section['article_id']==identifier:self.items.setCurrentRow(index);return
         if url.path().startswith('example/'):
             article_id='example:'+url.path().split('/',1)[1];self.kind.setCurrentIndex(0);self.search.clear();self.filter('')
             for index,section in enumerate(self.filtered):

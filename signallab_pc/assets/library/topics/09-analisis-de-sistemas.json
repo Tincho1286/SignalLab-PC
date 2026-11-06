@@ -1,0 +1,514 @@
+{
+  "version": 1,
+  "category": "Análisis de sistemas",
+  "articles": [
+    {
+      "key": [
+        "system_analysis",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Analizá H(s) o H(z) sin confundir la función racional del plano complejo con su respuesta en frecuencia."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá fórmula o coeficientes. En digital elegí también la ROC: secuencia derecha, izquierda, anillo por radio o no especificada. Los sistemas importados conservan su ROC registrada."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Función de transferencia muestra H(s) o H(z) mediante dos mallas seleccionables: módulo/ángulo o parte real/imaginaria. Sus ejes horizontales recorren el plano complejo; la altura representa una componente de H. La respuesta en frecuencia tiene su propia figura y el mismo selector de componentes, junto al retardo de grupo."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La expresión racional puede evaluarse fuera de la ROC sin que esa evaluación sea la transformada convergente de h[n]. La fórmula sola no define una ROC. Los bordes con polos están excluidos y una raíz numéricamente sobre el círculo impide certificar su inclusión."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "state_space",
+        "analysis"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "El modelo de estados describe la evolución interna con A y B, y forma las salidas con C y D. Esta opción permite estudiar la estabilidad interna y qué estados se pueden alcanzar o distinguir."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Completá las matrices y elegí el dominio. A es estados×estados, B estados×entradas, C salidas×estados y D salidas×entradas."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El rango de controlabilidad indica cuántas direcciones del estado pueden alcanzarse desde las entradas. El de observabilidad indica cuántas pueden distinguirse a partir de las salidas."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El orden de las filas define el orden del estado inicial. Los rangos y coeficientes calculados son numéricos y pueden depender del redondeo; una transferencia de un canal puede ocultar modos internos del modelo."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "state_space",
+        "simulation"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La simulación obtiene los estados y las salidas de un modelo A, B, C, D a partir de sus entradas y un estado inicial."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Definí las matrices y elegí cada canal u1, u2, etc. En cada canal podés escribir una fórmula o tramos, pegar muestras, abrir un archivo o reutilizar un resultado. Todos deben compartir su eje. El estado inicial se interpreta en el primer índice o instante del registro, aunque no sea cero."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "En discreto, x[n+1]=Ax[n]+Bu[n] e y[n]=Cx[n]+Du[n]. Las fórmulas se evalúan en n entero y el período T sólo describe el reloj físico. En continuo se aplica una entrada constante entre muestras (ZOH) y se propaga el estado mediante la exponencial matricial. Entradas, estados y salidas quedan en la biblioteca de resultados con el eje conservado."
+        ],
+        [
+          "Qué tener en cuenta",
+          "No se recortan, interpolan ni remuestrean canales automáticamente. Si una señal registra una tasa distinta de 1/T, hay que corregir T o cambiar su tasa antes de simular. Una condición inicial al comienzo del registro no determina la historia anterior del sistema."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "state_space",
+        "frequency"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La respuesta en frecuencia de un modelo de estados permite estudiar cada salida frente a cada entrada."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá las matrices y el rango de frecuencia. En continuo el eje es Ω en rad/s; en discreto es ω en rad/muestra, como en el análisis de H(z). Los borradores de ambos rangos se conservan al cambiar de dominio."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Se evalúa C(sI−A)⁻¹B+D en s=iΩ, o C(zI−A)⁻¹B+D en z=exp(iω). Cada par salida/entrada tiene su espectro y puede reutilizarse desde Resultados. El selector permite ver cualquier canal; el CSV conserva todos."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Los puntos singulares se indican como no disponibles. El período T corresponde al modelo discreto y no transforma las unidades del eje mostrado. Una respuesta de un canal puede ocultar modos internos no controlables u observables."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "state_space",
+        "discretize"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Discretizar convierte un modelo continuo de estados en un modelo que avanza una muestra por cada período T."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá A, B, C y D continuas, indicá T en segundos y elegí ZOH, Tustin o Euler. El resultado muestra las matrices discretas y queda en Resultados. La entrada continua se conserva para comparar otro período o método."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Usar modelo calculado en envía esas matrices, su dominio y T directamente a otro estudio de estados: estructura, respuesta temporal, frecuencia o transferencia. No hace falta buscarlas en la biblioteca ni escribirlas otra vez. Exportar modelo guarda un JSON que se abre desde Cargar modelo; si contiene varios modelos, se puede elegir cuál usar."
+        ],
+        [
+          "Qué tener en cuenta",
+          "ZOH supone entrada constante por intervalo. Tustin y Euler usan otras aproximaciones y pueden cambiar la interpretación de los estados iniciales. Reutilizar o exportar conserva el último resultado calculado aunque se hayan editado los campos. Cambiar T requiere un nuevo cálculo."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "state_space",
+        "transfer"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta opción obtiene la transferencia entre una entrada y una salida de un modelo de estados y permite continuar su análisis desde el mismo resultado."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá A, B, C y D, elegí el dominio y el par de canales, numerados desde 1. Podés reutilizar un modelo de Resultados o abrir un JSON nativo desde Cargar modelo. Calculá para ver H(s) o H(z) en notación matemática."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Analizar abre polos y ceros, frecuencia o respuesta temporal con la transferencia obtenida. Usar filtro en permite cargarla en otras herramientas y Exportar filtro guarda sus coeficientes. El resultado también queda en la biblioteca. En discreto, el informe conserva el período T del modelo."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La transferencia supone estado inicial nulo. Un canal puede ocultar estados que no se controlan u observan desde ese par de entrada y salida. Los coeficientes se calculan numéricamente y pueden contener residuos de redondeo. Si cambiás el modelo, las acciones siguen usando el último resultado hasta recalcular."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "state_space",
+        "analysis"
+      ],
+      "flow": [
+        "Matrices A,B,C,D",
+        "Polos y rangos",
+        "Estabilidad y estructura"
+      ],
+      "parameters": [
+        [
+          "A, B, C y D",
+          {
+            "ref": "a-b-c-y-d-85d292eb"
+          }
+        ],
+        [
+          "Dominio y período",
+          {
+            "ref": "dominio-y-periodo-9b92ca38"
+          }
+        ],
+        [
+          "Rangos",
+          "Controlabilidad y observabilidad se estiman numéricamente."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La estabilidad interna depende de A; no sólo del canal externo elegido. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "state_space",
+        "simulation"
+      ],
+      "flow": [
+        "Matrices y entradas por canal",
+        "Propagar desde el primer índice o instante",
+        "Estados y salidas con su eje"
+      ],
+      "parameters": [
+        [
+          "A, B, C y D",
+          {
+            "ref": "a-b-c-y-d-85d292eb"
+          }
+        ],
+        [
+          "Dominio y período",
+          {
+            "ref": "dominio-y-periodo-9b92ca38"
+          }
+        ],
+        [
+          "Entradas",
+          "Una señal por columna de B, seleccionada en el mismo panel. Cada canal admite fórmula/tramos, muestras, archivo o un resultado anterior."
+        ],
+        [
+          "Eje",
+          "En discreto se evalúa n entero; todos los canales deben tener iguales índice inicial y cantidad de muestras. En continuo deben coincidir inicio, paso en segundos y cantidad."
+        ],
+        [
+          "Periodo T",
+          "En discreto pertenece al modelo. Si la señal registra una tasa de muestreo, debe coincidir; no se cambia la tasa automáticamente."
+        ],
+        [
+          "Estado inicial",
+          "Un valor por estado en el primer índice/instante cargado. Vacío usa ceros; admite pi, 10^(-3) y complejos."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Se guardan entradas, salidas, estados y datos del cálculo en Resultados. Los gráficos discretos usan índices enteros, tallos y cursor por muestra. El estado inicial se aplica al comienzo del registro, aunque su origen sea negativo o distinto de cero; no se deduce la historia anterior. En continuo se propaga con entrada constante por intervalo (ZOH). En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "state_space",
+        "frequency"
+      ],
+      "flow": [
+        "Matrices y frecuencia angular",
+        "Evaluar la matriz de transferencia",
+        "Canales salida/entrada"
+      ],
+      "parameters": [
+        [
+          "A, B, C y D",
+          {
+            "ref": "a-b-c-y-d-85d292eb"
+          }
+        ],
+        [
+          "Dominio y período",
+          {
+            "ref": "dominio-y-periodo-9b92ca38"
+          }
+        ],
+        [
+          "Dominio",
+          "Continuo usa Ω en rad/s y s=iΩ; discreto usa ω en rad/muestra y z=exp(iω)."
+        ],
+        [
+          "Rango",
+          "Inicio menor que final; al menos dos frecuencias. Cada curva corresponde a un par entrada/salida."
+        ],
+        [
+          "T",
+          "Periodo físico del modelo discreto; no convierte el eje mostrado a rad/s."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "El gráfico y los espectros guardados comparten unidades. Las frecuencias singulares se conservan como no disponibles, sin sustituirlas por ceros. Cambiar matrices, dominio o rango indica que el resultado debe recalcularse. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "state_space",
+        "discretize"
+      ],
+      "flow": [
+        "Modelo continuo y T",
+        "Aplicar el método elegido",
+        "Modelo discreto reutilizable"
+      ],
+      "parameters": [
+        [
+          "A, B, C y D",
+          {
+            "ref": "a-b-c-y-d-85d292eb"
+          }
+        ],
+        [
+          "Dominio y período",
+          {
+            "ref": "dominio-y-periodo-9b92ca38"
+          }
+        ],
+        [
+          "Modelo",
+          "Debe ser continuo. Cargar modelo admite Resultados o un JSON nativo SignalLab."
+        ],
+        [
+          "T",
+          "Período positivo en segundos."
+        ],
+        [
+          "Método",
+          "ZOH supone entrada constante por intervalo; Tustin es bilineal; Euler adelante/atrás son aproximaciones diferentes."
+        ],
+        [
+          "Usar modelo calculado en",
+          "Copia las matrices discretizadas y T a simulación, frecuencia, análisis o transferencia."
+        ],
+        [
+          "Exportar modelo",
+          "Guarda un JSON que se puede abrir desde Cargar modelo."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La entrada continua permanece disponible para cambiar T. Reutilizar envía el último modelo calculado, aunque se hayan editado los campos posteriormente. La interpretación de los estados iniciales puede cambiar según el método. Una transferencia de un canal no describe necesariamente todos los modos internos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "state_space",
+        "transfer"
+      ],
+      "flow": [
+        "Modelo y canal",
+        "Calcular H(s) o H(z)",
+        "Analizar o reutilizar la transferencia"
+      ],
+      "parameters": [
+        [
+          "A, B, C y D",
+          {
+            "ref": "a-b-c-y-d-85d292eb"
+          }
+        ],
+        [
+          "Dominio y período",
+          {
+            "ref": "dominio-y-periodo-9b92ca38"
+          }
+        ],
+        [
+          "Canales",
+          "Se numeran desde 1. Elegí una entrada existente en B y una salida existente en C."
+        ],
+        [
+          "Resultado",
+          "Se muestra H(s) o H(z), además de sus coeficientes. En discreto se conserva el período del modelo en el informe."
+        ],
+        [
+          "Analizar",
+          "Accede a polos/ceros, frecuencia o respuesta temporal del último resultado."
+        ],
+        [
+          "Cargar modelo",
+          "Admite un modelo de Resultados o un JSON nativo de modelo/resultados SignalLab."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La transferencia corresponde al canal con estado inicial nulo. Puede ocultar modos internos no controlables u observables. El cálculo de coeficientes es numérico; los residuos de redondeo no se eliminan por una tolerancia arbitraria. La transferencia y sus datos quedan en Resultados. Editar el modelo no reemplaza ese resultado hasta volver a calcular. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "system_analysis",
+        0
+      ],
+      "flow": [
+        "Coeficientes y dominio",
+        "Análisis algebraico y numérico",
+        "Fórmula, módulo y fase"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "Frecuencias",
+          "Intervalo creciente, rad/s para continuo y rad/muestra para discreto."
+        ],
+        [
+          "Puntos",
+          "Resolución del dibujo, al menos dos; no modifica H."
+        ],
+        [
+          "Pestaña Polos y ceros",
+          "Después de analizar, seleccionarla calcula y abre el plano s o z del mismo resultado. Es una vista de consulta; no mueve raíces ni modifica H. Permite coordenadas binómicas o polares."
+        ],
+        [
+          "Carga rápida",
+          "Pegá cada lista de coeficientes en una línea. Potencias abre la tabla para revisar o modificar término por término. Fórmula H permite escribir la transferencia completa."
+        ],
+        [
+          "Frecuencias y puntos",
+          "Desde y Hasta son frecuencias angulares en rad/s para H(s), o rad/muestra para H(z). El intervalo debe crecer e incluye ambos extremos. Puntos controla el muestreo de la curva; no cambia los coeficientes."
+        ],
+        [
+          "Eje de frecuencia",
+          "Lineal permite cero y frecuencias negativas. Logarítmico exige Desde > 0 y distribuye las evaluaciones por décadas; no sólo cambia las marcas."
+        ],
+        [
+          "Módulo lineal o dB",
+          "El selector de la barra de la figura cambia la representación sin recalcular ni modificar H. Se usa 20 log10 |H|. Un cero exacto vale −∞ dB y se omite en esa curva; no se inventa un piso."
+        ],
+        [
+          "Cruces y márgenes",
+          "Es opcional. H se interpreta como L de lazo abierto con realimentación negativa unitaria y coeficientes reales. El cruce |L|=1 da el margen de fase; el cruce de L por el eje real negativo da MG=1/|L|. Los márgenes de fase se expresan en radianes como distancia con signo en [−π,π)."
+        ],
+        [
+          "Alcance de los márgenes",
+          "Se buscan cruces aislados en el intervalo evaluado, refinando cambios de signo y mínimos locales muestreados. Puede haber cruces entre puntos no detectados. En digital se usa sólo 0…π rad/muestra; se excluye frecuencia cero. No encontrar cruces no permite declarar márgenes infinitos. Los tramos críticos no aislados se informan aparte."
+        ],
+        [
+          "Interpretación de estabilidad",
+          "Márgenes positivos por sí solos no certifican estabilidad del lazo cerrado. Revisá polos inestables, cancelaciones, causalidad y el lazo usado. No se asignan estos márgenes convencionales a coeficientes complejos ni a una fórmula con avance temporal."
+        ],
+        [
+          "Exportar respuesta",
+          "CSV conserva coordenadas, H real/imaginaria, módulo, dB, fase y retardo. JSON agrega todos los cruces detectados y el alcance. Un eje logarítmico no es uniforme: esta tabla de análisis no se disfraza de una señal de paso constante. Los campos no definidos se exportan vacíos en CSV y null en JSON; −∞ dB se distingue por módulo cero."
+        ],
+        [
+          "Usar sistema en…",
+          "Después de calcular, una fórmula racional numérica ofrece las mismas salidas que los coeficientes: respuesta temporal, conexiones, raíces, ajustes y conversión. Ajustar ganancia y fase permite elegir el ajuste antes de cargarlo. Editar la entrada conserva el último resultado con el aviso Datos modificados; exportar o reutilizar toma ese resultado, no el borrador."
+        ],
+        [
+          "Realización",
+          "Después de analizar, esta pestaña abre un diagrama aparte con zoom, desplazamiento y exportación SVG/PNG. Verde: integradores o retardos y estados q. Ámbar: ganancias −a[k] de realimentación. Azul: ganancias b[k] de salida. Los círculos suman; las columnas acumulan hacia arriba. La tabla del informe define todos los coeficientes."
+        ],
+        [
+          "Matrices del diagrama",
+          "Usar en espacio de estados carga A, B, C, D del mismo diagrama en la opción elegida. En discreto, indicá T en segundos para el reloj físico. T no cambia H(z). Las ecuaciones de estados usan q₁…qN y condiciones iniciales nulas para representar la transferencia."
+        ],
+        [
+          "Función de transferencia",
+          "H(s) y H(z) tienen una vista propia con dos gráficas de malla: módulo lineal y ángulo principal, o parte real e imaginaria. Los ejes horizontales son las partes real e imaginaria de s o z; la altura es la componente de H. Los intervalos de ambos ejes se pueden elegir por separado. Se dejan huecos en los polos y se interrumpen los saltos del ángulo."
+        ],
+        [
+          "ROC de H(z)",
+          "Elegí secuencia derecha, izquierda, un anillo por radio o ROC no especificada. La fórmula racional sola no decide la ROC. La vista de frecuencia se habilita sólo cuando todo el círculo unitario queda dentro de la región abierta."
+        ],
+        [
+          "Componentes de la respuesta en frecuencia",
+          "La barra de la figura permite módulo/ángulo o real/imaginaria. Se conserva el retardo de grupo. El selector lineal/dB sólo afecta al módulo. En frecuencia el ángulo se desenrolla por tramos válidos; en el plano complejo se muestra su valor principal entre −π y π."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La evaluación numérica necesita coeficientes sin parámetros libres. Una expresión algebraica puede conservarlos. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. El criterio de polos usa interpretación causal; en Z la ROC y la causalidad deben verificarse. Una fórmula simplificada no conserva necesariamente la estabilidad interna de una realización anterior. La figura mantiene las tres vistas sobre el mismo eje. Cambiar el módulo en la barra de la figura sólo cambia la presentación del último resultado. Para cambiar la distribución o rango de frecuencias, analizá de nuevo. Los polos y ceros en 0 se dibujan en el origen exacto, por encima de los ejes. Si coinciden, se ven círculo y cruz juntos; la leyenda informa cuántos hay en (0,0). En polar, módulo cero es el centro y su ángulo no está definido. Los parámetros libres deben recibir valores antes de reutilizar un filtro numérico. Si H(z) tiene un avance, puede analizarse y exportarse la respuesta, pero no se convierte silenciosamente en un filtro causal para enviarlo a simulación. Realización trabaja con H(s) propia o H(z) causal sin avances. No elimina cancelaciones de polos/ceros ni afirma minimalidad. La cadena directa II se usa para coeficientes; si el resultado conserva secciones SOS, el diagrama y las matrices mantienen su cascada. Una fórmula algebraicamente simplificada sólo conserva la dinámica de esa fórmula, no estados internos desconocidos. Para una ecuación diferencial a₀ y^(N)+…+aN y=b₀ u^(N)+…+bN u, cargá esas listas en continuo; en diferencias, a₀ y[n]+a₁ y[n−1]+…=b₀ u[n]+b₁ u[n−1]+… se carga en discreto. No confundas estos órdenes con el ingreso ascendente de derivadas del solucionador de EDO. Condiciones de validez reúne dominio, ROC, causalidad y estabilidad BIBO. En H(s) elegí semiplano derecho, izquierdo o franja con una línea σ interior; en H(z), exterior, interior o anillo con un radio interior. Sin ROC, una curva evaluada sobre el eje imaginario o el círculo unitario es formal y no demuestra una transformada de Fourier convergente. Una cancelación de la transferencia tampoco demuestra estabilidad interna. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones. En Resultados → Comparar resultados podés estudiar dos señales con iguales dominio y unidades o dos H del mismo dominio. No se alinean orígenes ni fases automáticamente; los sistemas se evalúan sobre las mismas frecuencias."
+    }
+  ]
+}

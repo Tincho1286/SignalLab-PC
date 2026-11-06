@@ -44,3 +44,19 @@ def restore_scale(values, exponent, *factors):
             fraction,shift=np.frexp(component)
             target[:]=np.ldexp(fraction*mantissa,shift+exponent)
         return result
+
+
+def energy_description(values,divisor=1):
+    """Describe a finite sum of squares without squaring extreme amplitudes."""
+    scaled,exponent=bounded(np.asarray(values,dtype=complex))
+    total=float(np.sum(scaled.real**2+scaled.imag**2))
+    if not np.isfinite(total):raise ValueError('No se obtuvo una suma de energía finita normalizada.')
+    if total==0:return '0'
+    fraction,shift=math.frexp(total);factor,offset=math.frexp(float(divisor))
+    fraction/=factor;shift+=2*exponent-offset
+    try:number=math.ldexp(fraction,shift)
+    except OverflowError:number=float('inf')
+    if math.isfinite(number) and number!=0:return format(number,'.12g')
+    logarithm=math.log10(fraction)+shift*math.log10(2);decimal_exp=math.floor(logarithm)
+    mantissa=10**(logarithm-decimal_exp)
+    return format(mantissa,'.12g')+'e'+str(decimal_exp)+' (finita; fuera del rango float64)'

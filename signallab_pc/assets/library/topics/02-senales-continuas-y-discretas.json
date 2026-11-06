@@ -1,0 +1,746 @@
+{
+  "version": 1,
+  "category": "Señales continuas y discretas",
+  "articles": [
+    {
+      "key": [
+        "signal_editor",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta herramienta permite modificar las muestras de una señal y la posición que ocupan en su eje. La edición produce una nueva salida, por lo que podés conservar la señal de entrada."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí una señal discreta o continua muestreada y cargala desde una fórmula, una lista, un archivo o un resultado. Abrí la tabla para cambiar las partes real e imaginaria. Si necesitás cambiar el eje, completá también el origen y, en continuo, el paso temporal."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Aplicar edición confirma juntos los valores, el nombre y el eje. La pestaña Resultado muestra la versión aplicada y permite exportarla o enviarla a otra herramienta."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Si seguís editando, esos cambios quedan pendientes hasta volver a aplicar. Los impulsos Dirac tienen posición y peso propios: no se editan como muestras de altura finita."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "generate"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Podés crear una señal a partir de su fórmula o de una lista de valores. El eje indica dónde está cada valor y forma parte de la definición de la señal."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí tiempo discreto para escribir una expresión en n, o tiempo continuo para usar t. Luego indicá el inicio y cuántos valores querés obtener; en continuo, completá el paso. Para una función por tramos, escribí el valor y la condición en cada fila."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Al calcular obtenés una señal con gráfico y tabla. Por ejemplo, cos(pi*n/4), con inicio 0 y cantidad 9, genera las muestras n=0,…,8. Esa salida se puede reutilizar sin volver a escribir la fórmula."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Cantidad es el número de valores, no el último índice. El registro generado describe el intervalo elegido; no determina por sí solo qué ocurre fuera de él."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "measures"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta opción mide energía, potencia media y valor eficaz de un registro. Las tres medidas se basan en el módulo al cuadrado, por lo que también sirven para señales complejas."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá las muestras y calculá. En discreto, la energía es la suma de |x[n]|²; la potencia media del registro divide esa suma por N, y el valor eficaz o RMS es su raíz cuadrada."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El informe indica el intervalo o los índices usados. En un registro continuo, se integra el modelo lineal entre muestras en lugar de tratar cada valor como una muestra discreta sin duración."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Estas medidas corresponden al registro cargado. Para conocer la potencia de una señal periódica completa, el registro debe representar períodos completos; para estudiar todo el eje, usá las medidas por expresión."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "shift"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          {
+            "ref": "que-podes-hacer-8ab4c965"
+          }
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-ef5081c7"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-18ca474d"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-3c5302e5"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "reverse"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          {
+            "ref": "que-podes-hacer-45c2584f"
+          }
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-ef5081c7"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-18ca474d"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-3c5302e5"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "scale"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          {
+            "ref": "que-podes-hacer-57859a12"
+          }
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-ef5081c7"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-18ca474d"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-3c5302e5"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "parity"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          {
+            "ref": "que-podes-hacer-56d17221"
+          }
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-ef5081c7"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-18ca474d"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-3c5302e5"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "sum"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La suma combina los valores de dos señales en el mismo índice o instante. Está junto al producto dentro de Sumar o multiplicar señales."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí el dominio y definí las dos entradas en las pestañas Señal x y Señal v. Cada una puede ser una fórmula, función por tramos, lista, archivo o resultado anterior. En discreto se alinean por n, aunque tengan diferentes orígenes o longitudes."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La salida y=x+v cubre ambos registros: fuera de cada entrada se usa cero. En continuo, las partes ordinarias se interpolan linealmente en un intervalo común, con una rejilla uniforme basada en el menor paso y ajustada a sus extremos. Los impulsos Dirac se suman mediante sus posiciones y pesos y permanecen separados de las muestras. El resultado se guarda en la biblioteca y puede exportarse o reutilizarse."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El eje discreto conserva su reloj si está registrado y es compatible. La suma continua entre muestras sigue siendo una aproximación. Suma y Producto conservan borradores propios; al volver a una operación no se reemplaza su entrada sin pedirlo mediante Copiar entrada. El producto conserva el intervalo de x, mientras que la suma cubre ambos registros."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "continuous_convolve"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta opción aproxima la convolución de dos señales continuas a partir de registros muestreados."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Definí x(t) y h(t) con el mismo paso temporal. Completá los intervalos de ambas señales para incluir las partes que intervienen en la integral."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La salida aproxima y(t)=∫x(τ)h(t−τ)dτ. El informe explica el modelo usado entre muestras y el tratamiento de los extremos."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Se usa cero fuera de los registros disponibles. Reducir el paso o ampliar los intervalos permite estudiar la aproximación; los impulsos ideales se tratan por posición y peso cuando están presentes."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "window_signal",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Podés generar las ventanas del diseño FIR como señales independientes. Así se puede estudiar su forma, su DTFT, su DFT o su transformada Z sin tener que crear primero un filtro."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "En Señales → Crear una señal elegí Ventana. Seleccioná el tipo y la longitud L, que es la cantidad total de muestras. Definí el índice inicial o activá Centrar alrededor de cero. Kaiser agrega el parámetro β. No se necesita una señal previa ni una respuesta al impulso h[n]."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La salida muestra tallos discretos, tabla e informe con la definición y el intervalo. Exportar guarda las muestras e índices en JSON/CSV. Usar señal en… permite llevarla a Fourier o Transformada Z; en Z se abre Muestras finitas con el registro ya cargado. También podés elegirla desde Resultados para multiplicarla por otra señal o usarla como ventana propia de un FIR."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Se generan ventanas simétricas, como las de filtros FIR. No se añade una normalización de ganancia ni una repetición periódica. Desplazar el origen modifica la fase de la DTFT, pero mantiene su módulo. Con longitud par, el centro puede estar entre índices y el pico muestreado puede ser menor que uno. L=1 produce una sola muestra de valor uno. Los valores numéricos conservan la precisión disponible."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "basic",
+        "generate"
+      ],
+      "flow": [
+        "Fórmula o valores",
+        "x[n], n = n₀…n₀+N−1",
+        "Muestras sobre su índice"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          "Fórmula en n o muestras separadas por coma; para decimales usá punto. Ejemplo: 1, -0.5, 2."
+        ],
+        [
+          "Inicio y cantidad",
+          {
+            "ref": "inicio-y-cantidad-3ad0ceba"
+          }
+        ],
+        [
+          "Fórmula",
+          "Usá n, por ejemplo cos(pi*n/4). En Por tramos, cada fila indica valor y condición."
+        ],
+        [
+          "Dominio",
+          "Discreta x[n] usa índices enteros. Continua x(t) usa tiempo en segundos; se define inicio, paso y cantidad."
+        ],
+        [
+          "Método de entrada",
+          "Fórmula, Muestras, Archivo o Resultado. Fórmula permite tramos; Archivo abre MATLAB/CSV/JSON y Resultado copia una señal ya calculada."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Los tallos representan muestras independientes. Parte real conserva los signos; módulo muestra valores absolutos. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "basic",
+        "measures"
+      ],
+      "flow": [
+        "Registro finito",
+        "E = Σ|x[n]|²",
+        "P = E/N; RMS = √P"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          "Fórmula en n o muestras separadas por coma; para decimales usá punto. Ejemplo: 1, -0.5, 2."
+        ],
+        [
+          "Inicio y cantidad",
+          {
+            "ref": "inicio-y-cantidad-3ad0ceba"
+          }
+        ],
+        [
+          "Dominio del registro",
+          "Discreta usa suma de |x[n]|². Continua interpola x(t) linealmente entre los puntos y obtiene la integral de |x(t)|² de ese modelo."
+        ],
+        [
+          "Potencia del registro",
+          "Se divide la energía por N en discreto o por la duración T en continuo. Ese promedio no clasifica por sí solo la señal infinita."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "El promedio se refiere al registro cargado. No demuestra la energía ni la potencia de una extensión infinita. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "basic",
+        "shift"
+      ],
+      "flow": [
+        "Registro de entrada",
+        "Transformar eje o valores",
+        "Salida y original reutilizables"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          {
+            "ref": "entrada-f630e38e"
+          }
+        ],
+        [
+          "Desplazamiento",
+          {
+            "ref": "desplazamiento-3c997b56"
+          }
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-b1f1ceb8"
+      }
+    },
+    {
+      "key": [
+        "basic",
+        "reverse"
+      ],
+      "flow": [
+        "Registro de entrada",
+        "Transformar eje o valores",
+        "Salida y original reutilizables"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          {
+            "ref": "entrada-f630e38e"
+          }
+        ],
+        [
+          "Inversión",
+          "Refleja alrededor de n=0 o t=0; cambia el origen y el orden de los valores, no su amplitud."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-b1f1ceb8"
+      }
+    },
+    {
+      "key": [
+        "basic",
+        "scale"
+      ],
+      "flow": [
+        "Registro de entrada",
+        "Transformar eje o valores",
+        "Salida y original reutilizables"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          {
+            "ref": "entrada-f630e38e"
+          }
+        ],
+        [
+          "A",
+          {
+            "ref": "a-3650a67d"
+          }
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-b1f1ceb8"
+      }
+    },
+    {
+      "key": [
+        "basic",
+        "parity"
+      ],
+      "flow": [
+        "Registro de entrada",
+        "Transformar eje o valores",
+        "Salida y original reutilizables"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          {
+            "ref": "entrada-f630e38e"
+          }
+        ],
+        [
+          "Partes",
+          {
+            "ref": "partes-6e394470"
+          }
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-b1f1ceb8"
+      }
+    },
+    {
+      "key": [
+        "basic",
+        "sum"
+      ],
+      "flow": [
+        "Dos entradas independientes",
+        "Sumar en el mismo índice o instante",
+        "Salida sobre ambos registros"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Suma y Producto comparten una herramienta; cada una conserva su borrador y resultado."
+        ],
+        [
+          "Dominio",
+          "Discreto o continuo. Cada entrada admite fórmula/tramos, muestras, archivo o resultado. Las pestañas Señal x y Señal v permiten editar una a la vez."
+        ],
+        [
+          "Discreto",
+          "Los valores se alinean por n entero; se conservan ambos intervalos y se usa cero fuera de cada registro. Si hay un reloj registrado se conserva y se valida su compatibilidad."
+        ],
+        [
+          "Continuo",
+          "La salida cubre ambos intervalos. Cada parte ordinaria se interpola linealmente sobre una rejilla uniforme basada en el menor paso y ajustada a ambos extremos. El paso final se informa en el resultado."
+        ],
+        [
+          "Dirac",
+          "En la suma continua se combinan posiciones y pesos por separado, sin convertirlos en alturas finitas."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La salida es y=x+v. Cambiar de pestaña de entrada no recalcula ni borra datos. Cambiar Suma/Producto conserva el borrador de cada operación; Copiar entrada permite transferir ambas entradas y su dominio. La suma no recorta el resultado al primer registro. La interpolación continua es una aproximación entre muestras y no agrega información a las señales originales. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "basic",
+        "continuous_convolve"
+      ],
+      "flow": [
+        "x(t), h(t) y paso Δt",
+        "Integral de productos desplazados",
+        "y(t)"
+      ],
+      "parameters": [
+        [
+          "Entradas",
+          "Dos registros con igual paso temporal positivo. Cada uno tiene su propio inicio."
+        ],
+        [
+          "Cantidad y paso",
+          "El final es inicio+(cantidad−1)·paso. Fuera del registro se supone cero."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La curva es una aproximación numérica. El paso afecta la integración; la ventana temporal limita qué parte de las señales se conoce. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. Los impulsos Dirac reutilizados se conservan por posición y peso: δ(t−a)*x(t)=x(t−a). La parte regular se interpreta linealmente entre puntos y nula fuera del registro; su integral se evalúa sobre la rejilla de salida. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "signal_editor",
+        0
+      ],
+      "flow": [
+        "Índices y valores",
+        "Editar tabla y aplicar",
+        "Nuevo registro reutilizable"
+      ],
+      "parameters": [
+        [
+          "Nombre",
+          "Identifica la salida, no modifica los valores."
+        ],
+        [
+          "Origen y paso",
+          "En discreto, origen entero y paso fijo 1. En continuo, origen en segundos y paso positivo en segundos por fila. Cambiar el eje no interpola los valores. Aplicar edición valida y aplica nombre, eje y muestras juntos."
+        ],
+        [
+          "Tabla",
+          "Cada fila representa una muestra; editar no equivale a exportar: aplicá los cambios."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Muestras conserva el borrador; Resultado contiene la última edición aplicada, con gráfico externo, valores, exportación y envío a otra herramienta. Editar el borrador no modifica una salida ya enviada. Se conserva la entrada original. Un registro continuo finito no define una función continua exacta ni términos Dirac. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "window_signal",
+        0
+      ],
+      "flow": [
+        "Tipo, longitud e índices",
+        "Ventana simétrica finita",
+        "w[n] para exportar o analizar"
+      ],
+      "parameters": [
+        [
+          "Ventana",
+          "Elegí rectangular, Hann, Hamming, Blackman, Bartlett o Kaiser. Son las variantes simétricas usadas en filtros FIR."
+        ],
+        [
+          "Longitud L",
+          "Cantidad total de muestras, entero positivo. Si el origen es n₀, el último índice es n₀+L−1. En un FIR de esa longitud, M=L−1 es el orden nominal."
+        ],
+        [
+          "Índice inicial",
+          "Entero que ubica la primera muestra; puede ser negativo. No cambia los valores de la ventana."
+        ],
+        [
+          "Centrar",
+          "Usa n₀=−floor(L/2). Con L impar el centro es 0; con L par queda en −1/2 y las muestras siguen en índices enteros."
+        ],
+        [
+          "β",
+          "Parámetro no negativo de Kaiser; sólo interviene en esa ventana."
+        ],
+        [
+          "Exportar o reutilizar",
+          "El resultado es una señal discreta con muestras e índices, lista para JSON/CSV, Fourier, Z finita o producto con otra señal."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "L no es la semilongitud ni el orden M. No se normaliza el pico, la suma ni la energía después de generar. La simetría no obliga a que exista una muestra central cuando L es par. Fuera del intervalo se usa cero; la ventana no se convierte en una secuencia periódica. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    }
+  ]
+}

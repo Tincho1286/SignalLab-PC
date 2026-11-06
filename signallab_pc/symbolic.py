@@ -182,15 +182,16 @@ def _execute(request):
             from .inverse_frequency_domain import require_inverse_domain
             require_inverse_domain(request,value,sp.S.Reals,W)
             from .fourier_bands import inverse_bands
-            exact=inverse_bands(value,W,T,discrete=False)
+            records=[];exact=inverse_bands(value,W,T,discrete=False,trace=records)
             if exact is not None:
-                return attach({'operation':operation,'result':str(exact),'condition':'True','evaluated':True,
+                return attach({'procedure':records,'operation':operation,'result':str(exact),'condition':'True','evaluated':True,
                     'output_variable':'t','frequency_units':'rad/s',
                     'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
                     'scope':'Inversa por integración de bandas y pares de Fourier. Los valores aislados de frecuencia tienen medida nula.'},definition,exact=exact)
         from .impulse_pairs import fourier_pairs
         from .fourier_ordinary_pairs import pairs as ordinary_pairs
-        ordinary,regular=ordinary_pairs(value,W if inverse else T,T if inverse else W,inverse=inverse)
+        records=[]
+        ordinary,regular=ordinary_pairs(value,W if inverse else T,T if inverse else W,inverse=inverse,trace=records)
         known,regular=fourier_pairs(regular,W if inverse else T,T if inverse else W,inverse=inverse)
         known+=ordinary
         if regular==0:answer=(sp.S.Zero,sp.true)
@@ -207,7 +208,9 @@ def _execute(request):
         # A global simplify can spend minutes combining these into one fraction.
         result=sp.Add(result,known) if regular==0 else sp.simplify(result+known)
         evaluated=not result.has(sp.FourierTransform,sp.InverseFourierTransform,sp.Integral,sp.oo,sp.zoo,sp.nan)
-        return attach({'operation':operation,'result':str(result),'condition':str(condition),
+        from .procedure import step
+        records.append(step('Resultado de Fourier','Reunir pares reconocidos y la parte calculada por el motor',value,result,conditions=condition,interpretation='Las manipulaciones internas no registradas de SymPy no se reconstruyen.',source='symbolic._execute'))
+        return attach({'procedure':records,'operation':operation,'result':str(result),'condition':str(condition),
                 'evaluated':evaluated,'output_variable':'t' if inverse else 'w',
                 'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)' if inverse else 'X(w) = integral x(t) exp(-i*w*t) dt',
                 'frequency_units':'rad/s','scope':'Transformada bilateral. Las condiciones simbólicas acompañan la expresión; no se asume soporte causal.'},definition,exact=result,condition=condition)

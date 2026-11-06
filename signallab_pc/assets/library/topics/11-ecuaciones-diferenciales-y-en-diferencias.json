@@ -1,0 +1,144 @@
+{
+  "version": 1,
+  "category": "Ecuaciones diferenciales y en diferencias",
+  "articles": [
+    {
+      "key": [
+        "symbolic",
+        4
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta herramienta resuelve una ecuación diferencial lineal en la forma a₀y+a₁y′+…=f(t)."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "En Expresión ingresá sólo f(t), no la ecuación completa. Cargá los coeficientes en orden ascendente de derivadas y las condiciones y(0−), y′(0−),… que correspondan. Un impulso en el origen puede cambiar el valor posterior en 0+."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Por ejemplo, la lista 1,2,1 representa y+2y′+y″. La solución se muestra con las condiciones y el estado de evaluación del cálculo."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Este orden es distinto del de los polinomios de H(s). Se requiere una condición por cada derivada hasta el orden m−1; si falta una, el mensaje indica cuántas cargar. La comprobación distingue los datos en 0− y los límites en 0+. Si el motor no resuelve una parte, se indica como pendiente."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "difference_equation",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta herramienta resuelve ecuaciones lineales en diferencias de coeficientes constantes. En lugar de derivadas usa valores anteriores de la salida: a₀y[n]+a₁y[n−1]+…+aₚy[n−p]=f[n]."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá los coeficientes por retardos y escribí f[n] como fórmula o por tramos. Elegí el primer índice n₀. Si el sistema no estaba en reposo, desactivá Reposo y cargá y[n₀−1], y[n₀−2], …: son p valores anteriores, no las primeras p salidas que debe calcular el programa."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El informe presenta la solución en función de n y separa entrada cero de estado cero. La tabla y el gráfico muestran N valores desde n₀; aumentar N no cambia la fórmula. La solución y su transferencia con condiciones nulas quedan en Resultados y pueden enviarse al CAS u otras herramientas."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Se impone la ecuación sólo desde n₀ y no se inventa una historia infinita anterior. Para entradas polinómicas, exponenciales, senoidales y sus tramos de intervalos se utilizan propiedades de la Z unilateral. Cuando no se obtiene una forma cerrada para la entrada, se conserva la solución exacta como una suma finita de convolución y se informa ese alcance. Los parámetros sin asignar permiten conservar una fórmula, pero impiden generar muestras numéricas."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "symbolic",
+        4
+      ],
+      "flow": [
+        "a₀…aₘ, f(t), condiciones",
+        "a₀y+a₁y′+…=f(t)",
+        "Solución de la EDO"
+      ],
+      "parameters": [
+        [
+          "Expresión",
+          "Es el término forzante f(t), no la ecuación completa."
+        ],
+        [
+          "Coeficientes",
+          "Orden ascendente de derivadas: 1, 2, 1 significa y+2y′+y″."
+        ],
+        [
+          "Iniciales",
+          "y(0−), y′(0−), …; una condición por derivada hasta orden m−1. Un impulso en t=0 puede cambiar el límite 0+, que se informa por separado."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "No confundir este orden con coeficientes de polinomios en s. Revisá condiciones y estado de evaluación. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "difference_equation",
+        0
+      ],
+      "flow": [
+        "Coeficientes, entrada e historial",
+        "Resolver desde n₀",
+        "Fórmula y muestras de y[n]"
+      ],
+      "parameters": [
+        [
+          "Coeficientes",
+          "a₀, a₁, …, aₚ multiplican y[n], y[n−1], …, y[n−p]. a₀ debe ser no nulo. Se admiten pi, fracciones y 10^(-3)."
+        ],
+        [
+          "Entrada f[n]",
+          "Fórmula en n, incluidas sin, cos, exp, step e impulse; Por tramos permite condiciones sobre índices."
+        ],
+        [
+          "Índice n₀",
+          "Primer entero donde se impone la ecuación. f[n] conserva su índice global; cambiar n₀ no redefine f[n] como f[n−n₀]."
+        ],
+        [
+          "Reposo",
+          "Toma todos los p valores anteriores iguales a cero."
+        ],
+        [
+          "Historial",
+          "Sin reposo, cargá p valores desde el más cercano: y[n₀−1], y[n₀−2], …, y[n₀−p]."
+        ],
+        [
+          "Muestras",
+          "Cantidad de valores desde n₀ para gráfico y tabla; no recorta la solución matemática."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Entrada cero conserva el historial y elimina f[n]. Estado cero conserva f[n] y anula el historial. H(z)=1/Σaₖz⁻ᵏ es la transferencia desde f[n] bajo condiciones iniciales nulas. La solución se aplica sólo desde n₀. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    }
+  ]
+}

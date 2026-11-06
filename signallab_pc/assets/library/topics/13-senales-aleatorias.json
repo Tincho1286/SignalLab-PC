@@ -1,0 +1,376 @@
+{
+  "version": 1,
+  "category": "Señales aleatorias",
+  "articles": [
+    {
+      "key": [
+        "random",
+        "generate"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Un proceso aleatorio describe muchas señales posibles; esta herramienta genera una de ellas, llamada realización."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí distribución, cantidad de muestras y semilla. Gaussiana y uniforme usan media y desviación estándar; Bernoulli usa la probabilidad de obtener uno."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La salida es un registro que podés medir, filtrar o comparar. Usar la misma semilla y los mismos parámetros permite repetirlo."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La media y varianza medidas de un registro finito pueden diferir de los parámetros teóricos. Esa fluctuación no implica, por sí sola, un error de generación."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "random",
+        "statistics"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta opción resume las amplitudes de un registro mediante media, varianza, RMS e histograma."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá la secuencia y elegí la componente del histograma y su cantidad de intervalos. Para datos complejos, distinguí parte real, imaginaria y módulo."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La varianza mide el promedio de |x−media|². El histograma agrupa amplitudes y estima una densidad: el área representa probabilidad, por lo que una altura puede superar uno."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La corrección con N−1 presupone muestras independientes e idénticamente distribuidas. Las medidas del registro y su histograma no prueban normalidad, estacionariedad ni independencia."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "random_correlation",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta herramienta estima la relación de un registro con sí mismo o de dos registros entre sí. Al restar sus medias se obtiene covarianza en lugar de correlación."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí Auto o Cruzada. En cruzada cargá x[n] e y[n] con sus índices reales: se usa el intervalo observado en ambos. Luego elegí retardo máximo, divisor N o N−|k| y normalización opcional. El programa no inventa datos en regiones sin observación."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Se representa Rxy[k]=promedio de x[n+k]·conj(y[n]). Un k positivo compara una muestra posterior de x con y. La autocorrelación en cero estima potencia; al centrar, varianza. La cruzada en cero no es una potencia y puede ser compleja; tampoco tiene por qué ser par."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La normalización cruzada divide por √(Px·Py) del intervalo común, o por el producto de desviaciones si se restaron medias. Con divisor N−|k|, la magnitud normalizada puede superar 1 en retardos grandes. No se demuestra independencia ni estacionariedad a partir de una curva finita."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "random_model",
+        "model"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Un modelo AR, MA o ARMA relaciona una entrada de ruido blanco con un proceso cuya evolución depende de coeficientes conocidos. Esta herramienta obtiene las estadísticas del modelo y permite generar una realización gaussiana estacionaria."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí AR, MA o ARMA y cargá los coeficientes por potencias de z⁻¹. Para AR, b es 1; para MA, a es 1. Definí la media y la desviación del ruido, los retardos de interés y la rejilla espectral. También podés cargar un sistema digital desde archivo o Resultados."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El informe muestra la recurrencia, H(z), media, varianza y potencia del proceso. El selector ofrece autocovarianza, autocorrelación, densidad de potencia y la realización opcional. Cada salida se guarda por separado en Resultados; H(z) puede analizarse como cualquier otro sistema."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Se requiere un modelo real causal y estable. La inicialización usa la covarianza estacionaria, no reposo. El espectro continuo representa x−media; una media no nula agrega una línea ideal en cero que no se representa como una muestra finita."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "random_model",
+        "fit"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La estimación AR busca un modelo autorregresivo de orden elegido a partir de un registro. Permite describir su dependencia temporal y obtener un espectro paramétrico."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá un registro discreto real y elegí p, menor que su cantidad de muestras. El cálculo resta la media muestral, estima la autocovarianza con divisor N y resuelve las ecuaciones de Yule–Walker. Las opciones de generación crean una realización nueva del modelo estimado."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La salida incluye H(z), los coeficientes AR, la varianza estimada de innovación, la autocorrelación y la densidad teóricas del modelo. También entrega el residuo válido: se omiten los primeros p índices porque no tienen todos sus antecedentes observados."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El orden elegido cambia el resultado. Las curvas son las del modelo ajustado; no son la densidad exacta del proceso desconocido. La varianza de innovación de Yule–Walker y el promedio cuadrático del residuo pueden diferir en un registro finito. No se certifican blancura ni independencia."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "random",
+        "generate"
+      ],
+      "flow": [
+        "Distribución y parámetros",
+        "Generación con semilla",
+        "Una realización finita"
+      ],
+      "parameters": [
+        [
+          "Media y desviación",
+          "Parámetros teóricos de gaussiana/uniforme; desviación no negativa."
+        ],
+        [
+          "Probabilidad",
+          "En Bernoulli, valor entre 0 y 1 de obtener 1."
+        ],
+        [
+          "Cantidad y origen",
+          "Longitud positiva y primer índice."
+        ],
+        [
+          "Semilla",
+          "Entero que permite repetir la realización."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "El promedio medido puede diferir de la media teórica. En uniforme, extremos = media ± √3·desviación. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "random",
+        "statistics"
+      ],
+      "flow": [
+        "Registro y componente",
+        "Medir y agrupar amplitudes",
+        "Estadísticas e histograma"
+      ],
+      "parameters": [
+        [
+          "Componente",
+          "Real, imaginaria o módulo para el histograma."
+        ],
+        [
+          "Intervalos",
+          "Número de barras, entero positivo; no cantidad de muestras de entrada."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "El eje horizontal es amplitud. El área del histograma representa probabilidad; una altura puede superar 1 si las barras son angostas. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "random_correlation",
+        0
+      ],
+      "flow": [
+        "Uno o dos registros",
+        "Productos por retardo",
+        "Correlación o covarianza"
+      ],
+      "parameters": [
+        [
+          "Modo",
+          "Auto usa un registro; cruzada usa x[n] e y[n]."
+        ],
+        [
+          "Intervalo común",
+          "En cruzada sólo se usan índices observados en ambas entradas, sin completar regiones desconocidas con cero."
+        ],
+        [
+          "Retardo",
+          "Entero no negativo menor que N del intervalo utilizado."
+        ],
+        [
+          "Restar media",
+          "Calcula auto/covarianza usando las medias del registro o intervalo común."
+        ],
+        [
+          "Divisor",
+          "N o N−|k|. En cruzada N es la longitud común."
+        ],
+        [
+          "Normalizar",
+          "Auto divide por el valor en cero; cruzada por √(Px·Py), usando varianzas si se restaron las medias."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Rxy[k]=Σ x[n+k]·conj(y[n])/divisor. k positivo compara una muestra posterior de x con y. La cruzada puede ser compleja y no par. Con divisor N−|k| la normalización no garantiza magnitud menor o igual a uno en todos los retardos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "random_model",
+        "model"
+      ],
+      "flow": [
+        "b/a y ruido blanco",
+        "Modelo causal estacionario",
+        "Correlación, espectro y realización"
+      ],
+      "parameters": [
+        [
+          "Modelo",
+          "AR usa b=[1]; MA usa a=[1]; ARMA permite ambos."
+        ],
+        [
+          "Coeficientes b y a",
+          "Orden 1, z⁻¹, z⁻²… El primer a no puede ser cero; se normaliza a 1. Se admiten pi y 10^(-3)."
+        ],
+        [
+          "Media y desviación del ruido",
+          "Son parámetros de e[n], no de la salida. La desviación debe ser no negativa."
+        ],
+        [
+          "Retardo máximo",
+          "Último |k| mostrado en correlación; admite cero."
+        ],
+        [
+          "Puntos",
+          "Rejilla de frecuencia en −π…π rad/muestra."
+        ],
+        [
+          "Realización",
+          "Cantidad positiva, índice inicial y semilla entera no negativa. Puede desactivarse para obtener sólo teoría."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Todos los polos deben estar dentro del círculo unidad. La covarianza se obtiene con Lyapunov. La PSD dibujada excluye la línea de la media en ω=0; su integral dividida por 2π es la varianza. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "random_model",
+        "fit"
+      ],
+      "flow": [
+        "Registro real y orden p",
+        "Yule–Walker con divisor N",
+        "Modelo AR, PSD y residuo"
+      ],
+      "parameters": [
+        [
+          "Registro",
+          "Fórmula, muestras, archivo o un resultado anterior; debe ser discreto real y no constante."
+        ],
+        [
+          "Orden p",
+          "Cantidad de retardos autorregresivos, entero positivo menor que N. No se selecciona automáticamente."
+        ],
+        [
+          "Retardo máximo y puntos",
+          "Afectan las curvas del modelo; no la longitud del registro observado."
+        ],
+        [
+          "Realización opcional",
+          "Genera una nueva señal con el modelo ajustado, no una reconstrucción del registro original."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Se estima la media y se resta antes de calcular la covarianza con divisor N. El residuo excluye las primeras p muestras y conserva sus índices. Un buen ajuste no demuestra que el proceso sea AR ni que los residuos sean blancos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    }
+  ]
+}

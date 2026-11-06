@@ -285,12 +285,20 @@ class ResultView(QWidget):
             else:self.text.setPlainText(json.dumps(payload,ensure_ascii=False,indent=2))
             self.details_view.setPlainText(json.dumps(payload,ensure_ascii=False,indent=2));self.label.setText('Resultado del cálculo');self.views.setCurrentIndex(1)
         steps=[step for value in signals if isinstance(value,Signal) for step in value.metadata.get('derivation',[]) if value.metadata.get('derivation_operation',value.metadata.get('operation'))==value.metadata.get('operation')]
+        if isinstance(result,dict) and result.get('procedure'):
+            from .procedure import views
+            steps+=views(result['procedure'])
         self.views.setTabVisible(self.development_index,bool(steps))
         if steps:
             from .transform_steps import summary as steps_summary
             self.development.set_readable(steps_summary(steps))
         if numeric and self.details and self.views.currentIndex()==0:self.views.setCurrentIndex(1)
         self.canvas.draw_idle()
+    def set_procedure(self,records):
+        from .procedure import views
+        from .transform_steps import summary
+        self.views.setTabVisible(self.development_index,bool(records))
+        if records:self.development.set_readable(summary(views(records)))
     def displayed_signals(self):
         signals=self.result if isinstance(self.result,tuple) else (self.result,)
         if self.dft_axis.currentIndex()!=1 or not all(ops.is_centered_dft(signal) for signal in signals):

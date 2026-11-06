@@ -1,0 +1,490 @@
+{
+  "version": 1,
+  "category": "Muestreo y reconstrucción",
+  "articles": [
+    {
+      "key": [
+        "rational_resampling",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "El cambio racional de tasa convierte una secuencia para que su nueva tasa sea Fs·L/M, usando un filtro para limitar aliasing."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá la secuencia y los enteros positivos L y M. Elegí el filtro y el tratamiento de los extremos disponibles."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La interpolación, el filtrado y la reducción se combinan para obtener la nueva secuencia. El informe conserva la relación entre las tasas."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Cambiar la tasa no agrega información que no estaba en la entrada. La extensión elegida puede afectar los valores cercanos a los extremos."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "sampling",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Muestrear toma valores de una expresión continua cada T=1/Fs segundos."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá x(t), la tasa Fs en muestras/s, el instante inicial t₀ y la cantidad N. Por ejemplo, cos(2*pi*10*t) representa un tono de 10 Hz."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La salida es una secuencia con N muestras. La primera corresponde a t₀ y la última a t₀+(N−1)/Fs; ese reloj permite relacionar sus índices con el tiempo físico."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El muestreo no aplica por sí solo un filtro previo. Si la señal contiene frecuencias que se superponen después de muestrear, sus muestras pueden presentar aliasing."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "sampling",
+        1
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "El aliasing hace que tonos continuos distintos produzcan las mismas muestras. Esta opción muestra esa ambigüedad para un tono."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá la frecuencia angular Ω del tono en rad/s y Fs en muestras/s. El límite de Nyquist en esas unidades es π·Fs rad/s."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El resultado muestra la frecuencia equivalente y una comparación con un coseno de fase cero. Los puntos discretos coinciden aunque las curvas continuas puedan ser diferentes."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La ilustración explica el caso de un tono. No demuestra que una señal cualquiera sea de banda limitada ni que pueda reconstruirse sólo por elegir una tasa alta."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "sampling",
+        2
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Estas operaciones cambian la posición o cantidad de muestras de forma elemental."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá la secuencia y elegí el método y su factor entero. Diezmar toma una muestra de cada M con la fase local elegida; expandir inserta ceros; interpolar estima valores intermedios."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Compará el eje de salida con el de entrada para ver qué índices se conservan o se agregan."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La reducción elemental no filtra antes de eliminar muestras. Para una conversión con antialias, usá Cambiar tasa con antialias dentro de la misma familia de operaciones."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "sampling",
+        3
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Reconstruir permite estimar una señal continua entre sus muestras mediante una retención, rectas o interpolación SINC."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá las muestras, Fs y el instante inicial. Puntos por intervalo controla cuántos valores se muestran entre dos muestras consecutivas."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La retención mantiene el valor hasta la próxima muestra; las rectas unen valores vecinos; SINC usa una combinación de funciones seno cardinal."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La reconstrucción se calcula entre la primera y la última muestra. Un registro finito y sus extremos influyen en la aproximación, y ningún interpolador recupera por sí solo la información perdida por aliasing."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "sampling",
+        4
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La cuantización reemplaza amplitudes por valores de un conjunto finito de niveles."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá la señal y elegí bits, rango y regla de cuantización. Si querés medir la SNR sobre parte del registro, indicá el tramo permitido por la herramienta."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La salida incluye señal cuantizada, error, saturaciones y relación señal/ruido. Esto permite distinguir el efecto del paso entre niveles del error por superar el rango."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El error utilizado incluye la saturación y no se le resta automáticamente su media. Por eso la SNR debe interpretarse junto con el rango y las muestras evaluadas."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "sampling",
+        5
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta herramienta reúne la representación de números, el almacenamiento de coeficientes y el filtrado con precisión finita. Los tres estudios comparten formato, pero responden preguntas distintas: qué valor queda guardado, cómo cambia H(z) y qué ocurre al redondear durante la ejecución."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí el estudio y el formato. Q usa bits enteros contando el signo, bits fraccionarios y redondeo o truncamiento. Los formatos flotantes ofrecen binary16/32/64 y empates al par. Para filtros, cargá H(z) por fórmula, coeficientes o un resultado anterior. Al filtrar, definí además x[n], las memorias iniciales y los ceros que querés añadir para observar la cola."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Representar un número entrega palabra, valor y error. Coeficientes compara Hq con H, sus polos y su frecuencia. Filtrar simula la forma II transpuesta, con SOS conservadas si existen. Compara la salida con el cálculo original y con otra referencia que ya tiene entrada, coeficientes y memoria cuantizados. Esa segunda comparación permite distinguir el error de ejecución del almacenamiento inicial. La salida se puede exportar o usar en otro menú."
+        ],
+        [
+          "Qué tener en cuenta",
+          "En ejecución elegís redondear productos y sumas o sólo salida y memorias. Los bits extra amplían el rango del acumulador Q. Podés saturar o aplicar complemento a dos cíclico; los coeficientes Q se almacenan siempre con saturación y a[0]=1 es implícito. Un ciclo se confirma al repetirse exactamente el estado con entrada nula; un registro sin repeticiones no demuestra que no exista. El modelo flotante redondea valores y subnormales, pero no reproduce flags ni signo de cero de un procesador. Los desbordes flotantes detienen el cálculo conservando el último resultado válido."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "sampling",
+        0
+      ],
+      "flow": [
+        "x(t), t₀ y Fs",
+        "tₙ=t₀+n/Fs",
+        "Muestras x(tₙ)"
+      ],
+      "parameters": [
+        [
+          "x(t)",
+          "Fórmula con t en segundos."
+        ],
+        [
+          "Fs",
+          "Muestras por segundo, positiva; no rad/s."
+        ],
+        [
+          "Inicio y cantidad",
+          "t₀ en segundos y N entero positivo; último instante t₀+(N−1)/Fs."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Los tallos son las muestras. Aumentar N alarga el registro; aumentar Fs reduce la separación temporal. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "sampling",
+        1
+      ],
+      "flow": [
+        "Tono Ω (rad/s) y Fs",
+        "Reducir módulo 2π·Fs",
+        "Alias en rad/s y rad/muestra"
+      ],
+      "parameters": [
+        [
+          "Frecuencia angular Ω",
+          "Frecuencia del tono en rad/s. Se admiten pi y expresiones constantes."
+        ],
+        [
+          "Fs",
+          "Tasa en muestras/s, positiva. El límite de Nyquist es π·Fs rad/s; no se compara Ω directamente con Fs/2."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "El dibujo usa un coseno de fase cero y 17 muestras. No demuestra el contenido de banda de una señal arbitraria. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "sampling",
+        2
+      ],
+      "flow": [
+        "Muestras y factor entero",
+        "Diezmar / expandir / interpolar",
+        "Registro a otra tasa"
+      ],
+      "parameters": [
+        [
+          "Método y factor",
+          "Diezmar conserva una de cada M; expandir inserta L−1 ceros; interpolar estima valores. Factor entero positivo."
+        ],
+        [
+          "Fase de diezmado",
+          "Posición local de la primera muestra conservada, entre 0 y M−1; no fase angular."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Diezmar aquí no incluye antialias. Expandir no equivale a reconstruir muestras intermedias. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "sampling",
+        3
+      ],
+      "flow": [
+        "Muestras, Fs y t₀",
+        "Retención / rectas / sinc",
+        "Curva entre muestras"
+      ],
+      "parameters": [
+        [
+          "Fs y t₀",
+          "Ubican las muestras en el tiempo; deben corresponder a su adquisición."
+        ],
+        [
+          "Factor L",
+          "Puntos por intervalo, entero positivo."
+        ],
+        [
+          "Método",
+          "Retención mantiene valores; lineal une con rectas; sinc usa el registro finito."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La curva termina en la última muestra. No recupera información perdida por aliasing. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "sampling",
+        4
+      ],
+      "flow": [
+        "Señal y rango de amplitud",
+        "Asignar niveles finitos",
+        "Señal cuantizada y error"
+      ],
+      "parameters": [
+        [
+          "Bits",
+          "Determinan la cantidad de niveles."
+        ],
+        [
+          "Mínimo y máximo",
+          "Límites ordenados de amplitud, no frecuencias."
+        ],
+        [
+          "Método y cero",
+          "Controlan cómo se elige el nivel y si se centra un nivel en cero."
+        ],
+        [
+          "Filas SNR",
+          "Recortan el cálculo de la relación señal/error, no el registro cuantizado."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "SNR incluye saturación y no resta la media. El error guardado es xq−x. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "sampling",
+        5
+      ],
+      "flow": [
+        "Valor y bits I,F",
+        "Paso = 2⁻ᶠ",
+        "Código, valor y error"
+      ],
+      "parameters": [
+        [
+          "Valor",
+          "Número a representar; admite el formato exacto indicado."
+        ],
+        [
+          "Bits enteros I",
+          "Incluyen el signo; no son sólo bits de magnitud."
+        ],
+        [
+          "Bits fraccionarios F",
+          "Controlan el paso 2⁻ᶠ."
+        ],
+        [
+          "Método",
+          "Redondeo o truncamiento; los extremos saturan."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Código binario y valor representado son cosas distintas. El error total de este informe se expresa como entrada−salida. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "rational_resampling",
+        0
+      ],
+      "flow": [
+        "x[n] y factores L/M",
+        "Filtro antialias y cambio de tasa",
+        "Fs nueva = Fs·L/M"
+      ],
+      "parameters": [
+        [
+          "L y M",
+          "Enteros positivos, numerador y denominador de la relación de tasas."
+        ],
+        [
+          "Ventana y filtro",
+          "Determinan la aproximación antialias."
+        ],
+        [
+          "Bordes",
+          "La extensión elegida afecta inicio y final del registro."
+        ],
+        [
+          "Fs de entrada",
+          "Tasa positiva en muestras/s; Leer Fs registrada toma el reloj guardado si existe."
+        ],
+        [
+          "Semilongitud FIR por fase",
+          "Entero positivo que controla la extensión del filtro; mayor longitud implica mayor costo y puede mejorar el rechazo."
+        ],
+        [
+          "β de Kaiser",
+          "Parámetro de forma de la ventana; no es una frecuencia ni una tolerancia de amplitud."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Cambiar la tasa no aumenta la información original. Los valores cercanos a extremos dependen de la extensión. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    }
+  ]
+}

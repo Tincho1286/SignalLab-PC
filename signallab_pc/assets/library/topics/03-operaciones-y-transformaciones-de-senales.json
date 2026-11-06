@@ -1,0 +1,446 @@
+{
+  "version": 1,
+  "category": "Operaciones y transformaciones de señales",
+  "articles": [
+    {
+      "key": [
+        "time_transform",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La transformación afín combina amplitud, escala temporal, inversión y desplazamiento en y(t)=A·x(a·(t−t₀))."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-ef5081c7"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-18ca474d"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-3c5302e5"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "signal_product",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "El producto punto a punto permite aplicar una ventana a una señal. Está junto a Suma dentro de Sumar o multiplicar señales."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí Producto y el dominio. En Señal x cargá la señal, y en Señal w / ventana cargá la segunda. Ambas entradas son independientes y pueden venir de una fórmula, tramos, muestras, archivo o resultado anterior."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El resultado es y[n]=x[n]·w[n], o su equivalente temporal. Se conserva el intervalo de x y se usa cero fuera del registro de w. En continuo se interpola w linealmente sobre los instantes de x. El resultado queda disponible para exportar y reutilizar. Cambiar de pestaña de entrada conserva sus datos."
+        ],
+        [
+          "Qué tener en cuenta",
+          "No se conjuga la segunda señal, no se realiza convolución y no se normaliza la ganancia. Los relojes discretos conocidos deben ser compatibles. Los productos generales de Dirac requieren otro tratamiento. Para elegir la longitud de una ventana independientemente de h[n] al obtener un FIR, usá Diseñar filtro → FIR → h[n] propia."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "time_transform",
+        1
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          {
+            "ref": "que-podes-hacer-8ab4c965"
+          }
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-ef5081c7"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-18ca474d"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-3c5302e5"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "time_transform",
+        2
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          {
+            "ref": "que-podes-hacer-45c2584f"
+          }
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-ef5081c7"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-18ca474d"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-3c5302e5"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "time_transform",
+        3
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          {
+            "ref": "que-podes-hacer-57859a12"
+          }
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-ef5081c7"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-18ca474d"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-3c5302e5"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "time_transform",
+        4
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          {
+            "ref": "que-podes-hacer-56d17221"
+          }
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-ef5081c7"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-18ca474d"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-3c5302e5"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "time_transform",
+        0
+      ],
+      "flow": [
+        "Registro de entrada",
+        "Transformar eje o valores",
+        "Salida y original reutilizables"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          {
+            "ref": "entrada-f630e38e"
+          }
+        ],
+        [
+          "A",
+          "Factor real o complejo de amplitud."
+        ],
+        [
+          "a",
+          "Escala temporal real no nula; |a|>1 comprime, |a|<1 expande, a<0 invierte."
+        ],
+        [
+          "t₀",
+          "Desplazamiento en segundos aplicado después de la escala. Cada punto τ pasa a t=τ/a+t₀."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-b1f1ceb8"
+      }
+    },
+    {
+      "key": [
+        "signal_product",
+        0
+      ],
+      "flow": [
+        "Dos entradas independientes",
+        "Multiplicar en el mismo índice o instante",
+        "Salida en el intervalo de x"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Producto está junto a Suma, dentro de Sumar o multiplicar señales."
+        ],
+        [
+          "Entradas",
+          "Editá Señal x y Señal w / ventana; ambas admiten fórmula/tramos, muestras, archivo o resultado."
+        ],
+        [
+          "Dominio",
+          "Discreto alinea por índices enteros; continuo interpola linealmente la segunda sobre los instantes de x."
+        ],
+        [
+          "Intervalo",
+          "El resultado conserva el de x. La segunda entrada vale cero fuera de sus datos."
+        ],
+        [
+          "Relojes",
+          "Las tasas y los tiempos físicos registrados deben ser compatibles."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "El resultado es y=x·w, no una convolución ni un producto con conjugación. No se normaliza la ganancia. Los productos generales de Dirac no se admiten como productos de muestras. Para diseñar un FIR desde h[n] y elegir L independientemente usá Diseñar filtro → FIR → h[n] propia. Cambiar de operación conserva sus datos y resultado hasta volver a calcular. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "time_transform",
+        1
+      ],
+      "flow": [
+        "Registro de entrada",
+        "Transformar eje o valores",
+        "Salida y original reutilizables"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          {
+            "ref": "entrada-f630e38e"
+          }
+        ],
+        [
+          "Desplazamiento",
+          {
+            "ref": "desplazamiento-3c997b56"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-b1f1ceb8"
+      }
+    },
+    {
+      "key": [
+        "time_transform",
+        2
+      ],
+      "flow": [
+        "Registro de entrada",
+        "Transformar eje o valores",
+        "Salida y original reutilizables"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          {
+            "ref": "entrada-f630e38e"
+          }
+        ],
+        [
+          "Inversión",
+          "Refleja alrededor de n=0 o t=0; cambia el origen y el orden de los valores, no su amplitud."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-b1f1ceb8"
+      }
+    },
+    {
+      "key": [
+        "time_transform",
+        3
+      ],
+      "flow": [
+        "Registro de entrada",
+        "Transformar eje o valores",
+        "Salida y original reutilizables"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          {
+            "ref": "entrada-f630e38e"
+          }
+        ],
+        [
+          "A",
+          {
+            "ref": "a-3650a67d"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-b1f1ceb8"
+      }
+    },
+    {
+      "key": [
+        "time_transform",
+        4
+      ],
+      "flow": [
+        "Registro de entrada",
+        "Transformar eje o valores",
+        "Salida y original reutilizables"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          {
+            "ref": "entrada-f630e38e"
+          }
+        ],
+        [
+          "Partes",
+          {
+            "ref": "partes-6e394470"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-b1f1ceb8"
+      }
+    }
+  ]
+}

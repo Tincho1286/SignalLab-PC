@@ -126,16 +126,17 @@ def interval(value,lower,upper):
 def direct_pairs(expression,lower,upper):
     parts=pieces(expression,lower,upper)
     if parts is None:return None
-    results=[]
+    results=[];segments=[]
     for value,lo,hi in parts:
         checkpoint();pair=interval(value,lo,hi)
         if pair is None:return None
         results.append(pair)
+        segments.append(dict(expression=str(value),lower=str(lo),upper=str(hi),transform=str(pair[0]),condition=str(pair[1])))
     from .radial_conditions import simplify_radial
     condition = simplify_radial(sp.And(*(pair[1] for pair in results)), Z)
     boundary_condition=sp.And(*[pair[2] for pair in results])
     closed=sp.simplify(sp.Add(*[pair[0] for pair in results]))
-    boundary={'boundary_result':closed,'boundary_condition':boundary_condition}
+    boundary={'segments':segments,'boundary_result':closed,'boundary_condition':boundary_condition}
     if condition is sp.false:
         return {'result':sp.Sum(expression*Z**(-N),(N,lower,upper)),'condition':condition,'empty':True,**boundary}
     finite_support=all(value==0 or (lo.is_finite and hi.is_finite) for value,lo,hi in parts)

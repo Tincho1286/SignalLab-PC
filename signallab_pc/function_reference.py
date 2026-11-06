@@ -1,23 +1,13 @@
 """Referencia verificada contra engine._FUNCS y symbolic.FUNCTIONS."""
 
 def function_sections():
-    pages=[]
-    def add(title,blocks,illustration=None):
-        pages.append(dict(title=title,category='Funciones de las fórmulas',route=None,purpose=blocks[0][1],usage='',blocks=blocks,reference=True,illustration=illustration))
-    add('Guía de funciones y sintaxis',[('Lectura','')],None)
-    add('Impulse · impulso discreto',[('Lectura','')],'impulse')
-    add('Step y Heaviside · escalón unitario',[('Lectura','')],'step')
-    add('Sinc · seno cardinal',[('Lectura','')],'sinc')
-    add('Sin, Cos y funciones trigonométricas',[('Lectura','')],None)
-    add('Exp, Log, Ln y Sqrt',[('Lectura','')],None)
-    add('Abs, Re, Im y Conj · números complejos',[('Lectura','')],None)
-    add('Sign, Floor, Ceil y Ceiling',[('Lectura','')],None)
-    add('Where y condiciones · funciones por tramos',[('Lectura','')],None)
-    add('DiracDelta · impulso continuo por posición y peso',[('Lectura','')],'dirac')
-    add('Coeficientes · constantes, pi y notación científica',[('Lectura','')],None)
-    from .library_concepts import FUNCTION_BLOCKS
-    if len(pages)!=len(FUNCTION_BLOCKS):raise ValueError("Revisar correspondencia de páginas de funciones.")
-    for page,blocks in zip(pages,FUNCTION_BLOCKS):page.update(blocks=blocks,purpose=blocks[0][1])
+    from .library_content import read_data,block_pairs
+    pages=[];seen=set()
+    for row in read_data('functions.json','references'):
+        identifier=row.get('id');title=row.get('title')
+        if not isinstance(identifier,str) or not identifier or identifier in seen or not isinstance(title,str) or not title:raise ValueError('Referencia de funciones inválida o duplicada.')
+        seen.add(identifier);blocks=block_pairs(row['blocks'])
+        pages.append(dict(article_id=identifier,title=title,category='Funciones de las fórmulas',route=None,purpose=blocks[0][1],usage='',blocks=blocks,reference=True,illustration=row.get('illustration')))
     return pages
 
 

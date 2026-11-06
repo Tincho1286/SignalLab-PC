@@ -1,0 +1,270 @@
+{
+  "version": 1,
+  "category": "Transformadas de Laplace y Z",
+  "articles": [
+    {
+      "key": [
+        "transform_lab",
+        "laplace"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Laplace relaciona una señal continua x(t) con X(s). La herramienta reúne la directa y la inversa, con interpretación unilateral o bilateral dentro del mismo formulario."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí la operación y la interpretación. En la directa bilateral, escribí la señal completa con sus escalones o tramos. En la inversa bilateral, ingresá X(s) racional, opcionalmente multiplicada por exp(-d*s), y elegí una región de convergencia."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La ROC es la zona del plano s donde converge la integral. Una línea vertical dentro de ella permite decidir el soporte de cada término: los polos que quedan a su izquierda generan términos derechos y los de su derecha generan términos izquierdos. El programa calcula los bordes reales de la región a partir de esos polos. El dibujo muestra un caso con ambos soportes."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La fórmula obtenida incluye los coeficientes y los escalones. Un desplazamiento global mueve también los impulsos y sus derivadas. La misma X(s) con otra ROC puede describir otra señal. Una región vacía no constituye una transformada válida; un cálculo sin resolver se identifica como pendiente. Los modos de grado alto muestran los números evaluados dentro de la expresión y conservan la descomposición algebraica exacta. Copiar a la inversa conserva la ROC cuando se pudo determinar; Resultados permite reutilizar la expresión con sus condiciones."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "transform_lab",
+        "z"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Directa e Inversa reúnen los cálculos de Z. Las secuencias finitas son una forma de entrada de la directa, sin un menú independiente."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "En Directa elegí Expresión o Secuencia finita; cada registro conserva su primer índice. En Inversa cargá X(z), elegí una ROC y pedí un intervalo o el soporte finito completo cuando X sea un polinomio de Laurent."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Enviar a CAS conserva el resultado activo: X(z) en la directa y x[n] en la inversa. Analizar X(z) como H(z) usa la transformada, conserva el reloj disponible y traslada una ROC cuando puede determinarse."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La ROC decide la secuencia. Una lista finita no se prolonga periódicamente ni se convierte en una señal infinita. El soporte completo se refiere al intervalo entre el primer y último coeficiente no nulo; los ceros exteriores no se pueden deducir de X(z)."
+        ],
+        [
+          "Continuidad, pares y convergencia",
+          "Completar una muestra por continuidad no basta para transformar una suma: también hay que reconocer el resto de la secuencia. Se separan esas muestras y se aplican pares y propiedades antes de la suma general. sin(pi*n)/(pi*n), completada con 1 en n=0, es el impulso unitario para n entero: su transformada Z es 1. En cambio, una sinc bilateral de corte menor que pi puede tener un pulso como DTFT y no tener una ROC abierta para Z. El informe distingue esos casos y muestra la DTFT cuando reconoce el par sinc/rectángulo. Para una señal causal usá soporte de 0 a oo; para toda la secuencia, de -oo a oo."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "symbolic",
+        0
+      ],
+      "flow": [
+        "x(t), t≥0",
+        "Laplace unilateral",
+        "X(s) y convergencia"
+      ],
+      "parameters": [
+        [
+          "Expresión",
+          "Fórmula en t, por ejemplo exp(-t). No se pide un intervalo numérico."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La transformación es unilateral; revisá el semiplano y las condiciones del resultado. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "symbolic",
+        1
+      ],
+      "flow": [
+        "X(s)",
+        "Inversa causal de Laplace",
+        "x(t)"
+      ],
+      "parameters": [
+        [
+          "Expresión",
+          "Fórmula en s, por ejemplo 1/(s+1)."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La herramienta elige la interpretación causal indicada, no todas las señales bilaterales posibles. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "symbolic",
+        2
+      ],
+      "flow": [
+        "Registro x[n]",
+        "Σ x[n]z⁻ⁿ",
+        "Expresión en z"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          "Fórmula en n o muestras separadas por coma; para decimales usá punto. Ejemplo: 1, -0.5, 2."
+        ],
+        [
+          "Inicio y cantidad",
+          {
+            "ref": "inicio-y-cantidad-3ad0ceba"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Se conservan índices negativos si existen. No se supone que el registro se repite infinitamente. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "symbolic",
+        3
+      ],
+      "flow": [
+        "Función racional X(z)",
+        "Expansión desde z=∞",
+        "Secuencia derecha y términos"
+      ],
+      "parameters": [
+        [
+          "Expresión",
+          "Función racional en z, por ejemplo z/(z-1/2)."
+        ],
+        [
+          "Términos",
+          "Cantidad de valores mostrados; no define la región de convergencia."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Esta opción usa rama derecha. Para elegir otra región, usá Z inversa con región de convergencia. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "transform_lab",
+        "z"
+      ],
+      "flow": [
+        "x[n] o X(z)",
+        "Soporte o ROC",
+        "Expresión y muestras"
+      ],
+      "parameters": [
+        [
+          "Directa",
+          "Elegí Expresión x[n] con soporte inclusivo, o Secuencia finita. La secuencia tiene su propio origen y permite Fórmula, Muestras, Archivo o Resultado."
+        ],
+        [
+          "Inversa",
+          "Ingresá X(z) y elegí la ROC. Para una secuencia infinita pedí un intervalo; para un polinomio de Laurent elegí Soporte finito completo: se recuperan todos los índices no nulos, incluidos negativos."
+        ],
+        [
+          "ROC",
+          "Exterior, interior o anillo deciden el soporte de los términos. El radio debe quedar dentro de un anillo libre de polos; no fija sus bordes."
+        ],
+        [
+          "Enviar a CAS",
+          "Envía el resultado matemático del flujo activo, con sus condiciones. En la directa es X(z); en la inversa es x[n]."
+        ],
+        [
+          "Analizar X(z) como H(z)",
+          "En la directa usa X(z) calculada; en la inversa usa la X(z) ingresada. Conserva el reloj disponible y una ROC compatible cuando se puede inferir. El análisis separa H(z) en el plano y H(e^{jω})."
+        ],
+        [
+          "Archivos",
+          "Cargar expresión importa un resultado algebraico JSON compatible. Secuencia finita permite CSV, MATLAB y JSON. No se interpreta una lista finita como una fórmula de soporte infinito."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Expresión y condiciones forman el resultado. Una rama convergente se presenta con su condición; una suma sin resolver se identifica como pendiente. La inversa admite funciones racionales cuyos polos puedan obtenerse algebraicamente. Parámetros sin valor conservan una expresión simbólica; no se inventan muestras numéricas. Las operaciones conservan sus entradas y resultados por separado durante la sesión. La pestaña Desarrollo muestra los pasos registrados del último cálculo sin volver a resolverlo. La inversión racional bilateral puede mostrar fracciones parciales; Z también muestra los pares geométricos reconocidos y sus desplazamientos. En rutas que no registran descomposición se indica esa limitación. Copiar a análisis o cargar desde Resultados conserva una ROC compatible, también para H(s). En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones. Las muestras completadas por continuidad se separan antes de aplicar tablas y propiedades. sin(pi*n)/(pi*n) completada equivale a delta[n] y da X(z)=1. Una sinc bilateral de corte menor que pi puede tener DTFT sin una ROC abierta de Z; el informe diferencia ambos resultados."
+    },
+    {
+      "key": [
+        "transform_lab",
+        "laplace"
+      ],
+      "flow": [
+        "x(t) o X(s)",
+        "Directa o inversa",
+        "Expresión y condiciones"
+      ],
+      "parameters": [
+        [
+          "Interpretación",
+          "Unilateral integra desde 0− y su inversa usa soporte causal. Bilateral integra toda la recta temporal y necesita una ROC para recuperar la señal."
+        ],
+        [
+          "Directa",
+          "Ingresá x(t), usando t. En bilateral incluí el soporte mediante escalones o tramos: los valores para t<0 también intervienen."
+        ],
+        [
+          "Inversa bilateral",
+          "Ingresá una función racional X(s). Admite un factor global exp(-d*s), que desplaza toda la señal en d segundos. Los términos polinómicos producen impulsos o derivadas de impulsos."
+        ],
+        [
+          "Región de convergencia",
+          "A la derecha de todos los polos elige términos derechos. A la izquierda elige términos izquierdos. Una franja interior combina ambos: cada polo a la izquierda de la línea genera un término derecho y cada polo a la derecha genera uno izquierdo."
+        ],
+        [
+          "Parte real σ",
+          "Una constante real como 0, -2 o pi. Sólo se solicita al elegir una franja interior. No es un borde: el programa obtiene los bordes desde los polos. La línea no puede coincidir con la parte real de un polo."
+        ],
+        [
+          "Condiciones",
+          "La expresión y su ROC forman el resultado. Una intersección vacía indica que la transformada bilateral no converge en una región abierta. Los parámetros simbólicos conservan sus condiciones; para elegir una línea interior hay que asignarles valores."
+        ],
+        [
+          "Copiar y reutilizar",
+          "Copiar resultado a la inversa prepara la expresión y conserva una ROC compatible cuando se pudo determinar. Revisá las condiciones y calculá en el destino. Resultados conserva expresión, modo y condiciones; enviar una señal temporal desde allí a Laplace usa el modo bilateral para conservar ambos lados del tiempo."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La misma X(s) puede representar señales diferentes según su ROC. Por ejemplo, 1/(s+1) da exp(-t)·u(t) si Re(s)>-1, y -exp(-t)·u(-t) si Re(s)<-1. Los bordes están excluidos. Cambiar la ROC cambia el soporte, no los polos. Si el motor deja un cálculo sin evaluar, el informe lo indica y no ofrece esa expresión como un resultado resuelto. La pestaña Desarrollo muestra los pasos registrados del último cálculo sin volver a resolverlo. La inversión racional bilateral puede mostrar fracciones parciales; Z también muestra los pares geométricos reconocidos y sus desplazamientos. En rutas que no registran descomposición se indica esa limitación. Copiar a análisis o cargar desde Resultados conserva una ROC compatible, también para H(s). En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    }
+  ]
+}

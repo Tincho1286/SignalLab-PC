@@ -32,7 +32,7 @@ GUIDES['analog']='Definí bandas en rad/s y tolerancias de amplitud. Diseñá un
 
 class CourseToolsPanel(QWidget):
     def __init__(self,window,action):
-        super().__init__();self.window=window;self.action=action;self.parent_id=None;self.items=[];self.fields={};self.records=[];self.specifications=None
+        super().__init__();self.window=window;self.action=action;self.parent_id=None;self.items=[];self.fields={};self.records=[];self.specifications=None;self.procedure=[]
         from .toolbox import LocalInput,ResultView
         root=QHBoxLayout(self);controls=QWidget();form=QFormLayout(controls);form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows);self.form=form
         if action=='phase':form.setProperty('stackFields',True);form.setContentsMargins(6,9,6,9)
@@ -334,10 +334,14 @@ class CourseToolsPanel(QWidget):
                 self.specification_status.setText('Dentro de tolerancias en la rejilla calculada.' if status else 'FUERA DE TOLERANCIAS · este diseño no satisface los límites solicitados. Revisá el informe.')
                 self.specification_status.setStyleSheet('color:'+('#68c7b4' if status else '#efb56c')+';')
                 if hasattr(self,'comparison_controls'):self.comparison_controls.show()
+                self.procedure=result.get('procedure',[])
                 self.comparing_systems=result.get('comparison',False);self.show_all_systems.setVisible(self.comparing_systems)
                 self.items=result['systems']+result['signals'];self.records=[];self.specifications=result.get('specifications')
                 for value in self.items:self.records.append(self.window.publish(value,operation=TITLES[action],parents=parents))
-                self.window.publish({'report':result['report'],'specifications':self.specifications,**({'input_conditions':imported_conditions} if ideal_conversion else {})},title=TITLES[action],operation='Informe de '+TITLES[action],parents=parents)
+                self.window.publish({'report':result['report'],'specifications':self.specifications,'procedure':self.procedure,**({'input_conditions':imported_conditions} if ideal_conversion else {})},title=TITLES[action],operation='Informe de '+TITLES[action],parents=parents)
+                if result.get('exact_transfer'):
+                    target=result['systems'][0];exact=result['exact_transfer']
+                    self.window.publish({'request':{'operation':'system_formula','expression':exact,'domain':target.domain},'result':{'operation':'system_formula','transfer':exact,'evaluated':True,'output_variable':'s' if target.domain=='analog' else 'z','sample_period_s':target.sample_period_s,'procedure':self.procedure,'scope':'Conversión racional exacta de los coeficientes almacenados; no fija una ROC.'}},title='H exacta de la conversión',operation='Conversión bilineal algebraica',parents=parents)
                 if action=='phase':
                     self.phase_adjustment=result.get('phase_adjustment');self.phase_input=system;self.phase_report=result['report'];self._phase_report_value=None;self.compensation_data=result.get('compensation');self.reconstruction_data=result.get('reconstruction')
                     self.compensation_export.setText('Exportar reconstrucción CSV…' if self.reconstruction_data is not None else 'Exportar comparación CSV…');self.compensation_export.setVisible(self.compensation_data is not None or self.reconstruction_data is not None)
@@ -420,6 +424,7 @@ class CourseToolsPanel(QWidget):
         for control in (self.view.label,self.view.send,self.view.save):control.setVisible(not is_system)
         if not is_system:
             self.view.show_result(value)
+            if self.procedure:self.view.set_procedure(self.procedure)
             if self.action=='phase' and self.reconstruction_data is not None:
                 from .phase_reconstruction import reconstruction_summary
                 self.report.set_readable(reconstruction_summary(self.reconstruction_data))
@@ -430,6 +435,7 @@ class CourseToolsPanel(QWidget):
         self.view.table_view.set_signals(());self.view.views.setTabVisible(self.view.table_index,False)
         self.view.views.setTabVisible(self.view.details_index,False)
         self.view.result=None;self.view.save.setEnabled(False);self.view.send.setEnabled(False);self.view.label.setText(value.name)
+        self.view.set_procedure(self.procedure)
         if self.action=='phase' and getattr(self,'_phase_report_value',None) is not value:
             from .phase_summary import phase_summary
             if self.compensation_data is not None:

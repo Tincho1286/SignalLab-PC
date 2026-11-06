@@ -1,4 +1,4 @@
-"""Muestreo y conversión: convenciones numéricas del código HP 5.0."""
+"""Sampling, reconstruction and conversion with explicit finite-record conventions."""
 from dataclasses import dataclass
 from decimal import Decimal
 from fractions import Fraction
@@ -129,6 +129,13 @@ def resample(x, factor, method, phase=0):
     if 'sample_rate_hz' in metadata and 'time_start_s' in metadata:
         from .system_clock import validate_clock_resolution
         validate_clock_resolution(metadata['time_start_s'],metadata['sample_rate_hz'],count)
+    from .procedure import step,views
+    formulas={'decimate':'y[m] = x[n0+phase+L*m]','expand':'y[L*k] = x[n0+k]; y[L*k+r] = 0, r != 0','linear':'y[L*k+r] = (1-r/L)*x[n0+k] + (r/L)*x[n0+k+1]',
+              'zoh':'y[L*k+r] = x[n0+k]','sinc':'y[m] = Sum(x[n0+k]*sinc(m/L-k),(k,0,N-1))'}
+    interpretation='Se reindexa desde cero y se conserva el primer instante seleccionado. No se aplica filtrado antialias.' if method=='decimate' else 'Se conserva el origen multiplicado por L y se termina en la última muestra original.'
+    if method=='sinc':interpretation+=' Se usan todas las muestras, con extensión nula; la convolución se evalúa por FFT y los nudos originales se restauran exactamente.'
+    records=[step('Cambio de tasa registrado',{'decimate':'Selección de una de cada L muestras','expand':'Inserción de ceros','linear':'Interpolación lineal','zoh':'Retención de orden cero','sinc':'Interpolación SINC del registro finito'}[method],after=formulas[method],conditions='L = '+str(factor)+'; N = '+str(len(x.values))+'; n0 = '+str(x.origin)+('; phase = '+str(phase) if method=='decimate' else ''),interpretation=interpretation,source='sampling.resample')]
+    metadata.update(procedure=records,derivation=views(records),derivation_operation='resample')
     return Signal(_finite_output(values, "El remuestreo"), origin, 1, x.units,
                   f"{x.name}_{method}", "discrete", "", metadata)
 
@@ -165,11 +172,14 @@ def reconstruct(x, rate, start, factor, method, *, override_clock=False):
     step = 1 / rate / factor
     from .system_clock import validate_time_step
     validate_time_step(start,step,interpolated.values.size)
+    from .procedure import step as record_step,views
+    records=[*interpolated.metadata['procedure'],record_step('Asignar el eje temporal','Conversión de índices a segundos',after='t[j] = t0 + j/(L*Fs)',conditions='t0 = '+str(start)+' s; Fs = '+str(rate)+' muestras/s; L = '+str(factor),interpretation='Se muestra desde la primera hasta la última muestra almacenada. Una interpolación finita no demuestra que la señal original sea de banda limitada.',source='sampling.reconstruct')]
     return Signal(interpolated.values, start, step, "s", f"{x.name}_{method}(t)", "continuous", "",
                   {"operation": "reconstruction", "method": method, "source_rate_hz": rate,
                    "source_time_start_s":start,"clock_override":bool(override_clock),
-                   "model": "Finite input; SINC includes all input samples, no window or renormalization",
-                   "display_window": "first through last stored sample; infinite SINC tails omitted"})
+                   "model": {'sinc':'SINC de todas las muestras con extensión nula; sin ventana ni renormalización','linear':'Interpolación lineal entre muestras consecutivas','zoh':'Retención de orden cero entre muestras'}[method],
+                   "display_window": "first through last stored sample; infinite SINC tails omitted" if method=='sinc' else 'first through last stored sample',
+                   'procedure':records,'derivation':views(records),'derivation_operation':'reconstruction'})
 
 
 @dataclass

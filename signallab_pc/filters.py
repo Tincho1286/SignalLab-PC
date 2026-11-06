@@ -337,7 +337,7 @@ def fir(kind, taps, f1, f2=None, window="hamming", beta=8.6):
         h = band if kind == "bandpass" else delta-band
     w = sp.get_window(("kaiser", beta) if window == "kaiser" else window,
                       taps, fftbins=False)
-    return Transfer(h*w, [1], name=f"FIR {kind}")
+    return Transfer(h*w, [1], name=f"FIR {kind}",roc={"mode":"right"})
 
 
 def biquad(kind, f0, q):
@@ -375,8 +375,8 @@ def bilinear(system: Transfer, period):
         raise ValueError("La bilineal requiere H(s) analógica y T > 0.")
     if np.any(system.b.imag) or np.any(system.a.imag):
         raise ValueError("La bilineal numérica requiere coeficientes reales.")
-    b, a = sp.bilinear(system.b.real, system.a.real, fs=1/period)
-    return Transfer(b, a, name=f"Bilineal de {system.name}",sample_period_s=period)
+    from .bilinear_mapping import convert
+    return convert(system,period)[0]
 
 
 def rc_design(kind, cutoff_hz, known, value):

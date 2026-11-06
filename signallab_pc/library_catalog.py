@@ -4,8 +4,7 @@ import json,re,unicodedata
 
 CATEGORIES=('Fundamentos de señales','Señales continuas y discretas','Operaciones y transformaciones de señales','Sistemas LTI','Convolución y correlación','Series y transformadas de Fourier','Transformadas de Laplace y Z','Muestreo y reconstrucción','Análisis de sistemas','Diseño de filtros FIR e IIR','Ecuaciones diferenciales y en diferencias','Procesamiento digital de señales','Señales aleatorias','Herramientas matemáticas complementarias')
 
-def data_root():
-    return Path(__file__).parent/'assets/library'
+from .library_content import data_root
 
 
 def example_records():
@@ -65,7 +64,7 @@ def sections():
     values=cas_sections()+function_sections()+concept_sections()+tools()
     for index,section in enumerate(values):
         route=section.get('route')
-        section['article_id']='tool:'+str(route[1])+':'+str(route[2]) if route else 'reference:'+section['title']
+        section.setdefault('article_id','tool:'+str(route[1])+':'+str(route[2]) if route else 'reference:'+section['title'])
         section['category']=category(section)
         section['content_kind']='reference' if section.get('reference') else 'tool' if route else 'concept'
     for example in example_records():
@@ -76,6 +75,13 @@ def sections():
     for section in values:
         section['purpose']=section.get('purpose') or section['blocks'][0][1]
         section['usage']=section.get('usage') or (section['blocks'][1][1] if len(section['blocks'])>1 else section['purpose'])
+    from .library_content import read_data
+    tools_by_key={tuple(value['route'][1:3]):value for value in values if value.get('route') and value.get('content_kind')=='tool'}
+    seen=set()
+    for relation in read_data('relations.json','relations'):
+        source=tuple(relation['key']);targets=list(map(tuple,relation['targets']))
+        if source in seen or source not in tools_by_key or len(targets)!=len(set(targets)) or any(target not in tools_by_key for target in targets):raise ValueError('Referencia cruzada inválida o duplicada en la biblioteca.')
+        seen.add(source);tools_by_key[source]['related']=[(tools_by_key[target]['article_id'],tools_by_key[target]['title']) for target in targets]
     order={'concept':0,'tool':1,'example':2,'reference':3}
     values.sort(key=lambda value:(CATEGORIES.index(value['category']),order[value['content_kind']],value['title']))
     return values

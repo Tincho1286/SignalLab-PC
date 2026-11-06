@@ -1,0 +1,1078 @@
+{
+  "version": 1,
+  "category": "Procesamiento digital de señales",
+  "articles": [
+    {
+      "key": [
+        "dsp_extensions",
+        "blocks"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La convolución por bloques calcula la misma convolución lineal completa, procesando grupos de muestras mediante FFT."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá x[n] y h[n], elegí solapamiento-suma u overlap-add, o solapamiento-almacenamiento u overlap-save. Después indicá cuántas muestras nuevas procesar por bloque."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El informe describe cómo se combinan los bloques. La salida incluye la cola final de la convolución y debe representar el mismo resultado que el cálculo lineal directo."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El tamaño de bloque organiza el cálculo; no cambia el sistema definido por h[n]. Se usa extensión por ceros, no repetición periódica de la señal completa."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "fft"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta herramienta reúne la FFT, las ventanas y la comparación con DTFT para analizar un registro discreto."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Definí la secuencia y elegí cuántas muestras observar con L. NFFT debe ser al menos L; si es mayor, el cálculo completa con ceros. Elegí la ventana y, si usás Kaiser, su parámetro β."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El selector muestra la señal, la ventana y los espectros. Al superponer DFT y DTFT, los tallos son muestras de frecuencia y la curva es la DTFT del mismo registro con su ventana. Podés conservar una curva de referencia para compararla con otro cálculo."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Completar con ceros agrega puntos al espectro, pero no información ni capacidad de separar tonos que el registro no resuelve. La FFT directa no se divide por N; el informe indica la comparación de energía usada."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "band"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta opción calcula qué parte de la energía corresponde a una banda de frecuencias."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá el espectro complejo X o copiá una transformada anterior. Elegí dos extremos dentro del eje disponible; la entrada debe ser el espectro, no |X|² ni una PSD."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Se integra |X|²/(2π) entre esos extremos mediante trapecios. Una banda positiva no se duplica automáticamente para representar la banda negativa."
+        ],
+        [
+          "Qué tener en cuenta",
+          "En discreto, un período completo de 2π permite comparar con la energía temporal. En continuo, una banda finita sólo contiene la energía de esa banda; no demuestra que fuera de ella la energía sea nula."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "lines"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Una señal periódica concentra su potencia en líneas ubicadas en las frecuencias de sus armónicos."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá los coeficientes c[k] de una serie continua con sus índices y período T, o copiá una serie calculada."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El resultado ubica cada línea en k·2π/T y le asigna el peso 2π|c[k]|². La suma Σ|c[k]|² da la potencia aportada por los armónicos cargados."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Los tallos representan pesos de impulsos ideales de frecuencia, no alturas finitas de una densidad ordinaria. Si cargás sólo algunos armónicos, su suma no es necesariamente la potencia total."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "dsp_extensions",
+        "hilbert"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La transformada de Hilbert permite construir la señal analítica de una entrada real. A partir de ella también se obtiene su envolvente."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí el dominio y cargá una señal real. Calculá y usá el selector para consultar Hilbert, señal analítica o envolvente."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La señal analítica combina la entrada con su transformada de Hilbert como parte imaginaria. Su módulo es la envolvente; cada salida conserva el mismo eje temporal y se puede exportar."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El cálculo mediante FFT supone una extensión periódica del registro. Por eso los extremos pueden mostrar efectos que dependen de cómo termina y comienza la señal."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "dsp_extensions",
+        "stft"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La STFT muestra cómo cambia el contenido de frecuencia al recorrer una señal con ventanas temporales."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá la señal y elegí longitud de ventana, solapamiento y cantidad de puntos FFT. Luego calculá el espectrograma."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Cada columna corresponde a una ventana temporal. Podés elegir una de ellas para consultar su espectro o exportar la STFT completa con sus valores complejos, ejes y parámetros."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Una ventana corta localiza mejor los cambios en el tiempo y una larga distingue mejor frecuencias cercanas. El nivel mostrado es relativo; no se presenta como una PSD calibrada."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "fir"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Diseñá un FIR por bandas, amplitudes y tolerancias. Un rechazabanda puede conservar las frecuencias bajas con amplitud 1 y las altas con amplitud 2."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá los bordes en orden y una amplitud positiva por banda de paso. Elegí tolerancias absolutas, relativas o en dB. En relativas y rechazo en dB, Aref es la mayor amplitud de paso."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El ideal, los límites y el filtro calculado aparecen juntos. El informe muestra h_ideal[n], la ventana, h[n], longitud y evaluación de cada banda. Las dos bandas del rechazabanda se construyen con sus ganancias propias antes de aplicar la ventana."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Kaiser estima la longitud, pero no garantiza cumplimiento. Si la respuesta queda fuera de tolerancias, se indica expresamente. La búsqueda de longitud usa la familia y la rejilla elegidas; no demuestra un mínimo universal."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "iir"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Podés diseñar un IIR que cumpla bandas y tolerancias, y comparar Butterworth, Chebyshev I, Chebyshev II y elíptico."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Completá los bordes en orden creciente entre 0 y π rad/muestra y las tolerancias lineales δp y δs. Elegí una familia o la comparación de las cuatro. Las conversiones de un prototipo analógico de esta variante corresponden a Butterworth."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Butterworth no tiene ondulación; Chebyshev I la permite en paso, Chebyshev II en rechazo y el elíptico en ambas bandas. Compará también fase y retardo, además del orden. El filtro seleccionado determina qué se exporta o se envía."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Las familias digitales conservan secciones de segundo orden para mejorar el cálculo numérico. La invarianza al impulso puede introducir aliasing y debe comprobarse contra las tolerancias digitales. La evaluación en una rejilla no garantiza el máximo entre todos sus puntos."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "analog"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta variante diseña filtros analógicos a partir de sus bandas de paso y rechazo."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí el tipo y completá los bordes positivos en rad/s siguiendo el dibujo. Cargá las tolerancias como amplitudes lineales y elegí una familia o la comparación."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El informe distingue el prototipo del filtro transformado y muestra el orden de cada diseño. En pasabanda o rechazabanda el orden puede duplicarse respecto del prototipo."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El sistema elegido se puede exportar o convertir a digital. Las tolerancias de amplitud no determinan por sí solas la fase ni la respuesta temporal; conviene estudiar esas vistas del resultado."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "convert"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta herramienta relaciona un modelo analógico y uno digital mediante un método de conversión y un período T."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Definí o copiá el sistema y elegí el método compatible con su dominio. Para una respuesta ideal definida en frecuencia, usá sus tramos y los parámetros de ventana que solicita esa modalidad."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La bilineal usa s=(2/T)(z−1)/(z+1), por lo que cambia la correspondencia entre frecuencias. La invarianza al impulso usa h[n]=T·hc(nT) y puede sumar réplicas espectrales. El resultado calculado se puede analizar y reutilizar."
+        ],
+        [
+          "Qué tener en cuenta",
+          "No se predeforma automáticamente un borde en esta conversión. La invarianza racional exige un sistema estrictamente propio. Su inversa no es única: los candidatos dependen de la rama y la opción implementada rechaza, entre otros casos, polos múltiples o nulos. Una respuesta ideal aproximada por ventana no se convierte en un filtro ideal finito exacto."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "gain"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta opción escala un sistema para que alcance un módulo elegido en una frecuencia de referencia."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá H, la frecuencia y el módulo objetivo. Usá rad/s para continuo o rad/muestra para discreto; el objetivo es una amplitud lineal."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El numerador se multiplica por objetivo/|H| en esa frecuencia. La operación cambia la ganancia y conserva la ubicación de los polos y ceros finitos no degenerados."
+        ],
+        [
+          "Qué tener en cuenta",
+          "No es posible obtener una ganancia no nula en un cero mediante un factor finito, ni normalizar sobre una singularidad. Revisá el resto de la banda: ajustar un punto no garantiza una respuesta plana."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "phase"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta herramienta reúne tres estudios: separar factores de H(z), compensar su respuesta con un FIR y reconstruir módulo/fase bajo una hipótesis de fase mínima. Los dos primeros usan una transferencia conocida; la reconstrucción parte de datos propios y no exige cargar H."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "En Reconstruir elegí módulo lineal, módulo en dB o fase desenrollada. La fórmula o lista cubre −π…π con ambos extremos; para archivos se acepta un período completo de 2π o datos 0…π si indicás simetría de un sistema real. Un desplazamiento positivo agrega retardo y uno negativo agrega avance. Si partís de la fase, indicá además un módulo conocido en frecuencia cero para fijar la escala."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El logaritmo de la respuesta relaciona módulo y fase cuando su cepstrum es causal: sus coeficientes son la transformada inversa del logaritmo del espectro. El estudio construye ese modelo y entrega H compleja y una aproximación temporal. Un piso positivo evita logaritmos de cero, pero modifica los datos: el informe lo cuenta. Las figuras muestran fase desenrollada y retardo del modelo; el CSV conserva las curvas y H se puede usar en filtros definidos en frecuencia."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El módulo no revela retardos ni factores paso todo, y la fase sola no fija la ganancia. Otra banda parcial no basta sin hipótesis adicionales; la resolución y el modelo de interpolación importan. El registro h[n] tiene aliasing temporal y no se presenta como un FIR exacto. Factorizar y compensar siguen disponibles; esta opción numérica discreta no equivale a una reconstrucción analógica general."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "mapping"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta opción relaciona la frecuencia analógica, la digital y el período de muestreo según el método elegido."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí qué dato querés obtener y completá los restantes. Ω usa rad/s, ω usa rad/muestra y T usa segundos positivos."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La bilineal relaciona Ω=(2/T)tan(ω/2). En muestreo, ω coincide con ΩT módulo 2π, por lo que al invertir esa relación hay que elegir una rama entera."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Las ramas representan distintas frecuencias analógicas que producen la misma frecuencia discreta. Esta relación de ejes no convierte una respuesta ideal no racional en una transferencia finita exacta."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "bandpass_sampling"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Una señal pasabanda puede admitir tasas de muestreo menores que las exigidas por su frecuencia más alta, si las réplicas de sus bandas no se superponen."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá ΩL y ΩH, los extremos positivos de la banda en rad/s. El modelo supone una señal real, con otra banda reflejada en frecuencias negativas. Si querés evaluar una tasa, ingresá Ωs=2π·Fs."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La tabla y el gráfico muestran los intervalos admisibles y clasifican la tasa consultada. Cuando tiene margen, podés copiarla a Muestrear una expresión sin reemplazar la señal de ese destino."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Los extremos teóricos no dejan margen para transiciones de filtros reales. Cambiar los bordes requiere recalcular antes de exportar o reutilizar los nuevos intervalos."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "inverse_z"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La inversa Z por contorno aproxima muestras de una secuencia a partir de su expresión racional y de una región de convergencia."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá H(z) y elegí un contorno exterior, interior, sobre el círculo unidad o de radio manual. Indicá los índices de salida y los puntos de integración."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El cálculo evalúa H sobre un círculo y obtiene las muestras por integración numérica. Elegir otro anillo puede cambiar la secuencia aunque la fórmula sea igual."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El radio no puede atravesar polos. Para estudiar la aproximación, aumentá los puntos y compará radios dentro de la misma región. Esta opción no devuelve una fórmula algebraica exacta; para eso está la otra modalidad de la Transformada Z."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "course_tools",
+        "fft"
+      ],
+      "flow": [
+        "L muestras y ventana",
+        "FFT de NFFT puntos",
+        "Espectro y referencia DTFT"
+      ],
+      "parameters": [
+        [
+          "L",
+          "Muestras observadas; cero usa todas."
+        ],
+        [
+          "NFFT",
+          "Al menos L; agregar ceros densifica frecuencias."
+        ],
+        [
+          "Ventana y β",
+          "β sólo para Kaiser."
+        ],
+        [
+          "Puntos DTFT",
+          "Densidad de la curva de referencia."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Agregar ceros no mejora la separación de tonos que el registro no resuelve. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "course_tools",
+        "fir"
+      ],
+      "flow": [
+        "Tipo y bordes ordenados",
+        "Ventana y tolerancias",
+        "FIR y bandas verificadas"
+      ],
+      "parameters": [
+        [
+          "Tipo y frecuencias",
+          "Seguí los números del dibujo de izquierda a derecha."
+        ],
+        [
+          "Longitud",
+          "Cantidad de coeficientes; cero estima Kaiser."
+        ],
+        [
+          "Estimación Kaiser",
+          "Usa min(δp,δs) y el menor ancho de transición. No usa el ancho de la banda de paso. Ejemplo: δp=0.05 y δs=0.01 → tolerancia 0.01; transiciones 0.10π y 0.05π → ancho 0.05π. Cada corte queda en el punto medio de su transición. La longitud manual reemplaza la estimada; la búsqueda comprueba candidatos contra todas las bandas originales."
+        ],
+        [
+          "Amplitudes de paso",
+          {
+            "ref": "amplitudes-de-paso-92d63378"
+          }
+        ],
+        [
+          "Tolerancias absolutas",
+          "Paso entre A−δp y A+δp; rechazo hasta δs. δp debe dejar un límite inferior positivo."
+        ],
+        [
+          "Tolerancias relativas",
+          {
+            "ref": "tolerancias-relativas-32262956"
+          }
+        ],
+        [
+          "Tolerancias en dB",
+          {
+            "ref": "tolerancias-en-db-8b8ab0a0"
+          }
+        ],
+        [
+          "Compatibilidad del algoritmo",
+          {
+            "ref": "compatibilidad-del-algoritmo-c18689a6"
+          }
+        ],
+        [
+          "Resultado y límites",
+          {
+            "ref": "resultado-y-limites-f88a81b2"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-380c9116"
+      }
+    },
+    {
+      "key": [
+        "course_tools",
+        "iir"
+      ],
+      "flow": [
+        "Tipo, bordes y tolerancias",
+        "Familia IIR",
+        "Filtro y respuesta"
+      ],
+      "parameters": [
+        [
+          "Tipo y frecuencias",
+          "Un valor por casilla, orden creciente entre 0 y π."
+        ],
+        [
+          "Método",
+          "Familia digital o conversión de prototipo."
+        ],
+        [
+          "Amplitudes de paso",
+          {
+            "ref": "amplitudes-de-paso-92d63378"
+          }
+        ],
+        [
+          "Tolerancias absolutas",
+          "Paso entre A−δp y A+δp; rechazo hasta δs. δp debe dejar un límite inferior positivo."
+        ],
+        [
+          "Tolerancias relativas",
+          {
+            "ref": "tolerancias-relativas-32262956"
+          }
+        ],
+        [
+          "Tolerancias en dB",
+          {
+            "ref": "tolerancias-en-db-8b8ab0a0"
+          }
+        ],
+        [
+          "Compatibilidad del algoritmo",
+          {
+            "ref": "compatibilidad-del-algoritmo-c18689a6"
+          }
+        ],
+        [
+          "Resultado y límites",
+          {
+            "ref": "resultado-y-limites-f88a81b2"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-380c9116"
+      }
+    },
+    {
+      "key": [
+        "course_tools",
+        "convert"
+      ],
+      "flow": [
+        "H y período T",
+        "Elegir transformación",
+        "Sistema convertido"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "T",
+          "Segundos, positivo."
+        ],
+        [
+          "Método",
+          "Bilineal/invarianza requieren H(s); las inversas H(z)."
+        ],
+        [
+          "Definir filtro como",
+          "Transferencia permite coeficientes H(s)/H(z). Respuesta analógica ideal / por tramos permite escribir Ha(jΩ): usá w como frecuencia Ω en rad/s y el editor por tramos."
+        ],
+        [
+          "Conversión de la respuesta",
+          "Bilineal evalúa Ha en Ω=(2/T)tan(ω/2). Invarianza usa h[n]=T ha(nT) y suma réplicas en frecuencia."
+        ],
+        [
+          "Ωmáx",
+          "Sólo para invarianza: se declara Ha=0 fuera de [−Ωmáx,Ωmáx]. Debe incluir todo el soporte del filtro que se desea convertir. Un pasaaltos de soporte infinito no cumple esta hipótesis; usá bilineal o declaralo como aproximación truncada."
+        ],
+        [
+          "Puntos digitales",
+          "Resolución de la respuesta en rad/muestra. Los puntos son centros de celdas para evitar ±π en el mapeo bilineal. Aumentá su cantidad cerca de saltos ideales."
+        ],
+        [
+          "Ventana y longitud FIR",
+          "Para la respuesta ideal se invierte H, se conserva una cantidad impar de muestras, se aplica la ventana y se desplaza el centro para hacerla causal. El retardo añadido es (L−1)/2 muestras."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La bilineal deforma frecuencias; la invarianza puede introducir aliasing. Su inversa no es única. El retardo de grupo se evalúa con la derivada analítica de los polinomios, en muestras para H(z) y segundos para H(s). En filtros SOS se suman los retardos de sus secciones sin expandirlas. No depende del desenrollado de la fase dibujada. Los ceros, polos y puntos con cancelación numérica severa se omiten; no se reemplazan por retardo cero. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. La respuesta ideal se conserva por separado del FIR aproximado obtenido por ventana. Ambos se exportan y reutilizan; el FIR no equivale exactamente al ideal. Un filtro ideal puede ser no causal y tener duración infinita. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "course_tools",
+        "gain"
+      ],
+      "flow": [
+        "H, frecuencia y objetivo",
+        "Escalar numerador",
+        "Módulo objetivo en esa frecuencia"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "Frecuencia",
+          "rad/s en continuo o rad/muestra en discreto."
+        ],
+        [
+          "Objetivo",
+          "Amplitud positiva; no dB."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "No se puede fijar una ganancia no nula en un cero de H mediante un factor finito. El retardo de grupo se evalúa con la derivada analítica de los polinomios, en muestras para H(z) y segundos para H(s). En filtros SOS se suman los retardos de sus secciones sin expandirlas. No depende del desenrollado de la fase dibujada. Los ceros, polos y puntos con cancelación numérica severa se omiten; no se reemplazan por retardo cero. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "course_tools",
+        "phase"
+      ],
+      "flow": [
+        "H(z)",
+        "Elegir el ajuste de fase",
+        "Sistema ajustado y complemento"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "Fórmulas del resultado",
+          "El informe muestra primero Hm(z) o Hap(z), según el factor seleccionado. Debajo aparecen el otro factor, H(z) de entrada y H=Hm·Hap. Para órdenes largos, la suma finita usa los coeficientes b[k] y a[k] del sistema indicado. Seleccionar otro factor actualiza fórmula, gráfica y acciones de reutilización juntas."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Fase mínima conserva el módulo mediante reflexión de ceros y compensación de ganancia. Fase lineal exacta usa un complemento conjugado invertido y eleva el módulo al cuadrado; un IIR puede requerir una realización no causal. El informe incluye fórmulas y condiciones. El retardo de grupo se evalúa con la derivada analítica de los polinomios, en muestras para H(z) y segundos para H(s). En filtros SOS se suman los retardos de sus secciones sin expandirlas. No depende del desenrollado de la fase dibujada. Los ceros, polos y puntos con cancelación numérica severa se omiten; no se reemplazan por retardo cero. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. La comprobación de fase lineal se refiere al FIR de entrada. El factor con ceros reflejados no se declara estrictamente de fase mínima si sus polos, ceros sobre el círculo o condiciones indicadas no lo permiten. La fórmula y la tabla del resultado calculado se conservan al editar datos hasta volver a calcular. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "course_tools",
+        "inverse_z"
+      ],
+      "flow": [
+        "H(z), región y radio",
+        "Integración en contorno",
+        "Secuencia bilateral aproximada"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "Región",
+          "Exterior, interior, círculo unidad o radio manual. No puede atravesar polos."
+        ],
+        [
+          "Inicio y cantidad",
+          "Tramo de índices que se obtiene."
+        ],
+        [
+          "Puntos",
+          "Resolución del contorno, no longitud de salida."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La misma expresión H(z) puede representar señales distintas según la región de convergencia. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "course_tools",
+        "band"
+      ],
+      "flow": [
+        "X(ω) y dos extremos",
+        "Integrar |X|²/(2π)",
+        "Energía en esa banda"
+      ],
+      "parameters": [
+        [
+          "Extremos",
+          "Menor y mayor dentro del eje del espectro."
+        ],
+        [
+          "Entrada",
+          "Espectro complejo, no PSD ni densidad ya calculada."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "No se duplica automáticamente la banda positiva. Una ventana finita no demuestra la energía total. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "course_tools",
+        "lines"
+      ],
+      "flow": [
+        "Coeficientes c[k] y T",
+        "Pesos 2π|c[k]|²",
+        "Potencia y líneas espectrales"
+      ],
+      "parameters": [
+        [
+          "Coeficientes",
+          "Serie continua con sus índices k."
+        ],
+        [
+          "T",
+          "Período positivo en segundos; se conserva si viene del resultado."
+        ],
+        [
+          "c[k]",
+          "La entrada son coeficientes de serie continua, no muestras temporales x[n]. Primer armónico k₀ fija el índice del primer coeficiente. La expresión admite k como índice; n sigue siendo compatible."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Los tallos representan pesos de deltas, no alturas finitas de una densidad. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "course_tools",
+        "mapping"
+      ],
+      "flow": [
+        "ω, Ω o T",
+        "Bilineal o muestreo",
+        "Frecuencia / período compatible"
+      ],
+      "parameters": [
+        [
+          "ω",
+          "rad/muestra. Ω: rad/s. T: segundos positivos."
+        ],
+        [
+          "Rama k",
+          "Entero para la ambigüedad del muestreo; no aplica a bilineal."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Muestreo relaciona ω y ΩT módulo 2π. Bilineal usa tangente y no produce un mapeo lineal. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "dsp_extensions",
+        "hilbert"
+      ],
+      "flow": [
+        "Señal real x",
+        "z = x + j Hilbert(x)",
+        "Hilbert, señal analítica y envolvente"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Secuencia o registro continuo; la entrada debe ser real."
+        ],
+        [
+          "Ventana temporal",
+          "Se conserva el eje y se transforma el registro completo; la FFT supone repetición periódica."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La parte imaginaria de z es Hilbert(x) y |z| es la envolvente. En continuo es una aproximación sobre muestras, no una transformada algebraica sobre todo el eje. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "dsp_extensions",
+        "stft"
+      ],
+      "flow": [
+        "Señal y ventana",
+        "FFT de tramos solapados",
+        "Mapa tiempo-frecuencia y espectros locales"
+      ],
+      "parameters": [
+        [
+          "Longitud",
+          "Entre 2 y las muestras de entrada."
+        ],
+        [
+          "Solapamiento",
+          "Muestras compartidas; entre cero y longitud menos uno."
+        ],
+        [
+          "Puntos FFT",
+          "Al menos la longitud de ventana; el relleno no mejora la resolución temporal."
+        ],
+        [
+          "Ventana",
+          "Ponderación periódica para FFT; β sólo corresponde a Kaiser."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Cada columna es FFT(tramo por ventana)/suma(ventana). El mapa usa dB relativos al máximo global, no PSD calibrada. Frecuencias en rad/muestra o rad/s. El último tramo incompleto se rellena con ceros; los valores exportados no se recortan al rango de colores. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "dsp_extensions",
+        "blocks"
+      ],
+      "flow": [
+        "x[n], h[n] y L",
+        "Convolución mediante FFT por bloques",
+        "Salida completa de N+M−1 muestras"
+      ],
+      "parameters": [
+        [
+          "Muestras nuevas L",
+          "Entero positivo."
+        ],
+        [
+          "Solapamiento",
+          "M−1, con M igual a la longitud de h."
+        ],
+        [
+          "FFT",
+          "Se elige una longitud eficiente mayor o igual a L+M−1."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Overlap-add suma las colas de bloques independientes. Overlap-save incorpora historia y descarta M−1 salidas contaminadas por circularidad. Fuera de las entradas se supone cero y el origen de salida suma ambos orígenes. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "course_tools",
+        "analog"
+      ],
+      "flow": [
+        "Bandas Ωp, Ωs y tolerancias",
+        "Orden y H(s) de cada familia",
+        "Respuesta, informe y sistema reutilizable"
+      ],
+      "parameters": [
+        [
+          "Bordes",
+          "Valores positivos en rad/s. No hay límite π; deben dejar transiciones de ancho positivo."
+        ],
+        [
+          "Familia",
+          "Butterworth, Chebyshev I/II, elíptico o comparación."
+        ],
+        [
+          "Amplitudes de paso",
+          {
+            "ref": "amplitudes-de-paso-92d63378"
+          }
+        ],
+        [
+          "Tolerancias absolutas",
+          "Paso entre A−δp y A+δp; rechazo hasta δs. δp debe dejar un límite inferior positivo."
+        ],
+        [
+          "Tolerancias relativas",
+          {
+            "ref": "tolerancias-relativas-32262956"
+          }
+        ],
+        [
+          "Tolerancias en dB",
+          {
+            "ref": "tolerancias-en-db-8b8ab0a0"
+          }
+        ],
+        [
+          "Compatibilidad del algoritmo",
+          {
+            "ref": "compatibilidad-del-algoritmo-c18689a6"
+          }
+        ],
+        [
+          "Resultado y límites",
+          {
+            "ref": "resultado-y-limites-f88a81b2"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-380c9116"
+      }
+    },
+    {
+      "key": [
+        "course_tools",
+        "bandpass_sampling"
+      ],
+      "flow": [
+        "Bordes ΩL y ΩH",
+        "Intervalos sin solapamiento",
+        "Tasas, gráfico e informe exportables"
+      ],
+      "parameters": [
+        [
+          "ΩL",
+          "Borde inferior positivo de la señal, en rad/s."
+        ],
+        [
+          "ΩH",
+          "Borde superior, mayor que ΩL."
+        ],
+        [
+          "Ωs a consultar",
+          "Frecuencia angular de muestreo, positiva y opcional. Ωs = 2π Fs; no es Fs en muestras/s."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Cada zona m admite un intervalo diferente. No cualquier tasa superior a 2B sirve. Elegí el interior para dejar margen; los extremos y los intervalos de ancho nulo son contactos teóricos. Se supone señal real y soporte limitado a ±[ΩL, ΩH]. El gráfico muestra hasta 40 zonas y el informe hasta 100; CSV conserva todas. No se interpreta una componente impulsiva en un borde como reconstrucción garantizada. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    }
+  ]
+}

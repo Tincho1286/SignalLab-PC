@@ -789,4 +789,40 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(self.warnings,[])
 
 
+
+    def test_bilinear_recorded_procedure_is_visible_with_the_result(self):
+        from signallab_pc.course_tools_panel import CourseToolsPanel
+        from signallab_pc.cas_transfer import payload
+        from signallab_pc.cas_import import import_result
+        from signallab_pc.cas_engine import empty_state,restore
+        from signallab_pc.symbolic import Z
+        import sympy as sp
+        panel=CourseToolsPanel(self.host,'convert');self.widgets.append(panel)
+        panel.set_system(Transfer([1],[1,-2],'analog'))
+        panel.fields['period'].setText('1');panel.fields['method'].setCurrentIndex(panel.fields['method'].findData('bilinear'))
+        panel.calculate();self.assertEqual(self.warnings,[])
+        self.assertTrue(panel.view.views.isTabVisible(panel.view.development_index))
+        self.assertIn('Sustitución bilineal',panel.view.development.toPlainText())
+        self.assertEqual(panel.items[0].advance,1)
+        records=self.host.project.headers('calculation')
+        exact=next(self.host.project.get(r['id']) for r in records if r['title']=='H exacta de la conversión')
+        data=payload(exact);self.assertEqual(data['period'],1.)
+        imported=import_result(dict(payload=data,cell=1,state=empty_state()))
+        self.assertEqual(sp.cancel(restore(imported['encoded_value'])+(Z+1)/4),0)
+
+
+
+    def test_library_related_links_open_the_existing_article(self):
+        from PySide6.QtCore import QUrl
+        from signallab_pc.theory_panel import TheoryPanel
+        library=TheoryPanel(lambda route:None);self.widgets.append(library)
+        library.select_tool(ROUTES['transform_lab','z'])
+        selected=library.filtered[library.items.currentRow()]
+        identifier,title=selected['related'][0]
+        self.assertIn('Temas relacionados',library.text.toPlainText())
+        library.follow_reference(QUrl('library:article/'+identifier))
+        target=library.filtered[library.items.currentRow()]
+        self.assertEqual(target['article_id'],identifier);self.assertEqual(target['title'],title)
+        self.assertEqual(self.warnings,[])
+
 if __name__=='__main__':unittest.main()

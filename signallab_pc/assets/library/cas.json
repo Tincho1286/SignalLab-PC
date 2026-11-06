@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "blocks": [
+    [
+      "Para qué sirve la hoja",
+      "El CAS permite trabajar con expresiones, ecuaciones y matrices sin elegir primero una herramienta de señales. Se inspira en el uso de xCAS y utiliza SymPy; por eso no todos los comandos de Giac tienen la misma sintaxis ni están disponibles."
+    ],
+    [
+      "Tu primer cálculo",
+      "Escribí una expresión y presioná Enter o Evaluar. Por ejemplo, factor(x^2-4) devuelve (x-2)*(x+2). La entrada queda numerada y su salida recibe una referencia, como r1. Para editar una entrada, hacé clic en [N]; al evaluarla se agrega un cálculo nuevo, sin borrar el anterior.\n\nShift+Enter continúa la expresión en otra línea. Ctrl+↑/↓ recupera entradas del historial, de modo que podés corregirlas o usarlas como punto de partida."
+    ],
+    [
+      "Cómo escribir números y expresiones",
+      "Usá x^2 para potencias, 2*x para multiplicación y 2+3*i para complejos. También se admiten 2x y (x+1)(x-1), pero xy es un nombre único, no x*y. Las constantes pi y e tienen sus significados habituales, y las funciones trigonométricas reciben radianes.\n\nPara una igualdad usá x^2=1. Para guardar un valor usá :=, como a:=2. Esta diferencia evita confundir una ecuación que querés resolver con una definición que querés conservar."
+    ],
+    [
+      "Exactitud y decimales",
+      "El cálculo es exacto cuando puede serlo: 1/3+1/6 devuelve 1/2. Un decimal escrito también se interpreta exactamente; por ejemplo, 0.1 se guarda como 1/10.\n\nSi necesitás decimales de salida, usá approx(expr,15) o N(expr,15). La cantidad indica cifras de precisión. exact(expr) intenta proponer una forma simbólica para un valor aproximado, pero no garantiza recuperar el original después de un redondeo."
+    ],
+    [
+      "Cómo guardar variables y funciones",
+      "a:=2 guarda un valor. Después, f(x):=sin(a*x) define una función usando el valor actual de a; f(pi/4) la evalúa. Los parámetros de la función son locales.\n\nHoja → Variables y supuestos muestra las definiciones guardadas. Para liberar un nombre usá purge(a), o purge(a,f) para varios. Si querés derivar o resolver respecto de x, primero asegurate de que x no tenga un valor asignado."
+    ],
+    [
+      "Cómo reutilizar resultados",
+      "ans representa el último resultado válido y r1,r2,… permiten recuperar salidas anteriores. Así, después de calcular factor(x^2-4), podés escribir subst(r1,x,3) para evaluar ese resultado en x=3.\n\nLa salida escrita en la hoja no se recalcula al cambiar variables. Al usar una expresión anterior en un cálculo nuevo, sus símbolos libres se evalúan con los valores y supuestos actuales. Si una entrada falla o se cancela, las definiciones y ans conservan el último estado válido."
+    ],
+    [
+      "Simplificar, desarrollar y sustituir",
+      "simplify(expr) busca una forma más sencilla; expand(expr) desarrolla productos y factor(expr) busca factores. Para reunir fracciones usá together(expr), y para separarlas en fracciones parciales, apart(expr,x). Los menús de Álgebra insertan esas formas para que las completes.\n\nsubst(expr,x,valor) reemplaza una variable. Para varios reemplazos simultáneos, usá subst(expr,{x:valor,y:valor}); también se admite subst(expr,x=valor)."
+    ],
+    [
+      "Qué significa declarar un supuesto",
+      "Un símbolo libre no se supone real ni positivo automáticamente. Por eso sqrt(x^2) no se reemplaza siempre por x. assume(x,real) permite obtener abs(x), mientras que assume(x>0) permite obtener x.\n\nTambién podés declarar assume(n,integer) o usar las propiedades complex, positive, negative, nonnegative, nonpositive, nonzero y zero. En esta lista, nonzero significa real no nulo; la condición x!=0 no exige por sí sola que x sea real."
+    ],
+    [
+      "Cómo cambiar o quitar supuestos",
+      "Los supuestos se acumulan sólo en la hoja actual y aparecen en Hoja → Variables y supuestos. assume(x>2,x<4) agrega límites reales finitos sobre un símbolo. Para reemplazar esas condiciones, usá primero purge(x).\n\nUna condición contradictoria o un valor que no cumple lo declarado se rechaza sin cambiar el estado. Las soluciones se restringen al dominio declarado; si una condición de una solución paramétrica no puede verificarse, no se presenta como incondicional. No se admiten hipótesis generales entre parámetros, como assume(x>y), ni sobre funciones."
+    ],
+    [
+      "Funciones hiperbólicas",
+      "Usá sinh, cosh y tanh, y sus recíprocas sech, csch y coth. Las inversas son asinh, acosh, atanh, asech, acsch y acoth; también se admiten arcsinh, arccosh y las demás formas arc.\n\nSe usa la rama principal compleja, igual que al evaluar señales. Por ejemplo, acosh(0)=i*pi/2. csch(0) y coth(0) son polos: no se reemplazan por cero ni por un valor finito. trig2exp permite expresar estas funciones mediante exponenciales."
+    ],
+    [
+      "Pasar entre exponenciales y trigonometría",
+      "exp2trig(expr) aplica la identidad de Euler. Por ejemplo, exp2trig(exp(i*x)) produce cos(x)+i*sin(x). Para exponentes reales pueden aparecer funciones hiperbólicas como sinh y cosh.\n\ntrig2exp(expr) hace la conversión hacia exponenciales; sin(x), por ejemplo, se expresa como (exp(i*x)-exp(-i*x))/(2*i). Ambas opciones están en Álgebra y conservan el uso de radianes."
+    ],
+    [
+      "Derivar, integrar y estudiar límites",
+      "diff(expr,x) deriva respecto de x y diff(expr,x,2) obtiene la segunda derivada. integrate(expr,x) busca una primitiva sin agregar una constante arbitraria; integrate(expr,x,a,b) calcula una integral definida.\n\nlimit(expr,x,a) calcula el límite derecho por defecto. Podés elegir el lado con limit(expr,x,a,left) o right. Para un desarrollo usá series(expr,x,0,6), que conserva el término de orden; para sumas y productos, sum(expr,n,a,b) y prod(expr,n,a,b), con extremos incluidos."
+    ],
+    [
+      "Integrales con impulsos",
+      "En integrate(Dirac(t-a),(t,b,c)), un impulso situado dentro del intervalo aporta su peso completo; en un extremo finito aporta la mitad. Esta convención simétrica no cambia al desplazar la señal. Por ejemplo, integrar Dirac(t) entre 0 y 1 da 1/2, igual que integrar Dirac(t-1) entre 0 y 1.\n\nUna derivada de Dirac en un extremo necesita una convención adicional; elegí límites que la dejen estrictamente adentro o afuera. Laplace unilateral usa otra frontera explícita, 0−, que incluye por completo el impulso en el origen."
+    ],
+    [
+      "Resolver ecuaciones",
+      "solve(x^2=1,x) busca soluciones complejas, restringidas por los supuestos declarados. solve_real(expr,x) trabaja en reales y también admite desigualdades de una variable. Si escribís sólo una expresión, se interpreta igualada a cero.\n\nPara varias ecuaciones usá solve([x+y=3,x-y=1],[x,y]); si el sistema es lineal, también podés usar linsolve. La salida es un conjunto: vacío significa que no hay soluciones en ese dominio. Un conjunto condicional indica que queda una condición pendiente, no que se hayan encontrado todas las raíces explícitas."
+    ],
+    [
+      "Trabajar con matrices",
+      "A:=matrix([[1,2],[3,4]]) guarda una matriz. A+B suma matrices compatibles, A*B las multiplica y A^(-1) busca la inversa. Una lista [1,2] no se usa como vector de álgebra lineal; para eso escribí vector([1,2]).\n\nLos índices comienzan en cero: A[0,1] selecciona la primera fila y segunda columna. El menú Matrices reúne det, inv, transpose, rank, eigenvalues y rref; también están disponibles trace y nullspace para el estudio del modelo."
+    ],
+    [
+      "Cómo leer una operación pendiente",
+      "El motor puede dejar Integral, Derivative, Sum o condiciones dentro de la salida. Eso significa que esa parte no quedó resuelta; no se reemplaza por un número supuesto. Una función desconocida también se conserva simbólicamente y se informa que no tiene definición.\n\nPara buscar una raíz numérica local, usá nsolve(expr,x,valor_inicial). La aproximación inicial influye en la raíz obtenida y el método no representa todas las soluciones. Los supuestos declarados también se comprueban para esa raíz."
+    ],
+    [
+      "Escalones e impulsos discretos",
+      "step(n) es el escalón con valor uno en el borde; Heaviside(n) toma 1/2 por defecto. KroneckerDelta(n,k) representa el impulso discreto situado en k. En las salidas se muestran como u[n] y δ[n−k], con un subíndice en u cuando hay que precisar otro valor en el borde.\n\nPara usar propiedades de secuencias en la hoja, declarás assume(n,integer). El CAS conserva los supuestos declarados y combina términos equivalentes al presentar el resultado. Por ejemplo, un impulso que completa el borde de un escalón puede desaparecer de la fórmula sin cambiar la muestra de ese índice."
+    ],
+    [
+      "Cómo leer fórmulas extensas",
+      "Las fórmulas conservan un tamaño legible en una ventana angosta. Si una expresión es ancha, usá la barra horizontal o Ampliar resultado para verla aparte. Hoja permite aumentar o reducir el tamaño.\n\nAlgunas matrices y listas largas tienen una vista parcial señalada. Copiar resultado y exportar texto conservan la salida completa, aunque la vista de la hoja muestre sólo una parte."
+    ],
+    [
+      "Traer resultados de otras herramientas",
+      "Usá Enviar a CAS en una transformada o la opción CAS del menú de reutilización de un resultado. También podés seleccionar una salida en Resultados y enviarla desde allí. Se agrega una celda a la hoja existente y queda disponible como rN; una expresión que estés escribiendo se conserva.\n\nLas fórmulas se incorporan con sus condiciones de origen. Los sistemas llegan como H(s) o H(z); las señales, como una matriz con el eje y los valores; los modelos de estado, como las matrices A, B, C y D. Un informe numérico aporta sus valores matemáticos. Los números calculados conservan su precisión disponible y no se vuelven exactos por entrar al CAS.\n\nPara operar con una secuencia podés usar assume(n,integer) y luego simplify(rN). Los supuestos y las variables de la hoja se aplican al operar con el resultado importado. Revisá también su ROC y las condiciones indicadas: importar no altera las definiciones de la hoja."
+    ],
+    [
+      "Cómo continuar fuera del CAS",
+      "Desde Resultado podés copiar una salida, insertar su referencia rN o enviarla como expresión a Crear una señal o Analizar un sistema. El destino recibe los datos; allí revisás parámetros e intervalo y ejecutás su cálculo.\n\nPara generar una señal se necesita una expresión escalar de una variable y funciones que su evaluador pueda calcular. Las matrices, conjuntos y ecuaciones no se convierten automáticamente en señales. Los supuestos de la hoja no se trasladan como condiciones automáticas de los demás menús."
+    ],
+    [
+      "Exportar y cancelar",
+      "Hoja permite exportar el documento con formato o su texto completo. Las entradas y variables se conservan al cambiar de pestaña durante la sesión, pero no se incluyen en el guardado general de sesiones.\n\nCancelar cálculo detiene la operación y conserva el último estado válido. Hoja → Nueva hoja vacía entradas y definiciones después de confirmarlo; si querés conservar ese trabajo, exportalo antes."
+    ]
+  ]
+}

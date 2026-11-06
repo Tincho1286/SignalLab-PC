@@ -1,0 +1,392 @@
+{
+  "version": 1,
+  "category": "Sistemas LTI",
+  "articles": [
+    {
+      "key": [
+        "interconnection",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Podés obtener la transferencia equivalente de dos sistemas conectados en cascada, en paralelo o mediante realimentación."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí un dominio común y cargá H₁ y H₂ en sus pestañas. Cada bloque admite fórmula racional, coeficientes o Cargar sistema para abrir un JSON o copiar un resultado anterior. En la realimentación, H₁ representa el camino directo y H₂ el retorno. La conexión negativa usa H₁/(1+H₁H₂); la positiva cambia ese signo por menos."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La salida es la transferencia entre la entrada y la salida externas de la conexión. Podés analizarla o exportarla y, si es causal, simularla. Las potencias positivas y negativas de z se conservan al combinar los bloques. Una cascada digital conserva las secciones SOS recibidas. Si editás los datos, el resultado anterior permanece disponible hasta que calcules otra vez."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Se suponen estados iniciales nulos. La estabilidad de la transferencia externa no siempre muestra todos los modos internos. Un denominador idénticamente nulo no define un sistema; el cálculo también informa si una representación pierde precisión."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "systems",
+        8
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "El modelo de segundo orden permite estudiar cómo la frecuencia natural y el amortiguamiento cambian la respuesta de un sistema."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá ωn en rad/s, el amortiguamiento ζ y la ganancia K. La transferencia usada es K·ωn²/(s²+2ζωn·s+ωn²)."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El resultado se puede enviar a respuesta temporal para comparar oscilaciones y tiempo de establecimiento, o al análisis para estudiar frecuencia y polos."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La frecuencia natural no coincide necesariamente con la frecuencia del máximo de resonancia. El modelo describe la transferencia indicada, sin incluir dinámicas adicionales del sistema físico."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "systems",
+        9
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La respuesta temporal aplica una entrada a H(s) o H(z) y muestra la salida sobre el registro elegido. La definición es local y puede reutilizarse desde otro resultado."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá el sistema por fórmula, coeficientes, archivo o resultado anterior. Elegí impulso, escalón o una señal propia. En discreto podés indicar T en segundos; si el sistema viene de estados o una conversión con reloj conocido, se completa automáticamente. Dejar T vacío permite trabajar sólo en índices o utilizar el reloj de la entrada."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El gráfico discreto usa n entero. T relaciona esas muestras con el tiempo físico y se conserva en las salidas y al exportar el sistema. No multiplica el argumento de las fórmulas x[n] ni convierte ω a otra unidad: la frecuencia digital sigue en rad/muestra. Si una entrada registra una tasa diferente de 1/T, se pide corregir el reloj o cambiar la tasa antes de filtrar."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El reposo inicial se refiere al comienzo del registro. Los historiales permiten separar entrada cero y estado cero. No se simula automáticamente una cola fuera de la ventana. Editar T o las entradas no modifica las salidas anteriores hasta recalcular. Un H(z) sin período conocido no recibe un reloj arbitrario de un segundo."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "systems",
+        3
+      ],
+      "flow": [
+        "b, a y dominio",
+        "Construir H(s) o H(z)",
+        "Transferencia reutilizable"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "Tablas",
+          "Cada celda corresponde a la potencia mostrada; no omitas términos cero."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Definir coeficientes no calcula automáticamente una salida temporal; enviá el sistema a la herramienta deseada. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. Condiciones de validez reúne dominio, ROC, causalidad y estabilidad BIBO. En H(s) elegí semiplano derecho, izquierdo o franja con una línea σ interior; en H(z), exterior, interior o anillo con un radio interior. Sin ROC, una curva evaluada sobre el eje imaginario o el círculo unitario es formal y no demuestra una transformada de Fourier convergente. Una cancelación de la transferencia tampoco demuestra estabilidad interna. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "systems",
+        4
+      ],
+      "flow": [
+        "Sistema y rango ω",
+        "Evaluar H(jΩ) o H(eʲω)",
+        "Módulo, dB y fase"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "Rango y puntos",
+          "Inicio menor que final, al menos dos evaluaciones. rad/muestra en discreto, rad/s en continuo."
+        ],
+        [
+          "Escala",
+          "Lineal conserva visualmente anchos iguales; logarítmica requiere inicio positivo y compara razones."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "No se debe comparar ancho visual de transiciones en eje logarítmico como si fuera lineal. Fase no definida en ceros. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "systems",
+        5
+      ],
+      "flow": [
+        "Sistema y señal",
+        "Ecuación en diferencias",
+        "Respuesta desde reposo"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "Entrada",
+          "Secuencia local para filtrar."
+        ],
+        [
+          "Cantidad",
+          "Para respuesta a impulso o escalón, número entero positivo de muestras."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La salida usa condiciones iniciales nulas. Para historial no nulo, usá Respuesta temporal. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "systems",
+        8
+      ],
+      "flow": [
+        "ωn, ζ y K",
+        "Sistema de segundo orden",
+        "Transferencia y respuesta"
+      ],
+      "parameters": [
+        [
+          "ωn",
+          "Frecuencia natural positiva en rad/s."
+        ],
+        [
+          "ζ",
+          "Razón de amortiguamiento; no es una frecuencia."
+        ],
+        [
+          "K",
+          "Ganancia del modelo."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Subamortiguado, crítico y sobreamortiguado describen regímenes diferentes; no son errores de escala. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "systems",
+        9
+      ],
+      "flow": [
+        "Sistema y reloj opcional",
+        "Entrada y memoria previa",
+        "Respuesta con su eje y reloj"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "T (s, opcional)",
+          "Período físico de H(z). Se carga automáticamente si el sistema lo conserva desde estados, conversión o un archivo. Dejarlo vacío permite trabajar sólo por índices; una entrada propia puede aportar su reloj."
+        ],
+        [
+          "Compatibilidad",
+          "Si T está definido y la entrada registra Fs, deben cumplir T=1/Fs. No se remuestrea automáticamente."
+        ],
+        [
+          "Eje",
+          "El gráfico discreto sigue usando n entero. La salida conserva el reloj como metadata para otras herramientas."
+        ],
+        [
+          "Estado inicial",
+          "Reposo o valores anteriores definidos al comienzo del registro."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "T no cambia los coeficientes, la secuencia ni las frecuencias en rad/muestra. Al exportar H(z), su período se conserva si está asignado. Si se edita T, el resultado anterior permanece hasta recalcular. Las condiciones iniciales y la ventana conservan el mismo significado del cálculo temporal. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "systems",
+        10
+      ],
+      "flow": [
+        "Sistema, K y signo",
+        "Cerrar realimentación",
+        "Transferencia equivalente"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "K y signo",
+          "La realimentación negativa usa denominador 1+KH; la positiva usa 1−KH."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La transferencia externa no basta para demostrar estabilidad interna si hay cancelaciones. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "systems",
+        11
+      ],
+      "flow": [
+        "Sistema y valores K",
+        "Raíces de A+KB",
+        "Trayectorias de polos"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "K inicial/final y puntos",
+          "Intervalo de ganancia y número de valores para seguir las raíces; no es una rejilla de frecuencias."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Los ejes son parte real e imaginaria, no tiempo. Mayor resolución de K ayuda a seguir ramas cerca de cruces. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "interconnection",
+        0
+      ],
+      "flow": [
+        "H₁ y H₂",
+        "Cascada / paralelo / retorno",
+        "Sistema equivalente"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "Conexión",
+          "Cascada multiplica; paralelo suma. Retorno negativo H₁/(1+H₁H₂), positivo H₁/(1−H₁H₂)."
+        ],
+        [
+          "Dominio común",
+          "Ambos sistemas deben ser continuos o ambos discretos."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Se suponen condiciones iniciales nulas. Estabilidad externa e interna no siempre coinciden. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    }
+  ]
+}

@@ -1,32 +1,7 @@
 """Conceptos antes de procedimientos: lectura guiada según los programas de 2026."""
-GLOSSARY={
-'IEEE 754':'Estándar que define formatos y reglas para representar números en coma flotante. La palabra separa signo, exponente y fracción.',
-'subnormal':'Número flotante pequeño que usa el exponente mínimo sin el uno inicial implícito de los números normales. Permite acercarse gradualmente a cero.',
-'mantisa':'Nombre habitual de la parte significativa de un número flotante. La fracción almacenada y el bit inicial implícito determinan esa parte en los formatos binarios.',
-'LTI':'Lineal e invariante en el tiempo: sumar entradas suma sus salidas, y retrasar una entrada retrasa la salida en la misma cantidad.',
-'DTFT':'Transformada de Fourier de tiempo discreto: describe una secuencia con una función continua y periódica de la frecuencia.',
-'DFT':'Transformada discreta de Fourier: entrega N valores de frecuencia a partir de N muestras.',
-'FFT':'Algoritmo rápido para calcular la DFT; no es una transformada diferente.',
-'CTFT':'Transformada de Fourier de tiempo continuo: relaciona x(t) con su espectro X(Ω).',
-'FIR':'Filtro con respuesta al impulso de duración finita: su salida depende de un número finito de entradas.',
-'IIR':'Filtro con respuesta al impulso que puede durar indefinidamente; suele usar valores anteriores de la salida.',
-'PSD':'Densidad espectral de potencia: indica cómo se reparte la potencia entre frecuencias; la potencia de una banda se obtiene integrando.',
-'RMS':'Valor eficaz: raíz del promedio del módulo al cuadrado. Incluye la media de la señal.',
-'ROC':'Región de convergencia: valores de s o z donde existe la transformada. Una fórmula racional sola no siempre determina la señal.',
-'BIBO':'Entrada acotada, salida acotada: una entrada de amplitud limitada no puede producir una salida ilimitada.',
-'SOS':'Secciones de segundo orden: pequeños filtros conectados en cascada para reducir problemas de redondeo.',
-'WSS':'Estacionario en sentido amplio: media constante y autocorrelación dependiente sólo de la separación temporal.',
-'SNR':'Relación señal/ruido: cociente entre las potencias de la señal útil y del ruido.',
-'ZOH':'Retención de orden cero: mantener cada muestra constante hasta la siguiente.',
-'MIMO':'Sistema con varias entradas y varias salidas.',
-'cuadratura':'Integración numérica: aproximar una integral a partir de valores de la función en puntos elegidos.',
-'rejilla':'Conjunto de puntos donde se evalúa una función. Por ejemplo, al calcular 1025 frecuencias entre −π y π, se comprueba la respuesta en esos puntos y no en todos los valores intermedios.',
-'soporte':'Parte del eje donde la señal puede ser distinta de cero. Indicar su soporte permite distinguir, por ejemplo, un pulso finito de una señal que continúa indefinidamente.',
-'causal':'La salida actual depende del presente y del pasado de la entrada, no de su futuro.',
-'aliasing':'Superposición de componentes distintas al muestrear: después no se pueden distinguir sólo con esas muestras.',
-'ergodicidad':'Propiedad que permite obtener ciertos promedios del conjunto de realizaciones a partir de una realización suficientemente larga. Depende del promedio considerado.',
-'varianza':'Promedio del módulo al cuadrado de la diferencia respecto de la media; mide dispersión.',
-'sesgo':'Diferencia entre el promedio de un estimador y el valor verdadero que intenta estimar.'}
+from .library_content import read_data
+GLOSSARY=read_data('glossary.json','terms')
+if not isinstance(GLOSSARY,dict) or any(not isinstance(k,str) or not isinstance(v,str) or not k or not v for k,v in GLOSSARY.items()):raise ValueError('El glosario requiere términos y definiciones no vacíos.')
 
 from .library_concepts import TOPICS
 

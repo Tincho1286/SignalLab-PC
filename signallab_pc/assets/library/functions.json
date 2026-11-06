@@ -1,0 +1,262 @@
+{
+  "version": 1,
+  "references": [
+    {
+      "id": "reference:Guía de funciones y sintaxis",
+      "title": "Guía de funciones y sintaxis",
+      "illustration": null,
+      "blocks": [
+        [
+          "Dónde se usa esta referencia",
+          "Estas páginas explican las funciones que se escriben en los campos de señales y en las herramientas algebraicas especializadas. La calculadora CAS tiene su propia página, porque admite más comandos y un entorno de variables distinto."
+        ],
+        [
+          "Cómo escribir una fórmula",
+          "Usá paréntesis y multiplicación explícita, como 2*sin(pi*n/4). Las potencias admiten ^ o ** y los decimales llevan punto. Los nombres de las funciones elementales admiten mayúsculas o minúsculas en la carga numérica, el cálculo algebraico y el CAS. Dirac, DiracDelta e Impulse representan el impulso correspondiente al dominio elegido: usá n para una secuencia y t para tiempo continuo. Step y Heaviside funcionan en ambos dominios; Step(0)=1 y Heaviside(0)=1/2. Heaviside permite indicar otro valor en el borde, por ejemplo Heaviside(n,0)."
+        ],
+        [
+          "Qué representa cada letra",
+          "En señales discretas usá n; en tiempo continuo, t; y en frecuencia angular, w. La herramienta determina el dominio: cambiar la letra no transforma una señal continua en discreta. pi y e son constantes, e i es la unidad imaginaria."
+        ],
+        [
+          "Cómo leer los ejemplos",
+          "Los ejemplos siguientes muestran el significado de cada función y cómo desplazarla o escalarla. Recordá elegir un intervalo que incluya la parte que querés ver: una fórmula puede ser válida y quedar fuera de la ventana dibujada."
+        ]
+      ]
+    },
+    {
+      "id": "reference:Impulse · impulso discreto",
+      "title": "Impulse · impulso discreto",
+      "illustration": "impulse",
+      "blocks": [
+        [
+          "Qué representa",
+          "En una secuencia, impulse(n) vale uno en n=0 y cero en los demás índices. Es el impulso discreto δ[n], que sirve como excitación elemental para estudiar un sistema."
+        ],
+        [
+          "Cómo desplazarlo",
+          "impulse(n-3) coloca la muestra unitaria en n=3. Al escribir 2*impulse(n+1), la amplitud pasa a dos y se ubica en n=−1. El registro debe incluir ese índice."
+        ],
+        [
+          "Un ejemplo completo",
+          "Con índices −2,−1,0,1,2, la fórmula impulse(n) genera 0,0,1,0,0. Las muestras restantes siguen existiendo aunque su amplitud sea cero."
+        ],
+        [
+          "Diferencia con Dirac",
+          "En una entrada continua, DiracDelta(t), dirac(t) e impulse(t) representan una Dirac por posición y peso. En las entradas discretas, Dirac(n), DiracDelta(n) e impulse(n) son formas equivalentes del impulso de Kronecker: una muestra unitaria en n=0. No se aplica el factor 1/|a| de Dirac continua: impulse(2*n) también vale uno en n=0. En Z su transformada es 1 y en DTFT también es 1. Un desplazamiento a n=m produce z^(-m) o exp(-i*w*m), respectivamente. No se obtiene una Dirac convirtiendo una muestra de altura uno en segundos: cambian el modelo y su interpretación."
+        ]
+      ]
+    },
+    {
+      "id": "reference:Step y Heaviside · escalón unitario",
+      "title": "Step y Heaviside · escalón unitario",
+      "illustration": "step",
+      "blocks": [
+        [
+          "Qué representa",
+          "El escalón activa una señal a partir de un borde. step(v) vale cero para v<0 y uno para v≥0. heaviside(v) toma el valor 1/2 exactamente en el borde, y coincide con el escalón en los demás puntos."
+        ],
+        [
+          "Cómo formar un pulso",
+          "step(n-3) comienza en n=3, incluido. Para un pulso de cuatro muestras desde cero, escribí step(n)-step(n-4): vale uno en n=0,1,2,3 y cero afuera."
+        ],
+        [
+          "Por qué importa el borde",
+          "step(0)=1 y heaviside(0)=0.5, de modo que la elección cambia una muestra si el registro incluye ese punto. En una integral ordinaria, cambiar un único punto no modifica el área."
+        ],
+        [
+          "En cálculo simbólico",
+          "Heaviside(t) usa por defecto el valor 1/2 en cero. El alias step(v) usa el valor uno; para elegir otro valor se puede indicar Heaviside(v,valor) o definir los tramos."
+        ],
+        [
+          "Cómo leer los resultados",
+          "u[n] representa step(n), incluido n=0. Un subíndice en u indica un valor de borde distinto del habitual: u con subíndice 1/2 vale 1/2 en el origen discreto. En continuo, u(t) toma por defecto 1/2 y u con subíndice 1 toma uno."
+        ],
+        [
+          "Por qué se simplifica una secuencia",
+          "Un impulso en el borde puede completar un escalón. Por ejemplo, (1/2)^n·u[n−1]+δ[n] es la misma secuencia que (1/2)^n·u[n]. La app combina esos términos sólo cuando sus valores coinciden. Si una condición o una singularidad impide esa equivalencia, conserva los tramos; la región de convergencia sigue siendo parte del resultado de una transformada."
+        ]
+      ]
+    },
+    {
+      "id": "reference:Sinc · seno cardinal",
+      "title": "Sinc · seno cardinal",
+      "illustration": "sinc",
+      "blocks": [
+        [
+          "Qué función usa la app",
+          "En los campos numéricos, sinc(v)=sin(pi*v)/(pi*v) y sinc(0)=1. El valor en cero se define por continuidad, por lo que no genera una división por cero."
+        ],
+        [
+          "Cómo cambiar su ancho",
+          "sinc(t) se anula en los enteros distintos de cero. En sinc(t/T), con T positivo, el primer cero positivo se desplaza a t=T; así podés controlar el ancho de su parte central."
+        ],
+        [
+          "Cómo evitar otra convención",
+          "Para escribir sin(w)/w sin dividir por cero en el origen, usá sinc(w/pi). El factor pi de la definición de sinc no cambia la unidad del eje de frecuencia."
+        ],
+        [
+          "En herramientas simbólicas",
+          "sinc(v) también se admite en las herramientas simbólicas y en el CAS, con la misma definición normalizada. También podés escribir sin(pi*t)/(pi*t); el valor removible en cero se completa por límite cuando corresponde."
+        ]
+      ]
+    },
+    {
+      "id": "reference:Sin, Cos y funciones trigonométricas",
+      "title": "Sin, Cos y funciones trigonométricas",
+      "illustration": null,
+      "blocks": [
+        [
+          "Para qué sirven",
+          "sin, cos y tan describen funciones trigonométricas y reciben ángulos en radianes. También se admiten sus inversas asin, acos y atan. Las funciones hiperbólicas son sinh, cosh, tanh, sech, csch y coth; sus inversas son asinh, acosh, atanh, asech, acsch y acoth."
+        ],
+        [
+          "Cómo elegir la frecuencia",
+          "cos(pi*n/4) tiene frecuencia pi/4 rad/muestra. Para un tono continuo de 10 Hz, con t en segundos, escribí cos(2*pi*10*t). El factor 2*pi convierte ciclos por segundo a radianes por segundo."
+        ],
+        [
+          "Qué límites revisar",
+          "Las inversas usan la rama principal y pueden devolver complejos: acosh(0)=i*pi/2. Los polos verdaderos no se rellenan con valores finitos; por ejemplo, csch(0) y coth(0) no están definidos. Un campo que exige un número real rechaza un resultado complejo."
+        ],
+        [
+          "En herramientas algebraicas",
+          "Las mismas funciones hiperbólicas están disponibles en fórmulas, coeficientes, transformadas, sistemas, el CAS y la importación de expresiones MATLAB. También se admiten nombres como arcsinh y arctanh. sech(v)=1/cosh(v), csch(v)=1/sinh(v) y coth(v)=cosh(v)/sinh(v); la inversa asinh no es la recíproca csch. Admitir una función no garantiza que toda transformada exista: se siguen verificando el soporte y la convergencia."
+        ]
+      ]
+    },
+    {
+      "id": "reference:Exp, Log, Ln y Sqrt",
+      "title": "Exp, Log, Ln y Sqrt",
+      "illustration": null,
+      "blocks": [
+        [
+          "Qué calculan",
+          "exp(v) calcula e elevado a v; log(v) y ln(v) son el logaritmo natural; sqrt(v) es la raíz cuadrada principal. Se usan tanto en los campos numéricos como en las herramientas algebraicas especializadas."
+        ],
+        [
+          "Cómo combinarlas",
+          "exp(-t) describe un decaimiento y exp(i*w) una exponencial compleja. Si necesitás un logaritmo en base diez, podés usar log(v)/log(10)."
+        ],
+        [
+          "Complejos y valores no finitos",
+          "El evaluador numérico permite raíces y logaritmos complejos, como sqrt(-1)=i. En cambio, log(0) no es un valor finito; una exponencial demasiado grande también puede superar el rango de cálculo."
+        ]
+      ]
+    },
+    {
+      "id": "reference:Abs, Re, Im y Conj · números complejos",
+      "title": "Abs, Re, Im y Conj · números complejos",
+      "illustration": null,
+      "blocks": [
+        [
+          "Qué parte de un complejo necesitás",
+          "abs(v) devuelve el módulo, re(v) su parte real, im(v) su parte imaginaria y conj(v) su conjugado. Estas funciones están disponibles en los campos numéricos y algebraicos especializados."
+        ],
+        [
+          "Un ejemplo para compararlas",
+          "Para v=3+4*i, el módulo es cinco, las partes real e imaginaria son tres y cuatro, y el conjugado es 3−4*i. Cada función conserva una información diferente del mismo número."
+        ],
+        [
+          "Cómo calcular energía",
+          "Para un complejo, abs(v)^2 es el módulo al cuadrado y vale 25 en este ejemplo. v^2 da otro número: no debe usarse como reemplazo del módulo al cuadrado en energía o potencia."
+        ]
+      ]
+    },
+    {
+      "id": "reference:Sign, Floor, Ceil y Ceiling",
+      "title": "Sign, Floor, Ceil y Ceiling",
+      "illustration": null,
+      "blocks": [
+        [
+          "Signo y redondeo",
+          "sign(v) indica el signo de un real: devuelve −1,0 o 1. En un complejo no nulo, devuelve v/abs(v). floor redondea hacia menos infinito, mientras que ceil y ceiling lo hacen hacia más infinito."
+        ],
+        [
+          "Cómo interpretar un negativo",
+          "floor(-1.2) da −2 y ceil(-1.2) da −1. Por eso ninguna de las dos funciones significa redondear al entero más cercano."
+        ],
+        [
+          "Dónde se admiten",
+          "floor y ceil requieren entradas reales en el evaluador numérico de señales. floor, ceil y ceiling también se admiten en las herramientas algebraicas y el CAS. Su significado no cambia al reutilizar una expresión."
+        ]
+      ]
+    },
+    {
+      "id": "reference:Where y condiciones · funciones por tramos",
+      "title": "Where y condiciones · funciones por tramos",
+      "illustration": null,
+      "blocks": [
+        [
+          "Cómo definir tramos",
+          "En el editor por tramos, cada fila contiene un valor y una condición. Se usa el primer tramo que cumpla su condición y, si ninguno la cumple, el valor de En los demás casos."
+        ],
+        [
+          "Cómo escribir la misma idea",
+          "En una fórmula numérica, where(condición,valor_si_se_cumple,valor_si_no) elige entre dos ramas. Por ejemplo, where(abs(w)<=pi/4,1,0) define la respuesta de un pasa bajos ideal."
+        ],
+        [
+          "Cómo combinar condiciones",
+          "Podés usar <,<=,>,>=,==,!= y expresiones como 0<=t<2. and y or permiten unir condiciones. El orden de las filas importa cuando dos condiciones se superponen."
+        ],
+        [
+          "Qué ocurre con las singularidades",
+          "Sólo se evalúa la rama elegida en cada punto. Así, where(t==0,1,sin(t)/t) evita dividir por cero y define el valor uno en el origen."
+        ],
+        [
+          "En cálculo simbólico",
+          "El editor prepara Piecewise para las herramientas algebraicas. Si escribís a mano, usá Piecewise((valor,condición),(otro_valor,True)) o where(condición,valor_si,valor_no). Ambas formas se admiten en fórmulas numéricas, herramientas simbólicas y CAS."
+        ]
+      ]
+    },
+    {
+      "id": "reference:DiracDelta · impulso continuo por posición y peso",
+      "title": "DiracDelta · impulso continuo por posición y peso",
+      "illustration": "dirac",
+      "blocks": [
+        [
+          "Qué es una Dirac",
+          "DiracDelta(t), dirac(t) e impulse(t) representan el impulso continuo δ(t) en una entrada temporal continua. Su peso es el área que aporta dentro de una integral. No es una muestra de altura uno ni un pico de duración finita."
+        ],
+        [
+          "Cómo moverla y escalarla",
+          "DiracDelta(t-0.35) coloca el impulso en 0.35 s, aunque esa posición quede entre dos puntos de la rejilla. 2*DiracDelta(t-0.35) tiene peso 2. En δ(a*t+b), la posición es −b/a y el peso se divide por |a|; por eso 3*dirac(2*t-1) tiene peso 1.5 en 0.5 s."
+        ],
+        [
+          "Cómo se relaciona con el escalón",
+          "Heaviside(t-a) representa el escalón desplazado y toma 1/2 en su borde por defecto. Es una función distinta del impulso Dirac."
+        ],
+        [
+          "Qué requiere otro modelo",
+          "No se muestrea una Dirac ideal como un valor puntual finito ni se le asignan energía o RMS finitos. Para esas operaciones, definí un pulso de duración y amplitud finitas. El producto de dos Dirac y los factores discontinuos en su posición se rechazan. La carga por pesos admite argumentos lineales en t y orden cero; para derivadas o argumentos no lineales, conservá la expresión algebraica. erf y erfc se admiten en las herramientas simbólicas y en el CAS, pero no en el evaluador numérico de señales."
+        ],
+        [
+          "Dónde se usa",
+          "La carga continua guarda la parte ordinaria y los impulsos por separado. Fourier continua, series, convolución y respuesta temporal de transferencias propias tienen reglas para esos pesos. La tabla muestra la parte ordinaria y el panel Peso Dirac muestra los pesos; la exportación nativa conserva ambos. La ventana observada va del primer al último punto almacenado. Los impulsos fuera de ella se informan como excluidos. En series se usa un período [inicio,inicio+T), para no contar dos veces el mismo borde."
+        ]
+      ]
+    },
+    {
+      "id": "reference:Coeficientes · constantes, pi y notación científica",
+      "title": "Coeficientes · constantes, pi y notación científica",
+      "illustration": null,
+      "blocks": [
+        [
+          "Cómo ingresar una constante",
+          "Una celda de numerador o denominador puede contener un número o una expresión constante, como pi, sqrt(2) o una fracción. Esta lectura también se usa para raíces y valores anteriores en respuesta temporal."
+        ],
+        [
+          "Cómo escribir valores pequeños",
+          "10^(-3), 10**(-3) y 1e-3 representan el mismo valor: 0.001. Usá punto decimal, ya que la coma separa coeficientes. pi/4 y 2*pi son constantes reales, no números imaginarios."
+        ],
+        [
+          "Qué no debe incluir la celda",
+          "El orden de cada coeficiente lo determina su columna Potencia; por eso no se escribe s o z dentro de la celda. En 10^(-x), reemplazá x por un número antes de usarlo como coeficiente numérico."
+        ],
+        [
+          "Cómo conservar complejos y ceros",
+          "Se admiten formas como 1+2i, 1+2*i y 1+2j. Conservá los ceros entre potencias, porque omitirlos cambia el polinomio. Una celda vacía no reemplaza un coeficiente cero."
+        ]
+      ]
+    }
+  ]
+}

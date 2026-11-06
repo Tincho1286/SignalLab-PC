@@ -29,10 +29,15 @@ def inverse_expression(request):
     from .impulse_pairs import inverse_periodic_impulses
     lines,value=inverse_periodic_impulses(value,W,N,lower,upper)
     from .fourier_bands import inverse_bands
-    exact=inverse_bands(value,W,N,discrete=True,period_origin=lower) if value==0 or value.has(sp.Piecewise,sp.Heaviside) else None
-    if exact is not None:exact=sp.simplify(exact+lines)
+    records=[]
+    exact=inverse_bands(value,W,N,discrete=True,period_origin=lower,trace=records) if value==0 or value.has(sp.Piecewise,sp.Heaviside) else None
     if exact is not None:
-        return attach({'operation':'DTFT inversa algebraica','result':source(exact),'display_result':source(exact),
+        if lines!=0:
+            from .procedure import step
+            records.append(step('Líneas espectrales','Sumar las contribuciones de los impulsos periódicos',exact,sp.simplify(exact+lines),conditions='Un período; los impulsos de los extremos no se cuentan dos veces.',source='inverse_periodic_impulses'))
+        exact=sp.simplify(exact+lines)
+    if exact is not None:
+        return attach({'procedure':records,'operation':'DTFT inversa algebraica','result':source(exact),'display_result':source(exact),
             'evaluated':True,'condition':'True','output_variable':'n','frequency_units':'rad/muestra',
             'input_expression':request['expression'],
             'scope':'La fórmula integra un período e incluye el valor en el origen. En la unión del período un impulso aislado tiene peso completo; si se especifican ambos extremos, sus aportes se promedian.'},definition,exact=exact)

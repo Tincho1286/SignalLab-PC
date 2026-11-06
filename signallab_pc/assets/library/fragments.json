@@ -1,0 +1,1038 @@
+{
+  "version": 1,
+  "texts": {
+    "indeterminaciones-y-valores-por-continuidad-96a71885": "Una expresión como sin(n)/n no define su valor en n=0. SignalLab la completa por continuidad si los límites reales por izquierda y derecha coinciden y son finitos: en este caso se utiliza 1. En una secuencia discreta esto es una convención de carga, no un valor impuesto por el índice; si necesitás otro valor, definilo en Por tramos. Un valor finito ya definido se conserva. Los polos, las divergencias y los límites laterales diferentes mantienen su restricción. Cuando se aplica el criterio, el informe muestra los puntos y valores en Levantamiento de indeterminaciones; el detalle se conserva en Resultados y al copiar o guardar el informe. sinc(0)=1 ya pertenece a la definición de la función y no cuenta como una indeterminación reparada.",
+    "como-preparar-el-calculo-ef5081c7": "Cargá la señal por fórmula/tramos, muestras, archivo o resultado. Elegí el dominio y la operación dentro de Transformar una señal. En discreto los desplazamientos se indican como muestras enteras; en continuo, como segundos. Cada variante conserva su borrador al regresar.",
+    "como-interpretar-la-salida-18ca474d": "El informe muestra la relación matemática, el intervalo y el paso finales. La salida queda en Resultados y puede exportarse o enviarse a otra herramienta. Par e impar entrega dos señales; su suma recupera el registro sobre la rejilla usada. La pestaña Original se dibuja al abrirla para comparar sin generar otra figura en cada cálculo.",
+    "que-tener-en-cuenta-3c5302e5": "Fuera del registro se considera cero. En continuo, Par e impar usa interpolación lineal sobre una rejilla simétrica; entre muestras sigue siendo una aproximación y los pesos Dirac se conservan aparte. Las otras transformaciones continuas cambian las coordenadas sin interpolar. Los parámetros son constantes y la escala temporal debe ser real no nula. Cambiar los campos no altera el resultado anterior hasta recalcular.",
+    "como-preparar-el-calculo-fe26d10f": "Elegí el dominio y definí la señal por fórmula o tramos. Para un intervalo, indicá sus extremos; para una señal periódica, indicá un período positivo. En el análisis global, incluí el soporte de la señal en la expresión.",
+    "como-interpretar-la-salida-d49e7a2a": "Leé la medida junto con las condiciones que devuelve el cálculo. Si se ofrece una aproximación numérica, sirve para contrastar la expresión en una ventana finita.",
+    "que-tener-en-cuenta-d2576ac1": "Una integral o suma pendiente no equivale a una respuesta cerrada. Tampoco se demuestra convergencia en todo el eje observando sólo una ventana numérica.",
+    "que-podes-hacer-8ab4c965": "Desplazar cambia el lugar del registro sobre su eje. Un desplazamiento positivo lo lleva a la derecha; uno negativo, a la izquierda.",
+    "que-podes-hacer-45c2584f": "Invertir refleja la señal alrededor de cero: x[n] pasa a x[−n], o x(t) a x(−t). No se invierte el signo de la amplitud.",
+    "que-podes-hacer-57859a12": "Escalar amplitud multiplica cada valor por A y conserva su posición. A puede ser una constante real o compleja.",
+    "que-podes-hacer-56d17221": "La descomposición par e impar expresa una señal como la suma de una parte simétrica y otra antisimétrica respecto de cero. No se conjugan los valores complejos.",
+    "como-preparar-el-calculo-0adc836d": "Cargá ambas señales, elegí los retardos que querés estudiar y la normalización disponible. Para una autocorrelación, usá la misma señal en las dos entradas.",
+    "como-interpretar-la-salida-82c00574": "Un valor grande en cierto retardo indica una coincidencia fuerte con el desplazamiento definido por la convención del informe. En señales complejas se conjuga uno de los factores.",
+    "que-tener-en-cuenta-5d7de4ea": "El signo del retardo depende del orden de las entradas. Cerca de los extremos hay menos valores superpuestos; revisá el divisor y la extensión elegidos antes de comparar alturas.",
+    "como-interpretar-la-salida-1bea62ea": "Leé la fórmula junto con sus condiciones. Un resultado puede incluir impulsos ideales o una operación que el motor no terminó de resolver.",
+    "que-tener-en-cuenta-fbb4b91a": "El intervalo de dibujo no es un límite de integración de la transformada. Los impulsos se interpretan por su posición y peso, y no como alturas finitas de una curva.",
+    "que-podes-hacer-21fa62d9": "La serie de Fourier describe una señal periódica mediante coeficientes de sus armónicos. El análisis obtiene esos coeficientes y la síntesis combina los disponibles para reconstruir la señal.",
+    "que-tener-en-cuenta-0fa1f768": "No hace falta calcular una serie antes de usar la síntesis: los coeficientes también se pueden cargar manualmente. Un conjunto incompleto de armónicos no contiene toda la información de la señal periódica original.",
+    "que-podes-hacer-18576984": "La DTFT inversa recupera una secuencia x[n] a partir de un período de su espectro X(ω). La frecuencia es continua y periódica, pero la salida se define en índices enteros.",
+    "como-preparar-el-calculo-353b1407": "En Numérico cargá una fórmula, tramos, valores, archivo o espectro de Resultados que cubra 2π en rad/muestra. En Algebraico escribí X(w); el motor aplica propiedades o integra de −π a π. Para ver un registro elegí un primer índice y una cantidad: se admiten índices negativos.",
+    "como-interpretar-la-salida-d86616e6": "Cada muestra es un coeficiente de Fourier de X(ω), con el factor 1/(2π). Por ejemplo, una banda ideal |ω|≤π/3 produce x[0]=1/3 y x[n]=sin(πn/3)/(πn) para n distinto de cero. La fórmula y las muestras se guardan en Resultados para consultarlas o reutilizarlas.",
+    "que-tener-en-cuenta-80bc06f0": "La DTFT inversa integra un espectro periódico; la DFT inversa parte de un conjunto finito de coeficientes y produce un bloque periódico. La aproximación numérica usa muestras de frecuencia y puede tener aliasing temporal: más índices de salida no agregan información. En la forma algebraica no se asume causalidad, y una integral no resuelta se conserva explícitamente.",
+    "inicio-y-cantidad-3ad0ceba": "Inicio es el índice de la primera muestra; cantidad es cuántos valores generar, no el índice final. Último índice = inicio + cantidad − 1.",
+    "importar-o-reutilizar-ae5699e5": "Cada entrada tiene su propio origen: Archivo abre CSV, MATLAB o JSON; Resultado permite elegir una salida anterior y también importar allí un archivo compatible. Se conservan índices, complejos, unidades y reloj registrado. No se cambian dominios ni tasas automáticamente.",
+    "entrada-f630e38e": "Fórmula/tramos, muestras, archivo o resultado anterior. El intervalo cargado es el registro que se transforma.",
+    "desplazamiento-3c997b56": "Positivo lleva el registro a la derecha y negativo a la izquierda. En discreto es entero en muestras; en continuo se indica en segundos.",
+    "lectura-del-resultado-b1f1ceb8": "La salida se guarda en Resultados con su eje y reloj, cuando corresponde. En Par e impar se registran ambas componentes. La pestaña Original permite consultar el registro usado. Editar parámetros no modifica el resultado anterior hasta recalcular. La fórmula de entrada se conserva como procedencia y no se presenta como si fuera la fórmula de salida. La operación afín no interpola: transforma el eje y conserva la cantidad de puntos. Par e impar continuo sí utiliza un modelo interpolado de registro finito; no es una descomposición simbólica universal. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones.",
+    "a-3650a67d": "Constante real o compleja, por ejemplo pi, 10^(-3) o 1+2i. Multiplica los valores y conserva sus coordenadas. No puede depender de n o t.",
+    "partes-6e394470": "x_par=(x+x_reflejada)/2; x_impar=(x−x_reflejada)/2. No se usa conjugación. Fuera del registro se considera cero. En continuo se interpola sobre una rejilla simétrica que incluye t=0 y se ajusta el paso; los términos Dirac se combinan por separado.",
+    "limites-o-periodo-22c6fd0e": "En intervalo se analiza sólo ese tramo; en periódico se usa un período positivo. En discreto el período se mide en muestras enteras.",
+    "lectura-del-resultado-1c720b75": "Distingue finito, divergente, condicional y pendiente. Una expresión no evaluada no equivale a cero. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones.",
+    "escala-1ae4b414": "Suma/integral conserva la escala; coeficiente por energía requiere energías no nulas; promedio periódico divide por el período.",
+    "lectura-del-resultado-0bf3069d": "El eje es retardo, no tiempo de la señal original. Un máximo indica alineación según la convención indicada, no causalidad. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones.",
+    "lectura-del-resultado-8fb09e9f": "Un resultado pendiente de evaluación no es una función cero. La correlación conjuga la segunda señal; la convolución no. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones.",
+    "registro-numerico-19441b8f": "Inicio, final y cantidad controlan dónde muestrear el resultado ya resuelto, no la transformada algebraica.",
+    "lectura-del-resultado-1639c5cc": "Primero calculá la expresión; después graficá muestras. Las deltas y expresiones sin resolver no se convierten en alturas finitas. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones.",
+    "coeficientes-b-y-a-189dea02": "En continuo se ordenan por potencias descendentes de s; en discreto por 1, z⁻¹, z⁻²… Conservá los ceros intermedios. El primer coeficiente del denominador debe ser distinto de cero.",
+    "a-b-c-y-d-85d292eb": "Si hay r estados, m entradas y p salidas: A es r×r, B r×m, C p×r y D p×m. Cada celda contiene un coeficiente.",
+    "dominio-y-periodo-9b92ca38": "En continuo se usa dx/dt; en discreto x[k+1]. El período discreto T es positivo y se expresa en segundos.",
+    "amplitudes-de-paso-92d63378": "A positiva por banda. En rechazabanda hay amplitud inferior y superior independientes; FIR construye la suma de un ideal pasa bajos y otro pasa altos con la ganancia de cada banda.",
+    "tolerancias-relativas-32262956": "δp es fracción de la amplitud A de cada banda. δs es fracción de Aref, la mayor amplitud de paso. 0.05 significa 5 %.",
+    "tolerancias-en-db-8b8ab0a0": "El rizado es ±rp dB respecto de A: A·10^(−rp/20) a A·10^(rp/20). La atenuación As da un máximo Aref·10^(−As/20).",
+    "compatibilidad-del-algoritmo-c18689a6": "Las familias IIR clásicas requieren igual amplitud en todas las bandas de paso. Dos amplitudes diferentes en rechazabanda se diseñan con FIR; no se aplica una ganancia global que ignore una banda.",
+    "resultado-y-limites-f88a81b2": "Las curvas muestran ideal, límites por banda y respuesta obtenida. Fuera de tolerancias queda indicado expresamente. La comprobación interna sobre una rejilla forma parte del cálculo y no certifica máximos entre puntos.",
+    "lectura-del-resultado-380c9116": "Compará la respuesta obtenida con el objetivo y los límites de cada banda. En FIR, Kaiser estima la longitud usando la transición más estrecha y el menor error absoluto referido a la mayor amplitud; la estimación no garantiza cumplimiento. El informe evalúa las bandas originales y declara si la respuesta queda fuera de tolerancias. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones.",
+    "lectura-del-resultado-20735790": "Cada opción conserva sus datos y resultados. F1 abre la ayuda específica de la opción activa. Copiar un resultado a otra opción es una acción explícita. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+  },
+  "legacy_constants": {
+    "SEQUENCE": "Entrada: Fórmula en n o muestras separadas por coma; para decimales usá punto. Ejemplo: 1, -0.5, 2.\nInicio y cantidad: Inicio es el índice de la primera muestra; cantidad es cuántos valores generar, no el índice final. Último índice = inicio + cantidad − 1.",
+    "TRANSFER": "Dominio: Continuo usa H(s); discreto usa H(z).\nCoeficientes b y a: En continuo se ordenan por potencias descendentes de s; en discreto por 1, z⁻¹, z⁻²… Conservá los ceros intermedios. El primer coeficiente del denominador debe ser distinto de cero.",
+    "MATRICES": "A, B, C y D: Si hay r estados, m entradas y p salidas: A es r×r, B r×m, C p×r y D p×m. Cada celda contiene un coeficiente.\nDominio y período: En continuo se usa dx/dt; en discreto x[k+1]. El período discreto T es positivo y se expresa en segundos.",
+    "GROUPS": {
+      "signals": {
+        "tuple": [
+          "Señales",
+          "Señales",
+          "signal",
+          [
+            {
+              "tuple": [
+                "Crear y editar",
+                [
+                  {
+                    "tuple": [
+                      "Generar y graficar",
+                      {
+                        "tuple": [
+                          "basic",
+                          "generate"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Generar ventana",
+                      {
+                        "tuple": [
+                          "window_signal",
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Editar muestras",
+                      {
+                        "tuple": [
+                          "signal_editor",
+                          0
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            },
+            {
+              "tuple": [
+                "Transformar",
+                [
+                  {
+                    "tuple": [
+                      "Desplazar secuencia",
+                      {
+                        "tuple": [
+                          "basic",
+                          "shift"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Invertir secuencia",
+                      {
+                        "tuple": [
+                          "basic",
+                          "reverse"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Escalar amplitud",
+                      {
+                        "tuple": [
+                          "basic",
+                          "scale"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Partes par e impar",
+                      {
+                        "tuple": [
+                          "basic",
+                          "parity"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Transformar señal continua",
+                      {
+                        "tuple": [
+                          "time_transform",
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Desplazar señal continua",
+                      {
+                        "tuple": [
+                          "time_transform",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Invertir señal continua",
+                      {
+                        "tuple": [
+                          "time_transform",
+                          2
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Escalar amplitud continua",
+                      {
+                        "tuple": [
+                          "time_transform",
+                          3
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Partes par e impar continuas",
+                      {
+                        "tuple": [
+                          "time_transform",
+                          4
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Sumar señales",
+                      {
+                        "tuple": [
+                          "basic",
+                          "sum"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Multiplicar señales",
+                      {
+                        "tuple": [
+                          "signal_product",
+                          0
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "measures": {
+        "tuple": [
+          "Señales",
+          "Energía, potencia y RMS",
+          "measure",
+          [
+            {
+              "tuple": [
+                "Medidas",
+                [
+                  {
+                    "tuple": [
+                      "Registro de muestras",
+                      {
+                        "tuple": [
+                          "basic",
+                          "measures"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Expresión en un intervalo",
+                      {
+                        "tuple": [
+                          "expression_measures",
+                          "interval"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Expresión en todo el eje",
+                      {
+                        "tuple": [
+                          "expression_measures",
+                          "global"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Expresión periódica",
+                      {
+                        "tuple": [
+                          "expression_measures",
+                          "periodic"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "convolution": {
+        "tuple": [
+          "Sistemas",
+          "Convolución",
+          "convolution",
+          [
+            {
+              "tuple": [
+                "Discreta",
+                [
+                  {
+                    "tuple": [
+                      "Lineal",
+                      {
+                        "tuple": [
+                          "basic",
+                          "convolve"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Circular",
+                      {
+                        "tuple": [
+                          "basic",
+                          "circular"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Por bloques FFT",
+                      {
+                        "tuple": [
+                          "dsp_extensions",
+                          "blocks"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            },
+            {
+              "tuple": [
+                "Continua",
+                [
+                  {
+                    "tuple": [
+                      "Numérica",
+                      {
+                        "tuple": [
+                          "basic",
+                          "continuous_convolve"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Algebraica",
+                      {
+                        "tuple": [
+                          "convolution_algebra",
+                          0
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "correlation": {
+        "tuple": [
+          "Sistemas",
+          "Correlación y autocorrelación",
+          "correlation",
+          [
+            {
+              "tuple": [
+                "Correlación",
+                [
+                  {
+                    "tuple": [
+                      "Discreta",
+                      {
+                        "tuple": [
+                          "correlation",
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Continua y periódica",
+                      {
+                        "tuple": [
+                          "correlation",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Continua algebraica",
+                      {
+                        "tuple": [
+                          "correlation_algebra",
+                          0
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "fourier": {
+        "tuple": [
+          "Espectros",
+          "Fourier y FFT",
+          "spectrum",
+          [
+            {
+              "tuple": [
+                "Discreta",
+                [
+                  {
+                    "tuple": [
+                      "DTFT y comparación con DFT",
+                      {
+                        "tuple": [
+                          "fourier",
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "DFT",
+                      {
+                        "tuple": [
+                          "basic",
+                          "dft"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "DFT inversa",
+                      {
+                        "tuple": [
+                          "basic",
+                          "idft"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "FFT, ventanas y resolución",
+                      {
+                        "tuple": [
+                          "course_tools",
+                          "fft"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "DTFT algebraica",
+                      {
+                        "tuple": [
+                          "dtft_symbolic",
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "DTFT inversa numérica",
+                      {
+                        "tuple": [
+                          "inverse_dtft",
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "DTFT inversa algebraica",
+                      {
+                        "tuple": [
+                          "dtft_symbolic",
+                          1
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            },
+            {
+              "tuple": [
+                "Continua",
+                [
+                  {
+                    "tuple": [
+                      "Transformada numérica",
+                      {
+                        "tuple": [
+                          "fourier",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Inversa numérica",
+                      {
+                        "tuple": [
+                          "fourier",
+                          3
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Transformada algebraica",
+                      {
+                        "tuple": [
+                          "fourier_symbolic",
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Inversa algebraica",
+                      {
+                        "tuple": [
+                          "fourier_symbolic",
+                          1
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "series": {
+        "tuple": [
+          "Espectros",
+          "Series de Fourier",
+          "harmonics",
+          [
+            {
+              "tuple": [
+                "Series",
+                [
+                  {
+                    "tuple": [
+                      "Continua",
+                      {
+                        "tuple": [
+                          "fourier",
+                          4
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Discreta",
+                      {
+                        "tuple": [
+                          "fourier",
+                          5
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Potencia y líneas espectrales",
+                      {
+                        "tuple": [
+                          "course_tools",
+                          "lines"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "densities": {
+        "tuple": [
+          "Espectros",
+          "Densidades espectrales",
+          "density",
+          [
+            {
+              "tuple": [
+                "Densidades",
+                [
+                  {
+                    "tuple": [
+                      "Densidad de energía",
+                      {
+                        "tuple": [
+                          "fourier",
+                          6
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Energía por banda",
+                      {
+                        "tuple": [
+                          "course_tools",
+                          "band"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Densidad de potencia: periodograma y Welch",
+                      {
+                        "tuple": [
+                          "fourier",
+                          7
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "local_spectra": {
+        "tuple": [
+          "Espectros",
+          "Hilbert y tiempo-frecuencia",
+          "spectrum",
+          [
+            {
+              "tuple": [
+                "Análisis",
+                [
+                  {
+                    "tuple": [
+                      "Hilbert y señal analítica",
+                      {
+                        "tuple": [
+                          "dsp_extensions",
+                          "hilbert"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "STFT y espectrograma",
+                      {
+                        "tuple": [
+                          "dsp_extensions",
+                          "stft"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "sampling": {
+        "tuple": [
+          "Muestreo",
+          "Muestreo y reconstrucción",
+          "sampling",
+          [
+            {
+              "tuple": [
+                "Muestrear",
+                [
+                  {
+                    "tuple": [
+                      "Muestrear expresión",
+                      {
+                        "tuple": [
+                          "sampling",
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Nyquist y aliasing",
+                      {
+                        "tuple": [
+                          "sampling",
+                          1
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Muestreo pasabanda",
+                      {
+                        "tuple": [
+                          "course_tools",
+                          "bandpass_sampling"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            },
+            {
+              "tuple": [
+                "Reconstruir",
+                [
+                  {
+                    "tuple": [
+                      "Reconstrucción",
+                      {
+                        "tuple": [
+                          "sampling",
+                          3
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            },
+            {
+              "tuple": [
+                "Cambiar tasa",
+                [
+                  {
+                    "tuple": [
+                      "Conversión racional con antialias",
+                      {
+                        "tuple": [
+                          "rational_resampling",
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Diezmar, expandir e interpolar",
+                      {
+                        "tuple": [
+                          "sampling",
+                          2
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Relacionar frecuencias y período",
+                      {
+                        "tuple": [
+                          "course_tools",
+                          "mapping"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "quantize": {
+        "tuple": [
+          "Muestreo",
+          "Cuantización y punto fijo",
+          "quantize",
+          [
+            {
+              "tuple": [
+                "Representación",
+                [
+                  {
+                    "tuple": [
+                      "Cuantización y SNR",
+                      {
+                        "tuple": [
+                          "sampling",
+                          4
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Precisión numérica y ejecución",
+                      {
+                        "tuple": [
+                          "sampling",
+                          5
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "states": {
+        "tuple": [
+          "Sistemas",
+          "Espacio de estados",
+          "states",
+          [
+            {
+              "tuple": [
+                "Modelo",
+                [
+                  {
+                    "tuple": [
+                      "Analizar estabilidad y estructura",
+                      {
+                        "tuple": [
+                          "state_space",
+                          "analysis"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Simular estados y salidas",
+                      {
+                        "tuple": [
+                          "state_space",
+                          "simulation"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Respuesta en frecuencia MIMO",
+                      {
+                        "tuple": [
+                          "state_space",
+                          "frequency"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Discretizar modelo",
+                      {
+                        "tuple": [
+                          "state_space",
+                          "discretize"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Obtener función de transferencia",
+                      {
+                        "tuple": [
+                          "state_space",
+                          "transfer"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "laplace": {
+        "tuple": [
+          "Transformadas",
+          "Laplace y ecuaciones",
+          "laplace",
+          [
+            {
+              "tuple": [
+                "Operación",
+                [
+                  {
+                    "tuple": [
+                      "Transformada directa e inversa",
+                      {
+                        "tuple": [
+                          "transform_lab",
+                          "laplace"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Resolver ecuación diferencial",
+                      {
+                        "tuple": [
+                          "symbolic",
+                          4
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Resolver ecuación en diferencias",
+                      {
+                        "tuple": [
+                          "difference_equation",
+                          0
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      },
+      "random": {
+        "tuple": [
+          "Aleatorias",
+          "Realizaciones y estadística",
+          "random",
+          [
+            {
+              "tuple": [
+                "Operación",
+                [
+                  {
+                    "tuple": [
+                      "Generar realización",
+                      {
+                        "tuple": [
+                          "random",
+                          "generate"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Estadísticas e histograma",
+                      {
+                        "tuple": [
+                          "random",
+                          "statistics"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Correlación y covarianza",
+                      {
+                        "tuple": [
+                          "random_correlation",
+                          0
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Modelo AR / MA / ARMA",
+                      {
+                        "tuple": [
+                          "random_model",
+                          "model"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "tuple": [
+                      "Estimar modelo AR",
+                      {
+                        "tuple": [
+                          "random_model",
+                          "fit"
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            }
+          ]
+        ]
+      }
+    }
+  }
+}

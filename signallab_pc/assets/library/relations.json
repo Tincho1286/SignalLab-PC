@@ -1,0 +1,1477 @@
+{
+  "version": 1,
+  "relations": [
+    {
+      "key": [
+        "signal_editor",
+        0
+      ],
+      "targets": [
+        [
+          "window_signal",
+          0
+        ],
+        [
+          "basic",
+          "generate"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "window_signal",
+        0
+      ],
+      "targets": [
+        [
+          "fir_window",
+          0
+        ],
+        [
+          "dtft_symbolic",
+          0
+        ],
+        [
+          "basic",
+          "dft"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "time_transform",
+        0
+      ],
+      "targets": [
+        [
+          "signal_product",
+          0
+        ],
+        [
+          "dtft_symbolic",
+          0
+        ],
+        [
+          "fourier_symbolic",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "expression_measures",
+        "interval"
+      ],
+      "targets": [
+        [
+          "expression_measures",
+          "global"
+        ],
+        [
+          "expression_measures",
+          "periodic"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "expression_measures",
+        "global"
+      ],
+      "targets": [
+        [
+          "expression_measures",
+          "interval"
+        ],
+        [
+          "expression_measures",
+          "periodic"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "expression_measures",
+        "periodic"
+      ],
+      "targets": [
+        [
+          "expression_measures",
+          "interval"
+        ],
+        [
+          "expression_measures",
+          "global"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "generate"
+      ],
+      "targets": [
+        [
+          "signal_editor",
+          0
+        ],
+        [
+          "window_signal",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "measures"
+      ],
+      "targets": [
+        [
+          "expression_measures",
+          "interval"
+        ],
+        [
+          "expression_measures",
+          "global"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "shift"
+      ],
+      "targets": [
+        [
+          "time_transform",
+          0
+        ],
+        [
+          "basic",
+          "reverse"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "reverse"
+      ],
+      "targets": [
+        [
+          "time_transform",
+          0
+        ],
+        [
+          "basic",
+          "shift"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "scale"
+      ],
+      "targets": [
+        [
+          "time_transform",
+          0
+        ],
+        [
+          "basic",
+          "shift"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "parity"
+      ],
+      "targets": [
+        [
+          "time_transform",
+          0
+        ],
+        [
+          "basic",
+          "shift"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "time_transform",
+        1
+      ],
+      "targets": [
+        [
+          "signal_product",
+          0
+        ],
+        [
+          "dtft_symbolic",
+          0
+        ],
+        [
+          "fourier_symbolic",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "time_transform",
+        2
+      ],
+      "targets": [
+        [
+          "signal_product",
+          0
+        ],
+        [
+          "dtft_symbolic",
+          0
+        ],
+        [
+          "fourier_symbolic",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "time_transform",
+        3
+      ],
+      "targets": [
+        [
+          "signal_product",
+          0
+        ],
+        [
+          "dtft_symbolic",
+          0
+        ],
+        [
+          "fourier_symbolic",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "time_transform",
+        4
+      ],
+      "targets": [
+        [
+          "signal_product",
+          0
+        ],
+        [
+          "dtft_symbolic",
+          0
+        ],
+        [
+          "fourier_symbolic",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "signal_product",
+        0
+      ],
+      "targets": [
+        [
+          "correlation_algebra",
+          0
+        ],
+        [
+          "correlation",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "correlation_algebra",
+        0
+      ],
+      "targets": [
+        [
+          "random_correlation",
+          0
+        ],
+        [
+          "fourier",
+          7
+        ]
+      ]
+    },
+    {
+      "key": [
+        "correlation",
+        0
+      ],
+      "targets": [
+        [
+          "signal_product",
+          0
+        ],
+        [
+          "correlation_algebra",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "correlation",
+        1
+      ],
+      "targets": [
+        [
+          "signal_product",
+          0
+        ],
+        [
+          "correlation_algebra",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "continuous_convolve"
+      ],
+      "targets": [
+        [
+          "signal_product",
+          0
+        ],
+        [
+          "correlation_algebra",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "convolution_algebra",
+        0
+      ],
+      "targets": [
+        [
+          "system_analysis",
+          0
+        ],
+        [
+          "fourier_symbolic",
+          0
+        ],
+        [
+          "dtft_symbolic",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "convolve"
+      ],
+      "targets": [
+        [
+          "signal_product",
+          0
+        ],
+        [
+          "correlation_algebra",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "sum"
+      ],
+      "targets": [
+        [
+          "signal_product",
+          0
+        ],
+        [
+          "correlation_algebra",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "circular"
+      ],
+      "targets": [
+        [
+          "signal_product",
+          0
+        ],
+        [
+          "correlation_algebra",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "dsp_extensions",
+        "blocks"
+      ],
+      "targets": [
+        [
+          "signal_product",
+          0
+        ],
+        [
+          "correlation_algebra",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "inverse_dtft",
+        0
+      ],
+      "targets": [
+        [
+          "dtft_symbolic",
+          1
+        ],
+        [
+          "dtft_symbolic",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "dtft_symbolic",
+        1
+      ],
+      "targets": [
+        [
+          "transform_lab",
+          "z"
+        ],
+        [
+          "frequency_filter",
+          0
+        ],
+        [
+          "system_analysis",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "dtft_symbolic",
+        0
+      ],
+      "targets": [
+        [
+          "transform_lab",
+          "z"
+        ],
+        [
+          "frequency_filter",
+          0
+        ],
+        [
+          "system_analysis",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier_symbolic",
+        0
+      ],
+      "targets": [
+        [
+          "fourier",
+          1
+        ],
+        [
+          "frequency_filter",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier_symbolic",
+        1
+      ],
+      "targets": [
+        [
+          "fourier",
+          1
+        ],
+        [
+          "frequency_filter",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "dft"
+      ],
+      "targets": [
+        [
+          "inverse_dtft",
+          0
+        ],
+        [
+          "dtft_symbolic",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "idft"
+      ],
+      "targets": [
+        [
+          "inverse_dtft",
+          0
+        ],
+        [
+          "dtft_symbolic",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        0
+      ],
+      "targets": [
+        [
+          "inverse_dtft",
+          0
+        ],
+        [
+          "dtft_symbolic",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        1
+      ],
+      "targets": [
+        [
+          "fourier_symbolic",
+          0
+        ],
+        [
+          "fourier_symbolic",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        3
+      ],
+      "targets": [
+        [
+          "fourier_symbolic",
+          0
+        ],
+        [
+          "fourier_symbolic",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        4
+      ],
+      "targets": [
+        [
+          "fourier",
+          5
+        ],
+        [
+          "course_tools",
+          "lines"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        5
+      ],
+      "targets": [
+        [
+          "fourier",
+          4
+        ],
+        [
+          "course_tools",
+          "lines"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        6
+      ],
+      "targets": [
+        [
+          "fourier",
+          7
+        ],
+        [
+          "course_tools",
+          "band"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        7
+      ],
+      "targets": [
+        [
+          "fourier",
+          6
+        ],
+        [
+          "course_tools",
+          "band"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "fft"
+      ],
+      "targets": [
+        [
+          "inverse_dtft",
+          0
+        ],
+        [
+          "dtft_symbolic",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "band"
+      ],
+      "targets": [
+        [
+          "fourier",
+          6
+        ],
+        [
+          "fourier",
+          7
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "lines"
+      ],
+      "targets": [
+        [
+          "fourier",
+          4
+        ],
+        [
+          "fourier",
+          5
+        ]
+      ]
+    },
+    {
+      "key": [
+        "dsp_extensions",
+        "hilbert"
+      ],
+      "targets": [
+        [
+          "dsp_extensions",
+          "stft"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "dsp_extensions",
+        "stft"
+      ],
+      "targets": [
+        [
+          "dsp_extensions",
+          "hilbert"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "frequency_filter",
+        0
+      ],
+      "targets": [
+        [
+          "dtft_symbolic",
+          1
+        ],
+        [
+          "fir_window",
+          0
+        ],
+        [
+          "system_analysis",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "system_analysis",
+        0
+      ],
+      "targets": [
+        [
+          "state_space",
+          "analysis"
+        ],
+        [
+          "systems",
+          6
+        ],
+        [
+          "frequency_filter",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "interconnection",
+        0
+      ],
+      "targets": [
+        [
+          "system_analysis",
+          0
+        ],
+        [
+          "systems",
+          9
+        ]
+      ]
+    },
+    {
+      "key": [
+        "systems",
+        0
+      ],
+      "targets": [
+        [
+          "systems",
+          1
+        ],
+        [
+          "systems",
+          2
+        ]
+      ]
+    },
+    {
+      "key": [
+        "systems",
+        1
+      ],
+      "targets": [
+        [
+          "systems",
+          0
+        ],
+        [
+          "systems",
+          2
+        ]
+      ]
+    },
+    {
+      "key": [
+        "systems",
+        2
+      ],
+      "targets": [
+        [
+          "systems",
+          0
+        ],
+        [
+          "systems",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "systems",
+        6
+      ],
+      "targets": [
+        [
+          "systems",
+          0
+        ],
+        [
+          "systems",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "fir"
+      ],
+      "targets": [
+        [
+          "systems",
+          0
+        ],
+        [
+          "systems",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "iir"
+      ],
+      "targets": [
+        [
+          "systems",
+          0
+        ],
+        [
+          "systems",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "convert"
+      ],
+      "targets": [
+        [
+          "frequency_filter",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "gain"
+      ],
+      "targets": [
+        [
+          "course_tools",
+          "phase"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "phase"
+      ],
+      "targets": [
+        [
+          "course_tools",
+          "gain"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "analog"
+      ],
+      "targets": [
+        [
+          "systems",
+          0
+        ],
+        [
+          "systems",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fir_window",
+        0
+      ],
+      "targets": [
+        [
+          "window_signal",
+          0
+        ],
+        [
+          "frequency_filter",
+          0
+        ],
+        [
+          "system_analysis",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "state_space",
+        "analysis"
+      ],
+      "targets": [
+        [
+          "system_analysis",
+          0
+        ],
+        [
+          "difference_equation",
+          0
+        ],
+        [
+          "symbolic",
+          4
+        ]
+      ]
+    },
+    {
+      "key": [
+        "state_space",
+        "simulation"
+      ],
+      "targets": [
+        [
+          "system_analysis",
+          0
+        ],
+        [
+          "difference_equation",
+          0
+        ],
+        [
+          "symbolic",
+          4
+        ]
+      ]
+    },
+    {
+      "key": [
+        "state_space",
+        "frequency"
+      ],
+      "targets": [
+        [
+          "system_analysis",
+          0
+        ],
+        [
+          "difference_equation",
+          0
+        ],
+        [
+          "symbolic",
+          4
+        ]
+      ]
+    },
+    {
+      "key": [
+        "state_space",
+        "discretize"
+      ],
+      "targets": [
+        [
+          "system_analysis",
+          0
+        ],
+        [
+          "difference_equation",
+          0
+        ],
+        [
+          "symbolic",
+          4
+        ]
+      ]
+    },
+    {
+      "key": [
+        "state_space",
+        "transfer"
+      ],
+      "targets": [
+        [
+          "system_analysis",
+          0
+        ],
+        [
+          "difference_equation",
+          0
+        ],
+        [
+          "symbolic",
+          4
+        ]
+      ]
+    },
+    {
+      "key": [
+        "systems",
+        8
+      ],
+      "targets": [
+        [
+          "systems",
+          0
+        ],
+        [
+          "systems",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "systems",
+        9
+      ],
+      "targets": [
+        [
+          "system_analysis",
+          0
+        ],
+        [
+          "interconnection",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "rational_resampling",
+        0
+      ],
+      "targets": [
+        [
+          "sampling",
+          0
+        ],
+        [
+          "fourier",
+          0
+        ],
+        [
+          "fir_window",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "sampling",
+        0
+      ],
+      "targets": [
+        [
+          "fourier",
+          0
+        ],
+        [
+          "rational_resampling",
+          0
+        ],
+        [
+          "frequency_filter",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "sampling",
+        1
+      ],
+      "targets": [
+        [
+          "fourier",
+          0
+        ],
+        [
+          "rational_resampling",
+          0
+        ],
+        [
+          "frequency_filter",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "sampling",
+        2
+      ],
+      "targets": [
+        [
+          "fourier",
+          0
+        ],
+        [
+          "rational_resampling",
+          0
+        ],
+        [
+          "frequency_filter",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "sampling",
+        3
+      ],
+      "targets": [
+        [
+          "fourier",
+          0
+        ],
+        [
+          "rational_resampling",
+          0
+        ],
+        [
+          "frequency_filter",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "sampling",
+        4
+      ],
+      "targets": [
+        [
+          "fourier",
+          0
+        ],
+        [
+          "rational_resampling",
+          0
+        ],
+        [
+          "frequency_filter",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "sampling",
+        5
+      ],
+      "targets": [
+        [
+          "fourier",
+          0
+        ],
+        [
+          "rational_resampling",
+          0
+        ],
+        [
+          "frequency_filter",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "bandpass_sampling"
+      ],
+      "targets": [
+        [
+          "sampling",
+          0
+        ],
+        [
+          "sampling",
+          1
+        ]
+      ]
+    },
+    {
+      "key": [
+        "symbolic",
+        4
+      ],
+      "targets": [
+        [
+          "transform_lab",
+          "laplace"
+        ],
+        [
+          "difference_equation",
+          0
+        ],
+        [
+          "system_analysis",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "difference_equation",
+        0
+      ],
+      "targets": [
+        [
+          "transform_lab",
+          "z"
+        ],
+        [
+          "system_analysis",
+          0
+        ],
+        [
+          "symbolic",
+          4
+        ]
+      ]
+    },
+    {
+      "key": [
+        "transform_lab",
+        "laplace"
+      ],
+      "targets": [
+        [
+          "dtft_symbolic",
+          0
+        ],
+        [
+          "system_analysis",
+          0
+        ],
+        [
+          "difference_equation",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "transform_lab",
+        "z"
+      ],
+      "targets": [
+        [
+          "dtft_symbolic",
+          0
+        ],
+        [
+          "system_analysis",
+          0
+        ],
+        [
+          "difference_equation",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "random",
+        "generate"
+      ],
+      "targets": [
+        [
+          "random_correlation",
+          0
+        ],
+        [
+          "fourier",
+          7
+        ],
+        [
+          "expression_measures",
+          "interval"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "random",
+        "statistics"
+      ],
+      "targets": [
+        [
+          "random_correlation",
+          0
+        ],
+        [
+          "fourier",
+          7
+        ],
+        [
+          "expression_measures",
+          "interval"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "random_correlation",
+        0
+      ],
+      "targets": [
+        [
+          "random",
+          "generate"
+        ],
+        [
+          "random",
+          "statistics"
+        ]
+      ]
+    },
+    {
+      "key": [
+        "random_model",
+        "model"
+      ],
+      "targets": [
+        [
+          "random_correlation",
+          0
+        ],
+        [
+          "fourier",
+          7
+        ],
+        [
+          "system_analysis",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "random_model",
+        "fit"
+      ],
+      "targets": [
+        [
+          "random_correlation",
+          0
+        ],
+        [
+          "fourier",
+          7
+        ],
+        [
+          "system_analysis",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "cas",
+        0
+      ],
+      "targets": [
+        [
+          "transform_lab",
+          "z"
+        ],
+        [
+          "transform_lab",
+          "laplace"
+        ],
+        [
+          "system_analysis",
+          0
+        ]
+      ]
+    },
+    {
+      "key": [
+        "course_tools",
+        "mapping"
+      ],
+      "targets": [
+        [
+          "course_tools",
+          "convert"
+        ],
+        [
+          "transform_lab",
+          "z"
+        ]
+      ]
+    }
+  ]
+}

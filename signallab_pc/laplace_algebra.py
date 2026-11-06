@@ -28,12 +28,15 @@ def direct(request):
     regular = []; singular = []
     for term in sp.Add.make_args(sp.expand_mul(value)):
         (singular if term.has(sp.DiracDelta) else regular).append(term)
-    impulse = sp.S.Zero
+    from .procedure import step
+    records=[];impulse = sp.S.Zero
     for term in singular:
         checkpoint()
         from .impulse_pairs import impulse_integral
         pair=impulse_integral(term,T,sp.exp(-S*T))
-        impulse += pair if pair is not None else sp.integrate(term * sp.exp(-S*T), (T, -sp.oo, sp.oo))
+        current=pair if pair is not None else sp.integrate(term * sp.exp(-S*T), (T, -sp.oo, sp.oo))
+        impulse+=current
+        records.append(step('Aporte de impulso','Integración distribucional sobre toda la recta',term,current,conditions='El peso se incorpora una sola vez, también en t=0.',source='impulse_pairs.impulse_integral'))
     regular = sp.piecewise_fold(sp.Add(*regular).rewrite(sp.Piecewise))
     try:
         regions = regular.as_expr_set_pairs(domain=sp.S.Reals) if isinstance(regular, sp.Piecewise) else [(regular, sp.S.Reals)]
@@ -59,15 +62,18 @@ def direct(request):
                 # Applying a unilateral table to a clipped exponential can
                 # otherwise report its un-clipped exponent as a false bound.
                 pieces.append(sp.integrate(amplitude*sp.exp(-S*T), (T, a, b)))
+                records.append(step('Tramo temporal acotado','Integración en el intervalo real registrado',sp.Integral(amplitude*sp.exp(-S*T),(T,a,b)),pieces[-1],conditions='No se agregan restricciones de cola infinita a un tramo acotado.',source='laplace_algebra.direct'))
                 continue
             if b == sp.oo:
                 start = sp.S.Zero if a == -sp.oo else a
                 part, plane, condition = half(amplitude.subs(T, u+start))
                 pieces.append(sp.exp(-start*S)*part); lower = sp.Max(lower, plane); conditions.append(condition)
+                records.append(step('Cola derecha','Traslación t=u+t₀ y Laplace unilateral',sp.Integral(amplitude*sp.exp(-S*T),(T,start,sp.oo)),pieces[-1],conditions='Re(s) > '+str(plane)+'; '+str(condition),source='laplace_algebra.direct'))
             if a == -sp.oo:
                 end = sp.S.Zero if b == sp.oo else b
                 part, plane, condition = half(amplitude.subs(T, end-u))
                 pieces.append(sp.exp(-end*S)*part.subs(S, -S)); upper = sp.Min(upper, -plane); conditions.append(condition)
+                records.append(step('Cola izquierda','Inversión t=t₀−u y sustitución s→−s',sp.Integral(amplitude*sp.exp(-S*T),(T,-sp.oo,end)),pieces[-1],conditions='Re(s) < '+str(-plane)+'; '+str(condition),source='laplace_algebra.direct'))
     condition = sp.simplify(sp.And(*conditions, lower < upper))
     evaluated = not sp.Add(*pieces).has(
         sp.LaplaceTransform, sp.Integral, sp.oo, sp.zoo, sp.nan)
@@ -92,6 +98,9 @@ def direct(request):
         'scope': ('No existe una ROC abierta común. No se presenta la cancelación formal de las dos mitades como una transformada válida.' if condition == sp.false else
                   'Se integra sobre toda la recta temporal. La ROC es la intersección de las convergencias de t≥0 y t≤0; sus bordes están excluidos. Los impulsos se integran una sola vez. Las condiciones adicionales también deben cumplirse.')}
 
+    records.append(step('Franja común','Intersección de las convergencias',after=roc_text(lower,upper) if condition is not sp.false else 'ROC vacía',conditions=condition,source='laplace_algebra.direct'))
+    records.append(step('Resultado','Suma de los aportes compatibles' if condition is not sp.false else 'La definición queda sin evaluar por convergencia vacía',value,result,conditions=condition,source='laplace_algebra.direct'))
+    answer['procedure']=records
     return attach(answer,definition)
 
 

@@ -1,0 +1,131 @@
+{
+  "version": 1,
+  "concepts": [
+    {
+      "id": "concept-0",
+      "title": "Señal, eje y dominio",
+      "course": "Sistemas y Señales I",
+      "introduction": "Una señal asigna un valor a cada instante o índice. En tiempo continuo escribimos x(t), mientras que en tiempo discreto escribimos x[n] y n sólo toma valores enteros. Para definir la señal necesitamos tanto sus amplitudes como su eje.",
+      "formula": "Continua: x(t)\nDiscreta: x[n]",
+      "interpretation": "Por ejemplo, la lista 1,2,1 ubicada en n=0,1,2 representa una señal diferente de la misma lista ubicada en n=3,4,5. La segunda está retrasada tres muestras respecto de la primera.",
+      "scope": "En pantalla, una señal continua se evalúa en una cantidad finita de puntos. Ese registro permite representarla y aproximar cálculos, pero no describe automáticamente lo que ocurre fuera de su intervalo."
+    },
+    {
+      "id": "concept-1",
+      "title": "Energía, potencia y valor eficaz",
+      "course": "Sistemas y Señales I",
+      "introduction": "Las tres medidas parten del módulo al cuadrado de la señal. La energía lo acumula a lo largo del eje y la potencia lo promedia. El valor eficaz, también llamado RMS, es la raíz cuadrada de ese promedio.",
+      "formula": "E del registro discreto = Σ |x[n]|²\nP del registro = E/N\nRMS = √P",
+      "interpretation": "En un coseno continuo de amplitud A y frecuencia no nula, el promedio sobre períodos completos es A²/2. Si lo observamos indefinidamente, sigue aportando energía: su energía total es infinita aunque su potencia sea finita.",
+      "scope": "Por eso hay que distinguir una señal completa de un registro finito. Medir un tramo da la energía y el promedio de ese tramo; no demuestra qué ocurre en todo el eje. En tiempo continuo, la energía se define con una integral, no con una suma sin duración."
+    },
+    {
+      "id": "concept-2",
+      "title": "Sistemas LTI y convolución",
+      "course": "Sistemas y Señales I",
+      "introduction": "Un sistema lineal responde a una suma de entradas con la misma suma de respuestas. Si además es invariante en el tiempo, retrasar una entrada retrasa su respuesta en la misma cantidad. Estas dos propiedades se resumen en la sigla LTI.",
+      "formula": "y[n] = Σ x[k]·h[n−k]",
+      "interpretation": "La respuesta al impulso h describe cómo responde el sistema desde reposo a una excitación elemental. La convolución combina copias desplazadas de h para formar la respuesta a cualquier entrada. Si h es un impulso retrasado tres muestras, la salida es la entrada retrasada tres muestras.",
+      "scope": "La expresión anterior supone reposo inicial. Si el sistema ya tenía energía almacenada, la respuesta de entrada cero debe sumarse a la de estado cero. Para señales continuas se reemplaza la suma por una integral."
+    },
+    {
+      "id": "concept-3",
+      "title": "Fourier: serie, DTFT, DFT y FFT",
+      "course": "Sistemas y Señales II",
+      "introduction": "El análisis de Fourier describe una señal mediante sus componentes de frecuencia. La serie se usa para señales periódicas; la DTFT describe una secuencia mediante una función continua y periódica de la frecuencia.",
+      "formula": "DTFT: X(ω) = Σ x[n]·exp(−jωn)\nFrecuencias DFT: ωk = 2πk/N",
+      "interpretation": "Si disponemos de N muestras, su DFT entrega N coeficientes. Estos coinciden con muestras de la DTFT de ese registro cuando se usa la misma referencia de índices. La FFT calcula esa DFT con menos operaciones; no es otra transformada.",
+      "scope": "Completar el registro con ceros agrega puntos al espectro y puede hacer más cómoda su lectura. No aumenta el tiempo observado ni permite, por sí solo, separar dos tonos demasiado próximos."
+    },
+    {
+      "id": "concept-4",
+      "title": "Filtros ideales y funciones por tramos",
+      "course": "Sistemas y Señales II",
+      "introduction": "La respuesta H indica qué ganancia y fase aplica un filtro a cada frecuencia. Se puede describir directamente por tramos, sin comenzar por un numerador y un denominador.",
+      "formula": "Y(ω) = H(ω)·X(ω)",
+      "interpretation": "Un pasa bajos ideal discreto puede definirse con H=1 para |ω|≤π/4 y H=0 en el resto de un período entre −π y π. Las componentes dentro de la banda se conservan y las de afuera se eliminan. En el editor, cada fila relaciona un valor de H con su condición.",
+      "scope": "El corte abrupto suele requerir una respuesta temporal infinita y no causal. Para implementarlo se usa una aproximación con transición, como un FIR. Recortar su respuesta al impulso no conserva un filtro ideal exacto."
+    },
+    {
+      "id": "concept-5",
+      "title": "Fase y retardo de grupo",
+      "course": "Sistemas y Señales II",
+      "introduction": "El módulo de un sistema indica cuánto cambia la amplitud de cada componente y la fase indica cuánto cambia su ángulo. El retardo de grupo describe la variación de esa fase con la frecuencia.",
+      "formula": "τg(ω) = −dφ(ω)/dω",
+      "interpretation": "Si φ(ω)=−3ω en un sistema discreto, su retardo de grupo es de tres muestras. Una fase que se muestra entre −π y π puede presentar saltos por su forma de representar ángulos; desenrollarla elimina saltos equivalentes a vueltas completas.",
+      "scope": "En los ceros de H no hay un ángulo definido. Cerca de ellos, una derivada numérica puede variar mucho. Por eso se interpreta el retardo junto con el módulo, y no como una magnitud fiable en cualquier punto de una curva."
+    },
+    {
+      "id": "concept-6",
+      "title": "Muestreo, reconstrucción y aliasing",
+      "course": "Sistemas y Señales I",
+      "introduction": "Muestrear consiste en tomar valores de una señal continua cada T segundos. Su tasa es Fs=1/T muestras por segundo. Al hacerlo, distintas frecuencias continuas pueden corresponder a la misma frecuencia discreta.",
+      "formula": "ω ≡ ΩT módulo 2π\nFs = 1/T",
+      "interpretation": "Ω se expresa en rad/s y ω en rad/muestra. Cuando se superponen bandas espectrales después del muestreo aparece aliasing: ya no es posible distinguir sólo con esas muestras qué componente las produjo. Un filtro previo ayuda a evitar esa superposición.",
+      "scope": "La reconstrucción ideal necesita hipótesis de banda limitada y una tasa adecuada. Interpolar un registro agrega valores intermedios según un modelo, pero no recupera la información que ya se perdió por aliasing."
+    },
+    {
+      "id": "concept-7",
+      "title": "Laplace, Z, polos y región de convergencia",
+      "course": "Sistemas y Señales I",
+      "introduction": "Laplace transforma señales continuas y Z transforma secuencias. Sus expresiones pueden tener ceros, donde se anulan, y polos, donde presentan singularidades. Para interpretar una transformada también importa su región de convergencia, o ROC.",
+      "formula": "X(z) = 1/(1−a·z⁻¹)",
+      "interpretation": "La expresión anterior puede representar una secuencia hacia índices crecientes o decrecientes, según la región elegida. La ROC no es un intervalo de muestras: es un conjunto de valores de s o z donde converge la transformación.",
+      "scope": "Por eso una fracción sola no siempre determina causalidad ni estabilidad. El criterio de polos dentro del círculo unidad supone un sistema discreto racional causal. La biblioteca también distingue la Laplace unilateral de una transformación bilateral general."
+    },
+    {
+      "id": "concept-8",
+      "title": "FIR, IIR y especificaciones de diseño",
+      "course": "Sistemas y Señales II",
+      "introduction": "Un filtro FIR tiene respuesta al impulso de duración finita. En un IIR esa respuesta puede continuar indefinidamente. Para diseñarlos se eligen bandas de paso y rechazo y el error de amplitud permitido en cada una.",
+      "formula": "Rechazo: |H| ≤ δs\nPaso IIR usado en el diseño: 1−δp ≤ |H| ≤ 1",
+      "interpretation": "Entre las dos bandas queda una transición donde esta especificación no impone el mismo límite. Butterworth no tiene ondulación; Chebyshev I la permite en paso, Chebyshev II en rechazo y el elíptico en ambas bandas. Además de comparar orden, conviene mirar fase y respuesta temporal.",
+      "scope": "La amplitud de un FIR se comprueba contra sus propios límites de paso, que pueden admitir desviación a ambos lados de uno. Cumplir límites en los puntos evaluados no prueba qué sucede entre ellos. Las secciones de segundo orden reducen problemas numéricos, pero no eliminan todo error de redondeo."
+    },
+    {
+      "id": "concept-9",
+      "title": "Realizaciones, estacionariedad y ergodicidad",
+      "course": "Señales Aleatorias",
+      "introduction": "Un proceso aleatorio reúne muchas señales posibles. Una realización es una señal concreta de ese conjunto, por ejemplo una grabación particular de ruido. Su promedio temporal y el promedio sobre todas las realizaciones son conceptos diferentes.",
+      "formula": "Media del proceso: mX(t) = E[X(t)]",
+      "interpretation": "Un proceso estacionario en sentido amplio tiene media constante y autocorrelación que depende sólo de la separación temporal. La ergodicidad es una condición adicional que permite obtener ciertos promedios del conjunto a partir de una realización suficientemente larga.",
+      "scope": "Un registro largo o un histograma no prueban esas propiedades. La aplicación mide y estima características de los datos cargados; las hipótesis sobre el proceso deben justificarse por separado."
+    },
+    {
+      "id": "concept-10",
+      "title": "Correlación, covarianza y densidad de potencia",
+      "course": "Señales Aleatorias",
+      "introduction": "La correlación compara valores separados por un retardo. La covarianza hace esa comparación después de restar las medias, por lo que se concentra en las fluctuaciones alrededor del promedio.",
+      "formula": "Para un proceso estacionario filtrado por un LTI estable: Sy(ω)=|H(ω)|²·Sx(ω)",
+      "interpretation": "La densidad espectral de potencia describe cómo se reparte esa potencia entre frecuencias. Si una banda tiene ganancia dos en amplitud, su densidad de potencia se multiplica por cuatro. Ruido blanco significa densidad constante dentro del modelo, no muestras iguales.",
+      "scope": "Para obtener potencia hay que integrar la densidad con su convención de unidades. Cambiar de Hz a rad/s también requiere ajustar la escala de la densidad; no alcanza con cambiar el nombre del eje."
+    },
+    {
+      "id": "concept-11",
+      "title": "Detección y estimación: dos preguntas distintas",
+      "course": "Señales Aleatorias",
+      "introduction": "Detectar consiste en decidir entre alternativas, como determinar si una señal está presente en ruido. Estimar consiste en asignar un valor a una cantidad desconocida, como su amplitud o su retardo.",
+      "formula": "Ejemplo: decidir presencia → detección\nEjemplo: calcular amplitud → estimación",
+      "interpretation": "Una correlación alta en cierto retardo puede ayudar a localizar una forma conocida dentro de un registro. Para convertirla en una decisión también hacen falta un criterio y un umbral; para estimar un parámetro hace falta un modelo de cómo afecta a los datos.",
+      "scope": "Las herramientas disponibles permiten estudiar registros y comparar resultados. No implementan por sí solas un detector óptimo general ni garantizan que una estimación sea insesgada o de mínima varianza."
+    },
+    {
+      "id": "concept-12",
+      "title": "Modelos aleatorios y alcance del programa",
+      "course": "Señales Aleatorias",
+      "introduction": "Una distribución describe probabilidades, mientras que una muestra generada es un resultado concreto de ese modelo. Esa diferencia permite entender por qué dos registros válidos pueden tener estadísticas diferentes.",
+      "formula": "Modelo → realizaciones → estimaciones del registro",
+      "interpretation": "Por ejemplo, la media de una gaussiana es un parámetro del modelo. La media calculada con un registro finito es una estimación que cambia con la realización. La semilla permite repetir los datos y comparar métodos sobre la misma entrada.",
+      "scope": "La app permite generar realizaciones, medir estadísticas y correlación auto/cruzada, analizar modelos AR/MA/ARMA reales estables y estimar un AR por Yule–Walker. Cada modelo separa sus curvas teóricas de las estimaciones de un registro. Markov, detección y Wiener/Kalman todavía requieren herramientas específicas; la cobertura de la materia sigue en ampliación."
+    },
+    {
+      "id": "concept-13",
+      "title": "Espacio de estados: qué representan las matrices",
+      "course": "Sistemas y Señales I",
+      "introduction": "El estado reúne variables internas que permiten predecir la evolución del sistema junto con sus entradas. En un circuito pueden ser tensiones y corrientes; en una realización matemática pueden ser las salidas de integradores o retardos.",
+      "formula": "Continuo: dq/dt = A·q+B·u\nDiscreto: q[n+1] = A·q[n]+B·u[n]\nSalida: y = C·q+D·u",
+      "interpretation": "A describe la evolución interna y B cómo actúan las entradas. C combina los estados para formar las salidas y D representa un efecto directo de entrada a salida. Controlabilidad significa poder alcanzar cualquier estado mediante las entradas; observabilidad, poder distinguir el estado a partir de las salidas cuando se conocen las entradas.",
+      "scope": "Las dimensiones de las matrices deben coincidir con las cantidades de estados, entradas y salidas. Los rangos calculados son numéricos y dependen de la escala y el redondeo; un resultado cercano a perder rango requiere más análisis."
+    }
+  ]
+}

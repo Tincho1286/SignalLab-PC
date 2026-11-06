@@ -1,0 +1,594 @@
+{
+  "version": 1,
+  "category": "Fundamentos de señales",
+  "articles": [
+    {
+      "key": [
+        "expression_measures",
+        "interval"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Podés medir energía o potencia directamente desde una expresión, sin reducirla primero a una tabla de muestras. Esta opción trabaja sobre el intervalo que elijas."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-fe26d10f"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-d49e7a2a"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-d2576ac1"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "expression_measures",
+        "global"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Podés medir energía o potencia directamente desde una expresión, sin reducirla primero a una tabla de muestras. Esta opción trabaja sobre todo el eje."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-fe26d10f"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-d49e7a2a"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-d2576ac1"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "expression_measures",
+        "periodic"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Podés medir energía o potencia directamente desde una expresión, sin reducirla primero a una tabla de muestras. Esta opción trabaja sobre un período de la señal."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-fe26d10f"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-d49e7a2a"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-d2576ac1"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "expression_measures",
+        "interval"
+      ],
+      "flow": [
+        "Expresión y dominio",
+        "Integrar o sumar |x|² en límites",
+        "Medidas y condiciones"
+      ],
+      "parameters": [
+        [
+          "Expresión y dominio",
+          "t para continuo; n para discreto. Incluí los tramos que definen el soporte."
+        ],
+        [
+          "Límites o período",
+          {
+            "ref": "limites-o-periodo-22c6fd0e"
+          }
+        ],
+        [
+          "Aproximación numérica",
+          "La ventana y puntos sólo controlan la aproximación disponible, no prueban convergencia global."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-1c720b75"
+      }
+    },
+    {
+      "key": [
+        "expression_measures",
+        "global"
+      ],
+      "flow": [
+        "Expresión y dominio",
+        "Examinar energía y potencia globales",
+        "Medidas y condiciones"
+      ],
+      "parameters": [
+        [
+          "Expresión y dominio",
+          "t para continuo; n para discreto. Incluí los tramos que definen el soporte."
+        ],
+        [
+          "Límites o período",
+          {
+            "ref": "limites-o-periodo-22c6fd0e"
+          }
+        ],
+        [
+          "Aproximación numérica",
+          "La ventana y puntos sólo controlan la aproximación disponible, no prueban convergencia global."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-1c720b75"
+      }
+    },
+    {
+      "key": [
+        "expression_measures",
+        "periodic"
+      ],
+      "flow": [
+        "Expresión y dominio",
+        "Promediar |x|² en un período",
+        "Medidas y condiciones"
+      ],
+      "parameters": [
+        [
+          "Expresión y dominio",
+          "t para continuo; n para discreto. Incluí los tramos que definen el soporte."
+        ],
+        [
+          "Límites o período",
+          {
+            "ref": "limites-o-periodo-22c6fd0e"
+          }
+        ],
+        [
+          "Aproximación numérica",
+          "La ventana y puntos sólo controlan la aproximación disponible, no prueban convergencia global."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-1c720b75"
+      }
+    },
+    {
+      "key": [
+        "filter_lab",
+        0
+      ],
+      "flow": [
+        "Definir o diseñar",
+        "Convertir o aplicar",
+        "Respuesta y retardo"
+      ],
+      "parameters": [
+        [
+          "Sistemas LTI",
+          "Analizar un sistema reúne frecuencia, polos/ceros y respuesta temporal. Los filtros ideales están en análisis."
+        ],
+        [
+          "Diseño de filtros",
+          "Diseñar filtro reúne FIR e IIR. El diseño por ubicación de raíces, modelos físicos, ajustes y conversión permanecen como problemas distintos."
+        ],
+        [
+          "Cálculo",
+          "La barra superior ejecuta la opción activa. Ctrl+Enter calcula y F1 abre su ayuda."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Cada opción conserva sus datos. Analizar el filtro obtenido lleva el resultado al análisis común sin reescribir coeficientes. La comprobación de tolerancias refina extremos entre frecuencias de la rejilla, incluye bordes y explora vecindades de polos. El informe muestra las frecuencias de mínimos y máximos y el margen frente a cada límite; positivo significa holgura y negativo significa exceso. En analógico se considera el límite en infinito. Sigue siendo una estimación numérica local, no una certificación global ni una demostración de orden mínimo. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "tool_group",
+        "signals"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Generar y graficar; Generar ventana; Editar muestras; Desplazar secuencia; Invertir secuencia; Escalar amplitud; Partes par e impar; Transformar señal continua; Desplazar señal continua; Invertir señal continua; Escalar amplitud continua; Partes par e impar continuas; Sumar señales; Multiplicar señales."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    },
+    {
+      "key": [
+        "tool_group",
+        "measures"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Registro de muestras; Expresión en un intervalo; Expresión en todo el eje; Expresión periódica."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    },
+    {
+      "key": [
+        "tool_group",
+        "convolution"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Lineal; Circular; Por bloques FFT; Numérica; Algebraica."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    },
+    {
+      "key": [
+        "tool_group",
+        "correlation"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Discreta; Continua y periódica; Continua algebraica."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    },
+    {
+      "key": [
+        "tool_group",
+        "fourier"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "DTFT y comparación con DFT; DFT; DFT inversa; FFT, ventanas y resolución; DTFT algebraica; DTFT inversa numérica; DTFT inversa algebraica; Transformada numérica; Inversa numérica; Transformada algebraica; Inversa algebraica."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    },
+    {
+      "key": [
+        "tool_group",
+        "series"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Continua; Discreta; Potencia y líneas espectrales."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    },
+    {
+      "key": [
+        "tool_group",
+        "densities"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Densidad de energía; Energía por banda; Densidad de potencia: periodograma y Welch."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    },
+    {
+      "key": [
+        "tool_group",
+        "local_spectra"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Hilbert y señal analítica; STFT y espectrograma."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    },
+    {
+      "key": [
+        "tool_group",
+        "sampling"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Muestrear expresión; Nyquist y aliasing; Muestreo pasabanda; Reconstrucción; Conversión racional con antialias; Diezmar, expandir e interpolar; Relacionar frecuencias y período."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    },
+    {
+      "key": [
+        "tool_group",
+        "quantize"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Cuantización y SNR; Precisión numérica y ejecución."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    },
+    {
+      "key": [
+        "tool_group",
+        "states"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Analizar estabilidad y estructura; Simular estados y salidas; Respuesta en frecuencia MIMO; Discretizar modelo; Obtener función de transferencia."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    },
+    {
+      "key": [
+        "tool_group",
+        "laplace"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Transformada directa e inversa; Resolver ecuación diferencial; Resolver ecuación en diferencias."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    },
+    {
+      "key": [
+        "tool_group",
+        "random"
+      ],
+      "flow": [
+        "Elegir operación",
+        "Definir datos locales",
+        "Calcular y reutilizar"
+      ],
+      "parameters": [
+        [
+          "Operación",
+          "Generar realización; Estadísticas e histograma; Correlación y covarianza; Modelo AR / MA / ARMA; Estimar modelo AR."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-20735790"
+      }
+    }
+  ]
+}

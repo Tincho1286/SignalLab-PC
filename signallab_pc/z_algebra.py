@@ -39,6 +39,11 @@ def direct(request):
     evaluated=not result.has(sp.Sum,sp.oo,sp.zoo,sp.nan) or bool(branches)
     answer={'operation':'Transformada Z algebraica','result':str(result),'branches':branches,'evaluated':evaluated,'output_variable':'z','inverse_roc_hint':'right' if lower.is_finite else 'left' if upper.is_finite else None,'scope':f'X(z)=Σ x[n] z^(−n), desde n={lower} hasta {upper}. Fuera del soporte indicado x[n]=0. Las condiciones de convergencia acompañan la expresión; no se descartan al simplificar.'}
     if pair is not None:
+        from .procedure import step
+        recorded=[step('Tramo '+str(i+1),'Suma de la secuencia en su soporte',sp.Sum(parse(segment['expression'])*Z**(-N),(N,parse(segment['lower']),parse(segment['upper']))),segment['transform'],conditions=segment['condition'],interpretation='Se utiliza el resultado calculado para este tramo, sin reconstruir la simplificación interna del par.',source='z_direct_pairs.interval') for i,segment in enumerate(pair['segments'])]
+        recorded.append(step('Región común de convergencia','Intersección de las condiciones de los tramos',after=pair['condition'],conditions='Las condiciones de todos los tramos deben cumplirse simultáneamente.',source='z_direct_pairs.direct_pairs'))
+        recorded.append(step('Resultado global','Suma de transformadas compatibles' if not pair['empty'] else 'Conservar la definición: no existe ROC abierta común',expression,result,conditions=str(pair['condition']),source='z_algebra.direct'))
+        answer['procedure']=recorded
         answer['method']='table_pairs'
         if pair.get('finite_support'):answer['inverse_roc_hint']='right'
         if pair['empty']:

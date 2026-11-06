@@ -4,9 +4,21 @@ from .jobs import checkpoint
 from .resources import ensure_working_set
 
 
-def pairs(value, variable, output, *, inverse=False):
+def pairs(value, variable, output, *, inverse=False,trace=None):
     q=sp.Dummy('angular_frequency',real=True)
-    cache={}
+    cache={};events=[]
+    display_q=sp.Symbol('nu',real=True) if inverse else output
+    def emit(operation,before,after,conditions='Transformada ordinaria convergente del término indicado.'):
+        if trace is None:return
+        from .procedure import step
+        def shown(v):return v.xreplace({q:display_q}) if isinstance(v,sp.Basic) else v
+        events.append(step(operation,operation,shown(before),shown(after),conditions=conditions,source='fourier_ordinary_pairs.pairs'))
+    def transaction(function):
+        def wrapped(term):
+            start=len(events);result=function(term)
+            if result is None:del events[start:]
+            return result
+        return wrapped
 
     def linear(argument):
         try:p=sp.Poly(sp.expand(argument),variable)
@@ -38,30 +50,38 @@ def pairs(value, variable, output, *, inverse=False):
             return sp.Piecewise((height,sp.Abs(q)<width),(height/2,sp.Eq(sp.Abs(q),width)),(0,True))
         return None
 
+    @transaction
     def match(term):
         checkpoint()
-        if term in cache:return cache[term]
+        if term in cache:
+            if cache[term] is not None:emit('Reutilizar un par ya calculado',term,cache[term])
+            return cache[term]
         cache[term]=None
         canonical=sp.powsimp(term,combine='exp')
         if canonical!=term:
+            emit('Combinar los factores exponenciales',term,canonical)
             cache[term]=match(canonical);return cache[term]
         coefficient,dependent=term.as_independent(variable,as_Add=False)
         if dependent==1:return None  # Polynomial/distributional pairs use their own path.
         if coefficient!=1:
             result=match(dependent)
-            if result is not None:cache[term]=coefficient*result
+            if result is not None:
+                cache[term]=coefficient*result;emit('Linealidad: factor constante',term,cache[term])
             return cache[term]
         if term.is_Add:
             results=[match(v) for v in term.args]
-            if all(v is not None for v in results):cache[term]=sp.Add(*results)
+            if all(v is not None for v in results):
+                cache[term]=sp.Add(*results);emit('Linealidad: suma de transformadas',term,cache[term])
             return cache[term]
 
         # Hyperbolic linearity is valid only when every exponential term has
         # an ordinary convergent pair. Never infer convergence from a rewrite.
         if term.has(sp.sinh,sp.cosh):
             expanded=sp.expand_mul(term.replace(lambda v:v.func in (sp.sinh,sp.cosh),lambda v:v.rewrite(sp.exp)))
+            start=len(events);emit('Expresar sinh/cosh como exponenciales',term,expanded)
             result=match(expanded)
             if result is not None:cache[term]=result;return result
+            del events[start:]
 
         # Isolate certified real modulation even when stored in the same exp
         # as a decaying envelope. Exponential sums split without branch choices.
@@ -74,11 +94,13 @@ def pairs(value, variable, output, *, inverse=False):
             factors.append(factor)
         if carrier!=0:
             result=match(sp.Mul(*factors))
-            if result is not None:cache[term]=result.subs(q,q-carrier)
+            if result is not None:
+                cache[term]=result.subs(q,q-carrier);emit('Modulación exponencial: desplazar la frecuencia',term,cache[term],conditions='Frecuencia de modulación real: '+str(carrier))
             return cache[term]
 
         result=sinc(term)
-        if result is not None:cache[term]=result;return result
+        if result is not None:
+            cache[term]=result;emit('Par sinc/rectángulo con su desplazamiento',term,result);return result
 
         if term.func==sp.exp:
             exponent=sp.expand(term.args[0]);absolute=[a for a in exponent.atoms(sp.Abs) if a.has(variable)]
@@ -100,7 +122,8 @@ def pairs(value, variable, output, *, inverse=False):
                     if decay.is_positive is True and decay.is_finite is True and d.is_real is True:
                         rest=sp.simplify(p.nth(0)+decay*d**2)
                         result=sp.exp(rest)*sp.sqrt(sp.pi/decay)*sp.exp(-q**2/(4*decay))*sp.exp(-sp.I*q*d)
-            if result is not None:cache[term]=result;return result
+            if result is not None:
+                cache[term]=result;emit('Par de una envolvente exponencial o gaussiana',term,result,conditions='Se comprobaron los signos de decaimiento de las colas y los parámetros reales de desplazamiento.');return result
 
         factors=sp.Mul.make_args(term)
         for gate in factors:
@@ -117,9 +140,10 @@ def pairs(value, variable, output, *, inverse=False):
             decay=sp.simplify(-side*p.nth(1))
             if decay.is_positive is True and decay.is_finite is True:
                 result=sp.exp(p.eval(d))*sp.exp(-sp.I*q*d)/(decay+side*sp.I*q)
-                cache[term]=result;return result
+                cache[term]=result;emit('Par exponencial con soporte unilateral',term,result,conditions='Decaimiento positivo: '+str(decay)+' > 0; borde temporal '+str(d));return result
 
         for factor in factors:
+            start=len(events)
             if factor.func in (sp.cos,sp.sin):
                 affine=linear(factor.args[0])
                 if affine is None:continue
@@ -129,7 +153,7 @@ def pairs(value, variable, output, *, inverse=False):
                 positive=sp.exp(sp.I*b)*base.subs(q,q-a)
                 negative=sp.exp(-sp.I*b)*base.subs(q,q+a)
                 result=(positive+negative)/2 if factor.func==sp.cos else (positive-negative)/(2*sp.I)
-                cache[term]=result;return result
+                cache[term]=result;emit('Modulación por seno o coseno',term,result,conditions='Frecuencia real '+str(a)+'; fase real '+str(b));return result
             try:p=sp.Poly(factor,variable)
             except sp.PolynomialError:continue
             if p.degree()<1:continue
@@ -140,15 +164,21 @@ def pairs(value, variable, output, *, inverse=False):
             result=sp.Add(*(c*sp.I**m[0]*sp.diff(base,q,m[0]) for m,c in p.terms()))
             # Derivatives at rectangle edges are distributions. Keep them in
             # the generic path until their edge contributions are explicit.
-            if base.has(sp.Piecewise):continue
-            cache[term]=result;return result
+            if base.has(sp.Piecewise):
+                del events[start:];continue
+            cache[term]=result;emit('Multiplicar en el tiempo y derivar en frecuencia',term,result,conditions='Se aplica el polinomio con la potencia correspondiente de i; la base no tiene saltos rectangulares.');return result
         return None
 
-    known=[];remaining=[]
+    known=[];known_inputs=[];remaining=[]
     for term in sp.Add.make_args(sp.expand_mul(value)):
         result=match(term)
         if result is None:remaining.append(term)
-        else:known.append(result)
+        else:known.append(result);known_inputs.append(term)
     transformed=sp.Add(*known).subs(q,-output if inverse else output)
     if inverse:transformed/=2*sp.pi
+    if trace is not None:
+        if inverse and known:
+            emit('Dualidad y normalización de la inversa',sp.Add(*known),transformed,conditions='Se evalúa la transformada auxiliar en −t y se divide por 2π.')
+        elif len(known)>1:emit('Reunir los términos transformados',sp.Add(*known_inputs),transformed)
+        trace.extend(events)
     return transformed,sp.Add(*remaining) if known else value

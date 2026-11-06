@@ -561,7 +561,7 @@ class MathematicalReliabilityTests(unittest.TestCase):
         for old in old_sections():
             matches=[v for v in values if v['route']==old['route'] and v.get('content_kind')=='tool']
             self.assertEqual(len(matches),1,old['route']);self.assertEqual(matches[0]['blocks'],article_blocks(old['route']))
-        self.assertEqual(sum(bool(v.get('example')) for v in values),8)
+        self.assertEqual(sum(bool(v.get('example')) for v in values),11)
 
     def test_audit_transform_receipts_never_claim_pending_answers_are_solved(self):
         from signallab_pc.procedure import transform_records
@@ -607,5 +607,187 @@ class MathematicalReliabilityTests(unittest.TestCase):
             actual=evaluate_expression('tan(pi*n/2)',np.array([value]))
             self.assertTrue(np.isfinite(actual).all())
 
+
+
+    def test_audit_cas_dirac_integrals_are_translation_invariant_at_endpoints(self):
+        from signallab_pc.cas_engine import calculate,empty_state
+        for source,want in [('integrate(Dirac(t),(t,0,1))',sp.S.Half),('integrate(Dirac(t),(t,-1,0))',sp.S.Half),('integrate(Dirac(t-1),(t,0,1))',sp.S.Half),('integrate(Dirac(t),t,1,-1)',-1),('integrate(Dirac(2*t-1),(t,0,1))',sp.S.Half),('integrate(t*Dirac(t-1),(t,0,2))',1),('integrate(Dirac(t),(t,0,oo))',sp.S.Half),('integrate(Dirac(t^2-1),(t,-2,2))',1)]:
+            with self.subTest(source=source):
+                r=calculate(dict(source=source,cell=1,state=empty_state()))
+                self.equivalent(restore(r['state']['results']['1']),want)
+
+    def test_audit_cas_dirac_derivatives_and_laplace_use_explicit_conventions(self):
+        from signallab_pc.cas_engine import calculate,empty_state
+        r=calculate(dict(source='integrate(t*Dirac(t,1),(t,-1,1))',cell=1,state=empty_state()))
+        self.equivalent(restore(r['state']['results']['1']),-1)
+        with self.assertRaisesRegex(ValueError,'extremo'):calculate(dict(source='integrate(Dirac(t,1),(t,0,1))',cell=1,state=empty_state()))
+        r=execute(dict(operation='laplace',expression='Dirac(t)'))
+        self.equivalent(expression(r),1)
+
+
+
+    def test_audit_bilinear_keeps_a_pole_at_infinity_as_an_advance(self):
+        from signallab_pc.filters import Transfer,bilinear
+        from signallab_pc.course_tools import convert_system
+        from numpy.testing import assert_allclose
+        source=Transfer([1],[1,-2],'analog')
+        for converted in (bilinear(source,1),convert_system(source,1,'bilinear')['systems'][0]):
+            self.assertEqual(converted.advance,1);assert_allclose(converted.b,[-.25,-.25]);assert_allclose(converted.a,[1])
+            back=convert_system(converted,1,'bilinear_inverse')
+            self.equivalent(parse(back['exact_transfer']),1/(S-2))
+            self.assertTrue(back['procedure'])
+
+    def test_audit_bilinear_agrees_with_the_analog_frequency_substitution(self):
+        import numpy as np
+        from numpy.testing import assert_allclose
+        from signallab_pc.filters import Transfer,bilinear
+        for source in (Transfer([1],[1,1],'analog'),Transfer([1,0],[1],'analog'),Transfer([1],[1,-2-2**(-35)],'analog'),Transfer([1e250],[1e250,2e250],'analog')):
+            for period in (1.,.125):
+                with self.subTest(source=source.to_document(),period=period):
+                    digital=bilinear(source,period);w=np.array([-.9,-.2,0,.4,1.1])
+                    assert_allclose(digital.response(w),source.response(2/period*np.tan(w/2)),rtol=3e-11,atol=2e-14)
+        self.assertEqual(bilinear(Transfer([1],[1,-2-2**(-35)],'analog'),1).advance,0)
+
+    def test_audit_bilinear_inverse_preserves_delays_advances_and_sos(self):
+        import numpy as np
+        from numpy.testing import assert_allclose
+        from signallab_pc.filters import Transfer
+        from signallab_pc.bilinear_mapping import convert
+        sources=[Transfer([0,0,1],[1]),Transfer([1],[1],advance=2),Transfer.from_sos([[1,.5,.25,1,-.2,.1]])]
+        w=np.array([-.8,0,.7])
+        for source in sources:
+            analog,_,_=convert(source,.5,inverse=True)
+            assert_allclose(analog.response(4*np.tan(w/2)),source.response(w),rtol=1e-12,atol=1e-12)
+
+    def test_audit_generated_fir_has_a_known_causal_region(self):
+        from signallab_pc.filters import fir
+        from signallab_pc.ideal_conversion import windowed_conversion
+        from signallab_pc.system_conditions import record
+        for system in (fir('lowpass',5,.2),windowed_conversion('where(abs(w)<1,1,0)',1.,'bilinear',33,None,5,'hann')['systems'][0]):
+            self.assertEqual(system.roc,{'mode':'right'})
+            self.assertTrue(record(system)['bibo_stability'].startswith('Sí:'))
+
+
+
+    def test_audit_fft_parseval_report_does_not_call_finite_energy_zero_or_infinite(self):
+        from signallab_pc.course_tools import window_fft
+        from signallab_pc.model import Signal
+        for amplitude,exponent in [(1e200,'400'),(1e-200,'-400')]:
+            with self.subTest(amplitude=amplitude):
+                result=window_fft(Signal([amplitude]*4),4,4,'boxcar',0,9)
+                lines=result['report'].splitlines()
+                energy=next(v.split(': ',1)[1] for v in lines if v.startswith('Energía temporal:'))
+                spectral=next(v.split(': ',1)[1] for v in lines if v.startswith('Suma |X[k]|'))
+                self.assertEqual(energy,spectral);self.assertIn('e'+exponent,energy)
+                self.assertIn('finita',energy);self.assertNotEqual(energy,'0')
+
+    def test_audit_sampling_and_reconstruction_preserve_knots_and_record_the_method(self):
+        import numpy as np
+        from numpy.testing import assert_allclose,assert_array_equal
+        from signallab_pc.model import Signal
+        from signallab_pc.sampling import reconstruct,resample,alias_angular_frequency
+        source=Signal([1e20,1.,-2e20],origin=-2,metadata={'sample_rate_hz':8.,'time_start_s':-.25})
+        for method in ('linear','zoh','sinc'):
+            with self.subTest(method=method):
+                result=reconstruct(source,None,None,3,method)
+                assert_array_equal(result.values[::3],source.values)
+                self.assertEqual(result.origin,-.25);self.assertAlmostEqual(result.step,1/24)
+                self.assertEqual(result.metadata['derivation_operation'],'reconstruction')
+                self.assertTrue(result.metadata['procedure'])
+                if method!='sinc':self.assertNotIn('SINC',result.metadata['model'])
+        down=resample(source,2,'decimate',1)
+        self.assertEqual(down.metadata['sample_rate_hz'],4.)
+        self.assertEqual(down.metadata['time_start_s'],-.125)
+        self.assertFalse(down.metadata['antialias_filter'])
+        for frequency in (-37.,-5.,0.,5.,37.):
+            folded=alias_angular_frequency(frequency,8.)['signed_alias_rad_s'];n=np.arange(9)
+            assert_allclose(np.exp(1j*frequency*n/8),np.exp(1j*folded*n/8),atol=1e-13)
+
+    def test_audit_library_data_has_three_stage_flows_and_complete_blocks(self):
+        from signallab_pc.library_content import read_content
+        from signallab_pc.library_catalog import sections
+        from signallab_pc.function_reference import function_sections
+        articles,guides,_=read_content()
+        self.assertEqual(len(articles),85);self.assertEqual(len(guides),109)
+        self.assertTrue(all(len(value['flow'])==3 for value in guides.values()))
+        self.assertEqual(guides['basic','measures']['flow'][1],'E = Σ|x[n]|²')
+        self.assertEqual(len(sections()),122)
+        references=function_sections()
+        for page in references:
+            self.assertTrue(all(title and text for title,text in page['blocks']))
+        for page in references:
+            text=' '.join(body for _,body in page['blocks'])
+            if page['title'].startswith('Sign,'):self.assertNotIn('no admite',text)
+            if page['title'].startswith('Where'):self.assertIn('simbólicas y CAS',text)
+
+    def test_audit_library_loader_rejects_duplicates_and_missing_shared_text(self):
+        from signallab_pc.library_content import read_content
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);(root/'topics').mkdir()
+            (root/'fragments.json').write_text(json.dumps(dict(version=1,texts={},legacy_constants={})),encoding='utf-8')
+            record=dict(key=['sample',0],blocks=[['Propósito','Texto']])
+            document=dict(version=1,category='Tema',articles=[record,record],guides=[])
+            path=root/'topics/one.json';path.write_text(json.dumps(document),encoding='utf-8')
+            with self.assertRaisesRegex(ValueError,'duplicado'):read_content(root)
+            document['articles']=[dict(key=['sample',0],blocks=[['Propósito',{'ref':'missing'}]])]
+            path.write_text(json.dumps(document),encoding='utf-8')
+            with self.assertRaisesRegex(ValueError,'referencia inexistente'):read_content(root)
+
+
+
+    def test_audit_recorded_z_and_laplace_steps_preserve_the_common_region(self):
+        z=execute(dict(operation='z_expression',expression='2^n*step(n)+3^n*step(-n-1)',lower='-oo',upper='oo'))
+        self.assertTrue(z['evaluated']);self.assertTrue(z['procedure'])
+        segments=[v for v in z['procedure'] if v['source']=='z_direct_pairs.interval']
+        self.assertEqual(len(segments),2)
+        total=sp.Add(*(parse(v['after']) for v in segments))
+        self.equivalent(total,Z/(Z-2)+Z/(3-Z))
+        r=execute(dict(operation='laplace',expression='exp(-2*abs(t))',interpretation='bilateral'))
+        self.assertEqual(r['roc_lower'],'-2');self.assertEqual(r['roc_upper'],'2')
+        tails=[v for v in r['procedure'] if v['title'] in ('Cola derecha','Cola izquierda')]
+        self.assertEqual(len(tails),2);self.equivalent(sp.Add(*(parse(v['after']) for v in tails)),4/(4-S**2))
+
+    def test_audit_fourier_trace_never_leaks_unsuccessful_pair_attempts(self):
+        from signallab_pc.fourier_ordinary_pairs import pairs
+        trace=[];value=parse('exp(-abs(t))*cosh(2*t)')
+        known,remaining=pairs(value,T,W,trace=trace)
+        self.assertEqual(known,0);self.assertEqual(remaining,value);self.assertEqual(trace,[])
+        trace=[];value=parse('exp(-2*abs(t))*cosh(t)')
+        known,remaining=pairs(value,T,W,trace=trace)
+        self.assertEqual(remaining,0);self.equivalent(known,1/(1+W**2)+3/(9+W**2))
+        self.assertTrue(any('sinh/cosh' in v['operation'] for v in trace))
+        self.assertTrue(all(v['recorded'] and v['source'] for v in trace))
+
+    def test_audit_inverse_band_trace_matches_formula_and_removable_centre(self):
+        from signallab_pc.fourier_bands import frequency_definition
+        request=dict(operation='inverse_dtft_expression',expression='where(abs(w)<pi/3,exp(-2*i*w),0)',period_origin='-pi')
+        r=execute(request);self.assertTrue(r['evaluated'])
+        self.assertTrue(any(v['source']=='fourier_bands.inverse_bands' for v in r['procedure']))
+        exact=restore(r['cas_encoded']);self.equivalent(exact.subs(N,2),sp.Rational(1,3))
+        for n in (-3,0,1,3,7):self.equivalent(exact.subs(N,n),sp.sin(sp.pi*(n-2)/3)/(sp.pi*(n-2)))
+        definition=frequency_definition(dict(expression=request['expression'],domain='discrete'))
+        self.assertTrue(definition['inverse']['procedure']);self.equivalent(restore(definition['inverse']['cas_encoded']),exact)
+
+    def test_audit_library_cross_references_resolve_to_existing_articles(self):
+        from signallab_pc.library_catalog import sections
+        pages=sections();ids={p['article_id'] for p in pages};tools=[p for p in pages if p['content_kind']=='tool']
+        self.assertTrue(all(p.get('related') for p in tools))
+        for page in tools:
+            targets=[key for key,_ in page['related']]
+            self.assertEqual(len(targets),len(set(targets)));self.assertNotIn(page['article_id'],targets)
+            self.assertTrue(set(targets)<=ids)
+
+
+    def test_audit_continuous_inverse_trace_separates_a_distributional_background(self):
+        from signallab_pc.fourier_bands import inverse_bands
+        trace=[];result=inverse_bands(parse('1+where(abs(w)<1,2,0)'),W,T,discrete=False,trace=trace)
+        self.equivalent(result.subs(T,1),2*sp.sin(1)/sp.pi)
+        background=[v for v in trace if v['title']=='Componente de fondo']
+        self.assertEqual(len(background),1);self.equivalent(parse(background[0]['after']),sp.DiracDelta(T))
+        bands=[v for v in trace if v['title']=='Banda integrada']
+        self.assertEqual(len(bands),1)
+        integral=sp.sympify(bands[0]['before'],locals={'t':T,'w':W})
+        self.assertFalse(integral.has(sp.oo,-sp.oo))
+        self.equivalent(integral.subs(T,0).doit(),2/sp.pi)
 
 if __name__=='__main__':unittest.main()

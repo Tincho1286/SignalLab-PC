@@ -1,0 +1,468 @@
+{
+  "version": 1,
+  "category": "Diseño de filtros FIR e IIR",
+  "articles": [
+    {
+      "key": [
+        "frequency_filter",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Podés definir un filtro por su respuesta en frecuencia H, por ejemplo un pasa bajos ideal, sin convertirlo primero en coeficientes de una transferencia racional."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí continuo o discreto y cargá los tramos con las columnas Valor y Cuando; w es la frecuencia angular. En discreto, definí un período entre −π y π. En continuo, elegí una banda que represente el soporte del modelo."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Calcular muestra H y una aproximación de su respuesta al impulso h. Para obtener la salida de una señal, activá Aplicar a una señal y cargá esa entrada. El selector permite consultar H, h, X, Y e y."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Un corte ideal puede exigir una respuesta temporal infinita y no causal. La inversión numérica y el tramo de h mostrado no convierten ese modelo en un FIR o IIR finito exacto."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "systems",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Podés diseñar un FIR eligiendo sus cortes y la cantidad de coeficientes. La ventana suaviza el truncamiento de la respuesta ideal."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí pasa bajos, pasa altos, pasa banda o rechaza banda. Ingresá los cortes entre 0 y π rad/muestra, la longitud y la ventana; Kaiser requiere además β."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El resultado contiene los coeficientes y la respuesta del filtro. Compará su transición y sus ondulaciones al cambiar longitud o ventana."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Los cortes no son los límites garantizados de las bandas de paso y rechazo. Si querés cargar tolerancias y bordes de esas bandas, usá la variante FIR por especificaciones del mismo diseño de filtros."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "systems",
+        1
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Una sección biquad es un filtro digital de segundo orden que se define mediante pocos parámetros."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí su tipo, una frecuencia ω₀ entre 0 y π rad/muestra y un factor Q positivo. Luego calculá la sección."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La transferencia y su respuesta permiten ver cómo Q cambia la forma alrededor de ω₀. Podés reutilizar la sección como cualquier otro filtro digital."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La definición de ganancia depende del tipo elegido. En el pasabanda implementado, la ganancia de pico es Q; no se supone un pico unitario para todos los tipos."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "systems",
+        2
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta herramienta relaciona los componentes de un circuito RC ideal con su respuesta pasa bajos o pasa altos."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí si conocés R y C o si querés obtener uno a partir de la frecuencia de corte. Ingresá resistencia en ohmios y capacitancia en faradios, respetando la unidad indicada para la frecuencia."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La salida muestra el valor calculado y la transferencia del modelo. Cuando se permiten varias etapas, se interpretan como etapas ideales en cascada."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El cálculo de un componente a partir del corte corresponde a una etapa. La cascada ideal no modela el efecto de carga que un circuito físico puede introducir entre etapas."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "systems",
+        6
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Podés diseñar un sistema ubicando sus polos y ceros en el plano s o z y eligiendo la ganancia."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí el dominio. A la izquierda, Agregar polo o cero permite elegir el tipo de raíz y cargarla en forma binómica (parte real e imaginaria) o polar (módulo y ángulo en radianes). Agregar a la lista incorpora el punto y su conjugado si esa opción está marcada. La tabla muestra cada raíz por separado: doble clic corrige su expresión y Quitar seleccionados elimina sólo las filas elegidas. Calcular actualiza H y la respuesta en frecuencia. El plano conserva las acciones con el mouse y su propio selector de coordenadas, independiente del formato de carga."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Al actualizar el diseño se calculan la transferencia, el plano y la pestaña Respuesta en frecuencia, con módulo lineal o dB, fase y retardo de grupo. Podés cambiar el intervalo y exportar la respuesta sin salir del diseño. Los gráficos se abren aparte y se actualizan al editar puntos. Usar filtro en incluye Análisis de sistemas para continuar con la misma definición."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El modo de pares conjugados ayuda a mantener coeficientes reales. Más ceros que polos en H(z) puede requerir avances: el diseño los conserva mediante un factor z^m y permite analizarlo, sin añadir polos artificiales en el origen ni convertirlo en un retardo. La estabilidad y la secuencia bilateral dependen también de la región de convergencia. Para obtener muestras no causales, enviá el sistema a Transformada Z inversa y elegí la ROC."
+        ],
+        [
+          "Edición y escala en la ventana del gráfico",
+          "La ventana del plano tiene su propio selector para agregar polos, agregar ceros, mover o quitar puntos. Se sincroniza con los controles del diseño. La rueda amplía o reduce alrededor del mouse; Acercar y Alejar modifican el alcance visible, y Ajustar a raíces vuelve a encuadrar todas las raíces. Alejá la vista para colocar, por ejemplo, un cero en 2. La escala elegida se conserva al agregar puntos y al actualizar el sistema. El círculo unitario es una referencia, no un límite de edición."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fir_window",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta opción obtiene un FIR multiplicando una respuesta h[n] propia por una ventana de longitud y ubicación elegidas."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Elegí la ventana y su longitud L en muestras; es independiente del tamaño del registro de h[n]. Podés centrarla o fijar su primer índice n_w. Si h es una fórmula se evalúa en n_w…n_w+L−1; si son datos cargados, se usa cero fuera de su registro. Una ventana propia define su longitud y ubicación mediante sus datos."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Por ejemplo, un registro h[n] de 101 muestras puede enventanarse con una Hann de L=31 para obtener 31 muestras. El orden nominal es M=L−1=30. El retardo opcional lleva el comienzo negativo a cero. El informe muestra el intervalo, la longitud y el retardo; la respuesta incluye módulo, fase y retardo de grupo. Las salidas quedan en Resultados."
+        ],
+        [
+          "Qué tener en cuenta",
+          "L significa cantidad total de muestras, no orden ni semilongitud. Con L par el centro de una ventana simétrica es semientero; no se desplaza automáticamente h para imponerle otra simetría. La ganancia no se normaliza. Si hay extremos nulos o desplazamientos, el orden efectivo de H puede diferir de L−1."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "systems",
+        0
+      ],
+      "flow": [
+        "Cortes y longitud",
+        "FIR por ventana",
+        "h[n] y respuesta"
+      ],
+      "parameters": [
+        [
+          "Cortes",
+          "Entre 0 y π rad/muestra; inferior menor que superior. Son cortes del diseño por ventana, no bordes separados de paso y rechazo."
+        ],
+        [
+          "Coeficientes",
+          "Longitud entera; orden = longitud−1."
+        ],
+        [
+          "Ventana",
+          "Kaiser añade β; no se usa β para otras ventanas."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La forma de la respuesta depende de la ventana y longitud. Módulo es amplitud; dB es 20 log10 |H|. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "systems",
+        1
+      ],
+      "flow": [
+        "ω₀ y Q",
+        "Biquad de segundo orden",
+        "Módulo y fase"
+      ],
+      "parameters": [
+        [
+          "ω₀",
+          "Entre 0 y π rad/muestra."
+        ],
+        [
+          "Q",
+          "Positivo; controla resonancia/ancho de banda. En el pasabanda implementado la ganancia de pico es Q."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Una ganancia de pico distinta de uno no implica un error gráfico. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "systems",
+        2
+      ],
+      "flow": [
+        "R, C y etapas",
+        "Circuito RC ideal",
+        "Respuesta y componentes"
+      ],
+      "parameters": [
+        [
+          "R y C",
+          "Ohmios y faradios, positivos; 1 µF = 0.000001 F."
+        ],
+        [
+          "Etapas",
+          "Cascada ideal sin carga."
+        ],
+        [
+          "Diseño por corte",
+          "fc en Hz y un componente conocido; calcula el otro para una etapa."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "El eje de frecuencia puede ser logarítmico: distancias iguales representan razones iguales, no diferencias. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "systems",
+        6
+      ],
+      "flow": [
+        "Polos, ceros, ganancia",
+        "Construir transferencia",
+        "Plano complejo y sistema"
+      ],
+      "parameters": [
+        [
+          "Coordenadas",
+          "Real horizontal, imaginaria vertical. Un complejo como 0.5+0.2i define una ubicación."
+        ],
+        [
+          "Pares conjugados",
+          "Permiten coeficientes reales."
+        ],
+        [
+          "Ganancia",
+          "Multiplica H, no desplaza puntos."
+        ],
+        [
+          "Mouse",
+          "Elegí agregar, mover o quitar antes de actuar; actualizá para reutilizar."
+        ],
+        [
+          "Coordenadas",
+          "Binómica usa parte real/imaginaria; polar usa módulo y ángulo en radianes. El mouse edita las mismas raíces. Polos y ceros reales pueden estar a ambos lados de cero."
+        ],
+        [
+          "Agregar polo o cero",
+          "Elegí Polo o Cero. La forma binómica pide dos números reales a y b para a+bi. La forma polar pide módulo r≥0 y ángulo θ en radianes: r·exp(iθ). Se admiten pi/4, fracciones y 10^(-3)."
+        ],
+        [
+          "Agregar también el conjugado",
+          "Agrega una segunda raíz no real conjugada. Una raíz real u origen se agrega una sola vez. Las repeticiones intencionales conservan la multiplicidad. La opción se sincroniza con Pares conjugados del plano."
+        ],
+        [
+          "Lista por filas",
+          "Cada fila contiene una raíz. Doble clic en el valor permite editarlo; el tooltip muestra sus coordenadas. Ctrl o Mayús seleccionan varias. Quitar seleccionados elimina sólo esas filas, sin borrar automáticamente conjugados."
+        ],
+        [
+          "Aplicar la lista",
+          "Agregar, editar o quitar actualiza el plano y deja el resultado anterior como modificado. Calcular obtiene la transferencia y la nueva respuesta en frecuencia. Los campos de carga son un borrador: cambiar su formato no agrega ni modifica raíces."
+        ],
+        [
+          "Ejes del gráfico",
+          "Binómica o polar en el plano sólo cambia cómo se representa el mismo punto. El formato del formulario de carga se elige por separado."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ],
+        [
+          "Edición y zoom del plano",
+          "La ventana del gráfico permite elegir polo, cero, mover o quitar. Usá la rueda o Acercar/Alejar para cambiar el alcance; Ajustar a raíces encuadra el diseño completo. El círculo unitario no limita las posiciones."
+        ]
+      ],
+      "reading": "Cruces son polos y círculos son ceros. La escala de ambos ejes debe ser igual; el círculo unidad debe verse circular. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En el origen se mantienen las coordenadas exactas. Círculo y cruz distinguen cero y polo coincidentes, y la leyenda informa su cantidad. Una marca superpuesta no elimina ni cancela las raíces del diseño. La carga exacta conserva las expresiones en las listas; las operaciones numéricas usan la precisión disponible. Los múltiplos exactos de pi/2 en la carga polar se ubican sobre los ejes sin residuos imaginarios artificiales. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "systems",
+        7
+      ],
+      "flow": [
+        "H(s) y T",
+        "Bilineal",
+        "H(z)"
+      ],
+      "parameters": [
+        [
+          "Dominio",
+          "Continuo usa H(s); discreto usa H(z)."
+        ],
+        [
+          "Coeficientes b y a",
+          {
+            "ref": "coeficientes-b-y-a-189dea02"
+          }
+        ],
+        [
+          "T",
+          "Período positivo en segundos. La bilineal relaciona Ω=(2/T)tan(ω/2); no conserva linealmente todas las frecuencias."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Se conserva la entrada H(s); la salida H(z) es la que se exporta o reutiliza. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones. En Resultados → Comparar resultados podés estudiar dos señales con iguales dominio y unidades o dos H del mismo dominio. No se alinean orígenes ni fases automáticamente; los sistemas se evalúan sobre las mismas frecuencias."
+    },
+    {
+      "key": [
+        "frequency_filter",
+        0
+      ],
+      "flow": [
+        "H(ω) definido por tramos",
+        "Y=HX e inversión numérica",
+        "H, h, X, Y y salida"
+      ],
+      "parameters": [
+        [
+          "Valor y condición",
+          "Valor de H y condición sobre w; ejemplo valor 1 cuando abs(w)<=pi/4, cero en los demás casos."
+        ],
+        [
+          "Dominio",
+          "Discreto usa rad/muestra y un período [−π,π]; continuo usa rad/s y una banda finita."
+        ],
+        [
+          "Intervalo de h",
+          "Define el tramo temporal aproximado, no los cortes de H."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Un filtro ideal puede ser no causal y de duración infinita. La respuesta temporal mostrada es una aproximación, no un FIR/IIR exacto. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "fir_window",
+        0
+      ],
+      "flow": [
+        "h[n] propia",
+        "Longitud L y ubicación de la ventana",
+        "FIR y respuesta"
+      ],
+      "parameters": [
+        [
+          "h[n]",
+          "Fórmula/tramos o registro de muestras, archivo o resultado."
+        ],
+        [
+          "Longitud L",
+          "Cantidad total de muestras de una ventana estándar, elegida independientemente del registro de h[n]. M=L−1 es el orden nominal, no la semilongitud."
+        ],
+        [
+          "Ubicación",
+          "Centrada en n=0 para una fórmula, o en el centro del registro para datos cargados. Se elige el primer índice entero inferior si el centro cae a medio índice. Desde un índice elegido permite fijar n_w. El intervalo es n_w…n_w+L−1."
+        ],
+        [
+          "Fórmula",
+          "Se evalúa directamente en el intervalo de la ventana."
+        ],
+        [
+          "Registro finito",
+          "Se seleccionan los índices de la ventana y se usa cero donde no hay datos de h."
+        ],
+        [
+          "Ventana propia",
+          "Su cantidad y primer índice definen L y la ubicación."
+        ],
+        [
+          "Retardo",
+          "Opcional. Lleva a cero un primer índice negativo; no cambia el módulo."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La salida contiene L muestras sobre el intervalo de la ventana. Con L par, una ventana simétrica tiene centro semientero; para centrarla exactamente en n=0 se necesita L impar. No se desplaza la fórmula h automáticamente para cambiar su centro de simetría. El informe indica intervalo, L, orden nominal y retardo. Los extremos nulos o desplazamientos pueden cambiar el orden efectivo de la transferencia. No se normaliza automáticamente la ganancia. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    }
+  ]
+}

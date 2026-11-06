@@ -27,7 +27,8 @@ def window_fft(x,length,nfft,window,beta,points):
     w=Signal(weights,x.origin,1,'n','Ventana '+window,'discrete')
     clock={key:x.metadata[key] for key in ('sample_rate_hz','time_start_s','time_mapping') if key in x.metadata}
     v=Signal(x.values[:length]*weights,x.origin,1,'n','Señal enventanada','discrete',metadata={**clock,'operation':'windowed_signal'})
-    raw=np.fft.fft(v.values,nfft)
+    from .spectral_scaling import fft_values,energy_description
+    raw=fft_values(v.values,size=nfft)
     from .fourier_phase import bin_frequency, dft_origin_phase
     indices = np.arange(nfft, dtype=np.int64)-nfft//2
     omega = bin_frequency(indices, nfft)
@@ -36,8 +37,8 @@ def window_fft(x,length,nfft,window,beta,points):
     dense=dtft(v,-np.pi,np.pi,points)
     window_spectrum=dtft(w,-np.pi,np.pi,points)
     coeff=Signal(raw,0,1,'k','Índices k de la DFT (0 a N−1)','discrete','',{'operation':'DFT','source_origin':x.origin,'nfft':nfft,'input_clock':clock})
-    energy=float(np.sum(abs(v.values)**2));spectral=float(np.sum(abs(raw)**2)/nfft)
-    return bundle(f'Ventanas y resolución espectral\n\nLongitud observada: {length}\nNFFT: {nfft}\nCeros agregados: {nfft-length}\nSeparación entre bins: {2*np.pi/nfft:.9g} rad/muestra\nVentana: {window}, simétrica\nGanancia coherente: {np.mean(weights):.9g}\n\nEnergía temporal: {energy:.12g}\nSuma |X[k]|²/NFFT: {spectral:.12g}\n\nLa FFT no se normaliza hacia adelante. Su fase en rad/muestra respeta el origen de la entrada. La DFT invertible conserva el origen y el reloj de la entrada para la inversa. Se puede elegir un eje local desde cero. La DTFT usa los índices originales.\n\nAgregar ceros densifica la rejilla, pero no mejora la resolución física. Aumentar la duración y cambiar la ventana modifica el ancho del lóbulo y la fuga. Se usan las primeras L muestras; no se supone que aumentar NFFT agrega información.',[fft,dense,v,w,window_spectrum,coeff])
+    energy=energy_description(v.values);spectral=energy_description(raw,nfft)
+    return bundle(f'Ventanas y resolución espectral\n\nLongitud observada: {length}\nNFFT: {nfft}\nCeros agregados: {nfft-length}\nSeparación entre bins: {2*np.pi/nfft:.9g} rad/muestra\nVentana: {window}, simétrica\nGanancia coherente: {np.mean(weights):.9g}\n\nEnergía temporal: {energy}\nSuma |X[k]|²/NFFT: {spectral}\n\nLa FFT no se normaliza hacia adelante. Su fase en rad/muestra respeta el origen de la entrada. La DFT invertible conserva el origen y el reloj de la entrada para la inversa. Se puede elegir un eje local desde cero. La DTFT usa los índices originales.\n\nAgregar ceros densifica la rejilla, pero no mejora la resolución física. Aumentar la duración y cambiar la ventana modifica el ancho del lóbulo y la fuga. Se usan las primeras L muestras; no se supone que aumentar NFFT agrega información.',[fft,dense,v,w,window_spectrum,coeff])
 
 def bands(wp,ws):
     wp=np.asarray(wp,float);ws=np.asarray(ws,float)
@@ -207,9 +208,10 @@ def convert_system(system,period,method):
             if system.roc is None:
                 note += ' Como la entrada no especifica una ROC, se adopta la interpretación causal.'
         else:
-            num,den=sp.bilinear(b.real,system.a.real,fs=1/period)
+            from .bilinear_mapping import convert
+            result,procedure,exact_transfer=convert(system,period)
             note='s = (2/T) · (z−1)/(z+1). Ω = (2/T)tan(ω/2). No hay aliasing por el mapeo, pero sí deformación de frecuencia.'
-        result=Transfer(num,den,'digital','Conversión '+method,sample_period_s=period,roc=roc if method=='impulse' else None)
+        if method=='impulse':result=Transfer(num,den,'digital','Conversión '+method,sample_period_s=period,roc=roc)
         if method == 'impulse':
             from .transfer_plane import convergence
             note += '\nROC discreta: ' + convergence(result)['text']
@@ -244,16 +246,15 @@ def convert_system(system,period,method):
         return bundle('Inversa de invarianza al impulso: candidatos\n\nh[n]=T·hc(nT). Para r/(1−p z⁻¹), un término continuo compatible tiene residuo r/T y polo (log(p)+j2πk)/T.\n\nSe muestran dos elecciones de ramas. Para polos y residuos reales se construyen pares conjugados cuando hace falta: tienen las mismas muestras, pero distinta evolución entre ellas. La respuesta no es única.\n\nAlcance: polos simples separados y sin parte polinómica directa. La descomposición usa tolerancia numérica 1e−10; no es una equivalencia algebraica exacta. En n=0 se interpreta el valor por la derecha de hc.',systems=candidates)
     else:
         if system.domain!='digital':raise ValueError('La bilineal inversa requiere H(z) discreta.')
-        degree=max(len(system.a)+system.advance,len(system.b))-1
-        ensure_working_set((degree+1)**2,live_arrays=18)
-        denominator=np.r_[np.zeros(system.advance),system.a]
-        def substitute(v):
-            values=np.pad(v,(0,degree+1-len(v)));out=np.poly1d([0j]);plus=np.poly1d([period/2,1]);minus=np.poly1d([-period/2,1])
-            for i,c in enumerate(values):out=out+complex(c)*(minus**i)*(plus**(degree-i))
-            return out.c
-        result=Transfer(substitute(system.b),substitute(denominator),'analog','Bilineal inversa')
+        from .bilinear_mapping import convert
+        result,procedure,exact_transfer=convert(system,period,inverse=True)
         note='z = (1+sT/2)/(1−sT/2). Para un T fijado la sustitución racional es única. El resultado puede ser impropio y no tener una respuesta temporal ordinaria.'
-    return bundle('Conversión de sistemas\n\n'+note+'\nT: '+str(period)+' s',systems=[result])
+    output=bundle('Conversión de sistemas\n\n'+note+'\nT: '+str(period)+' s',systems=[result])
+    if method!='impulse':
+        output.update(procedure=procedure,exact_transfer=exact_transfer)
+        output['report']+='\n\nTransferencia obtenida por sustitución exacta del modelo almacenado: H = '+exact_transfer
+        if result.advance:output['report']+='\nLa expresión contiene '+str(result.advance)+' muestras de avance. No se reemplazan por un polo grande ni se simulan como retardos causales.'
+    return output
 
 def normalize_gain(system,omega,target):
     target=float(target)

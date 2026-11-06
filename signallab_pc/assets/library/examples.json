@@ -202,6 +202,69 @@
       "procedure": "La inversa izquierda es h[n]=−2^n·u[−n−1]. Su norma absoluta es Σ2^n desde −∞ hasta −1, que vale 1. La ROC contiene |z|=1, por lo que la respuesta en frecuencia converge.",
       "conditions": "La ROC izquierda es parte del modelo. Una simulación causal no debe sustituir esta interpretación por una recurrencia derecha.",
       "interpretation": "El sistema es BIBO estable y anticausal. Con la ROC exterior |z|>2, el mismo cociente sería causal e inestable."
+    },
+    {
+      "id": "ventana-rectangular-dtft",
+      "title": "Ventana rectangular de tres muestras",
+      "category": "Diseño de filtros FIR e IIR",
+      "tool": [
+        "dtft_symbolic",
+        1
+      ],
+      "statement": "Obtener h[n] del FIR cuya respuesta es 1+2cos(w).",
+      "objective": "Interpretar un FIR simétrico centrado en n=0 y distinguirlo de una realización causal desplazada.",
+      "request": {
+        "operation": "inverse_dtft_expression",
+        "expression": "1+2*cos(w)",
+        "period_origin": "-pi"
+      },
+      "expected": "impulse(n+1)+impulse(n)+impulse(n-1)",
+      "variable": "n",
+      "procedure": "Se escribe 2cos(w)=exp(iw)+exp(-iw). Cada exponencial corresponde a una delta desplazada. La constante corresponde a δ[n].",
+      "conditions": "n entero; DTFT de período 2π. El soporte incluye n=-1: esta versión centrada no es causal.",
+      "interpretation": "La ventana vale uno en -1, 0 y 1. Al retrasarla una muestra se obtiene un FIR causal con la misma magnitud y una fase adicional -w."
+    },
+    {
+      "id": "z-impulso-desplazado",
+      "title": "Transformada Z de un impulso desplazado",
+      "category": "Transformadas de Laplace y Z",
+      "tool": [
+        "transform_lab",
+        "z"
+      ],
+      "statement": "Calcular X(z) de δ[n-3] sobre todos los enteros.",
+      "objective": "Aplicar la selección de la delta sin truncar una suma infinita.",
+      "request": {
+        "operation": "z_expression",
+        "expression": "impulse(n-3)",
+        "lower": "-oo",
+        "upper": "oo"
+      },
+      "expected": "z^(-3)",
+      "variable": "z",
+      "procedure": "En Σδ[n-3]z^(-n) sólo contribuye n=3. La suma queda z^(-3).",
+      "conditions": "ROC: z distinto de cero. La secuencia tiene soporte finito, pero el retardo produce un polo en el origen.",
+      "interpretation": "El retardo temporal se representa por una potencia negativa de z."
+    },
+    {
+      "id": "fourier-envolvente-hiperbolica",
+      "title": "Envolvente exponencial con coseno hiperbólico",
+      "category": "Series y transformadas de Fourier",
+      "tool": [
+        "fourier_symbolic",
+        0
+      ],
+      "statement": "Calcular la transformada de exp(-2|t|)cosh(t).",
+      "objective": "Comprobar la convergencia antes de aplicar linealidad.",
+      "request": {
+        "operation": "fourier_angular",
+        "expression": "exp(-2*abs(t))*cosh(t)"
+      },
+      "expected": "1/(1+w^2)+3/(9+w^2)",
+      "variable": "w",
+      "procedure": "cosh(t)=(exp(t)+exp(-t))/2. Al separar las dos mitades temporales se obtiene (exp(-|t|)+exp(-3|t|))/2. El par exp(-a|t|) corresponde a 2a/(a²+w²), con a>0.",
+      "conditions": "Las dos tasas de decaimiento, 1 y 3, son positivas. La transformada es ordinaria sobre toda frecuencia real.",
+      "interpretation": "El resultado es real y par porque la señal de entrada también lo es."
     }
   ]
 }

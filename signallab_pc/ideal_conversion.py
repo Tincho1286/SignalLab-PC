@@ -60,7 +60,7 @@ def windowed_conversion(expression,period,method,count,support,length,window,bet
     # Exact Hermitian samples imply a real inverse; discard only quadrature roundoff.
     if np.array_equal(response.values,response.values[::-1].conj()):impulse=impulse.real
     weights=get_window(('kaiser',beta) if window=='kaiser' else window,length,fftbins=False)
-    b=_finite_output(impulse*weights,'El FIR enventanado');system=Transfer(b,[1],'digital','FIR de conversión con ventana '+window,sample_period_s=period)
+    b=_finite_output(impulse*weights,'El FIR enventanado');system=Transfer(b,[1],'digital','FIR de conversión con ventana '+window,sample_period_s=period,roc={'mode':'right'})
     samples=Signal(b,0,1,'n','Coeficientes FIR causales','discrete',metadata={'operation':'windowed_conversion','delay_samples':delay,'window':window,'period_s':period,'sample_rate_hz':1/period,'time_start_s':0.,'quadrature_points':count})
     bundle['signals'].append(samples);bundle['systems']=[system]
     bundle['report']+='\n\nFIR por ventana: se invierte H sobre la rejilla, se conserva h[n] desde −M hasta M y se multiplica por la ventana. Se desplaza M muestras para obtener coeficientes causales. M = '+str(delay)+'; longitud = '+str(length)+'. El desplazamiento agrega M muestras de retardo. La truncación y la ventana aproximan la respuesta: el resultado ya no es un filtro ideal exacto. Ventana: '+window+'.'

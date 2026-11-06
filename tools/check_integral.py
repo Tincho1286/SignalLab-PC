@@ -58,8 +58,8 @@ def main(argv=None):
     audit=run_audit(args.report.with_name(args.report.stem+'-preventive.json'))
     coverage=sorted(expected)==sorted(row['id'] for row in result.records) and len(set(expected))==len(expected)
     unchanged=source==source_snapshot()
-    passed=result.wasSuccessful() and not result.skipped and coverage and unchanged and audit['passed'] and all(row['passed'] for row in families.values()) and len(flows)>=45 and all(row['passed'] for row in flows)
-    record=dict(passed=passed,tests=result.testsRun,failures=len(result.failures),errors=len(result.errors),skipped=len(result.skipped),complete_discovery_coverage=coverage,source_unchanged=unchanged,source_fingerprint=source["mathematics"],source_snapshot=source,families=families,workflows=dict(tests=len(flows),passed=len(flows)>=45 and all(row['passed'] for row in flows)),preventive={key:audit[key] for key in ('passed','completed_cases','failed_cases','seeds')},seconds=round(time.monotonic()-begin,3),records=result.records)
+    passed=result.wasSuccessful() and not result.skipped and coverage and unchanged and audit['passed'] and all(row['passed'] for row in families.values()) and len(flows)>=47 and all(row['passed'] for row in flows)
+    record=dict(passed=passed,tests=result.testsRun,failures=len(result.failures),errors=len(result.errors),skipped=len(result.skipped),complete_discovery_coverage=coverage,source_unchanged=unchanged,source_fingerprint=source["mathematics"],source_snapshot=source,families=families,workflows=dict(tests=len(flows),passed=len(flows)>=47 and all(row['passed'] for row in flows)),preventive={key:audit[key] for key in ('passed','completed_cases','failed_cases','seeds')},seconds=round(time.monotonic()-begin,3),records=result.records)
     args.report.write_text(json.dumps(record,indent=2),encoding='utf-8')
     print('Integral audit: '+('PASS' if passed else 'FAIL'),flush=True)
     return 0 if passed else 1

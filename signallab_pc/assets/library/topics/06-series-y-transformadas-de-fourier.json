@@ -1,0 +1,976 @@
+{
+  "version": 1,
+  "category": "Series y transformadas de Fourier",
+  "articles": [
+    {
+      "key": [
+        "basic",
+        "dft"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La DFT representa N muestras temporales mediante N coeficientes complejos de frecuencia. La FFT es una forma rápida de calcular esa misma transformada."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá las N muestras en orden temporal y calculá. La transformada directa usa la suma sin dividir por N."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Los N coeficientes se ordenan por frecuencia angular dentro de −π ≤ ω < π, con separación 2π/N rad/muestra. En el resultado podés cambiar el eje del gráfico y la tabla al índice entero k centrado. El módulo muestra amplitudes espectrales y la fase conserva la referencia temporal indicada por la herramienta."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Los coeficientes no son una curva continua de frecuencia. Para recuperar las muestras usá la DFT inversa, que aplica el factor 1/N."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "idft"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La DFT inversa recupera una secuencia a partir de sus N coeficientes de frecuencia."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá X[0],…,X[N−1] en ese orden o copiá una DFT anterior. Podés escribir coeficientes complejos, como 1+2*i."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El cálculo aplica el factor 1/N y devuelve un período de N muestras desde n=0. Si los coeficientes pertenecen a una señal real, las pequeñas partes imaginarias residuales pueden deberse al redondeo."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Respetá el orden completo de los coeficientes. Ingresar sólo sus módulos pierde la información de fase y, en general, no permite recuperar la señal original."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La DTFT describe una secuencia mediante una función continua de la frecuencia. Esta herramienta también permite superponer las muestras de una DFT sobre esa curva."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá la secuencia con su índice inicial y elegí el intervalo de frecuencias en rad/muestra. Puntos determina cuántas evaluaciones dibujan la DTFT; la DFT usa sus propias frecuencias."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Al activar la superposición se conserva la DTFT del cálculo individual. La curva representa la DTFT y los tallos representan la DFT; ambas respetan el origen de la señal."
+        ],
+        [
+          "Qué tener en cuenta",
+          "El espectro discreto es periódico cada 2π. Si el intervalo supera un período, las muestras espectrales se repiten. La fase desenrollada y el retardo de las vistas ampliadas corresponden a la DTFT."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "dtft_symbolic",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Podés obtener una expresión de la DTFT de una secuencia, incluyendo secuencias definidas sobre infinitos índices cuando la suma converge."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá x[n] y los límites de su suma; se admiten −oo y oo. Después de obtener una expresión, elegí el intervalo de frecuencia y los puntos para verla como curva."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La expresión describe la frecuencia angular en rad/muestra. Las condiciones del resultado indican cuándo tiene sentido la suma o si el motor dejó parte del cálculo pendiente."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Los extremos usados para dibujar no cambian los límites de la suma. Una expresión pendiente o con distribuciones no debe interpretarse como una tabla ordinaria de amplitudes finitas."
+        ],
+        [
+          "Sinc y pulso en frecuencia",
+          "Para un pasabajos ideal con corte wc entre 0 y pi usá sin(wc*n)/(pi*n), reemplazando wc por su valor, y soporte de -oo a oo. En n=0 se utiliza wc/pi. La DTFT vale 1 dentro de la banda, 0 fuera y 1/2 en los bordes; se repite cada 2*pi. Si wc=pi, la secuencia es un impulso y el espectro vale 1 en todo el período. Un soporte de 0 a oo describe otra señal y produce otra transformada."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        1
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta herramienta aproxima el espectro de una señal continua a partir del registro temporal que cargues."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Definí la señal y su intervalo temporal. Luego elegí el rango de frecuencias en rad/s y la cantidad de evaluaciones del espectro."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El resultado aproxima la integral de Fourier sobre el registro disponible. Una ventana temporal más amplia puede incluir partes de la señal que un registro corto dejaba afuera."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La separación de los puntos temporales y el truncamiento influyen en el resultado. Los Dirac se incorporan mediante sus pesos y posiciones, no como picos de altura finita."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        3
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La Fourier inversa continua reconstruye una aproximación temporal a partir de un espectro X(Ω)."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá el espectro por fórmula en w o por muestras complejas. Indicá su origen y paso en rad/s y, después, el intervalo temporal que querés obtener."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Se aproxima la integral inversa con factor 1/(2π). La salida depende tanto de los valores del espectro como de la banda de frecuencia disponible."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Si faltan frecuencias, la reconstrucción puede cambiar aunque el intervalo temporal sea amplio. Una densidad de potencia o de energía no sustituye al espectro complejo X."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier_symbolic",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta opción busca una expresión de la transformada de Fourier continua."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá x(t), incluyendo su soporte mediante tramos cuando corresponda. Calculá primero la expresión. Los controles de inicio, final y cantidad permiten después generar un registro para graficarla."
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-1bea62ea"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-fbb4b91a"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier_symbolic",
+        1
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta opción busca una expresión de la señal temporal a partir de su espectro."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá X(w) usando w como frecuencia angular. Calculá primero la expresión. Los controles de inicio, final y cantidad permiten después generar un registro para graficarla."
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-1bea62ea"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-fbb4b91a"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        4
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          {
+            "ref": "que-podes-hacer-21fa62d9"
+          }
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Para analizar, definí un período de x(t), su duración T, los puntos de evaluación y los armónicos deseados. Para sintetizar, cargá c[k] con sus índices y T, o copiá coeficientes anteriores."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El coeficiente k corresponde a la frecuencia k·2π/T. Si sintetizás con pocos armónicos, obtenés una aproximación que permite estudiar el efecto del truncamiento."
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-0fa1f768"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        5
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          {
+            "ref": "que-podes-hacer-21fa62d9"
+          }
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Para analizar, cargá un período completo de N muestras. Para sintetizar, cargá c[0],…,c[N−1] desde índice cero, o copiá una serie anterior con su origen registrado."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Los coeficientes del análisis se dividen por N. La síntesis manual devuelve un período desde n=0; una serie importada conserva la referencia de origen que trae."
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-0fa1f768"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        6
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La densidad espectral de energía muestra cómo se distribuye la energía de una señal entre las frecuencias. Se calcula como |X|² a partir de su espectro complejo."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Podés partir de una señal discreta, una señal continua o un espectro propio. Cargá aquí la fórmula o las muestras; para una señal, elegí también el intervalo de frecuencia y sus puntos. El cálculo obtiene X y su densidad en una sola operación."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El selector permite consultar y exportar ambos resultados. El informe integra la banda mostrada y, cuando corresponde, la compara con la energía temporal mediante Parseval."
+        ],
+        [
+          "Qué tener en cuenta",
+          "En discreto, la integral de un período completo de 2π usa el factor 1/(2π). Para N muestras, usá al menos N+1 puntos al integrar la DTFT de ese período. Una DFT completa permite usar Σ|X[k]|²/N. No ingreses una densidad ya calculada ni pesos de Dirac como si fueran X."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "fourier",
+        7
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La densidad espectral de potencia, o PSD, estima cómo se reparte la potencia de un registro entre las frecuencias."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá la señal y su tasa Fs. Elegí periodograma o Welch y una ventana; para Welch, indicá también el tamaño de segmento y su solapamiento. Quitar la media permite estudiar las fluctuaciones alrededor del promedio."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Welch promedia estimaciones de varios segmentos, lo que reduce sus fluctuaciones a costa de resolución en frecuencia. El informe indica las unidades del eje y la normalización de la densidad bilateral."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La potencia de una banda se obtiene integrando la densidad con la convención indicada, no leyendo una sola altura. La estimación de un registro no prueba que el proceso sea estacionario."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "inverse_dtft",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          {
+            "ref": "que-podes-hacer-18576984"
+          }
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-353b1407"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-d86616e6"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-80bc06f0"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "dtft_symbolic",
+        1
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          {
+            "ref": "que-podes-hacer-18576984"
+          }
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-353b1407"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-d86616e6"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-80bc06f0"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "basic",
+        "dft"
+      ],
+      "flow": [
+        "N muestras x[n]",
+        "X[k] = Σ x[n]e⁻ʲ²πᵏⁿ/ᴺ",
+        "N coeficientes discretos"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          "Fórmula en n o muestras separadas por coma; para decimales usá punto. Ejemplo: 1, -0.5, 2."
+        ],
+        [
+          "Inicio y cantidad",
+          {
+            "ref": "inicio-y-cantidad-3ad0ceba"
+          }
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La frecuencia ωk=2πk/N se muestra centrada en cero, dentro de −π ≤ ωk < π. La directa conserva N bins y no divide por N. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "basic",
+        "idft"
+      ],
+      "flow": [
+        "X[0]…X[N−1]",
+        "Inversa con factor 1/N",
+        "Secuencia desde n = 0"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          "Fórmula en n o muestras separadas por coma; para decimales usá punto. Ejemplo: 1, -0.5, 2."
+        ],
+        [
+          "Inicio y cantidad",
+          {
+            "ref": "inicio-y-cantidad-3ad0ceba"
+          }
+        ],
+        [
+          "Orden de entrada",
+          "Para una lista manual, ingresá los coeficientes desde k=0. Al reutilizar una DFT centrada, la inversa reconoce su orden."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Un espectro sin simetría conjugada puede producir una señal compleja. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "fourier",
+        0
+      ],
+      "flow": [
+        "Secuencia finita",
+        "DTFT sobre ω elegidas",
+        "Curva + muestras DFT opcionales"
+      ],
+      "parameters": [
+        [
+          "ω inicial y final",
+          "Intervalo creciente en rad/muestra, por ejemplo −pi a pi."
+        ],
+        [
+          "Puntos",
+          "Número de frecuencias evaluadas, al menos dos; no es la cantidad de muestras de entrada."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "DTFT es una curva periódica; DFT son muestras de esa curva. La fase principal salta entre −π y π. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "fourier",
+        1
+      ],
+      "flow": [
+        "Registro continuo",
+        "∫ x(t)e⁻ʲωᵗdt",
+        "Espectro continuo aproximado"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          "Registro continuo con inicio, paso en segundos y cantidad."
+        ],
+        [
+          "ω inicial/final y puntos",
+          "Intervalo en rad/s y cantidad de evaluaciones; más puntos de frecuencia no alargan el registro."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "El espectro corresponde al registro finito. Una ventana corta y un paso temporal grande pueden afectar la aproximación. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "fourier",
+        3
+      ],
+      "flow": [
+        "X(ω) sobre banda finita",
+        "∫ X(ω)eʲωᵗdω/(2π)",
+        "Señal temporal aproximada"
+      ],
+      "parameters": [
+        [
+          "Espectro",
+          "Valores complejos; inicio y paso en rad/s."
+        ],
+        [
+          "t inicial/final y puntos",
+          "Intervalo temporal deseado, creciente y con al menos dos puntos."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La banda truncada afecta la salida. Los límites temporales de salida no amplían la banda del espectro de entrada. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "fourier",
+        4
+      ],
+      "flow": [
+        "x(t) durante un período T",
+        "c[k], k = −K…K",
+        "Síntesis con armónicos"
+      ],
+      "parameters": [
+        [
+          "Inicio y T",
+          "Un período completo de la señal; T positivo en segundos."
+        ],
+        [
+          "K",
+          "Entero no negativo; produce 2K+1 armónicos."
+        ],
+        [
+          "Puntos temporales",
+          "Resolución para integrar un período; no cantidad de armónicos."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Los coeficientes son discretos. Aumentar K puede mejorar la síntesis, pero no elimina el fenómeno de Gibbs en discontinuidades. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "fourier",
+        5
+      ],
+      "flow": [
+        "Un período de N muestras",
+        "c[k] = DFT(x)/N",
+        "Síntesis periódica"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          "Un período completo, con su origen."
+        ],
+        [
+          "Síntesis",
+          "Reutilizá coeficientes de serie discreta, que conservan período y origen."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La normalización difiere de la DFT. Los coeficientes se muestran como muestras no conectadas. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "fourier",
+        6
+      ],
+      "flow": [
+        "Señal propia o espectro X",
+        "Transformar si hace falta y obtener |X|²",
+        "Densidad y espectro exportables"
+      ],
+      "parameters": [
+        [
+          "Partir de",
+          "Señal discreta x[n], continua x(t) o espectro X(ω). Cada opción admite definición local; no hace falta calcular en otro menú."
+        ],
+        [
+          "Frecuencias y puntos",
+          "Para señales, definen el intervalo de la transformada: rad/muestra en discreto y rad/s en continuo."
+        ],
+        [
+          "Espectro propio",
+          "Definí valores complejos X y su eje. No ingreses una PSD ni una densidad ya calculada."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La densidad es |X|². La energía de una banda se obtiene integrando con el factor 1/(2π). La banda finita sólo representa parte del espectro. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "fourier",
+        7
+      ],
+      "flow": [
+        "Registro, ventana y segmentos",
+        "Periodograma / Welch",
+        "Densidad de potencia"
+      ],
+      "parameters": [
+        [
+          "Fs",
+          "Tasa positiva en muestras/s."
+        ],
+        [
+          "Segmento y solape",
+          "Cantidad de muestras por segmento y compartidas con el siguiente; solape menor que segmento."
+        ],
+        [
+          "Ventana y media",
+          "Ponderación y resta opcional de la media de cada segmento."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La PSD no tiene fase. En dB se usa 10 log10 de la densidad, no 20 log10. La integral usa las unidades del eje mostrado. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "dtft_symbolic",
+        0
+      ],
+      "flow": [
+        "Expresión en n",
+        "Transformada algebraica",
+        "Resultado en ω (rad/muestra)"
+      ],
+      "parameters": [
+        [
+          "Expresión",
+          "Usá n como variable e incluí los tramos del soporte."
+        ],
+        [
+          "Índices inicial y final",
+          "Enteros; se admite -oo u oo para sumas infinitas."
+        ],
+        [
+          "Registro numérico",
+          {
+            "ref": "registro-numerico-19441b8f"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-1639c5cc"
+      }
+    },
+    {
+      "key": [
+        "fourier_symbolic",
+        0
+      ],
+      "flow": [
+        "Expresión en t",
+        "Transformada algebraica",
+        "Resultado en ω (rad/s)"
+      ],
+      "parameters": [
+        [
+          "Expresión",
+          "Usá t como variable e incluí los tramos del soporte."
+        ],
+        [
+          "Registro numérico",
+          {
+            "ref": "registro-numerico-19441b8f"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-1639c5cc"
+      }
+    },
+    {
+      "key": [
+        "fourier_symbolic",
+        1
+      ],
+      "flow": [
+        "Expresión en w",
+        "Transformada algebraica",
+        "Resultado en t (s)"
+      ],
+      "parameters": [
+        [
+          "Expresión",
+          "Usá w como variable e incluí los tramos del soporte."
+        ],
+        [
+          "Registro numérico",
+          {
+            "ref": "registro-numerico-19441b8f"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-1639c5cc"
+      }
+    },
+    {
+      "key": [
+        "inverse_dtft",
+        0
+      ],
+      "flow": [
+        "X(ω): un período",
+        "Integrar con e^(iωn)/(2π)",
+        "x[n]: muestras enteras"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          "Fórmula en w, función por tramos, muestras, archivo o espectro de Resultados. Frecuencia en rad/muestra."
+        ],
+        [
+          "Rejilla de una fórmula",
+          "Inicio elige dónde comienza el período. Cantidad indica los puntos de frecuencia; el paso se ajusta solo para incluir ambos extremos de 2π. Para muestras pegadas, indicá el paso; los archivos conservan su propio eje."
+        ],
+        [
+          "Período",
+          "Debe cubrir 2π; no basta una banda parcial. Con ambos extremos, (cantidad−1)·paso=2π. Sin duplicar el extremo, cantidad·paso=2π."
+        ],
+        [
+          "Primer índice n",
+          "Entero, positivo o negativo, de la primera muestra de salida."
+        ],
+        [
+          "Cantidad de muestras",
+          "Cantidad de índices consecutivos; no es la cantidad de frecuencias."
+        ],
+        [
+          "Resolución de X",
+          "La fórmula se evalúa sobre la rejilla ingresada. Aumentar la cantidad de muestras de salida no mejora la resolución de frecuencia."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "Se integra numéricamente un período: no se impone causalidad. La frecuencia finita produce aliasing temporal entre índices separados por la cantidad de frecuencias independientes. Con ambos extremos, cada uno pesa la mitad. Se usa 2π como período exacto, admitiendo sólo redondeo en el paso. La salida elegida es un tramo de x[n], no toda la secuencia infinita. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "dtft_symbolic",
+        1
+      ],
+      "flow": [
+        "X(ω) por fórmula o tramos",
+        "Propiedades o integral de un período",
+        "Expresión de x[n]"
+      ],
+      "parameters": [
+        [
+          "X(w)",
+          "Expresión de un período, con w en rad/muestra. Se admiten tramos."
+        ],
+        [
+          "Propiedades",
+          "Una función racional de exp(iw) se convierte a Z y se elige la ROC que contiene el círculo unidad. No se presupone una secuencia derecha."
+        ],
+        [
+          "Graficar resultado",
+          "Opcional. Primer índice y cantidad eligen muestras enteras de la fórmula ya calculada."
+        ],
+        [
+          "Resultados",
+          "La expresión y su registro numérico se guardan por separado en la biblioteca."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La fórmula usa x[n]=(1/2π)∫ de −π a π X(ω)e^(iωn)dω. Una integral que queda pendiente no se presenta como resuelta. Los parámetros sin asignar o singularidades sobre el círculo unidad requieren hipótesis o un tratamiento adicional; no se fuerza una secuencia causal. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    }
+  ]
+}

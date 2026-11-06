@@ -1,0 +1,424 @@
+{
+  "version": 1,
+  "category": "Convolución y correlación",
+  "articles": [
+    {
+      "key": [
+        "basic",
+        "convolve"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La convolución lineal permite obtener la salida de un sistema LTI desde reposo cuando conocés su entrada x[n] y su respuesta al impulso h[n]."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá x y h con sus índices correctos. El cálculo combina sus productos desplazados y devuelve la convolución completa."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Si las longitudes son N y M, la salida tiene N+M−1 valores. Su origen es la suma de los orígenes de las entradas, de modo que los retardos se conservan."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Se supone cero fuera de ambos registros. Esta salida no incluye una respuesta debida a condiciones iniciales no nulas del sistema."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "basic",
+        "circular"
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La convolución circular combina dos secuencias como si se repitieran con un período común. Los valores que sobrepasan el final vuelven al comienzo."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Cargá las dos listas. La herramienta completa la más corta con ceros hasta la longitud de la mayor y usa esa longitud como período."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "La salida tiene un período de valores y comienza en índice cero. Comparala con la convolución lineal para reconocer los términos que se suman al volver al inicio."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La repetición circular puede superponer términos que estarían separados en la convolución lineal. Por eso ambas operaciones no son intercambiables sin completar adecuadamente con ceros."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "convolution_algebra",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "Esta opción busca una expresión de la convolución continua, en lugar de evaluarla sólo sobre una tabla de puntos."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá x(t) y h(t). Elegí soporte causal si ambas señales son cero para t<0; si elegís cálculo bilateral, incluí los tramos del soporte en las expresiones."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "El resultado relaciona la salida con el tiempo t y puede incluir condiciones de validez. Luego podés generar un registro numérico para representar una expresión resuelta."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Si el motor conserva una integral sin resolver, el cálculo queda indicado como pendiente. El intervalo usado para graficar no reemplaza los límites de la integral original."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "correlation",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La correlación discreta permite comparar dos señales mientras una se desplaza respecto de la otra. Su eje de salida es el retardo."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-0adc836d"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-82c00574"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-5d7de4ea"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "correlation",
+        1
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La correlación continua permite comparar dos señales mientras una se desplaza respecto de la otra. Su eje de salida es el retardo."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          {
+            "ref": "como-preparar-el-calculo-0adc836d"
+          }
+        ],
+        [
+          "Cómo interpretar la salida",
+          {
+            "ref": "como-interpretar-la-salida-82c00574"
+          }
+        ],
+        [
+          "Qué tener en cuenta",
+          {
+            "ref": "que-tener-en-cuenta-5d7de4ea"
+          }
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    },
+    {
+      "key": [
+        "correlation_algebra",
+        0
+      ],
+      "blocks": [
+        [
+          "Qué podés hacer",
+          "La correlación algebraica busca una expresión de la coincidencia entre dos señales continuas según el retardo τ."
+        ],
+        [
+          "Cómo preparar el cálculo",
+          "Ingresá x(t) y h(t) con sus soportes. Dejá Período vacío para integrar en todo el eje, o indicá un período común positivo si ambas señales son periódicas."
+        ],
+        [
+          "Cómo interpretar la salida",
+          "Se integra x(t)·conj(h(t−τ)). El resultado depende de τ, no del tiempo de una señal de salida. En el caso periódico, la integral de un período no se divide automáticamente por su duración."
+        ],
+        [
+          "Qué tener en cuenta",
+          "Leé las condiciones de convergencia y cualquier integral pendiente. No confundas esta integral con una correlación normalizada a un máximo de uno."
+        ],
+        [
+          "Indeterminaciones y valores por continuidad",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": [
+        "basic",
+        "convolve"
+      ],
+      "flow": [
+        "x[n] y h[n]",
+        "Σ x[k]h[n−k]",
+        "Salida de N+M−1 muestras"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          "Fórmula en n o muestras separadas por coma; para decimales usá punto. Ejemplo: 1, -0.5, 2."
+        ],
+        [
+          "Inicio y cantidad",
+          {
+            "ref": "inicio-y-cantidad-3ad0ceba"
+          }
+        ],
+        [
+          "Segunda entrada",
+          "Definí h y su origen por separado."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "El origen de salida es la suma de los orígenes. No confundir convolución con multiplicación muestra a muestra. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "basic",
+        "circular"
+      ],
+      "flow": [
+        "Dos registros",
+        "Convolución con vuelta periódica",
+        "Un período de salida"
+      ],
+      "parameters": [
+        [
+          "Entrada",
+          "Fórmula en n o muestras separadas por coma; para decimales usá punto. Ejemplo: 1, -0.5, 2."
+        ],
+        [
+          "Inicio y cantidad",
+          {
+            "ref": "inicio-y-cantidad-3ad0ceba"
+          }
+        ],
+        [
+          "Longitud",
+          "Se usa la mayor longitud de entrada y se completa la otra con ceros."
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": "La salida circular puede superponer extremos; no equivale a la convolución lineal sin relleno suficiente. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+    },
+    {
+      "key": [
+        "correlation",
+        0
+      ],
+      "flow": [
+        "x y h (o sólo x)",
+        "Desplazar y conjugar h",
+        "Correlación por retardo"
+      ],
+      "parameters": [
+        [
+          "Entradas",
+          "Auto usa x con ella misma; cruzada usa x y h. El orden fija el signo del retardo."
+        ],
+        [
+          "Modelo",
+          "Registro finito supone cero fuera; circular o periódico repite un período."
+        ],
+        [
+          "Escala",
+          {
+            "ref": "escala-1ae4b414"
+          }
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-0bf3069d"
+      }
+    },
+    {
+      "key": [
+        "correlation",
+        1
+      ],
+      "flow": [
+        "x y h (o sólo x)",
+        "Desplazar y conjugar h",
+        "Correlación por retardo"
+      ],
+      "parameters": [
+        [
+          "Entradas",
+          "Auto usa x con ella misma; cruzada usa x y h. El orden fija el signo del retardo."
+        ],
+        [
+          "Modelo",
+          "Registro finito supone cero fuera; circular o periódico repite un período."
+        ],
+        [
+          "Escala",
+          {
+            "ref": "escala-1ae4b414"
+          }
+        ],
+        [
+          "Importar o reutilizar",
+          {
+            "ref": "importar-o-reutilizar-ae5699e5"
+          }
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-0bf3069d"
+      }
+    },
+    {
+      "key": [
+        "convolution_algebra",
+        0
+      ],
+      "flow": [
+        "Expresiones x(t), h(t)",
+        "∫ x(τ)h(t−τ)dτ",
+        "Fórmula y condiciones"
+      ],
+      "parameters": [
+        [
+          "Expresiones",
+          "Usá t e incluí escalones o condiciones por tramos cuando corresponda."
+        ],
+        [
+          "Soporte",
+          "Causal supone cero para t<0; bilateral requiere que las expresiones incluyan su soporte."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-8fb09e9f"
+      }
+    },
+    {
+      "key": [
+        "correlation_algebra",
+        0
+      ],
+      "flow": [
+        "Expresiones x(t), h(t)",
+        "∫ x(t)conj(h(t−τ))dt",
+        "Fórmula y condiciones"
+      ],
+      "parameters": [
+        [
+          "Expresiones",
+          "Usá t e incluí escalones o condiciones por tramos cuando corresponda."
+        ],
+        [
+          "Período",
+          "Vacío solicita integral bilateral. Un período positivo exige que ambas expresiones sean periódicas con ese período; no se divide por él."
+        ],
+        [
+          "Levantamiento de indeterminaciones",
+          {
+            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
+          }
+        ]
+      ],
+      "reading": {
+        "ref": "lectura-del-resultado-8fb09e9f"
+      }
+    }
+  ]
+}

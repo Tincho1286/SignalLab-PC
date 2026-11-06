@@ -100,7 +100,7 @@ def _band_intervals(value,frequency,domain):
     return intervals if coverage==domain else None
 
 
-def inverse_bands(value, frequency, time, *, discrete, period_origin=-sp.pi):
+def inverse_bands(value, frequency, time, *, discrete, period_origin=-sp.pi,trace=None):
     domain=sp.Interval(period_origin,period_origin+2*sp.pi) if discrete else sp.S.Reals
     intervals=_band_intervals(value,frequency,domain)
     if not intervals:return None
@@ -138,7 +138,17 @@ def inverse_bands(value, frequency, time, *, discrete, period_origin=-sp.pi):
             inverse.append(at_origin*sp.KroneckerDelta(time,delay))
         else:
             inverse.append(sp.Piecewise((at_origin,sp.Eq(time,delay)),(numerator/(sp.pi*shifted),True)))
-    return sp.Add(*inverse)+impulses
+    result=sp.Add(*inverse)+impulses
+    if trace is not None:
+        from .procedure import step
+        if baseline!=0:
+            trace.append(step('Componente de fondo','Par generalizado: exponencial en frecuencia e impulso temporal',baseline,impulses,conditions='Transformada inversa en sentido de distribuciones.',source='fourier_bands.inverse_bands'))
+        for amplitude,lower,upper in intervals:
+            amplitude=sp.simplify(amplitude-baseline)
+            if amplitude==0:continue
+            trace.append(step('Banda integrada','Separación del intervalo y aplicación del núcleo inverso',sp.Integral(amplitude*sp.exp(sp.I*frequency*time),(frequency,lower,upper))/(2*sp.pi),conditions='n entero; un período de 2π.' if discrete else 'Frecuencia angular; los valores aislados tienen medida nula.',interpretation='El intervalo y la amplitud son los efectivamente identificados en la definición.',source='fourier_bands.inverse_bands'))
+        trace.append(step('Expresión temporal','Reunir las bandas y completar el valor en el centro',value,result,conditions='Índice entero' if discrete else 'Tiempo real',interpretation='En el centro se usa el área de la banda dividida por 2π; fuera se conserva la expresión de seno/exponencial calculada.',source='fourier_bands.inverse_bands'))
+    return result
 
 
 def frequency_definition(request):
@@ -156,14 +166,15 @@ def frequency_definition(request):
     if origin.is_real is not True or origin.is_finite is not True or origin.free_symbols:
         raise ValueError('El origen del período de frecuencia debe ser real, finito y numérico.')
     known_period=not discrete or 'period_origin' in request or request.get('canonical_period',True)
+    records=[]
     try:
-        exact=inverse_bands(value,W,output,discrete=discrete,period_origin=origin) if known_period else None
+        exact=inverse_bands(value,W,output,discrete=discrete,period_origin=origin,trace=records) if known_period else None
     except (NotImplementedError, ValueError, TypeError, ArithmeticError):
         exact=None
     inverse=None
     already_periodic=not value.has(W)
     if exact is not None:
-        inverse={'result':source(exact),'output_variable':str(output),'evaluated':True,'cas_encoded':encode(exact),
+        inverse={'procedure':records,'result':source(exact),'output_variable':str(output),'evaluated':True,'cas_encoded':encode(exact),
                  'scope':'Inversa de la definición algebraica completa. Los valores aislados de la frecuencia tienen medida nula.'}
     elif discrete and known_period and not value.has(sp.Piecewise) and sp.count_ops(value)<48:
         from .inverse_dtft_algebra import rational_z
