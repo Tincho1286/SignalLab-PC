@@ -1,0 +1,207 @@
+{
+  "version": 1,
+  "examples": [
+    {
+      "id": "edo-primer-orden",
+      "title": "Respuesta con energía inicial",
+      "category": "Ecuaciones diferenciales y en diferencias",
+      "tool": [
+        "symbolic",
+        4
+      ],
+      "statement": "Resolver y′(t)+2y(t)=1 desde t=0, con y(0−)=3.",
+      "objective": "Separar el efecto de la entrada constante y la condición inicial.",
+      "request": {
+        "operation": "ode",
+        "expression": "1",
+        "coefficients": [
+          "2",
+          "1"
+        ],
+        "initial": [
+          "3"
+        ]
+      },
+      "expected": "1/2+5*exp(-2*t)/2",
+      "variable": "t",
+      "procedure": "Laplace unilateral: (s+2)Y(s)=1/s+3. El despeje da Y(s)=1/(2s)+(5/2)/(s+2). La inversa usa los pares de una constante y una exponencial causal.",
+      "conditions": "La fórmula temporal indicada vale para t≥0; no reconstruye la historia anterior.",
+      "interpretation": "La salida parte de 3 y tiende a 1/2. Sin impulso en el origen, y(0+)=y(0−)."
+    },
+    {
+      "id": "edo-impulso-origen",
+      "title": "Salto producido por un impulso",
+      "category": "Ecuaciones diferenciales y en diferencias",
+      "tool": [
+        "symbolic",
+        4
+      ],
+      "statement": "Resolver y′(t)+y(t)=3δ(t), con y(0−)=2.",
+      "objective": "Distinguir el estado anterior al impulso del límite posterior.",
+      "request": {
+        "operation": "ode",
+        "expression": "3*Dirac(t)",
+        "coefficients": [
+          "1",
+          "1"
+        ],
+        "initial": [
+          "2"
+        ]
+      },
+      "expected": "5*exp(-t)",
+      "variable": "t",
+      "procedure": "Integrar la ecuación alrededor de cero da y(0+)−y(0−)=3. Laplace desde 0− da (s+1)Y(s)=3+2, por lo que Y(s)=5/(s+1).",
+      "conditions": "La expresión ordinaria vale para t>0; la extensión causal se representa mediante Heaviside(t).",
+      "interpretation": "El límite posterior es 5. No debe compararse con el dato 2 como si ambos correspondieran a 0+."
+    },
+    {
+      "id": "recurrencia-prehistoria",
+      "title": "Recurrencia con prehistoria no nula",
+      "category": "Ecuaciones diferenciales y en diferencias",
+      "tool": [
+        "difference_equation",
+        0
+      ],
+      "statement": "Resolver y[n]−y[n−1]/2=1 para n≥0, con y[−1]=4.",
+      "objective": "Verificar la fórmula y la primera muestra usando la misma condición anterior.",
+      "request": {
+        "operation": "difference_equation",
+        "expression": "1",
+        "coefficients": [
+          "1",
+          "-1/2"
+        ],
+        "initial": [
+          "4"
+        ],
+        "rest": false,
+        "start": 0,
+        "count": 24
+      },
+      "expected": "2+2^(-n)",
+      "variable": "n",
+      "procedure": "La solución particular constante es 2. La homogénea es C·(1/2)^n; y[−1]=4 da C=1. En el arranque, y[0]=1+4/2=3. Sustituir la expresión en la recurrencia da exactamente 1.",
+      "conditions": "n entero, n≥0. El dato y[−1]=4 es independiente de la entrada constante aplicada desde n=0.",
+      "interpretation": "La condición anterior aporta el término transitorio. Pedir más muestras no cambia la fórmula."
+    },
+    {
+      "id": "laplace-anticausal",
+      "title": "Laplace inversa y región de convergencia izquierda",
+      "category": "Transformadas de Laplace y Z",
+      "tool": [
+        "transform_lab",
+        "laplace"
+      ],
+      "statement": "Invertir X(s)=1/(s−1) con ROC Re(s)<1.",
+      "objective": "Obtener una señal izquierda sin imponer causalidad.",
+      "request": {
+        "operation": "inverse_laplace",
+        "interpretation": "bilateral",
+        "laplace_roc": "left",
+        "expression": "1/(s-1)"
+      },
+      "expected": "-exp(t)*Heaviside(-t)",
+      "variable": "t",
+      "procedure": "El par bilateral de −exp(a·t)u(−t) es 1/(s−a), para Re(s)<Re(a). Con a=1 se obtiene −exp(t)u(−t). La integración de −exp((1−s)t), entre −∞ y 0, devuelve 1/(s−1).",
+      "conditions": "Re(s)<1. La misma expresión racional con Re(s)>1 corresponde a otra señal.",
+      "interpretation": "Esta señal es anticausal y absolutamente integrable. La ROC contiene el eje imaginario."
+    },
+    {
+      "id": "z-anticausal",
+      "title": "Z inversa de una secuencia izquierda",
+      "category": "Transformadas de Laplace y Z",
+      "tool": [
+        "transform_lab",
+        "z"
+      ],
+      "statement": "Invertir X(z)=z/(z−2) con ROC |z|<2.",
+      "objective": "Usar la ROC para elegir el soporte de la secuencia.",
+      "request": {
+        "operation": "z_inverse_expression",
+        "expression": "z/(z-2)",
+        "roc": "left",
+        "include_samples": false
+      },
+      "expected": "-2^n*Heaviside(-n-1,1)",
+      "variable": "n",
+      "procedure": "Para |z|<2, z/(z−2)=−Σ (z/2)^m desde m=1. Cada término z^m corresponde a una muestra en n=−m: x[n]=−2^n para n≤−1 y cero para n≥0.",
+      "conditions": "Índices enteros y ROC |z|<2. La sumatoria es una expansión interior, no una expansión alrededor de infinito.",
+      "interpretation": "La secuencia es izquierda y la suma de sus valores absolutos es 1. Tener un polo en z=2 no implica inestabilidad con esta ROC."
+    },
+    {
+      "id": "fourier-sinc",
+      "title": "Par sinc y banda rectangular",
+      "category": "Series y transformadas de Fourier",
+      "tool": [
+        "fourier_symbolic",
+        0
+      ],
+      "statement": "Calcular Fourier angular de sin(t)/t, completando el valor x(0)=1.",
+      "objective": "Reconocer el par sinc/rectángulo sin destruir la cancelación en el origen.",
+      "request": {
+        "operation": "fourier_angular",
+        "expression": "sin(t)/t"
+      },
+      "expected": "Piecewise((pi,abs(w)<1),(pi/2,abs(w)==1),(0,True))",
+      "variable": "w",
+      "procedure": "El par sin(a·t)/(πt) corresponde a una banda de altura 1 entre −a y a, con a>0. La linealidad multiplica la altura por π para sin(t)/t. La inversa integra la banda y recupera sin(t)/t.",
+      "conditions": "Frecuencia angular w en rad/s. La integral es impropia y condicional; la banda toma la semisuma en sus saltos.",
+      "interpretation": "El valor por continuidad en t=0 es finito. Esta señal tiene energía finita, pero su módulo no es absolutamente integrable."
+    },
+    {
+      "id": "dtft-inversa-ideal",
+      "title": "Secuencia de una banda ideal",
+      "category": "Series y transformadas de Fourier",
+      "tool": [
+        "dtft_symbolic",
+        1
+      ],
+      "statement": "Obtener x[n] si X(ω)=1 para |ω|<π/3 y cero en el resto de un período.",
+      "objective": "Evaluar la integral de inversión y resolver el caso n=0.",
+      "request": {
+        "operation": "inverse_dtft_expression",
+        "expression": "Piecewise((1,abs(w)<pi/3),(0,True))"
+      },
+      "expected": "Piecewise((1/3,n==0),(sin(pi*n/3)/(pi*n),True))",
+      "variable": "n",
+      "procedure": "La inversión integra exp(iωn)/(2π) entre −π/3 y π/3. Para n≠0, evaluar la primitiva da sin(πn/3)/(πn). Para n=0, la integral es el ancho 2π/3 dividido por 2π: 1/3.",
+      "conditions": "n entero; X(ω) es 2π-periódica. Cambiar el valor de un salto aislado no cambia la integral.",
+      "interpretation": "La respuesta ideal es bilateral e infinita. Mostrar un registro finito no equivale a diseñar un FIR."
+    },
+    {
+      "id": "sistema-estable-anticausal",
+      "title": "Estabilidad BIBO con un polo exterior",
+      "category": "Análisis de sistemas",
+      "tool": [
+        "system_analysis",
+        0
+      ],
+      "statement": "Analizar H(z)=z/(z−2), interpretada con ROC |z|<2.",
+      "objective": "Distinguir el criterio causal de polos de la estabilidad entrada–salida.",
+      "request": {
+        "operation": "system_formula",
+        "expression": "z/(z-2)",
+        "domain": "digital"
+      },
+      "system": {
+        "b": [
+          1
+        ],
+        "a": [
+          1,
+          -2
+        ],
+        "domain": "digital",
+        "roc": {
+          "mode": "left"
+        }
+      },
+      "expected": "z/(z-2)",
+      "variable": "z",
+      "procedure": "La inversa izquierda es h[n]=−2^n·u[−n−1]. Su norma absoluta es Σ2^n desde −∞ hasta −1, que vale 1. La ROC contiene |z|=1, por lo que la respuesta en frecuencia converge.",
+      "conditions": "La ROC izquierda es parte del modelo. Una simulación causal no debe sustituir esta interpretación por una recurrencia derecha.",
+      "interpretation": "El sistema es BIBO estable y anticausal. Con la ROC exterior |z|>2, el mismo cociente sería causal e inestable."
+    }
+  ]
+}

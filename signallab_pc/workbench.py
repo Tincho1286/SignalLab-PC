@@ -279,9 +279,12 @@ class WorkbenchWindow(ToolboxWindow):
         if category not in ('Proyecto','Biblioteca'):self.show_home();return
         key=('menu',category)
         if key not in self.pages:
-            page=self.build_project_page() if category=='Proyecto' else TheoryPanel(self.open_tool);self.pages[key]=page;self.stack.addWidget(page);self._configure_readable_layouts()
+            page=self.build_project_page() if category=='Proyecto' else TheoryPanel(self.open_tool,self.open_library_example);self.pages[key]=page;self.stack.addWidget(page);self._configure_readable_layouts()
         self.variant_strip.hide();self.current_calculate=None;self.operation_menu.hide();self.calculate_action.hide()
         self.category=category;self.activate_view(key,'Resultados' if category=='Proyecto' else 'Biblioteca',self.pages[key]);self.subtitle.setText('Datos calculados: consultar, exportar o enviar a otra herramienta.' if category=='Proyecto' else 'Figuras y explicaciones de cada herramienta.');self.help.hide();self.back.hide()
+    def open_library_example(self,example):
+        from .library_actions import apply_example
+        apply_example(self,example)
     def show_function_help(self):
         self.show_menu('Biblioteca');self.pages['menu','Biblioteca'].select_functions()
     def open_help(self):

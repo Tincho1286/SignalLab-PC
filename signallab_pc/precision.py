@@ -159,7 +159,7 @@ def quantize_coefficients(system,encoding,preserve_sections=True):
     maximum=max(1.,float(np.max(abs(original[valid].real),initial=0)),float(np.max(abs(original[valid].imag),initial=0)),float(np.max(abs(stored[valid].real),initial=0)),float(np.max(abs(stored[valid].imag),initial=0)))
     error=stored/maximum-original/maximum;finite_error=error[valid]
     metrics={'changed':sum(row['original']!=row['stored'] for row in rows),'saturated':sum(row['saturated'] for row in rows),'components':len(rows),'response_scale':maximum,'scaled_response_error_max':float(np.max(abs(finite_error))) if len(finite_error) else None,'undefined_points':int(np.count_nonzero(~valid)),
-        'original_pole_radius':float(np.max(abs(original_poles),initial=0)),'stored_pole_radius':float(np.max(abs(stored_poles),initial=0)),'original_poles':system.stability(original_poles),'stored_poles':result.stability(stored_poles)}
+        'original_pole_radius':float(np.max(abs(original_poles),initial=0)),'stored_pole_radius':float(np.max(abs(stored_poles),initial=0)),'original_poles':system.causal_pole_stability(original_poles),'stored_poles':result.causal_pole_stability(stored_poles)}
     result.roc,roc_note=_quantized_roc(system,result)
     from .coefficient_sensitivity import diagnose
     sensitivity=diagnose(system,result,original_poles,stored_poles,sections)

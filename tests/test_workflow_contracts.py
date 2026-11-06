@@ -737,4 +737,56 @@ class WorkflowContracts(unittest.TestCase):
         assert_allclose(panel.output.result.values,[2]);self.assertEqual(len(panel.output.result.values),1)
 
 
+
+    def test_library_example_button_loads_real_tool_inputs_without_calculating(self):
+        from signallab_pc.theory_panel import TheoryPanel
+        from signallab_pc.library_actions import apply_example
+        from signallab_pc.library_catalog import example_records
+        class ExampleHost(Host):
+            signal=None
+            def open_tool(self,route):
+                self.current_operation=tuple(route)
+                if self.current_operation not in self.pages:
+                    if route[1]=='symbolic':
+                        from signallab_pc.symbolic_panel import SymbolicPanel
+                        self.pages[self.current_operation]=SimpleNamespace(panel=SymbolicPanel(self))
+                    elif route[1]=='difference_equation':
+                        from signallab_pc.difference_panel import DifferencePanel
+                        self.pages[self.current_operation]=SimpleNamespace(panel=DifferencePanel(self))
+                    else:super().open_tool(route)
+            def send_system(self,value,key,route):
+                self.open_tool(route);self.pages[tuple(route)].panel.set_system(value,key)
+        host=ExampleHost();library=TheoryPanel(host.open_tool,lambda value:apply_example(host,value));self.widgets.extend([library,host.bar])
+        with patch.object(host,'_run_operation',side_effect=AssertionError('Loading must not calculate')):
+            for example in example_records():
+                with self.subTest(example=example['id']):
+                    library.search.setText(example['title']);library.kind.setCurrentIndex(4);library.filter(example['title'])
+                    self.assertEqual(len(library.filtered),1);self.assertEqual(library.open_button.text(),'Cargar datos del ejemplo')
+                    library.open_button.click();self.assertEqual(host.current_operation,ROUTES[tuple(example['tool'])])
+                    panel=host.pages[host.current_operation].panel
+                    if 'system' in example:self.assertEqual(panel.roc_choice.currentIndex(),1)
+                    else:
+                        from signallab_pc.symbolic import parse
+                        import sympy as sp
+                        self.assertEqual(sp.simplify(parse(panel.expression.text())-parse(example['request']['expression'])),0)
+                    if example['request']['operation']=='ode':self.assertEqual(panel.initial.text(),', '.join(example['request']['initial']))
+                    if example['request']['operation']=='inverse_laplace':self.assertEqual(panel.laplace_roc.currentIndex(),1)
+        self.widgets.extend(page.panel for page in host.pages.values());self.assertEqual(self.warnings,[])
+
+    def test_library_example_links_and_original_tool_help_remain_accessible(self):
+        from PySide6.QtCore import QUrl
+        from signallab_pc.theory_panel import TheoryPanel
+        library=TheoryPanel(lambda route:None,lambda value:None);self.widgets.append(library)
+        library.select_tool(ROUTES['symbolic',4]);self.assertIsNone(library.selected_example)
+        self.assertIn('Ejemplos resueltos',library.text.toPlainText())
+        library.follow_reference(QUrl('library:example/edo-impulso-origen'))
+        self.assertEqual(library.selected_example['id'],'edo-impulso-origen')
+        self.assertIn('Procedimiento verificado',library.text.toPlainText())
+        library.select_tool(ROUTES['symbolic',4]);self.assertIsNone(library.selected_example)
+        self.assertEqual(library.open_button.text(),'Abrir herramienta')
+        from signallab_pc.cas_reference import CAS_ROUTE
+        library.select_tool(CAS_ROUTE);self.assertIn('Calculadora CAS',library.text.toPlainText())
+        self.assertEqual(self.warnings,[])
+
+
 if __name__=='__main__':unittest.main()

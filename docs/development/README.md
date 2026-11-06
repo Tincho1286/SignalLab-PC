@@ -40,3 +40,5 @@ Los directorios `.venv/`, `work/`, `build/`, `dist/`, `outputs/` y los ejecutabl
 - [Contribuciones](../../CONTRIBUTING.md).
 
 La interfaz, el modelo de datos y los motores compartidos evolucionan conservando las convenciones de señales, sistemas y resultados. Las variantes nuevas se integran en el catálogo existente antes de crear herramientas duplicadas.
+
+La [auditoría incremental de noviembre de 2026](audit-2026-11.md) documenta las correcciones, el mapa de módulos, los ejemplos educativos y la comprobación integral con `python tools/check_integral.py`.

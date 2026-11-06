@@ -94,6 +94,7 @@ def sample_symbolic(expression,variable,coordinates):
     with np.errstate(all='ignore'):
         try:values=function(np.asarray(coordinates,dtype=float))
         except ZeroDivisionError:values=np.full(np.asarray(coordinates).shape,complex(np.nan,np.nan))
+    values=reject_finite_poles(expression,variable,coordinates,values)
     return repair_values(expression,variable,coordinates,values)
 
 
@@ -129,3 +130,34 @@ def extend_removable(expression):
         except (ValueError,TypeError,NotImplementedError):continue
         replacements.append((value,sp.Eq(variable,point)))
     return sp.Piecewise(*replacements,(expression,True),evaluate=False) if replacements else expression
+
+
+def reject_finite_poles(expression,variable,coordinates,values):
+    """Verify suspected floating-point zeros exactly before invalidating a value.
+
+    The tolerance selects work only; proximity alone never declares a pole.
+    The complete expression is checked so inactive branches and cancellations
+    remain valid. This catches sin(pi*n) rounding to a tiny nonzero number.
+    """
+    denominators=[node.base for node in expression.atoms(sp.Pow) if node.exp.is_negative is True and node.base.has(variable)]
+    for node in expression.atoms(sp.tan,sp.tanh,sp.sech,sp.csch,sp.coth):
+        if node.has(variable):denominators.append((sp.cos if node.func==sp.tan else sp.cosh if node.func in (sp.tanh,sp.sech) else sp.sinh)(node.args[0]))
+    if not denominators:return values
+    from .hyperbolic import NUMERIC
+    coordinates=np.asarray(coordinates,dtype=float);result=np.broadcast_to(np.asarray(values,dtype=complex),coordinates.shape).copy()
+    candidates=np.zeros(coordinates.shape,dtype=bool)
+    for denominator in set(denominators):
+        try:
+            evaluator=sp.lambdify(variable,denominator,modules=[NUMERIC,{'sqrt':np.emath.sqrt,'log':np.emath.log},'scipy','numpy'])
+            with np.errstate(all='ignore'):probe=np.broadcast_to(np.asarray(evaluator(coordinates),dtype=complex),coordinates.shape)
+            candidates|=np.abs(probe)<1e-7
+        except (NameError,TypeError,ValueError,ZeroDivisionError):continue
+    candidates&=np.isfinite(result)
+    if not candidates.any():return result
+    checked=sp.piecewise_fold(expression.rewrite(sp.Piecewise)) if expression.has(sp.Heaviside,sp.KroneckerDelta,sp.Piecewise) else expression
+    for point in np.unique(coordinates[candidates]):
+        checkpoint();exact_point=sp.Rational(str(point))
+        # Use only a proven symbolic pole; a large finite value is left intact.
+        exact=checked.subs(variable,exact_point)
+        if exact.is_finite is False or exact.has(sp.zoo,sp.oo,-sp.oo,sp.nan):result[candidates&(coordinates==point)]=complex(np.nan,np.nan)
+    return result

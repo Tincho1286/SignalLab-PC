@@ -175,7 +175,7 @@ class Transfer:
         zeros,poles=np.roots(np.trim_zeros(b, "f")),np.roots(a)
         return shifted_roots(zeros,poles,self.advance)
 
-    def stability(self, poles=None):
+    def causal_pole_stability(self, poles=None):
         """Sin cancelaciones aproximadas: informa polos sobre la frontera aparte."""
         if poles is None:
             _, poles = self.poles_zeros()
@@ -185,6 +185,16 @@ class Transfer:
         if np.any(metric == 0):
             return "Frontera de estabilidad; no BIBO estable"
         return "Estable (polos estrictamente dentro de la región estable)"
+
+    def stability(self,poles=None):
+        """BIBO classification with an explicit ROC, otherwise a labelled hypothesis."""
+        from .system_conditions import record
+        if self.roc is not None or not np.any(self.b):
+            status=record(self)['bibo_stability']
+            return ('Estable: '+status if status.startswith('Sí:') else 'Inestable: '+status if status.startswith('No:') or status.startswith('No BIBO') else status)
+        if self.domain=='analog' and len(np.trim_zeros(self.b,'f'))>len(self.a):
+            return 'Inestable BIBO: transferencia analógica impropia; la ubicación de polos no basta.'
+        return self.causal_pole_stability(poles)+'; criterio bajo hipótesis causal. Falta especificar la ROC.'
 
     def response(self, omega):
         """Frequency response; poles and values outside numerical range are N/D."""

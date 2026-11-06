@@ -4,19 +4,16 @@ from PySide6.QtCore import QUrl
 from PySide6.QtGui import QTextDocument
 from .visual_help import diagrams_for
 from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QLineEdit,QListWidget,QPushButton,QComboBox,QTabWidget
-from .help_content import sections
-from .function_reference import function_sections
-from .learning_content import concept_sections,GLOSSARY
+from .library_catalog import sections as library_sections
 from .report_view import ReportView,report_panel
-from .cas_reference import cas_sections
 from .responsive_help import ResponsiveHelpView
 
 
 class TheoryPanel(QWidget):
-    def __init__(self,on_open=None):
-        super().__init__();self.sections=cas_sections()+function_sections()+concept_sections()+sections();self.filtered=[];self.on_open=on_open;self.selected_route=None;self.return_route=None;self.fields_open=False;self.field_route=None
+    def __init__(self,on_open=None,on_example=None):
+        super().__init__();self.on_example=on_example;self.sections=library_sections();self.filtered=[];self.on_open=on_open;self.selected_route=None;self.return_route=None;self.fields_open=False;self.field_route=None
         root=QHBoxLayout(self);self.body_layout=root;self.index_panel=QWidget();left=QVBoxLayout(self.index_panel);left.setContentsMargins(0,0,0,0);root.addWidget(self.index_panel,1)
-        self.kind=QComboBox();self.kind.addItems(['Toda la biblioteca','Conceptos explicados','Uso de herramientas','Funciones de las fórmulas']);left.addWidget(self.kind)
+        self.kind=QComboBox();self.kind.addItems(['Toda la biblioteca','Conceptos explicados','Uso de herramientas','Funciones de las fórmulas','Ejemplos resueltos']);left.addWidget(self.kind)
         self.search=QLineEdit();self.search.setObjectName('librarySearch');self.search.setPlaceholderText('Buscar tema, herramienta o sigla…');self.search.setClearButtonEnabled(True);left.addWidget(self.search)
         self.items=QListWidget();self.items.setWordWrap(True);left.addWidget(self.items)
         self.article_panel=QWidget();right=QVBoxLayout(self.article_panel);right.setContentsMargins(0,0,0,0);root.addWidget(self.article_panel,3);actions=QHBoxLayout();right.addLayout(actions)
@@ -39,7 +36,7 @@ class TheoryPanel(QWidget):
     def filter(self,query):
         def norm(text):return ''.join(c for c in unicodedata.normalize('NFKD',text.casefold()) if not unicodedata.combining(c))
         words=norm(query).split();mode=self.kind.currentIndex();self.items.blockSignals(True);self.items.clear()
-        self.filtered=[s for s in self.sections if (mode==0 or (mode==1 and s['route'] is None and not s.get('reference')) or (mode==2 and s['route'] is not None) or (mode==3 and s.get('reference'))) and all(word in norm(str(s)) for word in words)]
+        self.filtered=[s for s in self.sections if (mode==0 or (mode==1 and s['route'] is None and not s.get('reference')) or (mode==2 and s['route'] is not None) or (mode==3 and s.get('reference')) or (mode==4 and s.get('example'))) and all(word in norm(str(s)) for word in words)]
         self.items.addItems([s['category']+' · '+s['title'] for s in self.filtered]);self.items.blockSignals(False)
         if self.filtered:self.items.setCurrentRow(0)
         else:self.selected_route=None;self.open_button.setEnabled(False);self.text.setPlainText('No hay coincidencias. Probá otra palabra o elegí Toda la biblioteca.')
@@ -53,7 +50,7 @@ class TheoryPanel(QWidget):
             if section['route']==tuple(item):self.items.setCurrentRow(index);return
     def show_section(self,row):
         if not 0<=row<len(self.filtered):return
-        section=self.filtered[row];self.selected_route=section['route'];self.open_button.setEnabled(self.on_open is not None and self.selected_route is not None)
+        section=self.filtered[row];self.selected_example=section.get('example');self.open_button.setText('Cargar datos del ejemplo' if self.selected_example else 'Abrir herramienta');self.selected_route=section['route'];self.open_button.setEnabled(self.on_open is not None and self.selected_route is not None)
         blocks=list(section['blocks'])
         if self.field_route!=self.selected_route:self.fields_open=False;self.field_route=self.selected_route
         self.text._formula_number=0
@@ -71,6 +68,10 @@ class TheoryPanel(QWidget):
             else:
                 for paragraph in content.split('\n\n'):body.append('<p style="line-height:150%">'+html.escape(paragraph).replace('\n','<br>')+'</p>')
             if index==0:append_illustrations()
+        if section.get('examples'):
+            body.append('<h2>Ejemplos resueltos</h2>')
+            blocks.append(('Ejemplos resueltos','\n'.join(title for _,title in section['examples'])))
+            for example_id,title in section['examples']:body.append('<p><a href="library:example/'+example_id+'">'+html.escape(title)+'</a></p>')
         if section.get('field_reference'):
             from .library_fields import field_rows
             fields=field_rows(self.selected_route)
@@ -86,11 +87,17 @@ class TheoryPanel(QWidget):
         self.text.setHtml('<html><body style="font-family:Segoe UI;color:#dce4ef;font-size:11pt;margin:20px">'+''.join(body)+'</body></html>')
     def follow_reference(self,url):
         if url.scheme()!='library':return
+        if url.path().startswith('example/'):
+            article_id='example:'+url.path().split('/',1)[1];self.kind.setCurrentIndex(0);self.search.clear();self.filter('')
+            for index,section in enumerate(self.filtered):
+                if section['article_id']==article_id:self.items.setCurrentRow(index);return
         if url.path()=='fields':
             bar=self.text.verticalScrollBar();position=bar.value();self.fields_open=not self.fields_open;self.show_section(self.items.currentRow());bar.setValue(position)
         elif url.path()=='glossary':
             self.kind.setCurrentIndex(1);self.search.setText('Glosario');self.filter('Glosario')
     def open_selected(self):
-        if self.on_open and self.selected_route:self.on_open(self.selected_route)
+        example=getattr(self,'selected_example',None)
+        if example is not None and self.on_example:self.on_example(example)
+        elif self.on_open and self.selected_route:self.on_open(self.selected_route)
     def return_to_tool(self):
         if self.on_open and self.return_route:self.on_open(self.return_route)

@@ -40,6 +40,8 @@ def _sample(value,omega,repair=False,eligible=None,extensions=None,role='H'):
                 checkpoint()
                 try:result.flat[index]=complex(function(mp.mpf(repr(float(omega.flat[index])))))
                 except (ValueError,ZeroDivisionError,OverflowError):pass
+    from .singularities import reject_finite_poles
+    result=reject_finite_poles(value,W,omega,result)
     if repair:
         from .singularities import finite_extension
         invalid=~np.isfinite(result)

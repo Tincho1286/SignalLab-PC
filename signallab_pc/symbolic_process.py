@@ -40,11 +40,19 @@ def run_request(request):
 
 
 def explain(request, result):
-    if isinstance(result,dict) and 'error' not in result and request.get('operation') in ('z_expression','z_finite','z_inverse_expression','laplace','inverse_laplace'):
+    if isinstance(result,dict) and 'error' not in result and request.get('operation') in ('z_expression','z_finite','z_inverse_expression','laplace','inverse_laplace') and not result.get('procedure'):
         from .transform_steps import build
         result['derivation']=build(request,result)
     if isinstance(result,dict) and 'error' not in result:
         op=request.get('operation')
+        if result.get('procedure'):
+            from .procedure import views
+            result['derivation']=views(result['procedure'])
+            if op=='ode':
+                from .equation_checks import ode
+                try:result['residual_check']=ode(request,result)
+                except (ValueError,TypeError,NotImplementedError) as exc:result['residual_check']={'status':'Comprobación simbólica no disponible: '+str(exc)}
+            return result
         if op in ('dtft_expression','inverse_dtft_expression','fourier_angular','inverse_fourier_angular'):
             from .quality_steps import fourier
             result['derivation']=fourier(request,result)

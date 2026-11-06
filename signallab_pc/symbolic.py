@@ -52,6 +52,7 @@ def parse(expression):
             if isinstance(node.op, ast.Mult): return sp.Mul(left,right,evaluate=False)
             if isinstance(node.op, ast.Div): return sp.Mul(left,sp.Pow(right,-1,evaluate=False),evaluate=False)
             if isinstance(node.op, ast.Pow): return sp.Pow(left,right,evaluate=False)
+            if isinstance(node.op, ast.Mod): return sp.Mod(left,right)
             if isinstance(node.op, ast.BitAnd):return sp.And(left,right)
             if isinstance(node.op, ast.BitOr):return sp.Or(left,right)
         if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.Invert,ast.Not)):return sp.Not(visit(node.operand))
@@ -88,7 +89,13 @@ def execute(request):
         definition=prepare(request['expression'],variable,'complex',conditions=request.get('input_conditions',()))
         result['input_definition']=definition.metadata()
     result['calculation_notes']=merge_notes(result.get('calculation_notes',[]),records.values())
-    return finalize(result)
+    result=finalize(result)
+    if not result.get('procedure'):
+        from .procedure import transform_records
+        from .auxiliary import presentation
+        result['procedure'],notice=presentation('Registro del procedimiento',lambda:transform_records(request,result),lambda:[])
+        if notice:result['derivation_notice']=notice
+    return result
 
 
 def _execute(request):
@@ -316,6 +323,10 @@ def _execute(request):
                 'exact_b':[str(v) for v in b],'exact_a':[str(v) for v in a],
                 'scope':'Representación algebraica de los coeficientes ingresados. Simplificar H no prueba estabilidad interna ni identifica una ROC.',
                 'parameters':sorted(str(v) for coefficient in b+a for v in coefficient.free_symbols)}
+        from .procedure import step
+        condition=str(sp.Ne(denominator,0))
+        result['procedure']=[step('Construir los polinomios','Aplicar la convención de coeficientes',None,str(numerator)+' / ('+str(denominator)+')',conditions='Potencias descendentes de s' if domain=='analog' else 'Potencias ascendentes de z⁻¹',source='symbolic.system_analysis'),
+            step('Simplificar la transferencia','Cancelación algebraica exacta',str(numerator)+' / ('+str(denominator)+')',expression,conditions=condition,interpretation='No se infiere estabilidad interna ni una ROC de una cancelación.',source='sympy.cancel')]
         result.update(evaluated=True,output_variable=str(variable))
         if not any(v.free_symbols for v in b+a):
             normalizer=next(v for v in a if v!=0)
@@ -394,37 +405,6 @@ def _execute(request):
                 "scope": "Rama de soporte acotado inferiormente; primeros N términos, no toda la señal infinita",
                 "roc": "Exterior de todos los polos finitos no cancelados. La misma expresión con otra ROC puede dar otra secuencia."}
     if operation == "ode":
-        from .scalar_expression import exact_constant
-        from .expression_definition import prepare
-        coefficients=[exact_constant(value,parameters=True) for value in request["coefficients"]]
-        while coefficients and coefficients[-1] == 0: coefficients.pop()
-        if not coefficients:raise ValueError("La ecuación no determina y(t): todos sus coeficientes son cero.")
-        initial=[exact_constant(value,parameters=True) for value in request["initial"]]
-        order=len(coefficients)-1
-        if len(initial)!=order: raise ValueError("Ingrese una condición inicial por derivada de orden 0 hasta orden-1.")
-        definition=prepare(expression,T,'continuous',(sp.S.Zero,sp.oo),support_kind='unilateral_0minus')
-        # Algebraic equations hold at the assigned points too. Only actual
-        # integral/Laplace paths may ignore isolated ordinary point values.
-        forcing_expression=definition.expression if order==0 else definition.integral_expression()
-        if forcing_expression.has(N,S,Z,W):raise ValueError('La entrada de la EDO debe estar expresada en t.')
-        if order==0:
-            result=sp.cancel(forcing_expression/coefficients[0])
-            return {'input_definition':definition.metadata(),'calculation_notes':list(definition.extensions),
-                'operation':'Ecuación algebraica sin derivadas','order':0,'result':str(result),'output_variable':'t',
-                'condition':str(sp.And(T>=0,sp.Ne(coefficients[0],0))),
-                'Y(s)':str(sp.LaplaceTransform(forcing_expression,T,S)/coefficients[0]),
-                'forcing_convergence':'No es necesaria una transformada para despejar esta ecuación.',
-                'scope':'t >= 0. Sin términos de derivadas: y(t)=f(t)/a₀; no hay condiciones iniciales independientes.',
-                'evaluated':not result.has(sp.Integral,sp.Limit,sp.nan,sp.zoo,sp.oo)}
-        from .impulse_pairs import unilateral_laplace
-        forcing, plane, condition=unilateral_laplace(forcing_expression,T,S)
-        polynomial=sum(value*S**j for j,value in enumerate(coefficients))
-        correction=sum(coefficients[j]*sum(S**(j-1-k)*initial[k] for k in range(j)) for j in range(1,order+1))
-        transformed=sp.cancel((forcing+correction)/polynomial)
-        result=sp.inverse_laplace_transform(transformed,S,T)
-        return {"input_definition":definition.metadata(),"calculation_notes":list(definition.extensions),"operation":"EDO lineal de coeficientes constantes", "order":order, "result":str(result), "Y(s)":str(transformed),
-                "forcing_convergence":f"Re(s) > {plane}; {condition}",
-                "scope":"t >= 0 con las condiciones iniciales indicadas; a0*y+a1*y'+...=f(t)",
-                "output_variable":"t", "condition":str(sp.And(T>=0,sp.Ne(coefficients[-1],0))),
-                "evaluated":not result.has(sp.InverseLaplaceTransform,sp.LaplaceTransform,sp.Integral,sp.Limit,sp.nan,sp.zoo,sp.oo)}
+        from .ode_equations import solve
+        return solve(request)
     raise ValueError("Operación simbólica desconocida.")

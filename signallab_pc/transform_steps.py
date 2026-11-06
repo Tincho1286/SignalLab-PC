@@ -2,11 +2,14 @@
 
 
 def build(request, result):
+    if result.get('procedure'):
+        from .procedure import views
+        return views(result['procedure'])
     op = request.get('operation');z = op.startswith('z_');inverse = op in ('z_inverse_expression', 'inverse_laplace')
     steps = []
     definition = 'X(z) = Sum(x[n]*z^(-n),(n,a,b))' if z else 'X(s) = Integral(x(t)*exp(-s*t),(t,-oo,oo))' if request.get('interpretation')=='bilateral' else 'X(s) = Integral(x(t)*exp(-s*t),(t,0,oo))'
     if not inverse:
-        text = 'Se aplica la definición sobre el soporte indicado; fuera de él la señal se considera cero.' if z else 'Se aplica la definición integral con la interpretación temporal elegida.'
+        text = 'La definición corresponde al soporte indicado; fuera de él la señal se considera cero. El método concreto se indica en el resultado, sin reconstruir operaciones internas no registradas.' if z else 'Se aplica la definición integral con la interpretación temporal elegida.'
         steps.append({'title':'1. Definición y soporte', 'text':text, 'formula':definition})
         if z:steps[0]['text'] += ' a='+str(request.get('origin', request.get('lower', '0')))+'; b='+str(request.get('upper', request.get('origin', 0)+len(request.get('samples', []))-1 if op=='z_finite' else 'oo'))+'.'
         if z and result.get('method')=='table_pairs':steps.append({'title':'Pares y propiedades', 'text':'Se separaron los puntos completados por continuidad del resto del soporte antes de simplificar las identidades de índices enteros. Se aplicaron linealidad y pares de secuencias geométricas, potencias de n o series logarítmicas; se conserva la intersección de sus condiciones de convergencia.'})

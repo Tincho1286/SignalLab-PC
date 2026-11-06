@@ -213,12 +213,29 @@ def solve(request):
             from .numeric_modes import expression_source
             return expression_source(sp.N(value,17))
         return source(value)
-    return {'input_definition':definition.metadata(),'calculation_notes':list(definition.extensions),'residual_check':residual_check,'operation':'Ecuación en diferencias','result':source(exact),'display_result':text(exact),'display_numeric':numeric_display,'cas_encoded':encode(exact),'evaluated':closed,'closed_form':closed,'output_variable':'n','condition':condition,
+    from .procedure import step
+    from .equation_checks import difference_symbolic
+    procedure=[]
+    if order==0:
+        procedure.append(step('Despeje sin memoria','División por a₀',str(coefficients[0])+'*y[n] = '+str(forcing),'y[n] = '+str(exact),conditions=condition,source='difference_equations.solve'))
+    elif transformed is not None:
+        procedure.extend([step('Transformar la entrada desde n₀','Transformada Z unilateral de f[n₀+k]',forcing,transformed,conditions='k >= 0; n₀ = '+str(start),source='difference_equations.unilateral'),
+            step('Incorporar la prehistoria','Identidad unilateral de los retardos',str(denominator)+'*Y0(z) = F0(z) + C(z)','C(z) = '+str(correction),conditions=condition,interpretation='Y₀ transforma y[n₀+k]; los valores y[n₀−j] son datos independientes.',source='difference_equations.solve'),
+            step('Despejar la salida transformada','División por el operador de la recurrencia',str(transformed+correction),sp.cancel((transformed+correction)/denominator),conditions=str(sp.Ne(denominator,0)),source='difference_equations.solve')])
+    else:
+        procedure.append(step('Entrada no racional','Convolución finita con el núcleo calculado',forcing,zero_state,conditions='n >= n₀',interpretation='La suma se conserva exacta; no se presenta como una forma cerrada.',source='difference_equations.solve'))
+    procedure.append(step('Solución y dominio','Suma de entrada cero y estado cero',str(shift(zero_input))+' + '+str(shift(zero_state)),'y[n] = '+str(exact),conditions=condition,source='difference_equations.solve'))
+    result = {'procedure':procedure,'input_definition':definition.metadata(),'calculation_notes':list(definition.extensions),'residual_check':residual_check,'operation':'Ecuación en diferencias','result':source(exact),'display_result':text(exact),'display_numeric':numeric_display,'cas_encoded':encode(exact),'evaluated':closed,'closed_form':closed,'output_variable':'n','condition':condition,
             'equation_lhs':str(sum(a*sp.IndexedBase('y')[N-j] for j,a in enumerate(coefficients))),'order':order,'origin':start,'numeric_samples':numeric,'numeric_notice':numeric_notice,'parameters':parameters,'coefficients':[str(v) for v in coefficients],'initial':[str(v) for v in history],
             'zero_input':text(shift(zero_input)),'zero_state':text(shift(zero_state)),'system_expression':str(sp.cancel(1/denominator)),
             'unilateral_output':str(sp.cancel((transformed+correction)/denominator)) if transformed is not None else None,
             'scope':'La ecuación se impone desde n='+str(start)+'. Los valores anteriores indicados son condiciones iniciales; no se supone ni se reconstruye una historia infinita. La fórmula se aplica sólo en ese dominio. La cantidad de muestras controla el gráfico y la tabla, no trunca la solución algebraica.',
             'method':'Despeje algebraico de una ecuación sin memoria' if order==0 else 'Transformada Z unilateral y propiedades racionales' if closed else 'Respuesta de entrada cero más convolución discreta finita; no se obtuvo forma cerrada para la entrada'}
+
+    from .auxiliary import optional
+    check,notice=optional('Comprobación exacta de la recurrencia',lambda:difference_symbolic(request,result))
+    result['symbolic_check']=check or {'verified':None,'status':notice}
+    return result
 
 
 def summary(request,result):
@@ -230,6 +247,8 @@ def summary(request,result):
         Section('Entrada cero y estado cero',paragraphs=['Entrada cero conserva las condiciones iniciales y toma f[n]=0. Estado cero conserva f[n] y pone las condiciones iniciales en cero. La suma de ambas da la solución total.'],formulas=[Formula('y_ic[n] = '+result['zero_input'],'y_ic[n] = '+result['zero_input'],numeric=result['display_numeric']),Formula('y_f[n] = '+result['zero_state'],'y_f[n] = '+result['zero_state'],numeric=result['display_numeric'])]),
         Section('Transferencia desde f[n]',paragraphs=['H(z) relaciona la entrada f[n] con y[n] bajo condiciones iniciales nulas. Las condiciones iniciales no forman parte de esta transferencia.'],formulas=[Formula('H(z) = '+result['system_expression'],'H(z) = '+result['system_expression'])]),
         Section('Dominio y método',rows=[('Validez',result['condition']),('Método',result['method'])],paragraphs=[result['scope']])]
+    if result.get('symbolic_check'):
+        check=result['symbolic_check'];sections.append(Section('Comprobación exacta de la fórmula',paragraphs=[check['status'],check.get('method','')],rows=[('Dominio',check.get('domain',result['condition']))],formulas=[Formula('r[n] = '+check['tail_residual'],'r[n] = '+check['tail_residual'])] if 'tail_residual' in check else []))
     if result.get('numeric_notice'):sections.append(Section('Muestras numéricas',paragraphs=[result['numeric_notice']]))
     if result.get('parameters'):sections.append(Section('Parámetros por asignar',paragraphs=[', '.join(result['parameters'])+'. La expresión se conserva; asigná valores para obtener muestras.']))
     if result.get('residual_check'):

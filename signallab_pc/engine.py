@@ -80,6 +80,11 @@ def evaluate_expression(expression: str, x: np.ndarray) -> np.ndarray:
             arr = np.full(np.asarray(x).shape, arr, dtype=np.complex128)
         if arr.shape != np.asarray(x).shape:
             arr = np.broadcast_to(arr, np.asarray(x).shape).astype(np.complex128)
+        pole_syntax=any(isinstance(node,ast.BinOp) and isinstance(node.op,(ast.Div,ast.Pow)) or isinstance(node,ast.Call) and isinstance(node.func,ast.Name) and node.func.id.lower() in ('tan','tanh','sech','csch','coth') for node in ast.walk(tree))
+        if pole_syntax and not constant:
+            from .singularities import numeric_expression,reject_finite_poles
+            exact,variable=numeric_expression(source)
+            arr=reject_finite_poles(exact,variable,coordinates,arr)
         if np.any(~np.isfinite(arr)):
             from .singularities import numeric_expression,repair_values
             from .calculation_notes import expression_source

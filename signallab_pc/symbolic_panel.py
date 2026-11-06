@@ -23,7 +23,7 @@ class SymbolicPanel(QWidget):
         install_expression_import(self.expression,owner.window if hasattr(owner,'window') and not callable(owner.window) else owner,lambda:[['t','s','n','z','t'][self.operation.currentIndex()]])
         self.count=QLineEdit("64"); form.addRow("Términos de la Z inversa",self.count)
         self.coefficients=QLineEdit("1, 1"); form.addRow("EDO: a0, a1, …, am",self.coefficients)
-        self.initial=QLineEdit("0"); form.addRow("EDO: y(0), y′(0), …",self.initial)
+        self.initial=QLineEdit("0"); form.addRow("EDO: y(0−), y′(0−), …",self.initial)
         help_text=QLabel("EDO: a0·y + a1·y′ + … = f(t).\n\nUse t, s, z, n, pi, i y funciones matemáticas. Ejemplos: exp(-t), 1/(s+1), z/(z-1/2).\n\nLa inversa Z elige soporte acotado por la izquierda; otra región de convergencia puede dar una señal distinta. N controla cuántos términos se muestran, no trunca la definición matemática.")
         help_text.setWordWrap(True); form.addRow(help_text)
         self._button(form,"Calcular",self.calculate)

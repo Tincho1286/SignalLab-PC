@@ -33,7 +33,7 @@ class PoleZeroAnalysis(QWidget):
         if origin:lines.append(origin)
         if not np.any(system.b):lines+=['H es nula: no se definen ceros aislados. Se muestran los polos del denominador cargado.']
         else:
-            lines+=['Si se impone causalidad, criterio de polos: '+system.stability(poles), 'Región estable: |z| < 1.' if system.domain=='digital' else 'Región estable: Re(s) < 0.']
+            lines+=['Si se impone causalidad, criterio de polos: '+system.causal_pole_stability(poles), 'Región estable: |z| < 1.' if system.domain=='digital' else 'Región estable: Re(s) < 0.']
         from .system_conditions import section
         from .result_summary import Summary
         lines.append(Summary('Condiciones del sistema', [section(system)]).plain_text())

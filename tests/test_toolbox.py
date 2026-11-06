@@ -30,8 +30,11 @@ class ToolboxTests(unittest.TestCase):
         self.assertEqual(self.window.category,'Inicio')
         home=self.window.pages[('menu','Inicio')]
         search=home.findChild(QLineEdit);matches=home.findChild(QListWidget)
-        search.setText('laplace inversa');self.assertEqual(matches.count(),1)
-        matches.itemActivated.emit(matches.item(0));self.assertEqual(self.window.title.text(),'Laplace inversa')
+        search.setText('laplace inversa')
+        from PySide6.QtCore import Qt
+        target=next((matches.item(i) for i in range(matches.count()) if matches.item(i).data(Qt.ItemDataRole.UserRole)[1:3]==('symbolic',1)),None)
+        self.assertIsNotNone(target)
+        matches.itemActivated.emit(target);self.assertEqual(self.window.title.text(),'Laplace inversa')
         self.assertEqual(self.window.project.headers(),[])
         menu=next(action.menu() for action in self.window.menuBar().actions() if action.text()=='Control')
         menu.actions()[0].trigger();self.assertEqual(self.window.title.text(),'Análisis en espacio de estados')
@@ -39,7 +42,7 @@ class ToolboxTests(unittest.TestCase):
     def test_state_simulation_channels_and_provenance(self):
         import numpy as np
         panel=self.open('Control','Simulación en espacio de estados').panel
-        panel.count.setText('11');panel.step.setText('.1');panel.calculate_button.click();self.finish()
+        source=panel.inputs.field(0);source.count.setText('11');source.step.setText('.1');panel.calculate_button.click();self.finish()
         models=self.window.project.headers('state_space');self.assertEqual(len(models),1)
         run=self.window.project.headers('calculation')[-1]
         signals=self.window.project.headers('signal');self.assertEqual(len(signals),5)

@@ -269,7 +269,7 @@ class MathematicalReliabilityTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             source=Path(folder)/'source.json';destination=Path(folder)/'result.json'
             source.write_text(json.dumps(dict(operation='z_inverse_expression',expression='-18/(z+1)',include_samples=False)),encoding='utf-8')
-            with patch('signallab_pc.transform_steps.build',side_effect=RuntimeError('fallo de explicación')),patch('signallab_pc.runtime_diagnostics.diagnostic'):
+            with patch('signallab_pc.procedure.views',side_effect=RuntimeError('fallo de explicación')),patch('signallab_pc.runtime_diagnostics.diagnostic'):
                 code=worker(source,destination)
             result=json.loads(destination.read_text(encoding='utf-8'))
             self.assertEqual(code,0);self.assertTrue(result['evaluated']);self.assertIn('cas_encoded',result)
@@ -460,6 +460,152 @@ class MathematicalReliabilityTests(unittest.TestCase):
                 self.assertTrue(result['evaluated']);self.equivalent(expression(result),want)
         found,remainder=pairs(parse('exp(-abs(t))*cosh(2*t)'),T,W)
         self.assertEqual(found,0);self.assertNotEqual(remainder,0)
+
+
+
+    def test_audit_ode_origin_impulse_preserves_prejump_initial_data(self):
+        from signallab_pc.symbolic_process import explain
+        req=dict(operation='ode',expression='3*Dirac(t)',coefficients=['1','1'],initial=['2'])
+        r=explain(req,execute(req));self.equivalent(parse(r['result']),5*sp.exp(-T)*sp.Heaviside(T))
+        self.assertEqual(r['initial_convention'],'0-')
+        check=r['residual_check'];self.assertEqual(check['symbolic_residual'],'0')
+        self.assertTrue(check['initial'][0]['satisfied']);self.assertEqual(check['initial'][0]['right_limit'],'5')
+        self.assertEqual(check['initial'][0]['obtained'],'2')
+
+    def test_audit_ode_without_derivatives_records_only_the_actual_division(self):
+        from unittest.mock import patch
+        from signallab_pc.symbolic_process import explain
+        req=dict(operation='ode',expression='sin(t)',coefficients=['2','0'],initial=[])
+        with patch('signallab_pc.impulse_pairs.unilateral_laplace',side_effect=AssertionError('Unexpected transform')):
+            r=explain(req,execute(req))
+        self.equivalent(parse(r['result']),sp.sin(T)/2)
+        self.assertEqual(len(r['procedure']),1)
+        self.assertNotIn('Laplace',' '.join(v['operation'] for v in r['procedure']))
+        self.assertIn('División',' '.join(v['text'] for v in r['derivation']))
+
+    def test_audit_ode_recorded_polynomial_identity_and_input_context(self):
+        req=dict(operation='ode',expression='1',coefficients=['2','3','1'],initial=['4','5'],input_conditions=['a > 0'])
+        r=execute(req)
+        self.equivalent(parse(r['operator_polynomial'])*parse(r['Y(s)'])-parse(r['initial_correction']),parse(r['forcing_transform']))
+        self.assertEqual(r['input_definition']['input_conditions'],['a > 0'])
+        self.assertTrue(all(s['recorded'] and s['source'] for s in r['procedure']))
+        json.dumps(r)
+
+    def test_audit_stability_respects_anticausal_roc_in_both_domains(self):
+        from signallab_pc.filters import Transfer
+        for a,domain in [([1,-2],'digital'),([1,-1],'analog')]:
+            with self.subTest(domain=domain):
+                anti=Transfer([1],a,domain,roc={'mode':'left'})
+                causal=Transfer([1],a,domain,roc={'mode':'right'})
+                self.assertTrue(anti.stability().startswith('Estable'))
+                self.assertTrue(causal.stability().startswith('Inestable'))
+                self.assertTrue(anti.causal_pole_stability().startswith('Inestable'))
+
+    def test_audit_improper_and_unspecified_roc_are_not_unconditional_stability(self):
+        from signallab_pc.filters import Transfer
+        for roc in (None,{'mode':'right'}):
+            self.assertIn('Inestable',Transfer([1,0],[1],'analog',roc=roc).stability())
+        self.assertIn('Falta especificar la ROC',Transfer([1],[1,-.5]).stability())
+        for domain in ('analog','digital'):
+            self.assertTrue(Transfer([0],[1,0],domain).stability().startswith('Estable'))
+
+    def test_audit_difference_formula_is_checked_independently_of_sample_count(self):
+        for start in (-3,0,4):
+            with self.subTest(start=start):
+                req=dict(operation='difference_equation',coefficients=['1','-1/2'],initial=['4'],rest=False,start=start,count=1,expression='1')
+                r=execute(req)
+                self.assertTrue(r['symbolic_check']['verified'],r['symbolic_check'])
+                self.assertEqual(len(r['numeric_samples']),1)
+                y=parse(r['result']);self.equivalent(y.subs(N,start),3)
+                self.equivalent(parse(r['unilateral_output']),Z*(3*Z-2)/((Z-1)*(Z-sp.Rational(1,2))))
+                self.assertTrue(r['procedure'])
+
+    def test_audit_recurrence_checker_detects_an_incorrect_formula(self):
+        from signallab_pc.equation_checks import difference_symbolic
+        req=dict(operation='difference_equation',coefficients=['1','-1/2'],initial=['4'],rest=False,start=0,count=1,expression='1')
+        r=execute(req);r['result']='2'
+        self.assertIs(difference_symbolic(req,r)['verified'],False)
+
+    def test_audit_procedure_views_preserve_legacy_records_and_serialization(self):
+        from signallab_pc.procedure import views,step
+        old={'title':'Guardado','text':'Explicación','formula':'x=1'}
+        self.assertEqual(views([old]),[old])
+        records=[step('Despejar','División','2*x=4','x=2',conditions='2 != 0',source='test')]
+        self.assertEqual(views(json.loads(json.dumps(records))),views(records))
+        self.assertIn('Validez',views(records)[0]['text'])
+
+
+
+    def test_audit_library_examples_match_independent_expected_expressions(self):
+        from signallab_pc.library_catalog import example_records
+        from signallab_pc.filters import Transfer
+        from signallab_pc.system_conditions import record
+        for example in example_records():
+            with self.subTest(example=example['id']):
+                req=example['request'];r=execute(req);self.assertTrue(r['evaluated'])
+                actual=parse(r['transfer']) if 'transfer' in r else restore(r['cas_encoded']) if r.get('cas_encoded') else expression(r)
+                expected=parse(example['expected']);variable={'t':T,'n':N,'w':W,'z':Z}[example['variable']]
+                points=[sp.Rational(1,3),1,2] if req['operation']=='ode' else range(5) if req['operation']=='difference_equation' else [-3,-1,0,1,3]
+                if variable==Z:self.equivalent(actual,expected)
+                else:
+                    for point in points:self.equivalent(sp.simplify(actual.subs(variable,point)),sp.simplify(expected.subs(variable,point)))
+                if 'system' in example:self.assertTrue(record(Transfer(**example['system']))['bibo_stability'].startswith('Sí:'))
+
+    def test_audit_library_catalog_preserves_existing_articles_and_routes(self):
+        from signallab_pc.library_catalog import sections,CATEGORIES
+        from signallab_pc.help_content import sections as old_sections
+        from signallab_pc.library_articles import article_blocks
+        values=sections();self.assertEqual(len({v['article_id'] for v in values}),len(values))
+        self.assertTrue(all(v.get('purpose') and v.get('usage') for v in values))
+        self.assertEqual(set(v['category'] for v in values),set(CATEGORIES))
+        for old in old_sections():
+            matches=[v for v in values if v['route']==old['route'] and v.get('content_kind')=='tool']
+            self.assertEqual(len(matches),1,old['route']);self.assertEqual(matches[0]['blocks'],article_blocks(old['route']))
+        self.assertEqual(sum(bool(v.get('example')) for v in values),8)
+
+    def test_audit_transform_receipts_never_claim_pending_answers_are_solved(self):
+        from signallab_pc.procedure import transform_records
+        req=dict(operation='laplace',expression='f(t)')
+        r=dict(result='LaplaceTransform(f(t),t,s)',evaluated=False,condition='True')
+        rows=transform_records(req,r)
+        self.assertIn('sin resolver',rows[0]['operation']);self.assertEqual(rows[0]['after'],r['result'])
+        r=execute(dict(operation='z_inverse_expression',expression='z/(z-2)',roc='left',include_samples=False))
+        self.assertTrue(r['procedure']);self.assertIn('|z| < 2',r['procedure'][-1]['conditions'])
+
+
+
+    def test_audit_optional_procedure_failure_cannot_discard_a_transform(self):
+        from unittest.mock import patch
+        with patch('signallab_pc.procedure.transform_records',side_effect=RuntimeError('record failure')),patch('signallab_pc.runtime_diagnostics.diagnostic'):
+            r=execute(dict(operation='laplace',expression='exp(-t)'))
+        self.assertTrue(r['evaluated']);self.equivalent(expression(r),1/(S+1))
+        self.assertTrue(r['derivation_notice']);self.assertEqual(r['procedure'],[])
+
+
+
+    def test_audit_true_poles_cannot_become_large_finite_roundoff_values(self):
+        import numpy as np
+        from signallab_pc.engine import evaluate_expression,ExpressionError
+        from signallab_pc.singularities import sample_symbolic
+        from signallab_pc.analytic_frequency import _sample
+        for source in ('tan(pi*n/2)','1/sin(pi*n)','sech(i*pi*n/2)','10^(-20)*tan(pi*n/2)'):
+            with self.subTest(source=source):
+                with self.assertRaises(ExpressionError):evaluate_expression(source,np.array([1]))
+        with self.assertRaises(ValueError):sample_symbolic(parse('tan(pi*t/2)'),T,[1])
+        self.assertFalse(np.isfinite(_sample(parse('tan(pi*w/2)'),np.array([1.]))[0]))
+
+    def test_audit_pole_checks_preserve_finite_neighbours_and_inactive_branches(self):
+        import numpy as np
+        from numpy.testing import assert_allclose
+        from signallab_pc.engine import evaluate_expression
+        assert_allclose(evaluate_expression('cos(pi*n/2)*tan(pi*n/2)',np.array([1.])),[1],atol=1e-14)
+        assert_allclose(evaluate_expression('where(n==1,7,tan(pi*n/2))',np.array([1.])),[7])
+        assert_allclose(evaluate_expression('step(n-2)*tan(pi*n/2)',np.array([1.])),[0])
+        assert_allclose(evaluate_expression('n^2%3',np.arange(5)),[0,1,1,0,1])
+        self.equivalent(parse('n^2%3'),sp.Mod(N**2,3))
+        for value in [.99999999,1.00000001]:
+            actual=evaluate_expression('tan(pi*n/2)',np.array([value]))
+            self.assertTrue(np.isfinite(actual).all())
 
 
 if __name__=='__main__':unittest.main()

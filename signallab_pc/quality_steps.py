@@ -10,14 +10,22 @@ def fourier(request,result):
         definition='x(t) = Integral(X(w)*exp(i*w*t),(w,-oo,oo))/(2*pi)' if inverse else 'X(w) = Integral(x(t)*exp(-i*w*t),(t,-oo,oo))'
         text='Se usa frecuencia angular en rad/s. La inversa incluye el factor 1/(2π).'
     lhs='x[n]' if discrete and inverse else 'x(t)' if inverse else 'X(w)'
-    return [{'title':'Definición y normalización','text':text,'formula':definition},{'title':'Evaluación registrada','text':'El motor evalúa esta suma o integral. Se conserva la entrada; no se reconstruye una secuencia de manipulaciones internas que el motor no registre.','formula':request['expression']},{'title':'Condiciones y alcance','text':str(result.get('condition',''))+' '+result.get('scope','')},{'title':'Resultado' if result.get('evaluated') else 'Expresión pendiente','text':'Se conserva la interpretación del informe principal.','formula':lhs+' = '+result.get('display_result',result.get('result',''))}]
+    return [{'title':'Definición y normalización','text':text,'formula':definition},{'title':'Evaluación registrada','text':'Esta suma o integral define la transformada; el motor puede resolverla por pares, propiedades o cálculo simbólico. Se conserva la entrada; no se reconstruye una secuencia de manipulaciones internas que el motor no registre.','formula':request['expression']},{'title':'Condiciones y alcance','text':str(result.get('condition',''))+' '+result.get('scope','')},{'title':'Resultado' if result.get('evaluated') else 'Expresión pendiente','text':'Se conserva la interpretación del informe principal.','formula':lhs+' = '+result.get('display_result',result.get('result',''))}]
 
 
 def ode(request,result):
+    if result.get('procedure'):
+        from .procedure import views
+        return views(result['procedure'])
+    if result.get('order')==0:
+        return [{'title':'Despeje algebraico','text':'No hay derivadas activas: se divide la entrada por a₀. No se aplicó Laplace.','formula':'y(t) = '+result['result']}]
     return [{'title':'1. Transformar las derivadas','text':'Se aplica Laplace unilateral. Y_d(s) representa la transformada de y′(t). Cada derivada aporta términos con los valores iniciales: éstos se conservan en la ecuación transformada.','formula':'Y_d(s) = s*Y(s)-y(0)'},{'title':'2. Despejar la salida','text':'Se agrupan los términos que multiplican Y(s), incluyendo la entrada y las condiciones iniciales.','formula':'Y(s) = '+result['Y(s)']},{'title':'3. Invertir y comprobar','text':'La inversa es causal. La comprobación del informe distingue la ecuación para t>0 de los límites iniciales en 0+.','formula':'y(t) = '+result['result']}]
 
 
 def difference(request,result):
+    if result.get('procedure'):
+        from .procedure import views
+        return views(result['procedure'])
     steps=[{'title':'1. Recurrencia y prehistoria','text':'La ecuación se impone desde n₀='+str(result['origin'])+'. Los valores anteriores de y se incorporan como condiciones iniciales.'},{'title':'2. Separar los efectos','text':'La respuesta de entrada cero conserva el historial; la de estado cero conserva f[n].','formula':'y[n] = ('+result['zero_input']+')+('+result['zero_state']+')'}]
     if result.get('unilateral_output'):steps.append({'title':'3. Transformada unilateral calculada','text':'Se conserva la expresión transformada utilizada para obtener la solución.','formula':'Y(z) = '+result['unilateral_output']})
     steps.append({'title':'Resultado y dominio','text':result['condition']+' · '+result['method'],'formula':'y[n] = '+result['display_result']})
