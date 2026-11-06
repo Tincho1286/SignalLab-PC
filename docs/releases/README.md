@@ -4,7 +4,7 @@
 
 | Versión | Novedades | Canal |
 | --- | --- | --- |
-| [1.6.17-preview](v1.6.17-preview.md) | Pares fundamentales, ecuaciones sin memoria y registros mínimos | Preliminar |
+| [1.6.17](v1.6.17.md) | Funciones hiperbólicas, transformadas y conservación de resultados | Estable · Importante |
 | [1.6.16-preview](v1.6.16-preview.md) | Cálculos independientes de gráficos y registros complementarios | Preliminar |
 | [1.6.15](v1.6.15.md) | CAS, Fourier inversa, precisión numérica e intercambio de resultados | Estable |
 | [1.6.14-preview](v1.6.14-preview.md) | Fourier inversa, CAS y conservación del reloj y la ROC | Preliminar |
