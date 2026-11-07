@@ -69,6 +69,11 @@ def main():
     (package/'README.md').write_text(readme,encoding='utf-8',newline='\n')
     commit=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
     provenance={'application':'SignalLab PC','version':version,'platform':'linux','architecture':'x86_64','build_platform':platform.platform(),'glibc':platform.libc_ver(),'python':platform.python_version(),'source_commit':commit,'repository':'https://github.com/Tincho1286/SignalLab-PC','build_url':os.environ.get('BUILD_URL'),'binary_sha256':sha256(package/'SignalLab-PC'),'application_tests_run':True,'application_test_scope':'Offscreen expression/system, Fourier, CAS, error-recovery and result-header figure workflows','static_checks':json.loads((ROOT/'work/static-checks.json').read_text(encoding='utf-8')),'workflow_checks':json.loads((ROOT/'work/workflow-checks.json').read_text(encoding='utf-8')),'mathematical_checks':json.loads((ROOT/'work/math-checks.json').read_text(encoding='utf-8'))}
+    import base64
+    sys.path[:0]=[str(ROOT),str(ROOT/'tools')]
+    from distribution_receipt import source_fingerprint
+    from signallab_pc.update_manifest import public_key
+    provenance.update(features=['verified-updates-v1'],source_fingerprint=source_fingerprint(),update_public_key=base64.b64encode(public_key()).decode())
     (package/'build-provenance.json').write_text(json.dumps(provenance,indent=2)+'\n',encoding='utf-8')
     outputs=ROOT/'outputs';outputs.mkdir(exist_ok=True)
     name=package.name+'.tar.gz';temporary=build_root/(name+'.partial');archive=outputs/name

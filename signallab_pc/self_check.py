@@ -32,6 +32,12 @@ def run(destination):
         t = sympy.Symbol("t")
         assert sympy.integrate(t, (t, 0, 1)) == sympy.Rational(1, 2)
         report["checks"]["symbolic_runtime"] = True
+        from .update_manifest import public_key
+        from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+        assert len(public_key()) == 32
+        update_key = Ed25519PrivateKey.generate()
+        update_key.public_key().verify(update_key.sign(b'packaged-update-check'), b'packaged-update-check')
+        report['checks']['packaged_update_verification'] = True
         app = QApplication.instance() or QApplication([])
         window = ToolboxWindow()
         assert window.category == 'Inicio'

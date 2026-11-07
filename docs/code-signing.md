@@ -4,9 +4,9 @@
 
 ## Estado de la firma
 
-La distribución estable 1.2.1 disponible en Releases permanece **sin firma Authenticode**. La solicitud de incorporación al programa gratuito de SignPath Foundation fue presentada el **2 de noviembre de 2026** y la página confirmó su recepción. Está pendiente la evaluación del proveedor; no existe todavía un certificado aprobado ni una firma de producción publicada. Ningún sello de esta página sustituye el estado real del archivo.
+La distribución estable 1.7.0 disponible en Releases permanece **sin firma Authenticode**. No hay un servicio de firma de producción habilitado. La solicitud al programa gratuito de SignPath Foundation no fue aprobada; la integración técnica opcional no constituye una aprobación ni una firma publicada.
 
-Se solicita el servicio gratuito de SignPath Foundation para código abierto. La atribución aplicable a futuras versiones firmadas mediante ese programa será: “Free code signing provided by SignPath.io, certificate by SignPath Foundation”. Esta atribución describe el servicio solicitado y no anuncia una aprobación obtenida.
+Las ediciones con actualizador utilizan una **firma Ed25519 propia para autenticar las actualizaciones**. La clave pública se distribuye con la aplicación y la clave privada permanece fuera del repositorio. Esta firma no es un certificado de identidad reconocido por Windows y no elimina por sí sola un bloqueo del Control inteligente de aplicaciones. [Instalación y actualizaciones](installed-updates.md).
 
 ## Responsabilidades
 

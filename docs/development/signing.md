@@ -4,7 +4,7 @@
 
 ## Compilación verificable
 
-El flujo [Build portables and request Windows signing](../../.github/workflows/portable.yml) utiliza Python 3.12.10 en GitHub Actions. Genera Windows y Linux por defecto; puede elegirse una sola plataforma. La solicitud Authenticode pertenece únicamente al trabajo Windows. Puede iniciarse manualmente desde `main` o una etiqueta `v…`. Conserva el commit, la versión, el checksum y el enlace de ejecución en un archivo de procedencia. No ejecuta la aplicación ni pruebas de funcionamiento.
+El flujo [Build portables and request Windows signing](../../.github/workflows/portable.yml) utiliza Python 3.12.10 en GitHub Actions. Genera Windows y Linux por defecto; puede elegirse una sola plataforma. La solicitud Authenticode pertenece únicamente al trabajo Windows. Puede iniciarse manualmente desde `main` o una etiqueta `v…`. Conserva el commit, la versión, el checksum y el enlace de ejecución en un archivo de procedencia. Ejecuta los controles matemáticos, estáticos y de reutilización antes de empaquetar. Las ediciones instaladas añaden comprobaciones nativas de instalación y de la aplicación empaquetada.
 
 `request_signing=false` sólo construye y sube el portable sin firma. Es el modo disponible mientras la solicitud al proveedor no esté aprobada. Ninguno de los modos reemplaza automáticamente las descargas de Releases.
 
@@ -23,3 +23,7 @@ La configuración no contiene un certificado ni credenciales de demostración. N
 `tools/windows_version.py` lee la versión del código sin importarlo y genera el recurso de versión usado por PyInstaller. `ProductName` es `SignalLab PC`, `ProductVersion` conserva la versión de la aplicación y `FileVersion` usa cuatro componentes numéricos. El nombre original debe coincidir con el ejecutable construido. Las versiones preliminares se identifican en los indicadores Windows.
 
 [Code signing policy](../code-signing.md) · [Documentación oficial de SignPath](https://docs.signpath.io/trusted-build-systems/github)
+
+## Firma local del canal de actualizaciones
+
+El manifiesto Ed25519 se firma localmente después de verificar los instaladores construidos. No requiere SignPath ni se sube la clave privada a GitHub. La [guía de instalación y actualizaciones](../installed-updates.md#construcción-y-publicación) describe el comando y el orden de publicación. Esta firma protege las actualizaciones del programa y es independiente de Authenticode.

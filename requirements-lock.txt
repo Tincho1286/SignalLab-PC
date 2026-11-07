@@ -23,3 +23,7 @@ setuptools==84.2.1
 shiboken6==6.10.0
 six==1.17.0
 sympy==1.14.0
+
+cffi==2.1.1
+cryptography==50.0.2
+pycparser==3.12

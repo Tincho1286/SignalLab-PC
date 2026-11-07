@@ -1,5 +1,5 @@
-name: Build portables and request Windows signing
-run-name: Portable from ${{ github.ref_name }} · signing ${{ inputs.request_signing }}
+name: Build portables and updatable installers
+run-name: Distributions from ${{ github.ref_name }} · signing ${{ inputs.request_signing }}
 
 on:
   workflow_dispatch:
@@ -73,6 +73,30 @@ jobs:
         run: |
           & .\build_portable.ps1
 
+      - name: Build and verify the per-user Windows installer
+        run: |
+          & .\.venv\Scripts\python.exe -B -X utf8 -m unittest discover -s tests -p test_updates.py
+          if ($LASTEXITCODE -ne 0) { throw 'Update verification contracts failed.' }
+          $compiler = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
+          if (-not (Test-Path -LiteralPath $compiler)) { throw 'The build image is missing Inno Setup 6.' }
+          & .\.venv\Scripts\python.exe -B tools/build_installers.py windows --iscc $compiler
+          if ($LASTEXITCODE -ne 0) { throw 'Windows installer build failed.' }
+          $version = & .\.venv\Scripts\python.exe -B -c 'from signallab_pc import __version__; print(__version__)'
+          & .\.venv\Scripts\python.exe -B tools/check_windows_installer.py --iscc $compiler --installer (Join-Path outputs ("SignalLab-PC-" + $version.Trim() + "-setup.exe"))
+          if ($LASTEXITCODE -ne 0) { throw 'Native installation and upgrade checks failed.' }
+
+      - name: Upload Windows installed distribution
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: SignalLab-PC-installer-windows-${{ github.run_id }}
+          path: |
+            outputs/*-setup.exe
+            outputs/installer-windows.json
+            work/installer-contract-windows.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+
       - name: Record binary metadata and source provenance
         id: metadata
         env:
@@ -99,7 +123,7 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: SignalLab-PC-unsigned-${{ github.run_id }}
-          path: outputs/*.exe
+          path: outputs/${{ steps.metadata.outputs.filename }}
           if-no-files-found: error
           compression-level: 0
           retention-days: 7
@@ -185,6 +209,28 @@ jobs:
         env:
           BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: bash build_portable_linux.sh
+
+      - name: Build and verify the per-user Linux installer
+        env:
+          QT_QPA_PLATFORM: offscreen
+        run: |
+          .venv/bin/python -B -X utf8 -m unittest discover -s tests -p test_updates.py
+          .venv/bin/python -B -X utf8 tests/linux_installation_contract.py
+          .venv/bin/python -B tools/build_installers.py linux
+          version=$(.venv/bin/python -B -c 'from signallab_pc import __version__; print(__version__)')
+          .venv/bin/python -B tools/check_linux_installer.py "outputs/SignalLab-PC-${version}-linux-x86_64.run"
+
+      - name: Upload Linux installed distribution
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: SignalLab-PC-installer-linux-${{ github.run_id }}
+          path: |
+            outputs/*-linux-x86_64.run
+            outputs/installer-linux.json
+            work/installer-contract-linux.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
 
       - name: Upload the Linux distribution
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

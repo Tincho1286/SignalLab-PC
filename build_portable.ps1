@@ -61,6 +61,8 @@ try {
             }
         }
     }
+    & $pythonExe -B tools/distribution_receipt.py --binary $finalExe --platform windows-x86_64 --output (Join-Path $outputDir "portable-build-windows.json")
+    if ($LASTEXITCODE -ne 0) { throw "No se pudo registrar la construcción del actualizador." }
     Write-Host "Generado outputs\$Name.exe."
 }
 finally {

@@ -64,3 +64,7 @@ GitHub ordena el listado usando la fecha de la etiqueta o del commit, que puede 
 El publicador crea las etiquetas nuevas como anotadas, con la fecha UTC informada por GitHub. Conserva el commit exacto de construcción y comprueba el destino de cualquier etiqueta que ya exista, sin reemplazarla. Así la fecha local del equipo no desplaza el orden de las nuevas entregas.
 
 Las etiquetas v1.2.0-preview, v1.2.0 y v1.2.1 se normalizaron con sus fechas originales de publicación. Conservan sus mismos commits, contenidos y archivos descargables. Al actualizar una copia local antigua de esas etiquetas, puede ser necesario volver a obtener sus metadatos con un fetch explícito; no requiere recompilar los portables.
+
+## Ediciones instaladas
+
+El flujo de construcción produce también un instalador Windows por usuario y un instalador Linux `.run`, con pruebas nativas de actualización y desinstalación. Los portables se conservan como artefactos separados. Para publicar el canal autenticado se firman localmente los dos instaladores y se adjunta `SignalLab-updates.json` en la entrega estable correspondiente. La clave privada nunca se incorpora al repositorio ni a los artefactos. Consultá [Instalación y actualizaciones](../installed-updates.md).

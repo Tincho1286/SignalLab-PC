@@ -46,3 +46,13 @@ Los archivos de licencia remiten a sus titulares y proyectos originales. Las con
 La distribución instalada de PySide6 6.10.0 declara LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only. Para SignalLab bajo GPLv3 se utiliza la alternativa GPLv3, sin licencia comercial. Se conservan los textos comunes [GPLv3](LICENSES/Qt/GPL-3.0-only.txt), [LGPLv3](LICENSES/Qt/LGPL-3.0-only.txt) y [GPLv2](LICENSES/Qt/GPL-2.0-only.txt), además de los avisos originales del paquete.
 
 Fuentes oficiales de la versión: [Qt 6.10.0](https://download.qt.io/archive/qt/6.10/6.10.0/single/) y [PySide6 6.10.0](https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-6.10.0-src/). Los archivos de terceros en estas fuentes conservan sus propias licencias. Estas referencias complementan el código de SignalLab y sus instrucciones de construcción.
+
+## Verificación de actualizaciones
+
+Las ediciones con actualizador incluyen estos componentes adicionales, con los avisos de sus distribuciones originales:
+
+| Componente | Versión | Avisos |
+| --- | --- | --- |
+| cryptography | 50.0.2 | [Aviso 1](LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE) · [Aviso 2](LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE.APACHE) · [Aviso 3](LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE.BSD) |
+| cffi | 2.1.1 | [Aviso 1](LICENSES/cffi/cffi-2.1.1.dist-info/licenses/LICENSE) |
+| pycparser | 3.12 | [Aviso 1](LICENSES/pycparser/pycparser-3.12.dist-info/licenses/LICENSE) |

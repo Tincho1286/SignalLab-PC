@@ -34,3 +34,5 @@ Para trabajar con el código, consultá la [guía de desarrollo](development/REA
 La [licencia del proyecto](license.md) explica las condiciones de uso y redistribución. También están disponibles la [política de privacidad](privacy.md), los [avisos del proyecto](../NOTICE.md) y las [licencias de terceros](../THIRD_PARTY_NOTICES.md).
 
 
+
+- [Edición instalada y actualizaciones](installed-updates.md): instalación por usuario, conservación de datos y canal verificado.

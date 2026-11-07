@@ -49,6 +49,8 @@ class WorkbenchWindow(ToolboxWindow):
         self.resize(min(self.width(),available.width()),min(self.height(),available.height()))
         self.move(max(available.left(),min(self.x(),available.right()-self.width()+1)),max(available.top(),min(self.y(),available.bottom()-self.height()+1)))
         self.show_home()
+        from .update_ui import UpdateController
+        self.updates=UpdateController(self)
         from .wallpaper import refresh
         refresh(self)
     def paintEvent(self,event):
@@ -142,7 +144,7 @@ class WorkbenchWindow(ToolboxWindow):
         from .appearance import install_menu
         install_menu(self,view.addMenu('Tema'))
         help_menu=self.menuBar().addMenu('Ayuda');help_menu.addAction('Ayuda de la herramienta',self.open_help,'F1');help_menu.addAction('Biblioteca',lambda:self.show_menu('Biblioteca'));help_menu.addAction('Funciones de las fórmulas…',self.show_function_help)
-        help_menu.addSeparator();help_menu.addAction('Acerca de SignalLab…',self.about)
+        help_menu.addSeparator();help_menu.addAction('Buscar actualizaciones…',lambda:self.updates.show());help_menu.addAction('Acerca de SignalLab…',self.about)
         bar=QToolBar('Acciones');bar.setObjectName('mainToolbar');bar.setMovable(False);bar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon);bar.setIconSize(QSize(18,18));self.addToolBar(bar)
         action=bar.addAction(icon('home'),'Inicio');action.triggered.connect(self.show_home)
         action=bar.addAction(icon('table',C['green']),'Importar MATLAB');action.triggered.connect(self.import_matlab)
@@ -381,6 +383,8 @@ class WorkbenchWindow(ToolboxWindow):
         if item[1:3]==('fourier',6):self.open_tool(item);self.pages[tuple(item)].panel.receive(value,key);return
         super().send_signal(value,key,item)
     def closeEvent(self,event):
+        if hasattr(self,'updates') and not self.updates.prepare_close():
+            event.ignore();return
         self.settings.setValue('geometry',self.saveGeometry());self.settings.setValue('panels',self.saveState());super().closeEvent(event)
     def _configure_readable_layouts(self):
         from PySide6.QtWidgets import QFormLayout,QScrollArea,QSizePolicy,QTabWidget
