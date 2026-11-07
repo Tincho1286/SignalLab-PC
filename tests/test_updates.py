@@ -207,6 +207,20 @@ class UpdateContracts(unittest.TestCase):
                 paths[0].write_bytes(b'changed')
                 with self.assertRaisesRegex(ValueError, 'no coincide'): update_signing.sign('2.0.0', paths, private, 'Notes', now=self.now)
 
+    def test_source_digest_uses_the_same_case_sensitive_order_on_every_platform(self):
+        from tools import distribution_receipt
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder)
+            names=['signallab_pc/a.py','signallab_pc/Z.py','LICENSES/z/LICENSE','LICENSES/A/NOTICE',
+                   'main.py','requirements-lock.txt','pyproject.toml','LICENSE','NOTICE.md','THIRD_PARTY_NOTICES.md']
+            expected=hashlib.sha256()
+            for name in names:
+                path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'line\r\n')
+            for parts in sorted(tuple(name.split('/')) for name in names):
+                expected.update('/'.join(parts).encode());expected.update(b'\0line\n\0')
+            with patch.object(distribution_receipt,'ROOT',root):
+                self.assertEqual(distribution_receipt.source_fingerprint(),expected.hexdigest())
+
     def test_linux_provenance_platform_and_architecture_form_the_same_build_identity(self):
         from tools.distribution_receipt import source_fingerprint, verify_receipt
         from signallab_pc import __version__

@@ -13,7 +13,9 @@ def source_fingerprint():
     paths = [p for p in (ROOT / 'signallab_pc').rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc']
     paths += [ROOT / name for name in ('main.py', 'requirements-lock.txt', 'pyproject.toml', 'LICENSE', 'NOTICE.md', 'THIRD_PARTY_NOTICES.md')]
     paths += [p for p in (ROOT / 'LICENSES').rglob('*') if p.is_file()]
-    for path in sorted(paths):
+    # pathlib ordering differs on Windows (case-insensitive) and Linux.
+    # Sort the original relative components explicitly so one commit has one digest.
+    for path in sorted(paths, key=lambda value: value.relative_to(ROOT).parts):
         raw = path.read_bytes()
         if path.suffix.lower() not in {'.ico', '.png', '.jpg', '.jpeg', '.gif', '.ttf', '.woff', '.woff2'}:
             raw = raw.replace(b'\r\n', b'\n')
