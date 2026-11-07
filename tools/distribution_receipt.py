@@ -26,12 +26,16 @@ def verify_receipt(row, binary, target):
     from signallab_pc.update_manifest import public_key
     from signallab_pc.update_download import file_hash
     import base64
-    if (row.get('version') != __version__ or row.get('platform') != target
-            or row.get('source_fingerprint') != source_fingerprint()
-            or row.get('update_public_key') != base64.b64encode(public_key()).decode()
-            or 'verified-updates-v1' not in row.get('features', [])
-            or row.get('binary_sha256', row.get('sha256')) != file_hash(binary)):
-        raise ValueError('El portable no corresponde a esta construcción con actualizador. Reconstruí el portable antes de generar el instalador.')
+    recorded_platform = row.get('platform')
+    if recorded_platform in ('linux', 'windows') and row.get('architecture') == 'x86_64':
+        recorded_platform += '-x86_64'
+    checks = {'versión': row.get('version') == __version__, 'plataforma': recorded_platform == target,
+              'código': row.get('source_fingerprint') == source_fingerprint(),
+              'clave pública': row.get('update_public_key') == base64.b64encode(public_key()).decode(),
+              'actualizador': 'verified-updates-v1' in row.get('features', []),
+              'binario': row.get('binary_sha256', row.get('sha256')) == file_hash(binary)}
+    if not all(checks.values()):
+        raise ValueError('El portable no corresponde a esta construcción con actualizador. Difieren: ' + ', '.join(k for k,v in checks.items() if not v) + '. Reconstruí el portable antes de generar el instalador.')
 
 
 def main():

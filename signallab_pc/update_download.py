@@ -1,6 +1,7 @@
 """Bounded HTTPS transport. Downloaded programs are never run by this module."""
 from pathlib import Path
 import hashlib
+import http.client
 import hmac
 import os
 import tempfile
@@ -28,6 +29,8 @@ def check_url(url):
 
 
 class Redirect(urllib.request.HTTPRedirectHandler):
+    max_redirections = 3
+    max_repeats = 2
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         check_url(newurl)
         return super().redirect_request(req, fp, code, msg, headers, newurl)
@@ -48,16 +51,28 @@ def checkpoint(cancel):
 def fetch_release(*, cancel=None, opener=open_url, key=None, now=None):
     checkpoint(cancel)
     try:
+        begin = time.monotonic()
         with opener(FEED_URL) as response:
-            check_url(response.geturl())
-            data = response.read(MAX_MANIFEST + 1)
+            check_url(response.geturl()); data = bytearray()
+            reader = getattr(response, 'read1', response.read)
+            while True:
+                checkpoint(cancel)
+                if time.monotonic() - begin > 60:
+                    raise UpdateError('La consulta tardó demasiado. Volvé a intentarlo.')
+                block = reader(min(8192, MAX_MANIFEST - len(data) + 1))
+                if not block:
+                    break
+                data.extend(block)
+                if len(data) > MAX_MANIFEST:
+                    raise UpdateError('El manifiesto supera el tamaño permitido.')
+            data = bytes(data)
         checkpoint(cancel)
         return verify_manifest(data, key=key, now=now)
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
             raise UpdateError('Todavía no hay un canal de actualizaciones firmado publicado. Podés consultar las versiones en GitHub.') from exc
         raise UpdateError('GitHub no pudo entregar la actualización. Intentá nuevamente más tarde.') from exc
-    except (TimeoutError, OSError) as exc:
+    except (TimeoutError, OSError, http.client.HTTPException) as exc:
         raise UpdateError('No se pudo conectar con GitHub. Revisá la conexión e intentá nuevamente.') from exc
 
 
@@ -83,37 +98,41 @@ def download(asset, cache, *, cancel=None, progress=None, opener=open_url):
     from .update_cache import register, MARKER
     register(folder, asset)
     partial = folder / 'download.partial'; target = folder / asset.name
-    begin = time.monotonic(); count = 0; digest = hashlib.sha256()
+    begin = time.monotonic(); count = 0; digest = hashlib.sha256(); previous_percent = -1
     try:
         with opener(asset.url) as response, partial.open('xb') as output:
             check_url(response.geturl())
             length = response.headers.get('Content-Length')
             if length is not None and (not length.isdecimal() or int(length) != asset.size):
                 raise UpdateError('El servidor entregó un tamaño distinto del instalador firmado.')
+            reader = getattr(response, 'read1', response.read)
             while True:
                 checkpoint(cancel)
                 if time.monotonic() - begin > 1800:
                     raise UpdateError('La descarga tardó demasiado. Volvé a intentarlo.')
-                block = response.read(min(1024**2, asset.size - count + 1))
+                block = reader(min(1024**2, asset.size - count + 1))
                 if not block:
                     break
                 count += len(block)
                 if count > asset.size:
                     raise UpdateError('La descarga supera el tamaño firmado.')
                 output.write(block); digest.update(block)
-                if progress is not None:
-                    progress(count, asset.size)
+                percent = int(count * 100 / asset.size)
+                if progress is not None and percent != previous_percent:
+                    progress(count, asset.size); previous_percent = percent
             output.flush(); os.fsync(output.fileno())
         checkpoint(cancel)
         if count != asset.size or not hmac.compare_digest(digest.hexdigest(), asset.sha256):
             raise UpdateError('La descarga no coincide con la actualización firmada. No se ejecutará.')
         partial.replace(target)
         return target
-    except Exception:
+    except Exception as exc:
         partial.unlink(missing_ok=True)
         (folder / MARKER).unlink(missing_ok=True)
         try:
             folder.rmdir()
         except OSError:
             pass
+        if isinstance(exc, (urllib.error.URLError, TimeoutError, http.client.HTTPException)):
+            raise UpdateError('No se pudo completar la descarga. Revisá la conexión e intentá nuevamente.') from exc
         raise

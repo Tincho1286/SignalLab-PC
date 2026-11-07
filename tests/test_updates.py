@@ -107,6 +107,26 @@ class UpdateContracts(unittest.TestCase):
                 download(asset, folder, cancel=cancel, progress=lambda *_: cancel.set(), opener=lambda url: Response(self.data, url))
             self.assertEqual(list(Path(folder).iterdir()), [])
 
+    def test_slow_chunked_transfers_cancel_before_consuming_the_entire_file(self):
+        cancel = Event()
+        class WireChunks(Response):
+            consumed = 0
+            def read1(self, size):
+                block = super().read(min(size, 1)); self.consumed += len(block)
+                return block
+        asset = self.release().assets['windows-x86_64']; stream = WireChunks(self.data, asset.url)
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaises(Cancelled):
+                download(asset,folder,cancel=cancel,progress=lambda *_:cancel.set(),opener=lambda url:stream)
+            self.assertLess(stream.consumed,len(self.data));self.assertEqual(list(Path(folder).iterdir()),[])
+        stream = WireChunks(self.encoded()); cancel.clear()
+        original = stream.read1
+        def cancel_after_chunk(size):
+            result=original(size);cancel.set();return result
+        stream.read1=cancel_after_chunk
+        with self.assertRaises(Cancelled):fetch_release(cancel=cancel,opener=lambda url:stream,key=self.public,now=self.now)
+        self.assertEqual(stream.consumed,1)
+
     def test_tampering_between_download_and_installation_is_detected(self):
         asset = self.release().assets['windows-x86_64']
         with tempfile.TemporaryDirectory() as folder:
@@ -186,6 +206,19 @@ class UpdateContracts(unittest.TestCase):
                 self.assertEqual(verify_manifest(data, key=self.public, now=self.now).notes, 'Authenticated notes')
                 paths[0].write_bytes(b'changed')
                 with self.assertRaisesRegex(ValueError, 'no coincide'): update_signing.sign('2.0.0', paths, private, 'Notes', now=self.now)
+
+    def test_linux_provenance_platform_and_architecture_form_the_same_build_identity(self):
+        from tools.distribution_receipt import source_fingerprint, verify_receipt
+        from signallab_pc import __version__
+        from signallab_pc.update_manifest import public_key
+        with tempfile.TemporaryDirectory() as folder:
+            binary=Path(folder)/'SignalLab-PC';binary.write_bytes(self.data)
+            row=dict(version=__version__,platform='linux',architecture='x86_64',
+                source_fingerprint=source_fingerprint(),features=['verified-updates-v1'],
+                update_public_key=base64.b64encode(public_key()).decode(),binary_sha256=hashlib.sha256(self.data).hexdigest())
+            verify_receipt(row,binary,'linux-x86_64')
+            row['architecture']='aarch64'
+            with self.assertRaisesRegex(ValueError,'plataforma'):verify_receipt(row,binary,'linux-x86_64')
 
     def test_installer_archive_cannot_escape_the_staging_directory(self):
         sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
