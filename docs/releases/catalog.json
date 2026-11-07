@@ -1,6 +1,22 @@
 {
   "releases": [
     {
+      "tag": "v1.8.0",
+      "title": "Instalación y actualizaciones",
+      "channel": "stable",
+      "summary": "Instaladores para Windows y Linux con actualizaciones verificadas desde la aplicación.",
+      "changes": [
+        "Instalación por usuario y portables en ambas plataformas.",
+        "Actualización sin desinstalar, conservando temas y configuración.",
+        "Verificación Ed25519 y SHA-256 antes de ejecutar los instaladores."
+      ],
+      "limits": [
+        "La firma del actualizador no sustituye la firma Authenticode que reconoce Windows.",
+        "Los resultados sin guardar no se recuperan automáticamente al reiniciar."
+      ],
+      "notes": "docs/releases/v1.8.0.md"
+    },
+    {
       "tag": "v1.7.0",
       "title": "Mejoras de estabilidad y fiabilidad matemática",
       "channel": "stable",

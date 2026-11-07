@@ -4,7 +4,7 @@
 
 ## Estado de la firma
 
-La distribución estable 1.7.0 disponible en Releases permanece **sin firma Authenticode**. No hay un servicio de firma de producción habilitado. La solicitud al programa gratuito de SignPath Foundation no fue aprobada; la integración técnica opcional no constituye una aprobación ni una firma publicada.
+La distribución estable 1.8.0 disponible en Releases permanece **sin firma Authenticode**. No hay un servicio de firma de producción habilitado. La solicitud al programa gratuito de SignPath Foundation no fue aprobada; la integración técnica opcional no constituye una aprobación ni una firma publicada.
 
 Las ediciones con actualizador utilizan una **firma Ed25519 propia para autenticar las actualizaciones**. La clave pública se distribuye con la aplicación y la clave privada permanece fuera del repositorio. Esta firma no es un certificado de identidad reconocido por Windows y no elimina por sí sola un bloqueo del Control inteligente de aplicaciones. [Instalación y actualizaciones](installed-updates.md).
 

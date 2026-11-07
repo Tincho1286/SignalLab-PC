@@ -1,6 +1,15 @@
 # Historial de cambios
 
-Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.7.0 · Mejoras de estabilidad**.
+Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.8.0 · Instalación y actualizaciones**.
+
+## 1.8.0 · Estable · Instalación y actualizaciones
+
+- Instaladores por usuario para Windows x64 y Linux x86_64, además de los portables.
+- Búsqueda de actualizaciones desde Ayuda, descarga verificada e instalación sin desinstalar previamente.
+- Conservación de temas y configuración; activación preparada y recuperación ante fallos en Linux.
+- Manifiestos Ed25519, comprobación de integridad y protección frente a retrocesos de versión.
+
+[Notas de la versión](docs/releases/v1.8.0.md)
 
 ## 1.7.0 · Estable · Mejoras de estabilidad
 

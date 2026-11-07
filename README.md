@@ -3,9 +3,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.7.0" src="https://img.shields.io/badge/estable-1.7.0-71d7c4?style=flat-square&amp;labelColor=172632"></a>
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.8.0" src="https://img.shields.io/badge/estable-1.8.0-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
-  <img alt="Windows y Linux portables" src="https://img.shields.io/badge/Windows%20%2B%20Linux-portables-8ab6df?style=flat-square&amp;labelColor=172632">
+  <img alt="Instaladores y portables para Windows y Linux" src="https://img.shields.io/badge/Windows%20%2B%20Linux-instaladores%20y%20portables-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Desarrollado con Python" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
 </p>
 
@@ -40,17 +40,16 @@ El [catálogo de herramientas](docs/tools.md) explica dónde encontrar cada oper
 
 ## Descargar y empezar
 
-Los portables incluyen Python y las dependencias de la aplicación. Descargá la versión 1.7.0 para Windows o Linux. Las entregas anteriores están en Releases.
+Los instaladores y portables incluyen Python y las dependencias de la aplicación. La versión estable **1.8.0** está disponible para Windows x64 y Linux x86_64.
 
-| Edición | Windows x64 | Linux x86_64 | Novedades |
-| --- | --- | --- | --- |
-| **Estable · 1.7.0** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.7.0/SignalLab-PC-1.7.0.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.7.0/SignalLab-PC-1.7.0-linux-x86_64.tar.gz) | [Notas de la versión](docs/releases/v1.7.0.md) |
+| Formato | Windows x64 | Linux x86_64 |
+| --- | --- | --- |
+| **Instalable con actualizaciones** | [Descargar instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0-setup.exe) | [Descargar instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0-linux-x86_64.run) |
+| **Portable** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0-linux-x86_64.tar.gz) |
 
-La 1.7.0 reúne numerosas mejoras de estabilidad y fiabilidad matemática en transformadas, sistemas, filtros y CAS. Conserva con mayor precisión las condiciones de los resultados y amplía los procedimientos registrados y la biblioteca de ayuda. Las [notas de la 1.7.0](docs/releases/v1.7.0.md) describen estas mejoras.
+La edición instalada permite buscar nuevas versiones desde **Ayuda → Buscar actualizaciones** y aplicarlas sin desinstalar previamente. Conserva los temas y la configuración, y pide guardar o exportar los resultados antes de reiniciar. La [guía de instalación y actualizaciones](docs/installed-updates.md) explica este proceso; las [notas de la 1.8.0](docs/releases/v1.8.0.md) describen su alcance.
 
-
-
-En Windows, abrí el ejecutable descargado. En Linux, descomprimí el paquete y ejecutá `SignalLab-PC` dentro de su carpeta; consultá los [requisitos e instrucciones de Linux](docs/linux.md) para comprobar la compatibilidad de tu sistema.
+En Windows, abrí el instalador o el portable que hayas elegido. En Linux, ejecutá el instalador con `sh ./SignalLab-PC-1.8.0-linux-x86_64.run`; para usar el portable, descomprimí su paquete y ejecutá `SignalLab-PC` dentro de la carpeta. Consultá los [requisitos de Linux](docs/linux.md) y la [información sobre alertas de Windows](docs/windows-downloads.md) si necesitás comprobar la compatibilidad de tu equipo.
 
 Para comenzar un cálculo, buscá una herramienta, completá sus entradas y presioná **Calcular**. **F1** abre la ayuda de la herramienta activa. La [guía de primeros pasos](docs/getting-started.md) recorre este flujo con un ejemplo.
 
