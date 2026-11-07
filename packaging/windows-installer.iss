@@ -15,6 +15,8 @@
 AppId={#InstallerAppId}
 AppName=SignalLab PC
 AppVersion={#AppVersion}
+VersionInfoVersion={#AppVersion}.0
+SetupMutex=Local\SignalLabPC.Setup.91B68A45917044B7B40BA171BDE5938D
 AppPublisher=SignalLab PC
 AppPublisherURL=https://github.com/Tincho1286/SignalLab-PC
 AppUpdatesURL=https://github.com/Tincho1286/SignalLab-PC/releases
@@ -67,6 +69,7 @@ function CloseHandle(Handle: THandle): Integer;
 
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 var Pid: Integer; Process: THandle; WaitResult: LongWord;
+    OldMS, OldLS, NewMS, NewLS: Cardinal;
 begin
   Result := '';
   Pid := StrToIntDef(ExpandConstant('{param:SIGNALLABPARENTPID|0}'), 0);
@@ -76,9 +79,16 @@ begin
       WaitResult := WaitForSingleObject(Process, 120000);
       CloseHandle(Process);
       if WaitResult <> 0 then
+      begin
         Result := 'SignalLab sigue abierto. Cerralo antes de instalar la actualización.';
+        Exit;
+      end;
     end;
   end;
+  if GetVersionNumbers(ExpandConstant('{app}\SignalLab-PC.exe'), OldMS, OldLS) and
+     GetVersionNumbers(ExpandConstant('{srcexe}'), NewMS, NewLS) then
+    if (OldMS > NewMS) or ((OldMS = NewMS) and (OldLS > NewLS)) then
+      Result := 'Ya hay una versión más nueva instalada. Este instalador no la reemplazará.';
 end;
 
 function LaunchAllowed: Boolean;

@@ -72,8 +72,12 @@ def installed(*, executable=None, frozen=None):
 def start_update(asset, path, installation, *, launch=subprocess.Popen):
     if installation is None or asset.platform != installation.platform:
         raise UpdateError('La instalación automática sólo está disponible en la edición instalada correspondiente.')
-    if version_tuple(asset.version) <= version_tuple(installation.version):
-        raise UpdateError('No se instalará una versión igual o anterior como actualización.')
+    current_executable = installation.root / ('SignalLab-PC.exe' if installation.platform == 'windows-x86_64' else 'current/SignalLab-PC')
+    current = installed(executable=current_executable, frozen=True)
+    if current is None or current.root != installation.root or current.platform != installation.platform:
+        raise UpdateError('La instalación cambió desde que se abrió SignalLab. Revisá su carpeta antes de actualizar.')
+    if version_tuple(asset.version) <= version_tuple(current.version):
+        raise UpdateError('Ya hay una versión igual o más nueva instalada. No se reemplazará por esta descarga.')
     verify_file(path, asset)
     if installation.platform == 'windows-x86_64':
         command = [str(path), '/SP-', '/SILENT', '/NORESTART', '/NOCLOSEAPPLICATIONS',

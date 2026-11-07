@@ -50,9 +50,15 @@ def main():
         subprocess.run([str(real / 'SignalLab-PC.exe'), '--self-check', str(packaged)], check=True, timeout=180)
         proof = json.loads(packaged.read_text()); assert proof['ok'] and proof['frozen'] and all(proof['checks'].values())
         assert proof['checks']['packaged_update_verification']
+        before = (real / 'SignalLab-PC.exe').read_bytes()
+        older = subprocess.run([str(args.iscc), '/DAppVersion=0.0.1', '/DPayloadDir=' + str(payload),
+            '/DOutputDir=' + str(work), str(ROOT / 'packaging/windows-installer.iss')], capture_output=True, text=True)
+        if older.returncode: raise RuntimeError(older.stdout + older.stderr)
+        rejected = subprocess.run([str(work / 'SignalLab-PC-0.0.1-setup.exe'), '/VERYSILENT', '/SP-', '/SUPPRESSMSGBOXES', '/NORESTART', '/NOLAUNCH', '/DIR=' + str(real)], timeout=90)
+        assert rejected.returncode != 0 and (real / 'SignalLab-PC.exe').read_bytes() == before
         subprocess.run([str(real / 'unins000.exe'), '/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART'], check=True, timeout=120)
     output = ROOT / 'work/installer-contract-windows.json'; output.parent.mkdir(exist_ok=True)
-    output.write_text(json.dumps(dict(passed=True, checks=['native_upgrade_same_installation', 'per_user_registration', 'uninstall_preserves_untracked_files', 'real_installed_application_self_check'], packaged=proof), indent=2))
+    output.write_text(json.dumps(dict(passed=True, checks=['native_upgrade_same_installation', 'per_user_registration', 'uninstall_preserves_untracked_files', 'real_installed_application_self_check', 'native_downgrade_rejected'], packaged=proof), indent=2))
     print('Native Windows installer: PASS')
 
 

@@ -130,6 +130,14 @@ class UpdateContracts(unittest.TestCase):
             context = Installation(Path('unused'), 'windows-x86_64', version, Path('unused'))
             with self.assertRaises(UpdateError): start_update(asset, 'unused', context, launch=launch)
         launch.assert_not_called()
+        with tempfile.TemporaryDirectory() as folder:
+            root=Path(folder);exe=root/'SignalLab-PC.exe';exe.write_bytes(b'current')
+            marker=root/MARKER;marker.write_text(json.dumps(receipt('1.0.0','windows-x86_64','windows-user-v1')))
+            context=installed(executable=exe,frozen=True)
+            marker.write_text(json.dumps(receipt('3.0.0','windows-x86_64','windows-user-v1')))
+            candidate=root/asset.name;candidate.write_bytes(self.data)
+            with self.assertRaises(UpdateError):start_update(asset,candidate,context,launch=launch)
+        launch.assert_not_called()
 
     def test_cache_cleanup_only_removes_registered_obsolete_update_files(self):
         from signallab_pc.update_cache import prune, MARKER
