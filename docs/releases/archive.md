@@ -1,21 +1,24 @@
-# Archivo histórico de SignalLab PC
+# SignalLab PC · Archivo histórico
 
-Respaldo de las primeras etapas de SignalLab PC y sus ejecutables originales.
+Este archivo conserva las primeras etapas de SignalLab PC y sus ejecutables originales. Es un respaldo de consulta; para el uso habitual corresponde elegir la última versión estable.
 
-## Novedades
+## Contenido del respaldo
 
-- 112 ejecutables distintos reunidos en un archivo TAR.ZST de aproximadamente 222 MiB.
-- Primer portable v0.1.0 y su respaldo de código fuente disponibles como adjuntos separados.
-- Manifiesto con versiones, rutas relativas, tamaños y hashes SHA-256 para identificar los archivos.
-- Guía de recuperación y verificación incluida con el archivo histórico.
+El TAR.ZST reúne 112 ejecutables distintos y ocupa aproximadamente 222 MiB. La primera versión portable v0.1.0 y su código fuente se ofrecen también como adjuntos separados. Un manifiesto identifica versiones, rutas, tamaños y hashes SHA-256; la guía incluida explica cómo recuperar y verificar los archivos.
 
-## Alcance
+## Interpretación histórica
 
-- Archivo de consulta histórica. Para empezar a usar la aplicación se recomienda la última versión estable.
-- Las primeras entregas pueden tener funciones incompletas o interfaces diferentes.
+Las interfaces y funciones de esas entregas corresponden a su momento de desarrollo y pueden estar incompletas. El archivo permite consultarlas sin confundirlas con las capacidades documentadas para las versiones actuales.
 
-## Descarga
+## Descargas de esta entrega
 
-[Abrir esta versión en GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases/tag/archivo-historico-2026-10-28). Los ejecutables Windows y sus checksums están en los adjuntos.
+Esta entrega dispone de los siguientes archivos originales. Para comenzar una instalación actual, consultá la [última estable](https://github.com/Tincho1286/SignalLab-PC/releases/latest).
 
-[Documentación actual](https://github.com/Tincho1286/SignalLab-PC/blob/main/docs/README.md) · [Historial de cambios](https://github.com/Tincho1286/SignalLab-PC/blob/main/CHANGELOG.md)
+- [Archivo de ejecutables históricos](https://github.com/Tincho1286/SignalLab-PC/releases/download/archivo-historico-2026-10-28/SignalLab-PC-historico-2026-10-28.tar.zst).
+- [Manifiesto de versiones](https://github.com/Tincho1286/SignalLab-PC/releases/download/archivo-historico-2026-10-28/SignalLab-PC-historico-2026-10-28.json).
+- [Guía de recuperación](https://github.com/Tincho1286/SignalLab-PC/releases/download/archivo-historico-2026-10-28/RECUPERAR_HISTORICOS.md).
+- [Primera versión portable](https://github.com/Tincho1286/SignalLab-PC/releases/download/archivo-historico-2026-10-28/SignalLab-PC-v0.1.0.exe).
+- [Código fuente de la primera versión](https://github.com/Tincho1286/SignalLab-PC/releases/download/archivo-historico-2026-10-28/SignalLab-PC-v0.1.0-source.zip).
+- [Checksums](https://github.com/Tincho1286/SignalLab-PC/releases/download/archivo-historico-2026-10-28/SHA256SUMS-historicos.txt).
+
+[Historial de versiones](README.md) · [Documentación actual](../README.md)

@@ -4,33 +4,35 @@
 
 ## Abrir el laboratorio
 
-En la [última versión estable](https://github.com/Tincho1286/SignalLab-PC/releases/latest), elegí el `.exe` para Windows o el `.tar.gz` para Linux x86_64. En Windows abrí el ejecutable; en Linux descomprimí y ejecutá `SignalLab-PC` dentro de la carpeta. [Instrucciones y compatibilidad de Linux](linux.md). No hace falta instalar Python. Los archivos de datos y resultados se guardan en la ubicación que elijas al exportarlos.
+Descargá la [versión estable](https://github.com/Tincho1286/SignalLab-PC/releases/latest) en formato instalable o portable. Ambos incluyen Python; la [guía de instalación](installation.md) explica qué archivo elegir y cómo abrirlo en Windows o Linux. Una vez en la aplicación, podés trabajar directamente en cualquier herramienta.
 
 ## Resolver un problema
 
-1. Elegí el área desde el explorador o buscá una operación con **Ctrl+K**.
-2. Completá las entradas de esa herramienta. Las señales pueden definirse por fórmula, tramos, muestras, archivo o resultado compatible, según la operación.
+1. Elegí una operación desde el explorador o buscala con **Ctrl+K**.
+2. Completá sus entradas. Según la operación, podés usar fórmulas, tramos, muestras, archivos o resultados compatibles.
 3. Presioná **Calcular** o **Ctrl+Enter**.
-4. Consultá el informe, la tabla y las figuras. Los gráficos se abren en ventanas independientes para aprovechar la pantalla.
-5. Exportá la salida o elegí **Usar señal en…**, **Usar filtro en…** o el menú de reutilización que corresponda para continuar el análisis.
+4. Leé el informe y sus condiciones. Abrí la tabla o el gráfico desde las acciones del área de resultados.
+5. Exportá la salida o elegí **Usar señal en…**, **Usar filtro en…** o el destino compatible para continuar.
 
-Cada herramienta conserva sus parámetros. No hace falta crear una señal global para comenzar. Si una operación usa dos señales, cada entrada tiene su fórmula, archivo, origen y resultado de referencia.
+Cada herramienta conserva sus parámetros. Cuando hay dos operandos, cada uno tiene sus propios datos: por ejemplo, podés multiplicar una señal importada por una ventana calculada sin convertirlas primero en una única señal de proyecto.
 
-## Un primer ejemplo: una ventana
+## Ejemplo: generar y estudiar una ventana
 
-En **Señales → Crear una señal**, elegí **Ventana**, seleccioná Hann y fijá **L=17**. Al centrarla, los índices son −8,…,8. Calculá para obtener el gráfico de tallos, sus valores y el informe. Desde el resultado podés estudiar su Fourier o su Z.
+En **Señales → Crear una señal**, elegí **Ventana**, seleccioná Hann y fijá una longitud **L=17**. Al centrarla alrededor de cero, los índices van de −8 a 8. Calculá para obtener las 17 muestras, el informe y el gráfico discreto de tallos.
 
-L indica el número total de muestras. Cambiar el origen desplaza la señal y cambia su fase; no modifica los valores generados.
+Desde las acciones del resultado podés enviar la ventana a Fourier o a Transformada Z, o exportarla en JSON/CSV. L es la cantidad total de muestras; para un FIR de esa longitud, el orden nominal es M=L−1. Cambiar el origen desplaza la secuencia y modifica su fase, aunque conserve los valores de la ventana.
 
-## Resultados y edición
+## Continuar con un resultado
 
-La biblioteca **Resultados** guarda las salidas calculadas: señales, sistemas, expresiones y otros datos compatibles. Editar una entrada marca la salida anterior como desactualizada; no cambia sus datos hasta recalcular. La exportación y la reutilización toman ese último resultado calculado.
+La biblioteca **Resultados** conserva las salidas calculadas y su procedencia. Una señal, una transferencia y una expresión simbólica tienen distintos destinos posibles; el menú de reutilización ofrece los compatibles con el objeto elegido. La [guía de formatos](file-formats.md) explica qué información acompaña a cada uno.
 
-La calculadora **CAS** permite continuar operaciones simbólicas. Las expresiones conservan sus variables y condiciones; un registro numérico se representa como datos, sin inventar una fórmula infinita.
+Al editar una entrada, el resultado anterior queda marcado como desactualizado hasta volver a calcular. Su registro original permanece disponible; la exportación toma el resultado calculado, no una interpretación anticipada de los campos que estés editando.
 
-## Elegir la apariencia
+Para continuar el álgebra, enviá la expresión al **CAS**. Allí podés simplificarla, sustituir valores o resolver ecuaciones conservando las condiciones registradas. Una tabla de muestras se utiliza como datos; no se convierte por sí sola en una fórmula para todos los índices.
 
-En **Vista → Tema** podés elegir Azul marino, Grafito, Bosque o Berenjena. El cambio se aplica a las ventanas y resultados abiertos, y se conserva para el próximo inicio. La [guía de apariencia](appearance.md) explica su alcance.
+## Ayuda y apariencia
+
+Presioná **F1** para consultar la explicación de la herramienta activa. En **Vista → Tema** podés elegir una paleta oscura o clara, o configurar una imagen de fondo. La elección se conserva al reiniciar; la [guía de apariencia](appearance.md) describe las opciones de intensidad y transparencia.
 
 ## Atajos
 
@@ -42,6 +44,6 @@ En **Vista → Tema** podés elegir Azul marino, Grafito, Bosque o Berenjena. El
 | Evaluar en CAS | Enter |
 | Nueva línea en CAS | Shift+Enter |
 
-## Elegir una versión
+## Guardar el trabajo y actualizar
 
-Usá la estable para el trabajo habitual. Las preliminares permiten explorar funciones nuevas; sus notas detallan el alcance disponible. Para describir un problema, indicá la versión que aparece en el título o en **Ayuda → Acerca de SignalLab**.
+Exportá los resultados o informes que quieras conservar antes de cerrar o actualizar. La configuración persiste, pero la sesión completa de resultados no se recupera automáticamente al reiniciar. La edición instalada incorpora **Ayuda → Buscar actualizaciones**; las [notas de versiones](releases/README.md) explican qué cambia en cada entrega.

@@ -29,9 +29,9 @@ La simplificación de una transferencia no demuestra estabilidad interna de una 
 
 L es la cantidad total de coeficientes y M=L−1 el orden nominal. El centrado del ideal causal usa D=(L−1)/2. Las ventanas de generación son simétricas; con longitud par el centro geométrico puede ser semientero aunque los índices sigan siendo enteros.
 
-Se usa sinc(x)=sin(πx)/(πx), con sinc(0)=1. Desde 1.2, la capa matemática extiende singularidades removibles cuando demuestra límites laterales finitos e iguales; los polos y las divergencias no reciben valores arbitrarios.
+Se usa sinc(x)=sin(πx)/(πx), con sinc(0)=1. La capa matemática extiende singularidades removibles cuando demuestra límites laterales finitos e iguales; los polos y las divergencias no reciben valores arbitrarios.
 
-## Tolerancias por banda en 1.2
+## Tolerancias por banda
 
 Para una amplitud de paso A, las tolerancias absolutas definen [A−δp,A+δp], las relativas [A(1−δp),A(1+δp)] y el rizado ±rp dB define [A·10^(−rp/20),A·10^(rp/20)].
 

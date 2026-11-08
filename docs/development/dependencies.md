@@ -2,18 +2,20 @@
 
 [← Desarrollo](README.md)
 
-El entorno se dirige a Python 3.12 de 64 bits. `pyproject.toml`, `requirements.txt` y `requirements-lock.txt` registran las dependencias del proyecto y del entorno de distribución.
+El entorno de desarrollo y construcción utiliza Python 3.12 de 64 bits. Las versiones directas se declaran en `pyproject.toml`; `requirements-lock.txt` fija las dependencias del entorno de distribución y `requirements-quality.txt` las herramientas de comprobación. Los instaladores y portables incluyen su propio entorno de ejecución.
 
-| Componente | Función |
+| Componente | Función en el proyecto |
 | --- | --- |
-| PySide6 | Interfaz de escritorio, recursos SVG y documentos. |
+| PySide6 | Interfaz de escritorio, documentos y recursos SVG. |
 | NumPy | Muestras complejas, arreglos y operaciones numéricas. |
-| SciPy | Procesamiento de señales, diseño de filtros y sistemas. |
+| SciPy | Procesamiento de señales, diseño de filtros y análisis de sistemas. |
 | SymPy | Álgebra, cálculo simbólico y expresiones exactas. |
 | Matplotlib | Figuras científicas interactivas. |
 | h5py | Lectura de datos HDF5 utilizados por formatos MATLAB compatibles. |
-| PyInstaller | Empaquetado del portable Windows. |
+| cryptography | Verificación y creación de firmas Ed25519 del manifiesto de actualización. |
+| PyInstaller | Empaquetado nativo de la aplicación en Windows y Linux. |
+| Inno Setup | Construcción del instalador Windows por usuario. |
 
-La aplicación se publica bajo [GPL-3.0-or-later](../../LICENSE). Las dependencias mantienen sus propias licencias; sus avisos están en [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md) y `LICENSES/`.
+La aplicación se publica bajo [GPL-3.0-or-later](../../LICENSE). Cada dependencia conserva su licencia y sus avisos: se registran en [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md) y `LICENSES/`, y el paquete Linux incluye además los avisos recogidos de su entorno de construcción.
 
-Para conocer las versiones fijadas, consultá [pyproject.toml](../../pyproject.toml) y [requirements-lock.txt](../../requirements-lock.txt). Los cambios de dependencias se documentan junto con sus efectos en cálculo, formatos y distribución.
+Los archivos de procedencia identifican el código y el entorno utilizados para generar cada distribución. Al cambiar una dependencia, deben revisarse sus efectos sobre cálculo, formatos, compatibilidad y licencias, además de actualizar los archivos de versiones fijadas. [Compilar y publicar](releases.md).

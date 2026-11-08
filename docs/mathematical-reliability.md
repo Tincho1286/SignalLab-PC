@@ -40,7 +40,7 @@ La generación de ventanas, el enventanado de h[n] y la estimación espectral ut
 
 ## Control antes de construir un portable
 
-Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` antes de empaquetar. Si falla, la construcción se detiene. El contrato `mathematical-families-v2` contiene 92 pruebas con variantes, agrupadas por familia y con un grupo adicional de propiedades de transformadas. Cada grupo exige una cantidad mínima de casos y no admite omisiones silenciosas:
+Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` antes de empaquetar. Si falla, la construcción se detiene. El contrato `mathematical-families-v2` agrupa pruebas con variantes por familia e incluye un grupo adicional de propiedades de transformadas. Cada grupo exige una cantidad mínima de casos y no admite omisiones silenciosas:
 
 | Familia | Referencias principales |
 |---|---|
@@ -55,7 +55,9 @@ Los constructores oficiales de Windows y Linux ejecutan `tools/check_math.py` an
 | Muestreo y precisión | Alias angular, interpolación sinc, redondeo y saturación en punto fijo |
 | Señales aleatorias | Media compleja, potencia, varianza y autocovarianza con divisores N y N−|k| |
 
-El registro distingue el resultado de cada familia, además del resultado global. El retardo de grupo completa los límites de factores comunes exactos del mismo orden y conserva la indefinición en ceros y polos genuinos; no realiza cancelaciones por tolerancia. Las comprobaciones de Fourier continuo sobre registros se refieren a la cuadratura o interpolación declarada, no a una transformada exacta de una función desconocida entre las muestras.
+El registro distingue el resultado de cada familia, además del resultado global.
+
+El retardo de grupo completa los límites de factores comunes exactos del mismo orden y conserva la indefinición en ceros y polos genuinos; no realiza cancelaciones por tolerancia. Las comprobaciones de Fourier continuo sobre registros se refieren a la cuadratura o interpolación declarada, no a una transformada exacta de una función desconocida entre las muestras.
 
 Las referencias se expresan mediante fórmulas conocidas y valores de borde; las comprobaciones de ida y vuelta son complementarias. GitHub ejecuta el mismo control en Windows y Linux al cambiar el código matemático y en las propuestas de cambios. La procedencia de cada portable registra el resultado y las versiones de las dependencias.
 
@@ -85,7 +87,7 @@ Un barrido satisfactorio amplía la evidencia para los casos explorados. No conv
 
 ## Contratos de reutilización entre herramientas
 
-Una transformación correcta no basta para comprobar el destino que recibe su resultado. Los constructores oficiales ejecutan también `tools/check_workflows.py`, con un proceso Qt aislado y sin modificar las preferencias del usuario. Los catorce recorridos comprueban los botones reales de Transformada Z y Análisis de sistemas, la biblioteca de resultados, Cargar sistema, H(s) general, exportación/apertura de una definición y conservación del modelo racional. También comprueban sinc bilateral sin anillo abierto de ROC, reutilización de su DTFT como respuesta del sistema y apertura/reapertura de la figura desde el botón Graficar resultado. Las excepciones de las acciones Qt cuentan como fallos.
+Una transformación correcta no basta para comprobar el destino que recibe su resultado. Los constructores oficiales ejecutan también `tools/check_workflows.py`, con un proceso Qt aislado y sin modificar las preferencias del usuario. Los recorridos comprueban los botones reales de Transformada Z y Análisis de sistemas, la biblioteca de resultados, Cargar sistema, H(s) general, exportación/apertura de una definición y conservación del modelo racional. También comprueban sinc bilateral sin anillo abierto de ROC, reutilización de su DTFT como respuesta del sistema y apertura/reapertura de la figura desde el botón Graficar resultado. Las excepciones de las acciones Qt cuentan como fallos.
 
 Una expresión con logaritmos, exponenciales o funciones especiales no se convierte a un cociente de polinomios. Análisis de sistemas conserva su fórmula y obtiene su respuesta en frecuencia. Si procede de una Z directa, se comprueba la coincidencia de la fórmula con el resultado de origen antes de utilizar la secuencia y su soporte para Fourier. Una edición invalida ese contexto. Los controles de polos/ceros y realización finita permanecen asociados a modelos racionales; los resultados por expresión conservan sus propias acciones de exportación y reutilización.
 

@@ -1,85 +1,54 @@
 # Instalación y actualizaciones
 
-[← Documentación](README.md)
+[← Documentación](README.md) · [Elegir un formato](installation.md)
 
-SignalLab PC puede distribuirse como portable y como aplicación instalada. Ambas ediciones incluyen Python y las dependencias necesarias; no requieren una instalación separada de Python. La disponibilidad de cada formato se comprueba en los adjuntos de [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases).
+Desde la versión 1.8.0, SignalLab PC ofrece ediciones instalables para Windows x64 y Linux x86_64, además de los portables. La edición instalada registra accesos y permite incorporar nuevas versiones desde la aplicación. Ambas utilizan los mismos motores de cálculo y contienen Python y sus dependencias.
 
-## Windows x64
+## Ubicación de la instalación
 
-El archivo `SignalLab-PC-VERSION-setup.exe` instala el programa para el usuario actual, por defecto en `%LOCALAPPDATA%\Programs\SignalLab PC`. Crea accesos en el menú Inicio y un registro de desinstalación. El acceso del escritorio es opcional.
+En Windows, el instalador trabaja para el usuario actual y utiliza por defecto `%LOCALAPPDATA%\Programs\SignalLab PC`. Las siguientes entregas conservan la identidad de instalación y reemplazan los archivos del programa en esa carpeta. Los accesos y el registro de desinstalación se mantienen entre versiones.
 
-Las entregas siguientes conservan la identidad de instalación y reemplazan los archivos del programa en la misma carpeta. No es necesario desinstalar antes. La configuración de SignalLab y los documentos del usuario permanecen fuera de los archivos administrados por el instalador.
+En Linux, la ubicación predeterminada es `~/.local/share/SignalLab-PC/`, con un lanzador en `~/.local/bin/signallab-pc` y una entrada del menú en `~/.local/share/applications/org.signallab.PC.desktop`. Se respetan los directorios XDG configurados para datos y menú. La instalación no requiere `sudo`; sus requisitos gráficos y de glibc son los del [portable Linux](linux.md).
 
-El instalador no obtiene automáticamente una firma Authenticode reconocida por Windows. El Control inteligente de aplicaciones puede bloquear una instalación inicial sin suficiente confianza. La firma propia del actualizador descrita más abajo protege las descargas de actualización, pero no sustituye la firma del publicador ante Windows. [Firma y reputación](windows-downloads.md).
+## Buscar una versión nueva
 
-## Linux x86_64
+Abrí **Ayuda → Buscar actualizaciones** para consultar el canal estable. En una instalación también podés dejar activada la comprobación al iniciar; esa consulta solo avisa cuando hay una nueva versión. No descarga ni instala automáticamente y se puede desactivar desde el mismo diálogo.
 
-El archivo `SignalLab-PC-VERSION-linux-x86_64.run` abre un instalador para el usuario actual. Se puede iniciar desde una terminal:
+La edición portable permite consultar las versiones y abrir las descargas oficiales. Su archivo no se reemplaza mediante la instalación automática; si elegís otro portable, seguís utilizando el formato independiente.
 
-```sh
-sh ./SignalLab-PC-VERSION-linux-x86_64.run
-```
+## Descargar, instalar y reiniciar
 
-Reemplazá `VERSION` por el número del archivo descargado. No requiere `sudo`. Conserva los mismos requisitos de bibliotecas gráficas y compatibilidad del [portable Linux](linux.md).
+1. Elegí **Descargar actualización** cuando aparezca una versión estable compatible.
+2. Continuá trabajando mientras se obtiene el instalador completo y se verifica su integridad.
+3. Guardá o exportá los resultados de la sesión que quieras conservar.
+4. Elegí **Instalar y reiniciar** cuando hayan terminado los cálculos y confirmá el cierre de la aplicación.
 
-La instalación predeterminada utiliza:
+La nueva versión se instala sobre la existente y vuelve a abrir SignalLab. Los temas y la configuración persisten; los resultados sin guardar no se recuperan automáticamente como una sesión completa. Un fallo de conexión o de verificación deja disponible la instalación anterior y se informa en el diálogo.
 
-- `~/.local/share/SignalLab-PC/`: archivos y versiones del programa.
-- `~/.local/bin/signallab-pc`: acceso al ejecutable activo.
-- `~/.local/share/applications/org.signallab.PC.desktop`: entrada del menú de aplicaciones.
+En Linux, los archivos nuevos se preparan antes de cambiar la versión activa. Se conserva la activa y una anterior, y se eliminan las versiones administradas más antiguas después de una actualización correcta. Si falla la activación, se restaura la versión previa.
 
-Se respetan los directorios XDG configurados para los datos y el menú. El programa conserva la versión activa y una anterior; las versiones administradas más antiguas se eliminan después de una actualización correcta. Una instalación nueva se prepara por completo antes de cambiar el enlace activo. Si falla esa activación, se conserva la versión anterior.
+## Qué verifica el actualizador
 
-La acción **Desinstalar SignalLab PC** del acceso del menú, o el siguiente comando para la instalación predeterminada, abre el desinstalador:
+La aplicación incorpora una clave pública Ed25519 para verificar `SignalLab-updates.json`. Ese manifiesto firmado identifica la versión, las direcciones oficiales de los instaladores, sus tamaños, sus hashes SHA-256 y una fecha de expiración. La clave privada se utiliza localmente al preparar la entrega y permanece fuera del repositorio.
+
+El actualizador rechaza firmas ajenas, manifiestos vencidos, archivos alterados o incompletos y paquetes incompatibles. Comprueba de nuevo la integridad antes de ejecutar el instalador y evita reemplazar una instalación por una versión anterior, incluso si quedó abierta una ventana de una versión antigua.
+
+Esta verificación es distinta de Authenticode. **Los ejecutables Windows siguen sin una firma de publicador reconocida por el sistema** y pueden ser bloqueados en la primera instalación. El formato instalable y la firma Ed25519 del canal no eliminan ese bloqueo. [Firma y alertas de Windows](windows-downloads.md).
+
+## Red y privacidad
+
+Las consultas y descargas utilizan GitHub. Se envía la solicitud de red correspondiente, con la versión de la aplicación; no se transmiten señales, fórmulas, documentos ni resultados. La [política de privacidad](privacy.md) detalla el funcionamiento local y los servicios externos utilizados.
+
+## Desinstalar
+
+En Windows, usá la opción de desinstalación del sistema. En Linux, elegí **Desinstalar SignalLab PC** desde el acceso del menú. Para la ruta predeterminada también podés ejecutar:
 
 ```sh
 ~/.local/bin/signallab-pc --install-linux --uninstall
 ```
 
-La desinstalación quita los archivos administrados y los accesos del programa. Conserva los temas, la configuración y los documentos. Los archivos desconocidos que el usuario haya agregado en la raíz de instalación se conservan.
-
-## Buscar e instalar una actualización
-
-En las ediciones que incorporan el actualizador, abrí **Ayuda → Buscar actualizaciones**. La edición instalada también puede comprobar novedades al iniciar; esa opción se puede desactivar en el mismo diálogo. La comprobación en segundo plano no descarga ni instala por sí sola.
-
-Cuando hay una versión estable compatible:
-
-1. **Descargar actualización** obtiene el instalador y comprueba su autenticidad e integridad.
-2. La descarga queda preparada mientras continuás trabajando.
-3. **Instalar y reiniciar** pide confirmación, espera que terminen los cálculos y cierra SignalLab para actualizarlo.
-
-Antes de confirmar, guardá o exportá los resultados que quieras conservar. La configuración persiste entre versiones, pero una sesión con resultados sin guardar no se recupera automáticamente al reiniciar.
-
-La edición portable conserva su funcionamiento independiente. Puede consultar las novedades y abrir la descarga oficial, pero no se convierte ni se instala automáticamente.
-
-## Cómo se verifica una actualización
-
-Cada entrega instalada utiliza un manifiesto `SignalLab-updates.json` con firmas Ed25519. La aplicación conserva la clave pública necesaria para verificarlo. El manifiesto identifica la versión, los dos instaladores, sus tamaños y sus checksums SHA-256. También contiene una fecha de expiración.
-
-El actualizador acepta únicamente instaladores de la versión indicada en el repositorio oficial y rechaza firmas ajenas, descargas incompletas, contenidos modificados, plataformas incompatibles y retrocesos de versión. La integridad vuelve a comprobarse antes de iniciar el instalador.
-
-El programa consulta metadatos públicos de GitHub. No envía señales, fórmulas, documentos ni resultados. GitHub recibe la solicitud de red correspondiente; la comprobación inicial se puede desactivar. [Privacidad](privacy.md).
+La desinstalación retira los archivos y accesos administrados por SignalLab. Conserva la configuración y los documentos del usuario; también conserva archivos desconocidos agregados en la raíz de instalación.
 
 ## Construcción y publicación
 
-El flujo existente de portables construye además los instaladores y verifica su instalación en Windows y Linux nativos. Sus artefactos conservan los informes de construcción e integridad. La creación de un artefacto de GitHub Actions no publica una nueva versión descargable.
-
-La firma de actualizaciones se realiza **localmente**. La clave privada permanece fuera del repositorio y no se sube a GitHub. Se debe conservar una copia de seguridad protegida; las instalaciones existentes dependen de esa identidad. No se genera otra clave para cada versión.
-
-Después de descargar los instaladores y sus comprobantes `installer-windows.json` e `installer-linux.json` del mismo commit, se crea el manifiesto:
-
-```powershell
-.\.venv\Scripts\python.exe -B tools\update_signing.py sign `
-  --version VERSION `
-  --private-key RUTA_PROTEGIDA\private.pem `
-  --installer RUTA_WINDOWS\SignalLab-PC-VERSION-setup.exe `
-  --installer RUTA_LINUX\SignalLab-PC-VERSION-linux-x86_64.run `
-  --notes docs\releases\vVERSION.md `
-  --output outputs\SignalLab-updates.json
-```
-
-El firmador comprueba la correspondencia entre versión, código, clave pública e instaladores. El manifiesto se publica junto con ambos instaladores, los portables, las fuentes, las licencias y sus checksums. Se utiliza una versión y una etiqueta correspondientes al commit de construcción; no se reemplazan silenciosamente los archivos de una entrega anterior.
-
-La descarga del canal estable usa `releases/latest/download/SignalLab-updates.json`. Las preliminares no reemplazan ese canal. El manifiesto vence a los 90 días por defecto: si se necesita renovar su vigencia, hay que verificar los instaladores y volver a firmarlo localmente. No se acepta un manifiesto vencido como una actualización válida.
-
-[Compilar y publicar](development/releases.md) · [Política de firma](code-signing.md)
+Las instrucciones para crear los instaladores y firmar el manifiesto están en [Compilar y publicar](development/releases.md) y [Verificación y firma de las distribuciones](development/signing.md). Los artefactos temporales de una construcción no se convierten en una release hasta completar su publicación.

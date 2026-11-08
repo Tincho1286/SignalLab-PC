@@ -6,104 +6,95 @@
   <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.8.0" src="https://img.shields.io/badge/estable-1.8.0-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
   <img alt="Instaladores y portables para Windows y Linux" src="https://img.shields.io/badge/Windows%20%2B%20Linux-instaladores%20y%20portables-8ab6df?style=flat-square&amp;labelColor=172632">
-  <img alt="Desarrollado con Python" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
+  <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
 </p>
 
 <p align="center">
   <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><strong>Descargar</strong></a> ·
-  <a href="docs/README.md">Documentación</a> ·
+  <a href="docs/getting-started.md">Primeros pasos</a> ·
   <a href="docs/tools.md">Herramientas</a> ·
-  <a href="CHANGELOG.md">Novedades</a> ·
+  <a href="docs/releases/README.md">Novedades</a> ·
   <a href="https://github.com/Tincho1286/SignalLab-PC/issues">Informar un problema</a>
 </p>
 
 # SignalLab PC
 
-SignalLab PC es un laboratorio de escritorio para estudiar **señales, sistemas y procesamiento digital** mediante cálculos numéricos y simbólicos. Permite definir señales, analizar sistemas y diseñar filtros para explorar su comportamiento en el tiempo, la frecuencia y los planos de Laplace y Z.
+SignalLab PC es un laboratorio de escritorio para estudiar **señales, sistemas y procesamiento digital**. Combina cálculo simbólico, simulación numérica y gráficos para relacionar una definición matemática con su comportamiento en el tiempo, la frecuencia y los planos de Laplace y Z. Está orientado al aprendizaje de Sistemas y Señales I/II y al análisis de problemas de laboratorio; también incorpora herramientas de señales aleatorias.
 
-Cada herramienta admite sus propios datos de entrada. Los resultados calculados se reúnen en una biblioteca desde la que podés consultarlos, exportarlos o utilizarlos en otra operación. Así, un mismo análisis puede continuar en distintas herramientas sin volver a cargar sus datos.
+Cada herramienta tiene sus propias entradas y puede utilizarse de manera independiente. Después de calcular, la biblioteca **Resultados** permite consultar la salida, exportarla o enviarla a otra operación compatible. Este recorrido evita volver a escribir una señal, un filtro o una expresión cuando el análisis continúa en otra herramienta.
 
-## Qué podés hacer
+## Descargar
 
-| Área | Herramientas |
+La versión estable **1.8.0** está disponible para Windows x64 y Linux x86_64. Los cuatro paquetes incluyen Python y las dependencias de la aplicación; no hace falta instalar Python por separado.
+
+| Formato | Cuándo elegirlo | Windows x64 | Linux x86_64 |
+| --- | --- | --- | --- |
+| **Instalable** | Para tener accesos en el sistema y actualizar desde la aplicación. | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0-setup.exe) | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0-linux-x86_64.run) |
+| **Portable** | Para ejecutar la aplicación desde una carpeta, sin registrar una instalación. | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0.exe) | [Paquete .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0-linux-x86_64.tar.gz) |
+
+En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh ./SignalLab-PC-1.8.0-linux-x86_64.run`; el portable se descomprime para ejecutar `SignalLab-PC` dentro de su carpeta. La [guía de instalación](docs/installation.md) explica ambos recorridos y enlaza los requisitos y las posibles alertas del sistema.
+
+### Actualizar una instalación
+
+La edición instalada ofrece **Ayuda → Buscar actualizaciones**. Podés consultar las novedades, descargar la versión nueva y elegir cuándo instalar y reiniciar, sin desinstalar antes. Los temas y la configuración se conservan; los resultados de una sesión deben guardarse o exportarse antes del reinicio.
+
+La comprobación al iniciar se puede desactivar y no descarga ni instala por sí sola. El actualizador verifica la firma del manifiesto y la integridad del instalador antes de ejecutarlo. La [guía de actualizaciones](docs/installed-updates.md) explica este proceso y la diferencia entre esa verificación y la firma que reconoce Windows.
+
+## Herramientas disponibles
+
+| Área | Qué permite estudiar |
 | --- | --- |
-| **Señales** | Definición por fórmulas, tramos y muestras; ventanas, transformaciones, suma, producto, convolución y correlación. |
-| **Sistemas LTI** | Análisis de H(s) y H(z), respuesta temporal y en frecuencia, fase, retardo de grupo, polos y ceros, realizaciones y espacio de estados. |
-| **Diseño de filtros** | FIR e IIR por especificaciones, enventanado de h[n], ubicación de polos y ceros, ajuste de fase y conversión entre filtros analógicos y digitales. |
-| **Fourier y espectros** | DFT/FFT, DTFT, Fourier continua y sus inversas; series, densidad espectral, periodograma, Welch, Hilbert y STFT. |
-| **Muestreo y precisión** | Muestreo, aliasing, reconstrucción, conversión de tasa, cuantización y estudio de precisión numérica. |
-| **Laplace y Z** | Transformadas directas e inversas con condiciones de convergencia; ecuaciones diferenciales y en diferencias. |
-| **Señales aleatorias** | Generación de realizaciones, estadísticas, correlación, modelos AR/MA/ARMA y estimación AR por Yule–Walker. |
-| **Calculadora CAS** | Operaciones simbólicas con expresiones, ecuaciones y matrices; simplificación y manejo de supuestos. |
+| **Señales** | Definir fórmulas, tramos y muestras; generar ventanas; desplazar, invertir, sumar o multiplicar señales; calcular convolución, correlación, energía, potencia y RMS. |
+| **Sistemas LTI** | Analizar H(s) y H(z), respuestas temporales y en frecuencia, fase, retardo de grupo, polos y ceros; trabajar con conexiones, realizaciones y espacio de estados. |
+| **Filtros** | Diseñar FIR e IIR por bandas y tolerancias; enventanar una h[n] propia; ubicar polos y ceros; ajustar fase y convertir entre filtros analógicos y digitales. Los filtros ideales se pueden definir por tramos en frecuencia. |
+| **Fourier y espectros** | Calcular DFT/FFT, DTFT, Fourier continua e inversas disponibles; estudiar series, densidades espectrales, periodograma, Welch, Hilbert y STFT. |
+| **Muestreo y precisión** | Explorar muestreo, aliasing, reconstrucción, cambios de tasa, cuantización y efectos de la representación numérica en señales y filtros. |
+| **Laplace, Z y ecuaciones** | Obtener transformadas e inversas con sus condiciones; resolver ecuaciones diferenciales y en diferencias lineales con coeficientes constantes y condiciones iniciales. |
+| **Señales aleatorias** | Generar registros, estimar estadísticas y correlaciones, analizar modelos estacionarios AR/MA/ARMA y ajustar modelos AR mediante Yule–Walker. |
+| **Calculadora CAS** | Operar con expresiones, ecuaciones, matrices y supuestos; simplificar resultados y continuar cálculos simbólicos recibidos desde otras herramientas. |
 
-El [catálogo de herramientas](docs/tools.md) explica dónde encontrar cada operación. Las [convenciones matemáticas](docs/conventions.md) describen cómo se interpretan los índices, las frecuencias y las regiones de convergencia.
+El [catálogo de herramientas](docs/tools.md) describe las entradas y salidas de cada área. Las matrices de [Sistemas y Señales I/II](docs/scope/sys-i-ii.md) y [Señales Aleatorias](docs/scope/random-signals.md) distinguen las capacidades disponibles de los temas pendientes y de las restricciones de cada método.
 
-## Descargar y empezar
+## Cómo se trabaja
 
-Los instaladores y portables incluyen Python y las dependencias de la aplicación. La versión estable **1.8.0** está disponible para Windows x64 y Linux x86_64.
+Elegí una herramienta desde el explorador o buscala con **Ctrl+K**. Completá sus entradas y presioná **Calcular**; el resultado reúne el informe, las fórmulas y las opciones de tabla o gráfico que correspondan. **F1** abre la ayuda de la herramienta activa, con explicaciones de los parámetros y de la interpretación del cálculo.
 
-| Formato | Windows x64 | Linux x86_64 |
-| --- | --- | --- |
-| **Instalable con actualizaciones** | [Descargar instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0-setup.exe) | [Descargar instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0-linux-x86_64.run) |
-| **Portable** | [Descargar .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0.exe) | [Descargar .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0-linux-x86_64.tar.gz) |
+Las figuras se abren en ventanas independientes y las secuencias discretas se representan mediante tallos. Los cursores permiten consultar muestras y comparar dos posiciones sin modificar los datos calculados. La [guía de gráficos](docs/cursors.md) explica qué se mide en cada tipo de vista y cómo ajustar el alcance del plano de polos y ceros.
 
-La edición instalada permite buscar nuevas versiones desde **Ayuda → Buscar actualizaciones** y aplicarlas sin desinstalar previamente. Conserva los temas y la configuración, y pide guardar o exportar los resultados antes de reiniciar. La [guía de instalación y actualizaciones](docs/installed-updates.md) explica este proceso; las [notas de la 1.8.0](docs/releases/v1.8.0.md) describen su alcance.
+Para continuar un análisis, usá **Usar señal en…**, **Usar filtro en…** o la acción de reutilización disponible junto al resultado. La aplicación conserva el tipo de objeto y las condiciones registradas, y ofrece destinos compatibles. Por ejemplo, una ventana generada en Señales puede pasar a Fourier; un filtro diseñado puede analizarse en frecuencia o utilizarse en una respuesta temporal.
 
-En Windows, abrí el instalador o el portable que hayas elegido. En Linux, ejecutá el instalador con `sh ./SignalLab-PC-1.8.0-linux-x86_64.run`; para usar el portable, descomprimí su paquete y ejecutá `SignalLab-PC` dentro de la carpeta. Consultá los [requisitos de Linux](docs/linux.md) y la [información sobre alertas de Windows](docs/windows-downloads.md) si necesitás comprobar la compatibilidad de tu equipo.
+La biblioteca **Resultados** conserva las salidas durante el trabajo. Para guardarlas fuera de la sesión, exportá los objetos o informes que necesites. La [guía de formatos](docs/file-formats.md) explica JSON, CSV/TSV y los formatos MATLAB admitidos, así como los datos necesarios para conservar índices, unidades y frecuencia de muestreo.
 
-Para comenzar un cálculo, buscá una herramienta, completá sus entradas y presioná **Calcular**. **F1** abre la ayuda de la herramienta activa. La [guía de primeros pasos](docs/getting-started.md) recorre este flujo con un ejemplo.
+## Interpretar los cálculos
 
-## Trabajar con los resultados
+Los informes distinguen expresiones simbólicas, aproximaciones numéricas y operaciones pendientes. También conservan las condiciones que cambian el significado del resultado, como el soporte de una secuencia o su región de convergencia. Una fórmula y una tabla finita no representan necesariamente el mismo objeto; las [convenciones matemáticas](docs/conventions.md) explican esas diferencias.
 
-Los informes presentan las expresiones con notación matemática y explican las condiciones necesarias para interpretarlas. Según el método, distinguen una solución simbólica, una aproximación numérica o un cálculo que todavía no pudo resolverse.
+El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
-Las figuras se abren en ventanas independientes y las señales discretas se representan mediante tallos. La [guía de gráficos y cursores](docs/cursors.md) explica las opciones de medición, incluida la lectura de valores y diferencias entre dos puntos.
+## Novedades e historial
 
-La biblioteca **Resultados** conserva las salidas calculadas para continuar el trabajo. Podés enviar una expresión al CAS, reutilizar un sistema o exportar los datos en los [formatos compatibles](docs/file-formats.md). Si modificás una entrada, el resultado anterior se mantiene hasta que vuelvas a calcular.
+La [versión 1.8.0](docs/releases/v1.8.0.md) incorpora los instaladores y el canal de actualizaciones, manteniendo los portables y las mejoras matemáticas de la [1.7.0](docs/releases/v1.7.0.md). El [historial de cambios](CHANGELOG.md) ofrece un recorrido resumido; las [notas de cada versión](docs/releases/README.md) explican las incorporaciones, correcciones y límites de cada entrega.
 
 ## Vistas de la aplicación
 
-![Modelo AR con su ecuación, transferencia y estadísticas en SignalLab PC](docs/assets/process-models.png)
+![Análisis de un modelo AR y sus estadísticas](docs/assets/process-models.png)
 
-El análisis de procesos reúne la definición del modelo, sus ecuaciones y sus estadísticas en un mismo documento.
+El análisis de procesos relaciona la definición del modelo con su ecuación, su transferencia y las estadísticas resultantes.
 
 | Ecuaciones en diferencias | Diseño por polos y ceros |
 | --- | --- |
-| [![Ecuación en diferencias y solución algebraica](docs/assets/difference-equations.png)](docs/assets/difference-equations.png) | [![Carga binómica o polar y lista de raíces](docs/assets/pole-zero-design.png)](docs/assets/pole-zero-design.png) |
+| [![Solución de una ecuación en diferencias](docs/assets/difference-equations.png)](docs/assets/difference-equations.png) | [![Carga binómica y polar de raíces](docs/assets/pole-zero-design.png)](docs/assets/pole-zero-design.png) |
 
-Estas capturas corresponden a la línea 1.1 y sirven como referencia visual de las herramientas.
+Las capturas corresponden a la línea 1.1 y sirven como referencia de las herramientas; no representan todos los cambios visuales posteriores. La [guía de apariencia](docs/appearance.md) explica los temas actuales y la configuración de una imagen de fondo.
 
-## Objetivos del proyecto
+## Documentación y desarrollo
 
-El desarrollo busca facilitar tanto la resolución de problemas como la comprensión de los métodos utilizados. Los objetivos pendientes se concentran en mejorar la experiencia de uso de las herramientas existentes:
+El [índice de documentación](docs/README.md) reúne las guías de uso, los criterios matemáticos y la cobertura académica. Para empezar, seguí [Primeros pasos](docs/getting-started.md); para explorar las mejoras pendientes, consultá los [objetivos del proyecto](docs/roadmap.md), que no asignan fechas ni versiones a funciones todavía no publicadas.
 
-- Hacer más claras las unidades, el reloj de muestreo y las condiciones de los datos al cargarlos o reutilizarlos.
-- Ampliar las ayudas con figuras y casos completos que expliquen cómo elegir e interpretar cada parámetro.
-- Extender las opciones de medición a más tipos de gráficos.
-- Mostrar con mayor claridad las etapas de los cálculos simbólicos y el alcance de sus resultados.
-- Consolidar la cobertura de Sistemas y Señales I/II y Señales Aleatorias con métodos consistentes y explicaciones accesibles.
-
-La [hoja de objetivos](docs/roadmap.md) desarrolla estas líneas de trabajo. Las funciones ya publicadas y sus cambios se consultan en el [historial de versiones](CHANGELOG.md).
-
-## Documentación
-
-| Para… | Consultá… |
-| --- | --- |
-| Empezar a trabajar | [Primeros pasos](docs/getting-started.md) |
-| Encontrar una operación | [Catálogo de herramientas](docs/tools.md) |
-| Elegir los colores de la aplicación | [Temas de apariencia](docs/appearance.md) |
-| Leer y medir una figura | [Gráficos y cursores](docs/cursors.md) |
-| Revisar el alcance de la materia | [Sistemas y Señales I/II](docs/scope/sys-i-ii.md) · [Señales Aleatorias](docs/scope/random-signals.md) |
-| Consultar las demás guías | [Índice de documentación](docs/README.md) |
-
-## Desarrollo y contribuciones
-
-La aplicación está desarrollada en **Python 3.12**, con **PySide6, NumPy, SciPy, SymPy y Matplotlib**. El código se encuentra en `signallab_pc/`; la [guía de desarrollo](docs/development/README.md) explica su estructura y cómo preparar el entorno.
-
-Para informar un problema o proponer una mejora, consultá la [guía de contribución](CONTRIBUTING.md). Una descripción de la herramienta, los datos de entrada y el comportamiento esperado permite reproducir el caso y discutir la solución.
+La aplicación está desarrollada en Python 3.12 con PySide6, NumPy, SciPy, SymPy y Matplotlib. La [guía de desarrollo](docs/development/README.md) describe la estructura, las dependencias y la construcción. Para informar un problema o proponer una contribución, consultá [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licencia
 
-SignalLab PC se distribuye bajo **GNU GPL versión 3 o posterior**. Podés usarlo, estudiar su código, modificarlo y redistribuirlo, incluso con fines comerciales. Las versiones modificadas que se distribuyan deben conservar la licencia GPL y facilitar su código fuente conforme a sus términos. El software se distribuye sin garantía.
+SignalLab PC se distribuye bajo **GNU GPL versión 3 o posterior**. Podés usarlo, estudiar su código, modificarlo y redistribuirlo, incluso con fines comerciales, conforme a sus términos. Las versiones modificadas que se distribuyan deben conservar la GPL y facilitar su código fuente según la licencia. El software se distribuye sin garantía y las dependencias conservan sus propios avisos.
 
-[Licencia completa](LICENSE) · [Uso y redistribución](docs/license.md) · [Avisos del proyecto](NOTICE.md) · [Licencias de terceros](THIRD_PARTY_NOTICES.md)
+[Licencia](LICENSE) · [Uso y redistribución](docs/license.md) · [Avisos de terceros](THIRD_PARTY_NOTICES.md) · [Privacidad](docs/privacy.md)

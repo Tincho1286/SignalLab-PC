@@ -1,24 +1,26 @@
-# Mejoras de fiabilidad
+# Mantenimiento y fiabilidad
 
-El mantenimiento de SignalLab PC prioriza la exactitud de los resultados y la coherencia al trabajar entre herramientas. Las entregas preliminares reúnen correcciones relacionadas antes de incorporarse a una versión estable.
+[← Documentación](README.md)
 
-## Correcciones recientes
+El mantenimiento prioriza la exactitud matemática, la conservación de las condiciones y la coherencia al reutilizar datos. Las preliminares permiten reunir correcciones relacionadas antes de consolidarlas en una estable. El formato de una publicación indica su canal; no demuestra que cualquier expresión posible pueda resolverse automáticamente.
 
-| Versión | Mejoras |
+## Evolución reciente
+
+| Entrega | Cambios principales |
 | --- | --- |
-| [1.6.0](releases/v1.6.0.md) | Acceso uniforme a figuras e integración de las mejoras de fiabilidad de la serie 1.5. |
-| [1.5.10](releases/v1.5.10-preview.md) | Respuestas de frecuencia en polos y valores extremos; validación del soporte activo de las secuencias. |
-| [1.5.9](releases/v1.5.9-preview.md) | Expresiones elementales en ambos dominios, valores en bordes y condiciones de sistemas conservadas al trabajar con CAS e inversas. |
-| [1.5.8](releases/v1.5.8-preview.md) | Impulsos discretos, pares de Fourier y factores de escala de Dirac en Laplace. |
-| [1.5.7](releases/v1.5.7-preview.md) | DTFT de sinc bilateral, restricciones de frecuencia en CAS, posiciones no definidas y validación de archivos. |
-| [1.5.6](releases/v1.5.6-preview.md) | Filtros ideales con escalones, recuperación después de errores de presentación y diagnósticos visibles. |
+| [1.8.0](releases/v1.8.0.md) | Instaladores por usuario, actualización verificada y conservación de configuración en Windows y Linux. |
+| [1.7.0](releases/v1.7.0.md) | Polos y cancelaciones, condiciones iniciales, bilineal exacta, impulsos, rango numérico y explicaciones registradas. |
+| [1.6.17](releases/v1.6.17.md) | Funciones hiperbólicas compartidas, pares de transformadas y casos degenerados válidos. |
+| [1.6.16](releases/v1.6.16-preview.md) | Conservación del resultado principal cuando falla una vista o simulación complementaria. |
+| [1.6.15](releases/v1.6.15.md) | Expresiones y muestras separadas, funciones por tramos y extremos de bandas en informes. |
+| [Serie 1.5](releases/README.md) | Soporte y continuidad, convergencia de Z/DTFT, transporte al CAS y precisión de las respuestas. |
 
-Cada resultado conserva su definición y sus condiciones para distinguir una expresión obtenida, una solución condicionada y un cálculo pendiente. La [documentación matemática](mathematical-reliability.md) explica los criterios de continuidad, convergencia e intercambio.
+El [historial completo](../CHANGELOG.md) enlaza las notas de cada versión. Los criterios para interpretar resultados condicionados, aproximaciones y operaciones pendientes están en [Fiabilidad matemática](mathematical-reliability.md).
 
 ## Diagnósticos locales
 
-Los avisos de errores inesperados permiten copiar la versión, plataforma, acción y traza del cálculo. Los archivos de diagnóstico tienen tamaño limitado y se guardan localmente; no se transmiten automáticamente.
+Los avisos de errores inesperados permiten copiar la versión, la plataforma, la acción y la traza disponible. Los archivos tienen tamaño limitado y permanecen en el equipo. Para informar un problema, incluí una entrada mínima, el método, el resultado esperado y el obtenido; revisá el diagnóstico antes de compartir datos que puedan ser privados.
 
-## Áreas de mejora
+## Áreas de revisión
 
-La revisión continúa sobre bordes, ceros y polos, rango numérico y coincidencia entre gráficos, tablas y exportaciones. Las correcciones de cálculo y de conservación de datos tienen prioridad sobre los cambios visuales.
+La revisión continúa sobre soporte, bordes, ceros y polos, rango numérico y coincidencia entre informes, gráficos y exportaciones. Una corrección debe actuar sobre las reglas compartidas cuando el problema afecta a varias herramientas y conservar sus condiciones matemáticas. Los [objetivos](roadmap.md) desarrollan las líneas pendientes y la [guía de contribución](../CONTRIBUTING.md) explica cómo proponer un caso reproducible.

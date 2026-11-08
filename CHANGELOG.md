@@ -1,523 +1,309 @@
 # Historial de cambios
 
-Las versiones estables y preliminares se distribuyen en [GitHub Releases](https://github.com/Tincho1286/SignalLab-PC/releases). La última estable es **1.8.0 · Instalación y actualizaciones**.
+La versión estable actual es la [1.8.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.0). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
-## 1.8.0 · Estable · Instalación y actualizaciones
+## 1.8.0 · Estable
 
-- Instaladores por usuario para Windows x64 y Linux x86_64, además de los portables.
-- Búsqueda de actualizaciones desde Ayuda, descarga verificada e instalación sin desinstalar previamente.
-- Conservación de temas y configuración; activación preparada y recuperación ante fallos en Linux.
-- Manifiestos Ed25519, comprobación de integridad y protección frente a retrocesos de versión.
+La versión 1.8.0 incorpora ediciones instalables y actualizables para Windows x64 y Linux x86_64. Los portables continúan disponibles y utilizan los mismos motores de cálculo; la entrega conserva las herramientas y mejoras de estabilidad de la 1.7.0.
 
-[Notas de la versión](docs/releases/v1.8.0.md)
+[Novedades completas](docs/releases/v1.8.0.md)
 
-## 1.7.0 · Estable · Mejoras de estabilidad
+## 1.7.0 · Estable
 
-- Numerosas correcciones de estabilidad y fiabilidad en transformadas, sistemas, filtros y CAS.
-- ROC, causalidad, condiciones iniciales y prehistoria conservadas en los resultados y comprobaciones.
-- Conversión bilineal exacta, impulsos consistentes y energía FFT protegida frente a desbordamientos.
-- Procedimientos registrados y reutilización de transferencias exactas en el CAS.
-- Biblioteca organizada en catorce categorías, con once ejemplos y referencias cruzadas.
+La versión 1.7.0 reúne mejoras de estabilidad y fiabilidad matemática en transformadas, sistemas, filtros y CAS. El trabajo se concentra en conservar la definición y las condiciones del resultado, distinguir los problemas numéricos de los simbólicos y facilitar la continuación del análisis entre herramientas.
 
-[Notas de la versión](docs/releases/v1.7.0.md)
+[Novedades completas](docs/releases/v1.7.0.md)
 
-## 1.6.17 · Estable · Importante
+## 1.6.17 · Estable
 
-- Funciones hiperbólicas, recíprocas e inversas compartidas por todos los evaluadores.
-- Ramas complejas consistentes y conservación de valores explícitos por tramos.
-- Pares ordinarios de Fourier y propiedades para sinc, exponenciales y gaussianas.
-- Reconocimiento de exponenciales bilaterales en Z y DTFT.
-- Conservación de pares polinómicos y de cancelaciones antes de transformar.
-- Ecuaciones sin memoria, reutilización de fórmulas temporales y registros mínimos válidos.
+Esta versión estable reúne las correcciones de las preliminares 1.6.16 y 1.6.17. Amplía el reconocimiento de pares y propiedades fundamentales, corrige casos degenerados válidos y elimina restricciones que impedían resolver tareas elementales.
 
-[Notas de la versión](docs/releases/v1.6.17.md)
+[Novedades completas](docs/releases/v1.6.17.md)
 
-## 1.6.16 · Preliminar
+## 1.6.16-preview · Preliminar
 
-- Separación de resultados principales y gráficos, registros y mediciones complementarias.
-- Conservación de fórmulas y modelos ante límites de memoria o de representación numérica.
-- Normalización exacta de coeficientes y detección de componentes demasiado pequeñas para representarse.
-- Conservación de resultados CAS y transformadas si falla su presentación o desarrollo explicativo.
+Esta entrega mejora la separación entre el resultado matemático y sus vistas complementarias. Las fórmulas, los sistemas y los modelos calculados se conservan cuando no puede generarse un gráfico, una realización numérica o una vista con formato. El informe indica qué etapa quedó pendiente.
 
-[Notas de la preliminar](docs/releases/v1.6.16-preview.md)
+[Novedades completas](docs/releases/v1.6.16-preview.md)
 
 ## 1.6.15 · Estable
 
-- La inversa Z separa la expresión completa de las muestras del gráfico. El modo automático admite secuencias infinitas; los desbordes de muestras conservan fórmula y ROC.
-- Las ecuaciones en diferencias reconocen cancelaciones a cero antes de analizar grados polinómicos.
+Esta versión estable integra las correcciones publicadas en las preliminares 1.6.12 a 1.6.15. Reúne las acciones de reutilización junto al resultado y mejora la relación entre la expresión obtenida, sus muestras y las condiciones necesarias para continuar el cálculo.
 
-- Los informes de filtros muestran mínimos y máximos de cada banda de paso y rechazo, sus frecuencias y los límites permitidos.
+[Novedades completas](docs/releases/v1.6.15.md)
 
-- Presentación matemática de funciones por tramos en CAS e informes.
-- Igualdades, desigualdades, valor absoluto y coordenadas periódicas legibles.
-- Casos sucesivos en una tabla y tamaño de fórmula uniforme.
-- Nombre de los índices k en Ventanas y resolución.
+## 1.6.14-preview · Preliminar
 
-[Notas de la estable](docs/releases/v1.6.15.md)
+Esta preliminar mejora el intercambio entre filtros, transformadas y CAS, con especial atención a la periodicidad de Fourier, las condiciones de frecuencia y el reloj de los sistemas digitales.
 
-## 1.6.14 · Preliminar
+[Novedades completas](docs/releases/v1.6.14-preview.md)
 
-- Tablas e integrales periódicas en CAS.
-- Fourier inversa por bandas y líneas espectrales, origen del período y condiciones de frecuencia.
-- Escala de FFT, reloj digital y región de convergencia al cuantizar.
+## 1.6.13-preview · Preliminar
 
-[Notas de la preliminar](docs/releases/v1.6.14-preview.md)
+Esta preliminar corrige la interpretación de objetos reutilizados y varias operaciones numéricas. Su objetivo es que un resultado mantenga el mismo significado al pasar de una herramienta a otra.
 
-## 1.6.13 · Preliminar
+[Novedades completas](docs/releases/v1.6.13-preview.md)
 
-- Compatibilidad de resultados, escala de convolución y correlación y reloj físico de muestreo.
-- Máscaras de frecuencia, bordes en DTFT y expresión de Fourier continua inversa.
-- Lectura de operaciones, matrices y rangos de MATLAB.
+## 1.6.12-preview · Preliminar
 
-[Notas de la preliminar](docs/releases/v1.6.13-preview.md)
+Esta preliminar mejora la reutilización de expresiones y la presentación de respuestas temporales. Las acciones de envío y los datos transferidos se organizan alrededor del resultado calculado.
 
-## 1.6.12 · Preliminar
+[Novedades completas](docs/releases/v1.6.12-preview.md)
 
-- Reutilización y CAS junto al informe, con fórmulas y muestras como resultados separados.
-- Dominios discretos y continuos en CAS, inversas de bandas con retardo y respuestas temporales coherentes con sus datos.
-- Validación de ROC en precisión finita y de integrales bilaterales divergentes.
+## 1.6.11 · Estable · Hotfix
 
-[Notas de la preliminar](docs/releases/v1.6.12-preview.md)
+Este hotfix incorpora expresiones de las respuestas temporales y mejora la reutilización de filtros definidos en frecuencia. Incluye la actualización posterior del intercambio con CAS distribuida dentro de esta misma versión.
 
-## 1.6.11 · Hotfix
+[Novedades completas](docs/releases/v1.6.11.md)
 
-- Actualización del CAS para DTFT algebraica, filtros ideales y resultados reimportados.
+## 1.6.10 · Estable · Hotfix
 
-- Fórmulas en los informes de respuesta temporal, con recurrencias y condiciones iniciales para sistemas discretos.
-- Expresión de la respuesta al impulso en filtros por tramos e inversas de Fourier con un informe del resultado calculado.
-- Ajustes de validación y reutilización de datos entre herramientas.
+Este hotfix estable corrige la conservación del dominio en el CAS, la lectura de datos importados y la continuidad de los cálculos entre herramientas.
 
-[Notas de la entrega](docs/releases/v1.6.11.md)
+[Novedades completas](docs/releases/v1.6.10.md)
 
-## 1.6.10 · Hotfix
+## 1.6.9 · Estable
 
-- Dominio y variables ligadas en el CAS, validación de entradas y reutilización de transferencias Laurent.
-- Ejes importados, operaciones de MATLAB, relojes y compatibilidad entre resultados.
-- Conversiones de filtros, precisión de Fourier, cuantización e índices de gráficos.
+Esta versión estable integra las mejoras de las preliminares 1.6.6, 1.6.7 y 1.6.8. Refuerza el tratamiento del dominio en el CAS y protege el cálculo de STFT frente a amplitudes extremas.
 
-[Notas de la entrega](docs/releases/v1.6.10.md)
+[Novedades completas](docs/releases/v1.6.9.md)
 
-## 1.6.9 · estable
+## 1.6.8-preview · Preliminar
 
-- Dominios, exclusiones y supuestos conservados al operar y resolver en el CAS.
-- Condiciones por tramos, sustitución en listas, conversión de matrices y reutilización segura de respuestas en frecuencia.
-- Escalado previo a la FFT en la STFT.
-- Correcciones de las preliminares 1.6.6 a 1.6.8 incluidas en la entrega estable.
+Esta preliminar corrige transformadas numéricas y medidas espectrales, manteniendo el significado de las muestras y de los ejes al reutilizar resultados.
 
-[Notas de la entrega](docs/releases/v1.6.9.md)
+[Novedades completas](docs/releases/v1.6.8-preview.md)
 
-## 1.6.8 · preliminar
+## 1.6.7-preview · Preliminar
 
-- Cancelaciones exactas y límites impares en Z inversa por contorno.
-- Energía por bins de DFT, conservación del eje de Fourier continua y validación de líneas espectrales.
-- Escalado en PSD, normalización de ganancia y varianza con divisor N−1.
-- Dominio correcto al enviar señales a Hilbert y STFT, validación de ejes en productos y diagnóstico portable actualizado.
+Esta preliminar mejora la reutilización de registros finitos y la coherencia entre índices, reconstrucción temporal y métodos espectrales.
 
-[Notas de la entrega](docs/releases/v1.6.8-preview.md)
+[Novedades completas](docs/releases/v1.6.7-preview.md)
 
-## 1.6.7 · preliminar
+## 1.6.6-preview · Preliminar
 
-- Fase precisa en la DTFT inversa y validación de las entradas de Fourier inversa.
-- Extremos del producto continuo, carga en el editor y campos del periodograma según el método.
-- Validación de la ROC para compensación FIR y reloj en convolución por bloques.
-- Escalado seguro en Hilbert, cuantización de rangos amplios y reconstrucción con eje físico independiente.
+Esta preliminar corrige el transporte de señales y espectros, la región de convergencia de sistemas conectados y varios problemas de precisión numérica.
 
-[Notas de la entrega](docs/releases/v1.6.7-preview.md)
+[Novedades completas](docs/releases/v1.6.6-preview.md)
 
-## 1.6.6 · preliminar
+## 1.6.5 · Estable
 
-- Selección correcta de la entrada reutilizada en Densidad de energía y conservación del reloj en convolución, PSD y edición de ejes.
-- Cancelaciones exactas al exportar canales de espacio de estados y al simular transferencias continuas desde reposo.
-- Conservación de una ROC compatible en cascadas y sumas.
-- Filtrado en frecuencia sobre rejillas completas y manejo preciso de índices discretos grandes.
-- Reapertura de CSV propios con el paso declarado.
+La versión 1.6.5 hace automática la búsqueda de longitud FIR por bandas y tolerancias, incluida Kaiser. También incorpora las correcciones de Fourier distribuidas dentro de esta misma entrega.
 
-[Notas de la entrega](docs/releases/v1.6.6-preview.md)
+[Novedades completas](docs/releases/v1.6.5.md)
 
-## 1.6.5 · estable
+## 1.6.3-preview · Preliminar
 
-- La DFT directa permite elegir frecuencia angular o índice k centrado en el gráfico y la tabla.
-- DFT directa centrada en rad/muestra y superposición DTFT opcional en el estudio de ventanas.
-- Kaiser busca la longitud FIR mínima que cumple las tolerancias cuando la longitud está en modo automático.
-- El informe distingue la longitud elegida de la estimación por fórmula.
+Esta preliminar agiliza el diseño FIR por bandas y mejora la lectura de sus gráficos. También corrige condiciones y metadatos al trasladar modelos entre herramientas.
 
-[Notas de la entrega](docs/releases/v1.6.5.md)
+[Novedades completas](docs/releases/v1.6.3-preview.md)
 
-## 1.6.3 · preliminar
+## 1.6.2-preview · Preliminar
 
-- Longitud FIR automática para ventanas distintas de Kaiser en el diseño por bandas.
-- Cálculo FIR más rápido y escala vertical ajustable por panel en los gráficos.
-- Validación de la ROC al convertir a espacio de estados y límites de frecuencia por canal.
-- Reloj conservado al reutilizar la salida del filtrado en frecuencia.
+Esta preliminar corrige la conservación de regiones de convergencia y la evaluación de fase en sistemas y transformadas.
 
-[Notas de la entrega](docs/releases/v1.6.3-preview.md)
+[Novedades completas](docs/releases/v1.6.2-preview.md)
 
-## 1.6.2 · preliminar
+## 1.6.1-preview · Preliminar
 
-- Intersección correcta de las ROC y Z inversa de sumas racionales y logarítmicas.
-- Conversión por invarianza al impulso con ROC y simulación desde reposo con cancelaciones exactas.
-- Fase de sistemas racionales, bin de Nyquist y orígenes grandes en DTFT/DFT.
+Esta preliminar reúne correcciones de respuesta temporal, soporte activo de secuencias y reapertura de gráficos.
 
-[Notas de la entrega](docs/releases/v1.6.2-preview.md)
+[Novedades completas](docs/releases/v1.6.1-preview.md)
 
-## 1.6.1 · preliminar
+## 1.6.0 · Estable
 
-- Validación de la ROC en simulaciones causales y cancelación exacta en cascadas.
-- Energía de secuencias con soporte definido y magnitud en dB para ganancias extremas.
-- Reapertura de figuras sin duplicar registros y Z inversa de series recíprocas.
+La versión estable 1.6.0 integra las mejoras matemáticas de la serie 1.5 y unifica la ubicación de las acciones para abrir figuras.
 
-[Notas de la entrega](docs/releases/v1.6.1-preview.md)
+[Novedades completas](docs/releases/v1.6.0.md)
 
-## 1.6.0 · estable
+## 1.5.10-preview · Preliminar
 
-- Acceso uniforme a las figuras desde la cabecera de resultados e informes en todas las herramientas.
-- Selección de figuras disponibles desde un único botón cuando hay varias vistas.
-- Fourier/DTFT algebraicas y medidas de energía/potencia con apertura de gráficos junto a sus informes.
-- Integración de las mejoras de transformadas, indeterminaciones, rango numérico y conservación de condiciones desarrolladas en la serie 1.5.
-- Portables para Windows x64 y Linux x86_64.
+Esta entrega preliminar mejora la evaluación numérica de sistemas y la interpretación del soporte de las secuencias.
 
-[Notas de la entrega](docs/releases/v1.6.0.md)
+[Novedades completas](docs/releases/v1.5.10-preview.md)
 
-## 1.5.10 · preliminar
+## 1.5.9-preview · Preliminar
 
-- Polos periódicos y evaluaciones mal condicionadas marcados como N/D.
-- Razones de polinomios y cascadas revisadas ante desbordamientos intermedios.
-- Valores fuera del rango numérico diferenciados de ceros exactos.
-- Retardo de grupo y exportaciones coherentes con las posiciones disponibles.
-- Validación del soporte activo de secuencias con escalones e impulsos.
+Esta preliminar reúne correcciones de funciones elementales, valores en bordes e intercambio de sistemas con CAS.
 
-[Notas de la entrega](docs/releases/v1.5.10-preview.md)
+[Novedades completas](docs/releases/v1.5.9-preview.md)
 
-## 1.5.9 · preliminar
+## 1.5.8-preview · Preliminar
 
-- Nombres de impulsos y escalones compartidos entre los dominios continuo y discreto.
-- Valores por continuidad conservados antes de aplicar impulsos o escalones.
-- ROC, período y definición original conservados en reescrituras equivalentes del CAS.
-- Región de convergencia trasladada a las inversas, con selección explícita cuando falta.
+Esta preliminar reúne correcciones de interpretación de impulsos y pares de transformadas.
 
-[Notas de la entrega](docs/releases/v1.5.9-preview.md)
+[Novedades completas](docs/releases/v1.5.8-preview.md)
 
-## 1.5.8 · preliminar
+## 1.5.7-preview · Preliminar
 
-- Impulsos discretos reconocidos por Z y DTFT, incluidos desplazamientos y soporte efectivo.
-- Pares básicos de Fourier e inversa para constantes, polinomios y exponenciales.
-- Factores de escala de las derivadas de Dirac conservados en Laplace.
+Esta entrega reúne correcciones de cálculo, intercambio de resultados e importación.
 
-[Notas de la entrega](docs/releases/v1.5.8-preview.md)
+[Novedades completas](docs/releases/v1.5.7-preview.md)
 
-## 1.5.7 · preliminar
+## 1.5.6-preview · Preliminar
 
-- Presentación de la DTFT de la sinc bilateral sin confundirla con la sumatoria formal de Z.
-- Unidades y restricciones de frecuencia conservadas al reutilizar resultados en CAS y análisis H(w).
-- Gráficas condicionadas con posiciones N/D preservadas en tabla y exportación.
-- Ejes MATLAB int64 exactos y rechazo de ejes o canales incompatibles.
-- Apertura de CSV propios descendentes y validación de JSON/metadatos sin incorporación parcial.
+Esta preliminar corrige el análisis de filtros ideales con escalones y hace visibles los fallos de acciones y presentación que podían parecer botones sin respuesta.
 
-[Notas de la entrega](docs/releases/v1.5.7-preview.md)
+[Novedades completas](docs/releases/v1.5.6-preview.md)
 
-## 1.5.6 · preliminar
+## 1.5.5-preview · Preliminar
 
-- Filtros ideales escritos con step: retardo ordinario por tramos y exclusión de saltos.
-- Diagnóstico visible de errores inesperados en botones y trazas locales de cálculos fallidos.
-- Estado terminal correcto tras un fallo de presentación y descarte de notificaciones duplicadas.
-- Control estático de nombres y de importaciones locales condicionales antes del empaquetado.
+Esta entrega corrige el análisis de filtros ideales obtenidos desde Transformada Z y la apertura de gráficos de Fourier algebraica.
 
-[Notas de la entrega](docs/releases/v1.5.6-preview.md) · [Mejoras de fiabilidad](docs/maintenance.md)
+[Novedades completas](docs/releases/v1.5.5-preview.md)
 
-## 1.5.5 · preliminar
+## 1.5.4-preview · Preliminar
 
-- Análisis de DTFT como H(exp(iw)) aunque Z no tenga un anillo abierto de convergencia absoluta.
-- Entrada de respuesta H(w), reutilización desde Resultados y exportación/apertura de definiciones.
-- Retardo de grupo excluido en saltos y respuestas nulas; fase de sinc con centros fraccionarios.
-- Corrección del botón Graficar resultado de Fourier algebraica y apertura explícita de la figura.
-- Nueve recorridos Qt y 76 controles matemáticos de referencia obligatorios, además del barrido preventivo.
+Esta entrega corrige la reutilización de transferencias no racionales entre Transformada Z y Análisis de sistemas.
 
-[Notas de la preliminar](docs/releases/v1.5.5-preview.md)
+[Novedades completas](docs/releases/v1.5.4-preview.md)
 
-## 1.5.4 · preliminar
+## 1.5.3-preview · Preliminar
 
-- Análisis de transferencias no racionales como expresiones, sin forzar coeficientes b/a.
-- Conservación de la secuencia, soporte y condiciones al enviar X(z) al análisis de H(z).
-- Reutilización desde Resultados, importación y archivos JSON de definición.
-- Frecuencia, fase y retardo para H(s)/H(z) generales, con límites separados de valores y derivadas.
-- Seis recorridos de interfaz obligatorios, además de 74 controles matemáticos y el barrido preventivo.
+Esta entrega incorpora un control preventivo de variaciones matemáticas y corrige inconsistencias detectadas al revisar convergencia y formas equivalentes de sistemas.
 
-[Notas de la preliminar](docs/releases/v1.5.4-preview.md)
+[Novedades completas](docs/releases/v1.5.3-preview.md)
 
-## 1.5.3 · preliminar
+## 1.5.2-preview · Preliminar
 
-- Barrido preventivo obligatorio con una base fija y variaciones reproducibles derivadas del código.
-- Registro de parámetros, referencias y plazos por caso; bloqueo de construcción ante fallos o cálculos incompletos.
-- DTFT unilateral con convergencia ordinaria comprobada independientemente de la ROC abierta de Z.
-- Límites de retardo de grupo coherentes con la respuesta para factores comunes exactos.
-- Informes públicos: 69 controles de referencia y 112 casos de barrido en ambas plataformas.
+Esta entrega corrige el reconocimiento algebraico de pares Z desplazados y amplía las propiedades del par sinc/rectángulo.
 
-[Notas de la preliminar](docs/releases/v1.5.3-preview.md)
+[Novedades completas](docs/releases/v1.5.2-preview.md)
 
-## 1.5.2 · preliminar
+## 1.5.1-preview · Preliminar
 
-- Normalización de factores antes de reconocer pares Z desplazados.
-- Pares de potencias recíprocas con centros fraccionarios mediante Lerch.
-- Sinc/rectángulo con fase conservada, formas seno/coseno e imágenes espectrales.
-- Control por propiedades de escalas, desplazamientos, soportes y muestras explícitas; 63 pruebas obligatorias.
+Esta entrega amplía la revisión matemática a las principales familias de herramientas.
 
-[Notas de la preliminar](docs/releases/v1.5.2-preview.md)
+[Novedades completas](docs/releases/v1.5.1-preview.md)
 
-## 1.5.1 · preliminar
+## 1.5.0-preview · Preliminar
 
-- Analizador común de constantes exactas, campos numéricos y coeficientes.
-- Validación de enteros, dominios de funciones y pérdida de coeficientes al normalizar filtros.
-- Entradas de ecuaciones coherentes con las transformadas y reconocimiento de sinc como impulso en recurrencias.
-- Ventanas compartidas entre señales, FIR por h[n] y estimación espectral.
-- Control obligatorio ampliado a 56 pruebas en nueve familias matemáticas.
+Esta entrega refuerza la preparación y el seguimiento de las transformadas y establece un control matemático obligatorio antes de empaquetar los portables.
 
-[Notas de la preliminar](docs/releases/v1.5.1-preview.md) · [Fiabilidad matemática](docs/mathematical-reliability.md)
+[Novedades completas](docs/releases/v1.5.0-preview.md)
 
-## 1.5.0 · preliminar
+## 1.4.2 · Estable
 
-- Definición matemática conservada con expresión exacta, dominio, soporte y notas de continuidad.
-- Preparación común de Z y DTFT y tratamiento de valores aislados en integrales ordinarias.
-- Corrección de inversas constantes y factores racionales cancelables en Laplace.
-- Estados de cálculo coherentes y procedencia conservada al enviar resultados al CAS.
-- Control permanente de 21 pruebas; los constructores Windows/Linux se detienen ante un fallo.
+La versión 1.4.2 incorpora fondos transparentes y translúcidos al tema personalizado. Reúne también las mejoras de las entregas preliminares anteriores, incluidos los temas de apariencia, los controles y el zoom del plano de polos y ceros y los pares de transformadas Z y DTFT.
 
-[Notas de la preliminar](docs/releases/v1.5.0-preview.md) · [Fiabilidad matemática](docs/mathematical-reliability.md)
+[Novedades completas](docs/releases/v1.4.2.md)
 
-## 1.4.2
+## 1.4.1-preview · Preliminar
 
-- Fondos Opaco, Translúcido y Transparente en el tema personalizado.
-- Opacidad de menús de 0 a 100 %, independiente de la intensidad de la foto.
-- Foto continua detrás de tarjetas, categorías y navegación, sin desvanecer textos ni botones.
-- Vista previa actualizada y opciones desplazables en el diálogo de apariencia.
-- Preferencias anteriores conservadas con fondo inicialmente opaco.
+Esta entrega permite editar y ampliar el plano de polos y ceros desde su propia ventana y corrige transformadas Z que quedaban pendientes después de completar una indeterminación removible.
 
-[Notas de la versión](docs/releases/v1.4.2.md) · [Configurar apariencia](docs/appearance.md)
+[Novedades completas](docs/releases/v1.4.1-preview.md)
 
-## 1.4.1 · preliminar
+## 1.4.0-preview · Preliminar
 
-- Selección de polo/cero, conjugados y coordenadas dentro de la ventana del plano.
-- Zoom con rueda y botones, encuadre de raíces y conservación de la escala al editar.
-- Transformada Z por pares y propiedades, separando los valores completados por continuidad.
-- Par sinc/rectángulo en DTFT y distinción explícita frente a una ROC vacía de Z.
-- Reutilización de condiciones por tramos y ayudas actualizadas.
+Esta entrega amplía las opciones de apariencia y corrige el banner de inicio, que conservaba un degradado fijo al cambiar de tema. Ahora acompaña a la paleta seleccionada, incluidos los temas claros.
 
-[Notas de la preliminar](docs/releases/v1.4.1-preview.md) · [Transformada Z y sinc](docs/z-transforms.md)
+[Novedades completas](docs/releases/v1.4.0-preview.md)
 
-## 1.4.0 · preliminar
+## 1.3.1-preview · Preliminar
 
-- Banner de inicio adaptado a la paleta seleccionada.
-- Temas Vanta Black, Rosa, Claro y Blanco, además de los cuatro anteriores.
-- Tema personalizado con base, acento y foto local; vista previa, intensidad y encuadre.
-- Iconos y fórmulas adaptados a fondos claros y oscuros, conservando datos y zoom.
+Esta entrega corrige la lectura del mouse en los planos de polos y ceros y permite personalizar la apariencia con cuatro temas oscuros.
 
-[Notas de la preliminar](docs/releases/v1.4.0-preview.md) · [Configurar apariencia](docs/appearance.md)
+[Novedades completas](docs/releases/v1.3.1-preview.md)
 
-## 1.3.1 · preliminar
+## 1.3.0-preview · Preliminar
 
-- Coordenadas libres en los planos de polos y ceros, sin ajuste al círculo unitario.
-- Cursor × para insertar polos y ○ para insertar ceros, centrados en el punto de inserción.
-- Cuatro temas oscuros desde Vista → Tema, con elección persistente.
-- Actualización de informes y figuras abiertas conservando datos y zoom.
+Esta preliminar incorpora cursores para consultar figuras y herramientas para comparar resultados y estudiar su precisión. Las mediciones y los desarrollos explicativos se asocian a los datos realmente calculados.
 
-[Notas de la preliminar](docs/releases/v1.3.1-preview.md) · [Temas](docs/appearance.md)
+[Novedades completas](docs/releases/v1.3.0-preview.md)
 
-## 1.3.0 · preliminar
+## 1.2.2-preview · Preliminar
 
-- Cursores A/B enlazados, lectura de muestras originales y copia de mediciones.
-- Comparación de señales y sistemas desde Resultados, con coordenadas y condiciones preservadas.
-- Diagnóstico de sensibilidad en el estudio de precisión de coeficientes.
-- Residuos de ecuaciones y comprobación de condiciones iniciales de EDO.
-- Desarrollo opcional en Fourier, convolución y ecuaciones; ayuda de cursores accesible en las herramientas.
+Esta preliminar amplía la información de condiciones matemáticas y la comprobación de filtros, manteniendo la organización de herramientas.
 
-[Notas y alcance](docs/releases/v1.3.0-preview.md) · [Guía de cursores](docs/cursors.md)
+[Novedades completas](docs/releases/v1.2.2-preview.md)
 
-## 1.2.2 · preliminar
+## 1.2.1 · Estable
 
-- Condiciones matemáticas reunidas y ROC analógica preservada en reutilización y exportación.
-- Extremos de filtros refinados, frecuencias de mínimos/máximos y margen frente a tolerancias.
-- Desarrollo opcional registrado para Z y Laplace, separado del resultado principal.
-- Errores de entrada contextualizados, con señalización del campo y conservación del texto.
-- Propuestas de consolidación en [la hoja de mejoras](docs/roadmap.md).
+La versión 1.2.1 hace visible el criterio de continuidad que ya utiliza el motor para completar singularidades removibles. La explicación permite identificar el valor añadido y distinguirlo de una condición explícita de la señal.
 
-[Notas y alcance](docs/releases/v1.2.2-preview.md)
+[Novedades completas](docs/releases/v1.2.1.md)
 
-## 1.2.1 · 2026-11-02
+## 1.2.0 · Estable
 
-- Aviso visible en el editor y explicación en la ayuda de cada herramienta.
-- Informe con puntos y valores exactos de las indeterminaciones removibles completadas por continuidad; indicación en la barra de estado.
-- Conservación del detalle en Resultados y exportación de informes, con traslado de los avisos desde el proceso simbólico.
-- Portables Windows y Linux; se conserva el criterio matemático existente y los valores definidos por tramos.
+La versión estable 1.2.0 consolida los flujos de Transformada Z, amplía las amplitudes por banda y permite explorar funciones de transferencia tanto en s como en z.
 
-## Distribución Linux · 2026-11-02
+[Novedades completas](docs/releases/v1.2.0.md)
 
-- Portable nativo Linux x86_64 incorporado a la versión estable 1.2.0.
-- Paquete TAR con ejecutable, licencias, instrucciones y procedencia; no requiere instalar Python.
-- Construcciones Windows y Linux en GitHub Actions por defecto, con dependencias específicas de plataforma.
+## 1.2.0-preview · Preliminar
 
-## Documentación y licencia · 2026-11-02
+Esta preliminar reúne los flujos de Z y amplía el análisis de sistemas, el diseño FIR y la importación. Describe la etapa previa a la versión estable 1.2.0.
 
-- Publicación del código y los recursos originales bajo GPL-3.0-or-later.
-- Texto íntegro de licencia, alcance, metadatos del paquete y avisos originales de dependencias.
-- Fuentes y avisos accesibles junto a la descarga 1.2.0; el ejecutable y sus cálculos se conservan.
+[Novedades completas](docs/releases/v1.2.0-preview.md)
 
-## 1.2.0 — Transferencias H(s)/H(z) y vistas por componentes
+## 1.1.3 · Estable
 
-- Ajuste de fase con sistemas y complementos explícitos: fase mínima, pasa todo y construcción de fase lineal con sus condiciones de módulo, causalidad y ROC.
+La generación de ventanas se incorpora como operación independiente de Señales para estudiar su forma, su espectro o su Z sin diseñar primero un filtro.
 
-- Representación de H(s) y H(z) mediante mallas de parte real/imaginaria o módulo/ángulo, con expresión asociada.
-- Elección de componentes también en la respuesta en frecuencia, conservando retardo de grupo.
-- Consolidación de Z, límites removibles, amplitudes por banda e importación compartida.
-- Ayuda actualizada y explicación de las alertas de firma y reputación de Windows.
+[Novedades completas](docs/releases/v1.1.3.md)
 
-[Notas y alcance](docs/releases/v1.2.0.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.0)
+## 1.1.2 · Estable
 
-## 1.2.0-preview — Z integrada, plano complejo y amplitudes por banda
+El diseño por polos y ceros incorpora un formulario de carga exacta junto a la edición gráfica. Esto permite combinar precisión numérica y exploración con el mouse.
 
-La próxima versión reúne los flujos de Transformada Z y amplía el análisis de sistemas, el diseño FIR y la importación de datos.
+[Novedades completas](docs/releases/v1.1.2.md)
 
-- Transformada Z organizada en Directa e Inversa. Las secuencias finitas se cargan dentro de la directa; la inversa puede recuperar el soporte completo de un polinomio de Laurent.
-- Envío a CAS y análisis de X(z) como H(z) en los flujos de Z, conservando expresiones, índices, reloj y contexto de convergencia compatible.
-- Tratamiento compartido de singularidades removibles mediante límites exactos. La sinc normalizada conserva sinc(0)=1, también con desplazamientos y escalas.
-- Nueva vista de H(z) en el plano complejo: mapa de módulo, polos, ceros, círculo unitario y ROC. La respuesta en frecuencia se estudia por separado.
-- Amplitudes configurables en las bandas de paso y dos amplitudes independientes para el rechazabanda FIR. Tolerancias absolutas, relativas o en dB.
-- Importación de archivos y reutilización de resultados desde entradas compatibles, con carga independiente por operando. Nuevas explicaciones e ilustraciones en la ayuda.
+## 1.1.1 · Estable
 
-[Notas y alcance](docs/releases/v1.2.0-preview.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.2.0-preview)
+Las ecuaciones lineales incorporan la variante en diferencias junto a las ecuaciones diferenciales, con una carga y un informe adaptados a secuencias discretas.
 
-## 1.1.3 — Ventanas como señales independientes
+[Novedades completas](docs/releases/v1.1.1.md)
 
-Generación de ventanas para estudiar su forma, su espectro y su transformada Z sin diseñar antes un filtro.
+## 1.1.0 · Estable
 
-- Señales → Crear una señal → Ventana: rectangular, Hann, Hamming, Blackman, Bartlett y Kaiser, en sus variantes simétricas.
-- Longitud total L, índice inicial o centrado alrededor de cero; parámetro β para Kaiser.
-- Gráfico discreto de tallos, tabla e informe de la ventana. Exportación JSON/CSV y reutilización en Fourier, Z y producto de señales.
-- Conservación de los ceros exactos de los extremos de Hann, Bartlett y Blackman; evaluación estable de Kaiser para valores elevados de β.
-- Envío de secuencias a Z con su origen e índices completos y ayuda ilustrada sobre longitud y centrado.
+Señales Aleatorias incorpora análisis de modelos estacionarios conocidos y estimación AR desde un registro. Las propiedades teóricas y las estadísticas de una realización finita se mantienen diferenciadas.
 
-[Notas y alcance](docs/releases/v1.1.3.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.3)
+[Novedades completas](docs/releases/v1.1.0.md)
 
-## 1.1.2 — Carga exacta de polos y ceros
+## 1.0.2 · Estable
 
-Un formulario dedicado permite agregar y editar raíces con precisión, junto al diseño interactivo con el mouse.
+Los informes FIR explican cómo se obtiene la respuesta al impulso a partir del ideal y la ventana. La presentación se comparte entre el diseño por cortes y longitud y el diseño por especificaciones.
 
-- Carga de polos y ceros en forma binómica o polar, con ángulo en radianes.
-- Admite fracciones, pi, constantes y potencias como 10^(-3), conservando las expresiones ingresadas.
-- Lista editable por filas, selección múltiple y eliminación de raíces individuales.
-- Adición opcional del conjugado y conservación de multiplicidades; una raíz real no se duplica automáticamente.
-- Coordenadas exactas sobre los ejes para múltiplos de pi/2 y conservación de las expresiones al editar otros puntos con el mouse.
-- Ayuda ilustrada sobre partes real/imaginaria, módulo, ángulo y conjugados.
+[Novedades completas](docs/releases/v1.0.2.md)
 
-[Notas y alcance](docs/releases/v1.1.2.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.2)
+## 1.0.1 · Estable
 
-## 1.1.1 — Ecuaciones en diferencias
+Esta entrega aclara la interpretación de las bandas de transición FIR y mejora la representación del retardo en filtros de fase lineal.
 
-Las ecuaciones lineales incorporan una variante discreta junto al cálculo de ecuaciones diferenciales.
+[Novedades completas](docs/releases/v1.0.1.md)
 
-- Resolución de a₀y[n]+a₁y[n−1]+…+aₚy[n−p]=f[n] con coeficientes constantes.
-- Entrada por fórmula o tramos, índice inicial y reposo o historial de salida anterior.
-- Solución algebraica legible en n, respuesta de entrada cero y de estado cero, con muestras para gráfico y tabla.
-- Transferencia H(z) bajo condiciones iniciales nulas, separada de la solución que incluye el historial.
-- Reutilización de expresiones en CAS y otras herramientas, con ayuda específica sobre el orden de los datos.
+## 1.0.0 · Estable
 
-[Notas y alcance](docs/releases/v1.1.1.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.1)
+La primera versión estable consolida el laboratorio de señales y sistemas con herramientas independientes, una biblioteca de resultados y una calculadora simbólica.
 
-## 1.1.0 — Modelos AR, MA y ARMA
+[Novedades completas](docs/releases/v1.0.0.md)
 
-Las herramientas de señales aleatorias incorporan modelos estacionarios conocidos y estimación AR desde registros.
+## 0.99.11 · Preliminar
 
-- Media, varianza, potencia, autocovarianza, autocorrelación y PSD teóricas de modelos discretos AR/MA/ARMA.
-- Realizaciones gaussianas con estado inicial estacionario y semilla reproducible.
-- Estimación AR mediante Yule–Walker con orden elegido, innovación estimada, espectro y residuo.
-- Correlación y covarianza auto/cruzada con alineación por índices, normalización y conjugación de datos complejos.
-- Transferencias, curvas y registros reutilizables en sistemas, Resultados y CAS, con ayuda ilustrada.
+Esta preliminar histórica reúne las distintas formas de diseñar un filtro en un documento común, conservando parámetros propios para cada definición.
 
-[Notas y alcance](docs/releases/v1.1.0.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.1.0)
+[Novedades completas](docs/releases/v0.99.11.md)
 
-## 1.0.2 — Expresiones del ideal y del FIR enventanado
+## 0.99.10 · Preliminar
 
-Los informes FIR muestran cómo se obtiene la respuesta al impulso del filtro a partir del ideal y la ventana.
+Esta preliminar histórica organiza las transformadas de Fourier mediante una elección común de transformada, dirección y método.
 
-- Expresiones textbook de h_ideal[n], el núcleo continuo g(x), la ventana w[n] y la respuesta final h[n].
-- Longitud L, orden nominal M=L−1 y desplazamiento D=(L−1)/2, también para longitudes pares.
-- Fórmulas compartidas entre el diseño por cortes/longitud y por especificaciones.
-- La ganancia indicada corresponde al factor realmente aplicado a los coeficientes.
+[Novedades completas](docs/releases/v0.99.10.md)
 
-[Notas y alcance](docs/releases/v1.0.2.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.0.2)
+## 0.99.9 · Preliminar
 
-## 1.0.1 — Transiciones FIR y retardo de grupo
+Esta preliminar histórica distingue los impulsos continuos ideales de las muestras ordinarias de una señal.
 
-Se aclara el significado de las transiciones especificadas y se mejora la representación del retardo de fase lineal.
+[Novedades completas](docs/releases/v0.99.9.md)
 
-- Identificación separada de los anchos de transición izquierdo y derecho a partir de los bordes ingresados.
-- Informe de los cortes ideales y de la transición más estrecha usada para estimar la longitud Kaiser.
-- Aclaración de que las franjas del gráfico representan intervalos permitidos y no el ancho medido de la curva.
-- Retardo exacto para FIR reales con simetría o antisimetría exacta, manteniendo los puntos no definidos.
+## 0.99.8 · Preliminar
 
-[Notas y alcance](docs/releases/v1.0.1.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.0.1)
+Esta preliminar histórica amplía el envío de resultados al CAS y el reconocimiento de pares y propiedades en Z inversa.
 
-## 1.0.0 — Primera versión estable
+[Novedades completas](docs/releases/v0.99.8.md)
 
-Base estable del laboratorio de señales y sistemas, con herramientas independientes, resultados reutilizables y CAS.
+## archivo-historico-2026-10-28 · Archivo histórico
 
-- Organización de 29 herramientas agrupadas y 80 variantes, además de la calculadora simbólica.
-- Diseño unificado de filtros y análisis separado de funciones de transferencia, respuestas, raíces y realizaciones.
-- Entradas locales, biblioteca de resultados, importación/exportación, gráficos externos y ayuda contextual ilustrada.
-- Corrección de avisos de datos modificados en los diseños RC/FIR y conservación de cambios realizados durante un cálculo.
-- Identificación de versión, documentación de alcance y distribución portable para Windows.
+Este archivo conserva las primeras etapas de SignalLab PC y sus ejecutables originales. Es un respaldo de consulta; para el uso habitual corresponde elegir la última versión estable.
 
-[Notas y alcance](docs/releases/v1.0.0.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.0.0)
-
-## 0.99.11 — Diseño de filtros unificado
-
-Las distintas formas de definir un filtro se reúnen en un mismo documento con parámetros propios.
-
-- Diseño por especificaciones FIR/IIR, cortes, h[n], raíces, segundo orden y RC desde una entrada común.
-- Dominio y estructura aparecen cuando aportan una elección; cada formulario conserva sus valores.
-- Análisis, reutilización y exportación junto al resultado calculado, incluyendo filtro JSON y respuesta CSV.
-- Formularios más despejados y ayuda en colores para relacionar cada definición con el filtro obtenido.
-
-[Notas y alcance](docs/releases/v0.99.11.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.11)
-
-## 0.99.10 — Fourier y navegación por variantes
-
-La elección de transformada, dirección y cálculo se presenta con una estructura común.
-
-- DTFT, DFT/FFT y Fourier continua organizadas por transformada, dirección y método de cálculo.
-- Conservación de la dirección inversa al cambiar entre modelos compatibles.
-- Búsqueda por variantes y navegación consistente hacia la operación correspondiente.
-- Preparación de entradas compatibles sin mezclar definiciones de naturaleza diferente.
-
-[Notas y alcance](docs/releases/v0.99.10.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.10)
-
-## 0.99.9 — Señales continuas e impulsos ideales
-
-La carga de señales continuas conserva por separado la parte ordinaria y los pesos de impulsos Dirac.
-
-- Posiciones y pesos de impulsos ideales, incluso entre puntos de la rejilla temporal.
-- Contribuciones de Dirac en Fourier continua, series, convolución y respuesta de sistemas compatibles.
-- Conservación de impulsos y metadatos en JSON/CSV y al reutilizar los datos en CAS.
-- Distinción entre impulso continuo ideal y muestra discreta, con rechazo de operaciones distributivas ambiguas.
-
-[Notas y alcance](docs/releases/v0.99.9.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.9)
-
-## 0.99.8 — Resultados en CAS e inversa Z por propiedades
-
-La reutilización de resultados incorpora el CAS y la inversa Z reconoce pares y desplazamientos antes de la descomposición general.
-
-- Envío de expresiones, sistemas, señales, modelos de estado y datos calculables a una hoja CAS existente.
-- Conservación de variables, borradores y supuestos; los resultados importados quedan referenciados como rN.
-- Reconocimiento de linealidad, pares geométricos, polos repetidos y desplazamientos enteros en la inversa Z.
-- Fórmulas más compactas con sus condiciones y ROC, preservando definiciones algebraicas exactas cuando están disponibles.
-
-[Notas y alcance](docs/releases/v0.99.8.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v0.99.8)
-
-## Archivo histórico — primeras versiones
-
-Respaldo de las primeras etapas de SignalLab PC y sus ejecutables originales.
-
-- 112 ejecutables distintos reunidos en un archivo TAR.ZST de aproximadamente 222 MiB.
-- Primer portable v0.1.0 y su respaldo de código fuente disponibles como adjuntos separados.
-- Manifiesto con versiones, rutas relativas, tamaños y hashes SHA-256 para identificar los archivos.
-- Guía de recuperación y verificación incluida con el archivo histórico.
-
-[Notas y alcance](docs/releases/archive.md) · [Descargar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/archivo-historico-2026-10-28)
+[Novedades completas](docs/releases/archive.md)

@@ -2,69 +2,67 @@
 
 [← Desarrollo](README.md)
 
-Desde 1.2.1, cada nueva entrega debe publicar portables para **Windows x86_64 y Linux x86_64**, con sus fuentes y checksums. La elección de una sola plataforma en el flujo sirve para reconstruir o incorporar esa plataforma a una entrega existente.
+Las entregas actuales ofrecen instaladores y portables para Windows x64 y Linux x86_64. Una publicación reúne los archivos construidos, su fuente correspondiente, las licencias y los checksums; el canal estable añade el manifiesto firmado de actualización. Compilar un artefacto y publicar una Release son etapas diferentes.
 
-## Compilar el portable
+## Preparar la entrega
 
-Desde la raíz del proyecto, con el entorno preparado:
+Actualizá la versión en `signallab_pc/__init__.py`, redactá `docs/releases/vVERSION.md` y revisá las descargas del README, el changelog y los índices de versiones. Las notas deben explicar el problema o capacidad que cambia, el comportamiento resultante y sus límites, agrupando las áreas relacionadas en párrafos conectados. Los objetivos pendientes pertenecen a la hoja de ruta, sin prometer una versión futura.
 
-```powershell
-.\build_portable.ps1 -Name SignalLab-PC-1.2.1
-```
+Guardá todo en un commit y subilo a `main` antes de construir. La versión de los archivos, los metadatos del ejecutable y el código deben coincidir. Las etiquetas de una entrega existente no se mueven para acomodar una construcción nueva.
 
-El resultado se guarda en `outputs/`. La compilación usa un directorio intermedio y reemplaza el archivo de salida al terminar, para conservar las copias de versiones anteriores. `-KeepBuildFiles` permite conservar los intermedios para diagnóstico.
+## Construir portables e instaladores
 
-Las siguientes compilaciones incluyen la licencia del proyecto y los avisos originales de terceros dentro del portable. En Releases se publica también el código fuente correspondiente y una copia accesible de esos avisos. Una actualización de licencia y documentación puede acompañar un portable existente sin alterar su ejecutable.
+El [flujo de distribuciones](../../.github/workflows/portable.yml) permite elegir `both`, `windows` o `linux`, con ambas plataformas como opción predeterminada. Utilizá `request_signing=false` mientras no exista un servicio Authenticode aprobado. El flujo ejecuta los controles requeridos, genera los portables, construye los instaladores por usuario y comprueba instalación, actualización y desinstalación en los sistemas nativos.
 
-## Portable Linux
-
-`build_portable_linux.sh` usa `.venv/bin/python` y genera un ejecutable nativo x86_64 en un paquete `.tar.gz`, con licencias y procedencia. Se construye en Linux; PyInstaller no convierte el ejecutable Windows en un ELF. El flujo de GitHub permite elegir `both`, `windows` o `linux` y tiene ambas plataformas como valor por defecto. La solicitud de firma sólo afecta al trabajo Windows.
-
-[Uso y construcción en Linux](../linux.md). Para incorporar otra plataforma a una versión ya publicada se adjuntan su binario, fuente, procedencia y checksums; se conserva el ejecutable Windows y la etiqueta original. El commit de cada plataforma queda identificado por separado.
-
-## Notas de publicación
-
-Las notas describen el comportamiento de la versión: funciones incorporadas, correcciones, compatibilidad y límites conocidos. El catálogo está en [docs/releases/catalog.json](../releases/catalog.json); las páginas de versión se encuentran en [Notas de versiones](../releases/README.md).
-
-Las versiones estables y las preliminares se distinguen mediante los indicadores de GitHub. Una publicación de documentación no necesita generar un nuevo ejecutable.
-
-## Actualizar la portada
-
-Al publicar una entrega, actualizá las descargas que correspondan en la tabla del README y enlazá sus notas. Conservá la distinción entre una estable y una preliminar disponible.
-
-Las novedades pertenecen al historial y a las notas de la entrega. Los planes pendientes pertenecen a la hoja de objetivos, sin asignarles una versión o fecha antes de que exista una publicación. Evitá agregar al final de la portada párrafos de novedades, avisos de mantenimiento o estados de solicitudes de firma.
-
-Revisá cada párrafo como una unidad: la primera oración presenta su idea y las siguientes la desarrollan. Si una oración introduce otro asunto, movela al apartado correspondiente. Las [pautas de contribución](../../CONTRIBUTING.md#documentación-y-versiones) conservan este criterio editorial.
-
-## Subir una versión
-
-Guardá el código y las notas en un commit y subí `main`. Después, publicá el ejecutable y la documentación correspondiente:
+Para construir localmente un portable Windows con el entorno preparado:
 
 ```powershell
-.\.venv\Scripts\python.exe -B tools\github_release.py `
-  --tag v1.2.1 `
-  --title "SignalLab PC 1.2.1 · Indeterminaciones visibles" `
-  --notes docs\releases\v1.2.1.md `
-  --file outputs\SignalLab-PC-1.2.1.exe `
-  --file outputs\SignalLab-PC-1.2.1-linux-x86_64.tar.gz `
-  --stable `
-  --allow-public
+.\build_portable.ps1
 ```
 
-Por defecto se crea una preliminar. `--stable` identifica una entrega estable y `--allow-public` habilita la publicación en el repositorio público configurado. La herramienta utiliza la sesión de Git existente, comprueba la coincidencia con `main` y verifica la integridad de los adjuntos.
+En Linux x86_64:
 
-## Conservar el historial
+```sh
+bash build_portable_linux.sh
+```
 
-Los ejecutables se distribuyen en Releases y no forman parte del historial Git. Las etiquetas identifican el código de cada versión. Las actualizaciones editoriales de una publicación conservan la etiqueta, la fecha, el estado y el ejecutable; si cambia un documento adjunto, su checksum se actualiza junto con él.
+Los archivos quedan en `outputs/`. PyInstaller empaqueta para el sistema donde se ejecuta: un ejecutable Windows no se convierte en Linux mediante un cambio de extensión. [Preparar el entorno](README.md) · [Compatibilidad Linux](../linux.md).
 
-## Fechas y orden de Releases
+Los instaladores se generan desde portables con comprobantes válidos mediante `tools/build_installers.py windows` o `tools/build_installers.py linux`. Windows necesita Inno Setup 6. Los comprobantes impiden utilizar un binario de otra versión, fuente o clave pública como si correspondiera al código actual.
 
-GitHub ordena el listado usando la fecha de la etiqueta o del commit, que puede diferir de la fecha de publicación. Marcar una versión como Latest controla la descarga principal, pero no corrige por sí solo fechas de referencia adelantadas.
+## Verificar y firmar
 
-El publicador crea las etiquetas nuevas como anotadas, con la fecha UTC informada por GitHub. Conserva el commit exacto de construcción y comprueba el destino de cualquier etiqueta que ya exista, sin reemplazarla. Así la fecha local del equipo no desplaza el orden de las nuevas entregas.
+Descargá los instaladores y portables del mismo commit. Contrastá los hashes y los metadatos de procedencia y conservá los informes de construcción para la revisión técnica. Los detalles de las pruebas no sustituyen la explicación funcional de las notas de versión.
 
-Las etiquetas v1.2.0-preview, v1.2.0 y v1.2.1 se normalizaron con sus fechas originales de publicación. Conservan sus mismos commits, contenidos y archivos descargables. Al actualizar una copia local antigua de esas etiquetas, puede ser necesario volver a obtener sus metadatos con un fetch explícito; no requiere recompilar los portables.
+Firmá localmente `SignalLab-updates.json` con los dos instaladores verificados y la clave privada protegida. La [guía de firma](signing.md) describe el comando. La clave privada nunca se incorpora al repositorio, a los artefactos ni a una Release; solo se publican el manifiesto firmado y los archivos identificados por él.
 
-## Ediciones instaladas
+## Archivos de la publicación
 
-El flujo de construcción produce también un instalador Windows por usuario y un instalador Linux `.run`, con pruebas nativas de actualización y desinstalación. Los portables se conservan como artefactos separados. Para publicar el canal autenticado se firman localmente los dos instaladores y se adjunta `SignalLab-updates.json` en la entrega estable correspondiente. La clave privada nunca se incorpora al repositorio ni a los artefactos. Consultá [Instalación y actualizaciones](../installed-updates.md).
+| Archivo | Finalidad |
+| --- | --- |
+| `SignalLab-PC-VERSION-setup.exe` | Instalador Windows por usuario. |
+| `SignalLab-PC-VERSION-linux-x86_64.run` | Instalador Linux por usuario. |
+| `SignalLab-PC-VERSION.exe` | Portable Windows. |
+| `SignalLab-PC-VERSION-linux-x86_64.tar.gz` | Portable Linux con documentación y avisos. |
+| Archivo de fuentes y licencias | Código y avisos correspondientes a las construcciones publicadas. |
+| Procedencia y comprobantes | Identificación del código, el entorno y los binarios. |
+| `SignalLab-updates.json` | Metadatos firmados para el canal de actualización. |
+| `SHA256SUMS-VERSION.txt` | Integridad de los adjuntos; no incluye su propio hash. |
+
+Si las plataformas se construyeron desde commits distintos, conservá sus fuentes y procedencias diferenciadas. No atribuyas a ambas un único archivo de fuentes que no corresponda a una de ellas.
+
+## Publicar en GitHub
+
+La herramienta `tools/github_release.py` comprueba el checkout y la correspondencia con `origin/main`. Se le pasan las notas mediante un archivo y cada adjunto mediante `--file`. La opción `--stable` publica una estable; sin ella se publica una preliminar. `--allow-public` habilita expresamente el repositorio público configurado.
+
+El publicador crea un borrador, sube y verifica los archivos y luego activa la publicación. Conserva el commit exacto de construcción y fecha las etiquetas nuevas con la hora de GitHub. Una etiqueta existente que apunte a otro commit provoca un error y no se reemplaza.
+
+Después de publicar una estable, comprobá que sea la descarga principal y que `releases/latest/download/SignalLab-updates.json` entregue el manifiesto esperado con una firma válida. Las preliminares no deben reemplazar ese canal. Revisá también que todos los enlaces del README apunten a adjuntos realmente disponibles.
+
+## Mantener las notas y el historial
+
+El [índice de versiones](../releases/README.md), `catalog.json` y `index.json` deben reflejar las publicaciones reales, sus canales y sus formatos. Una edición de la documentación puede mejorar la descripción de una entrega sin recompilar, reemplazar sus binarios ni cambiar su etiqueta o estado.
+
+Las notas actuales están en la documentación y en el cuerpo de cada Release. Los archivos Markdown adjuntos a una entrega son la copia incluida al publicarla y pueden conservar una redacción anterior. No se reescriben las fuentes, los manifiestos firmados o los checksums originales para hacer una corrección editorial. Si un documento adjunto necesitara reemplazarse, su integridad y el registro de publicación tendrían que actualizarse de forma explícita y coherente.
+
+Los ejecutables se conservan en Releases, fuera del historial Git. La [guía de almacenamiento](storage.md) explica el tratamiento de salidas locales y versiones históricas.

@@ -4,7 +4,7 @@
 
 El repositorio contiene código, documentación y recursos. Los ejecutables, los entornos Python y los intermedios de compilación se mantienen fuera de Git.
 
-- `outputs/`: portables locales.
+- `outputs/`: portables, instaladores y archivos de publicación locales.
 - `work/`: compilaciones, recibos de publicación y trabajo temporal.
 - `build/` y `dist/`: salidas generadas por las herramientas de empaquetado.
 - `.venv/`: entorno de desarrollo.

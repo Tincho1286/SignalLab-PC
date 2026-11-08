@@ -35,10 +35,14 @@ Los directorios `.venv/`, `work/`, `build/`, `dist/`, `outputs/` y los ejecutabl
 - [Arquitectura](architecture.md).
 - [Dependencias](dependencies.md).
 - [Compilar y publicar](releases.md).
-- [Compilación verificable y firma](signing.md).
+- [Verificación y firma de las distribuciones](signing.md).
 - [Almacenamiento de versiones](storage.md).
 - [Contribuciones](../../CONTRIBUTING.md).
 
 La interfaz, el modelo de datos y los motores compartidos evolucionan conservando las convenciones de señales, sistemas y resultados. Las variantes nuevas se integran en el catálogo existente antes de crear herramientas duplicadas.
 
 La [auditoría incremental de noviembre de 2026](audit-2026-11.md) documenta las correcciones, el mapa de módulos, los ejemplos educativos y la comprobación integral con `python tools/check_integral.py`.
+
+## Cambios de documentación
+
+Las correcciones editoriales revisan enlaces, versiones y coherencia entre guías y Releases. No requieren recompilar una distribución si no cambian su código ni sus recursos. Las notas publicadas deben conservar los límites históricos y no atribuir funciones nuevas a un ejecutable anterior.

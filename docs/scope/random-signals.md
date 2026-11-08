@@ -2,7 +2,7 @@
 
 [← Documentación](../README.md)
 
-La línea 1.1 incorpora modelos estacionarios y estimación AR. La tabla distingue capacidades disponibles de temas pendientes; las estimaciones de un registro y las propiedades teóricas de un proceso mantienen interpretaciones diferentes.
+La aplicación dispone de modelos estacionarios y estimación AR. La tabla distingue capacidades disponibles de temas pendientes; las estimaciones de un registro y las propiedades teóricas de un proceso mantienen interpretaciones diferentes.
 
 | Eje del programa | Herramientas disponibles | Alcance pendiente |
 |---|---|---|

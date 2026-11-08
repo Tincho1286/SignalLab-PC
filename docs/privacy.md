@@ -2,14 +2,24 @@
 
 [← Documentación](README.md)
 
-SignalLab PC es una aplicación de escritorio que calcula y representa señales y sistemas en el equipo donde se ejecuta. La aplicación no incorpora telemetría, cuentas de usuario ni envío automático de señales, fórmulas, archivos o resultados a un servidor del proyecto.
+SignalLab PC calcula y representa señales y sistemas en el equipo donde se ejecuta. La aplicación no incorpora cuentas de usuario ni telemetría y no envía automáticamente señales, fórmulas, documentos o resultados a un servidor del proyecto.
 
-Las ediciones instaladas con actualizador pueden consultar las versiones estables de GitHub al iniciar. Esa opción se puede desactivar en Ayuda → Buscar actualizaciones. La consulta transmite una solicitud de red con la versión de la aplicación; no incluye señales, fórmulas, proyectos ni datos del trabajo. Descargar e instalar una actualización requiere una acción del usuario. La edición portable no comprueba actualizaciones automáticamente.
+## Datos del trabajo
 
-Los archivos se importan y exportan mediante acciones de la persona que utiliza el programa. Los datos de trabajo y las configuraciones que guarda la aplicación permanecen en el equipo. Compartir una captura, un archivo o un informe mediante otro programa depende de la acción y configuración de ese programa.
+Los archivos se importan y exportan mediante acciones de la persona que utiliza el programa. Los temas, las preferencias y las imágenes elegidas como fondo permanecen en los datos locales de su usuario. Compartir una captura o un informe mediante otro programa depende de la acción y de la configuración de ese programa.
 
-Descargar el portable, consultar GitHub, informar un problema o abrir un sitio externo implica conectarse al proveedor correspondiente. Los mensajes y adjuntos publicados en un repositorio público pueden ser visibles para otras personas. No incluyas datos privados en un informe público.
+Los diagnósticos de errores se guardan localmente y tienen tamaño limitado. Un aviso puede ofrecer copiar información para describir un problema, pero no la transmite por sí solo. Antes de publicar un diagnóstico, revisá que no incluya expresiones, rutas o datos que quieras mantener privados.
 
-Las herramientas de desarrollo descargan dependencias desde sus repositorios cuando se prepara el entorno; esto no envía las señales ni resultados de la aplicación. El servicio de firma recibe los binarios y los metadatos públicos de construcción. Los datos de contacto del responsable se utilizan en la solicitud de firma y no se publican como parte del repositorio.
+## Comprobación de actualizaciones
 
-Políticas externas: [GitHub](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement) · [SignPath](https://signpath.io/privacy-policy).
+La edición instalada puede consultar las versiones estables de GitHub al iniciar. La opción se puede desactivar en **Ayuda → Buscar actualizaciones**. La solicitud de red incluye la versión de SignalLab y no contiene los datos de trabajo. Descargar e instalar una actualización requiere una acción del usuario.
+
+El portable no comprueba novedades automáticamente, aunque permite realizar una consulta manual. Descargar paquetes, abrir enlaces o informar un problema en GitHub conecta con ese proveedor. Los mensajes y archivos adjuntos publicados en un repositorio público pueden ser visibles para otras personas.
+
+## Construcción y firma
+
+Las herramientas de desarrollo descargan dependencias al preparar el entorno y utilizan GitHub Actions para construir las distribuciones. Ese proceso trabaja con el código del repositorio, no con las señales y resultados de quienes usan la aplicación.
+
+El manifiesto de actualizaciones se firma localmente. La clave privada no se sube a GitHub; se publica el manifiesto firmado y se distribuye la clave pública necesaria para verificarlo. La integración opcional de Authenticode no está habilitada como servicio de producción, por lo que no forma parte del uso habitual ni del canal de actualización actual. [Política de firma](code-signing.md).
+
+Para las interacciones con GitHub se aplica también su [política de privacidad](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement).

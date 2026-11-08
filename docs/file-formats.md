@@ -6,7 +6,7 @@
 
 Las entradas numéricas compatibles ofrecen **Fórmula**, **Muestras**, **Archivo** y **Resultado**. Cada operando puede usar una fuente diferente: por ejemplo, sumar una señal calculada con un CSV o multiplicar dos registros importados.
 
-Desde 1.2 se amplía la importación desde el selector de Resultados y desde editores algebraicos compatibles. El tipo de dato, el dominio, la variable y las unidades determinan qué puede cargarse.
+La importación está disponible desde el selector de Resultados y los editores algebraicos compatibles. El tipo de dato, el dominio, la variable y las unidades determinan qué puede cargarse.
 
 | Formato | Datos y uso |
 | --- | --- |
@@ -37,3 +37,7 @@ Las señales pueden exportarse a JSON y CSV. Los sistemas usan su JSON de transf
 Los formatos 1 a 3 conservan coeficientes, avances y reloj según su versión. El formato 4 añade ROC digital: `right`, `left` o `radius` con radio positivo. El formato 5 añade ROC analógica: `right`, `left` o `line` con una parte real `sigma` interior a la franja. Los bordes se determinan por los polos no cancelados del modelo almacenado.
 
 La ausencia de ROC se conserva explícitamente: una expresión racional no fija por sí sola causalidad ni estabilidad bilateral. El archivo de frecuencia JSON también conserva la transferencia y su interpretación matemática. Los CSV conservan su tabla de datos habitual.
+
+## Conservar resultados entre sesiones
+
+La biblioteca reúne los resultados durante el trabajo. Exportar una selección permite recuperar los objetos compatibles y su procedencia; no equivale a guardar automáticamente todas las pestañas y el estado completo de una sesión. Exportá los datos e informes que quieras conservar antes de cerrar o de instalar una actualización.

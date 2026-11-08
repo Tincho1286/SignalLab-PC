@@ -1,44 +1,51 @@
-# SignalLab PC · portable Linux x86_64
+# SignalLab PC en Linux x86_64
 
-El portable Linux incluye la aplicación, Python y las bibliotecas numéricas y de interfaz. No necesita un entorno Python instalado ni utiliza Wine. Se distribuye como `.tar.gz` con un ejecutable nativo ELF de 64 bits, documentación, licencias y el registro de construcción.
+[← Documentación](README.md)
 
-## Descargar y abrir
+La versión estable 1.8.0 ofrece un instalador `.run` y un portable `.tar.gz`. Ambos contienen la aplicación nativa, Python y las bibliotecas numéricas y de interfaz; no requieren Wine ni una instalación separada de Python. Comparten los motores y herramientas de la edición Windows.
 
-Descargá `SignalLab-PC-1.6.11-linux-x86_64.tar.gz` desde [SignalLab PC 1.6.11](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.6.11). Descomprimilo y abrí el ejecutable `SignalLab-PC` que está dentro de su carpeta. Desde una terminal:
+## Instalación por usuario
+
+Descargá el `.run` desde la [release estable](https://github.com/Tincho1286/SignalLab-PC/releases/latest) y ejecutá:
 
 ```sh
-tar -xzf SignalLab-PC-1.6.11-linux-x86_64.tar.gz
-cd SignalLab-PC-1.6.11-linux-x86_64
+sh ./SignalLab-PC-1.8.0-linux-x86_64.run
+```
+
+El asistente instala para tu usuario sin `sudo`, crea el acceso del menú y prepara las siguientes actualizaciones desde **Ayuda → Buscar actualizaciones**. La ubicación predeterminada es `~/.local/share/SignalLab-PC/`; se respetan los directorios XDG configurados. La [guía de actualizaciones](installed-updates.md) explica la activación de versiones y la desinstalación.
+
+## Edición portable
+
+Si preferís ejecutar desde una carpeta, descargá el `.tar.gz`, descomprimilo y abrí el archivo `SignalLab-PC`:
+
+```sh
+tar -xzf SignalLab-PC-1.8.0-linux-x86_64.tar.gz
+cd SignalLab-PC-1.8.0-linux-x86_64
 ./SignalLab-PC
 ```
 
-El archivo TAR conserva el permiso de ejecución. Si el gestor de archivos lo eliminó, podés restaurarlo con `chmod u+x SignalLab-PC`. Usá una carpeta y un directorio temporal donde el sistema permita ejecutar archivos; el formato de un solo ejecutable extrae sus bibliotecas temporalmente al iniciarse.
+El TAR conserva el permiso de ejecución. Si el gestor de archivos lo quitó, restauralo con `chmod u+x SignalLab-PC`. Tanto la carpeta elegida como el directorio temporal deben permitir ejecutar archivos: el empaquetado extrae temporalmente las bibliotecas al iniciarse.
 
-## Compatibilidad
+## Compatibilidad y escritorio
 
-- Procesador Intel/AMD de 64 bits (`x86_64`); esta entrega no es para ARM/Raspberry Pi.
-- Construcción en Ubuntu 22.04, con glibc 2.35. Se dirige a sistemas con glibc 2.35 o posterior y bibliotecas gráficas compatibles. No se presenta como una distribución universal para cualquier Linux; Alpine/musl no está incluido.
-- Requiere un escritorio gráfico y las bibliotecas del sistema que utiliza Qt. X11 está soportado mediante el complemento `xcb`; una sesión Wayland puede utilizar XWayland según su configuración.
-- Incluye las mismas herramientas y motores de cálculo que Windows. La interfaz se adapta a las fuentes y al escritorio disponibles en el sistema.
+La distribución se construye para procesadores Intel/AMD de 64 bits (`x86_64`), sobre Ubuntu 22.04 con glibc 2.35. Se dirige a sistemas con glibc 2.35 o posterior y bibliotecas gráficas compatibles. No incluye una compilación ARM ni Alpine/musl y no se presenta como un paquete universal para cualquier distribución.
 
-En un sistema Ubuntu/Debian mínimo que informe que no puede cargar el complemento `xcb`, pueden faltar bibliotecas gráficas del escritorio. El paquete `libxcb-cursor0` es uno de los requisitos de Qt; también se utilizan OpenGL/EGL, XKB y las bibliotecas X11/XCB. Las instrucciones y requisitos completos están en [Qt para X11](https://doc.qt.io/qt-6.10/linux-requirements.html). La compatibilidad de glibc sigue las [condiciones de distribución de PyInstaller](https://pyinstaller.org/en/stable/usage.html#making-gnu-linux-apps-forward-compatible).
+Se necesita un escritorio gráfico con las bibliotecas del sistema utilizadas por Qt. X11 funciona mediante `xcb`; una sesión Wayland puede utilizar XWayland según su configuración. Si aparece un error de carga de `xcb`, revisá las dependencias gráficas del escritorio, entre ellas `libxcb-cursor0`, OpenGL/EGL, XKB y X11/XCB. Los [requisitos de Qt para X11](https://doc.qt.io/qt-6.10/linux-requirements.html) y las [condiciones de compatibilidad de PyInstaller](https://pyinstaller.org/en/stable/usage.html#making-gnu-linux-apps-forward-compatible) desarrollan esos requisitos.
 
-## Archivos y licencia
+## Archivos y procedencia
 
-Los datos y resultados se guardan donde elijas al exportarlos. La carpeta portable contiene `LICENSE`, `NOTICE.md`, `THIRD_PARTY_NOTICES.md` y `LICENSES/`; este último conserva tanto los avisos comunes del repositorio como los del entorno Linux en `linux-runtime/` y su manifiesto específico.
+Los datos se guardan donde elijas al exportarlos y la configuración permanece en los datos locales de tu usuario. El portable contiene la GPL, los avisos del proyecto y `LICENSES/`, con los avisos comunes y los recogidos del entorno Linux en `linux-runtime/`.
 
-`build-provenance.json` identifica el commit, la versión, la plataforma y el checksum del ejecutable. El release publica checksums para verificar los archivos descargados y un archivo fuente específico de la construcción Linux. La firma Authenticode solicitada para Windows no se aplica al ELF Linux; un checksum comprueba integridad, no identidad del publicador.
+`build-provenance.json` identifica la versión, el commit, la plataforma y el hash del ejecutable. Las Releases incluyen fuentes y checksums de los archivos distribuidos. Un checksum comprueba integridad; en la edición instalada, el [manifiesto firmado](installed-updates.md) verifica además el canal de actualización.
 
-## Compilar desde el código
+## Construir desde el código
 
-En Linux x86_64, con Python 3.12 y las bibliotecas gráficas de Qt disponibles:
+Con Python 3.12 de 64 bits y los requisitos gráficos disponibles:
 
 ```sh
 python3.12 -m venv .venv
-.venv/bin/python -m pip install -r requirements-lock.txt
+.venv/bin/python -m pip install -r requirements-lock.txt -r requirements-quality.txt
 bash build_portable_linux.sh
 ```
 
-La distribución se genera en `outputs/`. El [flujo de GitHub Actions](https://github.com/Tincho1286/SignalLab-PC/actions/workflows/portable.yml) permite construir Windows y Linux juntos; las versiones siguientes conservan ambas plataformas por defecto. La compilación no ejecuta la aplicación ni pruebas de cálculo.
-
-[Documentación](https://github.com/Tincho1286/SignalLab-PC/blob/main/docs/README.md) · [Código fuente](https://github.com/Tincho1286/SignalLab-PC)
+La construcción ejecuta los controles matemáticos, de código y de reutilización exigidos por el proyecto. Las salidas quedan en `outputs/`. El [flujo de GitHub Actions](https://github.com/Tincho1286/SignalLab-PC/actions/workflows/portable.yml) construye también el instalador y comprueba la instalación real con la aplicación empaquetada. [Guía de publicación](development/releases.md).
