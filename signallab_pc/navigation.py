@@ -47,6 +47,7 @@ MENUS['Filtros y sistemas'].append(('FIR desde h[n] propia y ventana','fir_windo
 FILTER_ROUTE=('Filtros y sistemas','filter_lab',0,None)
 LAPLACE_ROUTE=('Transformada de Laplace','transform_lab','laplace',None)
 Z_ROUTE=('Transformada Z','transform_lab','z',None)
+FILTER_ALIASES={('systems',3):('system_analysis',0),('systems',4):('system_analysis',0),('systems',5):('systems',9),('systems',7):('course_tools','convert'),('systems',11):('system_analysis',0)}
 FILTER_KEYS={item[1:3] for item in MENUS['Filtros y sistemas'] if item[1]!='interconnection'}|{('systems',8),('systems',9),('systems',11)}
 TRANSFORM_ALIASES={('symbolic',0):LAPLACE_ROUTE,('symbolic',1):LAPLACE_ROUTE,('symbolic',2):Z_ROUTE,('symbolic',3):Z_ROUTE,('course_tools','inverse_z'):Z_ROUTE}
 MENUS['Filtros y sistemas'].append(FILTER_ROUTE)

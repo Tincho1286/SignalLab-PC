@@ -7,6 +7,7 @@ on:
       - 'signallab_pc/**.py'
       - 'tests/test_math_*.py'
       - 'tests/test_health_exchange.py'
+      - 'tests/test_interactive_analysis.py'
       - 'tools/check_math.py'
       - 'tools/audit_mathematics.py'
       - 'tools/math_audit_cases.py'
@@ -21,6 +22,7 @@ on:
       - 'signallab_pc/**.py'
       - 'tests/test_math_*.py'
       - 'tests/test_health_exchange.py'
+      - 'tests/test_interactive_analysis.py'
       - 'tools/check_math.py'
       - 'tools/audit_mathematics.py'
       - 'tools/math_audit_cases.py'
@@ -89,6 +91,8 @@ jobs:
         run: python -m pip install --disable-pip-version-check -r requirements-lock.txt
       - name: Check real expression and system controls
         run: python -B -X utf8 tools/check_workflows.py
+      - name: Check interactive FIR, ROC and recurrence controls
+        run: python -B -X utf8 -m unittest discover -s tests -p test_interactive_analysis.py -v
       - name: Preserve workflow report
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

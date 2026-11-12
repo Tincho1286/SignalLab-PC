@@ -20,6 +20,22 @@ class MathematicalReliabilityTests(unittest.TestCase):
 
     def equivalent(self,actual,expected):self.assertEqual(sp.simplify(actual-expected),0)
 
+    def test_library_catalog_does_not_import_graphical_runtime(self):
+        import subprocess,sys
+        code="""import importlib.abc,sys
+class NoGui(importlib.abc.MetaPathFinder):
+    def find_spec(self,fullname,path=None,target=None):
+        if fullname.split('.')[0] in ('PySide6','matplotlib'):
+            raise ImportError('The library catalog must not load '+fullname)
+sys.meta_path.insert(0,NoGui())
+from signallab_pc.library_catalog import sections
+assert len(sections())==122
+from signallab_pc.tool_catalog import normalized_key
+assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
+"""
+        result=subprocess.run([sys.executable,'-B','-X','utf8','-c',code],cwd=Path(__file__).resolve().parents[1],capture_output=True,text=True,timeout=30)
+        self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+
     def test_sinc_sample_survives_both_discrete_transforms(self):
         for kind in ('z_expression','dtft_expression'):
             for lo,hi in (('0','oo'),('-oo','oo'),('-3','4')):

@@ -168,9 +168,8 @@ def search_variant(entry,query,current_key=None):
 
 def normalized_key(item):
     key=tuple(item[1:3])
-    from .filter_lab import ALIASES
-    from .navigation import TRANSFORM_ALIASES
-    key=ALIASES.get(key,key)
+    from .navigation import FILTER_ALIASES,TRANSFORM_ALIASES
+    key=FILTER_ALIASES.get(key,key)
     if key in TRANSFORM_ALIASES:key=TRANSFORM_ALIASES[key][1:3]
     if key==('systems',10):key=('interconnection',0)
     return key

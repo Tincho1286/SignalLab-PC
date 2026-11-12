@@ -1,14 +1,13 @@
 """One filter document, with options for definition, design, conversion and use."""
 from .active_stack import ActiveStack
 from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QTabBar,QComboBox,QPushButton,QLabel,QMessageBox
-from .navigation import MENUS
+from .navigation import MENUS,FILTER_ALIASES as ALIASES
 ROUTES={item[1:3]:item for group in MENUS.values() for item in group}
 GROUPS=[('Analizar',[('system_analysis',0)]),
         ('Diseñar',[('course_tools','fir'),('course_tools','iir'),('course_tools','analog'),('systems',6),('systems',0),('fir_window',0),('systems',1),('systems',2),('systems',8)]),
         ('Ajustar',[('course_tools','gain'),('course_tools','phase')]),
         ('Ideales y por tramos',[('frequency_filter',0)]),
         ('Convertir',[('course_tools','convert')]),('Respuesta temporal',[('systems',9)])]
-ALIASES={('systems',3):('system_analysis',0),('systems',4):('system_analysis',0),('systems',5):('systems',9),('systems',7):('course_tools','convert'),('systems',11):('system_analysis',0)}
 
 class FilterLab(QWidget):
     def __init__(self,window):
