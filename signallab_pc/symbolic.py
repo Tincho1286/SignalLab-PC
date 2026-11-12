@@ -103,6 +103,9 @@ def _execute(request):
     if operation=='frequency_definition':
         from .fourier_bands import frequency_definition
         return frequency_definition(request)
+    if operation=='roc_regions':
+        from .roc_regions import regions
+        return regions(request)
     if operation=="difference_equation":
         from .difference_equations import solve
         return solve(request)

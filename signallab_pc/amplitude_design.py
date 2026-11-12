@@ -28,9 +28,9 @@ def masks(w,wp,ws,kind):
     return [w<=wp[0],w>=wp[1]],(w>=ws[0])&(w<=ws[1])
 
 
-def evaluate_spec(system,spec):
+def evaluate_spec(system,spec,*,return_metrics=False):
     from .band_extrema import evaluate
-    return evaluate(system,spec)
+    return evaluate(system,spec,return_metrics=return_metrics)
 
 
 def scale_system(system,gain):
@@ -83,9 +83,9 @@ def _search_fir(candidate, spec, wp, ws, limit=None):
         ensure_working_set(nfft, live_arrays=10)
         design = candidate(length)
         if not _violates_samples(design[0], spec, wp, ws, nfft):
-            accepted, report = evaluate_spec(design[0], spec)
+            accepted, report, metrics = evaluate_spec(design[0], spec, return_metrics=True)
             if accepted:
-                return length, design, report
+                return length, design, report, metrics
         last = length
         length += 2 if odd else 1
     boundary = ('límite automático de cálculo' if limit is None else 'límite indicado')
@@ -93,7 +93,7 @@ def _search_fir(candidate, spec, wp, ws, limit=None):
                      'Probá otra ventana o ajustá las tolerancias o la transición.')
 
 
-def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitudes=(1,),units='absolute',analog=False):
+def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitudes=(1,),units='absolute',analog=False,fixed_length=None):
     from .course_tools import bands,design_filter,compare_iir
     wp=np.asarray(wp,float);ws=np.asarray(ws,float)
     if analog:
@@ -108,7 +108,12 @@ def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitu
     if method=='kaiser' and not analog:
         if window not in ('boxcar','hann','hamming','blackman','bartlett','kaiser'):raise ValueError('Ventana no admitida.')
         is_kaiser = window == 'kaiser'
-        automatic = not is_kaiser or not taps
+        if fixed_length is not None:
+            from .scalar_expression import integer_value
+            if isinstance(fixed_length,bool):raise ValueError('La longitud debe ser un entero positivo.')
+            fixed_length=integer_value(fixed_length)
+            if fixed_length<1:raise ValueError('La longitud debe ser positiva.')
+        automatic = fixed_length is None and (not is_kaiser or not taps)
         if is_kaiser and (taps<0 or search<0):
             raise ValueError('Longitud y cota de búsqueda deben ser no negativas.')
         if is_kaiser:
@@ -130,17 +135,19 @@ def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitu
             m=np.arange(length)-(length-1)/2;ideal=kernel(m);window_values=sp.get_window(chosen,length,fftbins=False)
             b=ideal*window_values;b=(b+b[::-1])/2
             return Transfer(b,[1],name='FIR '+window+' · amplitudes por banda'),ideal,window_values
-        searching = automatic or bool(search)
+        searching = automatic or (fixed_length is None and bool(search))
         if searching:
-            count, (result, ideal, window_values), evaluation = _search_fir(
+            count, (result, ideal, window_values), evaluation, metrics = _search_fir(
                 candidate, spec, wp, ws, limit=int(search) if is_kaiser and search else None)
             accepted = True
         else:
-            count = max(2,int(taps))
+            from .scalar_expression import integer_value
+            count = fixed_length if fixed_length is not None else integer_value(taps)
+            if count<1:raise ValueError('La longitud debe ser positiva.')
             if kind in ('highpass','bandstop') and count%2==0:
                 raise ValueError('Paso no nulo en π: el FIR simétrico requiere longitud impar.')
             result, ideal, window_values = candidate(count)
-            accepted, evaluation = evaluate_spec(result, spec)
+            accepted, evaluation, metrics = evaluate_spec(result, spec, return_metrics=True)
         result.roc={'mode':'right'}
         signals=[Signal(ideal,name='Respuesta ideal truncada'),Signal(window_values,name='Ventana '+window),Signal(result.b,name='Respuesta FIR h[n]')]
         from .fir_formula import kernel as formula_kernel,window_expression
@@ -157,7 +164,7 @@ def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitu
             length_note += f'\nLongitud de referencia por fórmula de Kaiser: {estimated}\nβ Kaiser: {beta:.12g}'
         detail=f'Ventana: {window}\n{length_note}\nLongitud usada L: {count}\nOrden nominal M: {count-1}\nRetardo D: {d} muestras\nTransiciones especificadas: '+', '.join(f'{v:.12g} rad/muestra' for v in abs(wp-ws))+'\nCortes del ideal: '+', '.join(f'{v:.12g}' for v in cutoff)
         summary=Summary('Diseño FIR con amplitudes por banda',[Section('Ideal y filtro enventanado',formulas=formulas,paragraphs=['sinc(x)=sin(πx)/(πx), sinc(0)=1. El ideal está definido para todo n. El filtro usa el ideal desplazado por D=(L−1)/2 y una ventana simétrica, sin normalización global que altere la relación entre bandas.']),Section('Parámetros',paragraphs=detail.splitlines()),Section('Tolerancias',paragraphs=evaluation.splitlines())])
-        return {'report':summary.plain_text(),'fir_summary':summary,'systems':[result],'signals':signals,'specifications':spec,'specification_met':accepted}
+        return {'report':summary.plain_text(),'fir_summary':summary,'systems':[result],'signals':signals,'specifications':spec,'specification_met':accepted,'specification_metrics':metrics,'fir_metadata':{'length':count,'order':count-1,'type':'I' if count%2 else 'II','delay':(count-1)/2,'beta':float(beta),'estimated_length':int(estimated) if is_kaiser else None,'automatic':searching}}
     if kind=='bandstop' and amplitudes[0]!=amplitudes[1]:
         raise ValueError('Las familias IIR clásicas usan una sola ganancia de paso. Para dos amplitudes independientes en un rechazabanda, elegí FIR por bandas y tolerancias; no se sustituye tu pedido por una ganancia global.')
     gain=float(upper.min());normalized_dp=float(1-lower.max()/gain);normalized_ds=stop/gain

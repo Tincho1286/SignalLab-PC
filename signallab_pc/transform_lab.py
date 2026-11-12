@@ -45,6 +45,7 @@ class TransformLab(QWidget):
         self.copy_inverse=QPushButton('Copiar resultado a la inversa');self.copy_inverse.clicked.connect(self.to_inverse);self.copy_inverse.hide();result_actions.addWidget(self.copy_inverse)
         self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setProperty('actionRole','cas');self.to_cas_button.setToolTip('Abrir la expresión del último resultado calculado como una celda de la hoja CAS.');self.to_cas_button.clicked.connect(self.to_cas);self.to_cas_button.hide();result_actions.addWidget(self.to_cas_button)
         self.analyze_system=QPushButton();self.analyze_system.clicked.connect(self.to_system);result_actions.addWidget(self.analyze_system);result_actions.addStretch()
+        self.roc_button=QPushButton('Explorar ROC…');self.roc_button.setToolTip('Elegir una región abierta en el plano de polos y aplicarla a la inversa.');self.roc_button.clicked.connect(self.explore_roc);result_actions.insertWidget(1,self.roc_button)
         self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Expresión y condiciones')
         self.output=ResultView();self.tabs.addTab(self.output,'Muestras de la inversa');self.tabs.setTabVisible(1,False)
         self.steps=ReportView();self.steps_index=self.tabs.addTab(report_panel(self.steps),'Desarrollo');self.tabs.setTabVisible(self.steps_index,False)
@@ -52,6 +53,7 @@ class TransformLab(QWidget):
             index=self.mode.currentIndex();changed=index!=self._mode_index
             if changed:
                 self.definitions[self._mode_index]=self.expression.text();self._mode_index=index;self.expression.setText(self.definitions[index])
+            self.roc_button.setEnabled(index==1);self.roc_button.setVisible(index==1)
             inverse=index==1;z=kind=='z';finite=z and not inverse and self.direct_input.currentIndex()==1;samples=z and inverse and self.include_samples.isChecked();bilateral=not z and self.interpretation.currentIndex()==1
             form.setRowVisible(self.direct_buttons,z and not inverse);form.setRowVisible(self.sample_scope,samples);form.setRowVisible(self.load_expression_button,not finite)
             form.setRowVisible(self.interpretation,not z);form.setRowVisible(self.laplace_roc,bilateral and inverse);form.setRowVisible(self.sigma,bilateral and inverse and self.laplace_roc.currentIndex()==2)
@@ -87,6 +89,19 @@ class TransformLab(QWidget):
         self.interpretation.currentIndexChanged.connect(update);self.laplace_roc.currentIndexChanged.connect(update)
         self.direct_input.currentIndexChanged.connect(lambda *_:(self.display_record(self.records.get(self.record_key())),update()));self.sample_scope.currentIndexChanged.connect(update)
         self.mode.currentIndexChanged.connect(update);self.roc.currentIndexChanged.connect(update);self.include_samples.toggled.connect(update);update();self.display_record(None)
+    def explore_roc(self):
+        if self.mode.currentIndex()!=1:return
+        expression=self.expression.text();request={'operation':'roc_regions','kind':self.kind,'expression':expression}
+        def accept(data):
+            if self.expression.text()!=expression or self.mode.currentIndex()!=1:
+                self.window.statusBar().showMessage('La definición cambió. Abrí de nuevo el selector de ROC.');return
+            from .roc_picker import RocPicker
+            self.window.publish({'report':data['report']+'\n'+data['scope'],'roc_regions':data},title='Regiones de convergencia',operation='Explorar ROC')
+            previous=getattr(self,'roc_picker',None)
+            if previous is not None:previous.close()
+            self.roc_picker=RocPicker(self,data);self.roc_picker.show()
+        self.window._run_operation('Identificando polos y regiones de convergencia…',lambda:run_request(request),accept)
+
     def record_key(self):
         return (self.mode.currentIndex(),self.direct_input.currentIndex() if self.kind=='z' and self.mode.currentIndex()==0 else 0)
     def choose_expression(self):

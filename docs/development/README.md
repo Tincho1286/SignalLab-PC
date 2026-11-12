@@ -46,3 +46,7 @@ La [auditoría incremental de noviembre de 2026](audit-2026-11.md) documenta las
 ## Cambios de documentación
 
 Las correcciones editoriales revisan enlaces, versiones y coherencia entre guías y Releases. No requieren recompilar una distribución si no cambian su código ni sus recursos. Las notas publicadas deben conservar los límites históricos y no atribuir funciones nuevas a un ejecutable anterior.
+
+## Herramientas interactivas en desarrollo
+
+El código posterior a la 1.8.0 incorpora comparación FIR por ventanas, selección visual de ROC e inspección de recurrencias. La [guía de análisis interactivo](../interactive-analysis.md) explica los controles y sus límites; las descargas de la versión publicada mantienen su contenido original.

@@ -13,7 +13,7 @@ class DifferencePanel(QWidget):
     def __init__(self,window):
         super().__init__();self.window=window;self.result=None;self.result_key=None;self.transfer_key=None
         from .toolbox import ResultView
-        root=QHBoxLayout(self);root.setContentsMargins(6,6,6,6);controls=QWidget();form=QFormLayout(controls);form.setProperty('stackFields',True)
+        root=QHBoxLayout(self);root.setContentsMargins(6,6,6,6);controls=QWidget();form=QFormLayout(controls);form.setProperty('stackFields',True);form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows)
         note=QLabel('a₀·y[n] + a₁·y[n−1] + … + aₚ·y[n−p] = f[n]');note.setWordWrap(True);form.addRow(note)
         self.coefficients=QLineEdit('1, -0.5');form.addRow('Coeficientes a₀, a₁, …, aₚ',self.coefficients)
         self.coefficients.setToolTip('Orden por retardos: a₀ multiplica y[n], a₁ multiplica y[n−1]. Se admiten pi, fracciones y 10^(-3). a₀ debe ser distinto de cero.')
@@ -54,6 +54,8 @@ class DifferencePanel(QWidget):
         self.cas_menu=QMenu(self.cas_button);self.cas_button.setMenu(self.cas_menu);self.cas_menu.aboutToShow.connect(self.prepare_cas)
         self.tabs=QTabWidget();box.addWidget(self.tabs,1);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Solución')
         self.output=ResultView();self.tabs.addTab(self.output,'Muestras de y[n]');self.tabs.setTabVisible(1,False)
+        from .recurrence_inspector import RecurrenceInspector
+        self.inspector=RecurrenceInspector();self.inspector_index=self.tabs.addTab(self.inspector,'Paso a paso');self.tabs.setTabVisible(self.inspector_index,False)
         self.steps=ReportView();self.steps_index=self.tabs.addTab(report_panel(self.steps),'Desarrollo');self.tabs.setTabVisible(self.steps_index,False)
 
     def prepare_reuse(self):
@@ -88,6 +90,7 @@ class DifferencePanel(QWidget):
                 transfer={'request':{'operation':'difference_equation_transfer','domain':'digital'},'result':{'operation':'Transferencia de ecuación en diferencias','result':result['system_expression'],'output_variable':'z','evaluated':True,'scope':'Transferencia desde f[n] hacia y[n] bajo condiciones iniciales nulas; no incluye la respuesta del historial.'}}
                 self.transfer_key=self.window.publish(transfer,title='H(z) de ecuación en diferencias',operation='Transferencia desde f[n]',parents=[self.result_key])
                 self.report.set_readable(summary(request,result));self.use_button.setEnabled(True);self.cas_button.setEnabled(True)
+                self.inspector.set_result(result);self.tabs.setTabVisible(self.inspector_index,result.get('recurrence_trace') is not None)
                 from .transform_steps import summary as steps_summary
                 self.steps.set_readable(steps_summary(result.get('derivation',[])));self.tabs.setTabVisible(self.steps_index,bool(result.get('derivation')))
                 values=result.get('numeric_samples');self.tabs.setTabVisible(1,values is not None)

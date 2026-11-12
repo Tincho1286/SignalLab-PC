@@ -105,9 +105,9 @@ def measure(system, wp, ws, kind):
             'scope':'Estimación numérica con rejilla, bordes exactos, vecindades de polos y refinamiento local de extremos. En analógico se incluye el límite en infinito. No es una certificación global ni prueba un orden mínimo.'}
 
 
-def evaluate(system, spec):
+def evaluate(system, spec, *, return_metrics=False):
     try:metrics = measure(system, spec['wp'], spec['ws'], spec['kind'])
-    except ValueError as exc:return False, str(exc)
+    except ValueError as exc:return (False, str(exc), None) if return_metrics else (False, str(exc))
     unit = 'rad/s' if system.domain=='analog' else 'rad/muestra'
     def at(w):return '∞' if np.isinf(w) else format(w, '.12g')
     rows = ['Los extremos corresponden al módulo |H| en amplitud lineal, dentro de cada banda exigida. Las bandas de transición no se incluyen.'];excess = -np.inf
@@ -129,4 +129,5 @@ def evaluate(system, spec):
     verdict = 'dentro de tolerancias.' if accepted else 'al límite numérico; no se declara cumplimiento estricto.' if 0<excess<=1e-10*scale else 'fuera de tolerancias o con extremos pendientes de resolver; revisá el diseño.'
     rows.extend([f'Margen mínimo respecto de los límites: {-excess:.12g} en amplitud (positivo: holgura; negativo: exceso).', 'Comprobación con extremos refinados: '+verdict, metrics['scope']])
     if metrics['failed_refinements']:rows.append(f'Búsquedas locales sin convergencia: {metrics["failed_refinements"]}; no se declara válido el diseño.')
-    return bool(accepted), '\n'.join(rows)
+    report='\n'.join(rows)
+    return (bool(accepted), report, metrics) if return_metrics else (bool(accepted), report)

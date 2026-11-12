@@ -201,6 +201,10 @@
           "El ideal, los límites y el filtro calculado aparecen juntos. El informe muestra h_ideal[n], la ventana, h[n], longitud y evaluación de cada banda. Las dos bandas del rechazabanda se construyen con sus ganancias propias antes de aplicar la ventana."
         ],
         [
+          "Comparar ventanas con un criterio común",
+          "En Cálculo podés mantener el diseño individual, comparar con las mismas tolerancias o comparar con igual longitud. Elegí las ventanas y, si corresponde, la longitud común L. Kaiser calcula β a partir de las tolerancias. La pestaña Comparación muestra L, M=L−1, tipo simétrico I/II, retardo, error de paso, rechazo y tiempo. Seleccionar una fila elige el filtro para analizar, exportar o reutilizar; la tabla CSV incluye intentos fallidos y sus motivos. Un FIR simétrico de longitud par tiene un cero en π, por lo que no sirve para un paso no nulo en esa frecuencia."
+        ],
+        [
           "Qué tener en cuenta",
           "Kaiser estima la longitud, pero no garantiza cumplimiento. Si la respuesta queda fuera de tolerancias, se indica expresamente. La búsqueda de longitud usa la familia y la rejilla elegidas; no demuestra un mínimo universal."
         ],
@@ -554,9 +558,7 @@
           }
         ]
       ],
-      "reading": {
-        "ref": "lectura-del-resultado-380c9116"
-      }
+      "reading": "Compará la respuesta obtenida con el objetivo y los límites de cada banda. En FIR, Kaiser estima la longitud usando la transición más estrecha y el menor error absoluto referido a la mayor amplitud; la estimación no garantiza cumplimiento. El informe evalúa las bandas originales y declara si la respuesta queda fuera de tolerancias. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones. En Cálculo podés mantener el diseño individual, comparar con las mismas tolerancias o comparar con igual longitud. Elegí las ventanas y, si corresponde, la longitud común L. Kaiser calcula β a partir de las tolerancias. La pestaña Comparación muestra L, M=L−1, tipo simétrico I/II, retardo, error de paso, rechazo y tiempo. Seleccionar una fila elige el filtro para analizar, exportar o reutilizar; la tabla CSV incluye intentos fallidos y sus motivos. Un FIR simétrico de longitud par tiene un cero en π, por lo que no sirve para un paso no nulo en esa frecuencia."
     },
     {
       "key": [

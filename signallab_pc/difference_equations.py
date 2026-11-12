@@ -177,7 +177,7 @@ def solve(request):
     condition='n >= '+str(start)
     if coefficients[0].is_zero is not False:condition+='; '+str(coefficients[0])+' != 0'
     parameters=sorted(str(v) for v in forcing.free_symbols.union(*(a.free_symbols for a in [*coefficients,*history]))-{N})
-    numeric=None;numeric_notice='';residual_check={'status':'Sin muestras numéricas: residuo de registro no disponible.'}
+    numeric=None;numeric_trace=None;numeric_notice='';residual_check={'status':'Sin muestras numéricas: residuo de registro no disponible.'}
     if not parameters:
         import numpy as np
         from scipy.signal import lfilter,lfiltic
@@ -198,6 +198,7 @@ def solve(request):
             if not np.isfinite(values).all():
                 raise NumericSamplingError('La recurrencia excede el rango numérico en el intervalo elegido.')
             numeric=[sample_pair(v) for v in values]
+            numeric_trace={'coefficients':[sample_pair(v) for v in a], 'history':[sample_pair(v) for v in initial], 'forcing_over_a0':[sample_pair(v) for v in inputs], 'normalization':str(coefficients[0])}
             from .equation_checks import difference
             from .auxiliary import optional
             checked,check_notice=optional('Comprobación del residuo',lambda:difference(request,{'origin':start,'numeric_samples':numeric},arrays=(a,initial,values,np.asarray(inputs))))
@@ -226,7 +227,7 @@ def solve(request):
         procedure.append(step('Entrada no racional','Convolución finita con el núcleo calculado',forcing,zero_state,conditions='n >= n₀',interpretation='La suma se conserva exacta; no se presenta como una forma cerrada.',source='difference_equations.solve'))
     procedure.append(step('Solución y dominio','Suma de entrada cero y estado cero',str(shift(zero_input))+' + '+str(shift(zero_state)),'y[n] = '+str(exact),conditions=condition,source='difference_equations.solve'))
     result = {'procedure':procedure,'input_definition':definition.metadata(),'calculation_notes':list(definition.extensions),'residual_check':residual_check,'operation':'Ecuación en diferencias','result':source(exact),'display_result':text(exact),'display_numeric':numeric_display,'cas_encoded':encode(exact),'evaluated':closed,'closed_form':closed,'output_variable':'n','condition':condition,
-            'equation_lhs':str(sum(a*sp.IndexedBase('y')[N-j] for j,a in enumerate(coefficients))),'order':order,'origin':start,'numeric_samples':numeric,'numeric_notice':numeric_notice,'parameters':parameters,'coefficients':[str(v) for v in coefficients],'initial':[str(v) for v in history],
+            'equation_lhs':str(sum(a*sp.IndexedBase('y')[N-j] for j,a in enumerate(coefficients))),'order':order,'origin':start,'numeric_samples':numeric,'numeric_notice':numeric_notice,'recurrence_trace':numeric_trace,'parameters':parameters,'coefficients':[str(v) for v in coefficients],'initial':[str(v) for v in history],
             'zero_input':text(shift(zero_input)),'zero_state':text(shift(zero_state)),'system_expression':str(sp.cancel(1/denominator)),
             'unilateral_output':str(sp.cancel((transformed+correction)/denominator)) if transformed is not None else None,
             'scope':'La ecuación se impone desde n='+str(start)+'. Los valores anteriores indicados son condiciones iniciales; no se supone ni se reconstruye una historia infinita. La fórmula se aplica sólo en ese dominio. La cantidad de muestras controla el gráfico y la tabla, no trunca la solución algebraica.',

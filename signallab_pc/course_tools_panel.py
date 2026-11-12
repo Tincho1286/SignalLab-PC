@@ -86,18 +86,24 @@ class CourseToolsPanel(QWidget):
                 self.fields['dp'].setToolTip(self.amplitude_note.text());self.fields['ds'].setToolTip(self.amplitude_note.text())
             self.band_edges.kind.currentIndexChanged.connect(update_amplitudes);self.fields['tolerance_units'].currentIndexChanged.connect(update_amplitudes);update_amplitudes()
             if action=='fir':
-                choice('window' ,'Ventana',[(name,name) for name in ('kaiser','boxcar','hann','hamming','blackman','bartlett')]);field('taps','Longitud L (0 = mínima automática)','0')
-                self.window_length_note = QLabel()
-                self.window_length_note.setWordWrap(True)
-                form.addRow(self.window_length_note)
+                choice('comparison_mode','Cálculo',[('Diseñar una ventana','single'),('Comparar con las mismas tolerancias','tolerances'),('Comparar con igual longitud','length')])
+                choice('window','Ventana',[(name,name) for name in ('kaiser','boxcar','hann','hamming','blackman','bartlett')]);field('taps','Longitud L (0 = mínima automática)','0')
+                from PySide6.QtWidgets import QGridLayout
+                self.fir_window_options=QWidget();options=QGridLayout(self.fir_window_options);options.setContentsMargins(0,0,0,0)
+                from .fir_comparison import WINDOWS
+                for position,(name,label) in enumerate(WINDOWS.items()):
+                    check=QCheckBox(label);check.setChecked(name in ('kaiser','hann','hamming'));self.fields['compare_'+name]=check;options.addWidget(check,position//2,position%2)
+                form.addRow('Ventanas a comparar',self.fir_window_options)
+                field('common_length','Longitud común L (coeficientes)','65')
+                self.window_length_note=QLabel();self.window_length_note.setWordWrap(True);form.addRow(self.window_length_note)
                 def update_window_length(*_):
-                    is_kaiser = self.fields['window'].currentData() == 'kaiser'
-                    form.setRowVisible(self.fields['taps'], is_kaiser)
-                    self.fields['taps'].setProperty('calculationInput', is_kaiser)
-                    self.window_length_note.setText('Con 0 se busca la menor longitud que cumple las tolerancias. Ingresá un valor positivo para fijar la cantidad de coeficientes.' if is_kaiser else
-                        'Longitud automática. Se elige la primera cantidad de coeficientes que cumple las tolerancias de esta ventana.')
-                self.fields['window'].currentIndexChanged.connect(update_window_length)
-                update_window_length()
+                    mode=self.fields['comparison_mode'].currentData();comparing=mode!='single';is_kaiser=self.fields['window'].currentData()=='kaiser'
+                    form.setRowVisible(self.fields['window'],not comparing);self.fields['window'].setProperty('calculationInput',not comparing)
+                    form.setRowVisible(self.fields['taps'],not comparing and is_kaiser);self.fields['taps'].setProperty('calculationInput',not comparing and is_kaiser)
+                    form.setRowVisible(self.fir_window_options,comparing);self.fir_window_options.setProperty('calculationInput',comparing)
+                    form.setRowVisible(self.fields['common_length'],mode=='length');self.fields['common_length'].setProperty('calculationInput',mode=='length')
+                    self.window_length_note.setText(('Cada ventana busca su primera longitud que supera la comprobación numérica.' if mode=='tolerances' else 'Todas usan la misma cantidad de coeficientes; se informa qué diseños cumplen.')+' Kaiser calcula β a partir de las tolerancias. Cada filtro se puede seleccionar y reutilizar.' if comparing else 'Con 0 se busca la menor longitud que cumple las tolerancias. Ingresá un valor positivo para fijar la cantidad de coeficientes.' if is_kaiser else 'Longitud automática. Se elige la primera cantidad de coeficientes que cumple las tolerancias de esta ventana.')
+                self.fields['comparison_mode'].currentIndexChanged.connect(update_window_length);self.fields['window'].currentIndexChanged.connect(update_window_length);update_window_length()
             else:
                 choice('method','Método',[('Butterworth digital','butter'),('Chebyshev I digital','cheby1'),('Chebyshev II digital','cheby2'),('Elíptico (Cauer) digital','ellip'),('Comparar las cuatro familias digitales','compare'),('Butterworth + bilineal con predeformación','bilinear'),('Butterworth + invarianza al impulso','impulse')]);field('period','T de la transformación (s)','1')
                 if action=='analog':
@@ -179,6 +185,9 @@ class CourseToolsPanel(QWidget):
         right=QWidget();out=QVBoxLayout(right);self.selector=QComboBox();self.selector.hide();self.selector.currentIndexChanged.connect(self.display);result_options=QHBoxLayout();result_options.addWidget(self.selector,1);out.addLayout(result_options)
         self.view=ResultView();self.view.layout().setContentsMargins(0,0,0,0);self.tabs=self.view.views;self.report=TransferResultReport() if action=='phase' else ReportView();self.tabs.removeTab(1);self.tabs.insertTab(1,report_panel(self.report),"Informe");out.addWidget(self.view,1)
         self.system_view=QComboBox();self.system_view.addItems(['Módulo, fase y retardo','Módulo (dB)','Retardo de grupo','Módulo |H| · amplitud']);self.system_view.setAccessibleName('Vista de la respuesta del sistema');self.system_view.hide();result_options.addWidget(self.system_view,1);self.system_view.currentIndexChanged.connect(self.display)
+        if action=='fir':
+            from .fir_comparison_view import FirComparisonView
+            self.fir_comparison_view=FirComparisonView();self.fir_comparison_index=self.tabs.addTab(self.fir_comparison_view,'Comparación');self.tabs.setTabVisible(self.fir_comparison_index,False);self.fir_comparison_view.selected.connect(self.selector.setCurrentIndex)
         self.conversion_info=None
         if action=='convert':
             self.system_view.blockSignals(True);self.system_view.clear();self.system_view.addItems(['Módulo, fase y retardo','Sólo módulo','Retardo de grupo']);self.system_view.blockSignals(False)
@@ -190,7 +199,7 @@ class CourseToolsPanel(QWidget):
                 self.figure_magnitude=QComboBox(toolbar);self.figure_magnitude.addItems(['Lineal |H|','dB']);self.figure_magnitude.setAccessibleName('Escala del módulo del gráfico');toolbar.addWidget(self.figure_magnitude)
                 self.figure_magnitude.currentIndexChanged.connect(self.magnitude_scale.setCurrentIndex);self.magnitude_scale.currentIndexChanged.connect(self.figure_magnitude.setCurrentIndex)
         self.comparing_systems=False
-        self.show_all_systems=QCheckBox('Superponer familias · exportar y reutilizar usa el filtro seleccionado');self.show_all_systems.setChecked(True);self.show_all_systems.hide();out.insertWidget(1,self.show_all_systems);self.show_all_systems.toggled.connect(self.display)
+        self.show_all_systems=QCheckBox('Superponer diseños');self.show_all_systems.setToolTip('La figura muestra todos los diseños; exportar y reutilizar usan únicamente el filtro seleccionado.');self.show_all_systems.setChecked(True);self.show_all_systems.hide();out.insertWidget(1,self.show_all_systems);self.show_all_systems.toggled.connect(self.display)
         self.reference_spectrum=None
         if action=='fft':
             comparison=QWidget();self.comparison_controls=comparison;comparison.hide();row=QVBoxLayout(comparison);row.setContentsMargins(0,0,0,0)
@@ -276,12 +285,18 @@ class CourseToolsPanel(QWidget):
                 args=(wp,ws,self.scalar('dp'),self.scalar('ds'),self.fields['method'].currentData());job=lambda:design(*args,amplitudes=amplitudes,units=units,analog=True)
             elif action in ('fir','iir'):
                 wp,ws=self.band_edges.bands()
-                window = self.fields['window'].currentData() if action=='fir' else 'kaiser'
-                kaiser = action=='fir' and window=='kaiser'
-                args=(wp,ws,self.scalar('dp'),self.scalar('ds'),'kaiser' if action=='fir' else self.fields['method'].currentData(),self.scalar('period') if action=='iir' and self.fields['method'].currentData() in ('bilinear','impulse') else 1,self.integer('taps') if kaiser else 0,window)
-                from .amplitude_design import design
                 amplitudes=[self.scalar('amplitude_low')]+([self.scalar('amplitude_high')] if self.band_edges.kind.currentData()=='bandstop' else []);units=self.fields['tolerance_units'].currentData()
-                job=lambda:design(*args,amplitudes=amplitudes,units=units)
+                if action=='fir' and self.fields['comparison_mode'].currentData()!='single':
+                    from .fir_comparison import compare,WINDOWS
+                    windows=[name for name in WINDOWS if self.fields['compare_'+name].isChecked()]
+                    args=(wp,ws,self.scalar('dp'),self.scalar('ds'),windows)
+                    mode=self.fields['comparison_mode'].currentData();length=self.integer('common_length') if mode=='length' else 65
+                    job=lambda:compare(*args,mode=mode,length=length,amplitudes=amplitudes,units=units)
+                else:
+                    window=self.fields['window'].currentData() if action=='fir' else 'kaiser';kaiser=action=='fir' and window=='kaiser'
+                    args=(wp,ws,self.scalar('dp'),self.scalar('ds'),'kaiser' if action=='fir' else self.fields['method'].currentData(),self.scalar('period') if action=='iir' and self.fields['method'].currentData() in ('bilinear','impulse') else 1,self.integer('taps') if kaiser else 0,window)
+                    from .amplitude_design import design
+                    job=lambda:design(*args,amplitudes=amplitudes,units=units)
             elif action=='convert':
                 if ideal_conversion:
                     from .ideal_conversion import windowed_conversion
@@ -336,9 +351,12 @@ class CourseToolsPanel(QWidget):
                 if hasattr(self,'comparison_controls'):self.comparison_controls.show()
                 self.procedure=result.get('procedure',[])
                 self.comparing_systems=result.get('comparison',False);self.show_all_systems.setVisible(self.comparing_systems)
+                if action=='fir':
+                    comparison=result.get('fir_comparison');self.fir_comparison_view.set_result(comparison);self.tabs.setTabVisible(self.fir_comparison_index,comparison is not None)
+                    if comparison is not None:self.specification_status.setText('Comparación: '+str(sum(row['met'] for row in comparison['rows']))+' de '+str(len(comparison['rows']))+' diseños dentro de tolerancias. Elegí una fila para trabajar con su filtro.')
                 self.items=result['systems']+result['signals'];self.records=[];self.specifications=result.get('specifications')
                 for value in self.items:self.records.append(self.window.publish(value,operation=TITLES[action],parents=parents))
-                self.window.publish({'report':result['report'],'specifications':self.specifications,'procedure':self.procedure,**({'input_conditions':imported_conditions} if ideal_conversion else {})},title=TITLES[action],operation='Informe de '+TITLES[action],parents=parents)
+                self.window.publish({'report':result['report'],'specifications':self.specifications,'procedure':self.procedure,**({'fir_comparison':result['fir_comparison']} if result.get('fir_comparison') else {}),**({'input_conditions':imported_conditions} if ideal_conversion else {})},title=TITLES[action],operation='Informe de '+TITLES[action],parents=parents)
                 if result.get('exact_transfer'):
                     target=result['systems'][0];exact=result['exact_transfer']
                     self.window.publish({'request':{'operation':'system_formula','expression':exact,'domain':target.domain},'result':{'operation':'system_formula','transfer':exact,'evaluated':True,'output_variable':'s' if target.domain=='analog' else 'z','sample_period_s':target.sample_period_s,'procedure':self.procedure,'scope':'Conversión racional exacta de los coeficientes almacenados; no fija una ROC.'}},title='H exacta de la conversión',operation='Conversión bilineal algebraica',parents=parents)
@@ -416,7 +434,11 @@ class CourseToolsPanel(QWidget):
         self.tabs.setTabVisible(0,True);self.tabs.setCurrentIndex(1)
     def display(self,*_):
         index=self.selector.currentIndex()
-        if not 0<=index<len(self.items):self.system_actions.hide();return
+        if not 0<=index<len(self.items):
+            self.system_actions.hide()
+            if self.action=='fir' and self.fir_comparison_view.data is not None:
+                self.view.actions.hide();self.view.figure.clear();self.view.canvas.draw_idle();self.view.label.setText('La fila elegida no generó un filtro; consultá el motivo en Comparación o Informe.')
+            return
         value=self.items[index];is_system=isinstance(value,Transfer);self.system_actions.setVisible(is_system);self.system_actions.set_result(value if is_system else None,self.records[index]);self.view.actions.setVisible(not is_system);self.view.plot_mode.setVisible(not is_system);self.system_view.setVisible(is_system)
         if self.action=='convert':
             self.magnitude_scale.setVisible(is_system);self.magnitude_scale.setEnabled(is_system and self.system_view.currentIndex()!=2)
@@ -464,7 +486,7 @@ class CourseToolsPanel(QWidget):
         plotted=self.items if self.comparing_systems and self.show_all_systems.isChecked() else [value]
         magnitude_label='|H| · amplitud' if linear else 'Módulo (dB)'
         labels=(magnitude_label,'Fase (rad)','Retardo de grupo\n(muestras)' if value.domain=='digital' else 'Retardo de grupo\n(s)') if mode==0 else (magnitude_label,) if mode in (1,3) else ('Retardo (muestras)' if value.domain=='digital' else 'Retardo (s)',)
-        palette=['#68c7b4','#e8b56b','#91a5f6','#dd8baf']
+        palette=['#68c7b4','#e8b56b','#91a5f6','#dd8baf','#c2a3ed','#c4d788']
         from .frequency_analysis import response_magnitudes
         from .frequency_phase import principal_phase, rational_phase
         responses = [system.response(w) for system in plotted]
@@ -487,7 +509,7 @@ class CourseToolsPanel(QWidget):
                 if value.domain=='analog':axis.set_xscale('log')
                 else:axis.set_xscale('linear');axis.set_xlim(0,np.pi)
         if self.comparing_systems:
-            axes[0].legend(fontsize=8)
+            axes[0].legend(fontsize=8,**({'loc':'upper left','bbox_to_anchor':(1.02,1)} if self.action=='fir' else {}))
             self.view.label.setText('Filtro seleccionado: '+value.name)
         if spec and mode!=2:
             if not linear:

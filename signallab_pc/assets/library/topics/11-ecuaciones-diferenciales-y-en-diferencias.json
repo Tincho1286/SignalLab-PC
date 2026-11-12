@@ -51,6 +51,10 @@
           "El informe presenta la solución en función de n y separa entrada cero de estado cero. La tabla y el gráfico muestran N valores desde n₀; aumentar N no cambia la fórmula. La solución y su transferencia con condiciones nulas quedan en Resultados y pueden enviarse al CAS u otras herramientas."
         ],
         [
+          "Inspeccionar una iteración",
+          "Después de resolver con muestras numéricas, abrí Paso a paso. Elegí n o usá Anterior/Siguiente: la tabla muestra f[n]/a₀, cada coeficiente normalizado y la muestra anterior utilizada. Se distingue el historial cargado de los valores ya calculados. La suma se contrasta con y[n] y la diferencia mide redondeo numérico, no una prueba de la fórmula. Editar entradas conserva el último cálculo hasta recalcular."
+        ],
+        [
           "Qué tener en cuenta",
           "Se impone la ecuación sólo desde n₀ y no se inventa una historia infinita anterior. Para entradas polinómicas, exponenciales, senoidales y sus tramos de intervalos se utilizan propiedades de la Z unilateral. Cuando no se obtiene una forma cerrada para la entrada, se conserva la solución exacta como una suma finita de convolución y se informa ese alcance. Los parámetros sin asignar permiten conservar una fórmula, pero impiden generar muestras numéricas."
         ],
@@ -138,7 +142,7 @@
           }
         ]
       ],
-      "reading": "Entrada cero conserva el historial y elimina f[n]. Estado cero conserva f[n] y anula el historial. H(z)=1/Σaₖz⁻ᵏ es la transferencia desde f[n] bajo condiciones iniciales nulas. La solución se aplica sólo desde n₀. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Entrada cero conserva el historial y elimina f[n]. Estado cero conserva f[n] y anula el historial. H(z)=1/Σaₖz⁻ᵏ es la transferencia desde f[n] bajo condiciones iniciales nulas. La solución se aplica sólo desde n₀. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones. Después de resolver con muestras numéricas, abrí Paso a paso. Elegí n o usá Anterior/Siguiente: la tabla muestra f[n]/a₀, cada coeficiente normalizado y la muestra anterior utilizada. Se distingue el historial cargado de los valores ya calculados. La suma se contrasta con y[n] y la diferencia mide redondeo numérico, no una prueba de la fórmula. Editar entradas conserva el último cálculo hasta recalcular."
     }
   ]
 }
