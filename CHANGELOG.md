@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.3). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.5 · Preliminar
+
+Medir un espectro reúne varias bandas, fracción acumulada, centro, ancho RMS y detección de picos. Distingue energía, potencia y área de respuesta, conserva las coordenadas medidas y permite seleccionar bandas desde la figura sin recalcular silenciosamente. La STFT genera curvas reutilizables de potencia por banda con reloj y unidades. La ayuda explica esas medidas con un esquema en colores y mantiene la biblioteca organizada de la 1.8.4. La 1.8.3 sigue siendo estable.
+
+[Novedades completas](docs/releases/v1.8.5.md)
+
 ## 1.8.4 · Preliminar
 
 Esta entrega conserva los artículos y accesos de la biblioteca en 11 temas con títulos breves. Amplía STFT con escalas cuantitativas, inspección de ventanas, reconstrucción con control de cobertura y ejes y exportaciones que respetan el reloj y la fase. El inspector OLA/OLS permite estudiar historia, contribuciones y descartes conservando la convolución completa. Incluye instaladores actualizables y portables para Windows y Linux; la 1.8.3 continúa siendo estable.

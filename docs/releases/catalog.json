@@ -1,6 +1,24 @@
 {
   "releases": [
     {
+      "tag": "v1.8.5",
+      "title": "Bandas, distribución y picos de espectros",
+      "channel": "preview",
+      "summary": "Cinco mejoras para medir espectros y seguir la potencia por banda en STFT. Conserva la biblioteca reorganizada; la 1.8.3 continúa como estable.",
+      "changes": [
+        "Medidas de varias bandas con reglas distintas para energía, potencia y área de respuesta.",
+        "Fracción acumulada, centro espectral y ancho RMS del intervalo disponible.",
+        "Tabla de picos con niveles, prominencias y estimación sub-bin separada.",
+        "Selección de bandas con el mouse coordinada con cursores, zoom y desplazamiento.",
+        "Curvas reutilizables de potencia por banda en STFT, con unidades y reloj registrados."
+      ],
+      "limits": [
+        "Los porcentajes y momentos describen sólo el intervalo disponible; las bandas superpuestas no forman una partición.",
+        "La estimación entre bins no aumenta la resolución del registro. La potencia STFT depende de la ventana y del relleno en los extremos."
+      ],
+      "notes": "docs/releases/v1.8.5.md"
+    },
+    {
       "tag": "v1.8.4",
       "title": "Ventanas temporales, reconstrucción y biblioteca por temas",
       "channel": "preview",
