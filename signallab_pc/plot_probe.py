@@ -168,7 +168,9 @@ class PlotProbe:
         self.action.setVisible(not only_3d);self.widget.setVisible(self.enabled and not only_3d);self.table.setVisible(bool(traces))
         try:self.background=self.canvas.copy_from_bbox(self.canvas.figure.bbox)
         except (AttributeError,RuntimeError):self.background=None
-        self.paint()
+        # The backend is already painting this draw event. Draw overlays into
+        # its renderer without calling QWidget.repaint recursively via blit.
+        self.paint(blit=False)
 
     def artist(self,axis,x,y,color,**kwargs):
         kwargs.setdefault('transform',axis.transData)
@@ -209,7 +211,7 @@ class PlotProbe:
         if getattr(self.canvas,'_signallab_editable',False):self.hint.setText('Editor de diseño: los clics cambian polos/ceros. Usá Fijar A/B y Seguir para medir sin editar.')
         self.paint()
 
-    def paint(self):
+    def paint(self,blit=True):
         if self.exporting:return
         for artist in self.artists:artist.set_visible(False)
         if self.enabled:
@@ -230,7 +232,7 @@ class PlotProbe:
             self.canvas.restore_region(self.background)
             for artist in self.artists:
                 if artist.get_visible():artist.axes.draw_artist(artist)
-            self.canvas.blit(self.canvas.figure.bbox)
+            if blit:self.canvas.blit(self.canvas.figure.bbox)
         except (RuntimeError,AttributeError):self.background=None
 
     def before_export(self):

@@ -74,6 +74,8 @@ class Interaction(unittest.TestCase):
     def test_dragging_a_cursor_preserves_b_and_snaps_to_discrete_points(self):
         self.probe.focus(self.trace,-1,'a');self.probe.focus(self.trace,1,'b');saved=dict(self.probe.b);x,y=self.axis.transData.transform((-1,1));press=MouseEvent('button_press_event',self.canvas,x,y,button=1);self.probe.press(press);self.assertEqual(self.probe._dragging,'a')
         x,y=self.axis.transData.transform((.2,0));self.probe.motion(MouseEvent('motion_notify_event',self.canvas,x,y,button=1),force=True);self.probe.release(None);self.assertEqual(self.probe.a[self.trace.key][0],0);self.assertEqual(self.probe.b,saved)
+        with patch.object(self.canvas,'blit') as repaint:
+            self.canvas.draw();repaint.assert_not_called()
     def test_design_editor_clicks_are_not_taken_by_cursor_dragging(self):
         self.canvas._signallab_editable=True;self.probe.focus(self.trace,-1,'a');x,y=self.axis.transData.transform((-1,1));self.probe.press(MouseEvent('button_press_event',self.canvas,x,y,button=1));self.assertIsNone(self.probe._dragging)
     def test_inspector_search_pin_export_and_redraw_invalidation(self):
@@ -112,7 +114,13 @@ class Reports(unittest.TestCase):
         for fraction in (.2,.5,.8,.95):
             target=round(bar.maximum()*fraction);bar.setValue(target);self.wait();self.assertEqual(report._report_revision,revision);self.assertLessEqual(abs(bar.value()-target),1)
     def test_resizing_preserves_visible_text_and_clear_does_not_revive_summary(self):
-        report=self.report();bar=report.verticalScrollBar();bar.setValue(bar.maximum()//2);before=report.cursorForPosition(__import__('PySide6.QtCore',fromlist=['QPoint']).QPoint(0,0)).block().text();report.resize(700,260);self.wait();after=report.cursorForPosition(__import__('PySide6.QtCore',fromlist=['QPoint']).QPoint(0,0)).block().text();self.assertEqual(before,after)
+        from PySide6.QtCore import QPoint
+        report=self.report();bar=report.verticalScrollBar();bar.setValue(bar.maximum()//2)
+        for width in (700,430,800):
+            cursor=report.cursorForPosition(QPoint(0,0));before=cursor.block().text();position=cursor.position()
+            report.resize(width,260)
+            self.assertEqual(report._resize_anchor['position'],position)
+            self.wait();after=report.cursorForPosition(QPoint(0,0)).block().text();self.assertEqual(before,after)
         report.setPlainText('Sin resultado');report.resize(450,260);self.wait();self.assertEqual(report.toPlainText(),'Sin resultado');self.assertIsNone(report.summary)
     def test_frequency_tab_reopens_its_retained_canvas_after_alternatives(self):
         from signallab_pc.system_analysis_panel import SystemAnalysisPanel
