@@ -55,7 +55,10 @@ def install_enlarge(toolbar):
         ancestor=ancestor.parentWidget()
     window=FigureWindow(parent,Qt.WindowType.Window)
     window.setModal(False);window.setWindowTitle(title);window.setWindowIcon(parent.window().windowIcon())
-    content=QVBoxLayout(window);content.setContentsMargins(6,6,6,6);content.addWidget(toolbar);content.addWidget(canvas,1)
+    content=QVBoxLayout(window);content.setContentsMargins(6,6,6,6);content.addWidget(toolbar)
+    controls=getattr(canvas,'_signallab_plot_controls',None)
+    if controls is not None:content.addWidget(controls)
+    content.addWidget(canvas,1)
     editor=getattr(canvas,'_signallab_root_editor',None)
     if editor is not None:editor.install_plot_controls(window,content)
     from PySide6.QtGui import QAction
@@ -136,6 +139,8 @@ def prepare_figure(figure):
         # Match explicitly colored stems/scatter to their line/legend colors.
         from matplotlib.colors import to_rgba
         for collection in axis.collections:
+            # Data-mapped colors belong to the color scale, not to the UI palette.
+            if collection.get_array() is not None:continue
             for channel in ('facecolor','edgecolor'):
                 getter=getattr(collection,'get_'+channel+'s',None);setter=getattr(collection,'set_'+channel+'s',None)
                 if getter is None or setter is None:continue

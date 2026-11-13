@@ -331,6 +331,10 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Ampliar el espectro",
+          "Al hacer zoom en Espectro de la ventana se recuperan las muestras originales del intervalo visible. La vista completa conserva extremos locales. Los cursores consultan todos los datos y mantienen las posiciones fijadas durante el zoom; cambiar el resultado libera esas lecturas. La escala lineal/dB se elige dentro de la figura sin modificar la ventana."
         ]
       ]
     }

@@ -30,6 +30,13 @@ class Trace:
     def key(self):return id(self.artist)
 
     def point(self,x,y=None):
+        curve=getattr(self.artist,'_signallab_probe_curve',None)
+        if curve is not None:
+            coordinates,values=curve
+            if x<coordinates[0] or x>coordinates[-1]:return None
+            where=int(np.searchsorted(coordinates,x));ids=[i for i in (where-1,where) if 0<=i<len(coordinates)]
+            index=min(ids,key=lambda i:abs(coordinates[i]-x))
+            return float(coordinates[index]),float(values[index])
         complete=getattr(self.artist,'_signallab_probe_values',None)
         if complete is not None:
             origin,step,values=complete;index=min(max(int(np.floor((x-origin)/step+.5)),0),len(values)-1)
@@ -79,9 +86,12 @@ def collect(figure):
         if getattr(axis,'_signallab_plane',False):traces.append(PlanePointer(axis));continue
         stems={id(c.markerline):c for c in axis.containers if isinstance(c,StemContainer)}
         baselines={id(c.baseline) for c in axis.containers if isinstance(c,StemContainer)}
-        for artist in [*axis.lines,*axis.collections]:
+        for artist in [*axis.lines,*axis.collections,*axis.images]:
             if getattr(artist,'_signallab_probe',False) or getattr(artist,'_signallab_reference',False) or not artist.get_visible() or artist.get_alpha()==0 or id(artist) in baselines:continue
             try:
+                from .grid_probe import grid_trace
+                grid=grid_trace(axis,artist)
+                if grid is not None:traces.append(grid);continue
                 if artist in axis.lines:
                     if artist.get_transform()!=axis.transData:continue
                     x=np.ma.filled(np.ma.asarray(artist.get_xdata(orig=False),dtype=float),np.nan)
@@ -108,7 +118,8 @@ def compatible(axis,other):
 def readings(traces,axis,x,y):
     result={}
     for trace in traces:
-        if compatible(axis,trace.axis):
+        linked=trace.axis is axis if getattr(trace,'cell_values',False) else compatible(axis,trace.axis)
+        if linked:
             point=trace.point(x,y if trace.axis is axis else None)
             if point is not None:result[trace.key]=point
     return result

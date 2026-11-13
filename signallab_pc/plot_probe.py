@@ -87,7 +87,7 @@ class PlotProbe:
         self.last_motion=now;self.active_axis=event.inaxes
         self.live=readings(self.traces,event.inaxes,event.xdata,event.ydata)
         if not self.live:
-            self.table.setRowCount(0);text=event.inaxes.format_coord(event.xdata,event.ydata)
+            self.update();text=event.inaxes.format_coord(event.xdata,event.ydata)
             for image in event.inaxes.images:
                 value=image.get_cursor_data(event)
                 if value is not None:text+=' · Valor de celda: '+image.format_cursor_data(value)
@@ -97,7 +97,12 @@ class PlotProbe:
     def drawn(self,event):
         if self.exporting:return
         traces=collect(self.canvas.figure)
-        signature=tuple((t.key,id(t.artist.get_xdata()) if hasattr(t.artist,'get_xdata') else id(t.artist.get_offsets()) if hasattr(t.artist,'get_offsets') else id(t.axis),id(t.artist.get_ydata()) if hasattr(t.artist,'get_ydata') else 0) for t in traces)
+        def revision(trace):
+            if getattr(trace,'cell_values',False):return trace.revision
+            curve=getattr(trace.artist,'_signallab_probe_curve',None)
+            if curve is not None:return tuple(id(v) for v in curve)
+            return (id(trace.artist.get_xdata()) if hasattr(trace.artist,'get_xdata') else id(trace.artist.get_offsets()) if hasattr(trace.artist,'get_offsets') else id(trace.axis),id(trace.artist.get_ydata()) if hasattr(trace.artist,'get_ydata') else 0)
+        signature=tuple((trace.key,revision(trace)) for trace in traces)
         if signature!=self.signature:
             for artist in self.artists:
                 try:artist.remove()
@@ -120,11 +125,25 @@ class PlotProbe:
     def update(self):
         a=self.a if self.a is not None else self.live;b=self.b if self.b is not None else self.live if self.a is not None else {}
         keys=[trace.key for trace in self.traces if trace.key in a or trace.key in b]
-        self.table.setRowCount(len(keys));lookup={t.key:t for t in self.traces}
-        for row,key in enumerate(keys):
+        cell_values=any(getattr(trace,'cell_values',False) for trace in self.traces)
+        self.table.setColumnCount(4 if cell_values else 7)
+        self.table.setHorizontalHeaderLabels(['Traza / medida','A','B','B−A'] if cell_values else ['Panel / traza','x A','y A','x B','y B','Δx (B−A)','Δy (B−A)'])
+        header=self.table.horizontalHeader();header.setStretchLastSection(not cell_values)
+        header.setSectionResizeMode(0,QHeaderView.ResizeMode.Stretch if cell_values else QHeaderView.ResizeMode.ResizeToContents)
+        lookup={t.key:t for t in self.traces};rows=[]
+        for key in keys:
             trace=lookup[key];first=a.get(key);second=b.get(key)
             name=(trace.axis.get_ylabel()+' · ' if trace.axis.get_ylabel() and trace.axis.get_ylabel()!=trace.label else '')+trace.label
-            values=[name,*(list(first) if first else [None,None]),*(list(second) if second else [None,None]),second[0]-first[0] if first and second else None,second[1]-first[1] if first and second else None]
+            if cell_values:
+                labels=[trace.axis.get_xlabel() or 'x',trace.axis.get_ylabel() or 'y']
+                if getattr(trace,'cell_values',False):labels.append('Valor · '+trace.label)
+                for component,label in enumerate(labels):
+                    va=first[component] if first else None;vb=second[component] if second else None
+                    rows.append([trace.label+' · '+label if component<2 else label,va,vb,vb-va if va is not None and vb is not None else None])
+            else:
+                rows.append([name,*(list(first[:2]) if first else [None,None]),*(list(second[:2]) if second else [None,None]),second[0]-first[0] if first and second else None,second[1]-first[1] if first and second else None])
+        self.table.setRowCount(len(rows))
+        for row,values in enumerate(rows):
             for column,value in enumerate(values):
                 text=value if column==0 else '—' if value is None else number(value)
                 item=QTableWidgetItem(text);item.setToolTip(str(value) if column==0 else 'Sin punto compatible' if value is None else str(value) if isinstance(value,(int,np.integer)) else format(value,'.17g'));self.table.setItem(row,column,item)
@@ -132,6 +151,8 @@ class PlotProbe:
         if self.active_axis is not None:
             label=self.active_axis.get_xlabel() or next((axis.get_xlabel() for axis in self.active_axis.get_shared_x_axes().get_siblings(self.active_axis) if axis.get_xlabel()),'')
             if label:self.hint.setText(self.hint.text()+' Eje: '+label+'.')
+            if any(getattr(trace,'cell_values',False) and trace.axis is self.active_axis for trace in self.traces):
+                self.hint.setText(self.hint.text()+' Y: '+self.active_axis.get_ylabel()+'. Valor de la celda original, sin interpolar.')
         if getattr(self.canvas,'_signallab_editable',False):self.hint.setText('Editor de diseño: los clics cambian polos/ceros. Usá Fijar A/B y Seguir para medir sin editar.')
         self.paint()
 
@@ -145,7 +166,7 @@ class PlotProbe:
                 for trace in self.traces:
                     point=points.get(trace.key)
                     if point is None:continue
-                    x,y=point
+                    x,y=point[:2]
                     x-=getattr(trace.axis,'_signallab_index_origin',0)
                     if trace.axis not in guided:
                         guide=self.guides[trace.axis][slot];guide.set_xdata([x,x]);guide.set_visible(True);guided.add(trace.axis)

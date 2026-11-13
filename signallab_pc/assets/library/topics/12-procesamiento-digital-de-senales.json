@@ -179,6 +179,10 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Medir celdas del espectrograma",
+          "En Cursores, mové el mouse y fijá dos celdas con los clics o los botones A/B. La tabla muestra el centro temporal, la frecuencia y los dB relativos guardados, con las diferencias B−A. Se consulta la celda original sin interpolar colores. Una celda enmascarada se muestra como no definida; no se reemplaza por otra cercana. Copiar conserva la precisión disponible."
         ]
       ]
     },
@@ -946,7 +950,7 @@
           }
         ]
       ],
-      "reading": "Cada columna es FFT(tramo por ventana)/suma(ventana). El mapa usa dB relativos al máximo global, no PSD calibrada. Frecuencias en rad/muestra o rad/s. El último tramo incompleto se rellena con ceros; los valores exportados no se recortan al rango de colores. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "El espectrograma permite fijar celdas A/B y consultar sus coordenadas y valores en una tabla compacta; no se interpola según el color. Cada columna es FFT(tramo por ventana)/suma(ventana). El mapa usa dB relativos al máximo global, no PSD calibrada. Frecuencias en rad/muestra o rad/s. El último tramo incompleto se rellena con ceros; los valores exportados no se recortan al rango de colores. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
     },
     {
       "key": [
