@@ -1,6 +1,25 @@
 {
   "releases": [
     {
+      "tag": "v1.8.4",
+      "title": "Ventanas temporales, reconstrucción y biblioteca por temas",
+      "channel": "preview",
+      "summary": "Seis mejoras de exploración y uso para STFT, convolución por bloques y ayuda. La 1.8.3 conserva el canal estable.",
+      "changes": [
+        "La biblioteca conserva sus 122 artículos y enlaces, con títulos breves, 11 temas y búsqueda por nombres anteriores.",
+        "Los espectrogramas distinguen amplitud y densidad bilateral y permiten elegir su rango visible.",
+        "El inspector temporal reutiliza tramos, ventanas, productos, espectros y densidades.",
+        "La STFT inversa comprueba la cobertura antes de reconstruir el registro.",
+        "Las vistas y exportaciones conservan reloj, unidades físicas y referencia de fase.",
+        "El inspector OLA/OLS distingue historia, colas, descartes y muestras válidas."
+      ],
+      "limits": [
+        "La reconstrucción exige cobertura numérica suficiente en cada muestra; no completa información perdida por una ventana.",
+        "La STFT describe un registro finito. Sus escalas no certifican el espectro teórico de un proceso. Los ejes físicos de una secuencia requieren Fs registrada."
+      ],
+      "notes": "docs/releases/v1.8.4.md"
+    },
+    {
       "tag": "v1.8.3",
       "title": "Acceso a gráficos, operaciones CAS y conversión por Fs de salida",
       "channel": "stable",

@@ -34,6 +34,10 @@ La versión estable **1.8.3** está disponible para Windows x64 y Linux x86_64. 
 
 En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh ./SignalLab-PC-1.8.3-linux-x86_64.run`; el portable se descomprime para ejecutar `SignalLab-PC` dentro de su carpeta. La [guía de instalación](docs/installation.md) explica ambos recorridos y enlaza los requisitos y las posibles alertas del sistema.
 
+### Preliminar opcional
+
+La [1.8.4 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.4) reúne seis mejoras de análisis y uso: biblioteca por temas, escalas e inspección temporal de STFT, reconstrucción, ejes físicos e inspección OLA/OLS. Tiene instaladores y portables para ambas plataformas. Para recibirla desde una instalación 1.8.3 o posterior, elegí **Estables y preliminares (Pre-releases)** en el actualizador. La descarga estable recomendada continúa siendo la 1.8.3.
+
 ### Actualizar una instalación
 
 La edición instalada ofrece **Ayuda → Buscar actualizaciones**. Podés consultar las novedades, descargar la versión nueva y elegir cuándo instalar y reiniciar, sin desinstalar antes. Los temas y la configuración se conservan; los resultados de una sesión deben guardarse o exportarse antes del reinicio.
@@ -72,6 +76,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La [1.8.4 preliminar](docs/releases/v1.8.4.md) amplía el trabajo por ventanas y reorganiza la ayuda con títulos breves. La [guía de ventanas temporales](docs/time-frequency.md) relaciona escalas, fase, reloj y cobertura de la reconstrucción, y explica el inspector de convolución por bloques. Se ofrece en el canal de preliminares sin reemplazar la estable.
 
 La [1.8.3](docs/releases/v1.8.3.md) facilita abrir y elegir figuras, cambiar la tasa indicando la frecuencia de salida y analizar el FIR antialias utilizado. El CAS incorpora operaciones rápidas sobre la salida seleccionada, sin borrar el borrador, y el actualizador permite incluir preliminares con manifiesto firmado compatible. La [guía de actualizaciones](docs/installed-updates.md) explica cómo elegir el canal.
 

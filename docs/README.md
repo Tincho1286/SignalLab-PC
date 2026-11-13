@@ -2,6 +2,8 @@
 
 Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e interpretar sus resultados. La versión estable actual es la [1.8.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.3), disponible como instalable y portable para Windows x64 y Linux x86_64.
 
+También está disponible la [1.8.4 preliminar](releases/v1.8.4.md), con ampliaciones de STFT, inspección de bloques y una biblioteca organizada por temas. La [guía de ventanas temporales](time-frequency.md) explica sus escalas, unidades y condiciones de reconstrucción.
+
 ## Instalar y empezar
 
 La [guía de instalación](installation.md) ayuda a elegir el paquete adecuado. Después, [Primeros pasos](getting-started.md) recorre un cálculo completo y muestra cómo continuar con su resultado. Si ya tenés la edición instalada, la [guía de actualizaciones](installed-updates.md) explica cómo incorporar nuevas versiones conservando la configuración.
