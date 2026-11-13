@@ -26,7 +26,7 @@ En **Coordenada x para leer** se admiten expresiones como `pi/2` o `1e-3`; los �
 
 ## Máximos y mínimos
 
-Desde la preliminar **1.8.8**, la pestaña **Máximos y mínimos** llena la tabla al abrirse. **Actualizar máximos y mínimos** ocupa una fila propia y vuelve a medir cuando lo necesitás. Elegí el tramo visible, toda la curva o el intervalo entre A y B. La cabecera muestra los límites efectivamente utilizados, la cantidad de puntos y los valores mayor y menor.
+Desde la estable **1.8.8**, la pestaña **Máximos y mínimos** llena la tabla al abrirse. **Actualizar máximos y mínimos** ocupa una fila propia y vuelve a medir cuando lo necesitás. Elegí el tramo visible, toda la curva o el intervalo entre A y B. La cabecera muestra los límites efectivamente utilizados, la cantidad de puntos y los valores mayor y menor.
 
 Por defecto se muestran todas las apariciones del máximo y del mínimo del intervalo. Si varios puntos consecutivos tienen exactamente el mismo valor, una fila los agrupa como meseta: **Desde x**, **Hasta x** y **Puntos iguales** indican su extensión. Los picos separados siguen teniendo filas distintas. **Incluir también los picos y valles interiores** agrega extremos locales; no se unen huecos ni saltos de fase.
 
