@@ -4,10 +4,11 @@
 
 La descarga estable actual es la **1.8.3**, que mejora el acceso a gráficos, las operaciones sobre resultados del CAS y la conversión de tasas, y permite incluir preliminares en el actualizador. Este índice conserva cada publicación con el canal que tuvo y enlaza las novedades detalladas de esa entrega. Las preliminares antiguas forman parte del historial; no reemplazan la recomendación de utilizar la última estable.
 
-La [1.8.5 preliminar](v1.8.5.md) agrega cinco mejoras de medición de espectros y conserva las ampliaciones de análisis y biblioteca de la 1.8.4. Está disponible al incluir Pre-releases en el actualizador de la 1.8.3 o posterior; no sustituye las descargas estables.
+La [1.8.6 preliminar](v1.8.6.md) agrega cinco mejoras de estimación AR y conserva las ampliaciones anteriores de espectros, análisis y biblioteca. Está disponible al incluir Pre-releases en el actualizador de la 1.8.3 o posterior; no sustituye las descargas estables.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.6](v1.8.6.md) | Ajuste y órdenes AR, validación, pronóstico y residuos | Preliminar |
 | [1.8.5](v1.8.5.md) | Medidas por bandas, acumulada y ancho RMS, picos y potencia por banda STFT | Preliminar |
 | [1.8.4](v1.8.4.md) | Biblioteca por temas, escalas e inversa STFT e inspector OLA/OLS | Preliminar |
 | [1.8.3](v1.8.3.md) | Acceso a gráficos, operaciones CAS, cambio de tasa y canal de preliminares | Estable |

@@ -1,6 +1,24 @@
 {
   "releases": [
     {
+      "tag": "v1.8.6",
+      "title": "Estimación, validación y pronóstico AR",
+      "channel": "preview",
+      "summary": "Cinco mejoras para ajustar y evaluar modelos AR, con tablas y curvas reutilizables. Conserva espectros y biblioteca de las preliminares anteriores; la 1.8.3 sigue estable.",
+      "changes": [
+        "Mínimos cuadrados condicionales y orden cero, conservando Yule–Walker y realizaciones con semilla.",
+        "Comparación AIC/AICc/BIC sobre respuestas comunes, con errores visibles por fila.",
+        "Reserva final excluida del ajuste y evaluación de predicción a un paso.",
+        "Pronóstico recursivo con intervalos gaussianos condicionales y reloj registrado.",
+        "Autocorrelación residual, Ljung–Box y tablas exportables con sus hipótesis."
+      ],
+      "limits": [
+        "Los criterios no prueban el orden verdadero y los valores p no demuestran independencia.",
+        "Los intervalos excluyen incertidumbre de parámetros y selección del modelo. No se asignan estadísticas estacionarias a un ajuste no estacionario."
+      ],
+      "notes": "docs/releases/v1.8.6.md"
+    },
+    {
       "tag": "v1.8.5",
       "title": "Bandas, distribución y picos de espectros",
       "channel": "preview",

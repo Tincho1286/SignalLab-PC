@@ -2,7 +2,7 @@
 
 Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e interpretar sus resultados. La versión estable actual es la [1.8.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.3), disponible como instalable y portable para Windows x64 y Linux x86_64.
 
-También está disponible la [1.8.5 preliminar](releases/v1.8.5.md), con medidas de bandas, distribución y picos, y curvas de potencia por banda en STFT. Conserva la biblioteca por temas y las ampliaciones de ventanas de la 1.8.4. La [guía de medidas espectrales](spectral-measurements.md) distingue energía, potencia y área de respuesta; la [guía de ventanas temporales](time-frequency.md) explica las escalas y la reconstrucción.
+También está disponible la [1.8.6 preliminar](releases/v1.8.6.md), con comparación de órdenes AR, validación, pronóstico y diagnóstico residual. La [guía de estimación AR](ar-estimation.md) explica sus hipótesis. Conserva las ampliaciones previas de [medidas espectrales](spectral-measurements.md), [ventanas temporales](time-frequency.md) y biblioteca por temas.
 
 ## Instalar y empezar
 

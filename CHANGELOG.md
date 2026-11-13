@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.3). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.6 · Preliminar
+
+Estimar AR incorpora mínimos cuadrados condicionales y orden cero, comparación de órdenes sobre respuestas comunes, validación con un tramo reservado, pronóstico con intervalos y diagnóstico residual con Ljung–Box. Conserva Yule–Walker y la generación con semilla; los modelos, tablas y curvas se registran y reutilizan con sus condiciones. La ayuda distingue entrenamiento, reserva y futuro mediante un esquema en colores. La 1.8.3 continúa estable.
+
+[Novedades completas](docs/releases/v1.8.6.md)
+
 ## 1.8.5 · Preliminar
 
 Medir un espectro reúne varias bandas, fracción acumulada, centro, ancho RMS y detección de picos. Distingue energía, potencia y área de respuesta, conserva las coordenadas medidas y permite seleccionar bandas desde la figura sin recalcular silenciosamente. La STFT genera curvas reutilizables de potencia por banda con reloj y unidades. La ayuda explica esas medidas con un esquema en colores y mantiene la biblioteca organizada de la 1.8.4. La 1.8.3 sigue siendo estable.
