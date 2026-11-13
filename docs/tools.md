@@ -61,6 +61,6 @@ La hoja simbólica permite operar con expresiones, ecuaciones, matrices y supues
 Las expresiones importadas conservan las condiciones registradas en su procedencia; eso no equivale a convertir automáticamente todas ellas en supuestos nuevos de la hoja. Cuando el motor deja una operación pendiente, el informe mantiene ese estado. [Criterios de fiabilidad](mathematical-reliability.md).
 
 
-## Ampliaciones de la 1.8.1 preliminar
+## Ampliaciones de la 1.8.1
 
 La [guía de análisis interactivo](interactive-analysis.md) explica las comparaciones FIR, la elección visual de ROC, los inspectores de ecuaciones en diferencias y convolución y las medidas espectrales de ventanas. Estas funciones corresponden a los paquetes de la [1.8.1](releases/v1.8.1.md); las descargas de la 1.8.0 conservan su contenido original.

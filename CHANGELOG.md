@@ -1,8 +1,8 @@
 # Historial de cambios
 
-La versión estable actual es la [1.8.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.0). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
+La versión estable actual es la [1.8.1](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.1). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
-## 1.8.1 · Preliminar
+## 1.8.1 · Estable
 
 Esta entrega incorpora comparaciones FIR con igual longitud o tolerancias, selección visual de ROC en Z y Laplace, inspectores de ecuaciones en diferencias y convolución discreta, y medidas espectrales de ventanas. Reúne todas las mejoras posteriores a la 1.8.0 en paquetes independientes para Windows y Linux.
 

@@ -49,4 +49,4 @@ Las correcciones editoriales revisan enlaces, versiones y coherencia entre guía
 
 ## Herramientas interactivas en desarrollo
 
-La 1.8.1 preliminar incorpora comparación FIR por ventanas, selección visual de ROC, inspectores de recurrencias y convolución y medidas espectrales de ventanas. La [guía de análisis interactivo](../interactive-analysis.md) explica sus controles y límites; estas funciones se distribuyen en los paquetes propios de la 1.8.1.
+La 1.8.1 incorpora comparación FIR por ventanas, selección visual de ROC, inspectores de recurrencias y convolución y medidas espectrales de ventanas. La [guía de análisis interactivo](../interactive-analysis.md) explica sus controles y límites; estas funciones se distribuyen en los paquetes propios de la 1.8.1.

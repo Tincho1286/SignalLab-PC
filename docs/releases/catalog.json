@@ -3,7 +3,7 @@
     {
       "tag": "v1.8.1",
       "title": "Comparación FIR, ROC visual e inspección muestra a muestra",
-      "channel": "preview",
+      "channel": "stable",
       "summary": "La versión 1.8.1 reúne las mejoras posteriores a la 1.8.0 en paquetes propios para Windows y Linux.",
       "changes": [
         "Comparaciones FIR con igual longitud o tolerancias, medidas por banda y exportación CSV.",
