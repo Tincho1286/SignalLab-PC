@@ -4,6 +4,8 @@
 
 Las operaciones se agrupan por el problema que resuelven. Una herramienta puede reunir variantes de cálculo, pero cada definición mantiene sus propios datos. Después de calcular, el área de resultados ofrece el informe y las acciones de gráfico, exportación y reutilización adecuadas para ese objeto.
 
+La biblioteca de ayuda agrupa los artículos por temas y conserva la búsqueda por sus nombres anteriores; cada herramienta mantiene su acceso directo a la explicación correspondiente.
+
 ## Señales
 
 Permite crear secuencias y registros mediante fórmulas, tramos o muestras, y generar ventanas simétricas rectangular, Hann, Hamming, Blackman, Bartlett y Kaiser. Las operaciones incluyen desplazamiento, inversión, amplitud, componentes par e impar, suma, producto punto a punto, convolución, correlación y medidas de energía, potencia y RMS.
@@ -30,7 +32,7 @@ El ajuste de fase informa el sistema obtenido y la relación con el original. La
 
 ## Fourier y espectros
 
-Incluye DFT/FFT, DTFT, Fourier continua e inversas numéricas o algebraicas según la entrada. También permite estudiar series, síntesis, densidad de energía, potencia periódica, periodograma, Welch, Hilbert, señal analítica y STFT.
+Incluye DFT/FFT, DTFT, Fourier continua e inversas numéricas o algebraicas según la entrada. También permite estudiar series, síntesis, densidad de energía, potencia periódica, periodograma, Welch, Hilbert, señal analítica y STFT. La preliminar 1.8.4 amplía esta última con escalas calibradas, inspección de tramos, ejes físicos y reconstrucción; la [guía de ventanas temporales](time-frequency.md) explica sus condiciones.
 
 La DFT ofrece coeficientes discretos con eje en rad/muestra o índices k centrados. La DTFT es continua en frecuencia y puede superponerse sobre esos mismos puntos usando un origen y unas coordenadas compatibles. Agregar ceros a una FFT densifica su muestreo frecuencial, pero no aumenta la duración observada de la señal.
 

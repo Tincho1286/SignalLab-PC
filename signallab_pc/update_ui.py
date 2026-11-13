@@ -6,7 +6,7 @@ from PySide6.QtCore import QObject, QThread, Signal, Qt, QTimer, QStandardPaths,
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox,
     QPlainTextEdit, QProgressBar, QPushButton, QMessageBox, QComboBox)
-from . import __version__
+from . import __version__,__release_channel__
 from .installations import installed, platform_tag, start_update
 from .update_download import fetch_release, download, Cancelled
 
@@ -37,7 +37,7 @@ class UpdateDialog(QDialog):
         super().__init__(controller.window); self.controller = controller
         self.setWindowTitle('Actualizaciones de SignalLab PC'); self.resize(540, 380)
         layout = QVBoxLayout(self)
-        self.heading = QLabel('Versión instalada: ' + __version__); layout.addWidget(self.heading)
+        self.heading = QLabel('Versión instalada: ' + __version__ + (' · Preliminar' if __release_channel__=='preview' else '')); layout.addWidget(self.heading)
         self.channel=QComboBox();self.channel.addItem('Sólo versiones estables','stable');self.channel.addItem('Estables y preliminares (Pre-releases)','preview')
         self.channel.setCurrentIndex(self.channel.findData(controller.channel));self.channel.setAccessibleName('Canal de actualización')
         layout.addWidget(QLabel('Versiones que querés recibir'));layout.addWidget(self.channel);self.channel.currentIndexChanged.connect(controller.channel_changed)

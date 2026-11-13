@@ -23,13 +23,19 @@ def example_records():
 
 def category(section):
     route=section.get('route');kind=route[1] if route else '';task=route[2] if route else None
+    if kind=='expression_measures':return CATEGORIES[1]
+    if kind=='course_tools':
+        if task in ('fir','iir','analog','convert','phase','gain'):return CATEGORIES[9]
+        if task in ('bandpass_sampling','mapping'):return CATEGORIES[7]
+        return CATEGORIES[5]
+    if kind=='dsp_extensions':return CATEGORIES[4] if task=='blocks' else CATEGORIES[5]
     if kind=='difference_equation' or kind=='symbolic' and task==4:return CATEGORIES[10]
     if kind in ('transform_lab','symbolic'):return CATEGORIES[6]
     if kind in ('random','random_correlation','random_model'):return CATEGORIES[12]
     if kind in ('sampling','rational_resampling'):return CATEGORIES[7]
     if kind in ('system_analysis','state_space'):return CATEGORIES[8]
     if kind in ('frequency_filter','fir_window') or kind=='systems' and task in (0,1,2,6,7):return CATEGORIES[9]
-    if 'correlation' in kind or 'convolution' in kind or kind=='basic' and task in ('convolve','correlate','circular','continuous_convolution','continuous_correlation'):return CATEGORIES[4]
+    if 'correlation' in kind or 'convolution' in kind or kind=='basic' and task in ('convolve','correlate','circular','continuous_convolve','continuous_convolution','continuous_correlation'):return CATEGORIES[4]
     if kind in ('fourier','fourier_symbolic','dtft_symbolic','inverse_dtft') or kind=='basic' and task in ('dft','idft'):return CATEGORIES[5]
     if kind=='dsp_extensions' or kind=='course_tools':return CATEGORIES[11]
     if kind in ('systems','interconnection'):return CATEGORIES[3]
@@ -75,6 +81,8 @@ def sections():
     for section in values:
         section['purpose']=section.get('purpose') or section['blocks'][0][1]
         section['usage']=section.get('usage') or (section['blocks'][1][1] if len(section['blocks'])>1 else section['purpose'])
+    from .library_titles import apply
+    apply(values)
     from .library_content import read_data
     tools_by_key={tuple(value['route'][1:3]):value for value in values if value.get('route') and value.get('content_kind')=='tool'}
     seen=set()

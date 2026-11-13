@@ -21,6 +21,10 @@
           "El informe describe cómo se combinan los bloques. La salida incluye la cola final de la convolución y debe representar el mismo resultado que el cálculo lineal directo."
         ],
         [
+          "Inspeccionar cada bloque",
+          "Después de calcular, abrí Inspeccionar bloques. Elegí el número de bloque y consultá su entrada, salida FFT, contribución válida o el tramo de la salida total. Las salidas conservan sus índices y pueden exportarse o reutilizarse.\n\nEn OLA, las colas se suman: una contribución puede diferir de la salida total en los mismos índices. En OLS, las primeras M−1 salidas circulares aparecen sombreadas porque se descartan. La entrada incluye esa historia para obtener las L muestras nuevas correctas. La cola final también se procesa."
+        ],
+        [
           "Qué tener en cuenta",
           "El tamaño de bloque organiza el cálculo; no cambia el sistema definido por h[n]. Se usa extensión por ceros, no repetición periódica de la señal completa."
         ],
@@ -160,29 +164,23 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "La STFT muestra cómo cambia el contenido de frecuencia al recorrer una señal con ventanas temporales."
+          "La STFT muestra cómo cambia el espectro dentro de un registro. El mapa permite comparar amplitudes o densidades y seleccionar un tramo para analizarlo por separado."
         ],
         [
           "Cómo preparar el cálculo",
-          "Cargá la señal y elegí longitud de ventana, solapamiento y cantidad de puntos FFT. Luego calculá el espectrograma."
+          "Cargá una señal, elegí la longitud L, el solapamiento y los puntos FFT. La ventana es periódica, apropiada para el análisis espectral. Completar ambos extremos con ceros incluye tramos que cubren el comienzo y el final del registro; no supone que la señal real sea cero fuera de lo observado."
         ],
         [
           "Cómo interpretar la salida",
-          "Cada columna corresponde a una ventana temporal. Podés elegir una de ellas para consultar su espectro o exportar la STFT completa con sus valores complejos, ejes y parámetros."
+          "Abrí la figura desde los resultados. Escala permite elegir amplitud, nivel relativo o densidad bilateral. El rango en dB recorta la vista, no la matriz calculada. Hacé clic en el mapa para elegir una ventana; durante zoom o desplazamiento los clics siguen controlando la navegación.\n\nEn Ventana seleccionada podés consultar y reutilizar el tramo original, los pesos de la ventana, su producto, el espectro complejo o la densidad de ese tramo. La fase usa el origen del registro o el comienzo local, según tu elección. Si existe Fs registrada, Ejes permite pasar de índices y rad/muestra a segundos y rad/s."
         ],
         [
-          "Qué tener en cuenta",
-          "Una ventana corta localiza mejor los cambios en el tiempo y una larga distingue mejor frecuencias cercanas. El nivel mostrado es relativo; no se presenta como una PSD calibrada."
+          "Reconstruir el registro",
+          "Reconstrucción aplica IFFT y suma las ventanas ponderadas; después divide por la suma de ventanas al cuadrado. Esa suma debe ser suficientemente distinta de cero en todas las muestras. Si hay pérdida de información, se explica dónde ocurre en lugar de inventar una señal completa. El resultado conserva el origen, el reloj y la longitud observados, y se puede enviar a otras herramientas."
         ],
         [
-          "Indeterminaciones y valores por continuidad",
-          {
-            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
-          }
-        ],
-        [
-          "Medir celdas del espectrograma",
-          "En Cursores, mové el mouse y fijá dos celdas con los clics o los botones A/B. La tabla muestra el centro temporal, la frecuencia y los dB relativos guardados, con las diferencias B−A. Se consulta la celda original sin interpolar colores. Una celda enmascarada se muestra como no definida; no se reemplaza por otra cercana. Copiar conserva la precisión disponible."
+          "Escalas y límites",
+          "Amplitud = |FFT(x·w)|/Σw. Densidad bilateral = |FFT(x·w)|²/(2π·Fs·Σw²); en rad/muestra se usa Fs=1. La integral por suma de bins equivale a la potencia del tramo ponderada por w². No se resta la media y un tramo no determina por sí solo el espectro de un proceso aleatorio.\n\nMás puntos FFT agregan posiciones de frecuencia, no duración observada. La última ventana puede contener ceros. Exportar STFT conserva los complejos completos, las unidades y la referencia de fase elegida. La densidad pierde la fase y no puede sustituir a la STFT compleja en la inversa."
         ]
       ]
     },
@@ -948,9 +946,13 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Completar ambos extremos",
+          "Agrega ceros de análisis antes y después del registro para cubrir sus bordes. La reconstrucción verifica la cobertura; no equivale a conocer la señal fuera del registro."
         ]
       ],
-      "reading": "El espectrograma permite fijar celdas A/B y consultar sus coordenadas y valores en una tabla compacta; no se interpola según el color. Cada columna es FFT(tramo por ventana)/suma(ventana). El mapa usa dB relativos al máximo global, no PSD calibrada. Frecuencias en rad/muestra o rad/s. El último tramo incompleto se rellena con ceros; los valores exportados no se recortan al rango de colores. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "El mapa distingue amplitud y densidad bilateral. La inspección conserva tramo, ventana, producto y referencia de fase. La reconstrucción sólo se publica si ninguna muestra carece de cobertura numérica suficiente. Con reloj registrado pueden consultarse segundos y rad/s."
     },
     {
       "key": [

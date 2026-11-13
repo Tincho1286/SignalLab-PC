@@ -12,7 +12,7 @@ Ampliar las explicaciones con una figura y un ejemplo resuelto para cada concept
 
 ## Medición en los gráficos
 
-Extender las lecturas y mediciones a más tipos de vistas, incluidos los mapas. La prioridad es que la posición seleccionada, las unidades y el valor mostrado sean fáciles de reconocer, manteniendo una distinción clara entre muestras, curvas y celdas.
+Ampliar las mediciones por intervalos y bandas, a partir de las lecturas de trazas y mapas ya disponibles. La prioridad es que la posición seleccionada, las unidades y el valor mostrado sean fáciles de reconocer, manteniendo una distinción clara entre muestras, curvas y celdas.
 
 ## Cálculos simbólicos más comprensibles
 

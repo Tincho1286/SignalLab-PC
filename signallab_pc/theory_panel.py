@@ -1,9 +1,9 @@
 """Biblioteca con conceptos, glosario y procedimientos separados."""
 import html,re,unicodedata
-from PySide6.QtCore import QUrl
+from PySide6.QtCore import QUrl,Qt
 from PySide6.QtGui import QTextDocument
 from .visual_help import diagrams_for
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QLineEdit,QListWidget,QPushButton,QComboBox,QTabWidget
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QLineEdit,QTreeWidget,QTreeWidgetItem,QPushButton,QComboBox,QTabWidget
 from .library_catalog import sections as library_sections
 from .report_view import ReportView,report_panel
 from .responsive_help import ResponsiveHelpView
@@ -15,14 +15,26 @@ class TheoryPanel(QWidget):
         root=QHBoxLayout(self);self.body_layout=root;self.index_panel=QWidget();left=QVBoxLayout(self.index_panel);left.setContentsMargins(0,0,0,0);root.addWidget(self.index_panel,1)
         self.kind=QComboBox();self.kind.addItems(['Toda la biblioteca','Conceptos explicados','Uso de herramientas','Funciones de las fórmulas','Ejemplos resueltos']);left.addWidget(self.kind)
         self.search=QLineEdit();self.search.setObjectName('librarySearch');self.search.setPlaceholderText('Buscar tema, herramienta o sigla…');self.search.setClearButtonEnabled(True);left.addWidget(self.search)
-        self.items=QListWidget();self.items.setWordWrap(True);left.addWidget(self.items)
+        self.items=QTreeWidget();self.items.setHeaderHidden(True);self.items.setWordWrap(True);self.items.setIndentation(15);self.items.setAccessibleName('Temas y artículos de la biblioteca');left.addWidget(self.items)
         self.article_panel=QWidget();right=QVBoxLayout(self.article_panel);right.setContentsMargins(0,0,0,0);root.addWidget(self.article_panel,3);actions=QHBoxLayout();right.addLayout(actions)
         self.topic_toggle=QPushButton('Buscar otro tema');self.topic_toggle.setCheckable(True);self.topic_toggle.toggled.connect(lambda *_:self.adapt_layout());actions.addWidget(self.topic_toggle)
         self.return_button=QPushButton('Volver a la herramienta');self.return_button.hide();actions.addWidget(self.return_button)
         self.open_button=QPushButton('Abrir herramienta');self.open_button.setObjectName('primary');self.open_button.setEnabled(False);self.open_button.setVisible(on_open is not None);actions.addWidget(self.open_button);actions.addStretch()
         self.open_button.clicked.connect(self.open_selected);self.return_button.clicked.connect(self.return_to_tool)
         self.text=ResponsiveHelpView();self.text.anchorClicked.connect(self.follow_reference);right.addWidget(report_panel(self.text),1)
-        self.search.textChanged.connect(self.filter);self.kind.currentIndexChanged.connect(lambda *_:self.filter(self.search.text()));self.items.currentRowChanged.connect(self.show_section);self.items.itemClicked.connect(lambda *_:self.topic_toggle.setChecked(False));self.filter('');self.adapt_layout()
+        self.search.textChanged.connect(self.filter);self.kind.currentIndexChanged.connect(lambda *_:self.filter(self.search.text()));self.items.currentItemChanged.connect(lambda item,*_:self.show_section(item.data(0,Qt.ItemDataRole.UserRole)) if item is not None and item.data(0,Qt.ItemDataRole.UserRole) is not None else None);self.items.itemClicked.connect(self.click_topic);self.filter('');self.adapt_layout()
+
+    def click_topic(self,item,*_):
+        if item.data(0,Qt.ItemDataRole.UserRole) is None:item.setExpanded(not item.isExpanded())
+        else:self.topic_toggle.setChecked(False)
+
+    def select_index(self,index):
+        node=self.nodes.get(index)
+        if node is not None:node.parent().setExpanded(True);self.items.setCurrentItem(node);self.items.scrollToItem(node)
+
+    def selected_index(self):
+        node=self.items.currentItem()
+        return node.data(0,Qt.ItemDataRole.UserRole) if node is not None else None
     def resizeEvent(self,event):
         super().resizeEvent(event)
         if hasattr(self,'topic_toggle'):self.adapt_layout()
@@ -31,26 +43,37 @@ class TheoryPanel(QWidget):
         self.topic_toggle.setVisible(compact)
         self.body_layout.setDirection(QHBoxLayout.Direction.TopToBottom if compact else QHBoxLayout.Direction.LeftToRight)
         self.index_panel.setVisible(not compact or self.topic_toggle.isChecked())
-        self.index_panel.setMaximumHeight(180 if compact else 16777215)
+        self.index_panel.setMaximumHeight(240 if compact else 16777215)
         self.body_layout.setStretch(0,0 if compact else 1);self.body_layout.setStretch(1,1 if compact else 3)
     def filter(self,query):
         def norm(text):return ''.join(c for c in unicodedata.normalize('NFKD',text.casefold()) if not unicodedata.combining(c))
-        words=norm(query).split();mode=self.kind.currentIndex();self.items.blockSignals(True);self.items.clear()
-        self.filtered=[s for s in self.sections if (mode==0 or (mode==1 and s['route'] is None and not s.get('reference')) or (mode==2 and s['route'] is not None) or (mode==3 and s.get('reference')) or (mode==4 and s.get('example'))) and all(word in norm(str(s)) for word in words)]
-        self.items.addItems([s['category']+' · '+s['title'] for s in self.filtered]);self.items.blockSignals(False)
-        if self.filtered:self.items.setCurrentRow(0)
+        from .library_titles import TOPICS
+        words=norm(query).split();mode=self.kind.currentIndex();previous=getattr(self,'selected_article_id',None);self.items.blockSignals(True);self.items.clear();self.nodes={}
+        kinds={1:'concept',2:'tool',3:'reference',4:'example'}
+        self.filtered=[s for s in self.sections if (mode==0 or s['content_kind']==kinds[mode]) and all(word in norm(str(s)) for word in words)]
+        labels={'concept':'Concepto','tool':'Herramienta','reference':'Función','example':'Ejemplo'}
+        for topic in TOPICS:
+            entries=[(i,s) for i,s in enumerate(self.filtered) if s['topic']==topic]
+            if not entries:continue
+            group=QTreeWidgetItem([topic+'  ('+str(len(entries))+')']);group.setFlags(Qt.ItemFlag.ItemIsEnabled);self.items.addTopLevelItem(group)
+            font=group.font(0);font.setBold(True);group.setFont(0,font)
+            for index,section in entries:
+                node=QTreeWidgetItem([section['title']]);node.setData(0,Qt.ItemDataRole.UserRole,index);node.setToolTip(0,labels[section['content_kind']]+' · '+section['purpose']);group.addChild(node);self.nodes[index]=node
+            group.setExpanded(bool(words))
+        self.items.blockSignals(False)
+        if self.filtered:self.select_index(next((i for i,s in enumerate(self.filtered) if s['article_id']==previous),0))
         else:self.selected_route=None;self.open_button.setEnabled(False);self.text.setPlainText('No hay coincidencias. Probá otra palabra o elegí Toda la biblioteca.')
     def select_functions(self):
         self.search.clear();self.kind.setCurrentIndex(3);self.filter('')
     def select_tool(self,item):
         self.topic_toggle.setChecked(False)
-        self.return_route=tuple(item);self.return_button.setText('Volver a '+item[0]);self.return_button.setVisible(self.on_open is not None)
+        self.return_route=tuple(item);self.return_button.setToolTip(item[0]);self.return_button.setVisible(self.on_open is not None)
         self.kind.setCurrentIndex(0);self.search.clear();self.filter('')
         for index,section in enumerate(self.filtered):
-            if section['route']==tuple(item):self.items.setCurrentRow(index);return
+            if section['route']==tuple(item):self.select_index(index);return
     def show_section(self,row):
-        if not 0<=row<len(self.filtered):return
-        section=self.filtered[row];self.selected_example=section.get('example');self.open_button.setText('Cargar datos del ejemplo' if self.selected_example else 'Abrir herramienta');self.selected_route=section['route'];self.open_button.setEnabled(self.on_open is not None and self.selected_route is not None)
+        if row is None or not 0<=row<len(self.filtered):return
+        section=self.filtered[row];self.selected_article_id=section['article_id'];self.selected_example=section.get('example');self.open_button.setText('Cargar datos del ejemplo' if self.selected_example else 'Abrir herramienta');self.selected_route=section['route'];self.open_button.setEnabled(self.on_open is not None and self.selected_route is not None)
         blocks=list(section['blocks'])
         if self.field_route!=self.selected_route:self.fields_open=False;self.field_route=self.selected_route
         self.text._formula_number=0
@@ -94,13 +117,13 @@ class TheoryPanel(QWidget):
         if url.path().startswith('article/'):
             identifier=url.path().split('/',1)[1];self.kind.setCurrentIndex(0);self.search.clear();self.filter('')
             for index,section in enumerate(self.filtered):
-                if section['article_id']==identifier:self.items.setCurrentRow(index);return
+                if section['article_id']==identifier:self.select_index(index);return
         if url.path().startswith('example/'):
             article_id='example:'+url.path().split('/',1)[1];self.kind.setCurrentIndex(0);self.search.clear();self.filter('')
             for index,section in enumerate(self.filtered):
-                if section['article_id']==article_id:self.items.setCurrentRow(index);return
+                if section['article_id']==article_id:self.select_index(index);return
         if url.path()=='fields':
-            bar=self.text.verticalScrollBar();position=bar.value();self.fields_open=not self.fields_open;self.show_section(self.items.currentRow());bar.setValue(position)
+            bar=self.text.verticalScrollBar();position=bar.value();self.fields_open=not self.fields_open;self.show_section(self.selected_index());bar.setValue(position)
         elif url.path()=='glossary':
             self.kind.setCurrentIndex(1);self.search.setText('Glosario');self.filter('Glosario')
     def open_selected(self):

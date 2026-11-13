@@ -127,6 +127,9 @@ def illustrated_diagrams(section):
     from PySide6.QtCore import QPointF
     from PySide6.QtGui import QPainterPath
     route=section['route'];kind=route[1];task=route[2]
+    if kind=='dsp_extensions' and task in ('stft','blocks'):
+        from .dsp_help import image
+        return [('Ventanas y reconstrucción' if task=='stft' else 'Historia, colas y descartes',image(task),'Los colores separan etapas del cálculo. La STFT analiza registros finitos y su inversa necesita cobertura suficiente.' if task=='stft' else 'El inspector conserva los índices originales. OLA suma contribuciones; OLS descarta la parte circular contaminada y conserva la salida nueva.')]
     if route[1:3]==('course_tools','convert'):
         from .conversion_help import conversion_help_image
         return [('Mapeo y corte efectivo',conversion_help_image(),'Ω se expresa en rad/s, T en segundos y ω en rad/muestra. El producto ΩT es un ángulo en radianes. La curva azul corresponde a la sustitución bilineal. La verde muestra una frecuencia principal de la invarianza al impulso: al superar π aparece plegado. La frecuencia efectiva de media potencia se mide sobre la transferencia obtenida y puede diferir de esa referencia.')]

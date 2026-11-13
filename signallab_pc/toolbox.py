@@ -249,6 +249,12 @@ class ResultView(QWidget):
         self.development=ReportView();self.development_index=self.views.addTab(report_panel(self.development),'Desarrollo');self.views.setTabVisible(self.development_index,False)
     def show_content(self):
         self.empty.hide();self.views.show();self.actions.setVisible(self.show_action_bar)
+    def clear_result(self,message='El resultado aparecerá después de calcular.'):
+        self.result=None;self.result_ids=[];self.expression_key=None
+        self.figure.clear();self.canvas._signallab_has_plot_result=False;self.canvas.draw_idle()
+        refresh=getattr(self.canvas,'_signallab_plot_action_refresh',None)
+        if refresh is not None:refresh()
+        self.table_view.set_signals(());self.dft_axis.hide();self.views.hide();self.actions.hide();self.empty.setText(message);self.empty.show()
     def show_result(self,result,*,source=None,operation=None):
         candidates=result if isinstance(result,tuple) else (result,)
         if all(isinstance(value,Signal) for value in candidates):validate_overlay(candidates)

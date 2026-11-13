@@ -817,11 +817,11 @@ class WorkflowContracts(unittest.TestCase):
         from signallab_pc.theory_panel import TheoryPanel
         library=TheoryPanel(lambda route:None);self.widgets.append(library)
         library.select_tool(ROUTES['transform_lab','z'])
-        selected=library.filtered[library.items.currentRow()]
+        selected=library.filtered[library.selected_index()]
         identifier,title=selected['related'][0]
         self.assertIn('Temas relacionados',library.text.toPlainText())
         library.follow_reference(QUrl('library:article/'+identifier))
-        target=library.filtered[library.items.currentRow()]
+        target=library.filtered[library.selected_index()]
         self.assertEqual(target['article_id'],identifier);self.assertEqual(target['title'],title)
         self.assertEqual(self.warnings,[])
 

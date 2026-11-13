@@ -60,42 +60,11 @@ def block_convolution(source,kernel,length,method):
     return Signal(output,source.origin+kernel.origin,1,'n','Convolución por '+('solapamiento-suma' if method=='ola' else 'solapamiento-almacenamiento'),'discrete',metadata=metadata)
 
 
-def time_frequency(source,length,overlap,nfft,window,beta=5):
-    from .distributions import regular_only
-    require_temporal(source)
-    regular_only(source,'La STFT de muestras')
-    if source.domain not in ('continuous','discrete') or source.step<=0:raise ValueError('Se necesita una señal temporal con paso positivo.')
-    n=int(source.values.size)
-    if not 2<=length<=n:raise ValueError('La ventana debe tener entre 2 muestras y la longitud de la entrada.')
-    if not 0<=overlap<length:raise ValueError('El solapamiento debe ser menor que la longitud de ventana y no negativo.')
-    if nfft<length:raise ValueError('Los puntos FFT deben ser al menos la longitud de ventana.')
-    if window not in ('boxcar','hann','hamming','blackman','bartlett','kaiser'):raise ValueError('Ventana no admitida.')
-    if not np.isfinite(beta) or beta<0:raise ValueError('β debe ser finito y no negativo.')
-    hop=length-overlap;frames=1+math.ceil((n-length)/hop)
-    ensure_working_set(int(nfft*frames+n+nfft),live_arrays=5)
-    weights=sp.get_window(('kaiser',beta) if window=='kaiser' else window,length,fftbins=True)
-    gain=weights.sum()
-    if not np.isfinite(gain) or gain<=0:raise ValueError('La ventana no tiene ganancia coherente positiva.')
-    values=np.empty((nfft,frames),dtype=complex)
-    for column in range(frames):
-        checkpoint(column/frames);start=column*hop;chunk=np.zeros(length,dtype=complex);part=source.values[start:start+length];chunk[:len(part)]=part
-        scale=max(np.max(abs(chunk.real)),np.max(abs(chunk.imag)))
-        if not scale:
-            values[:,column]=0
-            continue
-        normalized=chunk.real/scale+1j*(chunk.imag/scale)
-        spectrum=fftshift(fft(normalized*weights,nfft))/gain
-        with np.errstate(over='ignore',invalid='ignore'):
-            values[:,column]=spectrum*scale
-        if not np.all(np.isfinite(values[:,column])):
-            raise ValueError('El espectro de una ventana supera el rango numérico disponible.')
-    dt=source.step if source.domain=='continuous' else 1.
-    frequency=fftshift(fftfreq(nfft,d=dt))*2*np.pi
-    centers=source.origin+(np.arange(frames)*hop+(length-1)/2)*source.step
-    metadata={'operation':'stft','window':window,'beta':beta if window=='kaiser' else None,'window_length':length,'overlap':overlap,'hop':hop,'nfft':nfft,'frames':frames,'input_length':n,'input_origin':source.origin,'input_step':source.step,'input_domain':source.domain,'normalization':'FFT(x_segment * window) / sum(window)','phase_reference':'local segment index starts at zero','last_frame_zeros':max(0,(frames-1)*hop+length-n),'frequency_units':'rad/s' if source.domain=='continuous' else 'rad/muestra','time_units':source.units}
-    return {'values':values,'frequency':frequency,'centers':centers,'metadata':metadata}
+def time_frequency(source,length,overlap,nfft,window,beta=5,*,boundary='tail'):
+    from .stft_tools import analyze
+    return analyze(source,length,overlap,nfft,window,beta,boundary=boundary)
 
 
 def spectrum_slice(result,index):
-    meta=dict(result['metadata'],frame=int(index),frame_center=float(result['centers'][index]))
-    f=result['frequency'];return Signal(result['values'][:,index],float(f[0]),float(f[1]-f[0]),meta['frequency_units'],f"Espectro de ventana {index+1}",'frequency',metadata=meta)
+    from .stft_tools import spectrum
+    return spectrum(result,index)
