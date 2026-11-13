@@ -52,7 +52,7 @@ Las ecuaciones diferenciales y en diferencias lineales con coeficientes constant
 
 ## Señales aleatorias
 
-Incluye generación de realizaciones, estadísticas de registros, correlación y covarianza. Los modelos discretos estacionarios AR/MA/ARMA permiten consultar momentos y espectros teóricos; el ajuste AR mediante Yule–Walker obtiene un modelo estimado desde un registro.
+Incluye generación de realizaciones, estadísticas de registros, correlación y covarianza. Los modelos discretos estacionarios AR/MA/ARMA permiten consultar momentos y espectros teóricos; el ajuste AR obtiene un modelo estimado desde un registro. La preliminar 1.8.6 agrega mínimos cuadrados, comparación de órdenes, validación y pronóstico con diagnóstico de residuos, explicados en la [guía de estimación AR](ar-estimation.md).
 
 Las propiedades teóricas de un proceso y las estimaciones de una realización finita se presentan por separado. Los modelos conocidos admitidos son reales, causales y estables; la [cobertura de Señales Aleatorias](scope/random-signals.md) explica sus convenciones y los temas todavía pendientes.
 

@@ -130,19 +130,31 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "La estimación AR busca un modelo autorregresivo de orden elegido a partir de un registro. Permite describir su dependencia temporal y obtener un espectro paramétrico."
+          "Ajustá un modelo AR a un registro discreto real. Podés elegir un orden, comparar varios, reservar datos para validar, pronosticar valores futuros y estudiar los residuos. Todo describe un modelo estimado, no una identidad exacta del proceso desconocido."
         ],
         [
           "Cómo preparar el cálculo",
-          "Cargá un registro discreto real y elegí p, menor que su cantidad de muestras. El cálculo resta la media muestral, estima la autocovarianza con divisor N y resuelve las ecuaciones de Yule–Walker. Las opciones de generación crean una realización nueva del modelo estimado."
+          "Elegí Un orden elegido para usar Yule–Walker o mínimos cuadrados condicionales. El orden p indica cuántos valores anteriores intervienen; p=0 conserva sólo una constante y ruido. Las primeras p muestras proporcionan antecedentes.\n\nMuestras finales reservadas separa el final antes de estimar los coeficientes. Con cero se utiliza todo el registro. La reserva no cambia el ajuste; permite medir su error de predicción a un paso. Las opciones de generación siguen creando una realización nueva del modelo estacionario, con semilla reproducible."
         ],
         [
-          "Cómo interpretar la salida",
-          "La salida incluye H(z), los coeficientes AR, la varianza estimada de innovación, la autocorrelación y la densidad teóricas del modelo. También entrega el residuo válido: se omiten los primeros p índices porque no tienen todos sus antecedentes observados."
+          "Comparar órdenes",
+          "La comparación utiliza mínimos cuadrados con constante y el mismo intervalo de respuestas para todos los órdenes: se omiten p_máximo muestras iniciales. Necesita más de 2·p_máximo+1 muestras de entrenamiento.\n\nAIC y BIC combinan error de ajuste con una penalización por cantidad de parámetros. AICc agrega una corrección para muestras cortas y no está definido si faltan grados de libertad. Se cuentan p coeficientes, una constante y una varianza. Menor puntuación sugiere un candidato entre los órdenes evaluados; no demuestra el orden verdadero. También podés elegir por MSE de la reserva, si reservaste datos."
         ],
         [
-          "Qué tener en cuenta",
-          "El orden elegido cambia el resultado. Las curvas son las del modelo ajustado; no son la densidad exacta del proceso desconocido. La varianza de innovación de Yule–Walker y el promedio cuadrático del residuo pueden diferir en un registro finito. No se certifican blancura ni independencia."
+          "Leer la comparación",
+          "La tabla conserva cada orden, sus puntuaciones, error, cantidad de filas y mayor módulo de polo. Elegí una fila para consultar y reutilizar ese modelo. Un intento fallido conserva su motivo y no ofrece el filtro de la fila anterior.\n\nSi un residuo es compatible con redondeo, no se usan criterios gaussianos degenerados. Si no hay puntuación válida, no se elige un ganador ficticio: seleccioná un ajuste disponible para inspeccionarlo."
+        ],
+        [
+          "Predicción, validación y pronóstico",
+          "La predicción a un paso usa antecedentes observados. En la reserva también puede usar muestras anteriores de esa reserva, ya conocidas en ese instante. MSE es el promedio del error al cuadrado: mide precisión sobre ese tramo, no sobre todo posible futuro.\n\nEl pronóstico comienza después de la última muestra observada y reutiliza sus propias salidas. Conserva los coeficientes ajustados en entrenamiento; no vuelve a estimarlos con la reserva. Sus intervalos suponen innovaciones gaussianas independientes y parámetros fijados. Incluyen ruido futuro, pero no incertidumbre de los parámetros ni de la selección del orden."
+        ],
+        [
+          "Diagnosticar los residuos",
+          "Residuos muestra la autocorrelación del error de entrenamiento y Q de Ljung–Box para cada retardo. El valor p utiliza k−p grados de libertad; con k≤p no se calcula. Es una aproximación asintótica que puede ser pobre en muestras cortas.\n\nUn valor p pequeño señala incompatibilidad con la ausencia de correlación bajo esas hipótesis. Un valor p grande no demuestra blancura ni independencia. Un residuo nulo o compatible con redondeo no recibe una autocorrelación normalizada ni valores p ficticios."
+        ],
+        [
+          "Qué se conserva",
+          "H(z)=1/A(z⁻¹) representa el paso de innovaciones a la salida; la constante de la recurrencia se informa aparte. Los coeficientes, tablas, predicciones y curvas quedan en Resultados y admiten exportación o CAS según su tipo. Los índices y Fs disponibles se conservan.\n\nUn ajuste no estacionario conserva sus coeficientes y predicciones finitas, pero no recibe una varianza ni PSD estacionarias. Si una gráfica, pronóstico, realización o diagnóstico complementario no puede obtenerse, el ajuste principal sigue disponible."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -336,41 +348,41 @@
         "fit"
       ],
       "flow": [
-        "Registro real y orden p",
-        "Yule–Walker con divisor N",
-        "Modelo AR, PSD y residuo"
+        "Registro y reserva",
+        "Orden elegido o comparación",
+        "Modelo, validación y pronóstico"
       ],
       "parameters": [
         [
-          "Registro",
-          "Fórmula, muestras, archivo o un resultado anterior; debe ser discreto real y no constante."
+          "Método y orden",
+          "Yule–Walker estima covarianzas con divisor N; mínimos cuadrados ajusta la recurrencia con una constante. Orden cero es una referencia de media y ruido."
         ],
         [
-          "Orden p",
-          "Cantidad de retardos autorregresivos, entero positivo menor que N. No se selecciona automáticamente."
+          "Comparar órdenes",
+          "Usa mínimos cuadrados y respuestas comunes desde p_máximo. Cada fila conserva su propio resultado o motivo de fallo."
         ],
         [
-          "Retardo máximo y puntos",
-          "Afectan las curvas del modelo; no la longitud del registro observado."
+          "Muestras reservadas",
+          "Cantidad de muestras finales excluidas del ajuste. La validación es de un paso, con antecedentes observados."
         ],
         [
-          "Realización opcional",
-          "Genera una nueva señal con el modelo ajustado, no una reconstrucción del registro original."
+          "Criterio",
+          "AIC/BIC penalizan parámetros; AICc necesita más muestras. Menor es preferible dentro de la tabla. Elegir por error requiere una reserva."
         ],
         [
-          "Importar o reutilizar",
-          {
-            "ref": "importar-o-reutilizar-ae5699e5"
-          }
+          "Horizonte y cobertura",
+          "Horizonte cuenta muestras futuras. Cobertura es el porcentaje nominal del intervalo condicional gaussiano, entre 0 y 100 sin extremos. Cero en horizonte desactiva el pronóstico."
         ],
         [
-          "Levantamiento de indeterminaciones",
-          {
-            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
-          }
+          "Retardos de diagnóstico",
+          "Se recortan a N_residuo−1. Con k≤p, no hay grados de libertad positivos para el valor p."
+        ],
+        [
+          "PSD y generación",
+          "Sólo corresponden a un modelo causal estable con varianza representable. La realización es nueva, no una reconstrucción de los datos."
         ]
       ],
-      "reading": "Se estima la media y se resta antes de calcular la covarianza con divisor N. El residuo excluye las primeras p muestras y conserva sus índices. Un buen ajuste no demuestra que el proceso sea AR ni que los residuos sean blancos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Las curvas conservan índices y reloj. La predicción de un paso y el pronóstico recursivo son salidas distintas. Consultá el informe para distinguir datos de entrenamiento, reserva y futuro. Las tablas CSV conservan la interpretación del cálculo."
     }
   ]
 }

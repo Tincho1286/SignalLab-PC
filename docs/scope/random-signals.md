@@ -10,9 +10,9 @@ La aplicación dispone de modelos estacionarios y estimación AR. La tabla disti
 | II. Sistemas lineales con entradas aleatorias | Modelo discreto real, causal y estable excitado por ruido blanco gaussiano; media, varianza, autocovarianza, autocorrelación y PSD teóricas. H(z) reutilizable en análisis de sistemas. | Entradas de espectro arbitrario y tratamiento estocástico continuo, con convenciones de densidad explícitas. |
 | III. Clases especiales | Modelos conocidos AR, MA y ARMA; realizaciones gaussianas estacionarias. Generación previa de ruido gaussiano, uniforme y Bernoulli. | Cadenas de Markov discretas/continuas, procesos de nacimiento/muerte y Poisson; modelos gaussianos multivariados y otras clases. |
 | IV. Detección | Correlación como herramienta auxiliar. | Decisiones con hipótesis y umbrales, MAP/Bayes, Neyman–Pearson, curvas de error y detección con varias observaciones. No se presenta la correlación sola como un detector completo. |
-| V. Estimación y filtrado | Ajuste AR por Yule–Walker y residuo de innovación estimado. | LMMSE general, innovaciones multivariadas, Wiener causal/no causal y Kalman. El residuo AR no equivale a un filtro de Kalman. |
+| V. Estimación y filtrado | Ajuste AR por Yule–Walker y residuo de innovación estimado. La preliminar 1.8.6 agrega mínimos cuadrados, validación y pronóstico. | LMMSE general, innovaciones multivariadas, Wiener causal/no causal y Kalman. El residuo AR no equivale a un filtro de Kalman. |
 | VI. Estadística | Media, varianza con N/N−1, RMS e histograma de registros. | Intervalos de confianza, pruebas de hipótesis y estimación por momentos/máxima verosimilitud con sus hipótesis. |
-| VII. Estimación de procesos | Autocorrelación no paramétrica, periodograma/Welch existentes; estimación paramétrica AR por Yule–Walker y su PSD. | Ajuste MA/ARMA/ARIMA, comparación y selección automática de orden, diagnóstico residual y otros estimadores. |
+| VII. Estimación de procesos | Autocorrelación no paramétrica, periodograma/Welch y estimación paramétrica AR. La preliminar 1.8.6 incorpora comparación de órdenes y diagnóstico residual. | Ajuste MA/ARMA/ARIMA y otros estimadores espectrales. |
 
 ## Modelos conocidos
 
@@ -28,7 +28,7 @@ Los modelos complejos y no estacionarios no se incluyen en esta primera operaci�
 
 Se centra un registro discreto real y se estima su autocovarianza con divisor N. Con orden p elegido por el usuario, se resuelve el sistema Toeplitz de Yule–Walker, se comprueba el residuo de la solución y se calcula la varianza de innovación. El resultado incluye H(z), estadísticas y espectro del modelo ajustado. El residuo válido empieza p muestras después del inicio observado y conserva el reloj disponible. La generación opcional produce una realización nueva del modelo, no una reconstrucción del registro.
 
-El orden no se elige automáticamente. No se afirma blancura de los residuos, independencia ni que el proceso desconocido sea exactamente AR. Su promedio cuadrático sobre el tramo válido puede diferir de la varianza obtenida por Yule–Walker.
+La preliminar 1.8.6 amplía esta operación con mínimos cuadrados condicionales, orden cero, comparación de órdenes sobre respuestas comunes, reserva de validación, pronóstico con intervalos y diagnóstico residual. La [guía de estimación AR](../ar-estimation.md) explica sus hipótesis. No se afirma blancura, independencia ni que el proceso desconocido sea exactamente AR. El promedio cuadrático del residuo puede diferir de la varianza de innovación de Yule–Walker.
 
 ## Correlación auto/cruzada
 

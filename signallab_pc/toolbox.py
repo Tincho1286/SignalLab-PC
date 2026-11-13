@@ -520,8 +520,13 @@ class ToolPage(QWidget):
             from .difference_panel import DifferencePanel
             self.panel=DifferencePanel(window);root.addWidget(self.panel);return
         if kind=='random_model':
-            from .random_model_panel import RandomModelPanel
-            self.panel=RandomModelPanel(window,index);root.addWidget(self.panel);return
+            if index=='fit':
+                from .ar_estimation_panel import ARFitPanel
+                self.panel=ARFitPanel(window)
+            else:
+                from .random_model_panel import RandomModelPanel
+                self.panel=RandomModelPanel(window,index)
+            root.addWidget(self.panel);return
         if kind=='random_correlation':
             from .random_correlation_panel import RandomCorrelationPanel
             self.panel=RandomCorrelationPanel(window);root.addWidget(self.panel);return

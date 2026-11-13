@@ -70,6 +70,9 @@ def _diagrams_for(section):
         from .difference_help import difference_image
         return [('Coeficientes, historial y solución',difference_image(),'Azul: ecuación y comienzo n₀. Ámbar: valores anteriores conocidos. Verde: valores calculados. La primera condición es y[n₀−1], no y[n₀]. La longitud del gráfico no limita la solución algebraica.')]
     if route and route[1] in ('random_model','random_correlation'):
+        if route[1:3]==('random_model','fit'):
+            from .ar_estimation_help import image
+            return [('Entrenamiento, reserva y futuro',image(),'Azul: datos para ajustar. Ámbar: datos reservados para validar sin modificar los coeficientes. Verde: futuro no observado. La predicción de un paso usa muestras observadas; el pronóstico recursivo usa sus propias salidas. Los intervalos no incluyen incertidumbre de los parámetros.')]
         from .random_model_help import model_image
         cross=route[1]=='random_correlation';fit=route[2]=='fit'
         caption='Azul: x[n]. Verde: y[n]. Se comparan sólo índices observados en ambos registros. El retardo k indica qué muestra de x se multiplica por y; la correlación cruzada no tiene por qué ser par.' if cross else 'Azul: entrada o registro. Ámbar: modelo o ecuaciones de estimación. Verde: proceso y estadísticas obtenidas. El ejemplo AR(1) aclara el signo de a[1]; no reemplaza tus datos.'
