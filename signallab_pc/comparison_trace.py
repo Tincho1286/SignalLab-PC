@@ -15,13 +15,15 @@ def capture(coordinates,a,b,*,units,label,discrete=False,index=False):
                 undefined_count=int((~finite).sum()),overflow_count=int(overflow.sum()))
 
 
-def export_csv(path,trace):
-    if not len(trace['coordinates']):raise ValueError('No hay coordenadas almacenadas comunes para exportar una diferencia.')
+def export_csv(path,trace,impulses=None):
+    parts=[('parte ordinaria',trace)]+([('peso de Dirac',impulses)] if impulses is not None else [])
+    if not any(len(data['coordinates']) for _,data in parts):raise ValueError('No hay coordenadas almacenadas comunes para exportar una diferencia.')
     with atomic_text_file(path,encoding='utf-8-sig',newline='') as stream:
         writer=csv.writer(stream,delimiter=';')
-        writer.writerow(['coordenada ('+trace['units']+')','A real','A imaginaria','B real','B imaginaria','B-A real','B-A imaginaria','estado'])
-        for x,a,b,e in zip(trace['coordinates'],trace['a'],trace['b'],trace['error']):
-            state='finito' if np.isfinite(e) else 'fuera de rango float64' if np.isfinite([a,b]).all() else 'entrada no definida'
-            def components(z):return [format(z.real,'.17g'),format(z.imag,'.17g')] if np.isfinite(z) else ['','']
-            coordinate=str(int(x)) if trace['index'] else format(float(x),'.17g')
-            writer.writerow([coordinate,*components(a),*components(b),*components(e),state])
+        writer.writerow(['coordenada ('+trace['units']+')','A real','A imaginaria','B real','B imaginaria','B-A real','B-A imaginaria','parte','estado'])
+        for part,data in parts:
+            for x,a,b,e in zip(data['coordinates'],data['a'],data['b'],data['error']):
+                state='finito' if np.isfinite(e) else 'fuera de rango float64' if np.isfinite([a,b]).all() else 'entrada no definida'
+                def components(z):return [format(z.real,'.17g'),format(z.imag,'.17g')] if np.isfinite(z) else ['','']
+                coordinate=str(int(x)) if data['index'] else format(float(x),'.17g')
+                writer.writerow([coordinate,*components(a),*components(b),*components(e),part,state])

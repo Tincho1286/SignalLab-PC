@@ -28,6 +28,8 @@ Las señales conservan su origen y fase. Las métricas usan sólo coordenadas al
 
 En la ventana gráfica, **Vista** permite elegir **Superponer A y B** o **Diferencia B−A**; **Componentes** cambia entre parte real/imaginaria y módulo/fase sin repetir el cálculo. **Exportar comparación CSV…**, junto a los resultados, guarda las coordenadas comunes y las componentes de A, B y B−A. No se exporta una diferencia si no hay puntos comunes. El CSV identifica las entradas no definidas y las diferencias fuera de rango.
 
+Si existen impulsos de Dirac, el selector **Parte** de la figura distingue muestras ordinarias y pesos. El CSV exporta ambas partes con una columna que las identifica. Los pesos se comparan en la unión de sus posiciones; la ausencia de un término implica peso cero en esa posición, sin rellenar huecos de muestras ordinarias.
+
 Las métricas distinguen una diferencia nula de un valor positivo que queda fuera del rango de float64. Los datos se capturan al calcular: editar después las fuentes no modifica el informe ni su exportación. La biblioteca registra el informe y sus dos entradas; la comparación no vuelve a publicar esas señales como resultados nuevos.
 
 Para dos H(s) o dos H(z), elegí el intervalo angular común. Ambas se evalúan en las mismas frecuencias y el informe conserva las condiciones de cada sistema. La interpretación como Fourier requiere una ROC compatible. La comparación se registra con sus dos orígenes en la biblioteca de Resultados.

@@ -85,7 +85,7 @@ def compare(a,b,start=0.,stop=np.pi,count=2001,*,alignment='index'):
         label='Tiempo físico (s)' if alignment=='physical' else 'Índice k' if a.units in ('k','bin k') else 'Índice n' if a.domain=='discrete' else 'Coordenada ('+a.units+')'
         trace=capture(coordinates,one,two,units=unit,label=label,discrete=is_discrete_plot(a),index=a.domain=='discrete' and alignment=='index')
         from .distributions import dirac_terms
-        impulses=None
+        impulses=None;impulse_trace=None
         if a.domain in ('continuous','frequency'):
             left=dict(dirac_terms(a));right=dict(dirac_terms(b))
             positions=sorted(left.keys() | right.keys())
@@ -93,12 +93,13 @@ def compare(a,b,start=0.,stop=np.pi,count=2001,*,alignment='index'):
                 from itertools import islice
                 weights_a=np.array([left.get(position,0j) for position in positions])
                 weights_b=np.array([right.get(position,0j) for position in positions])
+                impulse_trace=capture(positions,weights_a,weights_b,units=a.units,label='Posición del impulso ('+a.units+')',discrete=True)
                 impulses={'metrics':errors(weights_a,weights_b),'terms_a':len(left),'terms_b':len(right),
                           'different_positions':sum(left.get(t,0j)!=right.get(t,0j) for t in positions),
                           'first_differences':[[t,[float(u.real),float(u.imag)],[float(v.real),float(v.imag)]]
                                                for t,u,v in islice((item for item in zip(positions,weights_a,weights_b)
                                                                     if item[1]!=item[2]),12)]}
-        return {'trace':trace,'metrics':metrics,'signals':(a,b),'alignment':alignment,'clock_note':clock_note,'impulses':impulses,'scope':'Se comparan sólo coordenadas almacenadas exactamente coincidentes. Se conservan origen, amplitud y fase; no se interpola, desplaza ni rellena con ceros. Una ausencia de puntos comunes no significa igualdad.','units':a.units,'domain':a.domain}
+        return {'trace':trace,'impulse_trace':impulse_trace,'metrics':metrics,'signals':(a,b),'alignment':alignment,'clock_note':clock_note,'impulses':impulses,'scope':'Se comparan sólo coordenadas almacenadas exactamente coincidentes. Se conservan origen, amplitud y fase; no se interpola, desplaza ni rellena con ceros. Una ausencia de puntos comunes no significa igualdad.','units':a.units,'domain':a.domain}
     from .frequency_analysis import frequency_grid
     from .system_conditions import record
     w=frequency_grid(start,stop,count);one=a.response(w);two=b.response(w)
@@ -164,6 +165,7 @@ class ComparisonDialog(QDialog):
         self.trace_mode=QComboBox();self.trace_mode.addItems(['Superponer A y B','Diferencia B−A']);self.trace_mode.currentIndexChanged.connect(self.draw)
         controls=QWidget();options=QFormLayout(controls);options.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows)
         options.addRow('Vista',self.trace_mode);options.addRow('Componentes',self.mode)
+        self.part=QComboBox();self.part.addItems(['Parte ordinaria','Pesos de Dirac']);options.addRow('Parte',self.part);self.part_label=options.labelForField(self.part);self.part.hide();self.part_label.hide();self.part.currentIndexChanged.connect(self.draw)
         layout.insertWidget(0,controls);self.canvas._signallab_plot_controls=controls
         from .plot_view import install_enlarge
         install_enlarge(self.toolbar)
@@ -204,8 +206,11 @@ class ComparisonDialog(QDialog):
             snapshot=self.state.snapshot()
             def accept(data):
                 captured=data.pop('input_snapshots',None)
-                self.data={**data,**({'signals':tuple(Signal(**values) for values in captured)} if captured is not None else {'systems':(a,b)})};self.export_button.setEnabled(bool(len(data['trace']['coordinates'])));self.report.set_readable(summary(data));self.state.accept(snapshot);self.draw()
-                saved={k:v for k,v in data.items() if k not in ('signals','systems','omega','responses','trace')};saved.update(operation='result_comparison',report=summary(data).plain_text(),source_ids=[ka,kb])
+                self.data={**data,**({'signals':tuple(Signal(**values) for values in captured)} if captured is not None else {'systems':(a,b)})};self.export_button.setEnabled(bool(len(data['trace']['coordinates'])) or bool(data.get('impulse_trace') is not None and len(data['impulse_trace']['coordinates'])));self.report.set_readable(summary(data));self.state.accept(snapshot)
+                has_impulses=data.get('impulse_trace') is not None;self.part.setVisible(has_impulses);self.part_label.setVisible(has_impulses)
+                if not has_impulses:self.part.setCurrentIndex(0)
+                self.draw()
+                saved={k:v for k,v in data.items() if k not in ('signals','systems','omega','responses','trace','impulse_trace')};saved.update(operation='result_comparison',report=summary(data).plain_text(),source_ids=[ka,kb])
                 saved['calculated_data']={k:v for k,v in saved.items() if k!='report'}
                 self.owner.publish(saved,title='Comparación A / B',operation='Comparación de resultados',parents=[ka,kb])
                 journal=getattr(self.owner,'_result_journal',None)
@@ -226,7 +231,7 @@ class ComparisonDialog(QDialog):
         if not path:return
         try:
             from .comparison_trace import export_csv
-            export_csv(path,self.data['trace'])
+            export_csv(path,self.data['trace'],self.data.get('impulse_trace'))
         except (OSError,ValueError) as exc:QMessageBox.warning(self,'No se pudo exportar',str(exc))
 
     def draw(self,*_):
@@ -234,7 +239,16 @@ class ComparisonDialog(QDialog):
         from .signal_plot import plot_samples,configure_signal_axis,configure_axis,is_discrete_plot
         from .ui import SignalLabWindow
         self.figure.clear();axes=self.figure.subplots(2,1,sharex=True);polar=self.mode.currentIndex()==1
-        if self.trace_mode.currentIndex()==1:
+        impulse_view=self.part.currentIndex()==1 and self.data.get('impulse_trace') is not None
+        if impulse_view:
+            trace=self.data['impulse_trace'];coordinates=trace['coordinates']
+            curves=[('B−A',trace['error'])] if self.trace_mode.currentIndex()==1 else [('A',trace['a']),('B',trace['b'])]
+            for name,values in curves:
+                for axis,curve in zip(axes,(abs(values),np.where(abs(values)>0,np.angle(values),np.nan)) if polar else (values.real,values.imag)):
+                    plot_samples(axis,coordinates,curve,discrete=True,label=name+' · peso',phase=polar and axis is axes[1])
+                    configure_axis(axis,units=trace['units'],label=trace['label'])
+            axes[0].set_title('Pesos de Dirac · no son alturas de muestras',fontsize=9)
+        elif self.trace_mode.currentIndex()==1:
             trace=self.data['trace'];values=trace['error'];coordinates=trace['coordinates']
             for axis,curve in zip(axes,(abs(values),np.where(abs(values)>0,np.angle(values),np.nan)) if polar else (values.real,values.imag)):
                 plot_samples(axis,coordinates,curve,discrete=trace['discrete'],label='B−A',phase=polar and axis is axes[1])
@@ -256,5 +270,8 @@ class ComparisonDialog(QDialog):
                 phase=np.where(np.isfinite(values)&(abs(values)>0),np.angle(values),np.nan)
                 for axis,curve in zip(axes,(abs(values),phase) if polar else (values.real,values.imag)):plot_samples(axis,self.data['omega'],curve,label=letter+' · '+system.name,phase=polar and axis is axes[1])
             configure_axis(axes[-1],units=self.data['units'],label='Frecuencia angular ('+self.data['units']+')')
-        for axis,label in zip(axes,('Módulo','Fase (rad)') if polar else ('Parte real','Parte imaginaria')):axis.set_ylabel(label);axis.grid(alpha=.25);axis.legend()
+        if self.data.get('impulse_trace') is not None and not impulse_view:
+            axes[0].set_title('Parte ordinaria · elegí Pesos de Dirac para consultar los impulsos',fontsize=9)
+        labels=(('Módulo del peso','Ángulo del peso (rad)') if polar else ('Peso real','Peso imaginario')) if impulse_view else ('Módulo','Fase (rad)') if polar else ('Parte real','Parte imaginaria')
+        for axis,label in zip(axes,labels):axis.set_ylabel(label);axis.grid(alpha=.25);axis.legend()
         self.canvas.draw_idle()

@@ -78,6 +78,17 @@ class MeasurementMath(unittest.TestCase):
             self.assertEqual(rows[1][-1],'fuera de rango float64');self.assertEqual(rows[2][-1],'entrada no definida')
             self.assertEqual(rows[1][5:7],['',''])
 
+    def test_dirac_weights_are_separate_from_zero_ordinary_parts(self):
+        a=Signal([0,0],0,.5,'s','A','continuous',metadata={'dirac_at_zero':[2.,0.]})
+        b=Signal([0,0],0,.5,'s','B','continuous',metadata={'dirac_at_zero':[5.,0.],'dirac_terms':[[.5,[0.,4.]]]})
+        data=compare(a,b);self.assertEqual(data['metrics']['absolute_max'],0)
+        trace=data['impulse_trace'];assert_allclose(trace['error'],[3,4j]);self.assertEqual(data['impulses']['metrics']['absolute_max'],4)
+        with tempfile.TemporaryDirectory() as temp:
+            path=Path(temp)/'impulses.csv';export_csv(path,data['trace'],trace)
+            with path.open(encoding='utf-8-sig',newline='') as stream:rows=list(csv.DictReader(stream,delimiter=';'))
+            impulses=[row for row in rows if row['parte']=='peso de Dirac']
+            self.assertEqual(len(impulses),2);self.assertEqual(impulses[1]['B-A imaginaria'],'4')
+
     def test_zoom_recovers_every_original_point_and_reduction_retains_extrema(self):
         x=np.linspace(0,1,100001);y=np.zeros(len(x));y[43210]=1;y[43211]=-7;y[80000]=np.nan
         ids=visible_indices(x,y,0,1,budget=1000)
@@ -168,6 +179,12 @@ class MeasurementUi(unittest.TestCase):
             with patch('PySide6.QtWidgets.QFileDialog.getSaveFileName',return_value=(str(path),'')):dialog.export_button.click()
             self.assertTrue(path.exists());self.assertIn('B-A real',path.read_text(encoding='utf-8-sig'))
         record=window.project.get(window.project.headers('calculation')[-1]['id']);self.assertIn('source_ids',record['calculated_data'])
+        ka=publish(Signal([0,0],0,.5,'s','Impulso A','continuous',metadata={'dirac_at_zero':[2.,0.]}))
+        kb=publish(Signal([0,0],0,.5,'s','Impulso B','continuous',metadata={'dirac_at_zero':[5.,0.]}))
+        dialog.refresh();dialog.a.setCurrentIndex(dialog.a.findData(ka));dialog.b.setCurrentIndex(dialog.b.findData(kb));dialog.calculate_button.click()
+        self.assertFalse(dialog.part.isHidden());dialog.part.setCurrentIndex(1)
+        self.assertEqual(dialog.figure.axes[0].get_ylabel(),'Peso real')
+
 
 
 if __name__=='__main__':unittest.main()
