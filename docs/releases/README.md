@@ -6,6 +6,7 @@ La descarga estable actual es la **1.8.0**. Este índice conserva cada publicaci
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.1](v1.8.1.md) | Comparación FIR, ROC visual e inspectores de convolución y recurrencias; espectro de ventanas | Preliminar |
 | [1.8.0](v1.8.0.md) | Instaladores Windows y Linux con actualizaciones verificadas | Estable |
 | [1.7.0](v1.7.0.md) | Numerosas mejoras de estabilidad, fiabilidad matemática y biblioteca  | Estable |
 | [1.6.17](v1.6.17.md) | Funciones hiperbólicas, transformadas y conservación de resultados  | Estable · Importante |

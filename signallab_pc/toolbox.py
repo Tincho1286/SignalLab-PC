@@ -839,6 +839,10 @@ class ToolPage(QWidget):
         if operation in ('scale','shift'):box.addWidget(QLabel('Factor de amplitud' if operation=='scale' else 'Desplazamiento k'));box.addWidget(self.parameter)
         button=QPushButton('Calcular');button.setObjectName('primary');box.insertWidget(0,button);box.addStretch()
         result=ResultView();layout.addWidget(result,2)
+        self.basic_result=result
+        if operation=='convolve':
+            from .convolution_inspector import ConvolutionInspector
+            self.convolution_inspector=ConvolutionInspector();self.convolution_step_index=result.views.addTab(self.convolution_inspector,'Paso a paso');result.views.setTabVisible(self.convolution_step_index,False)
         from .result_state import ResultState
         tracked=[self.parameter] if operation in ('scale','shift') else []
         sources=[field for field in (self.first,self.second,getattr(self,'continuous_source',None)) if field is not None]
@@ -854,10 +858,17 @@ class ToolPage(QWidget):
                 parents=[entry.reference_id for entry in (self.first,self.second) if entry and entry.reference_id]
                 calculated_inputs=self.result_state.snapshot()
                 def accept(value):
+                    if operation=='convolve':
+                        value,trace,error=value
+                        self.convolution_inspector.set_trace(trace,error);result.views.setTabVisible(self.convolution_step_index,True)
                     for part in value if isinstance(value,tuple) else (value,):
                         window.publish(part if isinstance(part,Signal) else asdict(part),title=operation_label(operation) if not isinstance(part,Signal) else None,operation=operation_label(operation),parents=parents)
                     result.show_result(value,source=x,operation=operation);self.result_state.accept(calculated_inputs)
-                window._run_operation('Calculando…',functions[operation],accept)
+                calculate_value=functions[operation]
+                if operation=='convolve':
+                    from .convolution_steps import calculate as convolution_with_steps
+                    calculate_value=lambda:convolution_with_steps(x,h)
+                window._run_operation('Calculando…',calculate_value,accept)
             except Exception as exc:QMessageBox.warning(self,'Revisá los datos',str(exc))
         button.clicked.connect(calculate)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(300)

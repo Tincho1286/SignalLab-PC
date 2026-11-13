@@ -34,16 +34,28 @@ class WindowSignalPanel(QWidget):
         self.kind.currentIndexChanged.connect(configure);self.length.textChanged.connect(configure);self.center.toggled.connect(configure);self.origin.textChanged.connect(configure);configure()
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         self.output=ResultView();root.addWidget(self.output,2)
+        from .window_spectrum_view import WindowSpectrumView
+        self.spectrum_view=WindowSpectrumView();self.spectrum_index=self.output.views.addTab(self.spectrum_view,'Espectro de la ventana');self.output.views.setTabVisible(self.spectrum_index,False)
 
     def calculate(self):
         try:
             length=integer_field(self.length);origin=-(length//2) if self.center.isChecked() else integer_field(self.origin)
             args=(self.kind.currentData(),length,origin,real_field(self.beta) if self.kind.currentData()=='kaiser' else 0)
             snapshot=self.state.snapshot()
-            def accept(result):
+            def accept(calculated):
+                result,analysis=calculated
                 self.result=result;key=self.window.publish(result,operation='Generación de ventana')
                 self.output.show_result(result);self.output.result_ids=[key]
-                report=summary(result);self.output.text.set_readable(report)
-                self.window.publish({'report':report.plain_text()},title=result.name+' · definición',operation='Informe de ventana',parents=[key]);self.state.accept(snapshot)
-            self.window._run_operation('Generando ventana…',lambda:generate_window(*args),accept)
+                report=summary(result)
+                from .window_spectrum import measure_section
+                report.sections.insert(1,measure_section(analysis));self.output.text.set_readable(report)
+                self.spectrum_view.set_data(analysis);self.output.views.setTabVisible(self.spectrum_index,True)
+                self.window.publish({'report':report.plain_text(),'window_metrics':analysis.get('metrics')},title=result.name+' · definición',operation='Informe de ventana',parents=[key]);self.state.accept(snapshot)
+            def work():
+                result=generate_window(*args)
+                from .window_spectrum import analyze
+                try:analysis=analyze(result)
+                except (ValueError,MemoryError) as exc:analysis={'error':str(exc)}
+                return result,analysis
+            self.window._run_operation('Generando ventana…',work,accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá la ventana',str(exc))

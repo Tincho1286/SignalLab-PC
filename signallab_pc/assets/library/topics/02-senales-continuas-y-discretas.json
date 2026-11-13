@@ -320,11 +320,11 @@
         ],
         [
           "Cómo interpretar la salida",
-          "La salida muestra tallos discretos, tabla e informe con la definición y el intervalo. Exportar guarda las muestras e índices en JSON/CSV. Usar señal en… permite llevarla a Fourier o Transformada Z; en Z se abre Muestras finitas con el registro ya cargado. También podés elegirla desde Resultados para multiplicarla por otra señal o usarla como ventana propia de un FIR."
+          "La salida muestra tallos discretos, tabla e informe con la definición y el intervalo. Exportar guarda las muestras e índices en JSON/CSV. Usar señal en… permite llevarla a Fourier o Transformada Z; en Z se abre Muestras finitas con el registro ya cargado. También podés elegirla desde Resultados para multiplicarla por otra señal o usarla como ventana propia de un FIR. El informe también calcula ganancia coherente, energía, ancho equivalente de ruido y ancho de media potencia. Espectro de la ventana permite observar |W(ω)|/|W(0)| en escala lineal o dB, sin modificar las muestras exportables."
         ],
         [
           "Qué tener en cuenta",
-          "Se generan ventanas simétricas, como las de filtros FIR. No se añade una normalización de ganancia ni una repetición periódica. Desplazar el origen modifica la fase de la DTFT, pero mantiene su módulo. Con longitud par, el centro puede estar entre índices y el pico muestreado puede ser menor que uno. L=1 produce una sola muestra de valor uno. Los valores numéricos conservan la precisión disponible."
+          "Se generan ventanas simétricas, como las de filtros FIR. No se añade una normalización de ganancia ni una repetición periódica. Desplazar el origen modifica la fase de la DTFT, pero mantiene su módulo. Con longitud par, el centro puede estar entre índices y el pico muestreado puede ser menor que uno. L=1 produce una sola muestra de valor uno. Los valores numéricos conservan la precisión disponible. El ancho equivalente se expresa en rad/muestra y en bins de una DFT de L puntos; no cambia por rellenar con ceros. El ancho a −3.0103 dB va de −ω₃dB a +ω₃dB y no equivale al ancho entre ceros ni a la transición de un filtro. Una ventana nula no tiene ancho equivalente definido; una ventana sin cruce no recibe un ancho inventado."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -740,7 +740,7 @@
           }
         ]
       ],
-      "reading": "L no es la semilongitud ni el orden M. No se normaliza el pico, la suma ni la energía después de generar. La simetría no obliga a que exista una muestra central cuando L es par. Fuera del intervalo se usa cero; la ventana no se convierte en una secuencia periódica. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "El informe reúne la definición temporal y las medidas espectrales. En Abrir gráfico elegí Espectro de la ventana para estudiar su módulo relativo; el selector lineal/dB viaja con la figura. El cruce de media potencia se refina sobre la DTFT de las muestras y es independiente de n₀. L no es la semilongitud ni el orden M. No se normaliza el pico, la suma ni la energía después de generar. La simetría no obliga a que exista una muestra central cuando L es par. Fuera del intervalo se usa cero; la ventana no se convierte en una secuencia periódica. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
     }
   ]
 }

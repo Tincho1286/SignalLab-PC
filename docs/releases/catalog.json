@@ -1,6 +1,21 @@
 {
   "releases": [
     {
+      "tag": "v1.8.1",
+      "title": "Comparación FIR, ROC visual e inspección muestra a muestra",
+      "channel": "preview",
+      "summary": "La versión 1.8.1 reúne las mejoras posteriores a la 1.8.0 en paquetes propios para Windows y Linux.",
+      "changes": [
+        "Comparaciones FIR con igual longitud o tolerancias, medidas por banda y exportación CSV.",
+        "Selector visual de ROC en Z y Laplace, inspector de ecuaciones en diferencias y productos de la convolución lineal.",
+        "Ganancia coherente, ancho equivalente de ruido, media potencia y espectro relativo de ventanas."
+      ],
+      "limits": [
+        "Los inspectores explican datos finitos del último cálculo; no sustituyen una comprobación simbólica. El selector visual de ROC requiere expresiones racionales numéricas y admite un retardo global en Laplace."
+      ],
+      "notes": "docs/releases/v1.8.1.md"
+    },
+    {
       "tag": "v1.8.0",
       "title": "Instaladores Windows y Linux con actualizaciones verificadas",
       "channel": "stable",

@@ -2,7 +2,7 @@
 
 [← Desarrollo](development/README.md)
 
-Estas funciones están incorporadas en el código de desarrollo posterior a la versión 1.8.0 publicada. Las descargas de esa release conservan su contenido original. Se integran en las herramientas existentes y utilizan sus resultados y acciones de exportación.
+Estas funciones corresponden a la versión **1.8.1**. Se integran en las herramientas existentes y utilizan sus resultados y acciones de exportación. La entrega 1.8.0 conserva sus archivos originales y no incluye estas incorporaciones.
 
 ## Comparación de diseños FIR
 
@@ -41,3 +41,19 @@ La tabla muestra cada coeficiente, la muestra anterior y su contribución. Disti
 La navegación no vuelve a evaluar la entrada ni resuelve otra vez la ecuación: utiliza el historial, los coeficientes y las muestras del último cálculo. Por eso, si cambiás la fórmula del formulario, el inspector sigue describiendo el resultado anterior hasta recalcular. Las ecuaciones sin memoria muestran solo el término de entrada y las definiciones con parámetros pendientes conservan la fórmula aunque todavía no tengan un inspector numérico.
 
 La diferencia entre los aportes y la muestra almacenada permite consultar el redondeo de esa iteración. No sustituye la comprobación simbólica de la solución ni certifica una identidad para todos los índices.
+
+## Productos de la convolución discreta
+
+En **Convolución lineal**, calculá las dos entradas y abrí **Paso a paso**. El campo n permite elegir una muestra del intervalo de salida; los botones avanzan o retroceden una posición. **Explicación** muestra la suma completa y la salida almacenada, y **Productos** detalla k, n−k, x[k], h[n−k] y su producto.
+
+La tabla muestra hasta cien productos por página. Los botones de productos cambian la página sin cambiar n. **Alineación**, disponible desde **Abrir gráfico** en la cabecera de resultados, muestra esa misma página mediante tallos: arriba se comparan x[k] y h[n−k], y abajo se muestran los productos. El selector dentro de la figura permite consultar parte real, parte imaginaria o módulo.
+
+La convolución multiplica sin conjugar h y usa cero fuera de ambos soportes. La suma incluye todos los productos, incluso si la tabla muestra sólo una página. El inspector conserva copias de las entradas y la salida del último cálculo, para que editar las fuentes no cambie la explicación. Una diferencia de redondeo entre la suma directa y la salida calculada por FFT no modifica el resultado original.
+
+## Medidas espectrales de las ventanas
+
+**Generar ventanas** conserva sus muestras simétricas y agrega las propiedades espectrales al informe. La ganancia coherente es Σw/L; el ancho equivalente de ruido en bins es L·Σ|w|²/|Σw|². Para expresarlo en rad/muestra se multiplica ese ancho en bins por 2π/L. Los bins se refieren a una DFT de L puntos: agregar ceros a una FFT no cambia esta medida.
+
+El ancho completo de media potencia se obtiene entre −ω₃dB y +ω₃dB, donde |W(ω₃dB)|/|W(0)|=1/√2. Su referencia en amplitud es −3.0103 dB. No es el ancho entre los primeros ceros ni una estimación de la transición de un filtro.
+
+En **Abrir gráfico**, elegí **Espectro de la ventana**. La figura utiliza ω en rad/muestra y permite alternar módulo relativo lineal o dB desde su propia barra. Las muestras de la ventana no se normalizan por cambiar esa vista, y se pueden seguir enviando a Fourier, Z o producto de señales. Una ventana nula no tiene ancho equivalente definido; si no se encuentra un cruce de media potencia entre 0 y π, el informe lo indica.

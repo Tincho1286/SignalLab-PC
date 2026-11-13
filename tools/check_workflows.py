@@ -7,10 +7,14 @@ os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 
 def worker(destination):
     sys.path[:0]=[str(ROOT),str(ROOT/'tests')]
-    suite=unittest.defaultTestLoader.loadTestsFromName('test_workflow_contracts.WorkflowContracts')
+    contracts=[('system_expression','test_workflow_contracts.WorkflowContracts',30),('interactive_analysis','test_interactive_analysis',14),('window_convolution_analysis','test_window_convolution_analysis',7)]
+    groups=[(key,unittest.defaultTestLoader.loadTestsFromName(name),minimum) for key,name,minimum in contracts]
+    counts={key:group.countTestCases() for key,group,_ in groups}
+    loaded=all(counts[key]>=minimum for key,_,minimum in groups)
+    suite=unittest.TestSuite(group for _,group,_ in groups)
     result=unittest.TextTestRunner(verbosity=2).run(suite)
     checks=['library_examples_and_links','basic_pairs_and_degenerate_models','optional_result_boundaries','inverse_z_sample_scope','numerical_frequency_export','cas_inverse_context','cas_system_context','impulse_alias_transport','transform_button','result_library','system_import','general_hs','export_reload','rational_regression','bilateral_boundary_analysis','dtft_plot_visibility','dtft_system_reuse','qt_error_visibility','presentation_failure_recovery','worker_diagnostic','cas_frequency_context','conditional_dtft_plot_export','report_figure_header','measures_figure_header','temporal_roc_guard','z_reciprocal_round_trip','fir_auto_window_length','figure_vertical_range', 'dtft_cas_exclusions', 'ideal_filter_cas_exports']
-    record=dict(contract='system-expression-workflows-v1',passed=result.wasSuccessful() and result.testsRun>=len(checks) and not result.skipped,tests=result.testsRun,failures=len(result.failures),errors=len(result.errors),skipped=len(result.skipped),checks=checks)
+    record=dict(contract='system-expression-workflows-v1',passed=loaded and result.wasSuccessful() and result.testsRun>=len(checks) and not result.skipped,tests=result.testsRun,failures=len(result.failures),errors=len(result.errors),skipped=len(result.skipped),checks=checks,families=counts)
     Path(destination).write_text(json.dumps(record,indent=2),encoding='utf-8')
     return 0 if record['passed'] else 1
 
