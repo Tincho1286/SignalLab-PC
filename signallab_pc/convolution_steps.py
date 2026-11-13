@@ -47,12 +47,15 @@ def inspect(trace,index,offset=0,count=100):
         products=xv*hv
         all_products=trace.x[first-trace.x0:last-trace.x0+1]*trace.h[n-last-trace.h0:n-first-trace.h0+1][::-1]
         reconstructed=np.sum(all_products,dtype=np.complex128)
-    finite=bool(np.isfinite(all_products).all() and np.isfinite(reconstructed))
-    rows=[dict(k=begin+i,h_index=n-begin-i,x=complex(a),h=complex(b),product=complex(p)) for i,(a,b,p) in enumerate(zip(xv,hv,products))]
+    # A rounded-to-zero product of two nonzero complex values is underflow,
+    # not a mathematical zero. Do not present it as an exact contribution.
+    invalid=(~np.isfinite(all_products))|((all_products==0)&(trace.x[first-trace.x0:last-trace.x0+1]!=0)&(trace.h[n-last-trace.h0:n-first-trace.h0+1][::-1]!=0))
+    finite=bool(not invalid.any() and np.isfinite(reconstructed))
+    rows=[dict(k=begin+i,h_index=n-begin-i,x=complex(a),h=complex(b),product=complex(p) if np.isfinite(p) and (p!=0 or a==0 or b==0) else None) for i,(a,b,p) in enumerate(zip(xv,hv,products))]
     computed=complex(trace.y[n-trace.y0])
     return dict(index=n,first=first,last=last,total=total,offset=offset,rows=rows,
                 computed=computed,reconstructed=complex(reconstructed) if finite else None,
-                residual=computed-complex(reconstructed) if finite else None)
+                residual=computed-complex(reconstructed) if finite else None,unrepresentable_products=int(invalid.sum()))
 
 
 def summary(data):
@@ -62,6 +65,6 @@ def summary(data):
         rows.extend([('Suma directa de todos los productos',number(data['reconstructed'])),('Diferencia numérica',number(data['residual']))])
     notes=['Se invierte h[k] y se desplaza hasta h[n−k]. Sólo se suman los productos donde coinciden ambos soportes. Fuera de los registros, las señales valen cero; no se conjuga h.',
            'La tabla y la alineación muestran una página de productos; la suma incluye todos. Se usan las muestras del último cálculo, aunque después edites las entradas.']
-    if data['reconstructed'] is None:notes.append('Un producto o su suma excede el rango del inspector. La salida calculada se conserva; no se reemplaza por esta comprobación.')
+    if data['reconstructed'] is None:notes.append('Un producto o su suma queda fuera del rango numérico del inspector, por exceso o por subdesbordamiento. La tabla lo indica en lugar de inventar un cero. La salida calculada se conserva; no se reemplaza por esta comprobación.')
     else:notes.append('La diferencia compara una suma directa con la salida guardada, que puede haberse calculado por FFT. Puede existir redondeo; no es una prueba simbólica.')
     return Summary('Convolución · paso n='+str(n),[Section('Suma de productos',rows=rows,paragraphs=notes,formulas=[Formula('y[n] = Sum(x[k]*h[n-k], (k, -oo, oo))','y[n] = Σ x[k]·h[n−k]')])])

@@ -59,7 +59,8 @@ class ConvolutionInspector(QWidget):
             self.report.set_readable(summary(data));self.table.setRowCount(len(data['rows']))
             for i,row in enumerate(data['rows']):
                 for j,key in enumerate(('k','h_index','x','h','product')):
-                    item=QTableWidgetItem(str(row[key]) if j<2 else number(row[key]));item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable);self.table.setItem(i,j,item)
+                    text=str(row[key]) if j<2 else number(row[key]) if row[key] is not None else 'Fuera de rango float64'
+                    item=QTableWidgetItem(text);item.setFlags(item.flags() & ~Qt.ItemFlag.ItemIsEditable);self.table.setItem(i,j,item)
             self.previous.setEnabled(data['index']>self.trace.y0);self.next.setEnabled(data['index']<self.trace.y0+len(self.trace.y)-1)
             self.back.setEnabled(self.offset>0);self.forward.setEnabled(self.offset+len(data['rows'])<data['total'])
             self.page_note.setText(f"Productos {self.offset+1} a {self.offset+len(data['rows'])} de {data['total']} · la alineación usa esta misma página")
@@ -75,7 +76,7 @@ class ConvolutionInspector(QWidget):
         a,b=self.figure.subplots(2,1,sharex=True)
         for key,label,color in [('x','x[k]','#91b7ff'),('h','h[n−k]','#78d6c2')]:
             plot_samples(a,indices,convert([r[key] for r in rows]),discrete=True,label=label,color=color)
-        plot_samples(b,indices,convert([r['product'] for r in rows]),discrete=True,label='x[k] · h[n−k]',color='#edc27d')
+        plot_samples(b,indices,convert([r['product'] if r['product'] is not None else complex(np.nan,np.nan) for r in rows]),discrete=True,label='x[k] · h[n−k]',color='#edc27d')
         for axis in (a,b):
             configure_axis(axis,discrete_index=True,index_symbol='k',units='n',label='Índice k (muestras)');axis.grid(alpha=.15);axis.legend(loc='upper left',bbox_to_anchor=(1.01,1));axis.set_ylabel(self.components.currentText())
         a.set_title('Alineación para n='+str(self.data['index'])+' · página de productos')

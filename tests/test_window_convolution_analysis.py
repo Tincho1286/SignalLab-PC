@@ -37,6 +37,15 @@ class AnalysisMath(unittest.TestCase):
         with self.assertRaises(ValueError):inspect(trace,201,offset=201)
         with self.assertRaises(ValueError):inspect(trace,0)
 
+    def test_inspector_never_calls_an_underflowed_product_zero(self):
+        # Individual products are below float64, but their sum is representable.
+        x=Signal(np.full(100,1e-162));h=Signal(np.full(100,1e-162))
+        y=linear_convolution(x,h);self.assertGreater(y.values[99].real,0)
+        data=inspect(capture(x,h,y),99)
+        self.assertEqual(data['unrepresentable_products'],100)
+        self.assertIsNone(data['rows'][0]['product']);self.assertIsNone(data['reconstructed'])
+        self.assertGreater(data['computed'].real,0)
+
     def test_rectangular_and_hann_gain_enbw_and_half_power(self):
         for kind in ('boxcar','hann'):
             source=generate_window(kind,33,origin=-16);data=analyze(source);m=data['metrics']
