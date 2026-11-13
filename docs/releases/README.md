@@ -2,10 +2,11 @@
 
 [← Documentación](../README.md)
 
-La descarga estable actual es la **1.8.2**, que amplía las mediciones y la comparación de resultados. Este índice conserva cada publicación con el canal que tuvo y enlaza las novedades detalladas de esa entrega. Las preliminares antiguas forman parte del historial; no reemplazan la recomendación de utilizar la última estable.
+La descarga estable actual es la **1.8.3**, que mejora el acceso a gráficos, las operaciones sobre resultados del CAS y la conversión de tasas, y permite incluir preliminares en el actualizador. Este índice conserva cada publicación con el canal que tuvo y enlaza las novedades detalladas de esa entrega. Las preliminares antiguas forman parte del historial; no reemplazan la recomendación de utilizar la última estable.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.3](v1.8.3.md) | Acceso a gráficos, operaciones CAS, cambio de tasa y canal de preliminares | Estable |
 | [1.8.2](v1.8.2.md) | Medidas A/B en mapas, diferencias exportables y zoom de ventanas | Estable |
 | [1.8.1](v1.8.1.md) | Comparación FIR, ROC visual e inspectores de convolución y recurrencias; espectro de ventanas | Estable |
 | [1.8.0](v1.8.0.md) | Instaladores Windows y Linux con actualizaciones verificadas | Estable |

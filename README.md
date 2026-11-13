@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.8.2" src="https://img.shields.io/badge/estable-1.8.2-71d7c4?style=flat-square&amp;labelColor=172632"></a>
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.8.3" src="https://img.shields.io/badge/estable-1.8.3-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
   <img alt="Instaladores y portables para Windows y Linux" src="https://img.shields.io/badge/Windows%20%2B%20Linux-instaladores%20y%20portables-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
@@ -25,20 +25,20 @@ Cada herramienta tiene sus propias entradas y puede utilizarse de manera indepen
 
 ## Descargar
 
-La versión estable **1.8.2** está disponible para Windows x64 y Linux x86_64. Los cuatro paquetes incluyen Python y las dependencias de la aplicación; no hace falta instalar Python por separado.
+La versión estable **1.8.3** está disponible para Windows x64 y Linux x86_64. Los cuatro paquetes incluyen Python y las dependencias de la aplicación; no hace falta instalar Python por separado.
 
 | Formato | Cuándo elegirlo | Windows x64 | Linux x86_64 |
 | --- | --- | --- | --- |
-| **Instalable** | Para tener accesos en el sistema y actualizar desde la aplicación. | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.2/SignalLab-PC-1.8.2-setup.exe) | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.2/SignalLab-PC-1.8.2-linux-x86_64.run) |
-| **Portable** | Para ejecutar la aplicación desde una carpeta, sin registrar una instalación. | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.2/SignalLab-PC-1.8.2.exe) | [Paquete .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.2/SignalLab-PC-1.8.2-linux-x86_64.tar.gz) |
+| **Instalable** | Para tener accesos en el sistema y actualizar desde la aplicación. | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.3/SignalLab-PC-1.8.3-setup.exe) | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.3/SignalLab-PC-1.8.3-linux-x86_64.run) |
+| **Portable** | Para ejecutar la aplicación desde una carpeta, sin registrar una instalación. | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.3/SignalLab-PC-1.8.3.exe) | [Paquete .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.3/SignalLab-PC-1.8.3-linux-x86_64.tar.gz) |
 
-En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh ./SignalLab-PC-1.8.2-linux-x86_64.run`; el portable se descomprime para ejecutar `SignalLab-PC` dentro de su carpeta. La [guía de instalación](docs/installation.md) explica ambos recorridos y enlaza los requisitos y las posibles alertas del sistema.
+En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh ./SignalLab-PC-1.8.3-linux-x86_64.run`; el portable se descomprime para ejecutar `SignalLab-PC` dentro de su carpeta. La [guía de instalación](docs/installation.md) explica ambos recorridos y enlaza los requisitos y las posibles alertas del sistema.
 
 ### Actualizar una instalación
 
 La edición instalada ofrece **Ayuda → Buscar actualizaciones**. Podés consultar las novedades, descargar la versión nueva y elegir cuándo instalar y reiniciar, sin desinstalar antes. Los temas y la configuración se conservan; los resultados de una sesión deben guardarse o exportarse antes del reinicio.
 
-La comprobación al iniciar se puede desactivar y no descarga ni instala por sí sola. El actualizador verifica la firma del manifiesto y la integridad del instalador antes de ejecutarlo. La [guía de actualizaciones](docs/installed-updates.md) explica este proceso y la diferencia entre esa verificación y la firma que reconoce Windows.
+Desde el mismo diálogo podés elegir sólo estables o incluir preliminares (Pre-releases); la preferencia se conserva. La comprobación al iniciar se puede desactivar y no descarga ni instala por sí sola. El actualizador verifica la firma del manifiesto y la integridad del instalador antes de ejecutarlo. La [guía de actualizaciones](docs/installed-updates.md) explica este proceso y la diferencia entre esa verificación y la firma que reconoce Windows.
 
 ## Herramientas disponibles
 
@@ -72,6 +72,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La [1.8.3](docs/releases/v1.8.3.md) facilita abrir y elegir figuras, cambiar la tasa indicando la frecuencia de salida y analizar el FIR antialias utilizado. El CAS incorpora operaciones rápidas sobre la salida seleccionada, sin borrar el borrador, y el actualizador permite incluir preliminares con manifiesto firmado compatible. La [guía de actualizaciones](docs/installed-updates.md) explica cómo elegir el canal.
 
 La [1.8.2](docs/releases/v1.8.2.md) amplía las mediciones en espectrogramas y mapas, permite ver y exportar B−A y recupera detalle en el espectro de ventanas al hacer zoom. La [guía de gráficos](docs/cursors.md) relaciona esas vistas con sus unidades, datos originales y condiciones de comparación. Está disponible en el canal estable de actualizaciones.
 

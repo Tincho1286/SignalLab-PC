@@ -6,9 +6,9 @@ La [última versión estable](https://github.com/Tincho1286/SignalLab-PC/release
 
 ## Windows x64
 
-Para instalar la versión 1.8.2, descargá `SignalLab-PC-1.8.2-setup.exe` y abrilo. El instalador trabaja para tu usuario, por defecto en `%LOCALAPPDATA%\Programs\SignalLab PC`, y crea el acceso del menú Inicio. El acceso del escritorio es opcional. Las versiones siguientes pueden instalarse sobre la misma carpeta sin desinstalar previamente.
+Para instalar la versión 1.8.3, descargá `SignalLab-PC-1.8.3-setup.exe` y abrilo. El instalador trabaja para tu usuario, por defecto en `%LOCALAPPDATA%\Programs\SignalLab PC`, y crea el acceso del menú Inicio. El acceso del escritorio es opcional. Las versiones siguientes pueden instalarse sobre la misma carpeta sin desinstalar previamente.
 
-Si preferís la edición portable, descargá `SignalLab-PC-1.8.2.exe` y ejecutalo desde una carpeta donde tengas permisos. El instalador y el portable son archivos diferentes; el que termina en `-setup.exe` inicia la instalación.
+Si preferís la edición portable, descargá `SignalLab-PC-1.8.3.exe` y ejecutalo desde una carpeta donde tengas permisos. El instalador y el portable son archivos diferentes; el que termina en `-setup.exe` inicia la instalación.
 
 Ambos ejecutables son de 64 bits. Windows puede mostrar avisos de editor desconocido o bloquear una descarga por su política de seguridad. La [guía de alertas de Windows](windows-downloads.md) distingue SmartScreen del Control inteligente de aplicaciones y explica la limitación actual de firma.
 
@@ -17,7 +17,7 @@ Ambos ejecutables son de 64 bits. Windows puede mostrar avisos de editor descono
 Para instalar, descargá el archivo `.run` y ejecutá:
 
 ```sh
-sh ./SignalLab-PC-1.8.2-linux-x86_64.run
+sh ./SignalLab-PC-1.8.3-linux-x86_64.run
 ```
 
 La instalación se realiza para tu usuario, sin `sudo`, y agrega SignalLab al menú de aplicaciones. Para usar el portable, descargá el `.tar.gz`, descomprimilo y abrí `SignalLab-PC` dentro de la carpeta. La [guía de Linux](linux.md) incluye los comandos, la compatibilidad de glibc y los requisitos gráficos de ambos formatos.

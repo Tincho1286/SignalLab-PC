@@ -1,6 +1,12 @@
 # Historial de cambios
 
-La versión estable actual es la [1.8.2](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.2). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
+La versión estable actual es la [1.8.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.3). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
+
+## 1.8.3 · Estable
+
+Esta entrega mejora el acceso a gráficos con un botón visible y un selector separado, permite convertir tasas por frecuencia de salida y consultar el FIR antialias real, y agrega operaciones rápidas del CAS con precisión configurable y conservación del borrador. El actualizador permite elegir estables o incluir preliminares firmadas compatibles. Incluye instaladores y portables para Windows y Linux y conserva las herramientas de la 1.8.2.
+
+[Novedades completas](docs/releases/v1.8.3.md)
 
 ## 1.8.2 · Estable
 

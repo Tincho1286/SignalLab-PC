@@ -1,6 +1,6 @@
 # Documentación de SignalLab PC
 
-Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e interpretar sus resultados. La versión estable actual es la [1.8.2](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.2), disponible como instalable y portable para Windows x64 y Linux x86_64.
+Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e interpretar sus resultados. La versión estable actual es la [1.8.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.3), disponible como instalable y portable para Windows x64 y Linux x86_64.
 
 ## Instalar y empezar
 

@@ -1,6 +1,23 @@
 {
   "releases": [
     {
+      "tag": "v1.8.3",
+      "title": "Acceso a gráficos, operaciones CAS y conversión por Fs de salida",
+      "channel": "stable",
+      "summary": "La versión 1.8.3 mejora el trabajo con resultados y permite incluir preliminares en el actualizador.",
+      "changes": [
+        "Abrir gráfico tiene fondo y borde visibles, con una zona separada para elegir figuras.",
+        "Cambio de tasa admite Fs de salida y permite analizar o reutilizar el FIR antialias real con su reloj intermedio.",
+        "El CAS opera sobre la referencia al resultado elegido, con precisión configurable y sin perder el borrador.",
+        "El selector de actualizaciones guarda la elección de estables o estables y preliminares; sólo ofrece instaladores posteriores con manifiesto firmado compatible."
+      ],
+      "limits": [
+        "Las preliminares históricas sin manifiesto compatible permanecen en GitHub. Volver al canal estable no instala una versión anterior.",
+        "La conversión por Fs de salida exige una relación racional exacta; para una aproximación explícita se utiliza L/M."
+      ],
+      "notes": "docs/releases/v1.8.3.md"
+    },
+    {
       "tag": "v1.8.2",
       "title": "Medidas A/B en mapas, diferencias exportables y zoom de ventanas",
       "channel": "stable",

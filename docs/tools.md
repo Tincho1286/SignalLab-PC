@@ -69,3 +69,8 @@ La [guía de análisis interactivo](interactive-analysis.md) explica las compara
 ## Mediciones y diferencias desde la 1.8.2
 
 La [guía de gráficos](cursors.md) explica las lecturas A/B de mapas, la vista B−A y el CSV de comparación, incluidas las señales con Dirac. También describe cómo ampliar el espectro de una ventana para consultar sus muestras originales. Son mejoras de las herramientas existentes y mantienen sus condiciones de soporte, reloj y frecuencia.
+
+
+## Continuar cálculos desde los resultados
+
+Desde la 1.8.3, Cambiar tasa con antialias permite elegir la frecuencia de salida y consultar el FIR real en Filtro antialias. Su análisis utiliza el período de la rejilla intermedia, mientras que la señal convertida conserva el reloj de salida. En el CAS, Resultado permite simplificar, desarrollar, factorizar, descomponer y aproximar la referencia seleccionada sin borrar la entrada que estés escribiendo. La ayuda de cada herramienta desarrolla las unidades y condiciones de estas operaciones.
