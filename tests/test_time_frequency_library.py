@@ -146,6 +146,9 @@ class RealPanels(unittest.TestCase):
         panel=TheoryPanel(lambda _:None);self.widgets.append(panel)
         self.assertEqual(len(panel.sections),122);self.assertTrue(all(len(s['title'])<=38 for s in panel.sections))
         self.assertLess(panel.items.topLevelItemCount(),14)
+        topics={s['original_title']:s['topic'] for s in panel.sections if s['content_kind']=='concept'}
+        self.assertEqual(topics['Detección y estimación: dos preguntas distintas'],'Señales aleatorias');self.assertEqual(topics['Realizaciones, estacionariedad y ergodicidad'],'Señales aleatorias')
+        self.assertEqual(topics['FIR, IIR y especificaciones de diseño'],'Filtros');self.assertEqual(topics['Energía, potencia y valor eficaz'],'Señales')
         panel.kind.setCurrentIndex(2);self.assertTrue(all(s['content_kind']=='tool' for s in panel.filtered))
         panel.select_tool(ROUTES['dsp_extensions','stft']);self.assertEqual(panel.selected_route,ROUTES['dsp_extensions','stft']);self.assertEqual(panel.items.currentItem().text(0),'STFT y espectrograma')
         panel.search.setText('notación científica');panel.kind.setCurrentIndex(0);self.assertTrue(panel.filtered)

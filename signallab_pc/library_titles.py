@@ -1,5 +1,22 @@
 """Short editorial titles and subject groups; identifiers and search aliases stay stable."""
 TOPICS=('Primeros pasos','Señales','Convolución y correlación','Sistemas','Filtros','Fourier y espectros','Laplace y Z','Muestreo','Ecuaciones','Señales aleatorias','Matemática y CAS')
+CONCEPT_CATEGORIES={
+ 'Glosario: siglas y palabras frecuentes':0,
+ 'Señal, eje y dominio':0,
+ 'Energía, potencia y valor eficaz':1,
+ 'Sistemas LTI y convolución':3,
+ 'Fourier: serie, DTFT, DFT y FFT':5,
+ 'Laplace, Z, polos y región de convergencia':6,
+ 'Muestreo, reconstrucción y aliasing':7,
+ 'Fase y retardo de grupo':8,
+ 'Espacio de estados: qué representan las matrices':8,
+ 'FIR, IIR y especificaciones de diseño':9,
+ 'Filtros ideales y funciones por tramos':9,
+ 'Detección y estimación: dos preguntas distintas':12,
+ 'Realizaciones, estacionariedad y ergodicidad':12,
+ 'Correlación, covarianza y densidad de potencia':12,
+ 'Modelos aleatorios y alcance del programa':12,
+}
 SHORT={
  'tool:basic:shift':'Desplazar x[n]',
  'tool:basic:reverse':'Invertir el índice n',

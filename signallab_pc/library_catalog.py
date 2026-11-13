@@ -23,6 +23,11 @@ def example_records():
 
 def category(section):
     route=section.get('route');kind=route[1] if route else '';task=route[2] if route else None
+    if route is None and not section.get('reference'):
+        from .library_titles import CONCEPT_CATEGORIES
+        # Concepts have an authored subject, not a category guessed from a word
+        # in their title. New concepts must explicitly choose their subject.
+        return CATEGORIES[CONCEPT_CATEGORIES[section['title']]]
     if kind=='expression_measures':return CATEGORIES[1]
     if kind=='course_tools':
         if task in ('fir','iir','analog','convert','phase','gain'):return CATEGORIES[9]
