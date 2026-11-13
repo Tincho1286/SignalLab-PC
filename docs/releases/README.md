@@ -2,12 +2,11 @@
 
 [← Documentación](../README.md)
 
-La descarga estable actual es la **1.8.3**, que mejora el acceso a gráficos, las operaciones sobre resultados del CAS y la conversión de tasas, y permite incluir preliminares en el actualizador. Este índice conserva cada publicación con el canal que tuvo y enlaza las novedades detalladas de esa entrega. Las preliminares antiguas forman parte del historial; no reemplazan la recomendación de utilizar la última estable.
-
-La [1.8.7 preliminar](v1.8.7.md) agrega seis mejoras de gráficos e informes y conserva la estimación AR y las ampliaciones anteriores de espectros y biblioteca. Está disponible al incluir Pre-releases en el actualizador de la 1.8.3 o posterior; no sustituye las descargas estables.
+La descarga estable actual es la **1.8.8**. Consolida las mejoras de las preliminares 1.8.4 a 1.8.7 y desarrolla las fórmulas de las curvas, corrige el acceso a máximos y mínimos y facilita localizar sus resultados. Este índice conserva cada publicación con su canal y sus notas detalladas. Las preliminares anteriores forman parte del historial; sus mejoras quedan incluidas en esta estable.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.8](v1.8.8.md) | Estable acumulativa, fórmulas desarrolladas y máximos/mínimos visibles | Estable |
 | [1.8.7](v1.8.7.md) | Definiciones y extremos de curvas, cursores, controles e informes estables | Preliminar |
 | [1.8.6](v1.8.6.md) | Ajuste y órdenes AR, validación, pronóstico y residuos | Preliminar |
 | [1.8.5](v1.8.5.md) | Medidas por bandas, acumulada y ancho RMS, picos y potencia por banda STFT | Preliminar |

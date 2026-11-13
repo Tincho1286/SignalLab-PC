@@ -1,6 +1,12 @@
 # Historial de cambios
 
-La versión estable actual es la [1.8.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.3). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
+La versión estable actual es la [1.8.8](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.8). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
+
+## 1.8.8 · Estable
+
+Esta estable consolida las mejoras de las preliminares 1.8.4 a 1.8.7. El inspector recupera su acción de búsqueda: la barra principal ya no oculta comandos de ventanas auxiliares. Máximos y mínimos completa la tabla al abrirse, admite el intervalo A/B, conserva repeticiones y mesetas y dibuja marcas sobre la curva. Las fórmulas de sistemas y señales desarrollan sus componentes; la fase utiliza arctangente y cuadrantes, distinguiendo el desenrollado. Reemplaza a la 1.8.3 como descarga y actualización estable.
+
+[Novedades completas](docs/releases/v1.8.8.md)
 
 ## 1.8.7 · Preliminar
 

@@ -1,8 +1,8 @@
 # Documentación de SignalLab PC
 
-Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e interpretar sus resultados. La versión estable actual es la [1.8.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.3), disponible como instalable y portable para Windows x64 y Linux x86_64.
+Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e interpretar sus resultados. La versión estable actual es la [1.8.8](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.8), disponible como instalable y portable para Windows x64 y Linux x86_64.
 
-También está disponible la [1.8.7 preliminar](releases/v1.8.7.md), con un inspector de curvas, extremos, cursores precisos y correcciones de navegación de figuras e informes. La [guía de gráficos](cursors.md) explica esas operaciones. Conserva la [estimación AR](ar-estimation.md) de la 1.8.6 y las ampliaciones anteriores de [medidas espectrales](spectral-measurements.md), [ventanas temporales](time-frequency.md) y biblioteca por temas.
+La [1.8.8 estable](releases/v1.8.8.md) desarrolla las fórmulas de las curvas y mejora el acceso y la representación de máximos y mínimos. La [guía de gráficos](cursors.md) explica el alcance de las mediciones y la fase. También consolida las ampliaciones anteriores de gráficos e informes, [estimación AR](ar-estimation.md), [medidas espectrales](spectral-measurements.md), [ventanas temporales](time-frequency.md) y biblioteca por temas.
 
 ## Instalar y empezar
 

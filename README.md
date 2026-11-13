@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.8.3" src="https://img.shields.io/badge/estable-1.8.3-71d7c4?style=flat-square&amp;labelColor=172632"></a>
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.8.8" src="https://img.shields.io/badge/estable-1.8.8-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
   <img alt="Instaladores y portables para Windows y Linux" src="https://img.shields.io/badge/Windows%20%2B%20Linux-instaladores%20y%20portables-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
@@ -25,18 +25,18 @@ Cada herramienta tiene sus propias entradas y puede utilizarse de manera indepen
 
 ## Descargar
 
-La versión estable **1.8.3** está disponible para Windows x64 y Linux x86_64. Los cuatro paquetes incluyen Python y las dependencias de la aplicación; no hace falta instalar Python por separado.
+La versión estable **1.8.8** está disponible para Windows x64 y Linux x86_64. Los cuatro paquetes incluyen Python y las dependencias de la aplicación; no hace falta instalar Python por separado.
 
 | Formato | Cuándo elegirlo | Windows x64 | Linux x86_64 |
 | --- | --- | --- | --- |
-| **Instalable** | Para tener accesos en el sistema y actualizar desde la aplicación. | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.3/SignalLab-PC-1.8.3-setup.exe) | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.3/SignalLab-PC-1.8.3-linux-x86_64.run) |
-| **Portable** | Para ejecutar la aplicación desde una carpeta, sin registrar una instalación. | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.3/SignalLab-PC-1.8.3.exe) | [Paquete .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.3/SignalLab-PC-1.8.3-linux-x86_64.tar.gz) |
+| **Instalable** | Para tener accesos en el sistema y actualizar desde la aplicación. | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.8/SignalLab-PC-1.8.8-setup.exe) | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.8/SignalLab-PC-1.8.8-linux-x86_64.run) |
+| **Portable** | Para ejecutar la aplicación desde una carpeta, sin registrar una instalación. | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.8/SignalLab-PC-1.8.8.exe) | [Paquete .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.8/SignalLab-PC-1.8.8-linux-x86_64.tar.gz) |
 
-En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh ./SignalLab-PC-1.8.3-linux-x86_64.run`; el portable se descomprime para ejecutar `SignalLab-PC` dentro de su carpeta. La [guía de instalación](docs/installation.md) explica ambos recorridos y enlaza los requisitos y las posibles alertas del sistema.
+En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh ./SignalLab-PC-1.8.8-linux-x86_64.run`; el portable se descomprime para ejecutar `SignalLab-PC` dentro de su carpeta. La [guía de instalación](docs/installation.md) explica ambos recorridos y enlaza los requisitos y las posibles alertas del sistema.
 
-### Preliminar opcional
+### Canal estable y preliminares
 
-La [1.8.7 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.7) amplía la lectura de figuras con definiciones matemáticas, búsqueda de extremos, cursores por coordenada y controles científicos visibles. También corrige la reapertura de la respuesta en frecuencia y los saltos de informes adaptativos. Conserva toda la estimación AR de la 1.8.6 y las mejoras anteriores de espectros y biblioteca. Tiene instaladores y portables para ambas plataformas. Para recibirla desde una instalación 1.8.3 o posterior, elegí **Estables y preliminares (Pre-releases)** en el actualizador. La descarga estable recomendada sigue siendo la 1.8.3.
+La **1.8.8 estable** consolida las mejoras de las preliminares 1.8.4 a 1.8.7 y agrega fórmulas de curvas desarrolladas, una búsqueda de máximos y mínimos visible y marcas sobre las posiciones encontradas. Está disponible con la preferencia **Sólo estables** del actualizador. El selector **Estables y preliminares (Pre-releases)** permite recibir también las entregas de prueba cuando sean más nuevas que la estable instalada.
 
 ### Actualizar una instalación
 
@@ -77,9 +77,11 @@ El alcance depende del método elegido y de sus hipótesis. Una evaluación sobr
 
 ## Novedades e historial
 
+La [1.8.8 estable](docs/releases/v1.8.8.md) corrige el acceso al inspector y desarrolla las fórmulas de módulo, fase y componentes. Máximos y mínimos completa la tabla al abrirse, mide en la vista o entre A/B y marca las posiciones encontradas. Consolida las ampliaciones de gráficos, informes, espectros, STFT, biblioteca y estimación AR de las preliminares anteriores. La [guía de gráficos](docs/cursors.md) explica los cuadrantes de fase, el desenrollado y el alcance de los extremos de puntos.
+
 La [1.8.7 preliminar](docs/releases/v1.8.7.md) reúne seis mejoras para leer figuras y navegar informes. La [guía de gráficos](docs/cursors.md) explica cómo consultar una definición, buscar extremos de los puntos calculados y colocar cursores sin interpolar. Los controles científicos se acomodan según el ancho de la ventana y las vistas LTI conservan su acceso a la respuesta en frecuencia.
 
-La [1.8.6 preliminar](docs/releases/v1.8.6.md) amplía la estimación AR con comparación de órdenes, validación, pronóstico y diagnóstico residual. La [guía de estimación AR](docs/ar-estimation.md) desarrolla sus hipótesis. Las mejoras de medición de la [1.8.5](docs/releases/v1.8.5.md) y las de STFT y biblioteca de la [1.8.4](docs/releases/v1.8.4.md) se explican en las guías de [medidas espectrales](docs/spectral-measurements.md) y [ventanas temporales](docs/time-frequency.md). Estas entregas pertenecen al canal de preliminares sin reemplazar la estable.
+La [1.8.6 preliminar](docs/releases/v1.8.6.md) amplía la estimación AR con comparación de órdenes, validación, pronóstico y diagnóstico residual. La [guía de estimación AR](docs/ar-estimation.md) desarrolla sus hipótesis. Las mejoras de medición de la [1.8.5](docs/releases/v1.8.5.md) y las de STFT y biblioteca de la [1.8.4](docs/releases/v1.8.4.md) se explican en las guías de [medidas espectrales](docs/spectral-measurements.md) y [ventanas temporales](docs/time-frequency.md). Estas preliminares se conservan como historial; sus mejoras están incluidas en la 1.8.8 estable.
 
 La [1.8.3](docs/releases/v1.8.3.md) facilita abrir y elegir figuras, cambiar la tasa indicando la frecuencia de salida y analizar el FIR antialias utilizado. El CAS incorpora operaciones rápidas sobre la salida seleccionada, sin borrar el borrador, y el actualizador permite incluir preliminares con manifiesto firmado compatible. La [guía de actualizaciones](docs/installed-updates.md) explica cómo elegir el canal.
 

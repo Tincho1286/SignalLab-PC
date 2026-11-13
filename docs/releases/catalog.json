@@ -1,6 +1,25 @@
 {
   "releases": [
     {
+      "tag": "v1.8.8",
+      "title": "Fórmulas desarrolladas y máximos visibles",
+      "channel": "stable",
+      "summary": "Consolida las mejoras de las preliminares 1.8.4 a 1.8.7 y agrega seis mejoras en las figuras de Sistemas y Señales. Reemplaza a la 1.8.3 como descarga estable.",
+      "changes": [
+        "La barra principal respeta las acciones de ventanas auxiliares y no oculta la búsqueda del inspector.",
+        "H(s) y H(z) desarrollan módulo, fase y componentes con los coeficientes almacenados.",
+        "Las señales con expresión conservan tramos, reloj y condiciones al desarrollar sus componentes.",
+        "Máximos y mínimos llena la tabla al abrirse; permite vista, curva completa o intervalo A/B.",
+        "Se muestran repeticiones y mesetas, con coordenadas y alcance exportables.",
+        "Las marcas de extremos y de la fila elegida ayudan a localizar los resultados sin alterar datos ni escalas."
+      ],
+      "limits": [
+        "Los extremos comparan puntos calculados; no se deriva la fórmula ni se certifican extremos entre muestras.",
+        "La fase principal se distingue de su desenrollado; el desarrollo depende de las condiciones disponibles."
+      ],
+      "notes": "docs/releases/v1.8.8.md"
+    },
+    {
       "tag": "v1.8.7",
       "title": "Curvas, cursores e informes de lectura estable",
       "channel": "preview",
