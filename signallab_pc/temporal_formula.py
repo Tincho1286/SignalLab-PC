@@ -12,6 +12,7 @@ def _literal(value):
 
 def _symbol(signal):
     meta=signal.metadata;op=meta.get('operation','')
+    if op=='window_generation':return 'w'
     if meta.get('component'):return 'y'
     if meta.get('excitation')=='impulse' or op in ('frequency_filter_impulse','windowed_impulse'):return 'h'
     if op in ('difference_equation','forced_response','discrete_response_decomposition','analog_response','frequency_filter_output'):return 'y'
@@ -78,11 +79,8 @@ def sections(signal):
     discrete=signal.domain=='discrete'
     variable=('k' if discrete else 'tau') if symbol=='r' else 'n' if discrete else 't'
     lhs=f'{symbol}[{variable}]' if discrete else f'{symbol}({variable})'
-    exact=meta.get('temporal_formula')
-    if isinstance(exact,dict) and exact.get('expression') and exact.get('variable')==variable and exact.get('operation')==meta.get('operation') and (exact.get('origin'),exact.get('step'))==(signal.origin,signal.step) and exact.get('fingerprint')==sha256(memoryview(signal.values).cast('B')).hexdigest():
-        formula=lhs+' = '+exact['expression']
-        output.append(Section('Expresión del modelo temporal',formulas=[Formula(formula,formula,numeric=bool(exact.get('numeric')))],
-                              paragraphs=[exact.get('scope','La expresión describe el modelo asociado al registro.')]))
+    exact=exact_section(signal)
+    if exact is not None:output.append(exact)
     recurrence=_recurrence(signal,symbol)
     if recurrence is not None:output.append(recurrence)
     from .inverse_fourier_report import stored_model
@@ -105,6 +103,15 @@ def sections(signal):
     if count>len(rows):paragraphs.append('El vector v completo está en Valores y en la exportación. Aquí se muestran sus primeras ocho entradas.')
     output.append(Section('Expresión del registro calculado',paragraphs=paragraphs,rows=rows,formulas=[Formula(expression,expression)]))
     return output
+
+
+def exact_section(signal):
+    if signal.data_kind!='temporal':return None
+    meta=signal.metadata;exact=meta.get('temporal_formula');symbol=_symbol(signal)
+    variable=('k' if signal.domain=='discrete' else 'tau') if symbol=='r' else 'n' if signal.domain=='discrete' else 't'
+    if not isinstance(exact,dict) or not exact.get('expression') or exact.get('variable')!=variable or exact.get('operation')!=meta.get('operation') or (exact.get('origin'),exact.get('step'))!=(signal.origin,signal.step) or exact.get('fingerprint')!=sha256(memoryview(signal.values).cast('B')).hexdigest():return None
+    lhs=symbol+'['+variable+']' if signal.domain=='discrete' else symbol+'('+variable+')';formula=lhs+' = '+exact['expression']
+    return Section('Expresión del modelo temporal',formulas=[Formula(formula,formula,numeric=bool(exact.get('numeric')))],paragraphs=[exact.get('scope','La expresión describe el modelo asociado al registro.')])
 
 
 def attach_temporal_formula(signal,result,scope=None):

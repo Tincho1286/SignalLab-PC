@@ -116,7 +116,10 @@ class SystemAnalysisPanel(QWidget):
         self.result_tabs.setTabVisible(self.transfer_index,True)
         self.show_poles_zeros()
     def _result_tab_changed(self,index):
-        if index==2:self.show_poles_zeros()
+        if index==1 and self.frequency_data is not None:
+            from .plot_view import enlarge_plot
+            enlarge_plot(self.canvas,self)
+        elif index==2:self.show_poles_zeros()
         elif index==3:self.show_realization()
         elif index==self.transfer_index and self.analyzed_system is not None:
             self.transfer_view.set_system(self.analyzed_system)
@@ -346,6 +349,10 @@ class SystemAnalysisPanel(QWidget):
                 axes[0].text(.5, .5, message, ha='center', transform=axes[0].transAxes)
             if not np.isfinite(data.phase).any():axes[1].text(.5,.5,'Ángulo no definido en el intervalo',ha='center',transform=axes[1].transAxes)
         axes[2].plot(omega,data.delay);axes[2].set_ylabel('Retardo de grupo (muestras)' if data.system.domain=='digital' else 'Retardo de grupo (s)')
+        from .plot_inspection import system_curve
+        components=('real','imag','delay') if cartesian else ('db' if db else 'magnitude','phase','delay')
+        for axis,component in zip(axes,components):
+            for line in axis.lines:system_curve(line,data.system,component,advance=data.advance-data.system.advance,phase_kind=data.phase_kind)
         if not np.isfinite(data.delay).any():axes[2].text(.5,.5,'Retardo no definido en el intervalo',ha='center',transform=axes[2].transAxes)
         from matplotlib.ticker import ScalarFormatter
         axes[2].yaxis.set_major_formatter(ScalarFormatter(useOffset=False))

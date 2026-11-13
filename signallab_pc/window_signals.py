@@ -31,7 +31,10 @@ def generate_window(window,length,origin=0,beta=8.6):
     if not np.isfinite(values).all():raise ValueError('La ventana no es representable con los parámetros elegidos.')
     metadata={'operation':'window_generation','window':window,'window_name':names[window],'window_length':length,'symmetric':True,'support_start':origin,'support_end':origin+length-1,'outside_support':'zero','normalization':'standard window; no additional gain normalization','scope':'Secuencia finita de L muestras sobre índices enteros, cero fuera del intervalo. Se usa la ventana simétrica del diseño FIR; no se supone repetición periódica ni se renormaliza la ganancia.'}
     if window=='kaiser':metadata['beta']=float(beta)
-    return Signal(values,origin,1,'n','Ventana '+names[window]+' · L='+str(length),'discrete',metadata=metadata)
+    result=Signal(values,origin,1,'n','Ventana '+names[window]+' · L='+str(length),'discrete',metadata=metadata)
+    from .temporal_formula import attach_temporal_formula
+    formula=summary(result).sections[0].formulas[0].expression.split(' = ',1)[1]
+    return attach_temporal_formula(result,dict(evaluated=True,result=formula,display_numeric=True,scope=metadata['scope']))
 
 
 def summary(signal):

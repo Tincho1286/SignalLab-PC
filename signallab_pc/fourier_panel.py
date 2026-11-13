@@ -207,7 +207,8 @@ class FourierPanel(QWidget):
             else:
                 first=np.abs(values);second=np.full(values.size,np.nan);valid=first>0;second[valid]=np.angle(values[valid]);labels=('Módulo','Fase principal (rad)')
             for axis,data,label in zip(axes,(first,second),labels):
-                plot_samples(axis,coordinates,data,discrete=discrete,label=result.name,phase=polar and not power and label.startswith('Fase'));axis.set_ylabel(label);axis.grid(alpha=.2)
+                component='real' if label in ('Parte real','Densidad') else 'imag' if label=='Parte imaginaria' else 'density_db' if power else 'magnitude' if label=='Módulo' else 'phase'
+                plot_samples(axis,coordinates,data,discrete=discrete,label=result.name,phase=polar and not power and label.startswith('Fase'),source=result,component=component);axis.set_ylabel(label);axis.grid(alpha=.2)
             if self.comparison is not None:
                 frequencies,bins=self.comparison
                 selected=self.owner._plot_indices(bins) if bins.size else np.array([],dtype=int)
@@ -226,12 +227,13 @@ class FourierPanel(QWidget):
         discrete = is_discrete_plot(result)
         magnitude = abs(result.values)
         is_power = result.metadata.get("operation") in {"spectral_density", "energy_density"}
-        plot_samples(axes[0, 0],coordinate, (result.values.real if is_power else magnitude)[index], label=result.name,discrete=discrete)
+        plot_samples(axes[0, 0],coordinate, (result.values.real if is_power else magnitude)[index], label=result.name,discrete=discrete,source=result,component='real' if is_power else 'magnitude')
         axes[0, 0].set_title("Densidad" if is_power else "Magnitud")
         db = np.full(magnitude.shape, np.nan)
         valid = magnitude > 0
         db[valid] = (10 if is_power else 20)*np.log10(magnitude[valid])
-        plot_samples(axes[0, 1],coordinate, db[index],discrete=discrete); axes[0, 1].set_title("dB; cero → −∞ (no trazado)")
+        from .plot_inspection import stored_curve
+        artists=plot_samples(axes[0, 1],coordinate, db[index],discrete=discrete);stored_curve(artists,result.axis,db,result,'density_db' if is_power else 'magnitude_db');axes[0, 1].set_title("dB; cero → −∞ (no trazado)")
         if not is_power:
             phase = np.full(magnitude.shape, np.nan)
             delay = np.full(magnitude.shape, np.nan)
@@ -241,10 +243,10 @@ class FourierPanel(QWidget):
                 phase[left:right] = np.unwrap(np.angle(result.values[left:right]))
                 if right-left >= 2 and result.units in {"rad/muestra", "rad/s"}:
                     delay[left:right] = -np.gradient(phase[left:right], result.step)
-            plot_samples(axes[1, 0],coordinate, phase[index],discrete=discrete); axes[1, 0].set_title("Fase desenrollada (rad)")
-            plot_samples(axes[1, 1],coordinate, delay[index],discrete=discrete); axes[1, 1].set_title("Retardo de grupo (muestras)" if result.units=="rad/muestra" else "Retardo de grupo (s)" if result.units=="rad/s" else "Retardo no definido para este eje")
+            artists=plot_samples(axes[1, 0],coordinate, phase[index],discrete=discrete);stored_curve(artists,result.axis,phase,result,'phase_unwrapped');axes[1, 0].set_title("Fase desenrollada (rad)")
+            artists=plot_samples(axes[1, 1],coordinate, delay[index],discrete=discrete);stored_curve(artists,result.axis,delay,result,'delay_numeric');axes[1, 1].set_title("Retardo de grupo (muestras)" if result.units=="rad/muestra" else "Retardo de grupo (s)" if result.units=="rad/s" else "Retardo no definido para este eje")
         else:
-            plot_samples(axes[1, 0],coordinate, result.values.real[index],discrete=discrete); axes[1, 0].set_title("Vista lineal")
+            plot_samples(axes[1, 0],coordinate, result.values.real[index],discrete=discrete,source=result,component='real');axes[1, 0].set_title("Vista lineal")
             axes[1, 1].axis("off")
         if self.comparison is not None:
             frequencies,bins=self.comparison

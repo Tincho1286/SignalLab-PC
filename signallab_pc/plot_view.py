@@ -84,6 +84,8 @@ def install_enlarge(toolbar):
     bind_canvas(canvas,parent)
     from .plot_probe import PlotProbe
     PlotProbe(canvas,toolbar,content)
+    from .figure_controls import install as install_controls
+    install_controls(toolbar,content,canvas)
     install_figure_layout(canvas)
     original_draw=canvas.draw;last=[None];pending=[False]
     def open_result():

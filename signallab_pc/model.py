@@ -59,6 +59,11 @@ class Signal:
         return self.origin + self.step * np.arange(self.values.size)
 
     def copy_with(self, *, values=None, origin=None, step=None, name=None, metadata=None, expression=None) -> "Signal":
+        # Editing/filtering samples invalidates their old formula unless a
+        # caller explicitly supplies a new one. A metadata-only copy retains it.
+        definition=self.expression if expression is None else expression
+        changed_axis=(origin is not None and origin!=self.origin) or (step is not None and step!=self.step)
+        if expression is None and definition and (changed_axis or values is not None and not np.array_equal(np.asarray(values).reshape(-1),self.values)):definition=''
         return Signal(
             self.values if values is None else values,
             self.origin if origin is None else origin,
@@ -66,7 +71,7 @@ class Signal:
             self.units,
             self.name if name is None else name,
             self.domain,
-            self.expression if expression is None else expression,
+            definition,
             dict(self.metadata if metadata is None else metadata),
         )
 

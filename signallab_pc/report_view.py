@@ -5,8 +5,8 @@ import html
 import json
 import re
 from PySide6.QtWidgets import QTextBrowser,QWidget,QVBoxLayout,QHBoxLayout,QPushButton,QFileDialog,QMessageBox,QApplication
-from PySide6.QtCore import QUrl,Qt,QByteArray,QBuffer,QIODevice
-from PySide6.QtGui import QTextDocument,QImage,QPainter,QColor
+from PySide6.QtCore import QUrl,Qt,QByteArray,QBuffer,QIODevice,QPoint
+from PySide6.QtGui import QTextDocument,QTextCursor,QImage,QPainter,QColor
 from .math_display import formula_vector
 from .vector_math import MathImageHandler,retint_formula
 from .expression_structure import parse_cases,periodic_display,covers_display_period
@@ -90,6 +90,19 @@ class ReportView(QTextBrowser):
     def __init__(self,parent=None):
         super().__init__(parent);self._calculation_notes=[];self._base_html='';self._report_revision=0;self._raw='';self.setOpenExternalLinks(False);self.setOpenLinks(False);self.setObjectName('resultReport')
         self._math_resources={};self._formula_number=0;self._math_handler=MathImageHandler(self.document(),self._math_resources)
+    def reading_anchor(self):
+        cursor=self.cursorForPosition(QPoint(0,0));bar=self.verticalScrollBar()
+        return dict(position=cursor.position(),offset=self.cursorRect(cursor).top(),horizontal=self.horizontalScrollBar().value(),bottom=bar.maximum()>0 and bar.value()>=bar.maximum()-1)
+    def restore_reading_anchor(self,anchor):
+        # Preserve the visible text, without changing the selection or moving the
+        # document's edit cursor. A fraction of total height cannot do this after
+        # formulas wrap differently.
+        self.document().documentLayout().documentSize();bar=self.verticalScrollBar()
+        if anchor['bottom']:bar.setValue(bar.maximum())
+        else:
+            cursor=QTextCursor(self.document());cursor.setPosition(min(anchor['position'],max(0,self.document().characterCount()-1)))
+            bar.setValue(bar.value()+self.cursorRect(cursor).top()-anchor['offset'])
+        self.horizontalScrollBar().setValue(anchor['horizontal'])
     def setHtml(self,text):
         self._base_html=str(text);self._report_revision+=1
         if self._calculation_notes:
@@ -101,12 +114,12 @@ class ReportView(QTextBrowser):
         super().setHtml(paper_html(text))
         self._math_handler.prune({html.unescape(value) for value in re.findall(r'src="([^"]+)"',str(text))})
     def refresh_theme(self,previous):
-        revision=self._report_revision;vertical=self.verticalScrollBar().value();horizontal=self.horizontalScrollBar().value()
+        revision=self._report_revision;anchor=self.reading_anchor()
         for name,formula in list(self._math_resources.items()):
             value=retint_formula(formula,C['text'])
             self._math_resources[name]=value;self.document().addResource(QTextDocument.ResourceType.ImageResource,QUrl(name),QByteArray(value.svg))
         self._math_handler.renderers.clear();self.setHtml(self._base_html);self._report_revision=revision
-        self.verticalScrollBar().setValue(vertical);self.horizontalScrollBar().setValue(horizontal);self.viewport().update()
+        self.restore_reading_anchor(anchor);self.viewport().update()
     def set_calculation_notes(self,records):
         self._calculation_notes=[dict(record) for record in records]
         self.setHtml(self._base_html)

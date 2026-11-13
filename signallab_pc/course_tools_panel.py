@@ -504,7 +504,10 @@ class CourseToolsPanel(QWidget):
             values=(shown_magnitude,phase,delay) if mode==0 else (shown_magnitude,) if mode in (1,3) else (delay,)
             selected=system is value
             for axis,y,label in zip(axes,values,labels):
-                axis.plot(w,y,label=system.name+(' · seleccionado' if selected and self.comparing_systems else ''),color=palette[(curve_index if len(plotted)>1 else index)%len(palette)],linewidth=1.8 if selected else 1.1,alpha=1 if selected else .75)
+                line=axis.plot(w,y,label=system.name+(' · seleccionado' if selected and self.comparing_systems else ''),color=palette[(curve_index if len(plotted)>1 else index)%len(palette)],linewidth=1.8 if selected else 1.1,alpha=1 if selected else .75)[0]
+                from .plot_inspection import system_curve
+                component='delay' if 'Retardo' in label else 'phase' if 'Fase' in label or 'Ángulo' in label else 'db' if 'dB' in label else 'magnitude'
+                system_curve(line,system,component,phase_kind='principal' if 'principal' in label else 'continuous')
                 axis.set_ylabel(label);axis.grid(alpha=.2)
                 if value.domain=='analog':axis.set_xscale('log')
                 else:axis.set_xscale('linear');axis.set_xlim(0,np.pi)

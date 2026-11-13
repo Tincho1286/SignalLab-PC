@@ -33,10 +33,12 @@ class Trace:
         curve=getattr(self.artist,'_signallab_probe_curve',None)
         if curve is not None:
             coordinates,values=curve
-            if x<coordinates[0] or x>coordinates[-1]:return None
-            where=int(np.searchsorted(coordinates,x));ids=[i for i in (where-1,where) if 0<=i<len(coordinates)]
-            index=min(ids,key=lambda i:abs(coordinates[i]-x))
-            return float(coordinates[index]),float(values[index])
+            descending=coordinates[-1]<coordinates[0];ordered=coordinates[::-1] if descending else coordinates
+            lookup=ordered-getattr(self.axis,'_signallab_index_origin',0)
+            if x<lookup[0] or x>lookup[-1]:return None
+            where=int(np.searchsorted(lookup,x));ids=[i for i in (where-1,where) if 0<=i<len(lookup)]
+            index=min(ids,key=lambda i:abs((int(lookup[i]) if lookup.dtype.kind in 'iu' else float(lookup[i]))-x));index=len(coordinates)-1-index if descending else index
+            return int(coordinates[index]) if coordinates.dtype.kind in 'iu' else float(coordinates[index]),float(values[index])
         complete=getattr(self.artist,'_signallab_probe_values',None)
         if complete is not None:
             origin,step,values=complete;index=min(max(int(np.floor((x-origin)/step+.5)),0),len(values)-1)

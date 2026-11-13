@@ -14,5 +14,6 @@ def article_blocks(route):
     from .tool_catalog import locate
     entry=locate(route)
     if entry and len(entry['variants'])>1:blocks.insert(2,('Cambiar de vista','Cada variante conserva su entrada y su último resultado. La primera vez puede prepararse una copia compatible de la vista anterior. Al volver, tus datos se conservan; el enlace Copiar entrada permite reemplazarlos cuando lo elegís. Copiar datos no recalcula ni modifica una salida ya obtenida.'))
+    blocks.append(('Leer las figuras','Cuando el resultado incluye una figura, Abrir gráfico la muestra en una ventana independiente. Curvas y medidas permite consultar la definición almacenada, colocar A/B por coordenada, recorrer puntos y buscar extremos. Los extremos pertenecen a los puntos evaluados, no certifican un máximo entre muestras. Los cursores fijos se pueden arrastrar; el editor de polos y ceros conserva sus gestos de diseño.'))
     blocks.append(('Biblioteca de resultados','Al calcular, la salida queda registrada en Resultados junto con su herramienta de origen. Allí podés consultarla, exportarla o usarla en un destino compatible. Una expresión se conserva como fórmula con sus condiciones: no necesitás convertirla primero en una función de transferencia. Las muestras, los sistemas y los modelos de estados conservan sus propios tipos.'))
     return blocks
