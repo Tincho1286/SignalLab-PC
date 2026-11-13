@@ -47,6 +47,12 @@ QMenu::separator {height:1px;background:@border@;margin:5px 8px;}
 QToolButton {background:transparent;border:1px solid transparent;border-radius:8px;padding:5px 7px;}
 QToolButton:hover {background:@hover@;border-color:@border@;}
 QToolButton:focus,QPushButton:focus {border-color:@accent@;}
+QToolButton#plotLauncher,QPushButton#plotLauncher {background:@selected@;border:1px solid @accent@;border-radius:8px;color:@text@;padding:6px 12px;font-weight:600;}
+QToolButton#plotLauncher:hover,QPushButton#plotLauncher:hover {background:@hover@;border-color:@text@;}
+QToolButton#plotLauncher:disabled,QPushButton#plotLauncher:disabled {background:@chrome@;border-color:@rule@;color:@disabled@;}
+QToolButton#plotLauncher[hasPlotChoices="true"] {padding-right:40px;}
+QToolButton#plotLauncher::menu-button {subcontrol-origin:border;subcontrol-position:top right;width:30px;border-left:1px solid @accent@;border-top-right-radius:8px;border-bottom-right-radius:8px;background:@panel@;}
+QToolButton#plotLauncher::menu-button:hover {background:@hover@;}
 QToolButton#contextHelp {background:@panel@;border:1px solid @border@;color:@green@;padding:7px 10px;}
 QPushButton {background:@panel@;border:1px solid @border@;border-radius:9px;padding:6px 11px;}
 QPushButton:hover {background:@hover@;border-color:@accent@;}
@@ -126,6 +132,7 @@ QLineEdit#toolSearch,QLineEdit#librarySearch {font-family:'Segoe UI';font-size:9
 DESKTOP_STYLE=colorize(_DESKTOP_TEMPLATE)
 _assets=Path(__file__).parent/'assets'
 DESKTOP_STYLE += 'QComboBox::down-arrow {image:url("'+(_assets/'chevron_technical.svg').as_posix()+'");width:12px;height:12px;}'
+DESKTOP_STYLE += 'QToolButton#plotLauncher::menu-arrow {image:url("'+(_assets/'chevron_technical.svg').as_posix()+'");width:20px;height:20px;}'
 DESKTOP_STYLE += 'QTabBar::close-button {image:url("'+(_assets/'close_document.svg').as_posix()+'");}'
 
 DESKTOP_STYLE += "QPlainTextEdit#casInput {font-family:'Consolas';font-size:11pt;}"
@@ -137,4 +144,4 @@ def desktop_style():
     from .theme_assets import paths
     from .wallpaper import stylesheet
     arrow,close=paths()
-    return colorize(_DESKTOP_TEMPLATE)+('QComboBox::down-arrow {image:url("'+arrow+'");width:12px;height:12px;} QTabBar::close-button {image:url("'+close+'");}')+"QPlainTextEdit#casInput {font-family:'Consolas';font-size:11pt;} QToolBar#casToolbar {spacing:0;padding:2px;} QToolBar#casToolbar QToolButton {padding:3px 3px;}"+colorize(stylesheet())
+    return colorize(_DESKTOP_TEMPLATE)+('QComboBox::down-arrow {image:url("'+arrow+'");width:12px;height:12px;} QToolButton#plotLauncher::menu-arrow {image:url("'+arrow+'");width:20px;height:20px;} QTabBar::close-button {image:url("'+close+'");}')+"QPlainTextEdit#casInput {font-family:'Consolas';font-size:11pt;} QToolBar#casToolbar {spacing:0;padding:2px;} QToolBar#casToolbar QToolButton {padding:3px 3px;}"+colorize(stylesheet())

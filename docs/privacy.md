@@ -12,7 +12,7 @@ Los diagnósticos de errores se guardan localmente y tienen tamaño limitado. Un
 
 ## Comprobación de actualizaciones
 
-La edición instalada puede consultar las versiones estables de GitHub al iniciar. La opción se puede desactivar en **Ayuda → Buscar actualizaciones**. La solicitud de red incluye la versión de SignalLab y no contiene los datos de trabajo. Descargar e instalar una actualización requiere una acción del usuario.
+La edición instalada puede consultar las versiones de GitHub al iniciar. Por defecto consulta las estables; desde la 1.8.3 también permite incluir preliminares de forma explícita. Esa elección consulta el catálogo público de Releases, sin utilizar una cuenta o credencial de GitHub. La opción se puede desactivar en **Ayuda → Buscar actualizaciones**. La solicitud de red incluye la versión de SignalLab y no contiene los datos de trabajo. Descargar e instalar una actualización requiere una acción del usuario.
 
 El portable no comprueba novedades automáticamente, aunque permite realizar una consulta manual. Descargar paquetes, abrir enlaces o informar un problema en GitHub conecta con ese proveedor. Los mensajes y archivos adjuntos publicados en un repositorio público pueden ser visibles para otras personas.
 

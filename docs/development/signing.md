@@ -30,6 +30,12 @@ Reemplazá `VERSION` y las rutas por los archivos reales. Las notas del diálogo
 
 La vigencia predeterminada es de 90 días. Para renovarla hay que volver a verificar los instaladores originales y firmar desde el código correspondiente, manteniendo su identidad. El cliente rechaza un manifiesto vencido. La publicación debe conservar consistentes el manifiesto y sus checksums.
 
+## Firmar una preliminar compatible con el actualizador
+
+La versión de la aplicación y la etiqueta conservan tres componentes numéricos: por ejemplo, `1.8.4` y `v1.8.4`. Para una entrega preliminar agregá `--channel preview` al comando de firma y publicala en GitHub con `prerelease=true`. Para una estable usá `--channel stable` (predeterminado) y `prerelease=false`. El canal forma parte de los datos firmados; cambiarlo requiere generar un manifiesto nuevo a partir de los mismos instaladores verificados. No basta con editar el JSON o el estado de la Release.
+
+El cliente estable no acepta manifiestos del canal preliminar. El cliente que incluye preliminares verifica además que la versión firmada coincida con la etiqueta consultada. Las etiquetas históricas con sufijos como `-preview` siguen disponibles en GitHub, pero no se incorporan a este protocolo de actualización.
+
 ## Metadatos Windows y Authenticode opcional
 
 `tools/windows_version.py` genera los recursos de versión para PyInstaller: `ProductName` es `SignalLab PC`, `ProductVersion` coincide con la aplicación y `FileVersion` utiliza cuatro componentes numéricos. El nombre original debe corresponder al archivo construido.

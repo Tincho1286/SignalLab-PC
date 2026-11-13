@@ -10,6 +10,10 @@
       "Escribí una expresión y presioná Enter o Evaluar. Por ejemplo, factor(x^2-4) devuelve (x-2)*(x+2). La entrada queda numerada y su salida recibe una referencia, como r1. Para editar una entrada, hacé clic en [N]; al evaluarla se agrega un cálculo nuevo, sin borrar el anterior.\n\nShift+Enter continúa la expresión en otra línea. Ctrl+↑/↓ recupera entradas del historial, de modo que podés corregirlas o usarlas como punto de partida."
     ],
     [
+      "Operar sobre un resultado",
+      "Seleccioná una salida de la hoja y abrí Resultado. Simplificar, Desarrollar, Factorizar, Fracciones parciales y Aproximar crean una entrada nueva usando su referencia rN; lo que estés escribiendo se conserva. Si la descomposición tiene varias variables, se consulta cuál querés usar.\n\nCifras significativas controla la precisión de Aproximar resultado, no la cantidad de decimales después de la coma. Su valor se recuerda entre usos. Las operaciones conservan las condiciones y el contexto de la referencia original. Con la entrada vacía, las plantillas de los otros menús también pueden partir del resultado seleccionado."
+    ],
+    [
       "Cómo escribir números y expresiones",
       "Usá x^2 para potencias, 2*x para multiplicación y 2+3*i para complejos. También se admiten 2x y (x+1)(x-1), pero xy es un nombre único, no x*y. Las constantes pi y e tienen sus significados habituales, y las funciones trigonométricas reciben radianes.\n\nPara una igualdad usá x^2=1. Para guardar un valor usá :=, como a:=2. Esta diferencia evita confundir una ecuación que querés resolver con una definición que querés conservar."
     ],

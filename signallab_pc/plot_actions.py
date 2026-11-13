@@ -1,13 +1,14 @@
 """A single figure launcher in the header of each results/report area."""
 import weakref
 from shiboken6 import isValid
-from PySide6.QtCore import Qt,QEvent
+from PySide6.QtCore import Qt,QEvent,QSize
 from PySide6.QtWidgets import QToolButton,QMenu,QTabWidget
 
 
 def style_launcher(button):
     button.setText('Abrir gráfico');button.setObjectName('plotLauncher')
     button.setProperty('plotLauncher',True);button.setMinimumWidth(0)
+    if isinstance(button,QToolButton):button.setAutoRaise(False)
     button.setAccessibleName('Abrir gráfico del resultado')
 
 
@@ -28,6 +29,10 @@ class PlotLauncher(QToolButton):
         self.setToolTip('Abrir la figura del resultado. La flecha permite elegir otra figura disponible.')
         self.menu=QMenu(self);self.setMenu(self.menu);self.menu.aboutToShow.connect(self.rebuild)
         self.clicked.connect(self.open_default);self.setEnabled(False)
+    def sizeHint(self):
+        base=super().sizeHint();extra=36 if self.property('hasPlotChoices') else 0
+        return QSize(max(base.width(),self.fontMetrics().horizontalAdvance(self.text())+28+extra),max(base.height(),self.fontMetrics().height()+14,32))
+    def minimumSizeHint(self):return self.sizeHint()
     def register(self,canvas,routes,label):
         if any(_alive(entry[0]) is canvas for entry in self.entries):return
         self.entries.append((weakref.ref(canvas),[(weakref.ref(tabs),weakref.ref(page)) for tabs,page in routes],label))
@@ -51,7 +56,11 @@ class PlotLauncher(QToolButton):
         self._refreshing=True
         try:
             entries=self.available();self.setEnabled(bool(entries))
-            self.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup if len(entries)>1 else QToolButton.ToolButtonPopupMode.DelayedPopup)
+            multiple=len(entries)>1
+            if self.property('hasPlotChoices')!=multiple:
+                self.setProperty('hasPlotChoices',multiple);self.style().unpolish(self);self.style().polish(self);self.updateGeometry()
+            self.setMenu(self.menu if multiple else None)
+            self.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup if multiple else QToolButton.ToolButtonPopupMode.DelayedPopup)
         finally:self._refreshing=False
     def eventFilter(self,watched,event):
         if event.type() in (QEvent.Type.Show,QEvent.Type.LayoutRequest,QEvent.Type.Resize):self.refresh()

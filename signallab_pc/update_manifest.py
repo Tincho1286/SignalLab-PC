@@ -87,12 +87,14 @@ class Release:
     url: str
     assets: dict
     verified: bool = True
+    channel: str = "stable"
+    notices: tuple = ()
 
     def newer_than(self, current):
         return version_tuple(self.version) > version_tuple(current)
 
 
-def verify_manifest(data, *, key=None, now=None):
+def verify_manifest(data, *, key=None, now=None, expected_channel='stable', expected_version=None):
     """Verify exact payload bytes with the embedded key before using any URL."""
     from cryptography.exceptions import InvalidSignature
     from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
@@ -109,9 +111,10 @@ def verify_manifest(data, *, key=None, now=None):
     value = strict_json(payload)
     if not isinstance(value, dict) or set(value) != {'schema', 'channel', 'version', 'published_at', 'expires_at', 'notes', 'assets'}:
         raise UpdateError('El formato del manifiesto no es compatible.')
-    if type(value['schema']) is not int or value['schema'] != 1 or value['channel'] != 'stable':
+    if type(value['schema']) is not int or value['schema'] != 1 or expected_channel not in ('stable','preview') or value['channel'] != expected_channel:
         raise UpdateError('El canal de actualización no es compatible.')
     version = value['version']; version_tuple(version)
+    if expected_version is not None and version!=expected_version:raise UpdateError('La versión firmada no coincide con la publicación consultada.')
     published, expires = timestamp(value['published_at']), timestamp(value['expires_at'])
     now = now or datetime.now(timezone.utc)
     if published > now + timedelta(minutes=5) or expires <= now or not published < expires <= published + timedelta(days=366):
@@ -134,4 +137,4 @@ def verify_manifest(data, *, key=None, now=None):
         if type(row['size']) is not int or not 1 <= row['size'] <= MAX_ASSET:
             raise UpdateError('Tamaño de instalador inválido.')
         assets[platform] = Asset(platform, version, name, expected, row['sha256'], row['size'])
-    return Release(version, notes, f'https://github.com/{REPOSITORY}/releases/tag/v{version}', assets)
+    return Release(version, notes, f'https://github.com/{REPOSITORY}/releases/tag/v{version}', assets, channel=value['channel'])

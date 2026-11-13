@@ -55,6 +55,8 @@ Si las plataformas se construyeron desde commits distintos, conservá sus fuente
 
 La herramienta `tools/github_release.py` comprueba el checkout y la correspondencia con `origin/main`. Se le pasan las notas mediante un archivo y cada adjunto mediante `--file`. La opción `--stable` publica una estable; sin ella se publica una preliminar. `--allow-public` habilita expresamente el repositorio público configurado.
 
+Las entregas con instaladores necesitan un manifiesto firmado entre sus adjuntos. El publicador comprueba el canal, la coincidencia entre versión y etiqueta y los tamaños y hashes de todos los instaladores declarados antes de crear la publicación. Para preliminares compatibles se utilizan etiquetas numéricas y `--channel preview` al firmar, como explica la [guía de firma](signing.md).
+
 El publicador crea un borrador, sube y verifica los archivos y luego activa la publicación. Conserva el commit exacto de construcción y fecha las etiquetas nuevas con la hora de GitHub. Una etiqueta existente que apunte a otro commit provoca un error y no se reemplaza.
 
 Después de publicar una estable, comprobá que sea la descarga principal y que `releases/latest/download/SignalLab-updates.json` entregue el manifiesto esperado con una firma válida. Las preliminares no deben reemplazar ese canal. Revisá también que todos los enlaces del README apunten a adjuntos realmente disponibles.

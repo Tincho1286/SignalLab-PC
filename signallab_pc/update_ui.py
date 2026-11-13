@@ -5,7 +5,7 @@ import sys
 from PySide6.QtCore import QObject, QThread, Signal, Qt, QTimer, QStandardPaths, QUrl
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (QDialog, QVBoxLayout, QHBoxLayout, QLabel, QCheckBox,
-    QPlainTextEdit, QProgressBar, QPushButton, QMessageBox)
+    QPlainTextEdit, QProgressBar, QPushButton, QMessageBox, QComboBox)
 from . import __version__
 from .installations import installed, platform_tag, start_update
 from .update_download import fetch_release, download, Cancelled
@@ -38,7 +38,10 @@ class UpdateDialog(QDialog):
         self.setWindowTitle('Actualizaciones de SignalLab PC'); self.resize(540, 380)
         layout = QVBoxLayout(self)
         self.heading = QLabel('Versión instalada: ' + __version__); layout.addWidget(self.heading)
-        self.status = QLabel('Comprobá si hay una versión estable nueva.'); self.status.setWordWrap(True)
+        self.channel=QComboBox();self.channel.addItem('Sólo versiones estables','stable');self.channel.addItem('Estables y preliminares (Pre-releases)','preview')
+        self.channel.setCurrentIndex(self.channel.findData(controller.channel));self.channel.setAccessibleName('Canal de actualización')
+        layout.addWidget(QLabel('Versiones que querés recibir'));layout.addWidget(self.channel);self.channel.currentIndexChanged.connect(controller.channel_changed)
+        self.status = QLabel('Comprobá si hay una versión nueva en el canal elegido.'); self.status.setWordWrap(True)
         self.status.setTextFormat(Qt.TextFormat.PlainText); layout.addWidget(self.status)
         self.notes = QPlainTextEdit(); self.notes.setReadOnly(True); layout.addWidget(self.notes, 1)
         self.automatic = QCheckBox('Comprobar actualizaciones al iniciar')
@@ -53,7 +56,7 @@ class UpdateDialog(QDialog):
         self.apply.clicked.connect(controller.apply); buttons.addWidget(self.apply)
         self.cancel = QPushButton('Cerrar'); self.cancel.clicked.connect(self.close); buttons.addWidget(self.cancel)
         versions = QPushButton('Ver descargas en GitHub')
-        versions.clicked.connect(lambda: QDesktopServices.openUrl(QUrl('https://github.com/Tincho1286/SignalLab-PC/releases/latest')))
+        versions.clicked.connect(lambda: QDesktopServices.openUrl(QUrl('https://github.com/Tincho1286/SignalLab-PC/releases' + ('' if controller.channel=='preview' else '/latest'))))
         layout.addWidget(versions)
         if controller.installation is None:
             self.status.setText('Esta es la edición portable o de desarrollo. Podés consultar las versiones; la instalación automática corresponde a la edición instalada.')
@@ -65,6 +68,8 @@ class UpdateDialog(QDialog):
 class UpdateController(QObject):
     def __init__(self, window):
         super().__init__(window); self.window = window; self.installation = installed()
+        preference=window.settings.value('updates/channel','stable',type=str)
+        self.channel=preference if preference in ('stable','preview') else 'stable'
         self.dialog = UpdateDialog(self); self.job = None; self.release = None; self.asset = None
         self.path = None; self.manual = False; self.close_when_done = False
         if self.installation is not None:
@@ -83,8 +88,18 @@ class UpdateController(QObject):
         self.dialog.show(); self.dialog.raise_(); self.dialog.activateWindow()
 
     def background_check(self):
-        if not self.busy and not self.close_when_done:
+        if self.installation is not None and self.window.settings.value('updates/check_at_startup',True,type=bool) and not self.busy and not self.close_when_done:
             self._check(False)
+
+    def channel_changed(self,index):
+        selected=self.dialog.channel.itemData(index)
+        if selected not in ('stable','preview') or selected==self.channel:return
+        if self.busy:
+            self.dialog.channel.blockSignals(True);self.dialog.channel.setCurrentIndex(self.dialog.channel.findData(self.channel));self.dialog.channel.blockSignals(False);return
+        self.channel=selected;self.window.settings.setValue('updates/channel',selected)
+        self.path=None;self.asset=None;self.release=None;self.dialog.apply.setEnabled(False);self.dialog.apply.setText('Descargar actualización');self.dialog.notes.clear()
+        self.dialog.status.setText('Canal elegido. Buscá actualizaciones para consultar sus versiones.')
+        if self.dialog.isVisible():self._check(True)
 
     def check(self):
         self._check(True)
@@ -93,14 +108,16 @@ class UpdateController(QObject):
         if self.busy:
             return
         self.manual = manual; self.path = None; self.asset = None; self.release = None
-        self.dialog.notes.clear(); self.dialog.status.setText('Consultando versiones estables…')
-        self._start(lambda cancel, progress: fetch_release(cancel=cancel), self._checked)
+        self.dialog.notes.clear(); self.dialog.status.setText('Consultando versiones estables y preliminares…' if self.channel=='preview' else 'Consultando versiones estables…')
+        channel=self.channel
+        self._start(lambda cancel, progress: fetch_release(cancel=cancel,channel=channel,target=platform_tag()), self._checked)
 
     def _start(self, function, accept):
-        self.dialog.check.setEnabled(False); self.dialog.apply.setEnabled(False)
+        self.dialog.check.setEnabled(False); self.dialog.apply.setEnabled(False);self.dialog.channel.setEnabled(False)
         self.dialog.cancel.setText('Cancelar'); self.dialog.progress.setRange(0, 0); self.dialog.progress.show()
         self.job = Job(function, self)
-        self.job.completed.connect(accept)
+        job=self.job
+        self.job.completed.connect(lambda value:accept(value) if self.job is job and not job.cancel.is_set() else None)
         self.job.failed.connect(self._failed)
         self.job.progressed.connect(self._progress)
         self.job.finished.connect(self._finished)
@@ -115,7 +132,7 @@ class UpdateController(QObject):
             self.dialog.status.setText('Operación cancelada.')
         if job is not None:
             job.deleteLater()
-        self.dialog.check.setEnabled(True); self.dialog.cancel.setText('Cerrar'); self.dialog.progress.hide()
+        self.dialog.check.setEnabled(True);self.dialog.channel.setEnabled(True); self.dialog.cancel.setText('Cerrar'); self.dialog.progress.hide()
         self.dialog.apply.setEnabled(self.asset is not None and self.installation is not None)
         if self.close_when_done:
             QTimer.singleShot(0, self.window.close)
@@ -126,13 +143,15 @@ class UpdateController(QObject):
             self.window.statusBar().showMessage('No se pudo comprobar la actualización. Consultá Ayuda → Buscar actualizaciones.', 10000)
 
     def _checked(self, release):
-        self.release = release; self.dialog.notes.setPlainText(release.notes)
+        self.release = release;self.asset=None;self.path=None
+        notice='\n\n'.join(release.notices)
+        self.dialog.notes.setPlainText(('Avisos de consulta\n'+notice+'\n\n' if notice else '')+release.notes)
         if not release.newer_than(__version__):
-            self.dialog.status.setText('Ya tenés la última versión estable del canal firmado.'); return
+            self.dialog.status.setText('No se encontró una versión posterior en el canal elegido.'); return
         self.asset = release.assets.get(platform_tag())
         if self.asset is None:
             self.dialog.status.setText('Hay una versión nueva, pero todavía no hay un instalador compatible para este equipo.'); return
-        self.dialog.status.setText('Disponible: ' + release.version + '. La descarga se verificará antes de ejecutarse.')
+        self.dialog.status.setText('Disponible: ' + release.version + (' · Preliminar (Pre-release)' if release.channel=='preview' else ' · Estable') + '. La descarga se verificará antes de ejecutarse.')
         self.dialog.apply.setText('Descargar actualización')
         self.window.statusBar().showMessage('SignalLab ' + release.version + ' disponible · Ayuda → Buscar actualizaciones', 30000)
 
@@ -142,12 +161,13 @@ class UpdateController(QObject):
         if self.path is None:
             self.manual = True; self.dialog.status.setText('Descargando y comprobando integridad…')
             cache = Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.CacheLocation)) / 'updates'
-            self._start(lambda cancel, progress: download(self.asset, cache, cancel=cancel, progress=progress), self._downloaded)
+            asset=self.asset
+            self._start(lambda cancel, progress: download(asset, cache, cancel=cancel, progress=progress), self._downloaded)
             return
         if self.window._workers:
             QMessageBox.information(self.dialog, 'Cálculo en curso', 'Terminá o cancelá el cálculo antes de instalar. La descarga ya está preparada.'); return
         answer = QMessageBox.question(self.dialog, 'Instalar actualización',
-            'SignalLab se cerrará para instalar la versión nueva y volver a abrirse. Guardá o exportá los resultados que quieras conservar: los resultados de esta sesión no se recuperan automáticamente. Los temas y la configuración se conservan.\n\n¿Instalar ahora?',
+            'Versión '+self.asset.version+(' · Preliminar. ' if self.release is not None and self.release.channel=='preview' else ' · Estable. ')+'SignalLab se cerrará para instalar la versión nueva y volver a abrirse. Guardá o exportá los resultados que quieras conservar: los resultados de esta sesión no se recuperan automáticamente. Los temas y la configuración se conservan.\n\n¿Instalar ahora?',
             QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, QMessageBox.StandardButton.No)
         if answer != QMessageBox.StandardButton.Yes:
             return

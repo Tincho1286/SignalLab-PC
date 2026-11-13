@@ -118,6 +118,17 @@ class GitHub:
         self.api('POST',base+'/git/refs',{'ref':'refs/tags/'+tag,'sha':annotated['sha']})
 
     def publish(self,tag,title,notes,paths,target,prerelease=True,allow_public=False):
+        paths=[Path(path) for path in paths]
+        if any(path.name.endswith(('-setup.exe','-linux-x86_64.run')) for path in paths):
+            from signallab_pc.update_manifest import verify_manifest
+            manifests=[path for path in paths if path.name=='SignalLab-updates.json']
+            if len(manifests)!=1:raise ValueError('La entrega instalable necesita su manifiesto firmado de actualización.')
+            manifest=verify_manifest(manifests[0].read_bytes(),expected_channel='preview' if prerelease else 'stable')
+            if tag!='v'+manifest.version:raise ValueError('La etiqueta debe coincidir con la versión numérica firmada.')
+            for asset in manifest.assets.values():
+                matches=[path for path in paths if path.name==asset.name]
+                if len(matches)!=1 or matches[0].stat().st_size!=asset.size or sha256(matches[0])!=asset.sha256:
+                    raise ValueError('Falta un instalador o no coincide con el manifiesto firmado: '+asset.name)
         self.require_repository(allow_public);base='/repos/'+self.repository
         self.ensure_release_tag(tag,target,title)
         try:release=self.api('GET',base+'/releases/tags/'+urllib.parse.quote(tag,safe=''))

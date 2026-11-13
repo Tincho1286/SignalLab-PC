@@ -448,7 +448,7 @@
         0
       ],
       "flow": [
-        "x[n] y factores L/M",
+        "x[n], Fs de entrada y relación L/M o Fs de salida",
         "Filtro antialias y cambio de tasa",
         "Fs nueva = Fs·L/M"
       ],
@@ -456,6 +456,10 @@
         [
           "L y M",
           "Enteros positivos, numerador y denominador de la relación de tasas."
+        ],
+        [
+          "Frecuencia de salida",
+          "Seleccioná Frecuencia de salida para calcular L/M como relación racional exacta. Por ejemplo, 48000 a 44100 muestras/s utiliza 147/160. Una relación irracional requiere elegir explícitamente una aproximación mediante L/M."
         ],
         [
           "Ventana y filtro",
@@ -484,7 +488,7 @@
           }
         ]
       ],
-      "reading": "Cambiar la tasa no aumenta la información original. Los valores cercanos a extremos dependen de la extensión. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "El informe muestra las tasas de entrada y salida y los factores reducidos. Filtro antialias contiene el FIR realmente utilizado: Actualizar respuesta permite ver módulo, fase y retardo, y Usar sistema en permite reutilizarlo. Ese FIR trabaja con Fs intermedia = Fs de entrada × L, incluye la ganancia L y conserva su retardo causal. La señal convertida compensa ese retardo para análisis fuera de tiempo real y utiliza su propio reloj de salida. Cambiar la tasa no agrega información original; los extremos dependen de la extensión elegida. Cambiar la tasa no aumenta la información original. Los valores cercanos a extremos dependen de la extensión. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
     }
   ]
 }

@@ -48,16 +48,24 @@ def checkpoint(cancel):
         raise Cancelled('Actualización cancelada.')
 
 
-def fetch_release(*, cancel=None, opener=open_url, key=None, now=None):
+def fetch_release(*, cancel=None, opener=open_url, key=None, now=None, channel='stable', target=None, metadata_opener=None):
+    if channel=='preview':
+        from .update_channels import fetch_including_previews
+        return fetch_including_previews(cancel=cancel,opener=opener,key=key,now=now,target=target,metadata_opener=metadata_opener)
+    if channel!='stable':raise UpdateError('Elegí un canal de actualización disponible.')
+    return _fetch_manifest(FEED_URL,cancel=cancel,opener=opener,key=key,now=now)
+
+
+def _fetch_manifest(url, *, cancel=None, opener=open_url, key=None, now=None, expected_channel='stable',expected_version=None,deadline=None):
     checkpoint(cancel)
     try:
         begin = time.monotonic()
-        with opener(FEED_URL) as response:
+        with opener(url) as response:
             check_url(response.geturl()); data = bytearray()
             reader = getattr(response, 'read1', response.read)
             while True:
                 checkpoint(cancel)
-                if time.monotonic() - begin > 60:
+                if time.monotonic() - begin > 60 or deadline is not None and time.monotonic()>=deadline:
                     raise UpdateError('La consulta tardó demasiado. Volvé a intentarlo.')
                 block = reader(min(8192, MAX_MANIFEST - len(data) + 1))
                 if not block:
@@ -67,7 +75,7 @@ def fetch_release(*, cancel=None, opener=open_url, key=None, now=None):
                     raise UpdateError('El manifiesto supera el tamaño permitido.')
             data = bytes(data)
         checkpoint(cancel)
-        return verify_manifest(data, key=key, now=now)
+        return verify_manifest(data, key=key, now=now,expected_channel=expected_channel,expected_version=expected_version)
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
             raise UpdateError('Todavía no hay un canal de actualizaciones firmado publicado. Podés consultar las versiones en GitHub.') from exc

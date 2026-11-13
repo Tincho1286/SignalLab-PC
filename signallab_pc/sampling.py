@@ -305,7 +305,7 @@ def fixed_point(value, integer_bits, fractional_bits, method="round"):
             "saturation_error_exact": str(source-clipped/scale),
             "conversion_error_exact": str(clipped/scale-represented), "rounding": method}
 
-def resample_rational(x, up, down, *, rate=None, start=None, half_width=10, beta=5.0, boundary='zero', override_clock=False):
+def resample_rational(x, up, down, *, rate=None, start=None, half_width=10, beta=5.0, boundary='zero', override_clock=False, return_filter=False):
     """Conversión L/M con FIR polifásico simétrico, alineado al primer instante.
 
     Fuente: scipy.signal.resample_poly. La extensión fuera del registro es
@@ -343,7 +343,7 @@ def resample_rational(x, up, down, *, rate=None, start=None, half_width=10, beta
     from .system_clock import validate_clock_resolution
     validate_clock_resolution(start,output_rate,count)
     checkpoint()
-    if up==down:values=x.values.copy()
+    if up==down:values=x.values.copy();kernel=np.ones(1)
     else:
         kernel=firwin(taps,1/max(up,down),window=('kaiser',beta))
         values=resample_poly(x.values,up,down,window=kernel,padtype='constant' if boundary=='zero' else 'line')
@@ -355,4 +355,10 @@ def resample_rational(x, up, down, *, rate=None, start=None, half_width=10, beta
         time_mapping='t = time_start_s + n / sample_rate_hz',
         output_length_rule='ceil(input_length * up / down)',
         scope='Finite FIR transition band; no guarantee of ideal band limitation. Edges depend on the chosen extension.')
-    return Signal(_finite_output(values,'El cambio de tasa racional'),0,1,'n',f'{x.name}_{up}_{down}','discrete','',metadata)
+    result=Signal(_finite_output(values,'El cambio de tasa racional'),0,1,'n',f'{x.name}_{up}_{down}','discrete','',metadata)
+    if not return_filter:return result
+    from .filters import Transfer
+    try:
+        system=Transfer(kernel*up,[1],name='FIR antialias · rejilla intermedia',sample_period_s=(1/rate)/up,roc={'mode':'right'})
+        return result,system,None
+    except (ValueError,OverflowError) as exc:return result,None,str(exc)

@@ -34,8 +34,9 @@ def generate(private_path, public_path):
     print('Clave de actualización creada. Conservá la clave privada fuera del repositorio.')
 
 
-def sign(version, paths, key_bytes, notes, days=90, now=None):
+def sign(version, paths, key_bytes, notes, days=90, now=None, channel='stable'):
     version_tuple(version)
+    if channel not in ('stable','preview'):raise ValueError('El canal debe ser stable o preview.')
     if not 1 <= days <= 366:
         raise ValueError('La vigencia debe estar entre 1 y 366 días.')
     private = serialization.load_pem_private_key(key_bytes, password=None)
@@ -64,11 +65,11 @@ def sign(version, paths, key_bytes, notes, days=90, now=None):
                            sha256=digest, size=path.stat().st_size)
     if len(paths) != len(assets):
         raise ValueError('Se indicaron adjuntos que no corresponden a los instaladores.')
-    payload = dict(schema=1, channel='stable', version=version, published_at=now.isoformat().replace('+00:00', 'Z'),
+    payload = dict(schema=1, channel=channel, version=version, published_at=now.isoformat().replace('+00:00', 'Z'),
                    expires_at=(now + timedelta(days=days)).isoformat().replace('+00:00', 'Z'), notes=notes, assets=assets)
     raw = json.dumps(payload, ensure_ascii=False, separators=(',', ':'), sort_keys=True).encode()
     envelope = json.dumps(dict(payload=base64.b64encode(raw).decode(), signature=base64.b64encode(private.sign(raw)).decode()), indent=2).encode()
-    verify_manifest(envelope, now=now)
+    verify_manifest(envelope, now=now,expected_channel=channel)
     return envelope
 
 
@@ -84,6 +85,7 @@ def main():
     release.add_argument('--notes', type=Path, required=True)
     release.add_argument('--private-key', type=Path, required=True)
     release.add_argument('--days', type=int, default=90)
+    release.add_argument('--channel',choices=['stable','preview'],default='stable')
     release.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     if args.action == 'generate':
@@ -91,7 +93,7 @@ def main():
     if subprocess.run(['git','diff','--quiet','HEAD','--'],cwd=ROOT).returncode:
         raise SystemExit('Guardá los cambios del código antes de firmar una entrega.')
     key_bytes = args.private_key.read_bytes()
-    data = sign(args.version, args.installer, key_bytes, args.notes.read_text(encoding='utf-8'), args.days)
+    data = sign(args.version, args.installer, key_bytes, args.notes.read_text(encoding='utf-8'), args.days, channel=args.channel)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(data)
     print('Manifiesto firmado y verificado:', args.output)

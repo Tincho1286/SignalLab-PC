@@ -3,7 +3,7 @@ import ast,html,re
 from PySide6.QtCore import Qt,Signal,QTimer,QUrl
 from PySide6.QtGui import QTextCursor
 from PySide6.QtWidgets import (QWidget,QVBoxLayout,QLabel,QPlainTextEdit,QToolBar,QToolButton,
-    QMenu,QTreeWidget,QTreeWidgetItem,QMessageBox,QApplication,QDialog)
+    QMenu,QTreeWidget,QTreeWidgetItem,QMessageBox,QApplication,QDialog,QLineEdit,QWidgetAction,QHBoxLayout)
 from .vector_math import render_latex
 from .report_view import ReportView
 from .theme_tokens import COLORS as C
@@ -51,6 +51,15 @@ class CasWorksheet(QWidget):
             button=QToolButton();button.setText(title);button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);menu=QMenu(button);button.setMenu(menu);self.toolbar.addWidget(button)
             for label,template in items:self.template_actions.append(menu.addAction(label,lambda checked=False,t=template:self.insert_template(t)))
         button=QToolButton();button.setText('Resultado');button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);menu=QMenu(button);button.setMenu(menu);self.toolbar.addWidget(button)
+        self.result_operations=[]
+        for title,command in [('Simplificar resultado','simplify'),('Desarrollar resultado','expand'),('Factorizar resultado','factor'),('Fracciones parciales del resultado','apart'),('Aproximar resultado','approx')]:
+            self.result_operations.append(menu.addAction(title,lambda checked=False,key=command:self.operate_result(key)))
+        precision=QWidgetAction(menu);precision_row=QWidget();precision_layout=QHBoxLayout(precision_row);precision_layout.addWidget(QLabel('Cifras significativas'))
+        self.result_digits=QLineEdit('15');self.result_digits.setAccessibleName('Cifras significativas');self.result_digits.setMaximumWidth(100);self.result_digits.setToolTip('Precisión de Aproximar resultado; no es la cantidad de decimales después de la coma.')
+        settings=getattr(window,'settings',None)
+        if settings is not None:
+            self.result_digits.setText(str(settings.value('cas/result_digits','15')));self.result_digits.editingFinished.connect(lambda:settings.setValue('cas/result_digits',self.result_digits.text()))
+        precision_layout.addWidget(self.result_digits);precision.setDefaultWidget(precision_row);menu.addAction(precision);menu.addSeparator()
         menu.addAction('Ver resultado ampliado…',self.show_result);menu.addAction('Copiar resultado',self.copy_result);menu.addAction('Insertar referencia rN',self.insert_reference);menu.addSeparator()
         for title,destination in [('Usar como señal continua','continuous'),('Usar como secuencia discreta','discrete'),('Usar como H(s)','analog'),('Usar como H(z)','digital'),('Analizar respuesta H(w)','frequency')]:menu.addAction(title,lambda checked=False,key=destination:self.send_result(key))
         sheet=QToolButton();sheet.setText('Hoja');sheet.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);menu=QMenu(sheet);sheet.setMenu(menu);self.toolbar.addWidget(sheet)
@@ -82,6 +91,9 @@ class CasWorksheet(QWidget):
 
     def insert_template(self,template):
         value=self.input.textCursor().selectedText() or self.input.toPlainText().strip()
+        if not value and self.selected_entry() is not None and 'expr' in template:
+            value='r'+str(self.selected);symbols=self.selected_entry()['answer'].get('symbols',[])
+            if len(symbols)==1:template=re.sub(r'\bx\b',symbols[0],template)
         if 'expr' in template and value:template=template.replace('expr',value,1)
         self.input.setPlainText(template);cursor=self.input.textCursor()
         marker=re.search(r'\b(expr|ecuacion1|a)\b',template)
@@ -110,6 +122,31 @@ class CasWorksheet(QWidget):
         parents=self._parents(source)
         self.commands.append(source);self.command_position=len(self.commands);self.draft='';self.input.clear()
         self._submit({'operation':'cas_worksheet','source':source},source,parents)
+    def operate_result(self,command):
+        if command not in ('simplify','expand','factor','apart','approx'):return
+        entry=self.selected_entry()
+        if entry is None or not self._ready():return
+        reference='r'+str(entry['cell']);argument=reference
+        if command=='approx':
+            from .numeric_input import integer_field
+            try:digits=integer_field(self.result_digits,minimum=1)
+            except ValueError as exc:QMessageBox.information(self,'Precisión numérica',str(exc));return
+            argument+=','+str(digits)
+        elif command=='apart':
+            answer=entry['answer']
+            if not answer.get('expression'):
+                QMessageBox.information(self,'Fracciones parciales','Elegí una expresión escalar.');return
+            symbols=sorted(set(answer.get('symbols',[])))
+            if len(symbols)>1:
+                from PySide6.QtWidgets import QInputDialog
+                variable,ok=QInputDialog.getItem(self,'Fracciones parciales','Variable de la descomposición:',symbols,0,False)
+                if not ok:return
+            else:variable=symbols[0] if symbols else 'x'
+            argument+=','+variable
+        source=command+'('+argument+')';self._automatic_reference=None
+        self.commands.append(source);self.command_position=len(self.commands)
+        self._submit({'operation':'cas_worksheet','source':source},source,self._parents(source))
+
     def import_result(self,payload,title,parent=None):
         if not self._ready():return
         self._submit({'operation':'cas_import','payload':payload},'Desde Resultados: '+title,[parent] if parent else [],imported=True)
@@ -162,6 +199,7 @@ class CasWorksheet(QWidget):
         elif url.scheme()=='cas-result':self.selected=cell;self.update_selection();self.insert_reference()
 
     def update_selection(self):
+        for action in self.result_operations:action.setEnabled(self.selected_entry() is not None and self.pending is None)
         self.selection_note.setText('Exacto · radianes · '+(str(len(self.state.get('assumptions',{})))+' símbolos con supuestos' if self.state.get('assumptions') else 'sin supuestos declarados')+(' · Resultado: r'+str(self.selected) if self.selected is not None else ''))
 
     def selected_entry(self):

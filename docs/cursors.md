@@ -1,5 +1,7 @@
 # Leer y medir los gráficos
 
+**Abrir gráfico** aparece junto a las pestañas del resultado y del informe, con fondo y borde visibles. Al tener varias figuras, la flecha ocupa una zona propia a la derecha: pulsá el texto para abrir la figura actual o la flecha para elegir otra. Con una sola figura se muestra un botón sin menú.
+
 En las ventanas de gráficos 2D, activá **Cursores** en la barra. La lectura aparece debajo de la figura, sin tapar los datos.
 
 1. Mové el mouse sobre una traza: A sigue el punto más cercano en su eje horizontal. En n se eligen muestras enteras. Los planos de polos y ceros utilizan coordenadas libres del mouse; las otras nubes de puntos seleccionan el punto más cercano en pantalla.
