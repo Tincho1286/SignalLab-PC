@@ -26,11 +26,23 @@ En **Coordenada x para leer** se admiten expresiones como `pi/2` o `1e-3`; los �
 
 ## Máximos y mínimos
 
-En **Extremos**, elegí entre el tramo x visible y todos los puntos disponibles. **Buscar extremos** muestra el máximo y mínimo finitos; **También extremos locales** agrega los máximos y mínimos interiores. Las mesetas quedan identificadas. No se unen tramos separados por valores no definidos ni se confunden saltos de fase principal con continuidad.
+Desde la preliminar **1.8.8**, la pestaña **Máximos y mínimos** llena la tabla al abrirse. **Actualizar máximos y mínimos** ocupa una fila propia y vuelve a medir cuando lo necesitás. Elegí el tramo visible, toda la curva o el intervalo entre A y B. La cabecera muestra los límites efectivamente utilizados, la cantidad de puntos y los valores mayor y menor.
+
+Por defecto se muestran todas las apariciones del máximo y del mínimo del intervalo. Si varios puntos consecutivos tienen exactamente el mismo valor, una fila los agrupa como meseta: **Desde x**, **Hasta x** y **Puntos iguales** indican su extensión. Los picos separados siguen teniendo filas distintas. **Incluir también los picos y valles interiores** agrega extremos locales; no se unen huecos ni saltos de fase.
 
 La búsqueda utiliza los datos completos asociados a la traza cuando están disponibles. Si la figura sólo conserva su selección dibujada, se indica ese alcance. Las coordenadas y valores corresponden a puntos evaluados: no certifican extremos de una función entre muestras ni permiten interpretar un polo como una altura finita.
 
-Elegí una fila para leerla o colocar A/B allí. **Exportar extremos** guarda el CSV con las unidades de los ejes, el intervalo y el alcance utilizados. Cambiar de curva o de resultado descarta la tabla anterior. Cambiar el zoom no vuelve a buscar automáticamente: pulsá Buscar extremos para evaluar otro tramo visible. Los planos de raíces, mapas y superficies no se tratan como curvas de una variable para esta búsqueda.
+Los triángulos marcan las posiciones encontradas: ▼ máximo y ▲ mínimo. Elegir una fila destaca su primera posición con un círculo; **Mostrar punto en gráfico** lleva la lectura allí y los botones A/B permiten fijarla. **Marcar en el gráfico** oculta o muestra esas marcas sin cambiar las muestras ni las escalas. Los marcadores de extremos se incluyen en la imagen mientras estén activados; los cursores A/B conservan su tratamiento aparte.
+
+**Exportar tabla** guarda coordenadas, valores, mesetas y alcance en CSV. Al cambiar de curva o resultado se prepara una búsqueda nueva. Cambiar el zoom o mover los cursores no altera silenciosamente una tabla ya obtenida: se indica que el intervalo cambió y se mantiene el calculado hasta pulsar **Actualizar máximos y mínimos**. Los planos de raíces, mapas y superficies no se tratan como curvas de una variable.
+
+## Módulo y fase desarrollados
+
+La definición de una curva utiliza su expresión almacenada, en lugar de dejar indicaciones como aplicar `arg()` o calcular la parte real de una función sin sustituir. En H(s), los polinomios se evalúan en s=jΩ; en H(z), en z=exp(jω). El módulo se obtiene de las componentes desarrolladas y la fase usa arctangente con las condiciones de cada cuadrante. El retardo emplea sus derivadas algebraicas. Las secciones SOS se conservan factorizadas y las cancelaciones se realizan de forma exacta.
+
+En señales con fórmula, el desarrollo distingue componentes, módulo y fase, manteniendo los tramos, el reloj y las condiciones registrados. Una expresión con parámetros cuyo carácter real o complejo es desconocido puede conservar su definición sin tener un desarrollo de componente disponible; el informe lo explica. Una lista de muestras no recibe una fórmula inventada.
+
+La expresión de fase corresponde al ángulo principal. Si la figura muestra fase continua, el informe explica el desenrollado por múltiplos de 2π dentro de cada tramo. En ceros de la señal la fase no está definida. El desarrollo de una fórmula no convierte la búsqueda de extremos de puntos en una optimización algebraica entre muestras.
 
 ## Qué se está midiendo
 

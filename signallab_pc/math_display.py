@@ -117,6 +117,7 @@ def latex(source):
             elif name=='sqrt':result=r'\sqrt{'+args+'}'
             elif name.lower()=='abs':result=r'\left|'+args+r'\right|'
             elif name=='exp':result='e^{'+args+'}'
+            elif lower in ('asin','acos','atan'):result='\\arc'+lower[1:]+wrapped(args)
             elif re.fullmatch(r'g[0-9]+',name):result=visit(n.func)+wrapped(args)
             else:result=r'\mathrm{'+name.replace('_',r'\_')+'}'+wrapped(args)
         else:raise ValueError('Notación no disponible')

@@ -17,6 +17,19 @@ from . import __version__
 from .theme_tokens import COLORS as C,AREA_COLORS
 from .cas_reference import CAS_ROUTE,CAS_SEARCH
 
+
+def calculation_buttons(page):
+    """Only commands in this document, never those in owned auxiliary windows."""
+    def belongs(button):
+        node=button
+        while node is not page:
+            if node is None or node.isWindow() or node.property('keepLocalAction'):return False
+            node=node.parentWidget()
+        return True
+    return [button for button in page.findChildren(QPushButton)
+            if (button.objectName()=='primary' or button.property('primaryAction')) and belongs(button)]
+
+
 class WorkbenchWindow(ToolboxWindow):
     _signallab_wallpaper_host=True
     def __init__(self):
@@ -198,14 +211,14 @@ class WorkbenchWindow(ToolboxWindow):
         self.current_entry=entry;self.title.setText(entry['title']);self.subtitle.setText(AREA_BY_ID[entry['area']][1]+'  ›  '+entry['section']);self.category=AREA_BY_ID[entry['area']][1];self._sync_navigation();self.help.show()
         self.operation_menu.hide();page=self.pages.get(tuple(item));self.current_calculate=None
         if page is not None:
-            buttons=[button for button in page.findChildren(QPushButton) if button.objectName()=='primary' or button.property('primaryAction')]
+            buttons=calculation_buttons(page)
             if buttons:self.current_calculate=buttons[0]
         self._refresh_primary_action();self.statusBar().showMessage(self.category+' / '+entry['title'])
     def _refresh_primary_action(self):
         page=self.pages.get(getattr(self,'current_operation',None))
         candidates=[]
         if page is not None:
-            candidates=[button for button in page.findChildren(QPushButton) if button.objectName()=='primary' or button.property('primaryAction')]
+            candidates=calculation_buttons(page)
         visible=[button for button in candidates if button.isVisibleTo(page)]
         migrated=[button for button in candidates if button.property('commandBarAction')]
         button=next(iter(visible or migrated),None) if self.active_route is not None and self.category not in ('Proyecto','Biblioteca') else None

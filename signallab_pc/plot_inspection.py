@@ -53,12 +53,17 @@ def extrema(trace,low=None,high=None,local=False):
     ids=np.flatnonzero(valid)
     if not len(ids):raise ValueError('No hay valores finitos de esta curva en el intervalo elegido.')
     minimum=int(ids[np.argmin(y[ids])]);maximum=int(ids[np.argmax(y[ids])]);records=[]
-    def add(index,kind,plateau=1):
-        records.append(dict(kind=kind,index=int(index),x=int(x[index]) if x.dtype.kind in 'iu' else float(x[index]),y=float(y[index]),plateau=int(plateau)))
-    if minimum==maximum or y[minimum]==y[maximum]:add(minimum,'Máximo y mínimo (constante)')
-    else:add(maximum,'Máximo de los puntos');add(minimum,'Mínimo de los puntos')
+    coordinate=lambda index:int(x[index]) if x.dtype.kind in 'iu' else float(x[index])
+    def add(index,kind,plateau=1,last=None):
+        records.append(dict(kind=kind,index=int(index),x=coordinate(index),x_end=coordinate(index if last is None else last),y=float(y[index]),plateau=int(plateau)))
+    # Report every occurrence, grouping only consecutive equal samples. Never
+    # merge isolated peaks, bridge missing data or call close values identical.
+    for extreme,kind in ([(minimum,'Máximo y mínimo (constante)')] if y[minimum]==y[maximum] else [(maximum,'Máximo del intervalo'),(minimum,'Mínimo del intervalo')]):
+        matches=ids[y[ids]==y[extreme]];starts=np.r_[0,np.flatnonzero(np.diff(matches)>1)+1];ends=np.r_[starts[1:],len(matches)]
+        ensure_working_set(int(len(records)+len(starts)),bytes_per_sample=400,live_arrays=3)
+        for first,end in zip(starts,ends):add(int(matches[first]),kind,int(end-first),int(matches[end-1]))
     if local:
-        selected={minimum,maximum}
+        selected=set()
         source=getattr(trace.artist,'_signallab_probe_source',None);context=getattr(trace.artist,'_signallab_curve_definition',{})
         principal=(source is not None and source[1]=='phase') or context.get('component')=='phase' and context.get('phase_kind')!='continuous'
         breaks=np.diff(ids)>1
@@ -67,9 +72,10 @@ def extrema(trace,low=None,high=None,local=False):
             if len(segment)<3:continue
             for sign,kind in ((1,'Máximo local'),(-1,'Mínimo local')):
                 found,props=find_peaks(sign*y[segment],plateau_size=(1,None));ensure_working_set(int(len(records)+len(found)),bytes_per_sample=320,live_arrays=3)
-                for index,size in zip(segment[found],props['plateau_sizes']):
-                    if index not in selected:add(int(index),kind,size);selected.add(int(index))
-    return dict(rows=records,points=int(len(ids)),complete=complete,low=low,high=high,local=bool(local),scope='Extremos de los puntos finitos evaluados, no una optimización algebraica entre muestras. Los máximos locales son interiores a cada tramo sin huecos; no se cruza un NaN ni se extrapola.')
+                for index,size,left,right in zip(segment[found],props['plateau_sizes'],props['left_edges'],props['right_edges']):
+                    if index not in selected and y[index] not in (y[minimum],y[maximum]):
+                        add(int(segment[left]),kind,size,int(segment[right]));selected.add(int(index))
+    return dict(rows=records,points=int(len(ids)),complete=complete,low=low,high=high,local=bool(local),minimum=float(y[minimum]),maximum=float(y[maximum]),first=coordinate(ids[0]),last=coordinate(ids[-1]),scope='Mayor y menor valor de los puntos finitos del intervalo. Se muestran todas sus apariciones; una meseta agrupa puntos consecutivos exactamente iguales. No se deriva la fórmula ni se garantiza un extremo entre muestras. Los picos y valles locales son interiores a cada tramo sin huecos ni saltos de fase.')
 
 
 def nearest(trace,coordinate):
@@ -103,10 +109,13 @@ def definition(trace):
             frequency='H(exp(i*w))' if digital else 'H(i*w)'
             if extra:frequency='exp(i*w*('+str(extra)+'))*('+frequency+')'
             sections.append(Section('Evaluación sobre frecuencia',formulas=[Formula('F(w) = '+frequency,'F(w) = '+frequency)]))
-        role=context['component'];rules={'magnitude':'y(w) = abs(F(w))','db':'y(w) = 20*log(abs(F(w)))/log(10)','real':'y(w) = re(F(w))','imag':'y(w) = im(F(w))','phase':'y(w) = arg(F(w))','delay':'y(w) = -im(diff(F(w),w)/F(w))'}
-        rule=rules[role]
-        if role=='phase' and context.get('phase_kind')=='continuous':rule='y(w) = arg(F(w)) + 2*pi*m(w)'
-        sections.append(Section('Representación dibujada',formulas=[Formula(rule,rule)],paragraphs=['ω se expresa en rad/muestra.' if digital else 'Ω se expresa en rad/s.','En fase continua, m(w) es el entero que mantiene la rama en cada tramo evaluado. La fase y el retardo no están definidos en ceros o puntos excluidos.'] if role in ('phase','delay') else []))
+        from . import curve_algebra
+        role=context['component']
+        try:
+            parts=curve_algebra.transfer_components(system,extra,derivative=role=='delay') if isinstance(system,Transfer) else curve_algebra.expression_components(system.frequency_expression,'w')
+            sections.extend(curve_algebra.sections(parts,role,continuous_phase=context.get('phase_kind')=='continuous'))
+        except (ValueError,TypeError,NotImplementedError,RecursionError) as exc:
+            sections.append(Section('Desarrollo de la componente',paragraphs=[str(exc),'Se conserva la definición y la curva numérica; no se sustituye el desarrollo por una función simbólica sin evaluar.']))
     else:
         stored=getattr(trace.artist,'_signallab_probe_source',getattr(trace.artist,'_signallab_curve_input',None))
         if stored is not None:
@@ -119,6 +128,7 @@ def definition(trace):
             exact=exact_section(source)
             if exact is not None:
                 sections.append(exact);sections.append(Section('Componente de la curva',rows=[('Representación',{'real':'Parte real','imag':'Parte imaginaria','magnitude':'Módulo','phase':'Fase principal'}.get(component,component))]))
+                expression=source.metadata['temporal_formula'].get('source',source.metadata['temporal_formula']['expression'])
             elif expression and expression!='lista ingresada':
                 sampling=source.metadata.get('operation')=='sampling'
                 if source.metadata.get('operation') in (None,'generate','sampling','continuous_expression'):
@@ -134,12 +144,19 @@ def definition(trace):
                     else:expression='g(('+repr(start)+')+(n-('+str(source.origin)+'))/('+repr(rate)+'))'
                 base='f['+variable+']' if source.domain=='discrete' else 'f('+variable+')'
                 if expression:sections.append(Section('Definición almacenada',formulas=[Formula(base+' = '+expression,base+' = '+expression)]))
-                represented={'real':'re('+base+')','imag':'im('+base+')','magnitude':'abs('+base+')','phase':'arg('+base+')','phase_unwrapped':'arg('+base+')+2*pi*m('+variable+')','density_db':'10*log('+base+')/log(10)','magnitude_db':'20*log(abs('+base+'))/log(10)'}.get(component)
-                output='y['+variable+']' if source.domain=='discrete' else 'y('+variable+')'
-                if represented and expression:sections.append(Section('Componente de la curva',formulas=[Formula(output+' = '+represented,output+' = '+represented)]))
-                if component=='phase_unwrapped':sections.append(Section('Rama de fase',paragraphs=['m es el entero que mantiene la continuidad dentro de cada tramo evaluado. No se unen regiones separadas por ceros o exclusiones.']))
                 if component=='delay_numeric':sections.append(Section('Retardo representado',paragraphs=['Se aproxima la derivada negativa de la fase desenrollada mediante diferencias en la rejilla. No es una derivada algebraica exacta; los ceros y cortes se omiten.']))
             else:sections.append(Section('Datos numéricos',paragraphs=['Esta curva conserva valores numéricos, pero no una fórmula algebraica que los defina. No se inventa una expresión mediante interpolación. Podés consultar sus puntos y buscar extremos.']))
+            if expression and expression!='lista ingresada' and component!='delay_numeric':
+                from . import curve_algebra
+                try:
+                    if source.metadata.get('operation')=='sampling':
+                        from .symbolic import parse,T,N
+                        original=parse(coordinate_expression(source.expression,'t'))
+                        expression=str(original.subs(T,float(source.metadata['time_start_s'])+(N-source.origin)/float(source.metadata['sample_rate_hz'])))
+                    parts=curve_algebra.expression_components(expression,variable)
+                    sections.extend(curve_algebra.sections(parts,component,discrete=source.domain=='discrete'))
+                except (ValueError,TypeError,KeyError,NotImplementedError,RecursionError) as exc:
+                    sections.append(Section('Desarrollo de la componente',paragraphs=[str(exc)]))
             sections.append(Section('Intervalo almacenado',rows=[('Primera coordenada',str(source.axis[0])),('Última coordenada',str(source.axis[-1])),('Puntos',str(len(source.values))),('Unidad del eje',source.units)],paragraphs=['Una fórmula se presenta con el intervalo observado. El dibujo no certifica su comportamiento fuera de ese intervalo.']))
             if source.data_kind=='spectral_lines':sections.append(Section('Pesos espectrales',paragraphs=['Los puntos representan pesos de líneas ideales, no alturas de una densidad ordinaria. Los extremos comparan esos pesos.']))
             condition=source.metadata.get('source_frequency_condition',source.metadata.get('frequency_condition',source.metadata.get('source_condition','True')))

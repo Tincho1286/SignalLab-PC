@@ -41,10 +41,10 @@ class Samples(unittest.TestCase):
     def test_transfer_definitions_cover_both_domains_and_extra_advance(self):
         for domain in ('digital','analog'):
             system=Transfer([1],[1,.5],domain=domain);trace=self.trace([0,1],[1,.5]);inspection.system_curve(trace.artist,system,'delay',advance=2 if domain=='digital' else 0);text=inspection.definition(trace).plain_text()
-            self.assertIn('H(z)' if domain=='digital' else 'H(s)',text);self.assertIn('diff(F(w),w)',text)
+            self.assertIn('H(z)' if domain=='digital' else 'H(s)',text);self.assertIn('tau(w)',text);self.assertNotIn('diff(F(w),w)',text)
             if domain=='digital':self.assertIn('exp(i*w*(2))',text)
     def test_stored_formula_component_and_conditions_are_explicit(self):
-        source=Signal([1,2],0,1,'rad/muestra','F','frequency','1/(1+w)',{'source_frequency_condition':'w != -1'});trace=self.trace(source.axis,source.values.real,source);text=inspection.definition(trace).plain_text();self.assertIn('1/(1+w)',text.replace(' ',''));self.assertIn('re(f(w))',text);self.assertIn('w != -1',text)
+        source=Signal([1,2],0,1,'rad/muestra','F','frequency','1/(1+w)',{'source_frequency_condition':'w != -1'});trace=self.trace(source.axis,source.values.real,source);text=inspection.definition(trace).plain_text();self.assertIn('1/(1+w)',text.replace(' ',''));self.assertIn('y(w) = 1/(w + 1)',text);self.assertNotIn('re(f(w))',text);self.assertIn('w != -1',text)
 
     def test_temporal_inverse_and_window_formulas_are_used_only_for_matching_data(self):
         from signallab_pc.temporal_formula import attach_temporal_formula
