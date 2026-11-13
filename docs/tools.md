@@ -64,3 +64,8 @@ Las expresiones importadas conservan las condiciones registradas en su procedenc
 ## Ampliaciones de la 1.8.1
 
 La [guía de análisis interactivo](interactive-analysis.md) explica las comparaciones FIR, la elección visual de ROC, los inspectores de ecuaciones en diferencias y convolución y las medidas espectrales de ventanas. Estas funciones corresponden a los paquetes de la [1.8.1](releases/v1.8.1.md); las descargas de la 1.8.0 conservan su contenido original.
+
+
+## Mediciones y diferencias desde la 1.8.2
+
+La [guía de gráficos](cursors.md) explica las lecturas A/B de mapas, la vista B−A y el CSV de comparación, incluidas las señales con Dirac. También describe cómo ampliar el espectro de una ventana para consultar sus muestras originales. Son mejoras de las herramientas existentes y mantienen sus condiciones de soporte, reloj y frecuencia.

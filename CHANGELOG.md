@@ -1,6 +1,12 @@
 # Historial de cambios
 
-La versión estable actual es la [1.8.1](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.1). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
+La versión estable actual es la [1.8.2](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.2). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
+
+## 1.8.2 · Estable
+
+Esta entrega incorpora lecturas A/B de celdas en mapas, una vista de diferencias y exportación CSV en la comparación de resultados, y detalle adaptativo al ampliar el espectro de ventanas. También conserva diferencias pequeñas junto a valores enormes y separa los pesos de Dirac de las muestras ordinarias. Incluye instaladores y portables para Windows y Linux, con el manifiesto firmado del canal estable.
+
+[Novedades completas](docs/releases/v1.8.2.md)
 
 ## 1.8.1 · Estable
 

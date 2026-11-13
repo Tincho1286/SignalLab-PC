@@ -2,14 +2,14 @@
 
 [← Documentación](README.md)
 
-La versión estable 1.8.1 ofrece un instalador `.run` y un portable `.tar.gz`. Ambos contienen la aplicación nativa, Python y las bibliotecas numéricas y de interfaz; no requieren Wine ni una instalación separada de Python. Comparten los motores y herramientas de la edición Windows.
+La versión estable 1.8.2 ofrece un instalador `.run` y un portable `.tar.gz`. Ambos contienen la aplicación nativa, Python y las bibliotecas numéricas y de interfaz; no requieren Wine ni una instalación separada de Python. Comparten los motores y herramientas de la edición Windows.
 
 ## Instalación por usuario
 
 Descargá el `.run` desde la [release estable](https://github.com/Tincho1286/SignalLab-PC/releases/latest) y ejecutá:
 
 ```sh
-sh ./SignalLab-PC-1.8.1-linux-x86_64.run
+sh ./SignalLab-PC-1.8.2-linux-x86_64.run
 ```
 
 El asistente instala para tu usuario sin `sudo`, crea el acceso del menú y prepara las siguientes actualizaciones desde **Ayuda → Buscar actualizaciones**. La ubicación predeterminada es `~/.local/share/SignalLab-PC/`; se respetan los directorios XDG configurados. La [guía de actualizaciones](installed-updates.md) explica la activación de versiones y la desinstalación.
@@ -19,8 +19,8 @@ El asistente instala para tu usuario sin `sudo`, crea el acceso del menú y prep
 Si preferís ejecutar desde una carpeta, descargá el `.tar.gz`, descomprimilo y abrí el archivo `SignalLab-PC`:
 
 ```sh
-tar -xzf SignalLab-PC-1.8.1-linux-x86_64.tar.gz
-cd SignalLab-PC-1.8.1-linux-x86_64
+tar -xzf SignalLab-PC-1.8.2-linux-x86_64.tar.gz
+cd SignalLab-PC-1.8.2-linux-x86_64
 ./SignalLab-PC
 ```
 

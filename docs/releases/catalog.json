@@ -1,6 +1,21 @@
 {
   "releases": [
     {
+      "tag": "v1.8.2",
+      "title": "Medidas A/B en mapas, diferencias exportables y zoom de ventanas",
+      "channel": "stable",
+      "summary": "La versión 1.8.2 amplía las mediciones en gráficos y la comparación de resultados, manteniendo las herramientas de la 1.8.1.",
+      "changes": [
+        "Los mapas rectangulares permiten consultar celdas A/B y copiar coordenadas, valores y diferencias.",
+        "La figura de comparación muestra B−A y exporta un CSV que distingue muestras ordinarias y pesos de Dirac. Las métricas conservan diferencias pequeñas junto a valores enormes.",
+        "El espectro de ventanas adapta los puntos al zoom y conserva el acceso a sus datos completos."
+      ],
+      "limits": [
+        "Las diferencias de muestras se calculan sólo en coordenadas exactamente comunes; no se interpola ni se rellenan huecos. Las lecturas de celdas requieren mapas escalares rectangulares."
+      ],
+      "notes": "docs/releases/v1.8.2.md"
+    },
+    {
       "tag": "v1.8.1",
       "title": "Comparación FIR, ROC visual e inspección muestra a muestra",
       "channel": "stable",
