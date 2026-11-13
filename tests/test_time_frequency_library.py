@@ -152,5 +152,27 @@ class RealPanels(unittest.TestCase):
         self.assertIn('Coeficientes y constantes',[s['title'] for s in panel.filtered])
         panel.follow_reference(__import__('PySide6.QtCore',fromlist=['QUrl']).QUrl('library:article/tool:course_tools:fir'));self.assertEqual(panel.selected_route,ROUTES['course_tools','fir'])
 
+    def test_block_navigation_reenables_after_the_real_pool_worker_finishes(self):
+        from PySide6.QtCore import QThreadPool
+        from PySide6.QtTest import QTest
+        from signallab_pc.ui import _OperationWorker
+        from signallab_pc.dsp_extensions import block_convolution
+        from signallab_pc.block_inspection import capture
+        from signallab_pc.block_inspection_view import BlockInspector
+        host=self.host();pool=QThreadPool();host.pool=pool
+        def run(label,function,accept):
+            worker=_OperationWorker(function);host._workers.append(worker)
+            def finish(current,result):host._workers.remove(current);accept(result)
+            worker.signals.finished.connect(finish);worker.signals.failed.connect(lambda *args:self.fail(str(args)))
+            pool.start(worker)
+        host._run_operation=run;view=BlockInspector(host);self.widgets.append(view)
+        x=Signal([1,2,3,4,5]);h=Signal([1,-1,2]);result=block_convolution(x,h,2,'ols')
+        view.set_trace(capture(x,h,result),[]);self.assertFalse(view.index.isEnabled())
+        for _ in range(500):
+            self.app.processEvents()
+            if not host._workers and view.index.isEnabled():break
+            QTest.qWait(10)
+        pool.waitForDone(3000);self.app.processEvents();self.assertFalse(host._workers);self.assertTrue(view.index.isEnabled());self.assertTrue(view.next.isEnabled());self.assertIsNotNone(view.data)
+
 
 if __name__=='__main__':unittest.main()

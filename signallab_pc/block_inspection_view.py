@@ -32,9 +32,10 @@ class BlockInspector(QWidget):
         self.owner._run_operation('Inspeccionando bloque de convolución…',lambda:math.inspect(trace,index),accept)
         workers=getattr(self.owner,'_workers',[])
         if workers:
-            self.index.setEnabled(False);self.previous.setEnabled(False);self.next.setEnabled(False);workers[-1].finished.connect(self.finished)
+            self.index.setEnabled(False);self.previous.setEnabled(False);self.next.setEnabled(False)
+            workers[-1].signals.finished.connect(self.finished);workers[-1].signals.failed.connect(self.finished)
 
-    def finished(self):
+    def finished(self,*_):
         self.index.setEnabled(True)
         self.previous.setEnabled(self.index.value()>1);self.next.setEnabled(self.index.value()<self.index.maximum())
         if self.data is None:self.note.setText('No se obtuvo el bloque. Revisá el diagnóstico del cálculo y elegí otro bloque o corregí los parámetros.')
