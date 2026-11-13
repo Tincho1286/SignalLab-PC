@@ -1,4 +1,4 @@
-# Comparar filtros, elegir ROC e inspeccionar recurrencias
+# Comparación e inspección interactiva de resultados
 
 [← Desarrollo](development/README.md)
 

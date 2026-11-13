@@ -27,6 +27,8 @@ Cada herramienta tiene sus propias entradas y puede utilizarse de manera indepen
 
 La versión estable **1.8.0** está disponible para Windows x64 y Linux x86_64. Los cuatro paquetes incluyen Python y las dependencias de la aplicación; no hace falta instalar Python por separado.
 
+También está disponible la [**1.8.1 preliminar**](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.1), con sus propios instaladores y portables. Incorpora las comparaciones FIR, la selección visual de ROC, los inspectores de ecuaciones y convolución y las medidas espectrales de ventanas. Para probar esas funciones corresponde descargar la 1.8.1; los paquetes de la 1.8.0 conservan su contenido anterior.
+
 | Formato | Cuándo elegirlo | Windows x64 | Linux x86_64 |
 | --- | --- | --- | --- |
 | **Instalable** | Para tener accesos en el sistema y actualizar desde la aplicación. | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0-setup.exe) | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.0/SignalLab-PC-1.8.0-linux-x86_64.run) |
@@ -72,6 +74,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La [1.8.1 preliminar](docs/releases/v1.8.1.md) amplía las herramientas de análisis y reúne todas las mejoras posteriores a la 1.8.0. La [guía de análisis interactivo](docs/interactive-analysis.md) explica cómo comparar filtros, seleccionar condiciones y consultar los nuevos inspectores.
 
 La [versión 1.8.0](docs/releases/v1.8.0.md) incorpora los instaladores y el canal de actualizaciones, manteniendo los portables y las mejoras matemáticas de la [1.7.0](docs/releases/v1.7.0.md). El [historial de cambios](CHANGELOG.md) ofrece un recorrido resumido; las [notas de cada versión](docs/releases/README.md) explican las incorporaciones, correcciones y límites de cada entrega.
 

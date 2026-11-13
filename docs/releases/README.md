@@ -2,7 +2,7 @@
 
 [← Documentación](../README.md)
 
-La descarga estable actual es la **1.8.0**. Este índice conserva cada publicación con el canal que tuvo y enlaza las novedades detalladas de esa entrega. Las preliminares antiguas forman parte del historial; no reemplazan la recomendación de utilizar la última estable.
+La descarga estable actual es la **1.8.0**. La **1.8.1 preliminar** está disponible por separado e incluye las nuevas herramientas de análisis interactivo. Este índice conserva cada publicación con el canal que tuvo y enlaza las novedades detalladas de esa entrega. Las preliminares antiguas forman parte del historial; no reemplazan la recomendación de utilizar la última estable.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
