@@ -36,7 +36,7 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 ### Preliminar opcional
 
-La [1.8.6 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.6) amplía Estimar AR con mínimos cuadrados, comparación de órdenes, validación reservada, pronóstico con intervalos y diagnóstico residual. Mantiene Yule–Walker, las realizaciones con semilla y las mejoras anteriores de espectros y biblioteca. Tiene instaladores y portables para ambas plataformas. Para recibirla desde una instalación 1.8.3 o posterior, elegí **Estables y preliminares (Pre-releases)** en el actualizador. La descarga estable recomendada sigue siendo la 1.8.3.
+La [1.8.7 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.7) amplía la lectura de figuras con definiciones matemáticas, búsqueda de extremos, cursores por coordenada y controles científicos visibles. También corrige la reapertura de la respuesta en frecuencia y los saltos de informes adaptativos. Conserva toda la estimación AR de la 1.8.6 y las mejoras anteriores de espectros y biblioteca. Tiene instaladores y portables para ambas plataformas. Para recibirla desde una instalación 1.8.3 o posterior, elegí **Estables y preliminares (Pre-releases)** en el actualizador. La descarga estable recomendada sigue siendo la 1.8.3.
 
 ### Actualizar una instalación
 
@@ -77,7 +77,9 @@ El alcance depende del método elegido y de sus hipótesis. Una evaluación sobr
 
 ## Novedades e historial
 
-La [1.8.6 preliminar](docs/releases/v1.8.6.md) reúne cinco mejoras para estimar y evaluar modelos AR. La [guía de estimación AR](docs/ar-estimation.md) relaciona ajuste, reserva, pronóstico y residuos, con sus hipótesis y límites. Conserva las medidas de espectros de la [1.8.5](docs/releases/v1.8.5.md) y las ampliaciones de STFT y biblioteca de la [1.8.4](docs/releases/v1.8.4.md), documentadas en las guías de [medidas espectrales](docs/spectral-measurements.md) y [ventanas temporales](docs/time-frequency.md). Estas entregas pertenecen al canal de preliminares sin reemplazar la estable.
+La [1.8.7 preliminar](docs/releases/v1.8.7.md) reúne seis mejoras para leer figuras y navegar informes. La [guía de gráficos](docs/cursors.md) explica cómo consultar una definición, buscar extremos de los puntos calculados y colocar cursores sin interpolar. Los controles científicos se acomodan según el ancho de la ventana y las vistas LTI conservan su acceso a la respuesta en frecuencia.
+
+La [1.8.6 preliminar](docs/releases/v1.8.6.md) amplía la estimación AR con comparación de órdenes, validación, pronóstico y diagnóstico residual. La [guía de estimación AR](docs/ar-estimation.md) desarrolla sus hipótesis. Las mejoras de medición de la [1.8.5](docs/releases/v1.8.5.md) y las de STFT y biblioteca de la [1.8.4](docs/releases/v1.8.4.md) se explican en las guías de [medidas espectrales](docs/spectral-measurements.md) y [ventanas temporales](docs/time-frequency.md). Estas entregas pertenecen al canal de preliminares sin reemplazar la estable.
 
 La [1.8.3](docs/releases/v1.8.3.md) facilita abrir y elegir figuras, cambiar la tasa indicando la frecuencia de salida y analizar el FIR antialias utilizado. El CAS incorpora operaciones rápidas sobre la salida seleccionada, sin borrar el borrador, y el actualizador permite incluir preliminares con manifiesto firmado compatible. La [guía de actualizaciones](docs/installed-updates.md) explica cómo elegir el canal.
 

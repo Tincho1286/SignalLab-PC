@@ -1,6 +1,25 @@
 {
   "releases": [
     {
+      "tag": "v1.8.7",
+      "title": "Curvas, cursores e informes de lectura estable",
+      "channel": "preview",
+      "summary": "Seis mejoras de lectura y navegación: figuras LTI, informes, controles visibles, definiciones, extremos y cursores precisos. Conserva AR de la 1.8.6; la estable sigue siendo 1.8.3.",
+      "changes": [
+        "La pestaña de respuesta en frecuencia vuelve a abrir su figura conservada tras las vistas alternativas.",
+        "Los informes adaptativos evitan ciclos de reflujo y conservan la lectura.",
+        "Los controles científicos se acomodan en filas visibles fuera de la navegación.",
+        "Curvas y medidas muestra las definiciones almacenadas y las representaciones dibujadas.",
+        "Máximos y mínimos de puntos finitos, con mesetas, intervalo y exportación CSV.",
+        "Cursores A/B arrastrables y lectura por coordenada o recorrido de puntos originales."
+      ],
+      "limits": [
+        "Los extremos corresponden a puntos evaluados, no a una optimización algebraica entre muestras.",
+        "Las curvas sin definición algebraica almacenada lo indican. Mapas, planos y superficies no se tratan como curvas de una variable."
+      ],
+      "notes": "docs/releases/v1.8.7.md"
+    },
+    {
       "tag": "v1.8.6",
       "title": "Estimación, validación y pronóstico AR",
       "channel": "preview",

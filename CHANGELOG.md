@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.3](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.3). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.7 · Preliminar
+
+La lectura de figuras incorpora un inspector con definiciones almacenadas, búsqueda de extremos y colocación precisa de cursores. A/B se pueden arrastrar conservando el otro punto y las herramientas científicas se acomodan en filas visibles. Se corrige la reapertura de la respuesta en frecuencia tras vistas alternativas y el ciclo de reajuste que hacía saltar informes. Las fórmulas se conservan con sus condiciones y se invalidan cuando cambian sus datos. Incluye toda la tanda AR de la 1.8.6; la 1.8.3 continúa estable.
+
+[Novedades completas](docs/releases/v1.8.7.md)
+
 ## 1.8.6 · Preliminar
 
 Estimar AR incorpora mínimos cuadrados condicionales y orden cero, comparación de órdenes sobre respuestas comunes, validación con un tramo reservado, pronóstico con intervalos y diagnóstico residual con Ljung–Box. Conserva Yule–Walker y la generación con semilla; los modelos, tablas y curvas se registran y reutilizan con sus condiciones. La ayuda distingue entrenamiento, reserva y futuro mediante un esquema en colores. La 1.8.3 continúa estable.
