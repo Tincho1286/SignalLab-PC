@@ -60,6 +60,7 @@ class ResultJournal:
         self.origin={'title':route[0] if route else message,'route':list(route) if route else []}
         self.title=self.origin['title'];self.records=[];self.values=[];self.references=set();self.result=None;self.whole_result_stored=False
         page=window.pages.get(route);panel=getattr(page,'panel',None)
+        if getattr(panel,'calculation_title',None):self.title=self.origin['title']=panel.calculation_title
         from .report_view import ReportView
         self.page=page;self.calculation_notes=[]
         views=list(page.findChildren(ReportView)) if page is not None else []

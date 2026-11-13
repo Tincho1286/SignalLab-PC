@@ -18,6 +18,7 @@ CONCEPT_CATEGORIES={
  'Modelos aleatorios y alcance del programa':12,
 }
 SHORT={
+ 'tool:course_tools:band':'Medir un espectro',
  'tool:basic:shift':'Desplazar x[n]',
  'tool:basic:reverse':'Invertir el índice n',
  'tool:basic:scale':'Escalar x[n]',
@@ -70,6 +71,7 @@ def apply(sections):
         section['original_title']=section['title']
         section['title']=SHORT.get(section['article_id'],section['title'].removeprefix('Ejemplo: '))
         section['topic']=topic(section['category'])
+        if section['article_id']=='tool:course_tools:band':section['search_aliases']=['Energía en una banda','Energía espectral por banda']
     by_id={s['article_id']:s for s in sections}
     for section in sections:
         if section.get('examples'):section['examples']=[(identifier,by_id['example:'+identifier]['title']) for identifier,_ in section['examples']]

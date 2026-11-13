@@ -124,7 +124,7 @@ def frame_signals(result,index):
 def density_spectrum(result,index,physical=False):
     reference=spectrum(result,index,physical=physical)
     data,_,_=map_values(dict(result,values=result['values'][:,index:index+1]),'density',physical)
-    reference=reference.copy_with(values=data[:,0],name='Densidad bilateral de la ventana',metadata=dict(reference.metadata,operation='spectral_density',normalization='|FFT(x*w)|² / (2*pi*Fs*sum(w²)); Fs=1 for rad/sample',remove_mean=False))
+    reference=reference.copy_with(values=data[:,0],name='Densidad bilateral de la ventana',metadata=dict(reference.metadata,operation='spectral_density',density_convention='per_coordinate',normalization='|FFT(x*w)|² / (2*pi*Fs*sum(w²)); Fs=1 for rad/sample',remove_mean=False))
     return reference
 
 

@@ -16,7 +16,7 @@ GROUPS={
 'series':('Espectros','Series de Fourier','harmonics',[
  ('Series', [('Continua',('fourier',4)),('Discreta',('fourier',5)),('Potencia y líneas espectrales',('course_tools','lines'))])]),
 'densities':('Espectros','Densidades espectrales','density',[
- ('Densidades', [('Densidad de energía',('fourier',6)),('Energía por banda',('course_tools','band')),('Densidad de potencia: periodograma y Welch',('fourier',7))])]),
+ ('Densidades', [('Densidad de energía',('fourier',6)),('Medir un espectro',('course_tools','band')),('Densidad de potencia: periodograma y Welch',('fourier',7))])]),
 'local_spectra':('Espectros','Hilbert y tiempo-frecuencia','spectrum',[
  ('Análisis', [('Hilbert y señal analítica',('dsp_extensions','hilbert')),('STFT y espectrograma',('dsp_extensions','stft'))])]),
 'sampling':('Muestreo','Muestreo y reconstrucción','sampling',[

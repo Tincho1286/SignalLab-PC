@@ -32,8 +32,8 @@ FAMILIES=[
  (('fourier',1),('Fourier continua','Directa','Numérico')),(('fourier_symbolic',0),('Fourier continua','Directa','Algebraico')),(('fourier',3),('Fourier continua','Inversa','Numérico')),(('fourier_symbolic',1),('Fourier continua','Inversa','Algebraico'))]),
  ('Series de Fourier y líneas espectrales','Coeficientes, síntesis periódica y potencia en armónicos.',('Estudio','Dominio'),[
  (('fourier',4),('Serie','Continua')),(('fourier',5),('Serie','Discreta')),(('course_tools','lines'),('Líneas de potencia','Continua'))]),
- ('Energía espectral','Densidad de energía desde una señal o energía integrada en una banda.',('Calcular',),[
- (('fourier',6),('Densidad de energía',)),(('course_tools','band'),('Energía en una banda',))]),
+ ('Medidas espectrales','Densidad de energía y medidas de bandas, picos y distribución de espectros.',('Calcular',),[
+ (('fourier',6),('Densidad de energía',)),(('course_tools','band'),('Medir un espectro',))]),
  ('Muestreo y aliasing','Muestrear expresiones y estudiar Nyquist o las tasas pasabanda.',('Estudio',),[
  (('sampling',0),('Muestrear señal',)),(('sampling',1),('Nyquist y aliasing',)),(('course_tools','bandpass_sampling'),('Tasas pasabanda',))]),
  ('Cambiar tasa de muestreo','Conversión racional con antialias y operaciones elementales sobre índices.',('Tratamiento',),[

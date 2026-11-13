@@ -137,6 +137,7 @@ def is_power_spectrum(source):
 
 
 def require_complex_spectrum(source):
+    if source.data_kind=='spectral_measurement':raise ValueError('Una medida acumulada no es X: no conserva amplitud compleja ni fase para una inversa.')
     if is_power_spectrum(source):
         raise ValueError('La inversa necesita el espectro complejo original X. La densidad espectral conserva el módulo al cuadrado y pierde la fase.')
 
@@ -263,6 +264,7 @@ def spectral_density(x, rate, *, method="welch", segment=256, overlap=128,
 def energy_density(spectrum):
     from .distributions import regular_only
     regular_only(spectrum,'La densidad de energía de valores de X(ω)')
+    if spectrum.data_kind=='spectral_measurement':raise ValueError('Una fracción acumulada no es un espectro complejo.')
     if spectrum.domain != "frequency":raise ValueError("La densidad espectral requiere un espectro, no un registro temporal.")
     if spectrum.units not in {'rad/s','rad/muestra'}:raise ValueError('Definí el eje del espectro en rad/s o rad/muestra.')
     if spectrum.metadata.get('distribution') or spectrum.metadata.get('operation') in {'continuous_fourier_series','discrete_fourier_series'}:

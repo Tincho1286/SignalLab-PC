@@ -38,3 +38,16 @@ class VisibleCurve:
             self.line.set_data(self.x[ids],self.y[ids])
             self.axis.figure.canvas.draw_idle()
         finally:self.busy=False
+
+
+class VisibleStem(VisibleCurve):
+    """Adaptive unconnected frequency samples, with full data retained for probes."""
+    def __init__(self,axis,x,y,*,bottom=0.,label=None):
+        from matplotlib.collections import LineCollection
+        self.bottom=bottom;self.stems=LineCollection([]);self.stems._signallab_reference=True;axis.add_collection(self.stems)
+        super().__init__(axis,x,y,label=label)
+        self.line.set_linestyle('none');self.line.set_marker('.');self.stems.set_color(self.line.get_color());self.update()
+    def update(self,*_):
+        super().update()
+        x,y=self.line.get_data();segments=np.empty((len(x),2,2));segments[:,0,0]=x;segments[:,1,0]=x;segments[:,0,1]=self.bottom;segments[:,1,1]=y
+        self.stems.set_segments(segments)

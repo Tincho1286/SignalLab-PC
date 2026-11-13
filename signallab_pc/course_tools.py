@@ -320,32 +320,10 @@ def inverse_z_contour(system,mode,radius,start,count,points):
     return bundle(f'Z inversa bilateral numérica\n\nROC elegida entre radios: {lower:g} < |z| < {upper:g}\nRadio de integración: {radius:g}\nPuntos del contorno: {points}\n\nh[n] ≈ rⁿ · IFFT(H(r·exp(jθ)))[n]\n\nEl radio selecciona una expansión de Laurent. El contorno exterior corresponde a la expansión causal de una representación causal; el interior puede incluir términos finitos en índices no negativos. El círculo unidad selecciona la interpretación estable si no hay polos sobre él.\n\nEs una aproximación con aliasing circular de coeficientes, especialmente cerca de polos. Aumentá puntos y compará radios dentro de la misma ROC para estudiar convergencia. No es una inversión algebraica exacta; valores muy pequeños pueden ser error de redondeo.',[signal])
 
 def band_energy(spectrum,low,high):
-    if spectrum.domain!='frequency' or spectrum.units not in ('rad/s','rad/muestra'):raise ValueError('Se requiere un espectro X(ω) en rad/s o rad/muestra, no una densidad ya elevada al cuadrado.')
-    if spectrum.metadata.get('distribution') or spectrum.metadata.get('operation') in ('energy_density','spectral_density','welch','periodogram','continuous_fourier_series','discrete_fourier_series'):raise ValueError('Ingresá X(ω), no una densidad espectral.')
-    from .fourier import is_complete_dft
-    x=spectrum.axis
-    if is_complete_dft(spectrum):
-        from .fourier_phase import bin_frequency
-        count=len(x)
-        expected=bin_frequency(-(count//2),count)
-        if abs(spectrum.origin-expected)<=8*np.finfo(float).eps:
-            x=bin_frequency(np.arange(count)-count//2,count)
-            first,last=-np.pi,np.pi
-        else:
-            first,last=spectrum.origin,spectrum.origin+math.tau
-        if not first<=low<high<=last:
-            raise ValueError('La banda debe quedar dentro de un período de la DFT.')
-        power=abs(spectrum.values/np.sqrt(count))**2
-        value=float(np.sum(power[(x>=low)&(x<high)]))
-        total=float(np.sum(power))
-        rule='Suma |X[k]|²/N sobre los bins de la banda [inicio, fin). El extremo derecho queda disponible para la banda siguiente. La suma sobre el período completo verifica Parseval.'
-    else:
-        if spectrum.step<=0 or not x[0]<=low<high<=x[-1]:raise ValueError('La banda debe estar contenida en el eje creciente del espectro.')
-        axis=np.r_[low,x[(x>low)&(x<high)],high];power=np.interp(axis,x,abs(spectrum.values)**2)
-        value=float(np.trapezoid(power,axis)/(2*np.pi));total=float(np.trapezoid(abs(spectrum.values)**2,x)/(2*np.pi))
-        rule='Integración trapezoidal de una densidad interpolada. La banda es exactamente la indicada. Para un espectro continuo de intervalo finito, la energía sólo es parcial.'
-    if not np.isfinite(value) or not np.isfinite(total):raise ValueError('La energía excede el rango numérico.')
-    return bundle(f'Energía espectral por banda\n\nBanda: [{low:g}, {high:g}] {spectrum.units}\nEnergía en la banda: {value:.12g}\nEnergía del intervalo disponible: {total:.12g}\n\n{rule}')
+    from .spectral_measurements import analyze
+    data=analyze(spectrum,[('Banda',low,high)])
+    return dict(bundle(data['report'],[data['cumulative']] if data['cumulative'] is not None else []),bands=data['bands'],moments=data['moments'],peaks=data['peaks'])
+
 
 def periodic_lines(coefficients,period):
     if coefficients.domain!='discrete':raise ValueError('Ingresá los coeficientes c[k] de la serie, con k entero.')
@@ -353,7 +331,7 @@ def periodic_lines(coefficients,period):
     period=float(coefficients.metadata.get('period_s',period))
     if not np.isfinite(period) or period<=0:raise ValueError('El período debe ser positivo y finito.')
     powers=abs(coefficients.values)**2;omega0=2*np.pi/period
-    weights=Signal(2*np.pi*powers,coefficients.origin*omega0,omega0,'rad/s','Pesos de líneas de potencia','frequency','',{'operation':'continuous_fourier_series','distribution':'Dirac weights, not finite density heights','period_s':period})
+    weights=Signal(2*np.pi*powers,coefficients.origin*omega0,omega0,'rad/s','Pesos de líneas de potencia','frequency','',{'operation':'continuous_fourier_series','distribution':'Dirac weights, not finite density heights','power_line_weights':True,'period_s':period})
     power=float(np.sum(powers))
     return bundle(f'Potencia de una señal periódica\n\nSx(ω) = 2π Σ |c[k]|² δ(ω−kω₀)\nω₀: {omega0:.12g} rad/s\nPeríodo: {period:g} s\nPotencia de los armónicos disponibles: {power:.12g}\n\nCada tallo representa el peso de una delta, no su altura ni una densidad finita. Parseval da P=Σ|c[k]|². Si faltan armónicos o los coeficientes se estimaron por cuadratura, el resultado sólo aproxima la potencia total. No se deben integrar los tallos con trapecios.',[weights])
 

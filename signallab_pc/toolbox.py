@@ -36,22 +36,25 @@ from .report_view import ReportView,report_panel
 from .expression_editor import ExpressionEditor
 from .result_summary import operation_label
 from .signal_plot import plot_samples
-from .signal_plot import configure_signal_axis, is_discrete_plot, validate_overlay
+from .signal_plot import configure_axis,configure_signal_axis, is_discrete_plot, validate_overlay
 
 def signal_destinations(value,items):
     kind=value.data_kind
+    if kind=='spectral_measurement':return []
     if kind=='harmonics':
         operation=value.metadata.get('operation')
         keys={('fourier',5)} if operation=='discrete_fourier_series' else {('fourier',4),('course_tools','lines')}
+        if operation in ('continuous_fourier_series','discrete_fourier_series'):keys.add(('course_tools','band'))
         return [item for item in items if item[1:3] in keys]
-    if kind=='dft_bins':return [item for item in items if item[1:3]==('basic','idft')]
+    if kind=='dft_bins':return [item for item in items if item[1:3] in (('basic','idft'),('course_tools','band'))]
     if kind in {'density','spectral_lines'}:
-        items=[item for item in items if item[1:3] not in (('inverse_dtft',0),('fourier',3),('fourier',6),('course_tools','band'))]
+        from .spectral_measurements import power_lines
+        items=[item for item in items if item[1:3] not in (('inverse_dtft',0),('fourier',3),('fourier',6)) and (item[1:3]!=('course_tools','band') or kind=='density' or power_lines(value))]
     if kind=='frequency_response':
         items=[item for item in items if item[1:3]!=('fourier',6)]
     if value.domain=='frequency' and kind not in {'frequency_response','frequency_values'}:
         items=[item for item in items if item[1]!='frequency_filter']
-    return [item for item in items if (item[1:3]==('basic','idft') and ops.is_centered_dft(value)) or (item[1:3]==('transform_lab','z') and value.domain=='discrete') or (item[1]=='basic' and item[2] in ('generate','measures') and value.domain in {'continuous','discrete'}) or (item[1]=='dsp_extensions' and item[2] in ('hilbert','stft') and value.domain in {'continuous','discrete'}) or (item[1]=='frequency_filter' and value.domain in {'discrete','continuous','frequency'} and (value.domain!='frequency' or value.units in {'rad/s','rad/muestra'})) or item[3] in ({'discrete','pair'} if value.domain=='discrete' else {'continuous','continuous_pair'} if value.domain=='continuous' else set()) or (item[1]=='systems' and item[2]==9 and value.domain in {'discrete','continuous'}) or (item[1]=='course_tools' and item[2]=='band' and value.domain=='frequency' and value.units in {'rad/s','rad/muestra'}) or (item[1]=='correlation' and value.domain==('continuous' if item[2] else 'discrete')) or (item[1]=='signal_editor' and value.domain in {'discrete','continuous'}) or (item[1]=='rational_resampling' and value.domain=='discrete') or (item[1:3]==('sampling',5) and value.domain=='discrete') or (item[1:3]==('fourier',6) and value.domain in {'discrete','continuous','frequency'}) or (item[1]=='fourier' and item[2] in (3,6) and value.domain=='frequency' and (item[2]!=3 or value.units=='rad/s')) or (item[1]=='inverse_dtft' and value.domain=='frequency' and value.units=='rad/muestra') or ((item[1]=='signal_product' or item[1:3]==('basic','sum')) and value.domain in {'discrete','continuous'}) or (item[1:3]==('state_space','simulation') and value.domain in {'discrete','continuous'})]
+    return [item for item in items if (item[1:3]==('basic','idft') and ops.is_centered_dft(value)) or (item[1:3]==('transform_lab','z') and value.domain=='discrete') or (item[1]=='basic' and item[2] in ('generate','measures') and value.domain in {'continuous','discrete'}) or (item[1]=='dsp_extensions' and item[2] in ('hilbert','stft') and value.domain in {'continuous','discrete'}) or (item[1]=='frequency_filter' and value.domain in {'discrete','continuous','frequency'} and (value.domain!='frequency' or value.units in {'rad/s','rad/muestra'})) or item[3] in ({'discrete','pair'} if value.domain=='discrete' else {'continuous','continuous_pair'} if value.domain=='continuous' else set()) or (item[1]=='systems' and item[2]==9 and value.domain in {'discrete','continuous'}) or (item[1]=='course_tools' and item[2]=='band' and value.domain=='frequency' and value.units in {'rad/s','rad/muestra','Hz'}) or (item[1]=='correlation' and value.domain==('continuous' if item[2] else 'discrete')) or (item[1]=='signal_editor' and value.domain in {'discrete','continuous'}) or (item[1]=='rational_resampling' and value.domain=='discrete') or (item[1:3]==('sampling',5) and value.domain=='discrete') or (item[1:3]==('fourier',6) and value.domain in {'discrete','continuous','frequency'}) or (item[1]=='fourier' and item[2] in (3,6) and value.domain=='frequency' and (item[2]!=3 or value.units=='rad/s')) or (item[1]=='inverse_dtft' and value.domain=='frequency' and value.units=='rad/muestra') or ((item[1]=='signal_product' or item[1:3]==('basic','sum')) and value.domain in {'discrete','continuous'}) or (item[1:3]==('state_space','simulation') and value.domain in {'discrete','continuous'})]
 
 def populate_signal_menu(menu,window,value,key):
     from .tool_catalog import compact_destinations,AREA_BY_ID,destination_label
@@ -108,6 +111,7 @@ class LocalInput(QGroupBox):
         self.entry_modes.viewChanged.connect(lambda:update(self.mode.currentIndex()))
         self.mode.currentIndexChanged.connect(update);self.mode.setCurrentIndex(2 if kind=='import' else 0);update(self.mode.currentIndex())
     def data_kinds(self):
+        if hasattr(self,'accepted_kinds'):return self.accepted_kinds
         role=getattr(self,'role',None)
         if role=='frequency_response':return {'frequency_response','frequency_values'}
         if role=='series_coefficients':return {'harmonics','temporal'}
@@ -140,7 +144,7 @@ class LocalInput(QGroupBox):
 
     def set_source(self,source,reference_id=None):
         self.validate_data_kind(source)
-        accepts_centered = getattr(self, 'dft_input', False) and ops.is_centered_dft(source)
+        accepts_centered = (getattr(self, 'dft_input', False) and ops.is_centered_dft(source)) or source.data_kind in getattr(self,'cross_domain_kinds',())
         if self.kind in ('continuous','discrete','frequency') and source.domain!=self.kind and not accepts_centered:
             raise ValueError('Esta entrada requiere '+('un espectro.' if self.kind=='frequency' else 'una señal continua.' if self.kind=='continuous' else 'una secuencia discreta.'))
         self.reference_id=reference_id;self.loaded_reference_id=reference_id;self.fingerprint=None
@@ -159,7 +163,7 @@ class LocalInput(QGroupBox):
         records=reversed(self.project_window.project.headers('signal'))
         for record in records:
             info=self.project_window.project.describe(record['id'])
-            accepts_centered = getattr(self, 'dft_input', False) and info.get('centered_dft', False)
+            accepts_centered = (getattr(self, 'dft_input', False) and info.get('centered_dft', False)) or info.get('data_kind') in getattr(self,'cross_domain_kinds',())
             if self.kind in ('continuous','discrete','frequency') and info['domain']!=self.kind and not accepts_centered:continue
             if self.data_kinds() is not None and info.get('data_kind') not in self.data_kinds():continue
             self.recent.addItem(f"{record['title']} · {info['count']:,} muestras",record['id'])
@@ -174,7 +178,7 @@ class LocalInput(QGroupBox):
         if getattr(self, 'dft_input', False):
             key=self.project_window.choose_record('signal',domains=['discrete','frequency'],dft_input=True,data_kinds=self.data_kinds())
         else:
-            key=self.project_window.choose_record('signal',domains=[self.kind] if self.kind in ('continuous','discrete','frequency') else None,data_kinds=self.data_kinds())
+            key=self.project_window.choose_record('signal',domains=None if getattr(self,'cross_domain_kinds',()) else [self.kind] if self.kind in ('continuous','discrete','frequency') else None,data_kinds=self.data_kinds())
         if key:self.set_source(self.project_window.project.get(key),key)
     def read(self):
         value=self._read()
@@ -327,6 +331,17 @@ class ResultView(QWidget):
         if self.result is None:return
         result=self.result if isinstance(self.result,tuple) else (self.result,)
         if not isinstance(result[0],Signal):return
+        if all(v.metadata.get('operation')=='spectral_fraction' for v in result):
+            self.figure.clear();axis=self.figure.add_subplot(111)
+            from .probe_data import attach_signal
+            for value in result:
+                if value.metadata.get('bins'):
+                    low,high=value.metadata['bounds'];x=np.r_[low,value.axis,high];y=np.r_[0.,value.values.real,1.]
+                    artists=axis.step(x,y,where='post',label=value.name)
+                else:artists=axis.plot(value.axis,value.values.real,linestyle='none',marker='.',label=value.name)
+                attach_signal(artists,value,'real');configure_signal_axis(axis,value)
+                if value.units in ('k','bin k'):configure_axis(axis,discrete_index=True,units=value.units,label='Índice k',index_symbol='k')
+            axis.set_ylabel('Fracción acumulada');axis.set_ylim(-.02,1.02);axis.grid(alpha=.15);self.canvas.draw_idle();return
         signals=self.displayed_signals()
         self.figure.clear();polar=self.plot_mode.currentIndex()==0
         delay_view=polar and all(v.metadata.get('operation')=='frequency_filter' for v in signals)
@@ -474,6 +489,9 @@ class ToolPage(QWidget):
         if kind=='frequency_filter':
             from .frequency_filter_panel import FrequencyFilterPanel
             self.panel=FrequencyFilterPanel(window);root.addWidget(self.panel);return
+        if kind=='course_tools' and index=='band':
+            from .spectral_measurements_panel import SpectralMeasurePanel
+            self.panel=SpectralMeasurePanel(window);root.addWidget(self.panel);return
         if kind=='course_tools':
             from .course_tools_panel import CourseToolsPanel
             self.panel=CourseToolsPanel(window,index);root.addWidget(self.panel);return
@@ -1073,7 +1091,7 @@ class ToolboxWindow(SignalLabWindow):
             panel.stimulus.setCurrentIndex(2)
         active=getattr(self.stack.currentWidget(),'active_page',self.stack.currentWidget())
         fields=[field for field in active.findChildren(LocalInput)
-                if field.kind in ('import',value.domain) or (getattr(field,'dft_input',False) and ops.is_centered_dft(value))]
+                if field.kind in ('import',value.domain) or (getattr(field,'dft_input',False) and ops.is_centered_dft(value)) or value.data_kind in getattr(field,'cross_domain_kinds',())]
         if not fields:return
         target=fields[0]
         if len(fields)>1:

@@ -72,7 +72,7 @@ DETAILS[("course_tools",'convert')]='H(s) o H(z) y T → conversión bilineal, i
 DETAILS[("course_tools",'gain')]='Sistema y frecuencia de referencia → módulo objetivo conservando polos y ceros.'
 DETAILS[("course_tools",'phase')]='Transferencia discreta → reflexión de ceros, factor paso todo y clasificación FIR.'
 DETAILS[("course_tools",'inverse_z')]='Transferencia y región de convergencia → muestras bilaterales por integración de contorno.'
-DETAILS[("course_tools",'band')]='Espectro angular y banda → energía parcial por integración.'
+DETAILS[("course_tools",'band')]='Espectro, densidad o DFT → medidas por bandas, distribución y picos.'
 DETAILS[("course_tools",'lines')]='Coeficientes de serie continua → pesos de líneas de PSD y potencia de Parseval.'
 DETAILS[("course_tools",'mapping')]='Frecuencia angular y período → mapeo bilineal o ramas de aliasing.'
 

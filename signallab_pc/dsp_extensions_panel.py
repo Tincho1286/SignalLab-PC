@@ -68,7 +68,8 @@ class DspExtensionsPanel(QWidget):
                 self.parents=parents
                 if self.action=='stft':
                     self.result=calculated;self.explorer.show();self.empty_output.hide();self.explorer.set_data(calculated,parents)
-                    self.window.publish({'report':self.report.toPlainText()},operation='STFT',parents=parents)
+                    report_key=self.window.publish({'report':self.report.toPlainText()},operation='STFT',parents=parents)
+                    self.explorer.band_power.parents=parents+[report_key]
                 else:
                     if self.action=='hilbert':
                         self.result=calculated;self.outputs=calculated

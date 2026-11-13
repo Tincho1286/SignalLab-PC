@@ -15,7 +15,7 @@ class StftExplorer(QWidget):
         super().__init__();self.owner=owner;self.data=None;self.parents=[];self.saved={};self.selection=None
         from .toolbox import ResultView
         layout=QVBoxLayout(self);layout.setContentsMargins(0,0,0,0)
-        row=QHBoxLayout();layout.addLayout(row);self.frame=QSpinBox();self.frame.setRange(1,1);self.frame.setPrefix('Ventana ');self.frame.setAccessibleName('Ventana temporal seleccionada');self.frame.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
+        self.frame_controls=QWidget();row=QHBoxLayout(self.frame_controls);row.setContentsMargins(0,0,0,0);layout.addWidget(self.frame_controls);self.frame=QSpinBox();self.frame.setRange(1,1);self.frame.setPrefix('Ventana ');self.frame.setAccessibleName('Ventana temporal seleccionada');self.frame.setButtonSymbols(QAbstractSpinBox.ButtonSymbols.NoButtons)
         self.previous=QPushButton('‹');self.next=QPushButton('›')
         for button,name in ((self.previous,'Ventana anterior'),(self.next,'Ventana siguiente')):button.setMaximumWidth(36);button.setAccessibleName(name);row.addWidget(button)
         self.previous.clicked.connect(self.frame.stepDown);self.next.clicked.connect(self.frame.stepUp);row.insertWidget(1,self.frame)
@@ -38,13 +38,16 @@ class StftExplorer(QWidget):
         self.reconstruct=QPushButton('Reconstruir registro desde STFT');self.reconstruct.setObjectName('primary');self.reconstruct.clicked.connect(self.inverse);inverse_layout.addWidget(self.reconstruct)
         self.inverse_note=QLabel('La inversa verifica que las ventanas conserven información en cada muestra.');self.inverse_note.setWordWrap(True);inverse_layout.addWidget(self.inverse_note)
         self.inverse_view=ResultView();inverse_layout.addWidget(self.inverse_view,1)
-        self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Informe')
+        from .spectral_measurements_panel import StftBandPowerView
+        self.band_power=StftBandPowerView(owner);self.tabs.addTab(self.band_power,'Potencia por banda')
+        self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Informe');self.tabs.currentChanged.connect(lambda index:self.frame_controls.setVisible(index in (0,1)))
         self.export=QPushButton('Exportar STFT completa (CSV)…');self.export.clicked.connect(self.export_matrix);layout.addWidget(self.export)
         for combo in (self.scale,self.clock):combo.currentIndexChanged.connect(self.redraw)
         self.phase.currentIndexChanged.connect(self.show_frame);self.frame.valueChanged.connect(self.show_frame);self.part.currentIndexChanged.connect(self.show_frame);self.range.editingFinished.connect(self.redraw)
 
     def set_data(self,data,parents):
         self.data=data;self.parents=list(parents);self.saved={};m=data['metadata']
+        self.band_power.set_data(data,parents)
         self.figure.clear();self.axis=None;self.selection=None;self.canvas._signallab_has_plot_result=False
         self.frame_view.clear_result()
         self.frame.blockSignals(True);self.frame.setMaximum(m['frames']);self.frame.setValue(1);self.frame.blockSignals(False)

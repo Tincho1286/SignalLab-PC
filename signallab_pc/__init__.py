@@ -1,5 +1,5 @@
 """SignalLab PC: herramientas de señales y sistemas."""
 
-__version__ = "1.8.4"
+__version__ = "1.8.5"
 
 __release_channel__ = "preview"

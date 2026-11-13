@@ -74,7 +74,7 @@ for key,title,summary in [
  (('course_tools','lines'),'Potencia y líneas espectrales','Pesos espectrales desde coeficientes de serie.')]:add('spectra','Series de Fourier',key,title,summary,'armonicos')
 for key,title,summary in [
  (('fourier',6),'Densidad de energía','Desde una señal propia o un espectro.'),
- (('course_tools','band'),'Energía en una banda','Integrar |X|² entre frecuencias elegidas.'),
+ (('course_tools','band'),'Medir un espectro','Bandas, distribución acumulada y picos de espectros o densidades.'),
  (('fourier',7),'Densidad de potencia','Periodograma o estimación de Welch.')]:add('spectra','Densidades espectrales',key,title,summary,'psd espectral energia')
 add('spectra','Otras representaciones',('dsp_extensions','hilbert'),'Hilbert y señal analítica','Componentes en cuadratura y envolvente.')
 add('spectra','Otras representaciones',('dsp_extensions','stft'),'STFT y espectrograma','Evolución del espectro por ventanas temporales.','tiempo frecuencia')

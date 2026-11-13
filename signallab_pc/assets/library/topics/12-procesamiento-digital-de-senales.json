@@ -74,19 +74,27 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Esta opción calcula qué parte de la energía corresponde a una banda de frecuencias."
+          "Medí varias bandas de un espectro en un mismo cálculo. La herramienta también muestra picos, centro espectral, ancho RMS y fracción acumulada. Las medidas se refieren al intervalo disponible, no al espectro que podría existir fuera de él."
         ],
         [
           "Cómo preparar el cálculo",
-          "Ingresá el espectro complejo X o copiá una transformada anterior. Elegí dos extremos dentro del eje disponible; la entrada debe ser el espectro, no |X|² ni una PSD."
+          "Cargá una fórmula, muestras o un resultado compatible. Automática reconoce espectros X, respuestas H, densidades y coeficientes DFT o de series generados en la aplicación. Si la entrada es una densidad manual, elegí su interpretación: Sx angular se integra con 1/(2π); una densidad por unidad del eje se integra directamente. En Hz, la PSD se integra directamente.\n\nAgregá una fila por banda, con nombre y extremos. Admiten pi, fracciones y notación científica. Un extremo vacío toma el límite disponible. También podés seleccionar una fila y arrastrar sus extremos en Espectro y bandas: después debés recalcular."
         ],
         [
-          "Cómo interpretar la salida",
-          "Se integra |X|²/(2π) entre esos extremos mediante trapecios. Una banda positiva no se duplica automáticamente para representar la banda negativa."
+          "Qué mide cada entrada",
+          "X mide energía: se integra |X|²/(2π) en frecuencia angular o |X(f)|² en Hz. Una PSD mide potencia según su convención. H mide el área de |H|², sin presentarla como energía de una señal.\n\nLa DFT aplica Parseval mediante Σ|X[k]|²/N. Los coeficientes normalizados de una serie aportan Σ|c[k]|² de potencia; las líneas de potencia conocidas suman sus pesos divididos por 2π. No se elevan impulsos de Dirac al cuadrado. La PSD de fluctuaciones excluye la línea de media en cero."
         ],
         [
-          "Qué tener en cuenta",
-          "En discreto, un período completo de 2π permite comparar con la energía temporal. En continuo, una banda finita sólo contiene la energía de esa banda; no demuestra que fuera de ella la energía sea nula."
+          "Cómo interpretar bandas y acumulada",
+          "Bandas muestra medidas y porcentajes respecto del total disponible; el informe avisa si se superponen. Las curvas se integran suponiendo una densidad lineal por tramos. En bins se suman los puntos en [desde, hasta), sin contar dos veces el borde compartido.\n\nLa fracción acumulada va de 0 a 1 si hay peso positivo. Es escalonada para bins y líneas; en curvas se muestran los valores calculados en los puntos de la rejilla. Se puede exportar, pero no es un espectro complejo y no admite una transformada inversa. Si todo es cero, la fracción, el centro y el ancho no están definidos."
+        ],
+        [
+          "Centro, ancho y picos",
+          "El centro es el promedio de frecuencia ponderado por la medida; el ancho RMS describe su dispersión alrededor de ese centro. No representan una banda ocupada certificada. En un eje periódico dependen del corte elegido para el período.\n\nPicos conserva la coordenada de cada máximo local, su nivel y su prominencia. El nivel mínimo se expresa en dB respecto del peso máximo; la prominencia mínima es un porcentaje de ese peso. Las mesetas se identifican y los extremos de una curva no tienen prominencia definida. La estimación entre bins es un ajuste parabólico local del logaritmo del peso: se muestra aparte y no aumenta la resolución del registro."
+        ],
+        [
+          "Reutilizar las medidas",
+          "El informe, las tablas y la acumulada quedan en Resultados. Las tablas CSV incluyen unidades, regla de integración y extremos numéricos. Para mover una banda con el mouse, desactivá zoom o desplazamiento; los cursores A/B se suspenden mientras seleccionás y pueden volver a activarse."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -177,6 +185,10 @@
         [
           "Reconstruir el registro",
           "Reconstrucción aplica IFFT y suma las ventanas ponderadas; después divide por la suma de ventanas al cuadrado. Esa suma debe ser suficientemente distinta de cero en todas las muestras. Si hay pérdida de información, se explica dónde ocurre en lugar de inventar una señal completa. El resultado conserva el origen, el reloj y la longitud observados, y se puede enviar a otras herramientas."
+        ],
+        [
+          "Potencia por banda a lo largo del registro",
+          "En Potencia por banda agregá los intervalos y calculá. Se integra la densidad de cada ventana, sin restar la media. La curva describe potencia ponderada por w²; no es la energía del tramo ni una PSD teórica del proceso. Los ceros de los extremos pueden reducir su nivel.\n\nPodés elegir rad/muestra o rad/s si la entrada discreta conserva Fs. En la vista nativa, el eje temporal enumera ventanas y conserva su correspondencia con los centros originales; su reloj es Fs/salto. En la vista física se usan segundos. Cada banda produce una curva reutilizable y exportable."
         ],
         [
           "Escalas y límites",

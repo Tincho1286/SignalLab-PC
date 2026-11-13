@@ -32,7 +32,7 @@ El ajuste de fase informa el sistema obtenido y la relación con el original. La
 
 ## Fourier y espectros
 
-Incluye DFT/FFT, DTFT, Fourier continua e inversas numéricas o algebraicas según la entrada. También permite estudiar series, síntesis, densidad de energía, potencia periódica, periodograma, Welch, Hilbert, señal analítica y STFT. La preliminar 1.8.4 amplía esta última con escalas calibradas, inspección de tramos, ejes físicos y reconstrucción; la [guía de ventanas temporales](time-frequency.md) explica sus condiciones.
+Incluye DFT/FFT, DTFT, Fourier continua e inversas numéricas o algebraicas según la entrada. También permite estudiar series, síntesis, densidad de energía, potencia periódica, periodograma, Welch, Hilbert, señal analítica y STFT. La STFT ofrece escalas calibradas, inspección de tramos, ejes físicos y reconstrucción; la [guía de ventanas temporales](time-frequency.md) explica sus condiciones. En las preliminares, Medir un espectro reúne bandas, picos, centro, ancho RMS y distribución acumulada. La [guía de medidas espectrales](spectral-measurements.md) distingue energía, potencia y área de respuesta, y explica las curvas de potencia por banda de STFT.
 
 La DFT ofrece coeficientes discretos con eje en rad/muestra o índices k centrados. La DTFT es continua en frecuencia y puede superponerse sobre esos mismos puntos usando un origen y unas coordenadas compatibles. Agregar ceros a una FFT densifica su muestreo frecuencial, pero no aumenta la duración observada de la señal.
 

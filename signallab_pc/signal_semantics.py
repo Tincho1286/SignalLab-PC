@@ -3,6 +3,7 @@
 
 def signal_kind(domain, units, metadata):
     operation=metadata.get('operation')
+    if operation=='spectral_fraction':return 'spectral_measurement'
     if domain=='frequency' and metadata.get('distribution'):return 'spectral_lines'
     if operation in {'energy_density','spectral_density','welch','periodogram'}:return 'density'
     if domain=='discrete' and (units=='bin k' or operation=='DFT'):return 'dft_bins'
