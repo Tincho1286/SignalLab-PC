@@ -573,7 +573,11 @@ assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
         from signallab_pc.library_articles import article_blocks
         values=sections();self.assertEqual(len({v['article_id'] for v in values}),len(values))
         self.assertTrue(all(v.get('purpose') and v.get('usage') for v in values))
-        self.assertEqual(set(v['category'] for v in values),set(CATEGORIES))
+        from signallab_pc.library_titles import TOPICS
+        # Legacy category names remain valid metadata; the visible subject groups
+        # may combine or empty them without removing any article or calculation route.
+        self.assertTrue(set(v['category'] for v in values)<=set(CATEGORIES))
+        self.assertEqual(set(v['topic'] for v in values),set(TOPICS));self.assertEqual(len(values),122)
         for old in old_sections():
             matches=[v for v in values if v['route']==old['route'] and v.get('content_kind')=='tool']
             self.assertEqual(len(matches),1,old['route']);self.assertEqual(matches[0]['blocks'],article_blocks(old['route']))
