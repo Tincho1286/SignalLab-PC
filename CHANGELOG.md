@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.8](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.8). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.10 · Preliminar
+
+El análisis de sistemas y filtros incorpora lecturas desde la definición, cruces de nivel, comprobación de límites por bandas y estadísticas de retardo. Los cruces se refinan sin aceptar saltos como cortes; los anchos que tocan la ventana se identifican como recortados. Las bandas muestran extremos y márgenes, con exploración de resonancias en modelos racionales. La tabla se relaciona con una figura de medidas, se exporta completa y conserva su procedencia en Resultados. La ayuda añade un esquema en colores. La 1.8.8 continúa siendo estable.
+
+[Novedades completas](docs/releases/v1.8.10.md) · [Guía de medidas de frecuencia](docs/frequency-measurements.md)
+
 ## 1.8.9 · Preliminar
 
 Respuesta temporal incorpora extensión de entradas con ceros, una sugerencia modal de intervalo y comparación de entrada, salida y componentes. El informe del escalón distingue la ganancia DC de la última muestra y mide subida, sobreimpulso y permanencia observada en banda. El inspector por muestra explica los aportes de entrada y memoria de la realización guardada, incluidas secciones SOS. Los resultados se conservan por separado y la ayuda incorpora un esquema ilustrado. La 1.8.8 continúa siendo estable.

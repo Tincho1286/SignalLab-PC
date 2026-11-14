@@ -130,3 +130,8 @@ Z directa/inversa integran registros finitos; transferencia racional en plano z 
 ## 1.8.9 preliminar: observar y explicar respuestas temporales
 
 La herramienta existente de Respuesta temporal permite extender entradas con ceros, sugerir una ventana desde los polos, comparar componentes y medir el escalón respecto de la ganancia DC estable. El inspector discreto explica los aportes de la realización guardada y del historial, incluidas las secciones SOS. Son ampliaciones de uso y análisis de sistemas LTI: no incorporan un nuevo tema curricular ni convierten una medición finita en una garantía de establecimiento. La [guía de respuesta temporal](../temporal-responses.md) precisa las condiciones y las diferencias entre muestras, interpolación y fórmula original.
+
+
+## 1.8.10 preliminar: medidas de sistemas y filtros
+
+Analizar sistema permite leer frecuencias desde la definición y medir niveles, límites de módulo y retardo por bandas. Se conservan las condiciones de H(s), H(z) y las respuestas ingresadas como H(w), sin atribuirles una ROC nueva. Las búsquedas numéricas no certifican toda una función ni un ancho fuera de la ventana; las estadísticas de retardo no demuestran fase lineal global. Son ampliaciones de análisis de las herramientas existentes. Ver [medidas de frecuencia](../frequency-measurements.md).

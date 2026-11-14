@@ -1,6 +1,25 @@
 {
   "releases": [
     {
+      "tag": "v1.8.10",
+      "title": "Lecturas y medidas de sistemas y filtros",
+      "channel": "preview",
+      "summary": "Cinco ampliaciones junto al resultado de Analizar sistema: lecturas de la definición, cruces, límites por bandas, retardo y figuras relacionadas con la tabla. La 1.8.8 continúa estable.",
+      "changes": [
+        "Las frecuencias elegidas se evalúan desde la definición y conservan las condiciones, sin interpolar el dibujo.",
+        "La búsqueda de niveles distingue cruces aislados, contactos, tramos críticos, saltos y anchos recortados.",
+        "Las bandas admiten límites de módulo independientes y muestran extremos refinados, frecuencias y márgenes.",
+        "El retardo por banda informa mínimo, máximo, mediana y variación de puntos válidos con sus unidades.",
+        "La figura reúne límites y extremos y marca la fila elegida; el CSV y Resultados conservan la medición y su procedencia."
+      ],
+      "limits": [
+        "Las comprobaciones son numéricas dentro del intervalo; no certifican todos los puntos ni un ancho de banda fuera de la ventana.",
+        "Los puntos de retardo no definidos se cuentan aparte. Una estadística de banda no demuestra fase lineal global.",
+        "Las lecturas conservan las condiciones de la definición y no inventan una ROC nueva."
+      ],
+      "notes": "docs/releases/v1.8.10.md"
+    },
+    {
       "tag": "v1.8.9",
       "title": "Respuesta temporal, transitorio y aportes por muestra",
       "channel": "preview",

@@ -30,6 +30,8 @@ Las tolerancias pueden expresarse en amplitud absoluta, relativa o dB. Un rechaz
 
 El ajuste de fase informa el sistema obtenido y la relación con el original. Las conversiones analógico/digital utilizan el método elegido y conservan el período de muestreo disponible. Las condiciones de causalidad, estabilidad y convergencia siguen formando parte del resultado.
 
+Desde la 1.8.10 preliminar, **Medidas de frecuencia** trabaja con el último resultado de Analizar sistema. Evalúa lecturas puntuales, busca niveles, comprueba bandas con límites de módulo y resume el retardo. La [guía de medidas de frecuencia](frequency-measurements.md) distingue las evaluaciones de la definición, las estimaciones numéricas y los límites de la ventana. Las medidas se registran, se relacionan con una figura y se exportan completas a CSV.
+
 ## Fourier y espectros
 
 Incluye DFT/FFT, DTFT, Fourier continua e inversas numéricas o algebraicas según la entrada. También permite estudiar series, síntesis, densidad de energía, potencia periódica, periodograma, Welch, Hilbert, señal analítica y STFT. La STFT ofrece escalas calibradas, inspección de tramos, ejes físicos y reconstrucción; la [guía de ventanas temporales](time-frequency.md) explica sus condiciones. En las preliminares, Medir un espectro reúne bandas, picos, centro, ancho RMS y distribución acumulada. La [guía de medidas espectrales](spectral-measurements.md) distingue energía, potencia y área de respuesta, y explica las curvas de potencia por banda de STFT.
