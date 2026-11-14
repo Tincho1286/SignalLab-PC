@@ -130,19 +130,27 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Reconstruir permite estimar una señal continua entre sus muestras mediante una retención, rectas o interpolación SINC."
+          "Compará ZOH, lineal y SINC a partir de las mismas muestras y el mismo reloj. Podés ampliar la ventana, usar una referencia y consultar cuánto aporta cada muestra a un instante. Las curvas se guardan por separado y se reutilizan desde el área de resultados."
         ],
         [
-          "Cómo preparar el cálculo",
-          "Cargá las muestras, Fs y el instante inicial. Puntos por intervalo controla cuántos valores se muestran entre dos muestras consecutivas."
+          "Reloj y ventana",
+          "Fs se expresa en muestras por segundo; t₀ es el tiempo de la primera muestra guardada. El índice original n puede comenzar en cualquier entero. Las subdivisiones fijan el paso del dibujo, sin agregar información. Si el registro tiene reloj, se utiliza salvo que actives Reinterpretar. Los períodos antes y después amplían la vista en múltiplos de 1/Fs."
         ],
         [
-          "Cómo interpretar la salida",
-          "La retención mantiene el valor hasta la próxima muestra; las rectas unen valores vecinos; SINC usa una combinación de funciones seno cardinal."
+          "Modelos y bordes",
+          "La secuencia se extiende por cero fuera de sus muestras. ZOH retiene cada valor un período, incluida la última muestra. Lineal utiliza triángulos y vuelve a cero en los bordes. SINC suma los núcleos de todas las muestras y tiene colas infinitas; ampliar la vista no agrega nuevas observaciones ni renormaliza los pesos."
         ],
         [
-          "Qué tener en cuenta",
-          "La reconstrucción se calcula entre la primera y la última muestra. Un registro finito y sus extremos influyen en la aproximación, y ningún interpolador recupera por sí solo la información perdida por aliasing."
+          "Referencia y error",
+          "Una referencia r(t) se evalúa en la rejilla común. El error es reconstrucción menos referencia. RMS, máximo y SNR utilizan los puntos guardados con igual peso y ambos extremos incluidos; no son una integral continua del error. Si la referencia no se evalúa, el informe lo indica y conserva las reconstrucciones."
+        ],
+        [
+          "Nudos y aportes",
+          "Nudos originales muestra el desvío en las posiciones de las muestras. Un cero allí es una propiedad de los núcleos cardinales, no una prueba de ausencia de aliasing. Aportes por muestra permite elegir método e instante y ver pesos, valores y productos. El inspector usa la última entrada calculada, aunque luego edites el formulario."
+        ],
+        [
+          "Interpretar la salida",
+          "El selector elige la comparación, un método, la referencia o el error. Gráficos, CAS y exportación utilizan esa elección; todos los resultados quedan registrados. Al exportar varias curvas se guarda un archivo por miembro con sufijos numéricos. Las tablas de nudos y aportes conservan su reloj en CSV."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -326,37 +334,37 @@
         3
       ],
       "flow": [
-        "Muestras, Fs y t₀",
-        "Retención / rectas / sinc",
-        "Curva entre muestras"
+        "Muestras y reloj",
+        "Comparar núcleos",
+        "Curvas, error y aportes"
       ],
       "parameters": [
         [
-          "Fs y t₀",
-          "Ubican las muestras en el tiempo; deben corresponder a su adquisición."
+          "Muestras",
+          "Registro discreto independiente. El índice original se conserva en la tabla de aportes; k cuenta posiciones locales desde cero."
         ],
         [
-          "Factor L",
-          "Puntos por intervalo, entero positivo."
+          "Fs y tiempo inicial",
+          "Fs es la frecuencia de muestreo en muestras por segundo. El tiempo inicial corresponde a la primera muestra del registro, incluso si n no empieza en cero. Reinterpretar sustituye un reloj registrado de manera explícita."
         ],
         [
-          "Método",
-          "Retención mantiene valores; lineal une con rectas; sinc usa el registro finito."
+          "Subdivisiones",
+          "Cantidad entera positiva de intervalos por período de muestreo en la figura. El paso es 1/(L·Fs); no aumenta la información original."
         ],
         [
-          "Importar o reutilizar",
-          {
-            "ref": "importar-o-reutilizar-ae5699e5"
-          }
+          "Períodos antes y después",
+          "Enteros no negativos. Cero muestra del primer al último nudo; valores positivos revelan los bordes y las colas del modelo. No se agregan muestras observadas."
         ],
         [
-          "Levantamiento de indeterminaciones",
-          {
-            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
-          }
+          "Referencia r(t)",
+          "Expresión opcional en segundos para comparar sobre la misma rejilla. Las medidas del error son nodales, con igual peso por punto."
+        ],
+        [
+          "Aportes por muestra",
+          "Elegí un método y un instante, incluso fuera de la figura. La tabla utiliza el reloj y las muestras del último cálculo; no vuelve a construir todas las curvas."
         ]
       ],
-      "reading": "La curva termina en la última muestra. No recupera información perdida por aliasing. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "ZOH, lineal y SINC coinciden en los nudos por construcción, pero pueden diferir entre ellos y en los bordes. Eso no demuestra recuperación de una señal infinita ni descarta aliasing. SINC conserva todas las muestras y no normaliza sus pesos. El informe identifica suma directa o FFT y mantiene las diferencias numéricas observadas."
     },
     {
       "key": [

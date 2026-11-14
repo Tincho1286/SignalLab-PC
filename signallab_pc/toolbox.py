@@ -260,6 +260,7 @@ class ResultView(QWidget):
         if refresh is not None:refresh()
         self.table_view.set_signals(());self.dft_axis.hide();self.views.hide();self.actions.hide();self.empty.setText(message);self.empty.show()
     def show_result(self,result,*,source=None,operation=None):
+        self.operation=operation
         candidates=result if isinstance(result,tuple) else (result,)
         if all(isinstance(value,Signal) for value in candidates):validate_overlay(candidates)
         self.show_content();self.result=result;self.expression_key=None;self.save.setEnabled(True);self.figure.clear()
@@ -425,7 +426,8 @@ class ResultView(QWidget):
                 from pathlib import Path
                 if isinstance(self.result,tuple):
                     base=Path(path)
-                    for label,source in zip(['par','impar'],self.result):save(source,base.with_name(base.stem+'_'+label+base.suffix))
+                    labels=['par','impar'] if getattr(self,'operation',None)=='parity' and len(self.result)==2 else [str(i+1) for i in range(len(self.result))]
+                    for label,source in zip(labels,self.result):save(source,base.with_name(base.stem+'_'+label+base.suffix))
                 else:
                     from dataclasses import is_dataclass
                     write_json(path,asdict(self.result) if is_dataclass(self.result) else self.result)
@@ -507,6 +509,9 @@ class ToolPage(QWidget):
         if kind=='basic' and index=='measures':
             from .record_measurements_panel import RecordMeasurePanel
             self.panel=RecordMeasurePanel(window);root.addWidget(self.panel);return
+        if kind=='sampling' and index==3:
+            from .reconstruction_panel import ReconstructionPanel
+            self.panel=ReconstructionPanel(window);root.addWidget(self.panel);return
         if kind=='signal_product':
             from .signal_product_panel import SignalProductPanel
             self.panel=SignalProductPanel(window);root.addWidget(self.panel);return

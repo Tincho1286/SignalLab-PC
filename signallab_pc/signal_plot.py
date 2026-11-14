@@ -9,6 +9,7 @@ def plot_samples(axis,x,y,*,discrete=False,label=None,color=None,phase=False,sou
             cuts=np.flatnonzero(np.isfinite(y[:-1]) & np.isfinite(y[1:]) & (abs(np.diff(y))>np.pi))+1
             x=np.insert(x.astype(float),cuts,np.nan);y=np.insert(y.astype(float),cuts,np.nan)
         held=source is not None and source.domain=='continuous' and source.metadata.get('operation') in ('response_input','selected_record','record_dc','record_ac') and source.metadata.get('input_interpolation')=='hold'
+        held=held or source is not None and source.domain=='continuous' and source.metadata.get('operation') in ('reconstruction','reconstruction_study') and source.metadata.get('method')=='zoh'
         artists=axis.step(x,y,where='post',label=label,color=color) if held else axis.plot(x,y,label=label,color=color)
         if source is not None and component is not None:
             from .probe_data import attach_signal

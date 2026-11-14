@@ -60,6 +60,9 @@ def _diagrams_for(section):
         caption='Azul: parte ordinaria de la señal. Verde: posición y peso del impulso ideal. La flecha indica área, no una altura finita ni una muestra de la rejilla.' if section['illustration']=='dirac' else 'Esquema de la función elemental. Los tallos representan muestras independientes.'
         return [('Representación',reference_diagram(section['illustration']),caption)]
     route=section['route']
+    if route and route[1:3]==('sampling',3):
+        from .reconstruction_studies_help import image
+        return [('Núcleos, reloj y aportes',image(),'Los puntos blancos son las mismas muestras. Azul: ZOH. Verde: lineal. Ámbar: SINC del registro finito extendido por cero. El inspector utiliza los tiempos y valores del último cálculo. La referencia se evalúa en la rejilla común; una coincidencia nodal no prueba recuperación exacta ni ausencia de aliasing.')]
     if route and route[1:3]==('basic','measures'):
         from .record_measurements_help import image
         return [('Intervalo, distribución y componentes',image(),'Azul: muestras del registro. El fondo indica las incluidas en la medida. Verde: fracción de energía acumulada. Ámbar: referencia y media. El intervalo central reparte la energía restante entre ambas colas; no es necesariamente el más corto. Los cruces discretos no interpolan índices y los continuos utilizan el modelo lineal guardado.')]
