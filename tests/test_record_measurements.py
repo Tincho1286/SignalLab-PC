@@ -34,6 +34,7 @@ class Numerical(unittest.TestCase):
     def test_magnitude_finds_two_interior_crossings_and_zero_contact(self):
         x=Signal([-1,1],0,1,'s','x','continuous');rows=calc.crossings(x,.5);assert_allclose([r['start'] for r in rows],[.25,.75]);self.assertEqual([r['kind'] for r in rows],['Cruce descendente','Cruce ascendente']);touch=calc.crossings(x,0);self.assertEqual(touch[0]['start'],.5);self.assertEqual(touch[0]['kind'],'Contacto con el nivel')
         plateau=calc.crossings(Signal([.5,.5,.5],0,1,'s','x','continuous'),.5);self.assertEqual(len(plateau),1);self.assertEqual(plateau[0]['end'],2)
+        mixed=Signal([-1e-200,1e-200,1e200],0,1,'s','mixed','continuous');rows=calc.crossings(mixed,0,'real');self.assertEqual(len(rows),1);self.assertEqual(rows[0]['start'],.5);self.assertEqual(rows[0]['kind'],'Cruce ascendente')
     def test_large_discrete_origin_keeps_selected_indices_and_quantile_samples(self):
         origin=2**53+7;d=calc.analyze(Signal([1,1,1],origin),origin,origin+2);self.assertEqual(d['interval'],[origin,origin+2]);self.assertEqual(d['distribution']['central_interval'],[origin,origin+2]);self.assertEqual(d['distribution']['centroid'],origin+1)
     def test_zoh_mean_energy_quantiles_and_jumps_preserve_the_retained_model(self):

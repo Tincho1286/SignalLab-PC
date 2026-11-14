@@ -145,11 +145,14 @@ def crossings(source,level,component='magnitude'):
     level=real_value(level)
     if component not in ('real','imag','magnitude'):raise ValueError('Elegí parte real, imaginaria o módulo.')
     if component=='magnitude' and level<0:raise ValueError('El nivel del módulo no puede ser negativo.')
-    values=source.values;scale=max(float(np.max(abs(values.real))),float(np.max(abs(values.imag))),abs(level))
-    q=_scaled(values,scale);threshold=level/scale if scale else 0.
+    values=source.values
     scalar=lambda v:float(v.real) if component=='real' else float(v.imag) if component=='imag' else abs(v)
-    sign=np.sign((q.real if component=='real' else q.imag if component=='imag' else abs(q))-threshold)
-    count=len(q);raw=[]
+    with np.errstate(over='ignore'):sampled=values.real if component=='real' else values.imag if component=='imag' else np.hypot(values.real,values.imag)
+    sign=np.where(sampled>level,1,np.where(sampled<level,-1,0))
+    count=len(values);raw=[]
+    def local_pair(index):
+        pair=values[index:index+2];scale=max(float(np.max(abs(pair.real))),float(np.max(abs(pair.imag))),abs(level))
+        return _scaled(pair,scale),level/scale if scale else 0.
     held=source.domain=='continuous' and source.metadata.get('input_interpolation')=='hold'
     if source.domain=='discrete' or held:
         i=0
@@ -165,15 +168,16 @@ def crossings(source,level,component='magnitude'):
                 if i and sign[i-1]!=0 and sign[i-1]!=sign[i]:raw.append((i,i,('Salto ascendente sobre el nivel' if sign[i]>0 else 'Salto descendente sobre el nivel') if held else 'Cruce ascendente' if sign[i]>0 else 'Cruce descendente'))
                 i+=1
     else:
-        for i,(a,b) in enumerate(zip(q[:-1],q[1:])):
+        for i in range(count-1):
             if i%512==0:checkpoint()
+            (a,b),threshold=local_pair(i)
             d=b-a
             if component!='magnitude':
                 v0=scalar(a)-threshold;v1=scalar(b)-threshold
-                if v0==v1==0:raw.append((float(i),float(i+1)))
-                elif v0==0:raw.append((float(i),float(i)))
-                elif v1==0:raw.append((float(i+1),float(i+1)))
-                elif (v0<0)!=(v1<0):
+                if sign[i]==sign[i+1]==0:raw.append((float(i),float(i+1)))
+                elif sign[i]==0:raw.append((float(i),float(i)))
+                elif sign[i+1]==0:raw.append((float(i+1),float(i+1)))
+                elif sign[i]!=sign[i+1]:
                     point=i+v0/(v0-v1);raw.append((point,point))
             else:
                 den=abs(d)**2
@@ -191,7 +195,8 @@ def crossings(source,level,component='magnitude'):
             else:merged.append((low,high))
         def side(position):
             cell=min(int(position),count-2);u=position-cell
-            return np.sign(scalar(q[cell]*(1-u)+q[cell+1]*u)-threshold)
+            (a,b),threshold=local_pair(cell)
+            return np.sign(scalar(a*(1-u)+b*u)-threshold)
         raw=[]
         for i,(low,high) in enumerate(merged):
             left=side(((merged[i-1][1] if i else 0.)+low)/2) if low>0 else None
