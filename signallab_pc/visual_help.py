@@ -60,6 +60,9 @@ def _diagrams_for(section):
         caption='Azul: parte ordinaria de la señal. Verde: posición y peso del impulso ideal. La flecha indica área, no una altura finita ni una muestra de la rejilla.' if section['illustration']=='dirac' else 'Esquema de la función elemental. Los tallos representan muestras independientes.'
         return [('Representación',reference_diagram(section['illustration']),caption)]
     route=section['route']
+    if route and route[1:3]==('systems',9):
+        from .temporal_response_help import image
+        return [('Entrada, transitorio e historial',image(),'Azul: datos cargados y cruces de nivel. Ámbar: ceros agregados y memoria anterior. Verde: respuesta calculada. La extensión no reevalúa una fórmula fuera del registro; en continuo respeta la interpolación elegida. La banda observada no demuestra que todos los instantes futuros permanezcan dentro de ella.')]
     if route and route[1]=='window_signal':
         from .window_signal_help import window_signal_image
         return [('Longitud e índices de una ventana',window_signal_image(),'Azul: rectangular. Verde: Hann. Ámbar: Hamming. Las tres tienen L=17 muestras sobre n=−8…8. Las muestras no se conectan. La ventana generada es simétrica y finita; no se repite automáticamente fuera de ese intervalo.')]

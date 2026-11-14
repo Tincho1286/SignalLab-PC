@@ -13,6 +13,7 @@ def _literal(value):
 def _symbol(signal):
     meta=signal.metadata;op=meta.get('operation','')
     if op=='window_generation':return 'w'
+    if op=='response_input':return 'x'
     if meta.get('component'):return 'y'
     if meta.get('excitation')=='impulse' or op in ('frequency_filter_impulse','windowed_impulse'):return 'h'
     if op in ('difference_equation','forced_response','discrete_response_decomposition','analog_response','frequency_filter_output'):return 'y'

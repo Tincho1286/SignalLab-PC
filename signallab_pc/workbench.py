@@ -354,6 +354,11 @@ class WorkbenchWindow(ToolboxWindow):
             journal.calculation_notes=list(records.values())
             return result
         return super()._run_operation(message,calculate,lambda result:journal.accept(result,on_success))
+    def _run_view_operation(self,message,function,on_success):
+        """Build a view cache from already registered data, without duplicating it."""
+        def accept(result):
+            self._last_calculation_notes=[];on_success(result)
+        return super()._run_operation(message,function,accept)
     def send_system(self,value,key,item):
         from .navigation import FILTER_KEYS,TRANSFORM_ALIASES
         if item[1:3] in FILTER_KEYS or item[1:3] in TRANSFORM_ALIASES:

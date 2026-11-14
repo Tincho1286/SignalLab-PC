@@ -70,19 +70,31 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "La respuesta temporal aplica una entrada a H(s) o H(z) y muestra la salida sobre el registro elegido. La definición es local y puede reutilizarse desde otro resultado."
+          "Aplicá un impulso, un escalón o una entrada propia a H(s) o H(z). Podés observar la cola, comparar entrada y salida, medir un escalón y consultar la ecuación que produce cada muestra discreta. El cálculo usa una definición local del sistema; reutilizar un resultado anterior es opcional."
         ],
         [
           "Cómo preparar el cálculo",
-          "Cargá el sistema por fórmula, coeficientes, archivo o resultado anterior. Elegí impulso, escalón o una señal propia. En discreto podés indicar T en segundos; si el sistema viene de estados o una conversión con reloj conocido, se completa automáticamente. Dejar T vacío permite trabajar sólo en índices o utilizar el reloj de la entrada."
+          "Cargá una fórmula, coeficientes, archivo o resultado anterior. En impulso y escalón, Sugerir intervalo desde los polos prepara duración y puntos sin calcular la respuesta. Es una orientación modal, no una garantía de establecimiento. Para una entrada propia, Extender entrada con ceros agrega puntos con el mismo origen y paso; no reevalúa la fórmula más allá de lo cargado."
         ],
         [
-          "Cómo interpretar la salida",
-          "El gráfico discreto usa n entero. T relaciona esas muestras con el tiempo físico y se conserva en las salidas y al exportar el sistema. No multiplica el argumento de las fórmulas x[n] ni convierte ω a otra unidad: la frecuencia digital sigue en rad/muestra. Si una entrada registra una tasa diferente de 1/T, se pide corregir el reloj o cambiar la tasa antes de filtrar."
+          "Entrada continua y cola",
+          "La simulación interpola los puntos de la entrada. Lineal une cada par con un segmento; retención mantiene el valor hasta el punto siguiente y se dibuja como escalones en la comparación. La transición hacia el primer cero agregado sigue esa misma regla. Los impulsos Dirac conservan su posición y peso por separado. Si había una fórmula original, también se conserva como resultado padre de la entrada usada."
         ],
         [
-          "Qué tener en cuenta",
-          "El reposo inicial se refiere al comienzo del registro. Los historiales permiten separar entrada cero y estado cero. No se simula automáticamente una cola fuera de la ventana. Editar T o las entradas no modifica las salidas anteriores hasta recalcular. Un H(z) sin período conocido no recibe un reloj arbitrario de un segundo."
+          "Comparar y reutilizar",
+          "Comparación superpone la salida con la entrada y, al usar historial discreto, con estado cero y entrada cero. Las casillas sólo cambian la vista. Cada señal se puede exportar o enviar a otro cálculo desde sus resultados. Los cursores leen las muestras originales; no convierten la curva en una solución exacta entre puntos."
+        ],
+        [
+          "Medidas del escalón",
+          "Con escalón unitario desde reposo, Medidas muestra la referencia DC del modelo estable, los cruces 10 % y 90 %, la subida, el sobreimpulso y la entrada en una banda relativa. No se toma la última muestra como valor final. En discreto se indican muestras enteras y, si hay reloj, también duraciones en segundos; en continuo los cruces se interpolan. Una ventana corta puede no mostrar los cruces o el establecimiento."
+        ],
+        [
+          "Historial y paso a paso",
+          "Para H(z), los valores anteriores se cargan desde n₀−1 hacia atrás. Total = estado cero + entrada cero. Paso a paso prepara un inspector del último cálculo: elegí n y, si corresponde, la sección SOS. La tabla muestra coeficientes, muestras anteriores y sus aportes. La suma se compara con la salida almacenada para hacer visible el redondeo, sin modificar esa salida. Preparar el inspector no duplica sus arreglos en Resultados."
+        ],
+        [
+          "Reloj y alcance",
+          "T, en segundos, relaciona índices con tiempo físico; no modifica x[n] ni la frecuencia digital en rad/muestra. Dejar T vacío permite usar el reloj de la entrada o trabajar sólo en índices. Una tasa incompatible se debe corregir antes de filtrar. Editar datos no altera los resultados anteriores hasta recalcular. La permanencia en banda sólo se observa hasta el final de la ventana; no prueba toda la evolución futura. En modelos inestables, complejos o de ganancia DC cero se explican las medidas que no están definidas."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -278,9 +290,21 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Extender con ceros",
+          "Cantidad entera de puntos posteriores; cero conserva el registro cargado. El origen y el paso no cambian."
+        ],
+        [
+          "Sugerir intervalo",
+          "Prepara campos desde los modos del sistema; no calcula la respuesta ni certifica establecimiento."
+        ],
+        [
+          "Banda del escalón",
+          "Porcentaje positivo del valor final estable. La permanencia se observa sólo dentro de la ventana calculada."
         ]
       ],
-      "reading": "T no cambia los coeficientes, la secuencia ni las frecuencias en rad/muestra. Al exportar H(z), su período se conserva si está asignado. Si se edita T, el resultado anterior permanece hasta recalcular. Las condiciones iniciales y la ventana conservan el mismo significado del cálculo temporal. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Comparación usa el mismo eje para entrada, salida y componentes. En continuo, retención se dibuja como escalones. Medidas distingue referencia del modelo y datos observados; Paso a paso usa las muestras e historiales guardados. Cambiar los datos no modifica el resultado anterior hasta recalcular."
     },
     {
       "key": [

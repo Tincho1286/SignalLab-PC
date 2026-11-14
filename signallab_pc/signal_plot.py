@@ -8,7 +8,8 @@ def plot_samples(axis,x,y,*,discrete=False,label=None,color=None,phase=False,sou
             # Separar el salto de rama sin borrar ninguna muestra válida.
             cuts=np.flatnonzero(np.isfinite(y[:-1]) & np.isfinite(y[1:]) & (abs(np.diff(y))>np.pi))+1
             x=np.insert(x.astype(float),cuts,np.nan);y=np.insert(y.astype(float),cuts,np.nan)
-        artists=axis.plot(x,y,label=label,color=color)
+        held=source is not None and source.domain=='continuous' and source.metadata.get('operation')=='response_input' and source.metadata.get('input_interpolation')=='hold'
+        artists=axis.step(x,y,where='post',label=label,color=color) if held else axis.plot(x,y,label=label,color=color)
         if source is not None and component is not None:
             from .probe_data import attach_signal
             attach_signal(artists,source,component)

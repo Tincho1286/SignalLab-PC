@@ -1,16 +1,11 @@
 from .numeric_input import real_field,integer_field
 """Respuesta temporal autónoma: una definición local del sistema por cálculo."""
-import json
 import numpy as np
-from .model import Signal
-from .resources import ensure_working_set
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QPushButton,QLabel,QScrollArea,QMessageBox,QFileDialog,QMenu,QTabWidget,QCheckBox
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QPushButton,QLabel,QScrollArea,QMessageBox,QCheckBox
 from .coefficient_editor import CoefficientEditor,TransferPreview
 from .history_editor import HistoryEditor
 from .tool_guide import ToolGuide
-from .filters import Transfer
 from .systems_panel import parse_list,list_text
-from . import control
 
 class TemporalPanel(QWidget):
     def __init__(self,window):
@@ -49,6 +44,10 @@ class TemporalPanel(QWidget):
         self.discrete_input=LocalInput('Entrada x[n]','discrete');self.discrete_input.bind_project(window)
         form.addRow(self.continuous_input);form.addRow(self.discrete_input)
         self.interpolation=QComboBox();self.interpolation.addItems(['Lineal entre puntos','Constante entre puntos (retención)']);form.addRow('Interpretación de la entrada',self.interpolation)
+        self.extra_count=QLineEdit('0');self.extra_count.setToolTip('Cantidad de ceros que se agregan al registro cargado. En continuo cada punto conserva el paso original y la interpolación elegida hacia el primer cero. Cero conserva el intervalo cargado.');form.addRow('Extender entrada con ceros (puntos)',self.extra_count)
+        self.settling_percent=QLineEdit('2');self.settling_percent.setToolTip('Banda relativa para medir la respuesta al escalón desde reposo. Se usa el valor final del modelo estable; no se toma la última muestra como referencia.');form.addRow('Banda del escalón (%)',self.settling_percent)
+        self.suggest_button=QPushButton('Sugerir intervalo desde los polos');self.suggest_button.setProperty('keepLocalAction',True);self.suggest_button.clicked.connect(self.suggest_interval);form.addRow(self.suggest_button)
+        self.suggestion_note=QLabel();self.suggestion_note.setWordWrap(True);form.addRow(self.suggestion_note)
         self.stimulus.currentIndexChanged.connect(self.change_stimulus)
         self.initial_conditions=QCheckBox('Definir valores anteriores y separar respuestas');form.addRow(self.initial_conditions)
         self.previous_inputs=HistoryEditor('x');self.previous_outputs=HistoryEditor('y')
@@ -60,10 +59,21 @@ class TemporalPanel(QWidget):
         self.note=QLabel();self.note.setWordWrap(True);form.addRow(self.note)
         self.calculate_button=QPushButton('Calcular respuesta');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(330);left=QWidget();left_layout=QVBoxLayout(left);left_layout.setContentsMargins(0,0,0,0);left_layout.addWidget(scroll,1);left_layout.addWidget(self.calculate_button);root.addWidget(left,1)
-        self.result_tabs=QTabWidget();self.output=ResultView();self.input_view=ResultView();self.result_tabs.addTab(self.output,'Salida y');self.result_tabs.addTab(self.input_view,'Entrada x');self.result_tabs.setTabVisible(1,False);self.zero_state_view=ResultView();self.zero_input_view=ResultView();self.result_tabs.addTab(self.zero_state_view,'Estado cero');self.result_tabs.addTab(self.zero_input_view,'Entrada cero');self.result_tabs.setTabVisible(2,False);self.result_tabs.setTabVisible(3,False);root.addWidget(self.result_tabs,2)
+        from .active_stack import ActiveTabs
+        from .report_view import ReportView,report_panel
+        from .response_steps_panel import ResponseStepsPanel
+        self.result_tabs=ActiveTabs();self.result_tabs.setUsesScrollButtons(True);self.output=ResultView();self.input_view=ResultView();self.result_tabs.addTab(self.output,'Salida y');self.result_tabs.addTab(self.input_view,'Entrada x');self.result_tabs.setTabVisible(1,False);self.zero_state_view=ResultView();self.zero_input_view=ResultView();self.result_tabs.addTab(self.zero_state_view,'Estado cero');self.result_tabs.addTab(self.zero_input_view,'Entrada cero');self.result_tabs.setTabVisible(2,False);self.result_tabs.setTabVisible(3,False);root.addWidget(self.result_tabs,2)
+        comparison=QWidget();comparison_layout=QVBoxLayout(comparison);selectors=QHBoxLayout();self.compare_input=QCheckBox('Entrada x');self.compare_parts=QCheckBox('Estado cero y entrada cero')
+        for check in (self.compare_input,self.compare_parts):check.setChecked(True);selectors.addWidget(check);check.toggled.connect(self.draw_comparison)
+        comparison_layout.addLayout(selectors);self.comparison=ResultView();comparison_layout.addWidget(self.comparison,1);self.comparison_index=self.result_tabs.addTab(comparison,'Comparación');self.result_tabs.setTabVisible(self.comparison_index,False)
+        self.measure_report=ReportView();self.measure_index=self.result_tabs.addTab(report_panel(self.measure_report),'Medidas');self.result_tabs.setTabVisible(self.measure_index,False)
+        self.steps=ResponseStepsPanel(window);self.steps_index=self.result_tabs.addTab(self.steps,'Paso a paso');self.result_tabs.setTabVisible(self.steps_index,False)
+        for view in (self.input_view,self.zero_state_view,self.zero_input_view,self.comparison):view.canvas._signallab_explicit_plot=True
+        self.last_snapshot=None;self.last_ids=None
+        self.result_tabs.currentChanged.connect(self.open_response_tab)
         self.domain.currentIndexChanged.connect(self.change_domain);self.change_domain()
         from .result_state import ResultState
-        editors=[self.domain,self.definition_mode,self.transfer_formula,self.b,self.a,self.stimulus,self.duration,self.count,self.sample_period,self.interpolation,self.initial_conditions,self.previous_inputs,self.previous_outputs]
+        editors=[self.domain,self.definition_mode,self.transfer_formula,self.b,self.a,self.stimulus,self.duration,self.count,self.sample_period,self.interpolation,self.extra_count,self.settling_percent,self.initial_conditions,self.previous_inputs,self.previous_outputs]
         self.result_state=ResultState(editors,self.calculate_button,[self.continuous_input,self.discrete_input])
         left_layout.insertWidget(1,self.result_state)
     def change_domain(self,*_):
@@ -77,13 +87,16 @@ class TemporalPanel(QWidget):
         self.form.setRowVisible(self.continuous_input,custom and not digital)
         self.form.setRowVisible(self.discrete_input,custom and digital)
         self.form.setRowVisible(self.interpolation,custom and not digital)
+        self.form.setRowVisible(self.extra_count,custom);self.extra_count.setProperty('calculationInput',custom)
+        self.form.setRowVisible(self.settling_percent,self.stimulus.currentIndex()==0);self.settling_percent.setProperty('calculationInput',self.stimulus.currentIndex()==0)
+        self.form.setRowVisible(self.suggest_button,not custom);self.form.setRowVisible(self.suggestion_note,not custom and bool(self.suggestion_note.text()))
         self.form.setRowVisible(self.initial_conditions,digital)
         histories=digital and self.initial_conditions.isChecked()
         for field in (self.previous_inputs,self.previous_outputs,self.history_note):self.form.setRowVisible(field,histories)
         if histories:
             self.note.setText('Respuesta total = respuesta de estado cero + respuesta de entrada cero. Las condiciones anteriores se refieren al inicio del registro. Extendé el registro para observar la evolución posterior.')
         elif custom:
-            self.note.setText('Estado inicial nulo en el primer índice de la entrada. Se calcula la salida sobre ese mismo registro; extendé la entrada con ceros para observar la cola.' if digital else 'Estado inicial nulo en el instante inicial de la entrada. La fórmula se evalúa en los puntos indicados y se interpola entre ellos. Reducí el paso para representar cambios rápidos; extendé la ventana para observar la cola.')
+            self.note.setText('Estado inicial nulo en el primer índice de la entrada. Extender entrada con ceros agrega muestras posteriores para observar la cola sin reescribir la señal.' if digital else 'Estado inicial nulo en el instante inicial de la entrada. Se interpola entre puntos. La extensión agrega ceros con el mismo paso: la transición al primer cero también usa la interpolación elegida. No se reevalúa la fórmula fuera del registro.')
         else:
             self.note.setText('Escalón: 1 desde n = 0. Impulso δ[n]: 1 sólo en n = 0. Estado inicial: reposo.' if digital else 'Estado inicial: reposo en t = 0. El impulso continuo δ(t) se interpreta como una distribución; si aparece en la salida, se indica su peso junto al gráfico.')
     def set_system(self,system,key=None):
@@ -99,80 +112,103 @@ class TemporalPanel(QWidget):
             self.set_system(self.window.project.get(key),key)
     def open_system_file(self):
         self.system_import.open_file()
+    def suggest_interval(self):
+        from .transfer_input import read_system
+        from .system_clock import signature
+        from .temporal_analysis import suggest_window
+        if getattr(self.window,'_workers',[]):return
+        try:
+            system=read_system(self,name='Sistema de sugerencia temporal');memory=False
+            if self.domain.currentIndex()==1 and self.initial_conditions.isChecked():
+                self.previous_inputs.set_count(len(system.b)-1);self.previous_outputs.set_count(len(system.a)-1)
+                memory=bool(np.any(parse_list(self.previous_inputs.text(),allow_empty=True)) or np.any(parse_list(self.previous_outputs.text(),allow_empty=True)))
+            current=lambda:(signature(self),self.initial_conditions.isChecked(),self.previous_inputs.text(),self.previous_outputs.text())
+            original=current()
+            def accept(result):
+                report='Intervalo sugerido: '+str(result['count'])+' puntos.'+(' Duración: '+repr(result['duration'])+' s.' if result['duration'] is not None else '')+' '+' '.join(result['notes'])
+                self.window.publish({'operation':'temporal_interval_suggestion',**result,'system':system.to_document(),'report':report},title='Intervalo temporal sugerido',operation='Sugerencia desde polos')
+                if current()!=original:
+                    self.suggestion_note.setText('La definición cambió: no se aplicó la sugerencia al formulario actual.')
+                else:
+                    self.count.setText(str(result['count']))
+                    if result['duration'] is not None:self.duration.setText(repr(result['duration']))
+                    self.suggestion_note.setText('Intervalo preparado; presioná Calcular respuesta. '+' '.join(result['notes']))
+                self.form.setRowVisible(self.suggestion_note,True)
+            self.window._run_operation('Estimando un intervalo desde los polos…',lambda:suggest_window(system,include_memory=memory),accept)
+        except Exception as exc:QMessageBox.warning(self,'Revisá el sistema',str(exc))
+
+    def draw_comparison(self,*_):
+        if self.last_snapshot is None:return
+        snapshot=self.last_snapshot;signals=[snapshot['outputs'][0]];keys=[self.last_ids['outputs'][0]]
+        if self.compare_input.isChecked():signals.append(snapshot['input']);keys.append(self.last_ids['input'])
+        if len(snapshot['outputs'])>1 and self.compare_parts.isChecked():signals.extend(snapshot['outputs'][1:]);keys.extend(self.last_ids['outputs'][1:])
+        self.comparison.show_result(tuple(signals));self.comparison.result_ids=keys
+
+    def open_response_tab(self,index):
+        if index==self.steps_index and not getattr(self,'_updating_result',False) and self.last_snapshot is not None and self.steps.trace is None:self.steps.build()
+
+    def _accept_snapshot(self,*args):
+        self._updating_result=True
+        try:self._show_snapshot(*args)
+        finally:self._updating_result=False
+
+    def _show_snapshot(self,snapshot,key,parents,title,calculated_inputs):
+        from .temporal_analysis import context_sections,measurement_summary
+        from .result_summary import signal_summary
+        key=self.window.publish(snapshot['system'],operation='Definición local de respuesta temporal',parents=[key] if key else [])
+        source=snapshot['input'];separate=len(snapshot['outputs'])>1;digital=source.domain=='discrete'
+        original=snapshot.get('original_input')
+        if original is not None:
+            parents=[self.window.publish(original,operation='Entrada cargada de respuesta temporal',parents=parents)]
+        input_key=self.window.publish(source,operation='Entrada usada de respuesta temporal',parents=parents)
+        outputs=list(snapshot['outputs'])
+        if not separate:outputs[0]=outputs[0].copy_with(name=title)
+        snapshot['outputs']=tuple(outputs);ids=[]
+        for output,view in zip(outputs,(self.output,self.zero_state_view,self.zero_input_view)):
+            result_id=self.window.publish(output,operation=output.name,parents=[key,input_key]);view.show_result(output);view.result_ids=[result_id];ids.append(result_id)
+        if not separate:
+            from .plot_view import hide_plot
+            for view in (self.zero_state_view,self.zero_input_view):view.clear_result();hide_plot(view.canvas)
+        self.input_view.show_result(source);self.input_view.result_ids=[input_key]
+        for index in (2,3):self.result_tabs.setTabVisible(index,separate)
+        self.result_tabs.setTabVisible(1,True);self.result_tabs.setTabText(1,'Entrada y extensión' if source.metadata.get('response_extension') else 'Entrada x')
+        formula=outputs[0].metadata.get('temporal_formula')
+        if formula:
+            self.output.expression_key=self.window.publish({'result':{'result':formula['source'],'display_result':formula['expression'],'display_numeric':formula['numeric'],'output_variable':formula['variable'],'evaluated':True,'scope':formula['scope']}},title='Expresión temporal · '+title,operation=title,parents=[ids[0],key])
+        summary=signal_summary(outputs[0]);summary.sections.extend(context_sections(snapshot));self.output.text.set_readable(summary)
+        self.last_snapshot=snapshot;self.last_ids=dict(input=input_key,outputs=ids)
+        self.compare_parts.setVisible(separate);self.draw_comparison();self.result_tabs.setTabVisible(self.comparison_index,True)
+        metrics=snapshot['metrics'];self.measure_report.set_readable(measurement_summary(metrics));self.result_tabs.setTabVisible(self.measure_index,metrics is not None)
+        if metrics is not None:self.window.publish({'operation':'temporal_step_measures','data':metrics,'report':self.measure_report.toPlainText()},title='Medidas del escalón',operation='Medidas del escalón',parents=[ids[0],key])
+        self.steps.set_snapshot(snapshot if digital else None);self.result_tabs.setTabVisible(self.steps_index,digital)
+        self.result_tabs.setCurrentIndex(0);self.result_state.accept(calculated_inputs)
+
     def calculate(self):
         try:
             from .transfer_input import read_system
-            digital=self.domain.currentIndex()==1;system=read_system(self,name='Sistema de respuesta temporal')
             from .system_conditions import require_causal_roc
-            require_causal_roc(system)
-            custom=self.stimulus.currentIndex()==2
-            source=None;parents=[]
+            from .temporal_analysis import unit_input,simulate
+            digital=self.domain.currentIndex()==1;system=read_system(self,name='Sistema de respuesta temporal');require_causal_roc(system)
+            custom=self.stimulus.currentIndex()==2;parents=[];kind=None;duration=None;extra=0
+            interpolation='linear' if self.interpolation.currentIndex()==0 else 'hold'
             if custom:
-                editor=self.discrete_input if digital else self.continuous_input
-                source=editor.read();parents=[editor.reference_id] if editor.reference_id else []
-                if digital and system.sample_period_s is not None:
-                    from .system_clock import input_metadata
-                    metadata=input_metadata(system,source)
-                    if any(metadata.get(key)!=source.metadata.get(key) for key in ('sample_rate_hz','time_start_s')):
-                        source=source.copy_with(metadata=metadata);parents=[self.window.publish(source,operation='Entrada con reloj del sistema',parents=parents)]
-                interpolation='linear' if self.interpolation.currentIndex()==0 else 'hold'
-                operation=lambda:control.forced_response(system,source,interpolation)
+                editor=self.discrete_input if digital else self.continuous_input;source=editor.read();parents=[editor.reference_id] if editor.reference_id else []
+                extra=integer_field(self.extra_count)
+                if extra<0:raise ValueError('Los puntos de extensión deben ser cero o un entero positivo.')
                 title='Respuesta a entrada definida'
             else:
-                count=integer_field(self.count);kind='step' if self.stimulus.currentIndex()==0 else 'impulse'
-                if count<(1 if digital else 2):raise ValueError('Usá al menos una muestra discreta o dos puntos continuos.')
-                duration=real_field(self.duration) if not digital else None
-                from .temporal_formula import add_excitation_formula
-                def operation():
-                    result=system.excitation_response(count,kind) if digital else control.analog_response(system,duration,count,kind)
-                    return add_excitation_formula(result,system,kind)
-                title='Respuesta al '+('escalón' if kind=='step' else 'impulso')
-            separate=digital and self.initial_conditions.isChecked()
+                count=integer_field(self.count);duration=real_field(self.duration) if not digital else None;kind='step' if self.stimulus.currentIndex()==0 else 'impulse'
+                source=unit_input(system,count,kind,duration);title='Respuesta al '+('escalón' if kind=='step' else 'impulso')
+            separate=digital and self.initial_conditions.isChecked();previous_inputs=();previous_outputs=()
             if separate:
                 self.previous_inputs.set_count(len(system.b)-1);self.previous_outputs.set_count(len(system.a)-1)
                 previous_inputs=parse_list(self.previous_inputs.text(),allow_empty=True);previous_outputs=parse_list(self.previous_outputs.text(),allow_empty=True)
-                if source is None:
-                    ensure_working_set(count,live_arrays=16)
-                    values=np.ones(count) if kind=='step' else np.zeros(count);values[0]=1
-                    source=Signal(values,name='Entrada escalón' if kind=='step' else 'Entrada impulso',metadata={'excitation':kind})
-                    from .system_clock import input_metadata
-                    source.metadata=input_metadata(system,source)
-                    parents.append(self.window.publish(source,operation='Entrada de respuesta temporal'))
-                operation=lambda:control.discrete_response_parts(system,source,previous_inputs,previous_outputs)
-            key=self.window.publish(system,operation='Definición local de respuesta temporal' ,parents=[self.parent_id] if self.parent_id else [])
-            calculated_inputs=self.result_state.snapshot()
-            def accept(signal):
-                self.result_tabs.setTabVisible(2,separate);self.result_tabs.setTabVisible(3,separate)
-                if separate:
-                    total,forced,natural=signal
-                    for result,view in ((total,self.output),(forced,self.zero_state_view),(natural,self.zero_input_view)):
-                        self.window.publish(result,operation=result.name,parents=[key]+parents);view.show_result(result)
-                    self.input_view.show_result(source);self.result_tabs.setTabVisible(1,True);self.result_tabs.setCurrentIndex(0)
-                    report='Respuesta temporal discreta con memoria inicial\n\ny[n] = y_estado_cero[n] + y_entrada_cero[n]\n\nÍndice inicial n₀: '+str(source.origin)+'\nEntradas anteriores: '+(list_text(previous_inputs) or 'Todas cero')+'\nSalidas anteriores: '+(list_text(previous_outputs) or 'Todas cero')+'\n\nEstado cero: se aplica la entrada con memoria inicial nula. Entrada cero: se anula la entrada desde n₀ y se conserva la memoria previa. Total: entrada y memoria previa actúan juntas.\n\nLos historiales se ordenan n₀−1, n₀−2, …; los valores omitidos son cero. Cada pestaña permite exportar o reutilizar su señal. La descomposición puede presentar diferencias de redondeo numérico. No se calcula la cola posterior al registro.'
-                    
-                    if system.sos is not None:report+='\n\nRealización: cascada de secciones para memoria nula; ecuación polinómica para memoria no nula. En órdenes altos, esta última puede perder precisión.'
-                    from .result_summary import signal_summary,Section
-                    summary=signal_summary(total)
-                    summary.sections.append(Section('Descomposición de la respuesta',paragraphs=report.split('\n\n')))
-                    self.output.text.set_readable(summary);self.result_state.accept(calculated_inputs);return
-                signal=signal.copy_with(name=title)
-                signal_id=self.window.publish(signal,operation=title,parents=[key]+parents);self.output.show_result(signal);self.output.result_ids=[signal_id]
-                formula=signal.metadata.get('temporal_formula')
-                if formula:
-                    self.output.expression_key=self.window.publish({'result':{'result':formula['source'],'display_result':formula['expression'],
-                        'display_numeric':formula['numeric'],'output_variable':formula['variable'],'evaluated':True,'scope':formula['scope']}},
-                        title='Expresión temporal · '+title,operation=title,parents=[signal_id,key])
-                self.result_tabs.setTabVisible(1,custom);self.result_tabs.setCurrentIndex(0)
-                if custom:
-                    self.input_view.show_result(source)
-                    interpretation='Secuencia discreta; ecuación en diferencias.' if digital else ('Interpolación lineal entre puntos.' if interpolation=='linear' else 'Entrada constante entre puntos: retención de orden cero.')
-                    from .result_summary import signal_summary,Section
-                    report=title+'\n\ny = H{x} · Respuesta de estado cero\n\nEntrada: '+source.name+f'\nInicio: {source.origin:g} · Final: {source.axis[-1]:g}\nPuntos: {source.values.size:,}\n\n'+interpretation+'\nEl sistema parte del reposo al inicio del registro, aunque éste no comience en cero. La salida conserva el eje de la entrada. No se simula la cola posterior a la ventana: extendé la entrada con ceros para verla.\n\nLa pestaña Entrada permite consultar y exportar x; la pestaña Salida permite exportar o reutilizar y. En Parte real e imaginaria se conserva el signo de las señales reales.'
-                    from .distributions import dirac_terms
-                    if dirac_terms(source):report+='\n\nLos impulsos de la entrada se aplican por su posición y peso exactos. La interpolación corresponde a la parte ordinaria.'
-                    summary=signal_summary(signal)
-                    summary.sections.append(Section('Entrada y condiciones de la simulación',paragraphs=report.split('\n\n')))
-                    self.output.text.set_readable(summary)
-                self.result_state.accept(calculated_inputs)
-            self.window._run_operation('Calculando respuesta…',operation,accept)
+            # Resolve clocks before creating any records, including optional
+            # extensions. A mismatch never publishes an apparently valid input.
+            if digital:
+                from .system_clock import input_metadata
+                source=source.copy_with(metadata=input_metadata(system,source))
+            key=self.parent_id
+            calculated_inputs=self.result_state.snapshot();percent=self.settling_percent.text()
+            self.window._run_operation('Calculando respuesta…',lambda:simulate(system,source,kind=kind,duration=duration,extra=extra,interpolation=interpolation,separate=separate,previous_inputs=previous_inputs,previous_outputs=previous_outputs,percent=percent),lambda snapshot:self._accept_snapshot(snapshot,key,parents,title,calculated_inputs))
         except Exception as exc:QMessageBox.warning(self,'Revisá la definición',str(exc))
