@@ -1,6 +1,26 @@
 {
   "releases": [
     {
+      "tag": "v1.8.12",
+      "title": "Intervalos, distribución de energía y componentes de registros",
+      "channel": "preview",
+      "summary": "Cinco mejoras en Medir un registro: selección de intervalo, energía acumulada, centro y dispersión, continua y alterna y cruces de nivel. La 1.8.8 continúa estable.",
+      "changes": [
+        "Los límites seleccionan puntos guardados y conservan el índice y el reloj disponibles.",
+        "La acumulada muestra la fracción de energía en los nodos y distingue el registro nulo.",
+        "Centro, dispersión RMS y cuantiles miden la distribución temporal de energía.",
+        "La media compleja y la alterna se publican como señales reutilizables.",
+        "Los cruces distinguen muestras, segmentos lineales, contactos y saltos ZOH, con tabla CSV."
+      ],
+      "limits": [
+        "Estas medidas se refieren al intervalo finito y no clasifican la señal infinita.",
+        "El intervalo central no se presenta como el más corto; los extremos discretos conservan índices enteros.",
+        "Los límites continuos seleccionan nodos guardados, sin reevaluar la fórmula ni extrapolar. Los impulsos Dirac ideales no tienen energía cuadrática finita.",
+        "Los valores acumulados exportados son nodales; no constituyen una fórmula cúbica continua entre ellos."
+      ],
+      "notes": "docs/releases/v1.8.12.md"
+    },
+    {
       "tag": "v1.8.11",
       "title": "Coordenadas, equilibrio y simulación de estados",
       "channel": "preview",

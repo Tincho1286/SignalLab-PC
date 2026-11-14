@@ -4,7 +4,7 @@ Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e inte
 
 La [1.8.8 estable](releases/v1.8.8.md) desarrolla las fórmulas de las curvas y mejora el acceso y la representación de máximos y mínimos. La [guía de gráficos](cursors.md) explica el alcance de las mediciones y la fase. También consolida las ampliaciones anteriores de gráficos e informes, [estimación AR](ar-estimation.md), [medidas espectrales](spectral-measurements.md), [ventanas temporales](time-frequency.md) y biblioteca por temas.
 
-La [1.8.11 preliminar](releases/v1.8.11.md) amplía espacio de estados con diagnóstico, coordenadas, equilibrios y trayectorias desglosadas. La [guía de estudios de estados](state-studies.md) explica la condición inicial, las componentes y sus aportes. También conserva las [medidas de frecuencia](frequency-measurements.md) de la 1.8.10 y las mejoras de [respuesta temporal](temporal-responses.md).
+La [1.8.12 preliminar](releases/v1.8.12.md) amplía Medir un registro con selección temporal, energía acumulada, centro y dispersión, media y alterna y cruces de nivel. La [guía de medidas de registros](record-measurements.md) explica las unidades y los modelos utilizados. Conserva los [estudios de estados](state-studies.md), las [medidas de frecuencia](frequency-measurements.md) y las mejoras de [respuesta temporal](temporal-responses.md).
 
 ## Instalar y empezar
 
@@ -30,6 +30,7 @@ El [catálogo de herramientas](tools.md) organiza las operaciones por el problem
 | Comparar respuestas y medir el transitorio | [Respuesta temporal](temporal-responses.md) |
 | Leer niveles y comprobar bandas de un filtro | [Medidas de frecuencia](frequency-measurements.md) |
 | Estudiar coordenadas, equilibrios y memoria | [Estudios de estados](state-studies.md) |
+| Medir energía temporal, componentes y cruces | [Medidas de registros](record-measurements.md) |
 | Configurar colores y foto de fondo | [Temas de apariencia](appearance.md) |
 
 ## Interpretar la matemática

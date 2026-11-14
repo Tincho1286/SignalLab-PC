@@ -140,3 +140,8 @@ Analizar sistema permite leer frecuencias desde la definición y medir niveles, 
 ## 1.8.11 preliminar: descripción y evolución de estados
 
 El análisis permite consultar las matrices de controlabilidad y observabilidad, cambiar coordenadas x=Pq con su condición inicial y resolver equilibrios para entradas constantes. La compatibilidad de coordenadas y equilibrios se resuelve algebraicamente para los números guardados; el diagnóstico SVD sigue siendo numérico. La simulación separa entrada y memoria, registra sus trayectorias y explica cada paso de la componente elegida. En continuo aplica ZOH. No incorpora sistemas no lineales ni un certificado universal de estabilidad o de rango simbólico. Ver [estudios de estados](../state-studies.md).
+
+
+## 1.8.12 preliminar: medidas temporales de registros
+
+Energía, potencia y RMS amplía el registro finito con intervalos, distribución temporal de energía, componentes constante y alterna y cruces de nivel. La energía continua integra el modelo lineal o la retención ZOH conservada; los eventos discretos mantienen índices enteros. Estas medidas no clasifican una señal infinita ni asignan energía cuadrática finita a Dirac. El intervalo central no es necesariamente el más corto posible. Ver [medidas de registros](../record-measurements.md).

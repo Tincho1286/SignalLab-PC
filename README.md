@@ -38,7 +38,7 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 La **1.8.8 estable** consolida las mejoras de las preliminares 1.8.4 a 1.8.7 y agrega fórmulas de curvas desarrolladas, una búsqueda de máximos y mínimos visible y marcas sobre las posiciones encontradas. Está disponible con la preferencia **Sólo estables** del actualizador. El selector **Estables y preliminares (Pre-releases)** permite recibir también las entregas de prueba cuando sean más nuevas que la estable instalada.
 
-La [1.8.11 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.11) amplía espacio de estados con matrices del diagnóstico, cambios de coordenadas, equilibrios y explicación de las trayectorias. La [guía de estudios de estados](docs/state-studies.md) relaciona estas operaciones con sus condiciones iniciales y límites. Conserva las [medidas de frecuencia](docs/frequency-measurements.md) de la 1.8.10 y las ampliaciones de [respuesta temporal](docs/temporal-responses.md). Para recibirla, elegí **Estables y preliminares (Pre-releases)**; la descarga estable recomendada sigue siendo la 1.8.8.
+La [1.8.12 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.12) amplía Medir un registro con intervalos, energía acumulada, distribución temporal, separación de media y alterna y cruces de nivel. La [guía de medidas de registros](docs/record-measurements.md) explica las diferencias entre muestras, segmentos continuos y retenciones. Conserva los [estudios de estados](docs/state-studies.md), las [medidas de frecuencia](docs/frequency-measurements.md) y las ampliaciones de [respuesta temporal](docs/temporal-responses.md). Para recibirla, elegí **Estables y preliminares (Pre-releases)**; la descarga estable recomendada sigue siendo la 1.8.8.
 
 ### Actualizar una instalación
 
@@ -78,6 +78,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La [1.8.12 preliminar](docs/releases/v1.8.12.md) relaciona las medidas del registro con la posición de su energía. Permite elegir sus muestras, consultar la acumulada, medir centro y dispersión y conservar media y alterna como señales separadas. La tabla de cruces distingue eventos discretos, contactos continuos y saltos de una retención. El informe muestra el intervalo efectivo y la ayuda explica sus unidades. La [guía de medidas de registros](docs/record-measurements.md) desarrolla estas operaciones.
 
 La [1.8.11 preliminar](docs/releases/v1.8.11.md) permite examinar las matrices del diagnóstico, cambiar coordenadas con la condición inicial correspondiente y buscar equilibrios únicos o familias. La simulación separa estado cero y entrada cero y permite consultar entradas, estados y salidas. Paso a paso explica la misma componente elegida en la figura, conservando su posición y variable. La [guía de estudios de estados](docs/state-studies.md) desarrolla esas relaciones y distingue las operaciones algebraicas del modelo guardado de sus evaluaciones numéricas.
 

@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.8](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.8). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.12 · Preliminar
+
+Medir un registro incorpora selección de intervalo, fracción de energía acumulada, centro y dispersión temporal, porcentaje central de energía, separación de media y alterna y tabla de cruces y contactos. Discreto conserva sus índices; continuo integra los segmentos lineales o la retención ZOH registrada. Las salidas quedan en Resultados y pueden reutilizarse, exportarse o enviarse al CAS desde el área común de resultados. La carga se acomoda a paneles estrechos y la ayuda incorpora un esquema en colores. La 1.8.8 continúa estable.
+
+[Novedades completas](docs/releases/v1.8.12.md) · [Guía de medidas de registros](docs/record-measurements.md)
+
 ## 1.8.11 · Preliminar
 
 Espacio de estados incorpora matrices y criterio SVD del diagnóstico, cambios x=Pq con q0, equilibrios y familias, separación de respuestas e inspector por paso. Las trayectorias y sus condiciones quedan registradas sin duplicar la entrada original; el inspector se sincroniza con la componente de la figura y conserva la posición y variable al cambiarla. En continuo utiliza Ad y Bd de ZOH. Los controles de matrices se acomodan al ancho disponible y la ayuda incorpora un esquema en colores. La 1.8.8 continúa siendo estable.

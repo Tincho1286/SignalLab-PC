@@ -12,6 +12,8 @@ Permite crear secuencias y registros mediante fórmulas, tramos o muestras, y ge
 
 El producto punto a punto sirve para enventanar una señal. Las entradas se alinean por sus índices o coordenadas; al reutilizarlas se conservan el origen y el reloj disponibles. El resultado puede enviarse a Fourier, Z u otras operaciones compatibles, o exportarse como registro.
 
+Desde la 1.8.12 preliminar, Medir un registro permite seleccionar un intervalo y consultar la energía acumulada, el centro, la dispersión y un porcentaje central de energía. Publica la media compleja y la alterna como señales independientes y localiza cruces y contactos. Conserva la diferencia entre muestras, segmentos lineales y retención ZOH. La [guía de medidas de registros](record-measurements.md) explica los intervalos, las unidades y las salidas disponibles.
+
 ## Sistemas LTI
 
 El análisis admite H(s) y H(z) por fórmula o coeficientes, así como respuestas definidas directamente en frecuencia. Reúne módulo lineal o en dB, fase, retardo de grupo y, cuando el modelo es racional, polos, ceros y realizaciones. Las conexiones en serie, paralelo o realimentación y el espacio de estados permiten estudiar modelos relacionados.
