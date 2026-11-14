@@ -43,10 +43,10 @@ class ToolboxTests(unittest.TestCase):
         import numpy as np
         panel=self.open('Control','Simulación en espacio de estados').panel
         source=panel.inputs.field(0);source.count.setText('11');source.step.setText('.1');panel.calculate_button.click();self.finish()
-        models=self.window.project.headers('state_space');self.assertEqual(len(models),1)
-        run=self.window.project.headers('calculation')[-1]
-        signals=self.window.project.headers('signal');self.assertEqual(len(signals),5)
-        self.assertIn(models[0]['id'],run['parents'])
+        models=self.window.project.headers('state_space');self.assertEqual(len(models),2)
+        run=next(record for record in self.window.project.headers('calculation') if record['operation']=='Simulación MIMO')
+        signals=self.window.project.headers('signal');self.assertEqual(len(signals),6)
+        self.assertTrue(all(model['id'] in run['parents'] for model in models))
         y=next(record for record in signals if record['title']=='y1')
         result=self.window.project.get(y['id']);self.assertEqual(y['parents'],[run['id']])
         np.testing.assert_allclose(result.values.real,1-np.exp(-np.arange(11)*.1),atol=1e-13)

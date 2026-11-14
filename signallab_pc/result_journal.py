@@ -58,7 +58,7 @@ class ResultJournal:
     def __init__(self,window,message):
         self.window=window;route=getattr(window,'current_operation',None)
         self.origin={'title':route[0] if route else message,'route':list(route) if route else []}
-        self.title=self.origin['title'];self.records=[];self.values=[];self.references=set();self.result=None;self.whole_result_stored=False
+        self.title=self.origin['title'];self.records=[];self.values=[];self.references=set();self.result=None;self.whole_result_stored=False;self.outputs_registered=False
         page=window.pages.get(route);panel=getattr(page,'panel',None)
         if getattr(panel,'calculation_title',None):self.title=self.origin['title']=panel.calculation_title
         from .report_view import ReportView
@@ -100,15 +100,15 @@ class ResultJournal:
         finally:
             self.window._result_journal=previous
             if previous is None:self.window.refresh_project()
-    def reported(self,result):
+    def reported(self,result,*,outputs_registered=False):
         # A compact published report may retain input IDs rather than copies.
-        if result is self.result:self.whole_result_stored=True
+        if result is self.result:self.whole_result_stored=True;self.outputs_registered=outputs_registered
 
     def collect(self,result):
         if isinstance(result,dict) and 'error' in result:return
         # Scalar CAS answers are explicitly published without worksheet state.
         if len(self.origin['route'])>1 and self.origin['route'][1]=='cas':return
-        for value in typed_outputs(result):
+        for value in (() if self.outputs_registered else typed_outputs(result)):
             if self.window.published_value_id(value) is None:self.window.publish(value,operation=self.title,parents=self.records[:])
         def only_typed(value):
             if value is None or isinstance(value,TYPED):return True

@@ -60,6 +60,9 @@ def _diagrams_for(section):
         caption='Azul: parte ordinaria de la señal. Verde: posición y peso del impulso ideal. La flecha indica área, no una altura finita ni una muestra de la rejilla.' if section['illustration']=='dirac' else 'Esquema de la función elemental. Los tallos representan muestras independientes.'
         return [('Representación',reference_diagram(section['illustration']),caption)]
     route=section['route']
+    if route and route[1]=='state_space' and route[2] in ('analysis','simulation'):
+        from .state_studies_help import image
+        return [('Coordenadas, equilibrio y memoria',image(),'Azul: respuesta total del modelo dx/dt=−x+u, y=x, con x₀=2 y escalón unitario. Verde: respuesta desde estado cero. Ámbar: respuesta con entrada cero y memoria inicial. P cambia la descripción del estado, mientras que el equilibrio exige que permanezca constante. El inspector conserva los datos calculados; ZOH no es Euler.')]
     if route and route[1:3]==('systems',9):
         from .temporal_response_help import image
         return [('Entrada, transitorio e historial',image(),'Azul: datos cargados y cruces de nivel. Ámbar: ceros agregados y memoria anterior. Verde: respuesta calculada. La extensión no reevalúa una fórmula fuera del registro; en continuo respeta la interpolación elegida. La banda observada no demuestra que todos los instantes futuros permanezcan dentro de ella.')]

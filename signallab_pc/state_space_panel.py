@@ -8,7 +8,7 @@ from .tool_guide import ToolGuide
 import json
 from pathlib import Path
 import numpy as np
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineEdit,QComboBox,QPushButton,QLabel,QPlainTextEdit,QScrollArea,QMessageBox,QToolButton,QTabWidget,QFileDialog
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineEdit,QComboBox,QPushButton,QLabel,QPlainTextEdit,QScrollArea,QMessageBox,QToolButton,QTabWidget,QFileDialog,QCheckBox
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg,NavigationToolbar2QT
 from .state_space import StateModel
@@ -66,6 +66,7 @@ class StateSpacePanel(QWidget):
         if action=='simulation':
             self.inputs=StateInputSources(window);form.addRow(self.inputs)
             form.addRow('Estado inicial en el primer instante / índice',self.initial)
+            self.decompose=QCheckBox('Separar estado cero y entrada cero');form.addRow(self.decompose)
             self.initial.setToolTip('Un valor por estado, separado por coma; vacío usa ceros. Se admiten pi, 10^(-3), fracciones y complejos. Es el estado al inicio del registro, no necesariamente en cero.')
             self.simulation_note=QLabel('');self.simulation_note.setWordWrap(True);form.addRow(self.simulation_note)
         self.w0=QLineEdit('0');self.w1=QLineEdit('10');self._frequency_domain=None;self._frequency_ranges={False:('0','10'),True:('0','pi')}
@@ -79,18 +80,23 @@ class StateSpacePanel(QWidget):
             form.addRow('Canal de entrada (desde 1)',self.input_channel);form.addRow('Canal de salida (desde 1)',self.output_channel);form.addRow(matrices)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(330);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);root.addWidget(right,2)
-        self.result_tabs=QTabWidget();layout.addWidget(self.result_tabs)
+        from .active_stack import ActiveTabs
+        self.result_tabs=ActiveTabs();self.result_tabs.setUsesScrollButtons(True);layout.addWidget(self.result_tabs)
         self.report=ReportView();self.report.setReadOnly(True);self.result_tabs.addTab(report_panel(self.report),'Informe')
         plot=QWidget();plot_layout=QVBoxLayout(plot);self.result_tabs.addTab(plot,'Gráfico');self.result_tabs.setTabVisible(1,action not in ('discretize','transfer'))
         self.plot_data=None
         self.plot_mode=QComboBox();self.plot_mode.addItems(['Módulo y fase','Parte real e imaginaria'])
         self.plot_channel=QComboBox();self.plot_channel.setAccessibleName('Canal que se muestra')
         self.export_plot=QPushButton('Exportar todos los canales CSV…');self.export_plot.setEnabled(False);self.export_plot.clicked.connect(self.export_channels)
+        from .figure_controls import WrappedControls
+        plot_controls=QWidget();plot_bar=WrappedControls(plot_controls);policy=plot_controls.sizePolicy();policy.setHeightForWidth(True);plot_controls.setSizePolicy(policy)
         if action in ('simulation','frequency'):
-            plot_layout.addWidget(self.plot_mode);plot_layout.addWidget(self.plot_channel);plot_layout.addWidget(self.export_plot)
+            for widget in (self.plot_mode,self.plot_channel,self.export_plot):plot_bar.addWidget(widget)
+            plot_layout.addWidget(plot_controls)
         self.plot_mode.currentIndexChanged.connect(self.redraw_channels);self.plot_channel.currentIndexChanged.connect(self.redraw_channels)
         if self.action=='simulation':self.plot_channel.currentIndexChanged.connect(self.show_simulation_formula)
         self.figure=Figure(figsize=(7,4));self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumHeight(260);plot_layout.addWidget(NavigationToolbar2QT(self.canvas,self));plot_layout.addWidget(self.canvas,1)
+        if action in ('simulation','frequency'):self.canvas._signallab_plot_controls=plot_controls
         self.model_actions=None;self.system_actions=None
         if action=='transfer':
             from .system_result_actions import SystemResultActions
@@ -106,10 +112,17 @@ class StateSpacePanel(QWidget):
             self.cas_signal=QPushButton('Enviar salida a CAS');self.cas_signal.setProperty('actionRole','cas')
             self.cas_signal.clicked.connect(self.send_signal_to_cas);bar.addWidget(self.cas_signal);bar.addStretch()
             self.reuse_signal.setEnabled(False);self.cas_signal.setEnabled(False)
+            from .state_simulation_results import StateSimulationResults
+            self.simulation_results=StateSimulationResults(self,plot_bar)
+        if action=='analysis':
+            from .state_studies_panel import StateDiagnostics,StateStudy
+            self.diagnostics=StateDiagnostics();self.result_tabs.addTab(self.diagnostics,'Controlabilidad / observabilidad')
+            self.coordinate_study=StateStudy(window,'coordinates');self.result_tabs.addTab(self.coordinate_study,'Coordenadas')
+            self.equilibrium_study=StateStudy(window,'equilibrium');self.result_tabs.addTab(self.equilibrium_study,'Equilibrio')
         self.report.setPlainText('Completá el modelo y presioná '+labels[action]+'. Los resultados se guardan en la biblioteca.')
         empty=self.figure.add_subplot(111);empty.set_axis_off();empty.text(.5,.5,'El resultado aparecerá aquí',ha='center',va='center',color='#91a0b5',transform=empty.transAxes)
         tracked=[self.domain,self.step,*self.fields.values()]
-        if action=='simulation':tracked.extend([self.inputs,self.initial])
+        if action=='simulation':tracked.extend([self.inputs,self.initial,self.decompose])
         elif action=='frequency':tracked.extend([self.w0,self.w1,self.count])
         elif action=='discretize':tracked.append(self.method)
         elif action=='transfer':tracked.extend([self.input_channel,self.output_channel])
@@ -175,7 +188,9 @@ class StateSpacePanel(QWidget):
             model_id=self.window.publish(model,operation='Modelo de entrada: '+self.action,parents=[self.model_parent] if self.model_parent else [])
             if self.action=='analysis':
                 def accept(data):
-                    self.window.publish(data,title='Análisis de estados',operation='Controlabilidad, observabilidad y estabilidad',parents=[model_id])
+                    from .result_journal import snapshot as stored
+                    data_id=self.window.publish(stored(data,self.window),title='Análisis de estados',operation='Controlabilidad, observabilidad y estabilidad',parents=[model_id])
+                    self.diagnostics.set_result(data['diagnostics']);self.coordinate_study.set_model(model,model_id);self.equilibrium_study.set_model(model,model_id)
                     explanation=(['No hay estados dinámicos que controlar u observar.'] if model.states==0 else [
                         'Controlabilidad completa: las entradas permiten alcanzar cualquier estado.' if data['controllability_rank']==model.states else 'Controlabilidad incompleta: hay estados que no pueden alcanzarse desde las entradas.',
                         'Observabilidad completa: el estado inicial puede deducirse de las salidas y entradas conocidas.' if data['observability_rank']==model.states else 'Observabilidad incompleta: estados distintos pueden producir las mismas salidas.'])
@@ -184,11 +199,15 @@ class StateSpacePanel(QWidget):
                         Section('Resultados',rows=[('Controlabilidad: rango / estados',str(data['controllability_rank'])+' / '+str(model.states)),('Observabilidad: rango / estados',str(data['observability_rank'])+' / '+str(model.states)),('Estabilidad interna',data['stability'])],paragraphs=explanation),
                         Section('Alcance numérico',paragraphs=['Los rangos dependen de la escala del modelo. '+data['rank_method']+'.','La estabilidad corresponde a los estados del modelo; no se deduce sólo de una transferencia con cancelaciones. Los polos se muestran en el gráfico.','Usar modelo calculado en copia estas matrices a otro estudio sin tener que recuperarlas de Resultados.'])]))
                     self.model_actions.set_result(model,model_id)
+                    self.window.publish({'report':self.report.toPlainText(),'calculated_data':{'result_id':data_id}},title='Estructura y estabilidad del modelo',operation='Informe de estados',parents=[model_id,data_id])
+                    journal=getattr(self.window,'_result_journal',None)
+                    if journal is not None:journal.reported(data)
                     self.figure.clear();axis=self.figure.add_subplot(111);poles=[complex(*v) for v in data['poles']];draw_root_markers(axis,poles=poles);axis.legend() if poles else None
+                    if model.states and not poles:axis.text(.5,.5,'Autovalores no disponibles con esta precisión',ha='center',transform=axis.transAxes)
                     if model.dt is not None:
                         angle=np.linspace(0,2*np.pi,361);axis.plot(np.cos(angle),np.sin(angle),':',alpha=.5)
                     axis.axvline(0,color='#667b97');axis.axhline(0,color='#667b97');axis.set_aspect('equal',adjustable='datalim');axis.set_xlabel('Real');axis.set_ylabel('Imaginaria');axis.grid(alpha=.2);self.figure.tight_layout();self.canvas.draw_idle()
-                self.run('Analizando estados…',model.analysis,accept)
+                self.run('Analizando estados…',lambda:model.analysis(details=True),accept)
             elif self.action=='simulation':self.simulate(model,model_id)
             elif self.action=='frequency':self.frequency(model,model_id)
             elif self.action=='discretize':
@@ -209,40 +228,20 @@ class StateSpacePanel(QWidget):
                 self.run('Obteniendo transferencia…',lambda:model.to_transfer(input_index,output_index),accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá el modelo',str(exc))
     def simulate(self,model,model_id):
+        from .state_response_studies import simulate
         self.inputs.configure(model.inputs,model.dt is not None)
         sources=self.inputs.read();grid=prepare_inputs(model,sources)
         from .systems_panel import parse_list
         initial=np.zeros(model.states,complex) if not self.initial.text().strip() else parse_list(self.initial.text())
-        parents=[model_id]+[key for key in self.inputs.reference_ids() if key]
-        def accept(result):
-            _,output,states=result;self.last_simulation=(grid,output,states)
-            hold='samplewise' if grid.discrete else 'ZOH'
-            run=self.window.publish({'step_s':grid.step,'count':len(grid.axis),'first_index' if grid.discrete else 'first_time_s':grid.origin,'time_start_s':grid.time_start,'initial_state':[[float(v.real),float(v.imag)] for v in initial],'domain':model.domain,'input_hold':hold},title='Simulación de estados',operation='Simulación MIMO',parents=parents)
-            output_ids=[]
-            for values,prefix,operation in [(output,'y','Salida de simulación'),(states,'x','Estado de simulación')]:
-                for channel in range(values.shape[1]):
-                    signal=Signal(values[:,channel],grid.origin,1 if grid.discrete else grid.step,'n' if grid.discrete else 's',prefix+str(channel+1),'discrete' if grid.discrete else 'continuous','',{'operation':operation,'sample_rate_hz':1/grid.step,'time_start_s':grid.time_start,'input_hold':hold})
-                    key=self.window.publish(signal,operation=operation,parents=[run])
-                    if prefix=='y':output_ids.append(key)
-            self._simulation_formula_report=None
-            self.set_channels(grid.axis,[output[:,j] for j in range(model.outputs)],[f'y{j+1}' for j in range(model.outputs)],'Índice n' if grid.discrete else 't (s)',grid.discrete)
-            self.model_actions.set_result(model,model_id)
-            self.result_tabs.setCurrentIndex(1)
-            equation='x[n+1] = A*x[n]+B*u[n]' if grid.discrete else 'dx/dt = A*x(t)+B*u(t)'
-            output_equation='y[n] = C*x[n]+D*u[n]' if grid.discrete else 'y(t) = C*x(t)+D*u(t)'
-            summary=Summary('Simulación en espacio de estados',[
-                Section('Registro calculado',rows=[('Muestras',str(len(grid.axis))),('Entradas / salidas / estados',f'{model.inputs} / {model.outputs} / {model.states}'),('Primer índice n₀' if grid.discrete else 'Primer instante t₀ (s)',number(grid.origin)),('Último índice' if grid.discrete else 'Último instante (s)',number(grid.axis[-1])),('Período T (s)' if grid.discrete else 'Paso temporal (s)',number(grid.step))]),
-                Section('Modelo y condición inicial',formulas=[Formula(equation,equation),Formula(output_equation,output_equation)],rows=[('Estado al inicio del registro','['+', '.join(number(value) for value in initial)+']')],paragraphs=['El estado inicial se aplica al primer índice o instante cargado. No se simula ni se presupone la historia anterior.']),
-                Section('Interpretación',paragraphs=['En discreto, las fórmulas de entrada se evalúan en n entero, conservando el origen de cada secuencia. T describe el reloj físico; no escala el índice n.' if grid.discrete else 'Se mantiene cada entrada constante entre instantes (ZOH). La propagación usa la exponencial matricial; es exacta para ese modelo por tramos, salvo redondeo numérico.','Entradas, estados, salidas y datos del cálculo quedan en Resultados. El selector muestra cualquier salida; la vista conjunta dibuja hasta 16 y el CSV exporta todas.'])])
-            self._simulation_formula_report=(summary,output_ids)
-            self.reuse_signal.setEnabled(True);self.cas_signal.setEnabled(True)
-            self.show_simulation_formula()
-        self.run('Simulando sistema…',lambda:model.simulate(grid.values,step=grid.step,initial=initial),accept)
+        source_keys=self.inputs.reference_ids();parents=[model_id]+[key for key in source_keys if key]
+        separate=self.decompose.isChecked()
+        self.run('Simulando sistema y componentes…',lambda:simulate(model,grid,initial,separate),lambda result:self.simulation_results.accept(result,model_id,parents,source_keys))
 
     def simulation_channel_id(self):
         saved=getattr(self,'_simulation_formula_report',None)
         if saved is None:return None
         _,keys=saved
+        if not keys:return None
         selected=self.plot_channel.currentData()
         return keys[selected if selected is not None and 0<=selected<len(keys) else 0]
 
@@ -261,7 +260,10 @@ class StateSpacePanel(QWidget):
         if saved is None:return
         from .temporal_formula import sections as temporal_sections
         summary,_=saved
-        channel=self.window.project.get(self.simulation_channel_id())
+        key=self.simulation_channel_id()
+        if key is None:
+            self.report.set_readable(Summary(summary.title,[Section('Sin variables en esta vista',paragraphs=['Este modelo no tiene estados dinámicos. Las entradas y salidas siguen disponibles en el selector de la figura.']),*summary.sections]));return
+        channel=self.window.project.get(key)
         self.cas_signal.setText('Enviar '+channel.name+' a CAS')
         self.reuse_signal.setToolTip('Reutilizar '+channel.name+' en otra herramienta.')
         formulas=temporal_sections(channel)
@@ -314,8 +316,9 @@ class StateSpacePanel(QWidget):
                 first=np.where(finite,np.abs(values),np.nan);second=np.full(values.size,np.nan)
                 valid=finite & (np.abs(values)>0);second[valid]=np.angle(values[valid]);has_phase=has_phase or bool(valid.any())
             else:first=np.where(finite,values.real,np.nan);second=np.where(finite,values.imag,np.nan)
-            plot_samples(axes[0],x,first,discrete=discrete,label=names[index])
-            plot_samples(axes[1],x,second,discrete=discrete,label=names[index],phase=polar)
+            source=getattr(self,'_plot_signals',None);source=source[index] if source else None
+            plot_samples(axes[0],x,first,discrete=discrete,label=names[index],source=source,component='magnitude' if polar else 'real')
+            plot_samples(axes[1],x,second,discrete=discrete,label=names[index],phase=polar,source=source,component='phase' if polar else 'imag')
         axes[0].set_ylabel('Módulo' if polar else 'Parte real')
         axes[1].set_ylabel('Fase principal (rad)' if polar else 'Parte imaginaria');axes[1].set_xlabel(xlabel)
         from .signal_plot import configure_axis

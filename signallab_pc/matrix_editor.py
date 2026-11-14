@@ -46,10 +46,13 @@ class MatrixTable(QTableView):
 class MatrixEditor(QWidget):
     def __init__(self,value='',parent=None):
         super().__init__(parent);self._loading=False
-        box=QVBoxLayout(self);box.setContentsMargins(0,0,0,0);bar=QHBoxLayout();box.addLayout(bar)
+        box=QVBoxLayout(self);box.setContentsMargins(0,0,0,0)
+        from .figure_controls import WrappedControls
+        dimensions=QWidget();bar=WrappedControls(dimensions);policy=dimensions.sizePolicy();policy.setHeightForWidth(True);dimensions.setSizePolicy(policy);box.addWidget(dimensions)
         self.rows=QSpinBox();self.columns=QSpinBox()
         for title,field in [('Filas',self.rows),('Columnas',self.columns)]:
-            field.setRange(0,2147483647);field.setKeyboardTracking(False);field.setMinimumHeight(44);bar.addWidget(QLabel(title));bar.addWidget(field)
+            field.setRange(0,2147483647);field.setKeyboardTracking(False);field.setMinimumHeight(44)
+            pair=QWidget();row=QHBoxLayout(pair);row.setContentsMargins(0,0,0,0);row.addWidget(QLabel(title));row.addWidget(field);bar.addWidget(pair)
         self.model=MatrixCells(self);self.table=MatrixTable(self);self.table.setSelectionMode(QAbstractItemView.SelectionMode.ContiguousSelection);self.table.setModel(self.model);self.table.setMinimumHeight(160);self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Interactive);self.table.horizontalHeader().setDefaultSectionSize(145);box.addWidget(self.table)
         hint=QLabel('Una celda por coeficiente. Se admiten números complejos, por ejemplo 1+2i. Las celdas nuevas valen cero. Podés pegar un bloque de una planilla (Ctrl+V).');hint.setWordWrap(True);box.addWidget(hint)
         self.rows.setToolTip('Reducir la matriz oculta celdas; al ampliar se recuperan hasta cargar otro modelo.');self.columns.setToolTip(self.rows.toolTip())

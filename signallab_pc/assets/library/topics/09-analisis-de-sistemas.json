@@ -59,6 +59,10 @@
           "El orden de las filas define el orden del estado inicial. Los rangos y coeficientes calculados son numéricos y pueden depender del redondeo; una transferencia de un canal puede ocultar modos internos del modelo."
         ],
         [
+          "Matrices y estudios del modelo",
+          "Controlabilidad / observabilidad muestra las matrices utilizadas, sus valores singulares reescalados y el umbral del rango numérico. Coordenadas permite definir x=Pq, transformar las matrices y q₀ y cargar el resultado en simulación. Equilibrio resuelve la condición de estado constante para una entrada dada; puede ser único, una familia o no existir. Ninguna de estas opciones modifica el último modelo hasta calcular su estudio."
+        ],
+        [
           "Indeterminaciones y valores por continuidad",
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
@@ -87,6 +91,14 @@
         [
           "Qué tener en cuenta",
           "No se recortan, interpolan ni remuestrean canales automáticamente. Si una señal registra una tasa distinta de 1/T, hay que corregir T o cambiar su tasa antes de simular. Una condición inicial al comienzo del registro no determina la historia anterior del sistema."
+        ],
+        [
+          "Comparar memoria y entrada",
+          "Separar estado cero y entrada cero calcula tres trayectorias: total; entrada aplicada con estado inicial nulo; y memoria inicial con entradas anuladas. La figura permite elegir entradas, estados o salidas y la componente correspondiente. Todas las señales conservan sus propios resultados."
+        ],
+        [
+          "Leer un paso",
+          "Paso a paso muestra los productos de Cx+Du para una salida, o de Ax+Bu para el estado siguiente. En continuo utiliza Ad y Bd de la propagación ZOH. Usa los datos guardados y distingue posición en el registro de índice o instante físico. No inventa una transición después del último punto."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -220,6 +232,22 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Matrices del diagnóstico",
+          "Se utilizan Qc=[B,AB,…,A^(n−1)B] y Qo=[C;CA;…;CA^(n−1)]. La tabla conserva todos sus elementos y permite exportarlos. La SVD reescala la matriz y muestra σ/escala y el umbral en esa misma escala; evita que una magnitud grande desborde el cálculo del rango. El criterio es numérico y depende de las coordenadas."
+        ],
+        [
+          "Cambio de coordenadas",
+          "P define x=Pq. Se calculan Aq=P^(-1)AP, Bq=P^(-1)B, Cq=CP y Dq=D. Escribí x₀ para obtener q₀=P^(-1)x₀; vacío utiliza ceros. La inversión y los productos se resuelven exactamente para los valores binarios almacenados, y el modelo reutilizable se redondea a float64. Una matriz mal condicionada puede amplificar ese redondeo."
+        ],
+        [
+          "Equilibrio",
+          "Ingresá una entrada constante por canal. En continuo se resuelve −Axe=Bue; en discreto, (I−A)xe=Bue. La compatibilidad y las variables libres se deciden algebraicamente para los valores guardados, sin aplicar un umbral SVD. Si hay una familia, el informe muestra sus parámetros y Cargar en simulación utiliza la solución particular con esos parámetros en cero. El equilibrio no implica estabilidad."
+        ],
+        [
+          "Valores fuera de rango",
+          "Si una componente exacta no puede representarse como float64, se conserva su expresión. No se convierte en cero ni se habilita una condición inicial o un modelo numérico que no pueda representar esos valores."
         ]
       ],
       "reading": "La estabilidad interna depende de A; no sólo del canal externo elegido. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
@@ -268,6 +296,22 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Separar las respuestas",
+          "Total, estado cero y entrada cero se simulan por separado con la misma realización. Su suma puede presentar diferencias de redondeo, que se informan sin alterar los resultados. La separación incluye entradas, estados y salidas; una entrada cero también anula el paso directo D."
+        ],
+        [
+          "Elegir variables y componente",
+          "Los selectores están dentro de la figura. Se puede ver cualquier canal de entradas, estados o salidas de la componente elegida. Reutilizar y CAS toman ese canal; en vista conjunta, toman el primero. El CSV exporta todos los canales de esa vista. Las entradas continuas utilizadas se dibujan como retenciones, no como segmentos lineales."
+        ],
+        [
+          "Paso a paso",
+          "La posición k empieza en cero dentro del registro; no reemplaza el índice n ni el instante t. Elegí una salida actual o un estado siguiente. La tabla detalla coeficientes, valores guardados y productos. La suma se reconstruye como racionales de números binarios para compararla con la realización; no sustituye una solución simbólica del sistema. En continuo, los coeficientes del paso de estado son Ad y Bd de ZOH."
+        ],
+        [
+          "Última muestra y edición",
+          "La salida del último punto sí se puede consultar; su transición posterior no fue simulada. Editar el modelo o la entrada conserva la explicación anterior hasta recalcular. Preparar el inspector no vuelve a simular ni duplica las trayectorias en Resultados."
         ]
       ],
       "reading": "Se guardan entradas, salidas, estados y datos del cálculo en Resultados. Los gráficos discretos usan índices enteros, tallos y cursor por muestra. El estado inicial se aplica al comienzo del registro, aunque su origen sea negativo o distinto de cero; no se deduce la historia anterior. En continuo se propaga con entrada constante por intervalo (ZOH). En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."

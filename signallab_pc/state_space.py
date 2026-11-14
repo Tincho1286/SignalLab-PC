@@ -34,22 +34,32 @@ class StateModel:
     def outputs(self):return self.C.shape[0]
     @property
     def domain(self):return 'analog' if self.dt is None else 'digital'
-    def analysis(self):
+    def analysis(self,*,details=False):
         n=self.states;ensure_working_set(max(1,n*n*(self.inputs+self.outputs)),live_arrays=10)
-        if n==0:return dict(states=0,inputs=self.inputs,outputs=self.outputs,poles=[],controllability_rank=0,observability_rank=0,stability='Sin estados dinámicos',rank_method='SVD con tolerancia numérica estándar')
-        controllable=[];observable=[];ab=self.B.copy();ca=self.C.copy()
-        for index in range(n):
-            checkpoint();controllable.append(ab);observable.append(ca)
-            if index<n-1:ab=self.A@ab;ca=ca@self.A
-        ctr=np.hstack(controllable);obs=np.vstack(observable)
-        if not np.isfinite(ctr).all() or not np.isfinite(obs).all():raise FloatingPointError('Las matrices de análisis exceden la precisión disponible; revisá la escala del modelo.')
-        poles=np.linalg.eigvals(self.A);metric=poles.real if self.dt is None else abs(poles)-1
-        tolerance=10*np.finfo(float).eps*max(1,np.linalg.norm(self.A,ord=2))*n
-        stability='Internamente inestable' if np.any(metric>tolerance) else 'Internamente asintóticamente estable' if np.all(metric < -tolerance) else 'Sobre o cerca de la frontera; requiere análisis adicional'
-        return dict(states=n,inputs=self.inputs,outputs=self.outputs,poles=[[float(z.real),float(z.imag)] for z in poles],
-            controllability_rank=int(np.linalg.matrix_rank(ctr)),observability_rank=int(np.linalg.matrix_rank(obs)),stability=stability,
-            rank_method='SVD con tolerancia max(shape)*sigma_max*eps; depende de escala y condicionamiento',stability_tolerance=float(tolerance),
+        from .state_studies import diagnostic_matrices
+        diagnostic=diagnostic_matrices(self)
+        if n==0:
+            result=dict(states=0,inputs=self.inputs,outputs=self.outputs,poles=[],controllability_rank=0,observability_rank=0,stability='Sin estados dinámicos',rank_method='SVD con tolerancia numérica estándar')
+            if details:result['diagnostics']=diagnostic
+            return result
+        with np.errstate(all='ignore'):
+            try:poles=np.linalg.eigvals(self.A)
+            except np.linalg.LinAlgError:poles=np.array([complex(np.nan,np.nan)])
+            try:tolerance=10*np.finfo(float).eps*max(1,np.linalg.norm(self.A,ord=2))*n
+            except np.linalg.LinAlgError:tolerance=float('nan')
+        if not np.isfinite(poles).all():
+            poles=np.array([],complex);tolerance=None;stability='No determinada: los autovalores no se pudieron representar con precisión finita. Se conservan los diagnósticos de rango.'
+        elif not np.isfinite(tolerance):
+            tolerance=None;stability='No determinada: la escala del modelo impide aplicar el criterio numérico de estabilidad.'
+        else:
+            metric=poles.real if self.dt is None else abs(poles)-1
+            stability='Internamente inestable' if np.any(metric>tolerance) else 'Internamente asintóticamente estable' if np.all(metric < -tolerance) else 'Sobre o cerca de la frontera; requiere análisis adicional'
+        result=dict(states=n,inputs=self.inputs,outputs=self.outputs,poles=[[float(z.real),float(z.imag)] for z in poles],
+            controllability_rank=diagnostic['controllability_rank'],observability_rank=diagnostic['observability_rank'],stability=stability,
+            rank_method='SVD de la matriz reescalada, con tolerancia max(shape)*sigma_max*eps; depende de escala y condicionamiento',stability_tolerance=float(tolerance) if tolerance is not None else None,
             scope='Estabilidad interna del modelo; no se cancelan modos no controlables o no observables.')
+        if details:result['diagnostics']=diagnostic
+        return result
     def response(self,omega,*,normalized=False):
         """Evaluate in rad/s, or in rad/muestra for a normalized digital grid."""
         from .state_frequency import response
