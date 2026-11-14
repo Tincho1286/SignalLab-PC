@@ -4,10 +4,11 @@
 
 La descarga estable actual es la **1.8.8**. Consolida las mejoras de las preliminares 1.8.4 a 1.8.7 y desarrolla las fórmulas de las curvas, corrige el acceso a máximos y mínimos y facilita localizar sus resultados. Este índice conserva cada publicación con su canal y sus notas detalladas. Las preliminares anteriores forman parte del historial; sus mejoras quedan incluidas en esta estable.
 
-La [1.8.10 preliminar](v1.8.10.md) amplía Analizar sistema con lecturas desde la definición, cruces, bandas y retardo. Conserva las mejoras temporales de la 1.8.9. Se puede recibir habilitando preliminares y no cambia la descarga estable recomendada.
+La [1.8.11 preliminar](v1.8.11.md) amplía el análisis y la simulación de estados con coordenadas, equilibrios y explicación de sus trayectorias. Conserva las medidas de frecuencia de la 1.8.10 y las mejoras anteriores. Se puede recibir habilitando preliminares y no cambia la descarga estable recomendada.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.11](v1.8.11.md) | Diagnóstico, coordenadas, equilibrios y respuestas de estados | Preliminar |
 | [1.8.10](v1.8.10.md) | Lecturas, niveles, bandas y retardo con tablas y figuras relacionadas | Preliminar |
 | [1.8.9](v1.8.9.md) | Extensión, comparación, transitorio y aportes por muestra | Preliminar |
 | [1.8.8](v1.8.8.md) | Estable acumulativa, fórmulas desarrolladas y máximos/mínimos visibles | Estable |

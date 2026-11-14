@@ -1,6 +1,25 @@
 {
   "releases": [
     {
+      "tag": "v1.8.11",
+      "title": "Coordenadas, equilibrio y simulación de estados",
+      "channel": "preview",
+      "summary": "Cinco mejoras dentro del análisis y la simulación de estados: matrices del diagnóstico, coordenadas y condición inicial, equilibrios, componentes de respuesta e inspector de pasos. La 1.8.8 continúa estable.",
+      "changes": [
+        "Las matrices de controlabilidad y observabilidad muestran escala, valores singulares y umbral del rango y se pueden exportar.",
+        "x=Pq transforma A, B, C, D y q0; el modelo y la condición inicial se cargan juntos en simulación.",
+        "Los equilibrios distinguen solución única, familia e incompatibilidad, con su entrada y salida correspondientes.",
+        "Total, estado cero y entrada cero conservan trayectorias independientes y selectores de entradas, estados y salidas.",
+        "El inspector sigue la componente y el paso elegidos, muestra productos y residuos y conserva los datos sin volver a simular."
+      ],
+      "limits": [
+        "El rango por SVD es numérico y depende de escala y coordenadas; no se presenta como rango simbólico.",
+        "Coordenadas y equilibrios operan exactamente sobre valores binarios guardados; el modelo reutilizable se redondea a float64 y los componentes no representables se identifican.",
+        "La simulación continua utiliza retención ZOH. El inspector no inventa una transición después del último punto ni sustituye una solución simbólica general."
+      ],
+      "notes": "docs/releases/v1.8.11.md"
+    },
+    {
       "tag": "v1.8.10",
       "title": "Lecturas y medidas de sistemas y filtros",
       "channel": "preview",

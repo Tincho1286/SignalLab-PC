@@ -20,6 +20,8 @@ La respuesta temporal utiliza la entrada y las condiciones iniciales elegidas. S
 
 H(s) y H(z) también pueden explorarse en el plano complejo mediante mallas de parte real/imaginaria o módulo/ángulo. Esta vista se distingue de la respuesta en frecuencia, evaluada sobre el eje imaginario o el círculo unitario.
 
+Desde la 1.8.11 preliminar, el análisis de estados muestra las matrices y el criterio de rango y permite cambiar coordenadas junto con la condición inicial o buscar equilibrios. Su simulación separa memoria y entrada y ofrece un inspector de los pasos guardados. La [guía de estudios de estados](state-studies.md) explica qué se conserva al reutilizar el modelo, la diferencia entre posición e índice y el papel de ZOH en continuo.
+
 ## Diseño y análisis de filtros
 
 El diseño reúne FIR e IIR por bandas y tolerancias, FIR por cortes y longitud, enventanado de una h[n] propia, ubicación interactiva de polos y ceros, secciones de segundo orden y modelos RC. Los resultados muestran la definición obtenida y permiten analizar, exportar o reutilizar el filtro. Los filtros ideales se cargan como funciones por tramos en frecuencia y pueden producir una fórmula de su respuesta al impulso cuando la inversa se reconoce.

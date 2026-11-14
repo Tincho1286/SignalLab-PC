@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.8](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.8). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.11 · Preliminar
+
+Espacio de estados incorpora matrices y criterio SVD del diagnóstico, cambios x=Pq con q0, equilibrios y familias, separación de respuestas e inspector por paso. Las trayectorias y sus condiciones quedan registradas sin duplicar la entrada original; el inspector se sincroniza con la componente de la figura y conserva la posición y variable al cambiarla. En continuo utiliza Ad y Bd de ZOH. Los controles de matrices se acomodan al ancho disponible y la ayuda incorpora un esquema en colores. La 1.8.8 continúa siendo estable.
+
+[Novedades completas](docs/releases/v1.8.11.md) · [Guía de estudios de estados](docs/state-studies.md)
+
 ## 1.8.10 · Preliminar
 
 El análisis de sistemas y filtros incorpora lecturas desde la definición, cruces de nivel, comprobación de límites por bandas y estadísticas de retardo. Los cruces se refinan sin aceptar saltos como cortes; los anchos que tocan la ventana se identifican como recortados. Las bandas muestran extremos y márgenes, con exploración de resonancias en modelos racionales. La tabla se relaciona con una figura de medidas, se exporta completa y conserva su procedencia en Resultados. La ayuda añade un esquema en colores. La 1.8.8 continúa siendo estable.

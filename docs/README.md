@@ -4,7 +4,7 @@ Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e inte
 
 La [1.8.8 estable](releases/v1.8.8.md) desarrolla las fórmulas de las curvas y mejora el acceso y la representación de máximos y mínimos. La [guía de gráficos](cursors.md) explica el alcance de las mediciones y la fase. También consolida las ampliaciones anteriores de gráficos e informes, [estimación AR](ar-estimation.md), [medidas espectrales](spectral-measurements.md), [ventanas temporales](time-frequency.md) y biblioteca por temas.
 
-La [1.8.10 preliminar](releases/v1.8.10.md) amplía las mediciones de sistemas y filtros. La [guía de medidas de frecuencia](frequency-measurements.md) explica las lecturas de la definición, los cruces y las comprobaciones de módulo y retardo. También conserva las mejoras de [respuesta temporal](temporal-responses.md) de la 1.8.9, con comparación, medidas del escalón e inspección de muestras.
+La [1.8.11 preliminar](releases/v1.8.11.md) amplía espacio de estados con diagnóstico, coordenadas, equilibrios y trayectorias desglosadas. La [guía de estudios de estados](state-studies.md) explica la condición inicial, las componentes y sus aportes. También conserva las [medidas de frecuencia](frequency-measurements.md) de la 1.8.10 y las mejoras de [respuesta temporal](temporal-responses.md).
 
 ## Instalar y empezar
 
@@ -29,6 +29,7 @@ El [catálogo de herramientas](tools.md) organiza las operaciones por el problem
 | Leer figuras y utilizar cursores | [Gráficos y mediciones](cursors.md) |
 | Comparar respuestas y medir el transitorio | [Respuesta temporal](temporal-responses.md) |
 | Leer niveles y comprobar bandas de un filtro | [Medidas de frecuencia](frequency-measurements.md) |
+| Estudiar coordenadas, equilibrios y memoria | [Estudios de estados](state-studies.md) |
 | Configurar colores y foto de fondo | [Temas de apariencia](appearance.md) |
 
 ## Interpretar la matemática

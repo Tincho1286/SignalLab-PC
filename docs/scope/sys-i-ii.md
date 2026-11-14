@@ -135,3 +135,8 @@ La herramienta existente de Respuesta temporal permite extender entradas con cer
 ## 1.8.10 preliminar: medidas de sistemas y filtros
 
 Analizar sistema permite leer frecuencias desde la definición y medir niveles, límites de módulo y retardo por bandas. Se conservan las condiciones de H(s), H(z) y las respuestas ingresadas como H(w), sin atribuirles una ROC nueva. Las búsquedas numéricas no certifican toda una función ni un ancho fuera de la ventana; las estadísticas de retardo no demuestran fase lineal global. Son ampliaciones de análisis de las herramientas existentes. Ver [medidas de frecuencia](../frequency-measurements.md).
+
+
+## 1.8.11 preliminar: descripción y evolución de estados
+
+El análisis permite consultar las matrices de controlabilidad y observabilidad, cambiar coordenadas x=Pq con su condición inicial y resolver equilibrios para entradas constantes. La compatibilidad de coordenadas y equilibrios se resuelve algebraicamente para los números guardados; el diagnóstico SVD sigue siendo numérico. La simulación separa entrada y memoria, registra sus trayectorias y explica cada paso de la componente elegida. En continuo aplica ZOH. No incorpora sistemas no lineales ni un certificado universal de estabilidad o de rango simbólico. Ver [estudios de estados](../state-studies.md).
