@@ -63,8 +63,9 @@ def _average(values, discrete, held=False):
 def _scaled(values,scale):
     # Complex division can form an overflowing reciprocal for subnormal scales.
     result=np.empty(len(values),complex)
-    result.real=values.real/scale if scale else values.real
-    result.imag=values.imag/scale if scale else values.imag
+    with np.errstate(over='ignore',under='ignore',invalid='ignore'):
+        result.real=values.real/scale if scale else values.real
+        result.imag=values.imag/scale if scale else values.imag
     return result
 
 
@@ -105,7 +106,8 @@ def analyze(source, low=None, high=None, fraction=.9, level=.5, component='magni
     fraction=real_value(fraction)
     if not 0<fraction<=1:raise ValueError('La fracción central de energía debe ser mayor que 0 y como máximo 1.')
     selected=select(source,low,high);discrete=selected.domain=='discrete';held=not discrete and selected.metadata.get('input_interpolation')=='hold';values=selected.values
-    scale=max(float(np.max(abs(values.real))),float(np.max(abs(values.imag))))
+    measured=values[:-1] if held else values
+    scale=max(float(np.max(abs(measured.real))),float(np.max(abs(measured.imag))))
     q=_scaled(values,scale);count=len(values);span=count-1
     factor=1. if discrete else float(selected.step)
     duration=float(count) if discrete else factor*span

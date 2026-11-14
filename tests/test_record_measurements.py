@@ -41,6 +41,7 @@ class Numerical(unittest.TestCase):
     def test_zoh_mean_energy_quantiles_and_jumps_preserve_the_retained_model(self):
         x=Signal([1,0,100],0,1,'s','held','continuous',metadata={'operation':'response_input','input_interpolation':'hold'})
         d=calc.analyze(x,level=.5,component='real');self.assertEqual(d['mean'],[.5,0]);self.assertAlmostEqual(d['measures']['energy']['value'],1);self.assertAlmostEqual(d['distribution']['centroid'],.5);assert_allclose(d['distribution']['central_interval'],[.05,.95]);self.assertTrue(d['events'][0]['kind'].startswith('Salto descendente'));self.assertEqual(d['events'][0]['start'],1);self.assertEqual(d['cumulative'].metadata.get('input_interpolation'),None)
+        extreme=calc.analyze(Signal([1e-200,1e200],0,1,'s','held','continuous',metadata={'input_interpolation':'hold'}));self.assertIsNotNone(extreme['cumulative']);self.assertEqual(extreme['mean'][0],1e-200);self.assertNotEqual(extreme['measures']['energy']['text'],'0')
 
 
 class Interface(unittest.TestCase):
