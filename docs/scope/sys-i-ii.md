@@ -125,3 +125,8 @@ Crear una señal incluye Ventana: rectangular, Hann, Hamming, Blackman, Bartlett
 ## 1.2.0 preliminar · 2026-11-02
 
 Z directa/inversa integran registros finitos; transferencia racional en plano z y ROC explícita; FIR con amplitudes por banda y tolerancias absolutas/relativas/dB; importación compatible compartida. No se declara ampliación curricular ni estabilidad comprobada: esta entrega es preliminar. Las familias IIR clásicas conservan una ganancia común de paso. Ver VERSION_1.2.0-preview.md.
+
+
+## 1.8.9 preliminar: observar y explicar respuestas temporales
+
+La herramienta existente de Respuesta temporal permite extender entradas con ceros, sugerir una ventana desde los polos, comparar componentes y medir el escalón respecto de la ganancia DC estable. El inspector discreto explica los aportes de la realización guardada y del historial, incluidas las secciones SOS. Son ampliaciones de uso y análisis de sistemas LTI: no incorporan un nuevo tema curricular ni convierten una medición finita en una garantía de establecimiento. La [guía de respuesta temporal](../temporal-responses.md) precisa las condiciones y las diferencias entre muestras, interpolación y fórmula original.

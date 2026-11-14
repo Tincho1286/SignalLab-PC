@@ -1,6 +1,25 @@
 {
   "releases": [
     {
+      "tag": "v1.8.9",
+      "title": "Respuesta temporal, transitorio y aportes por muestra",
+      "channel": "preview",
+      "summary": "Cinco mejoras dentro de Respuesta temporal para observar entradas finitas, comparar componentes y entender la ecuación discreta. La 1.8.8 sigue siendo estable.",
+      "changes": [
+        "Una entrada propia se extiende con ceros conservando el eje y la interpolación elegida.",
+        "Los polos permiten sugerir duración y puntos, con advertencias sobre crecimiento y memoria inicial.",
+        "Comparación reúne entrada, salida y componentes en un eje común, conservando resultados independientes.",
+        "El escalón muestra cruces 10–90 %, subida, sobreimpulso y banda observada respecto de la ganancia DC estable.",
+        "Paso a paso explica los aportes de cada muestra, incluidos historial y secciones SOS, con exportación CSV."
+      ],
+      "limits": [
+        "La sugerencia modal y las medidas del registro no certifican establecimiento para todos los instantes futuros.",
+        "La extensión continua utiliza los puntos y la interpolación elegida; no continúa la fórmula original.",
+        "El inspector reconstruye racionales de valores binarios y conserva la salida de la realización; no es una solución simbólica del problema original."
+      ],
+      "notes": "docs/releases/v1.8.9.md"
+    },
+    {
       "tag": "v1.8.8",
       "title": "Fórmulas desarrolladas y máximos visibles",
       "channel": "stable",

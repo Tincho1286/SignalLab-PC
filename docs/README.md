@@ -4,6 +4,8 @@ Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e inte
 
 La [1.8.8 estable](releases/v1.8.8.md) desarrolla las fórmulas de las curvas y mejora el acceso y la representación de máximos y mínimos. La [guía de gráficos](cursors.md) explica el alcance de las mediciones y la fase. También consolida las ampliaciones anteriores de gráficos e informes, [estimación AR](ar-estimation.md), [medidas espectrales](spectral-measurements.md), [ventanas temporales](time-frequency.md) y biblioteca por temas.
 
+También está disponible la [1.8.9 preliminar](releases/v1.8.9.md), centrada en Respuesta temporal. La [guía de respuesta temporal](temporal-responses.md) relaciona la extensión de entrada, la sugerencia de intervalo, la comparación y las medidas con sus condiciones. El inspector discreto conserva la realización del último cálculo para explicar cada muestra.
+
 ## Instalar y empezar
 
 La [guía de instalación](installation.md) ayuda a elegir el paquete adecuado. Después, [Primeros pasos](getting-started.md) recorre un cálculo completo y muestra cómo continuar con su resultado. Si ya tenés la edición instalada, la [guía de actualizaciones](installed-updates.md) explica cómo incorporar nuevas versiones conservando la configuración.
@@ -25,6 +27,7 @@ El [catálogo de herramientas](tools.md) organiza las operaciones por el problem
 | Encontrar una operación y conocer sus salidas | [Herramientas](tools.md) |
 | Importar archivos o conservar resultados | [Formatos de datos](file-formats.md) |
 | Leer figuras y utilizar cursores | [Gráficos y mediciones](cursors.md) |
+| Comparar respuestas y medir el transitorio | [Respuesta temporal](temporal-responses.md) |
 | Configurar colores y foto de fondo | [Temas de apariencia](appearance.md) |
 
 ## Interpretar la matemática

@@ -4,8 +4,11 @@
 
 La descarga estable actual es la **1.8.8**. Consolida las mejoras de las preliminares 1.8.4 a 1.8.7 y desarrolla las fórmulas de las curvas, corrige el acceso a máximos y mínimos y facilita localizar sus resultados. Este índice conserva cada publicación con su canal y sus notas detalladas. Las preliminares anteriores forman parte del historial; sus mejoras quedan incluidas en esta estable.
 
+La [1.8.9 preliminar](v1.8.9.md) amplía Respuesta temporal con extensión de entradas, sugerencias, comparación, medidas del escalón e inspección por muestra. Estas incorporaciones se pueden recibir habilitando preliminares y no cambian la descarga estable recomendada.
+
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.9](v1.8.9.md) | Extensión, comparación, transitorio y aportes por muestra | Preliminar |
 | [1.8.8](v1.8.8.md) | Estable acumulativa, fórmulas desarrolladas y máximos/mínimos visibles | Estable |
 | [1.8.7](v1.8.7.md) | Definiciones y extremos de curvas, cursores, controles e informes estables | Preliminar |
 | [1.8.6](v1.8.6.md) | Ajuste y órdenes AR, validación, pronóstico y residuos | Preliminar |

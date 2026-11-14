@@ -38,6 +38,8 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 La **1.8.8 estable** consolida las mejoras de las preliminares 1.8.4 a 1.8.7 y agrega fórmulas de curvas desarrolladas, una búsqueda de máximos y mínimos visible y marcas sobre las posiciones encontradas. Está disponible con la preferencia **Sólo estables** del actualizador. El selector **Estables y preliminares (Pre-releases)** permite recibir también las entregas de prueba cuando sean más nuevas que la estable instalada.
 
+La [1.8.9 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.9) amplía Respuesta temporal con extensión de entradas, sugerencias desde polos, comparación de componentes, medidas del escalón e inspección por muestra. La [guía de respuesta temporal](docs/temporal-responses.md) explica cómo usarlas y qué representa cada medida. Para recibirla, elegí **Estables y preliminares (Pre-releases)**; la descarga estable recomendada sigue siendo la 1.8.8.
+
 ### Actualizar una instalación
 
 La edición instalada ofrece **Ayuda → Buscar actualizaciones**. Podés consultar las novedades, descargar la versión nueva y elegir cuándo instalar y reiniciar, sin desinstalar antes. Los temas y la configuración se conservan; los resultados de una sesión deben guardarse o exportarse antes del reinicio.
@@ -76,6 +78,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La [1.8.9 preliminar](docs/releases/v1.8.9.md) reúne cinco mejoras en Respuesta temporal. Permite prolongar entradas propias con ceros, preparar un intervalo desde los polos y comparar entrada, salida y memoria. Las medidas del escalón usan la ganancia DC del modelo y distinguen lo observado en el registro. Paso a paso relaciona cada muestra con los coeficientes y el historial guardados. La [guía de respuesta temporal](docs/temporal-responses.md) desarrolla estas operaciones y sus límites.
 
 La [1.8.8 estable](docs/releases/v1.8.8.md) corrige el acceso al inspector y desarrolla las fórmulas de módulo, fase y componentes. Máximos y mínimos completa la tabla al abrirse, mide en la vista o entre A/B y marca las posiciones encontradas. Consolida las ampliaciones de gráficos, informes, espectros, STFT, biblioteca y estimación AR de las preliminares anteriores. La [guía de gráficos](docs/cursors.md) explica los cuadrantes de fase, el desenrollado y el alcance de los extremos de puntos.
 
