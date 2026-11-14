@@ -407,7 +407,7 @@
       ],
       "flow": [
         "Registro e intervalo",
-        "Medidas y componentes",
+        "E = Σ|x[n]|²",
         "Informe, señales y cruces"
       ],
       "parameters": [

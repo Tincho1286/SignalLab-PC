@@ -45,11 +45,19 @@ def select(source, low=None, high=None):
 
 
 def _average(values, discrete, held=False):
-    # The shifted sum makes the mean of every constant record exactly that value.
-    anchor=values[0];delta=values-anchor
-    if discrete or held:weights=delta[:len(values) if discrete else -1]/(len(values) if discrete else len(values)-1)
-    else:weights=(delta[:-1]/2+delta[1:]/2)/(len(values)-1)
-    return complex(anchor.real+math.fsum(weights.real),anchor.imag+math.fsum(weights.imag))
+    # Sum the stored values before scaling: cancellation must not erase small terms.
+    from itertools import chain
+    if discrete or held:
+        selected=values if discrete else values[:-1];parts=lambda component:iter(getattr(selected,component));divisor=len(selected)
+    else:
+        parts=lambda component:chain(getattr(values,component)[:1],getattr(values,component)[-1:],getattr(values,component)[1:-1],getattr(values,component)[1:-1]);divisor=2*(len(values)-1)
+    def average(component):
+        try:return math.fsum(parts(component))/divisor
+        except OverflowError:
+            from fractions import Fraction
+            total=sum((Fraction(float(value)) for value in parts(component)),Fraction(0))
+            return float(total/divisor)
+    return complex(average('real'),average('imag'))
 
 
 def _scaled(values,scale):
@@ -102,7 +110,7 @@ def analyze(source, low=None, high=None, fraction=.9, level=.5, component='magni
     factor=1. if discrete else float(selected.step)
     duration=float(count) if discrete else factor*span
     if not math.isfinite(duration) or duration<=0:raise ValueError('El tamaño de la ventana excede el rango numérico.')
-    mean_q=_average(q,discrete,held);mean=complex(mean_q.real*scale,mean_q.imag*scale)
+    mean=_average(values,discrete,held);mean_q=_scaled(np.array([mean]),scale)[0]
     weights=_energy(q,discrete,held);total=math.fsum(weights);power=total/(count if discrete else span)
     with np.errstate(over='ignore',under='ignore',invalid='ignore'):
         ac_values=np.empty(count,complex);ac_values.real=values.real-mean.real;ac_values.imag=values.imag-mean.imag
@@ -110,6 +118,8 @@ def analyze(source, low=None, high=None, fraction=.9, level=.5, component='magni
     ac_q=_scaled(ac_values,scale) if ac_representable else q-mean_q
     ac_weights=_energy(ac_q,discrete,held);ac_power=math.fsum(ac_weights)/(count if discrete else span)
     measures=dict(energy=_physical(total,scale,factor),power=_physical(power,scale),rms=_physical(math.sqrt(power),scale,power=1),dc_power=_physical(abs(mean_q)**2,scale),ac_power=_physical(ac_power,scale),ac_rms=_physical(math.sqrt(ac_power),scale,power=1))
+    mean_scale=max(abs(mean.real),abs(mean.imag));mean_unit=_scaled(np.array([mean]),mean_scale)[0]
+    measures['dc_power']=_physical(abs(mean_unit)**2,mean_scale)
     cumulative=None;distribution=dict(centroid=None,rms_width=None,central_interval=None,central_span=None,fraction=fraction)
     if total>0:
         normalized=weights/total;cdf=np.cumsum(normalized)

@@ -23,6 +23,7 @@ class Numerical(unittest.TestCase):
     def test_extreme_scales_keep_rms_and_scientific_energy_without_nan(self):
         for value in (1e200,np.nextafter(0.,1.)):
             d=calc.analyze(Signal([value,value]));self.assertEqual(d['mean'],[value,0]);assert_allclose(d['ac'].values,[0,0]);self.assertIsNone(d['measures']['energy']['value']);self.assertGreater(d['measures']['rms']['value'],0);self.assertTrue(np.isfinite(d['cumulative'].values).all())
+        mixed=calc.analyze(Signal([1e200,1e-200,-1e200]));self.assertEqual(mixed['mean'][0],1e-200/3);self.assertNotEqual(mixed['measures']['dc_power']['text'],'0')
     def test_zero_energy_and_distribution_rejections_are_explicit(self):
         d=calc.analyze(Signal([0,0,0]));self.assertIsNone(d['cumulative']);self.assertIsNone(d['distribution']['centroid']);self.assertEqual(d['measures']['energy']['value'],0)
         with self.assertRaises(ValueError):calc.analyze(Signal([1,2]),fraction=0)
