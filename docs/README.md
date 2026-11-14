@@ -4,7 +4,7 @@ Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e inte
 
 La [1.8.8 estable](releases/v1.8.8.md) desarrolla las fórmulas de las curvas y mejora el acceso y la representación de máximos y mínimos. La [guía de gráficos](cursors.md) explica el alcance de las mediciones y la fase. También consolida las ampliaciones anteriores de gráficos e informes, [estimación AR](ar-estimation.md), [medidas espectrales](spectral-measurements.md), [ventanas temporales](time-frequency.md) y biblioteca por temas.
 
-La [1.8.12 preliminar](releases/v1.8.12.md) amplía Medir un registro con selección temporal, energía acumulada, centro y dispersión, media y alterna y cruces de nivel. La [guía de medidas de registros](record-measurements.md) explica las unidades y los modelos utilizados. Conserva los [estudios de estados](state-studies.md), las [medidas de frecuencia](frequency-measurements.md) y las mejoras de [respuesta temporal](temporal-responses.md).
+La [1.8.13 preliminar](releases/v1.8.13.md) amplía la reconstrucción con modelos comparables, referencia y error, nudos originales, ventana ampliable e inspector de aportes. La [guía de reconstrucción](reconstruction-studies.md) explica sus núcleos y límites. Conserva las ampliaciones de [registros](record-measurements.md), [estados](state-studies.md), [frecuencia](frequency-measurements.md) y [respuesta temporal](temporal-responses.md).
 
 ## Instalar y empezar
 
@@ -31,6 +31,7 @@ El [catálogo de herramientas](tools.md) organiza las operaciones por el problem
 | Leer niveles y comprobar bandas de un filtro | [Medidas de frecuencia](frequency-measurements.md) |
 | Estudiar coordenadas, equilibrios y memoria | [Estudios de estados](state-studies.md) |
 | Medir energía temporal, componentes y cruces | [Medidas de registros](record-measurements.md) |
+| Comparar reconstrucciones y explicar sus núcleos | [Reconstrucción de señales](reconstruction-studies.md) |
 | Configurar colores y foto de fondo | [Temas de apariencia](appearance.md) |
 
 ## Interpretar la matemática

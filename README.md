@@ -38,7 +38,7 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 La **1.8.8 estable** consolida las mejoras de las preliminares 1.8.4 a 1.8.7 y agrega fórmulas de curvas desarrolladas, una búsqueda de máximos y mínimos visible y marcas sobre las posiciones encontradas. Está disponible con la preferencia **Sólo estables** del actualizador. El selector **Estables y preliminares (Pre-releases)** permite recibir también las entregas de prueba cuando sean más nuevas que la estable instalada.
 
-La [1.8.12 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.12) amplía Medir un registro con intervalos, energía acumulada, distribución temporal, separación de media y alterna y cruces de nivel. La [guía de medidas de registros](docs/record-measurements.md) explica las diferencias entre muestras, segmentos continuos y retenciones. Conserva los [estudios de estados](docs/state-studies.md), las [medidas de frecuencia](docs/frequency-measurements.md) y las ampliaciones de [respuesta temporal](docs/temporal-responses.md). Para recibirla, elegí **Estables y preliminares (Pre-releases)**; la descarga estable recomendada sigue siendo la 1.8.8.
+La [1.8.13 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.13) amplía Reconstruir una señal con comparación ZOH/lineal/SINC, referencia y error, comprobación de nudos, ventanas ampliables e inspector de aportes. La [guía de reconstrucción](docs/reconstruction-studies.md) relaciona los núcleos con el reloj, los bordes y las medidas. Conserva las ampliaciones de [registros](docs/record-measurements.md), [estados](docs/state-studies.md), [frecuencia](docs/frequency-measurements.md) y [respuesta temporal](docs/temporal-responses.md). Para recibirla, elegí **Estables y preliminares (Pre-releases)**; la descarga estable recomendada sigue siendo la 1.8.8.
 
 ### Actualizar una instalación
 
@@ -78,6 +78,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La [1.8.13 preliminar](docs/releases/v1.8.13.md) compara tres modelos de reconstrucción sobre las mismas muestras y permite medir sus diferencias con una referencia. La ventana ampliable revela los bordes y las colas de los núcleos. La tabla de nudos y el inspector relacionan cada curva con sus muestras, pesos y reloj, sin interpretar una coincidencia nodal como prueba de ausencia de aliasing. La [guía de reconstrucción](docs/reconstruction-studies.md) desarrolla estas operaciones y la exportación completa de comparaciones.
 
 La [1.8.12 preliminar](docs/releases/v1.8.12.md) relaciona las medidas del registro con la posición de su energía. Permite elegir sus muestras, consultar la acumulada, medir centro y dispersión y conservar media y alterna como señales separadas. La tabla de cruces distingue eventos discretos, contactos continuos y saltos de una retención. El informe muestra el intervalo efectivo y la ayuda explica sus unidades. La [guía de medidas de registros](docs/record-measurements.md) desarrolla estas operaciones.
 

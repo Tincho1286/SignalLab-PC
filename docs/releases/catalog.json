@@ -1,6 +1,27 @@
 {
   "releases": [
     {
+      "tag": "v1.8.13",
+      "title": "Comparación de reconstrucciones y aportes de las muestras",
+      "channel": "preview",
+      "summary": "Cinco mejoras en Reconstruir una señal: comparar núcleos, referencia y error, nudos originales, bordes y colas e inspector de aportes. La 1.8.8 continúa estable.",
+      "changes": [
+        "ZOH, lineal y SINC se comparan con el mismo reloj y los mismos datos.",
+        "Una referencia opcional obtiene curvas de error y medidas puntuales de RMS, máximo y SNR.",
+        "La tabla comprueba los nudos y explica su conservación por construcción.",
+        "La ventana se amplía en períodos para explorar retenciones, triángulos y colas SINC.",
+        "El inspector evalúa pesos y aportes en un instante y conserva su contexto para reutilizar o exportar.",
+        "La exportación de comparaciones conserva todas sus curvas y ZOH mantiene su retención en las figuras."
+      ],
+      "limits": [
+        "Una coincidencia en los nudos no demuestra ausencia de aliasing ni recuperación de una señal infinita.",
+        "SINC utiliza la secuencia finita extendida por cero, sin renormalizar los pesos. Sus colas continúan fuera de la ventana mostrada.",
+        "Las medidas de error asignan igual peso a los puntos de la rejilla común y no se presentan como integrales continuas.",
+        "El inspector directo puede mostrar redondeo frente a la evaluación FFT sin reemplazar la curva guardada."
+      ],
+      "notes": "docs/releases/v1.8.13.md"
+    },
+    {
       "tag": "v1.8.12",
       "title": "Intervalos, distribución de energía y componentes de registros",
       "channel": "preview",

@@ -48,6 +48,8 @@ Un espectro complejo conserva la información necesaria para una inversa; su mó
 
 Permite explorar muestreo, aliasing, tasas pasabanda, reconstrucción, diezmado, expansión y conversión racional de tasa. Las operaciones elementales de diezmado y expansión aplican su definición; la conversión racional incorpora el tratamiento antialias indicado por su método.
 
+Desde la 1.8.13 preliminar, Reconstruir una señal compara ZOH, lineal y SINC con un reloj común. Permite evaluar una referencia, medir errores puntuales, comprobar nudos, ampliar la vista e inspeccionar pesos y aportes. Las curvas se conservan por separado y la exportación de la comparación incluye todos sus miembros. La [guía de reconstrucción](reconstruction-studies.md) distingue las muestras originales de los puntos dibujados y explica los bordes de cada núcleo.
+
 Las herramientas de precisión estudian cuantización, SNR, formatos numéricos y efectos sobre los coeficientes y la aritmética de filtros. Los informes distinguen una representación almacenada de la simulación de una realización concreta. La [matriz de cobertura](scope/sys-i-ii.md) detalla las realizaciones y los modelos de error disponibles.
 
 ## Laplace, Z y ecuaciones

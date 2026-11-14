@@ -145,3 +145,8 @@ El análisis permite consultar las matrices de controlabilidad y observabilidad,
 ## 1.8.12 preliminar: medidas temporales de registros
 
 Energía, potencia y RMS amplía el registro finito con intervalos, distribución temporal de energía, componentes constante y alterna y cruces de nivel. La energía continua integra el modelo lineal o la retención ZOH conservada; los eventos discretos mantienen índices enteros. Estas medidas no clasifican una señal infinita ni asignan energía cuadrática finita a Dirac. El intervalo central no es necesariamente el más corto posible. Ver [medidas de registros](../record-measurements.md).
+
+
+## 1.8.13 preliminar: estudios de reconstrucción
+
+Reconstruir una señal reúne comparación de núcleos ZOH, lineal y SINC, reloj físico, referencia y errores puntuales, comprobación de nudos y explicación de aportes. La ventana ampliable muestra los bordes y las colas de la secuencia finita extendida por cero. No convierte una coincidencia nodal en prueba de ausencia de aliasing ni en recuperación de una señal infinita. El error se mide en la rejilla común, no como integral continua. Ver [reconstrucción de señales](../reconstruction-studies.md).

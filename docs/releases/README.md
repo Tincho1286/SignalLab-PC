@@ -4,10 +4,11 @@
 
 La descarga estable actual es la **1.8.8**. Consolida las mejoras de las preliminares 1.8.4 a 1.8.7 y desarrolla las fórmulas de las curvas, corrige el acceso a máximos y mínimos y facilita localizar sus resultados. Este índice conserva cada publicación con su canal y sus notas detalladas. Las preliminares anteriores forman parte del historial; sus mejoras quedan incluidas en esta estable.
 
-La [1.8.12 preliminar](v1.8.12.md) amplía la medición de registros con intervalos, distribución de energía, componentes y cruces de nivel. Conserva los estudios de estados y las mejoras anteriores. Se puede recibir habilitando preliminares y no cambia la descarga estable recomendada.
+La [1.8.13 preliminar](v1.8.13.md) amplía Reconstruir una señal con comparaciones, referencia y error, nudos, ventanas e inspector de aportes. Conserva las mejoras anteriores. Se puede recibir habilitando preliminares y no cambia la descarga estable recomendada.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.13](v1.8.13.md) | Reconstrucciones, referencia, bordes y aportes de las muestras | Preliminar |
 | [1.8.12](v1.8.12.md) | Intervalos, energía acumulada, continua/alterna y cruces | Preliminar |
 | [1.8.11](v1.8.11.md) | Diagnóstico, coordenadas, equilibrios y respuestas de estados | Preliminar |
 | [1.8.10](v1.8.10.md) | Lecturas, niveles, bandas y retardo con tablas y figuras relacionadas | Preliminar |
