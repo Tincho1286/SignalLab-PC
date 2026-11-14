@@ -77,7 +77,18 @@ def _energy(values, discrete, held=False):
 
 def _physical(normalized, scale, factor=1., power=2):
     if normalized<=0 or scale==0:return quantity(-np.inf)
-    return quantity(math.log(normalized)+power*math.log(scale)+math.log(factor))
+    from fractions import Fraction
+    logvalue=math.log(normalized)+power*math.log(scale)+math.log(factor);result=quantity(logvalue)
+    # exp(log(x)) can flush representable subnormals on some native runtimes.
+    # Project this short product of stored floats exactly, without huge intermediates.
+    exact=Fraction(float(normalized))*Fraction(float(scale))**power*Fraction(float(factor))
+    try:value=float(exact)
+    except OverflowError:value=None
+    if value is not None and value>0 and math.isfinite(value):result.update(value=value,text=format(value,'.12g'))
+    else:
+        exponent=math.floor(logvalue/math.log(10));mantissa=math.exp(logvalue-exponent*math.log(10))
+        result.update(value=None,text=f'{mantissa:.12g}e{exponent} (fuera de float64)')
+    return result
 
 
 def _cumulative_inside(a,b,u):
