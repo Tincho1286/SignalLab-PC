@@ -7,7 +7,7 @@ os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 
 def worker(destination):
     sys.path[:0]=[str(ROOT),str(ROOT/'tests')]
-    contracts=[('system_expression','test_workflow_contracts.WorkflowContracts',30),('interactive_analysis','test_interactive_analysis',14),('window_convolution_analysis','test_window_convolution_analysis',8),('measurement_views','test_measurement_views',14),('channels_and_tools','test_update_channels_tools',12),('time_frequency_library','test_time_frequency_library',13),('spectral_measurements','test_spectral_measurements',16),('ar_estimation','test_ar_estimation',14),('plot_inspection','test_plot_inspection',18),('curve_reading','test_curve_reading',13),('temporal_tools','test_temporal_tools',17)]
+    contracts=[('system_expression','test_workflow_contracts.WorkflowContracts',30),('interactive_analysis','test_interactive_analysis',14),('window_convolution_analysis','test_window_convolution_analysis',8),('measurement_views','test_measurement_views',14),('channels_and_tools','test_update_channels_tools',12),('time_frequency_library','test_time_frequency_library',13),('spectral_measurements','test_spectral_measurements',16),('ar_estimation','test_ar_estimation',14),('plot_inspection','test_plot_inspection',18),('curve_reading','test_curve_reading',13),('temporal_tools','test_temporal_tools',17),('frequency_measurements','test_frequency_measurements',12)]
     groups=[(key,unittest.defaultTestLoader.loadTestsFromName(name),minimum) for key,name,minimum in contracts]
     counts={key:group.countTestCases() for key,group,_ in groups}
     loaded=all(counts[key]>=minimum for key,_,minimum in groups)

@@ -25,6 +25,10 @@
           "La expresión racional puede evaluarse fuera de la ROC sin que esa evaluación sea la transformada convergente de h[n]. La fórmula sola no define una ROC. Los bordes con polos están excluidos y una raíz numéricamente sobre el círculo impide certificar su inclusión."
         ],
         [
+          "Medir la respuesta",
+          "Medidas de frecuencia trabaja con el último análisis. Permite leer frecuencias elegidas, buscar un nivel, comprobar límites de módulo por bandas o consultar el retardo de grupo. Se reevalúa la definición conservada; editar el formulario principal no cambia ese resultado. Las tablas, figuras y CSV describen la misma medición."
+        ],
+        [
           "Indeterminaciones y valores por continuidad",
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
@@ -506,6 +510,26 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Lecturas puntuales",
+          "Escribí frecuencias reales separadas por comas. Se admiten pi, fracciones y potencias. Las componentes y el módulo se calculan desde la definición, sin interpolar el dibujo. El ángulo es principal y el retardo queda no definido en un cero, polo o salto."
+        ],
+        [
+          "Cruces de nivel",
+          "Elegí un módulo absoluto positivo o dB respecto de |H| en una frecuencia de referencia. −3.0103 dB corresponde a 1/√2 de esa amplitud. La búsqueda se limita al intervalo analizado. Una frontera sin resolver, un salto o un tramo sobre el nivel no se presenta como un corte único. Si un tramo toca el borde de la ventana, su ancho es sólo el observado."
+        ],
+        [
+          "Bandas y tolerancias",
+          "Agregá una fila por banda exigida. Desde y Hasta vacíos usan los extremos del análisis. Los límites son amplitudes lineales; vacío no impone ese límite. Para paso pueden usarse un mínimo y un máximo; para rechazo, sólo un máximo. Las transiciones pueden quedar fuera de las bandas. El margen es la menor distancia a un límite: negativo significa exceso."
+        ],
+        [
+          "Retardo por banda",
+          "Muestra mínimo, máximo, mediana y variación de los puntos válidos, en muestras o segundos según el dominio. Los puntos sin retardo definido se cuentan aparte. No se atribuye un retardo constante a toda una función por observar un intervalo."
+        ],
+        [
+          "Figura y exportación de medidas",
+          "Abrir gráfico está en la cabecera de resultados. La figura muestra las mismas bandas, niveles y extremos; seleccionar una fila marca sus coordenadas. Cambiar lineal/dB sólo cambia la vista. El CSV conserva todas las filas, la definición, las unidades y el criterio. Las medidas también quedan en Resultados."
         ]
       ],
       "reading": "La evaluación numérica necesita coeficientes sin parámetros libres. Una expresión algebraica puede conservarlos. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. El criterio de polos usa interpretación causal; en Z la ROC y la causalidad deben verificarse. Una fórmula simplificada no conserva necesariamente la estabilidad interna de una realización anterior. La figura mantiene las tres vistas sobre el mismo eje. Cambiar el módulo en la barra de la figura sólo cambia la presentación del último resultado. Para cambiar la distribución o rango de frecuencias, analizá de nuevo. Los polos y ceros en 0 se dibujan en el origen exacto, por encima de los ejes. Si coinciden, se ven círculo y cruz juntos; la leyenda informa cuántos hay en (0,0). En polar, módulo cero es el centro y su ángulo no está definido. Los parámetros libres deben recibir valores antes de reutilizar un filtro numérico. Si H(z) tiene un avance, puede analizarse y exportarse la respuesta, pero no se convierte silenciosamente en un filtro causal para enviarlo a simulación. Realización trabaja con H(s) propia o H(z) causal sin avances. No elimina cancelaciones de polos/ceros ni afirma minimalidad. La cadena directa II se usa para coeficientes; si el resultado conserva secciones SOS, el diagrama y las matrices mantienen su cascada. Una fórmula algebraicamente simplificada sólo conserva la dinámica de esa fórmula, no estados internos desconocidos. Para una ecuación diferencial a₀ y^(N)+…+aN y=b₀ u^(N)+…+bN u, cargá esas listas en continuo; en diferencias, a₀ y[n]+a₁ y[n−1]+…=b₀ u[n]+b₁ u[n−1]+… se carga en discreto. No confundas estos órdenes con el ingreso ascendente de derivadas del solucionador de EDO. Condiciones de validez reúne dominio, ROC, causalidad y estabilidad BIBO. En H(s) elegí semiplano derecho, izquierdo o franja con una línea σ interior; en H(z), exterior, interior o anillo con un radio interior. Sin ROC, una curva evaluada sobre el eje imaginario o el círculo unitario es formal y no demuestra una transformada de Fourier convergente. Una cancelación de la transferencia tampoco demuestra estabilidad interna. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones. En Resultados → Comparar resultados podés estudiar dos señales con iguales dominio y unidades o dos H del mismo dominio. No se alinean orígenes ni fases automáticamente; los sistemas se evalúan sobre las mismas frecuencias."

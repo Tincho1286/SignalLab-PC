@@ -93,6 +93,8 @@ class SystemAnalysisPanel(QWidget):
         self.realization_view=RealizationPanel(window);self.result_tabs.addTab(self.realization_view,'Realización');self.result_tabs.setTabVisible(3,False)
         from .transfer_function_view import TransferFunctionView
         self.transfer_view=TransferFunctionView();self.transfer_index=self.result_tabs.addTab(self.transfer_view,'Función de transferencia');self.result_tabs.setTabVisible(self.transfer_index,False)
+        from .frequency_measurements_panel import FrequencyMeasurementsPanel
+        self.measurements=FrequencyMeasurementsPanel(window);self.measurements_index=self.result_tabs.addTab(self.measurements,'Medidas de frecuencia');self.result_tabs.setTabVisible(self.measurements_index,False)
         def update_roc(*_):
             digital=self.domain.currentIndex()==1
             labels=['Secuencia derecha · exterior a polos','Secuencia izquierda · interior a polos','Anillo que contiene un radio','ROC no especificada'] if digital else ['A la derecha de todos los polos','A la izquierda de todos los polos','Franja que contiene una línea σ','ROC no especificada']
@@ -106,6 +108,7 @@ class SystemAnalysisPanel(QWidget):
         self.empty=QLabel('El análisis aparecerá después de calcular.');self.empty.setObjectName('muted');layout.addWidget(self.empty);self.result_tabs.hide()
     def inspect_system_roots(self,system,key=None):
         self.frequency_data=None;self.frequency_export.setEnabled(False);self.reuse_note.hide()
+        self.measurements.set_source(None);self.result_tabs.setTabVisible(self.measurements_index,False)
         self.set_system(system,key);self.analyzed_system=system;self.analysis_advance=0;self.system=system
         self.empty.hide();self.result_tabs.show();self.result_actions.show();self.result_tabs.setTabVisible(1,False)
         self.result_tabs.setTabVisible(2,True);self.result_tabs.setTabEnabled(2,True);self.realization_view.clear_result();self.result_tabs.setTabVisible(3,True);self.export_button.setEnabled(True);self.send_button.setEnabled(True)
@@ -304,6 +307,7 @@ class SystemAnalysisPanel(QWidget):
                     self.system=system
                     if self.system is not None:self.input_id=self.window.publish(system,operation='Aproximación numérica de la definición',parents=[definition])
                 else:self.input_id=definition
+                self.measurements.set_source(data,self.input_id);self.result_tabs.setTabVisible(self.measurements_index,data is not None)
                 if data is not None:self.draw_frequency()
                 else:
                     self.figure.clear();empty=self.figure.add_subplot(111);empty.set_axis_off();empty.text(.5,.5,exact.get('frequency_notice','Asigná valores a los parámetros para obtener la respuesta numérica.'),ha='center',va='center',wrap=True,transform=empty.transAxes);self.canvas.draw_idle()
