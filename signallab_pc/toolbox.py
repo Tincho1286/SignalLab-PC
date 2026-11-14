@@ -504,6 +504,9 @@ class ToolPage(QWidget):
         if kind=='basic' and index=='sum':
             from .signal_product_panel import SignalProductPanel
             self.panel=SignalProductPanel(window,'sum');root.addWidget(self.panel);return
+        if kind=='basic' and index=='measures':
+            from .record_measurements_panel import RecordMeasurePanel
+            self.panel=RecordMeasurePanel(window);root.addWidget(self.panel);return
         if kind=='signal_product':
             from .signal_product_panel import SignalProductPanel
             self.panel=SignalProductPanel(window);root.addWidget(self.panel);return

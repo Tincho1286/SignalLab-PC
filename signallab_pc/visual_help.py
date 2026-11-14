@@ -60,6 +60,9 @@ def _diagrams_for(section):
         caption='Azul: parte ordinaria de la señal. Verde: posición y peso del impulso ideal. La flecha indica área, no una altura finita ni una muestra de la rejilla.' if section['illustration']=='dirac' else 'Esquema de la función elemental. Los tallos representan muestras independientes.'
         return [('Representación',reference_diagram(section['illustration']),caption)]
     route=section['route']
+    if route and route[1:3]==('basic','measures'):
+        from .record_measurements_help import image
+        return [('Intervalo, distribución y componentes',image(),'Azul: muestras del registro. El fondo indica las incluidas en la medida. Verde: fracción de energía acumulada. Ámbar: referencia y media. El intervalo central reparte la energía restante entre ambas colas; no es necesariamente el más corto. Los cruces discretos no interpolan índices y los continuos utilizan el modelo lineal guardado.')]
     if route and route[1]=='state_space' and route[2] in ('analysis','simulation'):
         from .state_studies_help import image
         return [('Coordenadas, equilibrio y memoria',image(),'Azul: respuesta total del modelo dx/dt=−x+u, y=x, con x₀=2 y escalón unitario. Verde: respuesta desde estado cero. Ámbar: respuesta con entrada cero y memoria inicial. P cambia la descripción del estado, mientras que el equilibrio exige que permanezca constante. El inspector conserva los datos calculados; ZOH no es Euler.')]

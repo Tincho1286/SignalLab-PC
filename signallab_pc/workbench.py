@@ -395,7 +395,10 @@ class WorkbenchWindow(ToolboxWindow):
         if item[1]=='signal_editor':
             self.open_tool(item);self.pages[tuple(item)].panel.receive(value,key);return
         if item[1]=='basic' and item[2] in ('generate','measures'):
-            self.open_tool(item);self.pages[tuple(item)].source_domain.setCurrentIndex(0 if value.domain=='discrete' else 1)
+            self.open_tool(item)
+            page=self.pages[tuple(item)]
+            selector=page.panel.domain if item[2]=='measures' else page.source_domain
+            selector.setCurrentIndex(0 if value.domain=='discrete' else 1)
         if item[1]=='dsp_extensions' and item[2] in ('hilbert','stft'):
             self.open_tool(item);panel=self.pages[tuple(item)].panel;panel.domain.setCurrentIndex(0 if value.domain=='discrete' else 1)
         if item[1:3]==('fourier',6):self.open_tool(item);self.pages[tuple(item)].panel.receive(value,key);return

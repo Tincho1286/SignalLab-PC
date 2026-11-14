@@ -70,19 +70,31 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Esta opción mide energía, potencia media y valor eficaz de un registro. Las tres medidas se basan en el módulo al cuadrado, por lo que también sirven para señales complejas."
+          "Medí energía, potencia y RMS dentro de un intervalo guardado. La misma herramienta permite consultar la energía acumulada, el centro y la dispersión temporal, separar media y alterna y localizar cruces de nivel. Las medidas también admiten valores complejos."
         ],
         [
-          "Cómo preparar el cálculo",
-          "Cargá las muestras y calculá. En discreto, la energía es la suma de |x[n]|²; la potencia media del registro divide esa suma por N, y el valor eficaz o RMS es su raíz cuadrada."
+          "Cómo elegir el intervalo",
+          "Cargá una señal discreta o continua y dejá Desde y Hasta vacíos para usar todos sus puntos. En discreto se incluyen ambos índices; en continuo se incluyen los nodos guardados dentro de los límites y se necesitan al menos dos. El informe muestra el intervalo realmente utilizado."
         ],
         [
-          "Cómo interpretar la salida",
-          "El informe indica el intervalo o los índices usados. En un registro continuo, se integra el modelo lineal entre muestras en lugar de tratar cada valor como una muestra discreta sin duración."
+          "Energía y distribución",
+          "Discreto suma |x[n]|². Continuo integra el modelo lineal entre nodos; una entrada con retención ZOH conserva esa retención. El porcentaje central deja la misma energía en ambas colas: no busca el intervalo más corto. Los extremos discretos son muestras y pueden incluir más energía de la solicitada. Si toda la señal es nula, la fracción acumulada y el centro no están definidos."
         ],
         [
-          "Qué tener en cuenta",
-          "Estas medidas corresponden al registro cargado. Para conocer la potencia de una señal periódica completa, el registro debe representar períodos completos; para estudiar todo el eje, usá las medidas por expresión."
+          "Media y alterna",
+          "La media es la componente constante de esta ventana; al restarla se obtiene la alterna. Ambas quedan como señales reutilizables y el informe muestra sus potencias. La separación corresponde a los datos seleccionados, no a toda una señal infinita."
+        ],
+        [
+          "Cruces y contactos",
+          "Elegí parte real, imaginaria o módulo y un nivel de amplitud. La tabla distingue cruces, contactos y tramos iguales. En discreto, un cruce es la primera muestra del nuevo lado. En continuo se resuelve el segmento complejo; una retención conserva los saltos, sin inventar una rampa. Exportar la tabla conserva las unidades y el intervalo."
+        ],
+        [
+          "Continuar con los resultados",
+          "El selector junto al informe elige el registro, la media, la alterna o la energía acumulada en los nodos. Gráficos, exportación y CAS utilizan esa salida. Todas las señales calculadas quedan en Resultados; editar las entradas conserva el cálculo anterior hasta recalcular. La acumulada del modelo lineal es cúbica entre nodos; una recta que los una sólo guía la lectura."
+        ],
+        [
+          "Alcance",
+          "Estas medidas no clasifican la señal infinita. Para estudiar expresiones sobre todo el eje o un período, elegí las otras operaciones de Energía, potencia y RMS. Los impulsos Dirac ideales no tienen energía cuadrática finita. Las medidas fuera del rango numérico conservan texto científico, sin sustituirse por cero o infinito."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -394,43 +406,33 @@
         "measures"
       ],
       "flow": [
-        "Registro finito",
-        "E = Σ|x[n]|²",
-        "P = E/N; RMS = √P"
+        "Registro e intervalo",
+        "Medidas y componentes",
+        "Informe, señales y cruces"
       ],
       "parameters": [
         [
           "Entrada",
-          "Fórmula en n o muestras separadas por coma; para decimales usá punto. Ejemplo: 1, -0.5, 2."
+          "Fórmula, muestras, archivo o resultado. El dominio se elige como discreto o continuo; se conserva el reloj disponible."
         ],
         [
-          "Inicio y cantidad",
-          {
-            "ref": "inicio-y-cantidad-3ad0ceba"
-          }
+          "Desde y Hasta",
+          "Vacíos usan todo el registro. Incluyen muestras guardadas en esos límites. Usá índices enteros en discreto o coordenadas del eje en continuo; el informe indica los extremos realmente utilizados."
         ],
         [
-          "Dominio del registro",
-          "Discreta usa suma de |x[n]|². Continua interpola x(t) linealmente entre los puntos y obtiene la integral de |x(t)|² de ese modelo."
+          "Energía central (%)",
+          "Porcentaje mayor que cero y como máximo 100. El resto se reparte por igual entre las dos colas de energía. No es un ancho de amplitud ni el intervalo más corto."
         ],
         [
-          "Potencia del registro",
-          "Se divide la energía por N en discreto o por la duración T en continuo. Ese promedio no clasifica por sí solo la señal infinita."
+          "Componente y nivel",
+          "Los cruces usan parte real, imaginaria o módulo. El nivel está en amplitud; para módulo no puede ser negativo. En discreto no se interpolan índices y en ZOH se distinguen saltos."
         ],
         [
-          "Importar o reutilizar",
-          {
-            "ref": "importar-o-reutilizar-ae5699e5"
-          }
-        ],
-        [
-          "Levantamiento de indeterminaciones",
-          {
-            "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
-          }
+          "Resultado seleccionado",
+          "El selector del área de resultados determina la señal para figura, exportación, CAS y reutilización. La tabla de cruces conserva el cálculo completo."
         ]
       ],
-      "reading": "El promedio se refiere al registro cargado. No demuestra la energía ni la potencia de una extensión infinita. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La media, la energía y la potencia pertenecen al intervalo informado. Centro y dispersión utilizan |x|² como peso. Los valores acumulados exportados se evalúan en nodos; no son una fórmula continua exacta entre ellos. Un registro nulo no tiene una distribución normalizada de energía. Editar los datos requiere recalcular y conserva el resultado anterior para consulta."
     },
     {
       "key": [
