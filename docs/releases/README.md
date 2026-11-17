@@ -2,13 +2,13 @@
 
 [← Documentación](../README.md)
 
-La descarga estable actual es la **1.8.8**. Consolida las mejoras de las preliminares 1.8.4 a 1.8.7 y desarrolla las fórmulas de las curvas, corrige el acceso a máximos y mínimos y facilita localizar sus resultados. Este índice conserva cada publicación con su canal y sus notas detalladas. Las preliminares anteriores forman parte del historial; sus mejoras quedan incluidas en esta estable.
+La descarga estable actual es la **1.8.14**. Consolida las mejoras de las preliminares 1.8.9 a 1.8.14 y facilita cargar, editar y combinar señales. La [nota de la versión](v1.8.14.md) presenta el pegado validado, el historial del editor, los tramos independientes y la lectura por muestra. Se ofrece en el canal de actualizaciones estables.
 
-La [1.8.14 preliminar](v1.8.14.md) mejora las herramientas básicas con pegado validado, historial del editor, tramos independientes, intercambio de entradas y una tabla de la operación por muestra. Se puede recibir habilitando preliminares y no cambia la descarga estable recomendada.
+Este índice conserva las publicaciones anteriores con sus notas y canales históricos. La 1.8.8 queda como estable anterior; las mejoras de las preliminares posteriores están incluidas en la 1.8.14.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
-| [1.8.14](v1.8.14.md) | Carga, edición y combinación de señales | Preliminar |
+| [1.8.14](v1.8.14.md) | Carga, edición y combinación de señales · estable acumulativa | Estable |
 | [1.8.13](v1.8.13.md) | Reconstrucciones, referencia, bordes y aportes de las muestras | Preliminar |
 | [1.8.12](v1.8.12.md) | Intervalos, energía acumulada, continua/alterna y cruces | Preliminar |
 | [1.8.11](v1.8.11.md) | Diagnóstico, coordenadas, equilibrios y respuestas de estados | Preliminar |

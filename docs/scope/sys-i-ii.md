@@ -152,6 +152,6 @@ Energía, potencia y RMS amplía el registro finito con intervalos, distribució
 Reconstruir una señal reúne comparación de núcleos ZOH, lineal y SINC, reloj físico, referencia y errores puntuales, comprobación de nudos y explicación de aportes. La ventana ampliable muestra los bordes y las colas de la secuencia finita extendida por cero. No convierte una coincidencia nodal en prueba de ausencia de aliasing ni en recuperación de una señal infinita. El error se mide en la rejilla común, no como integral continua. Ver [reconstrucción de señales](../reconstruction-studies.md).
 
 
-## 1.8.14 preliminar: trabajo básico con muestras
+## 1.8.14 estable: trabajo básico con muestras
 
 La carga de tablas, la edición reversible y la extracción de tramos facilitan preparar registros de laboratorio. La lectura por muestra de una suma o producto hace explícitos la alineación y el cero fuera del registro. Estas mejoras de uso conservan los modelos de cálculo existentes y el reloj de las señales. No amplían las funciones de espacio de estados ni de señales aleatorias. Ver [herramientas básicas](../basic-usability.md).

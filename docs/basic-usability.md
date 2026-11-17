@@ -20,4 +20,4 @@ En **Sumar o multiplicar señales**, Intercambiar entradas mueve ambas definicio
 
 La pestaña **Operación por muestra** acompaña al informe. Muestra x, la segunda entrada, el resultado y qué registros cubren cada coordenada. Sus páginas y su exportación CSV conservan el último cálculo, aunque se editen las entradas. En continuo usa la misma interpolación lineal que la operación; no convierte impulsos Dirac en muestras finitas. Ir a selecciona el punto de salida más próximo en continuo, o un índice entero en discreto.
 
-Estas mejoras pertenecen a la 1.8.14 preliminar. Las figuras y acciones de reutilización siguen junto a los resultados.
+Estas mejoras pertenecen a la 1.8.14 estable. Las figuras y acciones de reutilización siguen junto a los resultados.

@@ -2,9 +2,9 @@
 
 La versión estable actual es la [1.8.8](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.8). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
-## 1.8.14 · Preliminar
+## 1.8.14 · Estable
 
-Las entradas de muestras permiten pegar secuencias o tablas con vista previa, columnas explícitas y validación del eje. El editor incorpora deshacer y rehacer, pegados atómicos y extracción de tramos que conservan índices y reloj. Suma y producto intercambian definiciones completas y presentan una tabla paginada de entradas, resultado y cobertura, con exportación CSV. La ayuda explica los nuevos recorridos y los métodos de carga ocupan dos filas legibles. La 1.8.8 continúa estable.
+Las entradas de muestras permiten pegar secuencias o tablas con vista previa, columnas explícitas y validación del eje. El editor incorpora deshacer y rehacer, pegados atómicos y extracción de tramos que conservan índices y reloj. Suma y producto intercambian definiciones completas y presentan una tabla paginada de entradas, resultado y cobertura, con exportación CSV. La ayuda explica los nuevos recorridos y los métodos de carga ocupan dos filas legibles. Esta estable consolida también las mejoras de las preliminares 1.8.9 a 1.8.13 y reemplaza a la 1.8.8 como descarga recomendada.
 
 [Novedades completas](docs/releases/v1.8.14.md) · [Guía de herramientas básicas](docs/basic-usability.md)
 

@@ -3,8 +3,8 @@
     {
       "tag": "v1.8.14",
       "title": "Carga, edición y combinación de señales",
-      "channel": "preview",
-      "summary": "Cinco mejoras en herramientas básicas: pegado validado, historial del editor, extracción de tramos, intercambio de entradas y lectura de la operación por muestra. La 1.8.8 continúa estable.",
+      "channel": "stable",
+      "summary": "Versión estable acumulativa con las mejoras de las preliminares 1.8.9 a 1.8.14. Facilita cargar, editar y combinar muestras, y consolida los estudios de respuesta temporal, frecuencia, registros y reconstrucción.",
       "changes": [
         "Pegar datos permite revisar columnas, encabezado, constantes y coma decimal antes de modificar la entrada.",
         "El editor permite deshacer y rehacer muestras y campos sin alterar resultados aplicados.",

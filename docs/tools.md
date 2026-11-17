@@ -14,7 +14,7 @@ El producto punto a punto sirve para enventanar una señal. Las entradas se alin
 
 Desde la 1.8.12 preliminar, Medir un registro permite seleccionar un intervalo y consultar la energía acumulada, el centro, la dispersión y un porcentaje central de energía. Publica la media compleja y la alterna como señales independientes y localiza cruces y contactos. Conserva la diferencia entre muestras, segmentos lineales y retención ZOH. La [guía de medidas de registros](record-measurements.md) explica los intervalos, las unidades y las salidas disponibles.
 
-Desde la 1.8.14 preliminar, las entradas de muestras ofrecen pegado con vista previa y columnas explícitas. El editor incorpora deshacer, rehacer y extracción de tramos independientes. Suma y producto intercambian sus definiciones y muestran la alineación y la cobertura de cada registro en Operación por muestra. La [guía de herramientas básicas](basic-usability.md) explica la conservación de las salidas aplicadas, los índices y el reloj.
+Desde la 1.8.14 estable, las entradas de muestras ofrecen pegado con vista previa y columnas explícitas. El editor incorpora deshacer, rehacer y extracción de tramos independientes. Suma y producto intercambian sus definiciones y muestran la alineación y la cobertura de cada registro en Operación por muestra. La [guía de herramientas básicas](basic-usability.md) explica la conservación de las salidas aplicadas, los índices y el reloj.
 
 ## Sistemas LTI
 

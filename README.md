@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.8.8" src="https://img.shields.io/badge/estable-1.8.8-71d7c4?style=flat-square&amp;labelColor=172632"></a>
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.8.14" src="https://img.shields.io/badge/estable-1.8.14-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
   <img alt="Instaladores y portables para Windows y Linux" src="https://img.shields.io/badge/Windows%20%2B%20Linux-instaladores%20y%20portables-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
@@ -25,20 +25,20 @@ Cada herramienta tiene sus propias entradas y puede utilizarse de manera indepen
 
 ## Descargar
 
-La versión estable **1.8.8** está disponible para Windows x64 y Linux x86_64. Los cuatro paquetes incluyen Python y las dependencias de la aplicación; no hace falta instalar Python por separado.
+La versión estable **1.8.14** está disponible para Windows x64 y Linux x86_64. Los cuatro paquetes incluyen Python y las dependencias de la aplicación; no hace falta instalar Python por separado.
 
 | Formato | Cuándo elegirlo | Windows x64 | Linux x86_64 |
 | --- | --- | --- | --- |
-| **Instalable** | Para tener accesos en el sistema y actualizar desde la aplicación. | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.8/SignalLab-PC-1.8.8-setup.exe) | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.8/SignalLab-PC-1.8.8-linux-x86_64.run) |
-| **Portable** | Para ejecutar la aplicación desde una carpeta, sin registrar una instalación. | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.8/SignalLab-PC-1.8.8.exe) | [Paquete .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.8/SignalLab-PC-1.8.8-linux-x86_64.tar.gz) |
+| **Instalable** | Para tener accesos en el sistema y actualizar desde la aplicación. | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.14/SignalLab-PC-1.8.14-setup.exe) | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.14/SignalLab-PC-1.8.14-linux-x86_64.run) |
+| **Portable** | Para ejecutar la aplicación desde una carpeta, sin registrar una instalación. | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.14/SignalLab-PC-1.8.14.exe) | [Paquete .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.14/SignalLab-PC-1.8.14-linux-x86_64.tar.gz) |
 
-En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh ./SignalLab-PC-1.8.8-linux-x86_64.run`; el portable se descomprime para ejecutar `SignalLab-PC` dentro de su carpeta. La [guía de instalación](docs/installation.md) explica ambos recorridos y enlaza los requisitos y las posibles alertas del sistema.
+En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh ./SignalLab-PC-1.8.14-linux-x86_64.run`; el portable se descomprime para ejecutar `SignalLab-PC` dentro de su carpeta. La [guía de instalación](docs/installation.md) explica ambos recorridos y enlaza los requisitos y las posibles alertas del sistema.
 
 ### Canal estable y preliminares
 
-La **1.8.8 estable** consolida las mejoras de las preliminares 1.8.4 a 1.8.7 y agrega fórmulas de curvas desarrolladas, una búsqueda de máximos y mínimos visible y marcas sobre las posiciones encontradas. Está disponible con la preferencia **Sólo estables** del actualizador. El selector **Estables y preliminares (Pre-releases)** permite recibir también las entregas de prueba cuando sean más nuevas que la estable instalada.
+La **1.8.14 estable** consolida las mejoras de las preliminares 1.8.9 a 1.8.14 y está disponible con **Sólo versiones estables** del actualizador. Incluye las ampliaciones de respuesta temporal, medidas de frecuencia, estudios de modelos, registros y reconstrucción, junto con las mejoras de carga y edición de muestras. El selector **Estables y preliminares (Pre-releases)** permite recibir futuras entregas de prueba cuando sean más nuevas que la estable instalada.
 
-La [1.8.14 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.14) agiliza el trabajo con muestras: incorpora pegado con vista previa, deshacer y rehacer en el editor, extracción de tramos e intercambio de entradas. La tabla Operación por muestra permite leer la alineación de una suma o un producto y exportar sus valores. La [guía de herramientas básicas](docs/basic-usability.md) explica estos recorridos. Para recibirla, elegí **Estables y preliminares (Pre-releases)**; la descarga estable recomendada sigue siendo la 1.8.8.
+La [1.8.14 estable](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.14) agiliza el trabajo con muestras: permite pegar tablas con vista previa, deshacer y rehacer en el editor, extraer tramos e intercambiar entradas. La tabla Operación por muestra permite leer la alineación de una suma o un producto y exportar sus valores. La [guía de herramientas básicas](docs/basic-usability.md) explica estos recorridos.
 
 ### Actualizar una instalación
 
@@ -79,7 +79,7 @@ El alcance depende del método elegido y de sus hipótesis. Una evaluación sobr
 
 ## Novedades e historial
 
-La [1.8.14 preliminar](docs/releases/v1.8.14.md) concentra cinco mejoras en la carga, edición y combinación de señales. La vista previa valida los datos antes de usarlos; el historial mantiene independientes las salidas aplicadas y la extracción conserva los índices y el reloj. Suma y producto permiten intercambiar definiciones y consultar sus valores alineados junto al informe. La [guía de herramientas básicas](docs/basic-usability.md) desarrolla el alcance de estas operaciones.
+La [1.8.14 estable](docs/releases/v1.8.14.md) concentra cinco mejoras en la carga, edición y combinación de señales. La vista previa valida los datos antes de usarlos; el historial mantiene independientes las salidas aplicadas y la extracción conserva los índices y el reloj. Suma y producto permiten intercambiar definiciones y consultar sus valores alineados junto al informe. La [guía de herramientas básicas](docs/basic-usability.md) desarrolla el alcance de estas operaciones.
 
 La [1.8.13 preliminar](docs/releases/v1.8.13.md) compara tres modelos de reconstrucción sobre las mismas muestras y permite medir sus diferencias con una referencia. La ventana ampliable revela los bordes y las colas de los núcleos. La tabla de nudos y el inspector relacionan cada curva con sus muestras, pesos y reloj, sin interpretar una coincidencia nodal como prueba de ausencia de aliasing. La [guía de reconstrucción](docs/reconstruction-studies.md) desarrolla estas operaciones y la exportación completa de comparaciones.
 
