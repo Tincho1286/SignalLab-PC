@@ -1,6 +1,27 @@
 {
   "releases": [
     {
+      "tag": "v1.8.14",
+      "title": "Carga, edición y combinación de señales",
+      "channel": "preview",
+      "summary": "Cinco mejoras en herramientas básicas: pegado validado, historial del editor, extracción de tramos, intercambio de entradas y lectura de la operación por muestra. La 1.8.8 continúa estable.",
+      "changes": [
+        "Pegar datos permite revisar columnas, encabezado, constantes y coma decimal antes de modificar la entrada.",
+        "El editor permite deshacer y rehacer muestras y campos sin alterar resultados aplicados.",
+        "Extraer tramo publica una señal independiente con los valores editados, sus índices y su reloj físico.",
+        "Suma y producto intercambian entradas completas sin calcular ni perder archivos y resultados cargados.",
+        "La tabla Operación por muestra conserva el último cálculo y muestra alineación y cobertura, con navegación y CSV completo.",
+        "Los cuatro métodos de carga se distribuyen en dos filas para mantener visibles sus nombres."
+      ],
+      "limits": [
+        "El pegado exige un eje uniforme y creciente; no ordena ni remuestrea datos irregulares.",
+        "La extracción continua usa puntos del registro existente y no evalúa una fórmula entre ellos.",
+        "La tabla de suma y producto muestra valores ordinarios; los impulsos ideales se conservan en el informe.",
+        "La suma cubre la unión de registros; el producto conserva el intervalo de la primera señal."
+      ],
+      "notes": "docs/releases/v1.8.14.md"
+    },
+    {
       "tag": "v1.8.13",
       "title": "Comparación de reconstrucciones y aportes de las muestras",
       "channel": "preview",

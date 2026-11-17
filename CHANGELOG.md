@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.8](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.8). Este recorrido resume la finalidad de cada entrega; las notas enlazadas desarrollan sus cambios, compatibilidad y límites. Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.14 · Preliminar
+
+Las entradas de muestras permiten pegar secuencias o tablas con vista previa, columnas explícitas y validación del eje. El editor incorpora deshacer y rehacer, pegados atómicos y extracción de tramos que conservan índices y reloj. Suma y producto intercambian definiciones completas y presentan una tabla paginada de entradas, resultado y cobertura, con exportación CSV. La ayuda explica los nuevos recorridos y los métodos de carga ocupan dos filas legibles. La 1.8.8 continúa estable.
+
+[Novedades completas](docs/releases/v1.8.14.md) · [Guía de herramientas básicas](docs/basic-usability.md)
+
 ## 1.8.13 · Preliminar
 
 Reconstruir una señal compara ZOH, lineal y SINC sobre un reloj común, permite usar una referencia con medidas de error, comprobar los nudos originales y ampliar la ventana para explorar bordes y colas. El inspector evalúa los pesos y aportes en un instante, incluidos puntos fuera de la figura, y conserva el último cálculo al editar las entradas. Curvas, errores, pesos y tablas se registran y reutilizan. La exportación compartida conserva todos los miembros de una comparación y las figuras ZOH mantienen la retención. La ayuda incorpora un esquema en colores. La 1.8.8 continúa estable.

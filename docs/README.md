@@ -4,7 +4,7 @@ Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e inte
 
 La [1.8.8 estable](releases/v1.8.8.md) desarrolla las fórmulas de las curvas y mejora el acceso y la representación de máximos y mínimos. La [guía de gráficos](cursors.md) explica el alcance de las mediciones y la fase. También consolida las ampliaciones anteriores de gráficos e informes, [estimación AR](ar-estimation.md), [medidas espectrales](spectral-measurements.md), [ventanas temporales](time-frequency.md) y biblioteca por temas.
 
-La [1.8.13 preliminar](releases/v1.8.13.md) amplía la reconstrucción con modelos comparables, referencia y error, nudos originales, ventana ampliable e inspector de aportes. La [guía de reconstrucción](reconstruction-studies.md) explica sus núcleos y límites. Conserva las ampliaciones de [registros](record-measurements.md), [estados](state-studies.md), [frecuencia](frequency-measurements.md) y [respuesta temporal](temporal-responses.md).
+La [1.8.14 preliminar](releases/v1.8.14.md) facilita la carga, edición y combinación de muestras. La [guía de herramientas básicas](basic-usability.md) explica el pegado validado, el historial, la extracción de tramos y la lectura de entradas alineadas. Conserva todas las mejoras de las entregas anteriores.
 
 ## Instalar y empezar
 
@@ -30,6 +30,7 @@ El [catálogo de herramientas](tools.md) organiza las operaciones por el problem
 | Comparar respuestas y medir el transitorio | [Respuesta temporal](temporal-responses.md) |
 | Leer niveles y comprobar bandas de un filtro | [Medidas de frecuencia](frequency-measurements.md) |
 | Estudiar coordenadas, equilibrios y memoria | [Estudios de estados](state-studies.md) |
+| Cargar tablas, deshacer ediciones y combinar muestras | [Herramientas básicas](basic-usability.md) |
 | Medir energía temporal, componentes y cruces | [Medidas de registros](record-measurements.md) |
 | Comparar reconstrucciones y explicar sus núcleos | [Reconstrucción de señales](reconstruction-studies.md) |
 | Configurar colores y foto de fondo | [Temas de apariencia](appearance.md) |

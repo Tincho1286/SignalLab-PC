@@ -38,7 +38,7 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 La **1.8.8 estable** consolida las mejoras de las preliminares 1.8.4 a 1.8.7 y agrega fórmulas de curvas desarrolladas, una búsqueda de máximos y mínimos visible y marcas sobre las posiciones encontradas. Está disponible con la preferencia **Sólo estables** del actualizador. El selector **Estables y preliminares (Pre-releases)** permite recibir también las entregas de prueba cuando sean más nuevas que la estable instalada.
 
-La [1.8.13 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.13) amplía Reconstruir una señal con comparación ZOH/lineal/SINC, referencia y error, comprobación de nudos, ventanas ampliables e inspector de aportes. La [guía de reconstrucción](docs/reconstruction-studies.md) relaciona los núcleos con el reloj, los bordes y las medidas. Conserva las ampliaciones de [registros](docs/record-measurements.md), [estados](docs/state-studies.md), [frecuencia](docs/frequency-measurements.md) y [respuesta temporal](docs/temporal-responses.md). Para recibirla, elegí **Estables y preliminares (Pre-releases)**; la descarga estable recomendada sigue siendo la 1.8.8.
+La [1.8.14 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.14) agiliza el trabajo con muestras: incorpora pegado con vista previa, deshacer y rehacer en el editor, extracción de tramos e intercambio de entradas. La tabla Operación por muestra permite leer la alineación de una suma o un producto y exportar sus valores. La [guía de herramientas básicas](docs/basic-usability.md) explica estos recorridos. Para recibirla, elegí **Estables y preliminares (Pre-releases)**; la descarga estable recomendada sigue siendo la 1.8.8.
 
 ### Actualizar una instalación
 
@@ -78,6 +78,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La [1.8.14 preliminar](docs/releases/v1.8.14.md) concentra cinco mejoras en la carga, edición y combinación de señales. La vista previa valida los datos antes de usarlos; el historial mantiene independientes las salidas aplicadas y la extracción conserva los índices y el reloj. Suma y producto permiten intercambiar definiciones y consultar sus valores alineados junto al informe. La [guía de herramientas básicas](docs/basic-usability.md) desarrolla el alcance de estas operaciones.
 
 La [1.8.13 preliminar](docs/releases/v1.8.13.md) compara tres modelos de reconstrucción sobre las mismas muestras y permite medir sus diferencias con una referencia. La ventana ampliable revela los bordes y las colas de los núcleos. La tabla de nudos y el inspector relacionan cada curva con sus muestras, pesos y reloj, sin interpretar una coincidencia nodal como prueba de ausencia de aliasing. La [guía de reconstrucción](docs/reconstruction-studies.md) desarrolla estas operaciones y la exportación completa de comparaciones.
 
