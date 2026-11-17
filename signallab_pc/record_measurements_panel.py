@@ -21,10 +21,6 @@ class RecordMeasurePanel(QWidget):
         self.discrete_source=LocalInput('Entrada x[n]','discrete');self.continuous_source=LocalInput('Entrada x(t)','continuous')
         for source in (self.discrete_source,self.continuous_source):
             source.bind_project(window);left.addWidget(source)
-            selector=source.entry_modes;row=selector.layout()
-            while row.count():row.takeAt(0)
-            grid=QGridLayout();grid.setContentsMargins(0,0,0,0);grid.setSpacing(4);row.addLayout(grid)
-            for i,button in enumerate(selector.buttons):grid.addWidget(button,i//2,i%2)
             source.interval.layout().setDirection(QBoxLayout.Direction.TopToBottom)
         self.continuous_source.hide();form=QFormLayout();form.setProperty('stackFields',True);form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows);left.addLayout(form)
         self.low=QLineEdit();self.high=QLineEdit();self.low.setPlaceholderText('Vacío: primer punto');self.high.setPlaceholderText('Vacío: último punto')

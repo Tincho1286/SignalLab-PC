@@ -87,6 +87,7 @@ class LocalInput(QGroupBox):
         from .choice_buttons import ChoiceButtons
         from .source_selector import SourceSelector
         self.entry_modes=SourceSelector(self.mode);form.addRow(self.entry_modes);form.addRow('X(ω), usar w como variable' if kind=='frequency' else 'x(t)' if kind=='continuous' else 'x[n]',self.expression);form.addRow('Valores separados por coma',self.samples)
+        self.paste_button=QPushButton('Pegar datos…');self.paste_button.setToolTip('Revisar columnas, eje y valores antes de cargar el portapapeles.');self.paste_button.clicked.connect(self.paste_samples);form.addRow(self.paste_button)
         interval=QWidget();self.interval=interval;row=QHBoxLayout(interval);row.setContentsMargins(0,0,0,0);row.setSpacing(8)
         fields=[('Inicio',self.origin),('Cantidad',self.count)]
         if kind in ('continuous','frequency'):fields.append(('Paso angular' if kind=='frequency' else 'Paso (s)',self.step))
@@ -103,13 +104,26 @@ class LocalInput(QGroupBox):
         self.file_note=QLabel('Abrí JSON, CSV o MATLAB (.mat / .m). Podés elegir las variables, columnas y el eje de los datos externos.');self.file_note.setWordWrap(True);form.addRow(self.file_note)
         load=QPushButton('Elegir archivo…');load.clicked.connect(self.open_file);form.addRow(load)
         def update(index):
-            form.setRowVisible(self.expression,index==0);form.setRowVisible(self.samples,index==1)
+            form.setRowVisible(self.expression,index==0);form.setRowVisible(self.samples,index==1);form.setRowVisible(self.paste_button,index==1)
             form.setRowVisible(interval,index!=2);form.setRowVisible(self.file_note,index==2)
             if hasattr(self,'frequency_units'):form.setRowVisible(self.frequency_units,index!=2)
             axis_widgets[self.count].setVisible(index==0);form.setRowVisible(load,index==2)
             if hasattr(self,'recent'):form.setRowVisible(self.recent,index==2 and self.entry_modes.view==3);form.setRowVisible(self.browse_results,index==2 and self.entry_modes.view==3)
         self.entry_modes.viewChanged.connect(lambda:update(self.mode.currentIndex()))
         self.mode.currentIndexChanged.connect(update);self.mode.setCurrentIndex(2 if kind=='import' else 0);update(self.mode.currentIndex())
+    def paste_samples(self):
+        from PySide6.QtWidgets import QApplication
+        from .sample_paste_dialog import PasteSignalDialog
+        dialog=PasteSignalDialog(QApplication.clipboard().text(),self.kind if self.kind!='import' else 'discrete',self.origin.text(),self.step.text(),self.frequency_units.currentText() if hasattr(self,'frequency_units') else None,self)
+        if dialog.exec():self.apply_pasted_signal(dialog.result_signal)
+
+    def apply_pasted_signal(self,value):
+        from .sample_paste import values_text
+        self.validate_data_kind(value)
+        if self.kind!='import' and value.domain!=self.kind:raise ValueError('El dominio de los datos no coincide con esta entrada.')
+        self.samples.setText(values_text(value.values));self.origin.setText(str(value.origin));self.step.setText(str(value.step));self.count.setText(str(value.values.size));self.entry_modes.select(1)
+        self.reference_id=None;self.fingerprint=None;self.source_revision=getattr(self,'source_revision',0)+1;self.sourceChanged.emit()
+
     def data_kinds(self):
         if hasattr(self,'accepted_kinds'):return self.accepted_kinds
         role=getattr(self,'role',None)

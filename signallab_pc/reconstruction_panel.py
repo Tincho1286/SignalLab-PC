@@ -30,10 +30,7 @@ class ReconstructionPanel(QWidget):
         super().__init__();self.window=window;self.calculation_title='Reconstruir una señal';self.run=None;self.record_id=None;self.signals={};self.ids={};self.inspection=None
         root=QVBoxLayout(self);root.setContentsMargins(0,0,0,0);split=QSplitter(Qt.Orientation.Horizontal);split.setChildrenCollapsible(False);root.addWidget(split,1)
         controls=QWidget();left=QVBoxLayout(controls);self.calculate_button=QPushButton('Comparar reconstrucciones');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);left.addWidget(self.calculate_button)
-        self.source=LocalInput('Muestras x[n]','discrete');self.source.bind_project(window);left.addWidget(self.source);row=self.source.entry_modes.layout()
-        while row.count():row.takeAt(0)
-        grid=QGridLayout();grid.setSpacing(4);grid.setContentsMargins(0,0,0,0);row.addLayout(grid)
-        for i,button in enumerate(self.source.entry_modes.buttons):grid.addWidget(button,i//2,i%2)
+        self.source=LocalInput('Muestras x[n]','discrete');self.source.bind_project(window);left.addWidget(self.source)
         self.source.interval.layout().setDirection(QBoxLayout.Direction.TopToBottom)
         form=QFormLayout();form.setProperty('stackFields',True);form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows);left.addLayout(form)
         self.rate=QLineEdit('100');self.start=QLineEdit('0');self.factor=QLineEdit('16');self.before=QLineEdit('0');self.after=QLineEdit('0')

@@ -3,7 +3,7 @@ import numpy as np
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLabel,
     QPushButton,QLineEdit,QTableWidget,QTableWidgetItem,QMessageBox,QScrollArea,
-    QComboBox)
+    QComboBox,QDialog,QDialogButtonBox)
 from .numeric_input import real_field,integer_field
 from .resources import ensure_working_set
 from .distributions import regular_only
@@ -37,11 +37,18 @@ class SignalEditorPanel(QWidget):
         right=QWidget();layout=QVBoxLayout(right);root.addWidget(right,2)
         self.status=QLabel('Abrí una señal para ver sus muestras.');self.status.setWordWrap(True);layout.addWidget(self.status)
         self.tabs=ActiveTabs();layout.addWidget(self.tabs,1);edit=QWidget();editor=QVBoxLayout(edit);editor.setContentsMargins(0,0,0,0)
-        self.table=QTableWidget(0,3);self.table.setHorizontalHeaderLabels(['Eje','Real','Imaginaria']);self.table.itemChanged.connect(self.edit_cell);self.table.setMinimumHeight(230);editor.addWidget(self.table,1)
+        from .signal_edit_history import History
+        self.history=History(self);bar=QHBoxLayout();self.undo_button=QPushButton('Deshacer');self.redo_button=QPushButton('Rehacer');self.undo_button.clicked.connect(self.history.stack.undo);self.redo_button.clicked.connect(self.history.stack.redo);self.history.stack.canUndoChanged.connect(self.undo_button.setEnabled);self.history.stack.canRedoChanged.connect(self.redo_button.setEnabled);self.undo_button.setEnabled(False);self.redo_button.setEnabled(False)
+        for button in (self.undo_button,self.redo_button):bar.addWidget(button)
+        editor.addLayout(bar);bar=QHBoxLayout();self.paste_button=QPushButton('Pegar muestras…');self.paste_button.clicked.connect(self.paste);self.extract_button=QPushButton('Extraer tramo…');self.extract_button.clicked.connect(self.extract_dialog);bar.addWidget(self.paste_button);bar.addWidget(self.extract_button);editor.addLayout(bar)
+        from PySide6.QtGui import QKeySequence
+        for action,shortcut in ((self.history.stack.createUndoAction(self,'Deshacer'),QKeySequence.StandardKey.Undo),(self.history.stack.createRedoAction(self,'Rehacer'),QKeySequence.StandardKey.Redo)):
+            action.setShortcut(shortcut);action.setShortcutContext(Qt.ShortcutContext.WidgetWithChildrenShortcut);self.addAction(action)
+        self.table=QTableWidget(0,3);self.table.setHorizontalHeaderLabels(['Eje','Real','Imaginaria']);self.table.itemChanged.connect(self.edit_cell);self.table.setMinimumHeight(160);editor.addWidget(self.table,1)
         bar=QHBoxLayout();self.previous=QPushButton('← Anterior');self.next=QPushButton('Siguiente →');self.page_label=QLabel()
         self.previous.clicked.connect(lambda:self.change_page(-1));self.next.clicked.connect(lambda:self.change_page(1));bar.addWidget(self.previous);bar.addWidget(self.page_label,1);bar.addWidget(self.next);editor.addLayout(bar)
         self.tabs.addTab(edit,'Muestras');self.output=ResultView();self.result_tab=self.tabs.addTab(self.output,'Resultado');self.tabs.setTabVisible(self.result_tab,False)
-        self.update_buttons()
+        self.segment_output=ResultView();self.segment_tab=self.tabs.addTab(self.segment_output,'Tramo extraído');self.tabs.setTabVisible(self.segment_tab,False);self.update_buttons()
 
     @property
     def source(self):return self.sources.currentWidget()
@@ -50,6 +57,7 @@ class SignalEditorPanel(QWidget):
         active=self.current is not None
         self.name.setEnabled(active);self.origin.setEnabled(active);self.step.setEnabled(active and self.current.domain!='discrete')
         self.commit_button.setEnabled(active and (self.pending or self.applied is None))
+        self.paste_button.setEnabled(active);self.extract_button.setEnabled(active)
         self.previous.setEnabled(active and self.offset>0);self.next.setEnabled(active and self.offset+self.page_size<self.current.values.size)
         if active:
             domain='discreta' if self.current.domain=='discrete' else 'continua muestreada'
@@ -57,7 +65,7 @@ class SignalEditorPanel(QWidget):
             self.status.setText(f'{self.current.name} · {domain} · eje en {self.current.units}\n{state}')
 
     def _fields_changed(self,*_):
-        if self.current is not None and not self._setting_fields:self.pending=True;self.update_buttons()
+        if self.current is not None and not self._setting_fields:self.history.field_changed()
 
     def receive(self,source,key=None):
         # Load an incoming result directly into the editable table.
@@ -89,16 +97,20 @@ class SignalEditorPanel(QWidget):
         self.axis_form.labelForField(self.origin).setText('Primer índice n' if discrete else f'Primer instante t ({source.units})')
         self.axis_form.labelForField(self.step).setText('Paso entre índices' if discrete else f'Separación entre puntos ({source.units})')
         self.table.setHorizontalHeaderLabels(['Índice n' if discrete else f'Tiempo t ({source.units})','Real','Imaginaria'])
-        self.tabs.setTabVisible(self.result_tab,False);self.tabs.setCurrentIndex(0);self.render()
+        self.tabs.setTabVisible(self.result_tab,False);self.tabs.setTabVisible(self.segment_tab,False);self.tabs.setCurrentIndex(0);self.history.reset();self.render()
 
     def render(self):
         if self.current is None:return
         start=self.offset;stop=min(start+self.page_size,self.current.values.size)
+        try:
+            origin=integer_field(self.origin) if self.current.domain=='discrete' else real_field(self.origin);step=1 if self.current.domain=='discrete' else real_field(self.step)
+            if step<=0:raise ValueError('Paso inválido')
+        except ValueError:origin,step=self.current.origin,self.current.step
         self.table.blockSignals(True)
         try:
             self.table.setRowCount(stop-start)
             for row,index in enumerate(range(start,stop)):
-                axis=int(self.current.origin)+index if self.current.domain=='discrete' else self.current.origin+index*self.current.step
+                axis=int(origin)+index if self.current.domain=='discrete' else origin+index*step
                 values=[str(axis),format(self.current.values[index].real,'.17g'),format(self.current.values[index].imag,'.17g')]
                 for column,value in enumerate(values):
                     item=QTableWidgetItem(value)
@@ -113,7 +125,7 @@ class SignalEditorPanel(QWidget):
         try:
             value=complex(real_field(self.table.item(item.row(),1)),real_field(self.table.item(item.row(),2)))
             if not np.isfinite(value):raise ValueError('La muestra debe ser un número complejo finito.')
-            if value!=self.current.values[index]:self.current.values[index]=value;self.pending=True;self.changed_rows.add(index)
+            if value!=self.current.values[index]:self.history.values([index],[value])
             self.update_buttons()
         except Exception as exc:QMessageBox.warning(self,'Muestra inválida',str(exc));self.render()
 
@@ -128,11 +140,57 @@ class SignalEditorPanel(QWidget):
 
     def apply_axis(self):return self.commit()
 
+    def paste(self):
+        if self.current is None:return
+        from PySide6.QtWidgets import QApplication
+        from .sample_paste_dialog import PasteSignalDialog
+        try:
+            source=self.staged_signal();row=max(0,self.table.currentRow());start=self.offset+row;origin=int(source.origin)+start if source.domain=='discrete' else source.origin+start*source.step
+            dialog=PasteSignalDialog(QApplication.clipboard().text(),source.domain,str(origin),str(source.step),source.units,self)
+            if dialog.exec():self.paste_values(dialog.result_signal,source)
+        except Exception as exc:QMessageBox.warning(self,'No se pudo pegar',str(exc))
+
+    def paste_values(self,value,source=None):
+        from .signal_segment import extract
+        source=source or self.staged_signal()
+        if value.domain!=source.domain or value.step!=source.step:raise ValueError('El pegado debe conservar el dominio y paso del editor.')
+        end=int(value.origin)+len(value.values)-1 if value.domain=='discrete' else value.origin+(len(value.values)-1)*value.step;segment=extract(source,value.origin,end);start=segment.metadata['selected_offsets'][0]
+        self.history.values(np.arange(start,start+len(value.values)),value.values)
+
+    def extract_dialog(self):
+        if self.current is None:return
+        try:source=self.staged_signal()
+        except Exception as exc:QMessageBox.warning(self,'Revisá el eje',str(exc));return
+        dialog=QDialog(self);dialog.setWindowTitle('Extraer tramo de la edición actual');form=QFormLayout(dialog);rows=sorted({item.row()+self.offset for item in self.table.selectedItems()})
+        first=rows[0] if rows else 0;last=rows[-1] if rows else len(source.values)-1
+        def coordinate(i):return int(source.origin)+i if source.domain=='discrete' else source.origin+i*source.step
+        low=QLineEdit(str(coordinate(first)));high=QLineEdit(str(coordinate(last)));form.addRow('Desde · incluido',low);form.addRow('Hasta · incluido',high);note=QLabel('Crea una señal independiente con los valores editados y los límites indicados. No aplica el resto del registro.');note.setWordWrap(True);form.addRow(note);buttons=QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel);buttons.button(QDialogButtonBox.StandardButton.Ok).setText('Extraer');buttons.rejected.connect(dialog.reject)
+        def accept():
+            try:self.extract_segment(low.text(),high.text());dialog.accept()
+            except Exception as exc:QMessageBox.warning(dialog,'Revisá los límites',str(exc))
+        buttons.accepted.connect(accept);form.addRow(buttons);dialog.exec()
+
+    def extract_segment(self,low,high):
+        from .signal_segment import extract
+        result=extract(self.staged_signal(),low,high);key=self.window.publish(result,operation='Extraer tramo editado',parents=[self.parent_id] if self.parent_id else []);self.segment_output.show_result(result);self.segment_output.result_ids=[key];self.tabs.setTabVisible(self.segment_tab,True);self.tabs.setCurrentIndex(self.segment_tab);return result
+
+    def staged_signal(self):
+        if self.current is None:raise ValueError('Abrí una señal primero.')
+        return self._edited_signal()
+
     def commit(self,*,show=False):
         if self.current is None:return None
         if not self.pending and self.applied is not None:
             if show:self.tabs.setCurrentIndex(self.result_tab)
             return self.applied
+        result=self._edited_signal()
+        key=self.window.publish(result,operation='Edición de muestras y eje',parents=[self.parent_id] if self.parent_id else [])
+        self.parent_id=key;self.current=result.copy_with();self.applied=result;self.pending=False;self.changed_rows=set();self.history.checkpoint()
+        self.render();self.output.show_result(result);self.output.result_ids=[key];self.tabs.setTabVisible(self.result_tab,True)
+        if show:self.tabs.setCurrentIndex(self.result_tab)
+        return result
+
+    def _edited_signal(self):
         origin=integer_field(self.origin) if self.current.domain=='discrete' else real_field(self.origin)
         step=1 if self.current.domain=='discrete' else real_field(self.step)
         if step<=0:raise ValueError('El paso del eje debe ser positivo.')
@@ -140,7 +198,7 @@ class SignalEditorPanel(QWidget):
         result=self.current.copy_with(origin=origin,step=step,name=self.name.text().strip() or self.current.name)
         if self.changed_rows or origin!=self.current.origin or step!=self.current.step:
             # A manually edited record no longer exactly represents its source formula.
-            if result.expression:result.metadata['source_expression']=result.expression
+            if self.current.expression:result.metadata['source_expression']=self.current.expression
             result.expression=''
         result.metadata={**result.metadata,'operation':'edit_samples_and_axis','edited_offsets':sorted(self.changed_rows)}
         if result.domain=='continuous' and result.units=='s' and (origin!=self.current.origin or step!=self.current.step):
@@ -148,8 +206,4 @@ class SignalEditorPanel(QWidget):
             if not np.isfinite(rate):raise ValueError('La tasa del nuevo eje excede el rango numérico.')
             result.metadata.update(time_start_s=origin,sample_rate_hz=rate)
             result.metadata.pop('time_mapping',None)
-        key=self.window.publish(result,operation='Edición de muestras y eje',parents=[self.parent_id] if self.parent_id else [])
-        self.parent_id=key;self.current=result.copy_with();self.applied=result;self.pending=False;self.changed_rows=set()
-        self.render();self.output.show_result(result);self.tabs.setTabVisible(self.result_tab,True)
-        if show:self.tabs.setCurrentIndex(self.result_tab)
         return result

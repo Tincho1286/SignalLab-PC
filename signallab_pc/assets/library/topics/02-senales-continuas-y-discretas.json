@@ -21,6 +21,10 @@
           "Aplicar edición confirma juntos los valores, el nombre y el eje. La pestaña Resultado muestra la versión aplicada y permite exportarla o enviarla a otra herramienta."
         ],
         [
+          "Edición reversible y tramos",
+          "Deshacer y Rehacer recorren los cambios de muestras, nombre y eje. Después de Aplicar edición, deshacer crea una nueva edición pendiente: el resultado aplicado se conserva. Pegar muestras abre una vista previa y modifica un bloque como una sola acción; exige conservar el paso y quedar dentro del registro. Extraer tramo crea una salida independiente con los valores editados y los límites incluidos, sin aplicar el resto del registro. Conserva los índices y el reloj físico."
+        ],
+        [
           "Qué tener en cuenta",
           "Si seguís editando, esos cambios quedan pendientes hasta volver a aplicar. Los impulsos Dirac tienen posición y peso propios: no se editan como muestras de altura finita."
         ],
@@ -29,6 +33,10 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Pegar datos con columnas",
+          "En la entrada Muestras, Pegar datos permite revisar el portapapeles antes de usarlo. Elegí una secuencia, eje y valor, partes real e imaginaria, o eje/real/imaginaria. Podés omitir un encabezado y activar coma decimal; en ese caso las columnas se separan con tabulación o punto y coma. Se admiten constantes como pi, 10^(-3) y complejos. Los ejes deben ser uniformes y crecientes; en discreto avanzan de uno en uno. Los datos no se ordenan ni remuestrean automáticamente."
         ]
       ]
     },
@@ -59,6 +67,10 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Pegar datos con columnas",
+          "En la entrada Muestras, Pegar datos permite revisar el portapapeles antes de usarlo. Elegí una secuencia, eje y valor, partes real e imaginaria, o eje/real/imaginaria. Podés omitir un encabezado y activar coma decimal; en ese caso las columnas se separan con tabulación o punto y coma. Se admiten constantes como pi, 10^(-3) y complejos. Los ejes deben ser uniformes y crecientes; en discreto avanzan de uno en uno. Los datos no se ordenan ni remuestrean automáticamente."
         ]
       ]
     },
@@ -283,6 +295,14 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Pegar datos con columnas",
+          "En la entrada Muestras, Pegar datos permite revisar el portapapeles antes de usarlo. Elegí una secuencia, eje y valor, partes real e imaginaria, o eje/real/imaginaria. Podés omitir un encabezado y activar coma decimal; en ese caso las columnas se separan con tabulación o punto y coma. Se admiten constantes como pi, 10^(-3) y complejos. Los ejes deben ser uniformes y crecientes; en discreto avanzan de uno en uno. Los datos no se ordenan ni remuestrean automáticamente."
+        ],
+        [
+          "Intercambiar y leer la alineación",
+          "Intercambiar entradas cambia las dos definiciones completas, incluidos archivos y resultados cargados, sin calcular. La salida anterior se conserva hasta recalcular. En Operación por muestra se ven las dos entradas, el valor obtenido y la cobertura de cada registro. La tabla conserva el último cálculo, permite ir a un índice o instante y exporta todas sus filas como CSV. En continuo se usa la misma interpolación lineal del cálculo y se muestran valores ordinarios; los impulsos ideales siguen separados en el informe."
         ]
       ]
     },
