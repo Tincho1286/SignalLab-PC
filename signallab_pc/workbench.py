@@ -46,7 +46,7 @@ class WorkbenchWindow(ToolboxWindow):
         self.title=QLabel('Inicio');self.title.setObjectName('pageTitle');self.title.setWordWrap(True);row.addWidget(self.title,1)
         self.back=QPushButton('Volver a resultados');self.back.clicked.connect(lambda:self.show_menu('Proyecto'));self.back.hide();row.addWidget(self.back)
         self.operation_menu=QToolButton();self.operation_menu.setText('Operaciones');self.operation_menu.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);row.addWidget(self.operation_menu)
-        self.calculate_action=QPushButton('Calcular');self.calculate_action.setObjectName('primary');self.calculate_action.setIcon(icon('run',C['on_primary']));self.calculate_action.setIconSize(QSize(16,16));self.calculate_action.setMinimumWidth(124);self.calculate_action.setShortcut('Ctrl+Return');self.calculate_action.setToolTip('Calcular con los datos actuales · Ctrl+Enter');self.calculate_action.clicked.connect(self.calculate_active);row.addWidget(self.calculate_action);self.current_calculate=None
+        self.calculate_action=QPushButton('Calcular');self.calculate_action.setObjectName('primary');self.calculate_action.setIcon(icon('run',C['on_primary']));self.calculate_action.setIconSize(QSize(16,16));self.calculate_action.setMinimumWidth(124);self.calculate_action.setToolTip('Calcular con los datos actuales · Ctrl+Enter');self.calculate_action.clicked.connect(self.calculate_active);row.addWidget(self.calculate_action);self.current_calculate=None
         self.help=QToolButton();self.help.setText('Ayuda');self.help.setObjectName('contextHelp');self.help.setIcon(icon('book',C['green']));self.help.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon);self.help.clicked.connect(self.open_help);row.addWidget(self.help);body.addWidget(heading)
         self.subtitle=QLabel();self.subtitle.setObjectName('muted');self.subtitle.setWordWrap(True);self.subtitle.setContentsMargins(20,0,20,14);body.addWidget(self.subtitle)
         from .workflow_selector import WorkflowSelector
@@ -55,6 +55,8 @@ class WorkbenchWindow(ToolboxWindow):
         self.build_explorer();self.build_workspace()
         from .studio_shell import install_navigation,install_toolbar
         install_navigation(self);self.build_menus();install_toolbar(self)
+        from .desktop_keys import DesktopKeys
+        self.desktop_keys=DesktopKeys(self)
         self.cancel_button=QPushButton('Cancelar cálculo');self.cancel_button.clicked.connect(self._cancel_operations);self.cancel_button.hide();self.statusBar().addPermanentWidget(self.cancel_button)
         self._primary_timer=QTimer(self);self._primary_timer.setInterval(300);self._primary_timer.timeout.connect(self._refresh_primary_action);self._primary_timer.start()
         self.settings=QSettings('SignalLab','Desktop071');geometry=self.settings.value('geometry');state=self.settings.value('studio/panels')
@@ -168,6 +170,7 @@ class WorkbenchWindow(ToolboxWindow):
         from .appearance import install_menu
         install_menu(self,view.addMenu('Tema'))
         help_menu=self.menuBar().addMenu('Ayuda');help_menu.addAction('Ayuda de la herramienta',self.open_help,'F1');help_menu.addAction('Biblioteca',lambda:self.show_menu('Biblioteca'));help_menu.addAction('Funciones de las fórmulas…',self.show_function_help)
+        help_menu.addAction('Interfaz de trabajo',self.show_interface_help);help_menu.addAction('Atajos de teclado…',lambda:self.desktop_keys.show_help())
         help_menu.addSeparator();help_menu.addAction('Buscar actualizaciones…',lambda:self.updates.show());help_menu.addAction('Acerca de SignalLab…',self.about)
         bar=QToolBar('Acciones');bar.setObjectName('mainToolbar');bar.setMovable(False);bar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon);bar.setIconSize(QSize(18,18));self.addToolBar(bar)
         navigation=self.explorer_dock.toggleViewAction();navigation.setText('Menú');navigation.setIcon(icon('menu'));bar.addAction(navigation)
@@ -248,6 +251,7 @@ class WorkbenchWindow(ToolboxWindow):
         index=next((i for i in range(self.documents.count()) if self.documents.tabData(i)==key),-1)
         if index<0:index=self.documents.addTab(title);self.documents.setTabData(index,key);self.documents.setTabToolTip(index,title)
         self.documents.setCurrentIndex(index);self.documents.blockSignals(False);self.title.setText(title);self.stack.setCurrentWidget(page)
+        self.statusBar().showMessage(title)
     def activate_document(self,index):
         key=self.documents.tabData(index)
         if not key:return
@@ -320,6 +324,9 @@ class WorkbenchWindow(ToolboxWindow):
         apply_example(self,example)
     def show_function_help(self):
         self.show_menu('Biblioteca');self.pages['menu','Biblioteca'].select_functions()
+    def show_interface_help(self):
+        from .desktop_help import ARTICLE_ID
+        self.show_menu('Biblioteca');self.pages['menu','Biblioteca'].select_article(ARTICLE_ID)
     def open_help(self):
         if self.current_operation and self.category not in ('Inicio','Proyecto','Biblioteca'):self.show_tool_help(self.current_operation)
         else:self.show_menu('Biblioteca')

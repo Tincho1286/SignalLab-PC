@@ -60,6 +60,8 @@ class ResultActionBar(QWidget):
         elif role in ORDER and role not in self.slots:
             self.slots[role]=button;button.setProperty('resultAction',role)
         elif button not in self.extras:self.extras.append(button)
+        shortcut={'graph':'Alt+G','reuse':'Alt+R','export':'Alt+E'}.get(role)
+        if shortcut and shortcut not in button.toolTip():button.setToolTip((button.toolTip()+' · ' if button.toolTip() else '')+shortcut)
         visible=not button.isHidden() or not button.testAttribute(Qt.WidgetAttribute.WA_WState_ExplicitShowHide)
         button.setParent(self);button.setVisible(visible);button.installEventFilter(self);button.setMinimumWidth(0);button.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed);self.reflow()
         if role=='graph' and not hasattr(button,'graph_home'):
@@ -87,6 +89,8 @@ class ResultActionBar(QWidget):
         row=(len(ORDER)+columns-1)//columns
         for i,button in enumerate(self.extras):QGridLayout.addWidget(self.grid,button,row+i//columns,i%columns)
         for i in range(4):self.grid.setColumnStretch(i,1 if i<columns else 0)
+        sequence=[self.slots.get(role) for role in ORDER]+self.extras;sequence=[button for button in sequence if button is not None and not button.isHidden()]
+        for first,second in zip(sequence,sequence[1:]):QWidget.setTabOrder(first,second)
         self._columns=columns;self.updateGeometry()
     def minimumSizeHint(self):return QSize(0,self.grid.minimumSize().height())
     def use_report(self,report):

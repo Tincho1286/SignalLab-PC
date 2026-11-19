@@ -29,7 +29,7 @@ class NoGui(importlib.abc.MetaPathFinder):
             raise ImportError('The library catalog must not load '+fullname)
 sys.meta_path.insert(0,NoGui())
 from signallab_pc.library_catalog import sections
-assert len(sections())==122
+assert len(sections())==123
 from signallab_pc.tool_catalog import normalized_key
 assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
 """
@@ -577,7 +577,7 @@ assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
         # Legacy category names remain valid metadata; the visible subject groups
         # may combine or empty them without removing any article or calculation route.
         self.assertTrue(set(v['category'] for v in values)<=set(CATEGORIES))
-        self.assertEqual(set(v['topic'] for v in values),set(TOPICS));self.assertEqual(len(values),122)
+        self.assertEqual(set(v['topic'] for v in values),set(TOPICS));self.assertEqual(len(values),123)
         for old in old_sections():
             matches=[v for v in values if v['route']==old['route'] and v.get('content_kind')=='tool']
             self.assertEqual(len(matches),1,old['route']);self.assertEqual(matches[0]['blocks'],article_blocks(old['route']))
@@ -731,7 +731,7 @@ assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
         self.assertEqual(len(articles),85);self.assertEqual(len(guides),109)
         self.assertTrue(all(len(value['flow'])==3 for value in guides.values()))
         self.assertEqual(guides['basic','measures']['flow'][1],'E = Σ|x[n]|²')
-        self.assertEqual(len(sections()),122)
+        self.assertEqual(len(sections()),123)
         references=function_sections()
         for page in references:
             self.assertTrue(all(title and text for title,text in page['blocks']))

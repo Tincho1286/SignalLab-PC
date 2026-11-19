@@ -274,6 +274,8 @@ def roc_image():
 
 
 def diagrams_for(section):
+    from .desktop_help import ARTICLE_ID,workspace_image
+    if section.get('article_id')==ARTICLE_ID:return [('Ubicación de los controles',workspace_image(),'Verde: definición de entrada. Azul: resultado. La barra mantiene el mismo orden de acciones; su disponibilidad depende del resultado calculado.')]
     diagrams=_diagrams_for(section);route=section.get('route')
     if route:
         from .tool_catalog import locate

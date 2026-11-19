@@ -35,6 +35,7 @@ QFrame#inputSurface QScrollArea > QWidget > QWidget {background:transparent;}
 QWidget#toolWorkspace {background:transparent;}
 QLabel#surfaceTitle {font-size:13pt;font-weight:600;color:@text@;}
 QLabel#surfaceCaption {font-size:9pt;color:@muted@;}
+QLabel[resultStale="true"] {color:@amber@;}
 QLabel#resultEmpty {font-size:12pt;color:@muted@;padding:26px;}
 QWidget#resultActionBar {background:transparent;}
 QWidget#resultActionBar QPushButton,QWidget#resultActionBar QToolButton {min-height:20px;border-radius:11px;padding:8px 8px;font-size:9pt;}
@@ -64,7 +65,7 @@ QPushButton#studioSearch {text-align:left;background:@panel@;border:1px solid @r
 QPushButton#studioSearch:hover {background:@hover@;border-color:@accent@;}
 QWidget#navigationRail {background:@window@;}
 QScrollArea#railScroll,QScrollArea#railScroll > QWidget > QWidget {background:@window@;}
-QToolButton#railItem {background:transparent;border:0;border-radius:19px;padding:9px 2px;color:@muted@;font-size:8pt;}
+QToolButton#railItem {background:transparent;border:1px solid transparent;border-radius:19px;padding:9px 2px;color:@muted@;font-size:8pt;}
 QToolButton#railItem:hover {background:@hover@;}
 QToolButton#railItem:checked {background:@selected@;color:@text@;font-weight:600;}
 QLabel#searchTitle {font-size:22pt;font-weight:600;}
@@ -96,6 +97,10 @@ QListWidget#savedResults {background:@input@;border:0;}
 QListWidget#savedResults::item {padding:12px 10px;margin-bottom:4px;border-radius:10px;}
 QWidget#casToolbar QToolButton {padding:8px 18px 8px 10px;border:1px solid @rule@;background:@input@;}
 QWidget#casToolbar QToolButton::menu-indicator {subcontrol-position:right center;right:6px;width:8px;}
+QPushButton:focus,QToolButton:focus,QLineEdit:focus,QComboBox:focus,QSpinBox:focus,QDoubleSpinBox:focus,QPlainTextEdit:focus,QTableView:focus {border:1px solid @accent@;}
+QToolButton#railItem:focus,QPushButton#quickAction:focus,QPushButton#studioSearch:focus {border:1px solid @accent@;}
+QToolButton[segment="true"]:focus {border:1px solid @text@;}
+QPushButton#primary:focus,QPushButton[primaryAction="true"]:focus {border:1px solid @text@;}
 '''
 
 def stylesheet():return colorize(STYLE)

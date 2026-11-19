@@ -3,6 +3,7 @@ import os,unittest
 os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 from PySide6.QtWidgets import QApplication,QWidget,QVBoxLayout,QPushButton,QScrollArea,QComboBox
 from PySide6.QtTest import QTest
+from PySide6.QtCore import Qt
 from signallab_pc.tool_workspace import ToolWorkspace
 from signallab_pc.result_toolbar import ResultActionBar,ORDER,attach
 from signallab_pc.active_stack import ActiveTabs
@@ -29,6 +30,10 @@ class Frontend(unittest.TestCase):
         bar.resize(430,100);bar.show();self.settle();positions=[bar.grid.getItemPosition(bar.grid.indexOf(bar.slots[role]))[:2] for role in ORDER];self.assertEqual(positions,[(0,0),(0,1),(1,0),(1,1)]);bar.slots['cas'].click();self.assertEqual(clicked,['cas'])
     def test_workspace_keeps_controls_and_result_when_changing_size(self):
         inputs=QWidget();form=QVBoxLayout(inputs);button=QPushButton('dato');form.addWidget(button);result=QWidget();space=ToolWorkspace(inputs,result);self.widgets.append(space);space.resize(1200,700);space.show();self.settle();self.assertFalse(space.compact);space.resize(700,600);self.settle();self.assertTrue(space.compact);space.show_results();self.assertEqual(space.tabs.currentIndex(),1);space.tabs.setCurrentIndex(0);self.assertTrue(button.isVisible());space.resize(1200,700);self.settle();self.assertFalse(space.compact);self.assertIs(space.inputs.content.widget(),inputs);self.assertIs(space.results.content,result)
+    def test_wrapping_document_header_does_not_force_the_preferred_workspace_height(self):
+        from PySide6.QtWidgets import QLabel
+        from signallab_pc.problem_document import ProblemDocument
+        document=ProblemDocument({});header=QLabel('Opciones del cálculo');header.setWordWrap(True);document.layout().insertWidget(0,header);page=QWidget();page.tool_item=('Prueba','test',0,None);root=QVBoxLayout(page);root.setContentsMargins(0,0,0,0);space=ToolWorkspace(QWidget(),QWidget());root.addWidget(space);document.select_page(page);view=QScrollArea();view.setWidgetResizable(True);view.setWidget(document);self.widgets.append(view);view.resize(650,400);view.show();self.settle();self.assertEqual(view.verticalScrollBar().maximum(),0);self.assertLess(space.height(),600);self.assertTrue(space.inputs.isVisibleTo(view));self.assertTrue(space.tabs.isVisibleTo(view))
     def test_graph_moves_with_the_active_result_action_set(self):
         result=QWidget();layout=QVBoxLayout(result);home=ResultActionBar();system=ResultActionBar();system.setProperty('systemResultActions',True);layout.addWidget(home);layout.addWidget(system);graph=QPushButton('graph');home.add_action(graph,'graph');system.hide();space=ToolWorkspace(QWidget(),result);self.widgets.append(space);space.resize(1200,700);space.show();self.settle();self.assertIs(graph.parentWidget(),home);home.hide();system.show();self.settle();self.assertIs(graph.parentWidget(),system);system.hide();home.show();self.settle();self.assertIs(graph.parentWidget(),home)
     def test_long_visible_choices_wrap_without_changing_the_selected_value(self):
@@ -44,6 +49,7 @@ class Frontend(unittest.TestCase):
         from PySide6.QtWidgets import QToolButton
         buttons=tabs.result_selector.row.findChildren(QToolButton);self.assertEqual([button.text() for button in buttons],['Resumen','Respuesta en frecuencia','Una función de transferencia con título largo']);buttons[-1].click();self.settle();self.assertEqual(tabs.currentIndex(),2);self.assertEqual(clicked,[2]);tabs.setTabVisible(1,False);self.settle();self.assertEqual([button.text() for button in tabs.result_selector.row.findChildren(QToolButton)],['Resumen','Una función de transferencia con título largo']);tabs.setTabVisible(1,True);self.settle();self.assertEqual(len(tabs.result_selector.row.findChildren(QToolButton)),3)
         tabs.hide();self.settle();self.assertTrue(tabs.result_selector.row.isHidden());tabs.show();self.settle();self.assertTrue(tabs.result_selector.row.isVisible())
+        selected=tabs.result_selector.buttons[0];parent.activateWindow();selected.setFocus();QTest.keyClick(selected,Qt.Key.Key_Space);self.settle();self.assertIs(tabs.result_selector.buttons[0],selected);self.assertIs(self.app.focusWidget(),selected)
     def test_action_dock_tracks_the_selected_result_without_losing_commands(self):
         from signallab_pc.result_action_dock import install
         tabs=ActiveTabs();bars=[];clicked=[]
@@ -136,6 +142,51 @@ class Frontend(unittest.TestCase):
     def test_coefficient_order_is_visible_for_both_domains_without_parsing_the_values(self):
         from signallab_pc.coefficient_editor import CoefficientEditor
         editor=CoefficientEditor('pi, 0, 10^(-3)');self.widgets.append(editor);self.assertIn('s², s, 1',editor.order_note.text());editor.set_domain(True);self.assertIn('1, z⁻¹, z⁻²',editor.order_note.text());self.assertEqual(editor.text(),'pi, 0, 10^(-3)')
+    def test_resize_keeps_the_focused_surface_and_splitter_proportions(self):
+        from PySide6.QtWidgets import QLineEdit
+        inputs=QWidget();left=QVBoxLayout(inputs);entry=QLineEdit('dato');left.addWidget(entry);result=QWidget();right=QVBoxLayout(result);output=QLineEdit('salida');right.addWidget(output);space=ToolWorkspace(inputs,result);self.widgets.append(space);space.resize(1200,700);space.show();space.activateWindow();self.settle();space.split.setSizes([450,700]);before=space.split.sizes();space.show_results();entry.setFocus();space.resize(700,600);self.settle();self.assertEqual(space.tabs.currentIndex(),0);self.assertIs(self.app.focusWidget(),entry);space.resize(1200,700);self.settle();after=space.split.sizes();self.assertAlmostEqual(after[0]/sum(after),before[0]/sum(before),places=2);output.setFocus();space.resize(700,600);self.settle();self.assertEqual(space.tabs.currentIndex(),1);self.assertIs(self.app.focusWidget(),output)
+    def test_result_freshness_stays_with_the_output_and_keeps_its_input_tracking(self):
+        from PySide6.QtWidgets import QLineEdit,QFormLayout,QHBoxLayout
+        from signallab_pc.result_state import ResultState
+        from signallab_pc.tool_workspace import install
+        page=QWidget();self.widgets.append(page);root=QHBoxLayout(page);inputs=QWidget();form=QFormLayout(inputs);field=QLineEdit('1');button=QPushButton('Calcular');state=ResultState([field],button);form.addRow(state);form.addRow('Entrada',field);form.addRow(button);output=QWidget();QVBoxLayout(output);root.addWidget(inputs);root.addWidget(output);space=install(page);self.assertIs(state.parentWidget(),space.results);self.assertTrue(state.isHidden());state.accept(state.snapshot());self.assertFalse(state.isHidden());field.setText('2');self.assertTrue(state.property('resultStale'));self.assertEqual(button.text(),'Recalcular');state.accept(state.snapshot());self.assertFalse(state.property('resultStale'));self.assertEqual(button.text(),'Calcular')
+    def test_desktop_shortcuts_route_to_the_active_workspace_and_leave_dialogs_alone(self):
+        from PySide6.QtWidgets import QMainWindow,QLineEdit,QTabBar,QStackedWidget,QDialog,QMenu
+        from PySide6.QtCore import Qt
+        from signallab_pc.desktop_keys import DesktopKeys
+        from signallab_pc.result_action_dock import install
+        class Host(QMainWindow):
+            def calculate_active(self):self.calls.append('calculate')
+            def close_document(self,index):self.calls.append('close');self.documents.removeTab(index)
+        host=Host();host.calls=[];self.widgets.append(host);root=QWidget();layout=QVBoxLayout(root);host.setCentralWidget(root);host.documents=QTabBar();host.documents.addTab('Primero');host.documents.addTab('Segundo');layout.addWidget(host.documents);host.stack=QStackedWidget();layout.addWidget(host.stack);page=QWidget();body=QVBoxLayout(page);inputs=QWidget();left=QVBoxLayout(inputs);entry=QLineEdit('entrada');left.addWidget(entry);result=QWidget();right=QVBoxLayout(result);bar=ResultActionBar();graph=QPushButton('Abrir gráfico');graph.clicked.connect(lambda:host.calls.append('graph'));bar.add_action(graph,'graph');export=QPushButton('Exportar datos');export.clicked.connect(lambda:host.calls.append('export'));bar.add_action(export,'export');right.addWidget(bar);output=QLineEdit('resultado');right.addWidget(output);page.workspace=ToolWorkspace(inputs,result);body.addWidget(page.workspace);host.stack.addWidget(page);install(page.workspace.results);keys=DesktopKeys(host);host.resize(1200,760);host.show();host.activateWindow();entry.setFocus();self.settle()
+        QTest.keyClick(entry,Qt.Key.Key_Return,Qt.KeyboardModifier.ControlModifier);QTest.keyClick(entry,Qt.Key.Key_Enter,Qt.KeyboardModifier.ControlModifier);self.assertEqual(host.calls,['calculate','calculate']);output.setFocus();QTest.keyClick(output,Qt.Key.Key_1,Qt.KeyboardModifier.AltModifier);self.settle();self.assertIs(self.app.focusWidget(),entry);QTest.keyClick(entry,Qt.Key.Key_2,Qt.KeyboardModifier.AltModifier);self.settle();self.assertIs(self.app.focusWidget(),output);QTest.keyClick(output,Qt.Key.Key_G,Qt.KeyboardModifier.AltModifier);self.assertEqual(host.calls[-1],'graph');QTest.keyClick(graph,Qt.Key.Key_E,Qt.KeyboardModifier.AltModifier);self.settle();menu=bar.slots['export'].menu();self.assertIs(self.app.activePopupWidget(),menu);next(action for action in menu.actions() if not action.isSeparator()).trigger();menu.hide();self.assertEqual(host.calls[-1],'export');QTest.keyClick(graph,Qt.Key.Key_Tab,Qt.KeyboardModifier.ControlModifier);self.assertEqual(host.documents.currentIndex(),1);QTest.keyClick(graph,Qt.Key.Key_W,Qt.KeyboardModifier.ControlModifier);self.assertEqual(host.documents.count(),1)
+        from signallab_pc.plot_actions import PlotLauncher
+        launcher=PlotLauncher(bar);diagram=QPushButton('Diagrama',result);diagram.clicked.connect(lambda:host.calls.append('diagram'));launcher.register(diagram,[],'Diagrama');bar.replace_action('graph',launcher);self.settle();QTest.keyClick(output,Qt.Key.Key_G,Qt.KeyboardModifier.AltModifier);self.assertEqual(host.calls[-1],'diagram')
+        dialog=QDialog(host);self.widgets.append(dialog);dialog.show();dialog.activateWindow();self.settle();before=list(host.calls);keys.commands['calculate'].trigger();self.assertEqual(host.calls,before)
+        from PySide6.QtCore import QCoreApplication,QEvent
+        host.stack.deleteLater();QCoreApplication.sendPostedEvents(None,QEvent.Type.DeferredDelete);self.assertIsNone(keys.active_page());keys.remember_focus(None,dialog)
+    def test_theme_change_updates_existing_axes_and_legends_without_changing_data_or_view(self):
+        import numpy as np
+        from numpy.testing import assert_array_equal
+        from matplotlib.figure import Figure
+        from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+        from matplotlib.colors import to_hex
+        from signallab_pc.appearance import apply
+        from signallab_pc import theme_presets
+        from signallab_pc.theme_tokens import COLORS as C
+        old=theme_presets.CURRENT;host=QWidget();self.widgets.append(host);layout=QVBoxLayout(host);figure=Figure(facecolor=C['report']);canvas=FigureCanvasQTAgg(figure);layout.addWidget(canvas);axis=figure.subplots();axis.set_facecolor(C['panel']);axis.set_xlabel('ω',color=C['text']);axis.set_ylabel('|H|',color=C['text']);line=axis.plot([0,1,2],[0,1,0],color=C['blue'],label='Curva')[0];axis.scatter([1],[1],color=C['green'],label='Muestra');legend=axis.legend(facecolor=C['report'],edgecolor=C['border']);figure.legend([line],['Curva']);axis.set_xlim(.2,1.8);limits=axis.get_xlim();values=line.get_ydata().copy();canvas.draw();host.hide()
+        try:
+            apply(host,'light',persist=False);self.assertEqual(to_hex(axis.get_facecolor()),C['panel']);self.assertEqual(to_hex(figure.get_facecolor()),C['report']);self.assertEqual(to_hex(axis.xaxis.label.get_color()),C['text']);self.assertEqual(to_hex(legend.legend_handles[1].get_facecolors()[0]),C['green']);self.assertEqual(to_hex(figure.legends[0].legend_handles[0].get_color()),C['blue']);self.assertEqual(axis.get_xlim(),limits);assert_array_equal(line.get_ydata(),values);self.assertFalse(host.isVisible())
+        finally:apply(host,old,persist=False)
+    def test_transparent_photo_keeps_reading_surfaces_and_restores_normal_viewports(self):
+        from unittest.mock import patch
+        from PySide6.QtWidgets import QLabel
+        from signallab_pc import wallpaper,theme_presets
+        from signallab_pc.theme_tokens import COLORS as C
+        host=QWidget();self.widgets.append(host);layout=QVBoxLayout(host);label=QLabel('Datos de entrada');layout.addWidget(label);area=QScrollArea();area.setWidget(QWidget());layout.addWidget(area);before=area.viewport().autoFillBackground();config=dict(photo='local-photo.png',opacity=100,surface_opacity=0)
+        with patch.object(theme_presets,'CURRENT','custom'),patch.object(theme_presets,'CUSTOM',config):
+            wallpaper.refresh(host);self.assertTrue(label.property('photoReading'));self.assertEqual(wallpaper.panel_color(C['panel'],0).alpha(),0);self.assertEqual(wallpaper.reading_opacity(config),92);self.assertIn('photoReading',wallpaper.stylesheet());self.assertFalse(area.viewport().autoFillBackground())
+        wallpaper.refresh(host);self.assertFalse(label.property('photoReading'));self.assertEqual(area.viewport().autoFillBackground(),before)
 
 
 if __name__=='__main__':unittest.main()

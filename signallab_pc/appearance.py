@@ -23,7 +23,23 @@ def apply(window,key,*,persist=True):
         try:
             rgba=to_rgba(value);return to_rgba(theme_presets.color(to_hex(rgba),previous),rgba[3])
         except (ValueError,TypeError):return value
+    def recolor_legend(legend):
+        for handle in getattr(legend,'legend_handles',[]):
+            if hasattr(handle,'get_color'):handle.set_color(remap(handle.get_color()))
+            if hasattr(handle,'get_markeredgecolor'):handle.set_markeredgecolor(remap(handle.get_markeredgecolor()))
+            if hasattr(handle,'get_markerfacecolor'):handle.set_markerfacecolor(remap(handle.get_markerfacecolor()))
+            for channel in ('face','edge'):
+                getter=getattr(handle,'get_'+channel+'colors',None)
+                if getter is not None:
+                    values=getter()
+                    if len(values):getattr(handle,'set_'+channel+'color')([remap(value) for value in values])
     for canvas in canvases:
+        from matplotlib.text import Text
+        from matplotlib.patches import Patch
+        for patch in canvas.figure.findobj(match=Patch):patch.set_facecolor(remap(patch.get_facecolor()));patch.set_edgecolor(remap(patch.get_edgecolor()))
+        for text in canvas.figure.findobj(match=Text):
+            text.set_color(remap(text.get_color()));box=text.get_bbox_patch()
+            if box is not None:box.set_facecolor(remap(box.get_facecolor()));box.set_edgecolor(remap(box.get_edgecolor()))
         for axis in canvas.figure.axes:
             for line in axis.lines:
                 line.set_color(remap(line.get_color()));line.set_markeredgecolor(remap(line.get_markeredgecolor()));line.set_markerfacecolor(remap(line.get_markerfacecolor()))
@@ -32,9 +48,12 @@ def apply(window,key,*,persist=True):
                 for channel in ('face','edge'):
                     values=getattr(collection,'get_'+channel+'colors')()
                     if len(values):getattr(collection,'set_'+channel+'color')([remap(v) for v in values])
-            for patch in axis.patches:
-                patch.set_facecolor(remap(patch.get_facecolor()));patch.set_edgecolor(remap(patch.get_edgecolor()))
+            for tick in [*axis.xaxis.get_major_ticks(),*axis.xaxis.get_minor_ticks(),*axis.yaxis.get_major_ticks(),*axis.yaxis.get_minor_ticks()]:
+                for line in (tick.tick1line,tick.tick2line):line.set_color(remap(line.get_color()));line.set_markeredgecolor(remap(line.get_markeredgecolor()))
+            legend=axis.get_legend()
+            if legend is not None:recolor_legend(legend)
             for grid in [*axis.get_xgridlines(),*axis.get_ygridlines()]:grid.set_color(COLORS['grid'])
+        for legend in canvas.figure.legends:recolor_legend(legend)
         probe=getattr(canvas,'_signallab_probe',None)
         if probe is not None:
             probe.background=None
@@ -44,7 +63,7 @@ def apply(window,key,*,persist=True):
         if toolbar is not None and hasattr(toolbar,'_icon'):
             for text,tip,image,callback in toolbar.toolitems:
                 if image and callback in toolbar._actions:toolbar._actions[callback].setIcon(toolbar._icon(image+'.png'))
-        canvas.draw_idle()
+        if canvas.isVisible():canvas.draw_idle()
     from .design import icon
     if hasattr(window,'calculate_action'):window.calculate_action.setIcon(icon('run',COLORS['on_primary']))
     if hasattr(window,'help'):window.help.setIcon(icon('book',COLORS['green']))
@@ -52,6 +71,7 @@ def apply(window,key,*,persist=True):
         if widget.__class__.__module__.endswith('pole_zero_editor') and hasattr(widget,'refresh_cursor'):widget.refresh_cursor()
     from .design import refresh_icons
     refresh_icons(app)
+    if hasattr(window,'navigation_rail'):window.navigation_rail.refresh_theme()
     for widget in app.allWidgets():
         if widget.__class__.__module__.endswith('tool_browser') and hasattr(widget,'refresh_theme'):widget.refresh_theme()
         if widget.__class__.__module__.endswith('wallpaper'):widget.update()

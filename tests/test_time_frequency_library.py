@@ -144,7 +144,7 @@ class RealPanels(unittest.TestCase):
         from signallab_pc.theory_panel import TheoryPanel
         from signallab_pc.workspaces import ROUTES
         panel=TheoryPanel(lambda _:None);self.widgets.append(panel)
-        self.assertEqual(len(panel.sections),122);self.assertTrue(all(len(s['title'])<=38 for s in panel.sections))
+        self.assertEqual(len(panel.sections),123);self.assertTrue(all(len(s['title'])<=38 for s in panel.sections))
         self.assertLess(panel.items.topLevelItemCount(),14)
         topics={s['original_title']:s['topic'] for s in panel.sections if s['content_kind']=='concept'}
         self.assertEqual(topics['Detección y estimación: dos preguntas distintas'],'Señales aleatorias');self.assertEqual(topics['Realizaciones, estacionariedad y ergodicidad'],'Señales aleatorias')
@@ -154,6 +154,7 @@ class RealPanels(unittest.TestCase):
         panel.search.setText('notación científica');panel.kind.setCurrentIndex(0);self.assertTrue(panel.filtered)
         self.assertIn('Coeficientes y constantes',[s['title'] for s in panel.filtered])
         panel.follow_reference(__import__('PySide6.QtCore',fromlist=['QUrl']).QUrl('library:article/tool:course_tools:fir'));self.assertEqual(panel.selected_route,ROUTES['course_tools','fir'])
+        panel.select_article('reference:Interfaz de trabajo');self.assertIsNone(panel.selected_route);self.assertIn('Abrir gráfico',panel.text.toPlainText());self.assertIn('Alt+1',panel.text.toPlainText());self.assertEqual(panel.items.currentItem().parent().text(0).split('  ')[0],'Primeros pasos')
 
     def test_block_navigation_reenables_after_the_real_pool_worker_finishes(self):
         from PySide6.QtCore import QThreadPool

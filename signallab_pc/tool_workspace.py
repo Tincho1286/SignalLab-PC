@@ -1,6 +1,6 @@
 """Input and result surfaces with one compact-screen navigation pattern."""
 from PySide6.QtCore import Qt,QSize,QTimer
-from PySide6.QtWidgets import QWidget,QFrame,QVBoxLayout,QHBoxLayout,QLabel,QScrollArea,QSplitter,QTabWidget,QBoxLayout,QSizePolicy,QFormLayout,QPushButton
+from PySide6.QtWidgets import QWidget,QFrame,QVBoxLayout,QHBoxLayout,QLabel,QScrollArea,QSplitter,QTabWidget,QBoxLayout,QSizePolicy,QFormLayout,QPushButton,QApplication
 from .active_stack import ActiveStack,ActiveTabs
 
 
@@ -21,29 +21,37 @@ class Surface(QFrame):
         root.addWidget(content,1);self.content=content
         if scroll:
             for form in content.findChildren(QFormLayout):form.setProperty('stackFields',True)
-    def minimumSizeHint(self):return QSize(0,180)
+    def minimumSizeHint(self):return QSize(0,max(100 if self.title.isHidden() else 180,super().minimumSizeHint().height()))
 
 
 class ToolWorkspace(QWidget):
     def __init__(self,inputs,results,parent=None,*,titles=('Datos de entrada','Resultado'),captions=('Ingresá los datos del cálculo.','Consultá, graficá o continuá con lo calculado.')):
-        super().__init__(parent);self.setObjectName('toolWorkspace');self.setProperty('workspaceLayout',True);self.compact=None;self.result_preferred=False;self.titles=titles
+        super().__init__(parent);self.setObjectName('toolWorkspace');self.setProperty('workspaceLayout',True);self.compact=None;self.result_preferred=False;self.titles=titles;self.wide_sizes=[400,760]
         root=QVBoxLayout(self);root.setContentsMargins(14,0,14,12);self.modes=ActiveStack();root.addWidget(self.modes)
         self.split=QSplitter(Qt.Orientation.Horizontal);self.split.setChildrenCollapsible(False);self.split.setHandleWidth(10);self.modes.addWidget(self.split)
         self.tabs=ActiveTabs();self.tabs.setObjectName('workspaceModes');self.modes.addWidget(self.tabs)
         self.inputs=Surface(titles[0],captions[0],inputs,True);self.results=Surface(titles[1],captions[1],results)
         self.inputs.setObjectName('inputSurface');self.results.setObjectName('resultSurface');self.switch_mode(False)
-    def minimumSizeHint(self):return QSize(300,240)
+    def minimumSizeHint(self):return QSize(300,max(160 if self.compact else 240,self.modes.minimumSizeHint().height()+12))
     def sizeHint(self):return QSize(1040,620)
     def resizeEvent(self,event):super().resizeEvent(event);self.switch_mode(self.width()<870)
     def switch_mode(self,compact):
         if compact==self.compact:return
+        focused=QApplication.focusWidget()
+        if focused is not None and focused.window() is not self.window():focused=None
+        focused_surface=0 if focused is not None and self.inputs.isAncestorOf(focused) else 1 if focused is not None and self.results.isAncestorOf(focused) else None
+        if self.compact is False and compact:
+            sizes=self.split.sizes()
+            if all(size>0 for size in sizes):self.wide_sizes=sizes
         self.compact=compact
+        for surface in (self.inputs,self.results):surface.title.setVisible(not compact);surface.caption.setVisible(not compact)
         if compact:
             for surface,title in zip((self.inputs,self.results),self.titles):self.tabs.addTab(surface,title)
-            self.modes.setCurrentWidget(self.tabs);self.tabs.setCurrentIndex(1 if self.result_preferred else 0)
+            self.modes.setCurrentWidget(self.tabs);self.tabs.setCurrentIndex(focused_surface if focused_surface is not None else 1 if self.result_preferred else 0)
         else:
             while self.tabs.count():self.tabs.removeTab(0)
-            self.split.addWidget(self.inputs);self.split.addWidget(self.results);self.split.setStretchFactor(0,0);self.split.setStretchFactor(1,1);self.split.setSizes([400,760]);self.modes.setCurrentWidget(self.split)
+            self.split.addWidget(self.inputs);self.split.addWidget(self.results);self.modes.setCurrentWidget(self.split);self.inputs.show();self.results.show();self.split.setStretchFactor(0,0);self.split.setStretchFactor(1,1);self.split.setSizes(self.wide_sizes)
+        if focused_surface is not None and focused.isVisibleTo(self):focused.setFocus(Qt.FocusReason.OtherFocusReason)
     def show_results(self):
         self.result_preferred=True
         if self.compact:self.tabs.setCurrentIndex(1)
@@ -95,4 +103,10 @@ def install(page):
     for tabs in workspace.results.findChildren(QTabWidget):install_selector(tabs)
     from .result_action_dock import install as install_action_dock
     install_action_dock(workspace.results)
+    from .result_state import ResultState
+    for state in workspace.findChildren(ResultState):
+        visible=not state.isHidden();previous=state.parentWidget().layout()
+        if isinstance(previous,QFormLayout) and previous.indexOf(state)>=0:previous.takeRow(state)
+        elif previous is not None:previous.removeWidget(state)
+        workspace.results.layout().insertWidget(3,state);state.setVisible(visible)
     return workspace

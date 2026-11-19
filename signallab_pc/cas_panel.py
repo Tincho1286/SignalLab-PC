@@ -211,7 +211,7 @@ class CasWorksheet(QWidget):
         if url.scheme() not in ('cas-input','cas-result','cas-view') or not url.path().isdigit():return
         cell=int(url.path());entry=next((item for item in self.entries if item['cell']==cell),None)
         if entry is None:return
-        if url.scheme()=='cas-input':self.input.setPlainText('r'+str(cell) if entry.get('imported') and entry['status']=='done' else entry['source']);self.input.setFocus()
+        if url.scheme()=='cas-input':self.input.setPlainText('r'+str(cell) if entry.get('imported') and entry['status']=='done' else entry['source']);self.focus_input()
         elif url.scheme()=='cas-view':self.selected=cell;self.show_result()
         elif url.scheme()=='cas-result':self.selected=cell;self.update_selection();self.insert_reference()
 
@@ -230,7 +230,10 @@ class CasWorksheet(QWidget):
         if entry:QApplication.clipboard().setText(entry['answer']['text'])
 
     def insert_reference(self):
-        if self.selected_entry():self.input.insertPlainText('r'+str(self.selected));self.input.setFocus()
+        if self.selected_entry():self.input.insertPlainText('r'+str(self.selected));self.focus_input()
+    def focus_input(self):
+        if self.workspace.compact:self.workspace.tabs.setCurrentIndex(0)
+        self.input.setFocus()
 
     def render(self,scroll=True):
         bar=self.report.verticalScrollBar();fraction=bar.value()/max(1,bar.maximum())

@@ -95,39 +95,66 @@ def panel_color(color,opacity):
     value=QColor(color);value.setAlpha(round(255*opacity/100));return value
 
 
+def reading_opacity(config):
+    opacity=config.get('surface_opacity',100)
+    return max(opacity,92) if config.get('photo') and config.get('opacity',35)>25 and opacity<85 else opacity
+
+
+def protect_label(label,window,protect=None):
+    from PySide6.QtWidgets import QAbstractButton
+    from . import theme_presets
+    if protect is None:protect=theme_presets.CURRENT=='custom' and bool(theme_presets.CUSTOM.get('photo')) and reading_opacity(theme_presets.CUSTOM)>theme_presets.CUSTOM.get('surface_opacity',100)
+    picture=label.pixmap();eligible=protect and label.window() is window and (picture is None or picture.isNull());ancestor=label.parentWidget()
+    while eligible and ancestor is not None and ancestor is not window:
+        if isinstance(ancestor,QAbstractButton):eligible=False;break
+        ancestor=ancestor.parentWidget()
+    if bool(label.property('photoReading'))!=bool(eligible):label.setProperty('photoReading',bool(eligible));label.style().unpolish(label);label.style().polish(label);label.update()
+
+
 def stylesheet():
     from . import theme_presets
     from .theme_tokens import COLORS
     if theme_presets.CURRENT!='custom' or not theme_presets.CUSTOM.get('photo'):return ''
-    opacity=theme_presets.CUSTOM.get('surface_opacity',100)
-    def shade(role):
-        value=panel_color(COLORS[role],opacity)
+    opacity=theme_presets.CUSTOM.get('surface_opacity',100);reading=reading_opacity(theme_presets.CUSTOM)
+    def shade(role,alpha=None):
+        value=panel_color(COLORS[role],opacity if alpha is None else alpha)
         return 'rgba('+','.join(str(v) for v in value.getRgb())+')'
     # Containers reveal the image painted once by the main window. Inputs,
     # reports, figures and popup lists retain their own reading surfaces.
-    return '\n'.join([
+    rules=[
         'QWidget#desktop,QWidget#workspaceWallpaper {background:transparent;}',
-        'QWidget#desktop > QLabel,QWidget#workspaceWallpaper > QLabel {background:'+shade('window')+';padding:4px;border-radius:5px;}',
+        'QWidget#desktop > QLabel,QWidget#workspaceWallpaper > QLabel {background:'+shade('window',reading)+';padding:4px;border-radius:5px;}',
         'QWidget#documentHeading {background:'+shade('chrome')+';}',
         'QWidget#explorerPanel {background:'+shade('chrome')+';}',
         'QWidget#navigationRail,QWidget#resultActionDock,QScrollArea#railScroll,QScrollArea#railScroll > QWidget > QWidget,QToolBar#studioToolbar {background:'+shade('chrome')+';}',
         'QWidget#explorerPanel QTreeWidget {background:transparent;}',
         'QToolBar,QMenuBar,QStatusBar,QDockWidget::title {background:'+shade('chrome')+';}',
-        'QFrame#browserSection,QFrame#inputSurface,QFrame#resultSurface,QWidget#libraryIndex,QWidget#libraryArticle,QGroupBox {background:'+shade('panel')+';}',
+        'QFrame#browserSection,QFrame#inputSurface,QFrame#resultSurface,QWidget#libraryIndex,QWidget#libraryArticle {background:'+shade('panel')+';}',
         'QFrame#welcomeCard {background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 '+shade('selected')+',stop:.65 '+shade('panel')+',stop:1 '+shade('chrome')+');}',
         'QScrollArea > QWidget > QWidget,QTabWidget::pane,QTabBar#documents {background:transparent;}',
         'QTabBar::tab {background:'+shade('chrome')+';}',
         'QTabBar::tab:selected,QTabBar#documents::tab:selected {background:'+shade('panel')+';}',
         'QSplitter::handle {background:transparent;}',
-    ])
+    ]
+    if reading>opacity:
+        rules.extend([
+            'QLabel[photoReading="true"] {background:'+shade('panel',reading)+';border-radius:5px;}',
+            'QToolButton#railItem,QToolButton#chromeAction,QPushButton#toolLink,QStatusBar {background:'+shade('chrome',reading)+';}',
+            'QTabBar#documents::tab {background:'+shade('chrome',reading)+';}',
+            'QTabBar#documents::tab:selected {background:'+shade('selected',reading)+';}',
+            'QGroupBox::title {background:'+shade('panel',reading)+';border-radius:4px;}',
+        ])
+    return '\n'.join(rules)
 
 
 def refresh(window):
-    from PySide6.QtWidgets import QScrollArea
+    from PySide6.QtWidgets import QScrollArea,QLabel
     # Some QScrollArea viewports fill their palette before their contents.
     # Restore that flag when leaving the photo theme.
     from . import theme_presets
     active=theme_presets.CURRENT=='custom' and bool(theme_presets.CUSTOM.get('photo'))
+    protect=active and reading_opacity(theme_presets.CUSTOM)>theme_presets.CUSTOM.get('surface_opacity',100)
+    for label in window.findChildren(QLabel):protect_label(label,window,protect)
     for scroll in window.findChildren(QScrollArea):
         viewport=scroll.viewport()
         if active:

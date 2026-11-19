@@ -71,8 +71,9 @@ def sections():
     from .function_reference import function_sections
     from .learning_content import concept_sections
     from .help_content import sections as tools
+    from .desktop_help import sections as desktop
     from .workspaces import ROUTES
-    values=cas_sections()+function_sections()+concept_sections()+tools()
+    values=desktop()+cas_sections()+function_sections()+concept_sections()+tools()
     for index,section in enumerate(values):
         route=section.get('route')
         section.setdefault('article_id','tool:'+str(route[1])+':'+str(route[2]) if route else 'reference:'+section['title'])

@@ -66,6 +66,10 @@ class TheoryPanel(QWidget):
         else:self.selected_route=None;self.open_button.setEnabled(False);self.text.setPlainText('No hay coincidencias. Probá otra palabra o elegí Toda la biblioteca.')
     def select_functions(self):
         self.search.clear();self.kind.setCurrentIndex(3);self.filter('')
+    def select_article(self,identifier):
+        self.kind.setCurrentIndex(0);self.search.clear();self.filter('')
+        for index,section in enumerate(self.filtered):
+            if section['article_id']==identifier:self.select_index(index);self.topic_toggle.setChecked(False);return
     def select_tool(self,item):
         self.topic_toggle.setChecked(False)
         self.return_route=tuple(item);self.return_button.setToolTip(item[0]);self.return_button.setVisible(self.on_open is not None)
@@ -75,10 +79,11 @@ class TheoryPanel(QWidget):
     def show_section(self,row):
         if row is None or not 0<=row<len(self.filtered):return
         section=self.filtered[row];self.selected_article_id=section['article_id'];self.selected_example=section.get('example');self.open_button.setText('Cargar datos del ejemplo' if self.selected_example else 'Abrir herramienta');self.selected_route=section['route'];self.open_button.setEnabled(self.on_open is not None and self.selected_route is not None)
+        self.open_button.setVisible(self.on_open is not None and self.selected_route is not None)
         blocks=list(section['blocks'])
         if self.field_route!=self.selected_route:self.fields_open=False;self.field_route=self.selected_route
         self.text._formula_number=0
-        body=['<h1>'+html.escape(section['title'])+'</h1><p>'+html.escape(section['category'])+'</p>']
+        body=['<h1>'+html.escape(section['title'])+'</h1><p>'+html.escape(section.get('category_label',section['category']))+'</p>']
         illustrations=diagrams_for(section)
         def append_illustrations():
             for index,(title,picture,caption) in enumerate(illustrations):
@@ -116,9 +121,7 @@ class TheoryPanel(QWidget):
     def follow_reference(self,url):
         if url.scheme()!='library':return
         if url.path().startswith('article/'):
-            identifier=url.path().split('/',1)[1];self.kind.setCurrentIndex(0);self.search.clear();self.filter('')
-            for index,section in enumerate(self.filtered):
-                if section['article_id']==identifier:self.select_index(index);return
+            self.select_article(url.path().split('/',1)[1]);return
         if url.path().startswith('example/'):
             article_id='example:'+url.path().split('/',1)[1];self.kind.setCurrentIndex(0);self.search.clear();self.filter('')
             for index,section in enumerate(self.filtered):

@@ -34,6 +34,8 @@ class WorkflowSelector(QWidget):
             else:
                 combo=QComboBox();combo.addItems(values);combo.setCurrentText(current);combo.setAccessibleName(label);combo.setToolTip(choice_hint(entry,current));combo.textActivated.connect(lambda value,i=index:self.select(i,value));self.form.addRow(label,combo);self.rows.append((index,label,combo))
         self.setVisible(self.form.rowCount()>0)
+        from .wallpaper import protect_label
+        for label in self.findChildren(QLabel):protect_label(label,self.window)
     def select(self,index,value):
         entry=self.entry;variants=entry['variants'];old=next(values for key,values in variants if key==self.current_key)
         key=choose_variant(entry,self.current_key,index,value,self.branch_memory)
@@ -51,3 +53,5 @@ class WorkflowSelector(QWidget):
                     label.setText(prepare_inputs(source,target).apply())
                 label.linkActivated.connect(apply_copy)
             else:label.setText(plan.note)
+            from .wallpaper import protect_label
+            protect_label(label,self.window)

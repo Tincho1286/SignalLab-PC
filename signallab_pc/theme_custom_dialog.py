@@ -14,8 +14,10 @@ class Preview(QWidget):
         colors=palette(self.config);painter=QPainter(self);painter.setRenderHint(QPainter.RenderHint.Antialiasing)
         wallpaper.paint(painter,QRectF(self.rect()),colors,self.config)
         box=QRectF(16,18,max(10,self.width()*.68),min(142,max(10,self.height()-36)));painter.setPen(QColor(colors['border']));painter.setBrush(wallpaper.panel_color(colors['panel'],self.config.get('surface_opacity',100)));painter.drawRoundedRect(box,10,10)
-        painter.setPen(QColor(colors['text']));painter.drawText(box.adjusted(16,12,-16,-12),Qt.AlignmentFlag.AlignTop,'SignalLab · Vista previa')
-        painter.setPen(QColor(colors['muted']));painter.drawText(box.adjusted(16,42,-16,-12),Qt.AlignmentFlag.AlignTop,'Vista previa del fondo de los menús')
+        for y,text,role in ((12,'SignalLab · Vista previa','text'),(42,'Vista previa del fondo de los menús','muted')):
+            area=QRectF(box.x()+16,box.y()+y,box.width()-32,25)
+            if wallpaper.reading_opacity(self.config)>self.config.get('surface_opacity',100):painter.fillRect(area,wallpaper.panel_color(colors['panel'],wallpaper.reading_opacity(self.config)))
+            painter.setPen(QColor(colors[role]));painter.drawText(area,Qt.AlignmentFlag.AlignTop,text)
         button=QRectF(box.x()+16,box.bottom()-48,120,30);painter.setPen(QColor(colors['primary']));painter.setBrush(QColor(colors['primary']));painter.drawRoundedRect(button,7,7);painter.setPen(QColor(colors['on_primary']));painter.drawText(button,Qt.AlignmentFlag.AlignCenter,'Calcular')
         painter.end()
 
@@ -36,7 +38,7 @@ class CustomThemeDialog(QDialog):
         choose=QPushButton('Elegir foto…');choose.clicked.connect(self.choose_photo);remove=QPushButton('Quitar');remove.clicked.connect(self.remove_photo);row.addWidget(choose);row.addWidget(remove);form.addRow('Foto de fondo',row)
         self.opacity=QSlider(Qt.Orientation.Horizontal);self.opacity.setRange(0,100);self.opacity.setValue(self.config['opacity']);self.percent=QLabel();row=QHBoxLayout();row.addWidget(self.opacity,1);row.addWidget(self.percent);form.addRow('Intensidad de la foto',row)
         self.fit=QComboBox();self.fit.addItem('Cubrir el área · recortar bordes','cover');self.fit.addItem('Mostrar la foto completa','contain');self.fit.setCurrentIndex(max(0,self.fit.findData(self.config['fit'])));form.addRow('Encuadre',self.fit)
-        note=QLabel('La opacidad deja ver la foto detrás de los menús. Los campos de entrada, informes y figuras conservan su fondo de lectura. La foto se guarda sólo en este equipo.');note.setWordWrap(True);content.addWidget(note)
+        note=QLabel('La transparencia se aplica a los paneles. El texto y los controles mantienen una base de lectura, al igual que los informes y las figuras. La foto se guarda sólo en este equipo.');note.setWordWrap(True);content.addWidget(note)
         self.preview=Preview();content.addWidget(self.preview,1)
         buttons=QDialogButtonBox(QDialogButtonBox.StandardButton.Apply|QDialogButtonBox.StandardButton.Cancel);buttons.button(QDialogButtonBox.StandardButton.Apply).setText('Aplicar tema');buttons.button(QDialogButtonBox.StandardButton.Cancel).setText('Cancelar');buttons.button(QDialogButtonBox.StandardButton.Apply).clicked.connect(self.accept);buttons.rejected.connect(self.reject);root.addWidget(buttons)
         self.base.currentIndexChanged.connect(self.update_preview);self.opacity.valueChanged.connect(self.update_preview);self.fit.currentIndexChanged.connect(self.update_preview);self.surface_opacity.valueChanged.connect(self.update_preview);self.surface_mode.activated.connect(self.choose_surface_mode);self.update_preview()
