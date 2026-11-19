@@ -42,6 +42,7 @@ class StftExplorer(QWidget):
         self.band_power=StftBandPowerView(owner);self.tabs.addTab(self.band_power,'Potencia por banda')
         self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Informe');self.tabs.currentChanged.connect(lambda index:self.frame_controls.setVisible(index in (0,1)))
         self.export=QPushButton('Exportar STFT completa (CSV)…');self.export.clicked.connect(self.export_matrix);layout.addWidget(self.export)
+        self.export.setProperty('resultExport',True)
         for combo in (self.scale,self.clock):combo.currentIndexChanged.connect(self.redraw)
         self.phase.currentIndexChanged.connect(self.show_frame);self.frame.valueChanged.connect(self.show_frame);self.part.currentIndexChanged.connect(self.show_frame);self.range.editingFinished.connect(self.redraw)
 

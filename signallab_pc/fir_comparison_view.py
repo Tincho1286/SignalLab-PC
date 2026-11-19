@@ -15,6 +15,7 @@ class FirComparisonView(QWidget):
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents);self.table.horizontalHeader().setStretchLastSection(True)
         self.table.setAccessibleName('Comparación de diseños FIR');layout.addWidget(self.table,1)
         row=QHBoxLayout();layout.addLayout(row);self.export=QPushButton('Exportar comparación CSV…');self.export.clicked.connect(self.save);row.addWidget(self.export);row.addStretch()
+        self.export.setProperty('resultExport',True)
         self.table.currentCellChanged.connect(self.choose)
 
     def set_result(self,data):

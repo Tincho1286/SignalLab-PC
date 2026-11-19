@@ -88,6 +88,33 @@ class Frontend(unittest.TestCase):
         from PySide6.QtGui import QAction
         from signallab_pc.design import refresh_icons,icon
         parent=QWidget();self.widgets.append(parent);parent.actions=ResultActionBar(parent);button=QPushButton(parent);button.setIcon(icon('signal'));action=QAction(parent);action.setIcon(icon('book'));parent.addAction(action);before=action.icon().cacheKey();refresh_icons(self.app);self.assertFalse(button.icon().isNull());self.assertNotEqual(action.icon().cacheKey(),before)
+    def test_export_menu_keeps_original_callbacks_and_tracks_new_result_availability(self):
+        from signallab_pc.result_action_dock import install
+        from signallab_pc.result_exports import mark_export
+        result=QWidget();layout=QVBoxLayout(result);bar=ResultActionBar();layout.addWidget(bar);saved=[];original=QPushButton('Exportar señal');original.clicked.connect(lambda:saved.append('signal'));original.setEnabled(False);bar.add_action(original,'export');table=mark_export(QPushButton('Exportar tabla'));table.clicked.connect(lambda:saved.append('table'));table.setEnabled(False);layout.addWidget(table)
+        space=ToolWorkspace(QWidget(),result);self.widgets.append(space);space.resize(1200,700);dock=install(space.results);space.show();self.settle();hub=space.results.result_exports;proxy=bar.slots['export'];self.assertFalse(proxy.isEnabled());original.setEnabled(True);table.setEnabled(True);self.settle();self.assertTrue(proxy.isEnabled());self.assertTrue(original.isHidden());self.assertTrue(table.isHidden());hub.prepare(bar)
+        for action in proxy.menu().actions():
+            if not action.isSeparator():action.trigger()
+        self.assertEqual(saved,['signal','table']);table.show();self.settle();self.assertTrue(table.isHidden());original.setEnabled(False);table.setEnabled(False);self.settle();self.assertFalse(proxy.isEnabled())
+    def test_report_exports_follow_available_result_tabs_without_duplicate_formats(self):
+        from unittest.mock import patch
+        from signallab_pc.result_action_dock import install
+        from signallab_pc.report_view import ReportView,report_panel
+        result=QWidget();layout=QVBoxLayout(result);bar=ResultActionBar();layout.addWidget(bar);tabs=ActiveTabs();report=ReportView();report.setPlainText('Informe disponible');tabs.addTab(report_panel(report),'Informe');other=QPushButton('otra vista');tabs.addTab(other,'Valores');layout.addWidget(tabs);bar.use_report(report);space=ToolWorkspace(QWidget(),result);self.widgets.append(space);space.resize(1200,700);install(space.results);space.show();self.settle();hub=space.results.result_exports;hub.prepare(bar);actions=[a for a in bar.slots['export'].menu().actions() if not a.isSeparator()];self.assertEqual(len(actions),2);calls=[]
+        with patch.object(report,'export_document',side_effect=calls.append):
+            for action in actions:action.trigger()
+        self.assertEqual(calls,[True,False]);tabs.setCurrentIndex(1);self.settle();hub.prepare(bar);self.assertEqual(len([a for a in bar.slots['export'].menu().actions() if not a.isSeparator()]),2);tabs.setTabVisible(0,False);self.settle();hub.prepare(bar);self.assertFalse(any(a.isEnabled() for a in bar.slots['export'].menu().actions()))
+    def test_replaced_result_commands_cannot_reappear_over_their_replacement(self):
+        bar=ResultActionBar();self.widgets.append(bar);old=QPushButton('Usar señal');bar.add_action(old,'reuse');new=QPushButton('Usar tasa en muestreo');bar.replace_action('reuse',new);bar.show();self.settle();old.show();self.settle();self.assertTrue(old.isHidden());self.assertTrue(new.isVisible());self.assertIs(bar.slots['reuse'],new)
+    def test_diagram_commands_share_the_figure_launcher_and_original_handler(self):
+        from signallab_pc.result_action_dock import install
+        result=QWidget();layout=QVBoxLayout(result);bar=ResultActionBar();layout.addWidget(bar);tabs=ActiveTabs();page=QWidget();inside=QVBoxLayout(page);button=QPushButton('Abrir diagrama');button.setProperty('resultGraphAction','Diagrama');button.setEnabled(False);called=[];button.clicked.connect(lambda:called.append(True));inside.addWidget(button);tabs.addTab(page,'Realización');tabs.addTab(QWidget(),'Informe');layout.addWidget(tabs);space=ToolWorkspace(QWidget(),result);self.widgets.append(space);space.resize(1200,700);dock=install(space.results);space.show();self.settle();self.assertTrue(button.isHidden());self.assertFalse(dock.graph.isEnabled());button.setEnabled(True);self.settle();self.assertTrue(dock.graph.isEnabled());tabs.setCurrentIndex(1);self.settle();self.assertEqual(len(dock.graph.available()),1);dock.graph.open_default();self.assertEqual(called,[True]);tabs.setTabVisible(0,False);self.settle();dock.graph.refresh();self.assertFalse(dock.graph.isEnabled())
+    def test_contextual_model_destinations_join_the_primary_reuse_menu(self):
+        from PySide6.QtWidgets import QMenu
+        from signallab_pc.result_action_dock import install
+        result=QWidget();layout=QVBoxLayout(result);bar=ResultActionBar();bar.setProperty('systemResultActions',True);reuse=QPushButton('Usar sistema en…');menu=QMenu(reuse);reuse.setMenu(menu)
+        def rebuild():menu.clear();menu.addAction('Destino habitual')
+        menu.aboutToShow.connect(rebuild);bar.add_action(reuse,'reuse');layout.addWidget(bar);source=QPushButton('Usar modelo');source.setProperty('resultReuseMenu','Modelo de la realización');model=QMenu(source);source.setMenu(model);called=[];model.addAction('Simular',lambda:called.append(True));layout.addWidget(source);space=ToolWorkspace(QWidget(),result);self.widgets.append(space);space.resize(1200,700);install(space.results);space.show();self.settle();self.assertTrue(source.isHidden());menu.aboutToShow.emit();self.assertEqual(menu.actions()[-1].text(),'Modelo de la realización');menu.actions()[-1].menu().actions()[0].trigger();self.assertEqual(called,[True]);menu.aboutToShow.emit();self.assertEqual(len(menu.actions()),3)
 
 
 if __name__=='__main__':unittest.main()

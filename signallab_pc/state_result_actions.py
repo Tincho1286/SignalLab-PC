@@ -39,7 +39,7 @@ def install_model_import(button,owner,receiver,choose_model,continuous_only=Fals
 
 class StateModelResultActions(ResultActionBar):
     def __init__(self,owner,source_action):
-        super().__init__();self.owner=owner;self.source_action=source_action;self.model=None;self.key=None
+        super().__init__();self.setProperty('resultCaption','Modelo de estados');self.owner=owner;self.source_action=source_action;self.model=None;self.key=None
         row=self.layout()
         self.reuse=QPushButton('Usar modelo en…');self.reuse.setProperty('actionRole','reuse');self.menu=QMenu(self.reuse);self.reuse.setMenu(self.menu);self.menu.aboutToShow.connect(self.prepare_menu);row.addWidget(self.reuse)
         self.reuse.setToolTip('Copia el último modelo calculado, aunque hayas modificado los campos. El destino conserva su propio resultado hasta que calcules allí.')

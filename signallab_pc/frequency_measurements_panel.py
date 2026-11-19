@@ -66,6 +66,7 @@ class FrequencyMeasurementsPanel(QWidget):
         self.tabs=ActiveTabs();root.addWidget(self.tabs,1);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Informe')
         page=QWidget();layout=QVBoxLayout(page);self.model=Rows(COLUMNS['points']);self.table=QTableView();self.table.setModel(self.model);self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents);layout.addWidget(self.table,1)
         self.export=QPushButton('Exportar medidas (CSV)…');self.export.clicked.connect(self.save);self.export.setEnabled(False);layout.addWidget(self.export);self.tabs.addTab(page,'Medidas')
+        self.export.setProperty('resultExport',True)
         page=QWidget();layout=QVBoxLayout(page);self.figure=Figure();self.canvas=FigureCanvasQTAgg(self.figure);self.canvas._signallab_explicit_plot=True;self.toolbar=NavigationToolbar2QT(self.canvas,self);layout.addWidget(self.toolbar);layout.addWidget(self.canvas,1);self.tabs.addTab(page,'Gráfico de medidas')
         self.scale=QComboBox();self.scale.addItems(['Módulo lineal','Módulo en dB']);self.scale.currentIndexChanged.connect(self.draw);self.toolbar.addWidget(self.scale)
         self.table.selectionModel().currentRowChanged.connect(lambda *_:self.draw());self.mode.currentIndexChanged.connect(self.update_fields);self.level_mode.currentIndexChanged.connect(self.update_level);self.update_fields();self.set_source(None)

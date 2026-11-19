@@ -86,6 +86,7 @@ class ARFitPanel(QWidget):
             else:
                 note=QLabel('Sólo residuos de entrenamiento. Un valor p grande no demuestra blancura ni independencia. Con k≤p, el valor p no está definido.');note.setWordWrap(True);layout.addWidget(note)
             export=QPushButton('Exportar tabla (CSV)…');export.clicked.connect(lambda checked=False,k=kind:self.export(k));layout.addWidget(export);self.tabs.addTab(page,title)
+            export.setProperty('resultExport',True)
         page=QWidget();layout=QVBoxLayout(page);self.selector=QComboBox();layout.addWidget(self.selector);self.output=ResultView();layout.addWidget(self.output,1);self.tabs.addTab(page,'Curvas');self.selector.currentIndexChanged.connect(self.show_curve)
         self.actions=SystemResultActions(window);self.actions.reuse.setText('Usar modelo en…');self.actions.cas_button.setText('Modelo a CAS');self.actions.export_button.setText('Exportar modelo…');right.addWidget(self.actions)
 

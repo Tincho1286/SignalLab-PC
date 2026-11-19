@@ -10,6 +10,7 @@ class AlignmentPanel(QWidget):
         super().__init__();self.trace=None;self.offset=0;self.size=250
         root=QVBoxLayout(self);self.note=QLabel('Calculá para ver la alineación de las entradas.');self.note.setWordWrap(True);root.addWidget(self.note)
         bar=QHBoxLayout();self.coordinate=QLineEdit();self.coordinate.setPlaceholderText('Índice n o instante t');jump=QPushButton('Ir a…');jump.clicked.connect(self.jump);self.export=QPushButton('Exportar tabla…');self.export.clicked.connect(self.export_table);bar.addWidget(self.coordinate,1);bar.addWidget(jump);bar.addWidget(self.export);root.addLayout(bar)
+        self.export.setProperty('resultExport',True)
         self.table=QTableWidget(0,5);self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers);self.table.setHorizontalHeaderLabels(['Eje','x','Segunda','Resultado','Cobertura']);self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents);self.table.horizontalHeader().setStretchLastSection(True);root.addWidget(self.table,1)
         bar=QHBoxLayout();self.previous=QPushButton('← Anterior');self.next=QPushButton('Siguiente →');self.label=QLabel();self.previous.clicked.connect(lambda:self.move(-1));self.next.clicked.connect(lambda:self.move(1));bar.addWidget(self.previous);bar.addWidget(self.label,1);bar.addWidget(self.next);root.addLayout(bar);self.render()
     def set_trace(self,trace,error=''):

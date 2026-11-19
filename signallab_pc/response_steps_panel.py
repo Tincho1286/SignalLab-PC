@@ -15,6 +15,7 @@ class ResponseStepsPanel(QWidget):
         self.note=QLabel('Calculá una respuesta discreta para consultar los aportes de cada muestra.');self.note.setWordWrap(True);layout.addWidget(self.note)
         from .figure_controls import WrappedControls
         controls=QWidget();bar=WrappedControls(controls);policy=controls.sizePolicy();policy.setHeightForWidth(True);controls.setSizePolicy(policy);self.section=QComboBox();self.index=QLineEdit();self.index.setAccessibleName('Índice n de la respuesta');self.index.setMaximumWidth(180);self.previous=QPushButton('←');self.next=QPushButton('→');self.read=QPushButton('Ver muestra');self.export=QPushButton('Exportar aportes…')
+        self.export.setProperty('resultExport',True)
         for widget in (self.section,self.previous,QLabel('n ='),self.index,self.next,self.read,self.export):bar.addWidget(widget)
         layout.addWidget(controls);self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Explicación')
         self.model=Rows([('family','Término'),('lag','Retardo k'),('index','Índice de la muestra'),('raw_coefficient','Coeficiente con signo'),('normalization','Divisor a₀'),('value','Valor de la muestra'),('contribution','Aporte'),('source','Origen')]);self.table=QTableView();self.table.setModel(self.model);self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents);self.tabs.addTab(self.table,'Aportes')

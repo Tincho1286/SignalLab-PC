@@ -28,6 +28,7 @@ class StateDiagnostics(QWidget):
         super().__init__();layout=QVBoxLayout(self);self.choice=QComboBox();self.choice.addItems(['Controlabilidad: [B, AB, …]','Observabilidad: [C; CA; …]']);layout.addWidget(self.choice);self.note=QLabel();self.note.setWordWrap(True);layout.addWidget(self.note)
         self.data=None;self.model=ArrayValues();table=QTableView();table.setModel(self.model);table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents);layout.addWidget(table,1)
         self.export=QPushButton('Exportar matriz y valores singulares…');self.export.clicked.connect(self.save);layout.addWidget(self.export);self.choice.currentIndexChanged.connect(self.show_matrix);self.set_result(None)
+        self.export.setProperty('resultExport',True)
     def set_result(self,data):self.data=data;self.export.setEnabled(data is not None);self.show_matrix()
     def show_matrix(self,*_):
         if self.data is None:self.model.set_values(np.empty((0,0)));self.note.setText('Analizá un modelo para consultar las matrices y el criterio de rango.');return

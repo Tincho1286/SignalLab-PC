@@ -89,6 +89,7 @@ class CasWorksheet(QWidget):
         for title,destination in [('Señal continua','continuous'),('Secuencia discreta','discrete'),('Análisis de H(s)','analog'),('Análisis de H(z)','digital'),('Respuesta en frecuencia H(ω)','frequency')]:reuse.addAction(title,lambda checked=False,key=destination:self.send_result(key))
         self.result_actions.add_action(self.reuse_result,'reuse');self.result_actions.placeholders['cas'].setToolTip('Este resultado ya está en la hoja CAS. Podés seguir operando con rN o ans.')
         export=QPushButton('Exportar hoja…');export_menu=QMenu(export);export.setMenu(export_menu);export_menu.addAction('Hoja con formato (HTML)…',lambda:self.report.export_document(True));export_menu.addAction('Texto completo…',lambda:self.report.export_document(False));self.result_actions.add_action(export,'export')
+        self.export_sheet=export
         self.result_actions.add_action(self.result_tools);self.copy_result_button=QPushButton('Copiar expresión');self.copy_result_button.clicked.connect(self.copy_result);self.result_actions.add_action(self.copy_result_button)
         right.addWidget(self.selection_note);self.report.setMinimumHeight(210);right.addWidget(self.report,1)
         from .tool_workspace import ToolWorkspace
@@ -218,7 +219,7 @@ class CasWorksheet(QWidget):
         for action in self.result_operations:action.setEnabled(self.selected_entry() is not None and self.pending is None)
         if hasattr(self,'result_actions'):
             entry=self.selected_entry();ready=entry is not None and self.pending is None
-            self.enlarge_result.setEnabled(ready);self.copy_result_button.setEnabled(ready);self.result_tools.setEnabled(ready);self.reuse_result.setEnabled(ready and bool(entry['answer'].get('expression')));self.result_actions.slots['export'].setEnabled(bool(self.entries))
+            self.enlarge_result.setEnabled(ready);self.copy_result_button.setEnabled(ready);self.result_tools.setEnabled(ready);self.reuse_result.setEnabled(ready and bool(entry['answer'].get('expression')));self.export_sheet.setEnabled(bool(self.entries))
         self.selection_note.setText('Exacto · radianes · '+(str(len(self.state.get('assumptions',{})))+' símbolos con supuestos' if self.state.get('assumptions') else 'sin supuestos declarados')+(' · Resultado: r'+str(self.selected) if self.selected is not None else ''))
 
     def selected_entry(self):

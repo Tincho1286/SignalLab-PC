@@ -59,7 +59,7 @@ class ReconstructionPanel(QWidget):
 
     def add_table(self,title,model,export,target=None):
         view=target or self.view;page=QWidget();layout=QVBoxLayout(page);table=QTableView();table.setModel(model);table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents);table.horizontalHeader().setStretchLastSection(True);layout.addWidget(table,1)
-        button=QPushButton('Exportar '+title.lower()+' (CSV)…');button.clicked.connect(export);layout.addWidget(button);index=view.views.addTab(page,title);view.views.setTabVisible(index,False);return index
+        button=QPushButton('Exportar '+title.lower()+' (CSV)…');button.setProperty('resultExport',True);button.clicked.connect(export);layout.addWidget(button);index=view.views.addTab(page,title);view.views.setTabVisible(index,False);return index
 
     def calculate(self):
         try:

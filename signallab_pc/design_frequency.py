@@ -22,6 +22,7 @@ class DesignFrequency(QWidget):
         self.note=QLabel('Diseñá un sistema para consultar módulo, fase y retardo de grupo.');self.note.setWordWrap(True);root.addWidget(self.note)
         self.figure=Figure(figsize=(7,6));self.canvas=FigureCanvasQTAgg(self.figure);root.addWidget(NavigationToolbar2QT(self.canvas,self));root.addWidget(self.canvas,1)
         self.export_button=QPushButton('Exportar respuesta…');self.export_button.clicked.connect(self.export);self.export_button.setEnabled(False);root.addWidget(self.export_button)
+        self.export_button.setProperty('resultExport',True)
         self.magnitude.currentIndexChanged.connect(self.draw)
     def request(self,domain):
         if domain!=self.domain:

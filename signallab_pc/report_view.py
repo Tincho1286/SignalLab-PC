@@ -297,5 +297,7 @@ def report_panel(report):
     copy=QPushButton('Copiar texto');copy.clicked.connect(lambda:QApplication.clipboard().setText(report.toPlainText()));bar.addWidget(copy)
     save=QPushButton('Guardar informe con formato…');save.clicked.connect(lambda:report.export_document(True));bar.addWidget(save)
     plain=QPushButton('Guardar texto…');plain.clicked.connect(lambda:report.export_document(False));bar.addWidget(plain)
+    from .result_exports import mark_export
+    for button in (save,plain):mark_export(button);button.report_export=report
     bar.addStretch();layout.addLayout(bar);layout.addWidget(report,1)
     return panel

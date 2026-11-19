@@ -10,6 +10,7 @@ class ExpressionGridView(QWidget):
         super().__init__();self.data=None;layout=QVBoxLayout(self);self.note=QLabel();self.note.setWordWrap(True);layout.addWidget(self.note)
         row=QHBoxLayout();self.components=QComboBox();self.components.addItems(['Módulo y fase','Parte real e imaginaria']);row.addWidget(self.components)
         export=QPushButton('Exportar datos…');export.clicked.connect(self.export);row.addWidget(export);layout.addLayout(row)
+        export.setProperty('resultExport',True)
         self.tabs=QTabWidget();layout.addWidget(self.tabs);plot=QWidget();box=QVBoxLayout(plot)
         self.figure=Figure(figsize=(7,4));self.canvas=FigureCanvasQTAgg(self.figure);self.toolbar=NavigationToolbar2QT(self.canvas,self);box.addWidget(self.toolbar);box.addWidget(self.canvas);self.tabs.addTab(plot,'Gráfico')
         from .result_table import ResultTable

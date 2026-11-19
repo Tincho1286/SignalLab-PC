@@ -11,15 +11,20 @@ class ResultActionDock(QWidget):
     def set_graph(self,graph):self.graph=graph;self.schedule()
     def candidates(self):return [bar for bar,owner,_ in self.entries if owner.isVisibleTo(self.surface) and not bar.isHidden()]
     def select_bar(self):
-        candidates=self.candidates();ready=[bar for bar in candidates if bar.isEnabled() and any(button.isEnabled() for role,button in bar.slots.items() if role!='graph')];pool=ready or [bar for bar in candidates if bar.isEnabled()] or candidates
+        candidates=self.candidates()
+        def ready_action(bar,role,button):
+            if role=='export' and hasattr(bar,'export_source'):button=bar.export_source
+            return role!='graph' and button is not None and button.isEnabled()
+        ready=[bar for bar in candidates if bar.isEnabled() and any(ready_action(bar,role,button) for role,button in bar.slots.items())];pool=ready or [bar for bar in candidates if bar.isEnabled()] or candidates
         selected=self.chosen if self.chosen in pool else next((bar for bar in pool if bar.property('systemResultActions')),next(iter(pool),None))
         return selected,ready
     def current_bar(self):
         selected,_=self.select_bar();return selected if selected is not None and (selected.isEnabled() or self.graph is None) else self.fallback
     def title(self,bar):
-        owner=getattr(bar,'result_view',None) or getattr(bar,'_result_origin',None);value=getattr(owner,'result',None);value=getattr(bar,'system',None) or value
+        owner=getattr(bar,'result_view',None) or getattr(bar,'_result_origin',None);value=getattr(owner,'result',None);value=getattr(bar,'system',None) or getattr(bar,'model',None) or value
         if isinstance(value,tuple):value=next(iter(value),None)
-        if bar.property('systemResultActions'):kind='Sistema / filtro'
+        if bar.property('resultCaption'):kind=bar.property('resultCaption')
+        elif bar.property('systemResultActions'):kind='Sistema / filtro'
         elif getattr(value,'domain',None)=='frequency':kind='Respuesta en frecuencia' if getattr(value,'data_kind',None)=='frequency_response' else 'Espectro'
         elif getattr(value,'domain',None) in ('continuous','discrete'):kind='Señal'
         elif getattr(owner,'expression_key',None):kind='Expresión'
@@ -62,4 +67,9 @@ def install(surface):
     if dock is None:
         dock=ResultActionDock(surface);surface.layout().insertWidget(2,dock);surface.action_dock=dock
     for bar in surface.content.findChildren(ResultActionBar):dock.add_bar(bar)
-    dock.refresh();return dock
+    from .plot_actions import install_context_actions
+    install_context_actions(surface,dock)
+    from .result_exports import install as install_exports
+    install_exports(surface,dock)
+    from .result_reuse import install as install_reuse
+    install_reuse(surface,dock);dock.refresh();return dock

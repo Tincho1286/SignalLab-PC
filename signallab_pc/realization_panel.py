@@ -10,9 +10,11 @@ class RealizationPanel(QWidget):
         super().__init__();self.owner=window;self.source=None;self.advance=0;self.key=None;self.value=None;self.diagram=None
         root=QVBoxLayout(self);root.setContentsMargins(0,0,0,0)
         self.open_button=QPushButton('Abrir diagrama de realización');self.open_button.clicked.connect(self.open_diagram);root.addWidget(self.open_button)
+        self.open_button.setProperty('resultGraphAction','Diagrama de realización')
         self.clock=QWidget();row=QHBoxLayout(self.clock);row.setContentsMargins(0,0,0,0);label=QLabel('Período T (s) para estados');label.setWordWrap(True);row.addWidget(label);self.period=QLineEdit('1');self.period.setMaximumWidth(130);row.addWidget(self.period);row.addStretch();root.addWidget(self.clock);self.clock.hide()
         self.period.setToolTip('Sólo establece el reloj al enviar el modelo a Espacio de estados. No cambia H(z) ni el diagrama.')
         self.states_button=QPushButton('Usar en espacio de estados…');menu=QMenu(self.states_button);self.states_button.setMenu(menu)
+        self.states_button.setProperty('resultReuseMenu','Modelo de la realización');self.states_button.setToolTip('La vista Realización prepara las matrices del diagrama; después podés enviarlas a otra herramienta.')
         for title,action in [('Estructura y estabilidad','analysis'),('Respuesta temporal','simulation'),('Respuesta en frecuencia','frequency'),('Obtener transferencia','transfer')]:menu.addAction(title,lambda checked=False,destination=action:self.send_model(destination))
         root.addWidget(self.states_button)
         self.report=ReportView();root.addWidget(report_panel(self.report),1);self.clear_result()

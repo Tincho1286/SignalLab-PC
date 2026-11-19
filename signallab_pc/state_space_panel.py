@@ -88,6 +88,7 @@ class StateSpacePanel(QWidget):
         self.plot_mode=QComboBox();self.plot_mode.addItems(['Módulo y fase','Parte real e imaginaria'])
         self.plot_channel=QComboBox();self.plot_channel.setAccessibleName('Canal que se muestra')
         self.export_plot=QPushButton('Exportar todos los canales CSV…');self.export_plot.setEnabled(False);self.export_plot.clicked.connect(self.export_channels)
+        self.export_plot.setProperty('resultExport',True)
         from .figure_controls import WrappedControls
         plot_controls=QWidget();plot_bar=WrappedControls(plot_controls);policy=plot_controls.sizePolicy();policy.setHeightForWidth(True);plot_controls.setSizePolicy(policy)
         if action in ('simulation','frequency'):
@@ -105,7 +106,8 @@ class StateSpacePanel(QWidget):
             self.model_actions=StateModelResultActions(window,action);layout.insertWidget(0,self.model_actions)
         if action=='simulation':
             from PySide6.QtWidgets import QMenu
-            bar=QHBoxLayout();layout.insertLayout(1,bar)
+            from .result_toolbar import ResultActionBar
+            self.signal_actions=ResultActionBar();self.signal_actions.setProperty('resultCaption','Salida simulada');layout.insertWidget(1,self.signal_actions);bar=self.signal_actions.layout()
             self.reuse_signal=QPushButton('Usar señal en…');self.reuse_signal.setProperty('actionRole','reuse')
             self.signal_menu=QMenu(self.reuse_signal);self.reuse_signal.setMenu(self.signal_menu)
             self.signal_menu.aboutToShow.connect(self.prepare_signal_reuse);bar.addWidget(self.reuse_signal)

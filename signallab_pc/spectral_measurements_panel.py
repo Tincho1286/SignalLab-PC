@@ -78,6 +78,7 @@ class SpectralMeasurePanel(QWidget):
         for title,model,key in [('Bandas',self.band_model,'bands'),('Picos',self.peak_model,'peaks')]:
             page=QWidget();layout=QVBoxLayout(page);table=QTableView();table.setModel(model);table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents);table.horizontalHeader().setStretchLastSection(True);layout.addWidget(table,1)
             button=QPushButton('Exportar '+title.lower()+' (CSV)…');button.clicked.connect(lambda checked=False,k=key:self.export_table(k));layout.addWidget(button);self.tabs.addTab(page,title)
+            button.setProperty('resultExport',True)
         self.cumulative=ResultView();self.cumulative.plot_mode.hide();self.cdf_index=self.tabs.addTab(self.cumulative,'Acumulada')
         page=QWidget();plot=QVBoxLayout(page);self.plot_index=self.tabs.addTab(page,'Espectro y bandas')
         self.pick=QPushButton('Seleccionar banda con el mouse');self.pick.setCheckable(True);self.pick.setEnabled(False);self.pick.setToolTip('Arrastrá sobre el gráfico para llenar la fila elegida. Después recalculá.');self.pick.toggled.connect(self.pick_mode)

@@ -67,10 +67,11 @@ class ResultActionBar(QWidget):
         QTimer.singleShot(0,self,self.sync_graph)
     def replace_action(self,role,button):
         previous=self.slots.pop(role,None)
-        if previous is not None:self.grid.removeWidget(previous);previous.hide()
+        if previous is not None:self.grid.removeWidget(previous);previous.setProperty('retiredResultAction',True);previous.hide()
         self.add_action(button,role)
     def resizeEvent(self,event):super().resizeEvent(event);self.reflow()
     def eventFilter(self,watched,event):
+        if watched.property('retiredResultAction') and event.type() in (QEvent.Type.Show,QEvent.Type.ShowToParent):watched.hide()
         if event.type()==QEvent.Type.EnabledChange:
             scope=self.scope()
             if scope is not None and hasattr(scope,'action_dock'):scope.action_dock.schedule()
@@ -90,7 +91,7 @@ class ResultActionBar(QWidget):
     def minimumSizeHint(self):return QSize(0,self.grid.minimumSize().height())
     def use_report(self,report):
         if 'export' in self.slots:return
-        button=QPushButton('Exportar informe…');button.setProperty('resultAction','export');menu=QMenu(button);button.setMenu(menu)
+        button=QPushButton('Exportar informe…');button.report_export=report;button.setProperty('resultAction','export');menu=QMenu(button);button.setMenu(menu)
         menu.addAction('Informe con formato (HTML)…',lambda:report.export_document(True));menu.addAction('Texto sin formato…',lambda:report.export_document(False));self.add_action(button,'export')
         report.textChanged.connect(lambda:button.setEnabled(bool(report.toPlainText().strip())));button.setEnabled(bool(report.toPlainText().strip()))
 

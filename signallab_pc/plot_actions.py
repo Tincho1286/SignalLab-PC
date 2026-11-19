@@ -2,7 +2,7 @@
 import weakref
 from shiboken6 import isValid
 from PySide6.QtCore import Qt,QEvent,QSize
-from PySide6.QtWidgets import QToolButton,QMenu,QTabWidget
+from PySide6.QtWidgets import QToolButton,QMenu,QTabWidget,QAbstractButton
 
 
 def style_launcher(button):
@@ -38,13 +38,14 @@ class PlotLauncher(QToolButton):
     def register(self,canvas,routes,label):
         if any(_alive(entry[0]) is canvas for entry in self.entries):return
         self.entries.append((weakref.ref(canvas),[(weakref.ref(tabs),weakref.ref(page)) for tabs,page in routes],label))
+        if isinstance(canvas,QAbstractButton):canvas.installEventFilter(self)
         for tabs,_ in routes:tabs.tabBar().installEventFilter(self)
         canvas._signallab_plot_action_refresh=self.refresh;self.refresh()
     def available(self):
         result=[]
         for entry in self.entries:
             canvas=_alive(entry[0])
-            if canvas is None or not getattr(canvas,'_signallab_has_plot_result',False):continue
+            if canvas is None or not (canvas.isEnabled() if isinstance(canvas,QAbstractButton) else getattr(canvas,'_signallab_has_plot_result',False)):continue
             visible=True
             for tabs_ref,page_ref in entry[1]:
                 tabs,page=_alive(tabs_ref),_alive(page_ref)
@@ -65,7 +66,8 @@ class PlotLauncher(QToolButton):
             self.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup if multiple else QToolButton.ToolButtonPopupMode.DelayedPopup)
         finally:self._refreshing=False
     def eventFilter(self,watched,event):
-        if event.type() in (QEvent.Type.Show,QEvent.Type.LayoutRequest,QEvent.Type.Resize):self.refresh()
+        if watched.property('resultGraphCaptured') and event.type() in (QEvent.Type.Show,QEvent.Type.ShowToParent):watched.hide()
+        if event.type() in (QEvent.Type.Show,QEvent.Type.LayoutRequest,QEvent.Type.Resize,QEvent.Type.EnabledChange):self.refresh()
         return super().eventFilter(watched,event)
     def open_default(self):
         entries=self.available()
@@ -79,6 +81,7 @@ class PlotLauncher(QToolButton):
     def open_entry(self,entry):
         canvas=_alive(entry[0])
         if canvas is not None:
+            if isinstance(canvas,QAbstractButton):canvas.click();return
             from .plot_view import enlarge_plot
             enlarge_plot(canvas,self)
     def rebuild(self):
@@ -87,6 +90,23 @@ class PlotLauncher(QToolButton):
             label=entry[2] or 'Resultado';used[label]=used.get(label,0)+1
             if used[label]>1:label+=' · '+str(used[label])
             self.menu.addAction(label,lambda checked=False,item=entry:self.open_entry(item))
+
+
+def install_context_actions(surface,dock):
+    """Diagrams share the figure launcher; their original handlers stay intact."""
+    for button in surface.content.findChildren(QAbstractButton):
+        label=button.property('resultGraphAction')
+        if not label or button.property('resultGraphCaptured'):continue
+        launcher=getattr(surface,'graph_launcher',None)
+        if launcher is None:launcher=PlotLauncher(surface);surface.graph_launcher=launcher;dock.set_graph(launcher)
+        routes=[];node=button.parentWidget()
+        while node is not None and node is not surface:
+            if isinstance(node,QTabWidget):
+                for index in range(node.count()):
+                    page=node.widget(index)
+                    if page.isAncestorOf(button):routes.append((node,page));break
+            node=node.parentWidget()
+        button.setProperty('resultGraphCaptured',True);launcher.register(button,routes,label);button.hide()
 
 
 def bind_canvas(canvas,origin):

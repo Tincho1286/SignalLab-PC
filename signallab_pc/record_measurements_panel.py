@@ -37,6 +37,7 @@ class RecordMeasurePanel(QWidget):
         self.view=ResultView();out.addWidget(self.view,1);self.report=self.view.text
         page=QWidget();layout=QVBoxLayout(page);self.events=Rows([('kind','Evento'),('start','Desde'),('end','Hasta'),('span','Separación')]);self.table=QTableView();self.table.setModel(self.events);self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents);self.table.horizontalHeader().setStretchLastSection(True);layout.addWidget(self.table,1)
         self.export_events=QPushButton('Exportar cruces y contactos (CSV)…');self.export_events.setEnabled(False);self.export_events.clicked.connect(self.export_table);layout.addWidget(self.export_events);self.events_index=self.view.views.addTab(page,'Cruces y contactos');self.view.views.setTabVisible(self.events_index,False)
+        self.export_events.setProperty('resultExport',True)
         self.choice.currentIndexChanged.connect(self.show_choice);self.domain.currentIndexChanged.connect(lambda index:self.change_domain(form,index));self.change_domain(form,0)
         self.discrete_source.sourceChanged.connect(lambda:self.loaded(0));self.continuous_source.sourceChanged.connect(lambda:self.loaded(1))
 

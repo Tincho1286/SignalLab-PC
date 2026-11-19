@@ -214,13 +214,17 @@ class CourseToolsPanel(QWidget):
         self.compensation_data=None;self.reconstruction_data=None
         if action=='phase':
             self.compensation_export=QPushButton('Exportar comparación CSV…');self.compensation_export.hide();self.compensation_export.clicked.connect(self.export_compensation);out.addWidget(self.compensation_export)
+            self.compensation_export.setProperty('resultExport',True)
+            self.compensation_export.setEnabled(False)
         self.bandpass_result=None
         if hasattr(self,'copy_system_button'):
             from .system_import import install_system_import
             self.system_import=install_system_import(self.copy_system_button,window,self.set_system,self.choose_system,domains=['digital'] if action in ('phase','inverse_z') else None,allow_advance=action in ('gain','inverse_z','convert'))
         if action=='bandpass_sampling':
             self.export_bands_button=QPushButton('Exportar intervalos CSV…');self.export_bands_button.setEnabled(False);self.export_bands_button.hide();self.export_bands_button.clicked.connect(self.export_sampling_bands);out.addWidget(self.export_bands_button)
+            self.export_bands_button.setProperty('resultExport',True)
             self.use_rate_button=QPushButton('Usar tasa en Muestrear una expresión');self.use_rate_button.setEnabled(False);self.use_rate_button.hide();self.use_rate_button.clicked.connect(self.use_sampling_rate);out.addWidget(self.use_rate_button)
+            out.removeWidget(self.use_rate_button);self.use_rate_button.setText('Usar tasa en muestreo');self.use_rate_button.setToolTip('Carga la tasa candidata en Muestrear una expresión, sin calcular automáticamente.');self.view.actions.replace_action('reuse',self.use_rate_button)
             for control in (self.view.label,self.view.send,self.view.save,self.view.plot_mode):control.hide()
             self.tabs.setTabVisible(self.view.table_index,False)
         from .result_state import ResultState
@@ -342,7 +346,7 @@ class CourseToolsPanel(QWidget):
                 imported_parents,imported_conditions=expression_context(self.ideal_expression);parents.extend(imported_parents)
             calculated_inputs=self.result_state.snapshot()
             def accept(result):
-                self.view.show_content();self.view.actions.setVisible(bool(result['systems']+result['signals']))
+                self.view.show_content();self.view.actions.setVisible(bool(result['systems']+result['signals']) or action=='bandpass_sampling')
                 if not hasattr(self,'specification_status'):
                     self.specification_status=QLabel();self.specification_status.setWordWrap(True);self.tabs.parentWidget().layout().insertWidget(0,self.specification_status)
                 status=result.get('specification_met');self.specification_status.setVisible(status is not None)
@@ -363,6 +367,7 @@ class CourseToolsPanel(QWidget):
                 if action=='phase':
                     self.phase_adjustment=result.get('phase_adjustment');self.phase_input=system;self.phase_report=result['report'];self._phase_report_value=None;self.compensation_data=result.get('compensation');self.reconstruction_data=result.get('reconstruction')
                     self.compensation_export.setText('Exportar reconstrucción CSV…' if self.reconstruction_data is not None else 'Exportar comparación CSV…');self.compensation_export.setVisible(self.compensation_data is not None or self.reconstruction_data is not None)
+                    self.compensation_export.setEnabled(self.compensation_data is not None or self.reconstruction_data is not None)
                     figure_window=getattr(self.view.canvas,'_signallab_window',None)
                     if figure_window is not None:figure_window.setWindowTitle(('Reconstrucción de módulo/fase' if self.reconstruction_data is not None else 'Compensación FIR' if self.compensation_data is not None else 'Ajuste de fase')+' · SignalLab')
                     self.show_all_systems.setText('Comparar original, compensado y objetivo');self.show_all_systems.setToolTip('Las acciones de exportación y reutilización toman el sistema elegido en el selector, aunque la figura muestre las tres curvas.')

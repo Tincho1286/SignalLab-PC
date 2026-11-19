@@ -73,6 +73,7 @@ class PrecisionPanel(QWidget):
         self.output_view=ResultView(details=False);self.output_index=self.tabs.addTab(self.output_view,'Salida y');self.tabs.setTabVisible(self.output_index,False)
         self.actions=SystemResultActions(window);self.actions.reuse_excluded.add(('sampling',5));out.addWidget(self.actions);self.actions.hide()
         self.export=QPushButton('Exportar representación JSON…');self.export.clicked.connect(self.export_result);out.addWidget(self.export);self.export.setEnabled(False)
+        self.export.setProperty('resultExport',True)
         for field in (self.b,self.a):field.textChanged.connect(self.update_structure)
         self.definition_mode.currentIndexChanged.connect(self.update_structure)
         self.study.currentIndexChanged.connect(self.update_fields);self.format.currentIndexChanged.connect(self.update_fields);self.operation_rounding.currentIndexChanged.connect(self.update_fields);self.update_fields()
