@@ -1,13 +1,13 @@
 """Input and result surfaces with one compact-screen navigation pattern."""
 from PySide6.QtCore import Qt,QSize,QTimer
-from PySide6.QtWidgets import QWidget,QFrame,QVBoxLayout,QHBoxLayout,QLabel,QScrollArea,QSplitter,QTabWidget,QBoxLayout,QSizePolicy,QFormLayout
+from PySide6.QtWidgets import QWidget,QFrame,QVBoxLayout,QHBoxLayout,QLabel,QScrollArea,QSplitter,QTabWidget,QBoxLayout,QSizePolicy,QFormLayout,QPushButton
 from .active_stack import ActiveStack,ActiveTabs
 
 
 class Surface(QFrame):
     def __init__(self,title,caption,content,scroll=False):
         super().__init__();self.setObjectName('workspaceSurface');self.setMinimumWidth(0);root=QVBoxLayout(self);root.setContentsMargins(18,16,18,16);root.setSpacing(12)
-        header=QHBoxLayout();label=QLabel(title);label.setObjectName('surfaceTitle');header.addWidget(label,1);root.addLayout(header);self.caption=QLabel(caption);self.caption.setObjectName('surfaceCaption');self.caption.setWordWrap(True);root.addWidget(self.caption)
+        header=QHBoxLayout();self.title=QLabel(title);self.title.setObjectName('surfaceTitle');header.addWidget(self.title,1);root.addLayout(header);self.caption=QLabel(caption);self.caption.setObjectName('surfaceCaption');self.caption.setWordWrap(True);root.addWidget(self.caption)
         if scroll and not isinstance(content,QScrollArea):
             inner=content.layout()
             if inner is not None:
@@ -25,12 +25,12 @@ class Surface(QFrame):
 
 
 class ToolWorkspace(QWidget):
-    def __init__(self,inputs,results,parent=None):
-        super().__init__(parent);self.setObjectName('toolWorkspace');self.setProperty('workspaceLayout',True);self.compact=None;self.result_preferred=False
-        root=QVBoxLayout(self);root.setContentsMargins(0,0,0,0);self.modes=ActiveStack();root.addWidget(self.modes)
+    def __init__(self,inputs,results,parent=None,*,titles=('Datos de entrada','Resultado'),captions=('Definí qué querés calcular.','Consultá, graficá o continuá con lo calculado.')):
+        super().__init__(parent);self.setObjectName('toolWorkspace');self.setProperty('workspaceLayout',True);self.compact=None;self.result_preferred=False;self.titles=titles
+        root=QVBoxLayout(self);root.setContentsMargins(14,0,14,12);self.modes=ActiveStack();root.addWidget(self.modes)
         self.split=QSplitter(Qt.Orientation.Horizontal);self.split.setChildrenCollapsible(False);self.split.setHandleWidth(10);self.modes.addWidget(self.split)
         self.tabs=ActiveTabs();self.tabs.setObjectName('workspaceModes');self.modes.addWidget(self.tabs)
-        self.inputs=Surface('Datos de entrada','Definí qué querés calcular.',inputs,True);self.results=Surface('Resultado','Consultá, graficá o continuá con lo calculado.',results)
+        self.inputs=Surface(titles[0],captions[0],inputs,True);self.results=Surface(titles[1],captions[1],results)
         self.inputs.setObjectName('inputSurface');self.results.setObjectName('resultSurface');self.switch_mode(False)
     def minimumSizeHint(self):return QSize(300,240)
     def sizeHint(self):return QSize(1040,620)
@@ -39,7 +39,7 @@ class ToolWorkspace(QWidget):
         if compact==self.compact:return
         self.compact=compact
         if compact:
-            for surface,title in ((self.inputs,'Datos de entrada'),(self.results,'Resultado')):self.tabs.addTab(surface,title)
+            for surface,title in zip((self.inputs,self.results),self.titles):self.tabs.addTab(surface,title)
             self.modes.setCurrentWidget(self.tabs);self.tabs.setCurrentIndex(1 if self.result_preferred else 0)
         else:
             while self.tabs.count():self.tabs.removeTab(0)
@@ -53,12 +53,18 @@ def install(page):
     """Adapt the two-column containers used by the existing tool families."""
     if getattr(page,'workspace',None) is not None:return page.workspace
     panel=getattr(page,'panel',page);layout=panel.layout()
+    outer=page.layout()
+    if outer is not None and any(isinstance(outer.itemAt(i).widget(),QSplitter) for i in range(outer.count())):panel=page;layout=outer
     if layout is None or not layout.count() or layout.count()==1 and not isinstance(layout.itemAt(0).widget(),QSplitter):panel=page;layout=page.layout()
     if layout is None:return None
     widgets=[layout.itemAt(i).widget() for i in range(layout.count()) if layout.itemAt(i).widget() is not None]
     split=next((widget for widget in widgets if isinstance(widget,QSplitter) and widget.count()==2 and widget.orientation()==Qt.Orientation.Horizontal),None)
     if split is not None:
         inputs,results=split.widget(0),split.widget(1);inputs.setParent(panel);results.setParent(panel);layout.removeWidget(split);split.deleteLater()
+        for i in reversed(range(layout.count())):
+            item=layout.itemAt(i);extra=item.layout()
+            if extra is not None and extra.property('resultActionsRow'):
+                layout.takeAt(i);extra.setParent(None);holder=QWidget(results);holder.setLayout(extra);results.layout().insertWidget(0,holder)
     elif isinstance(layout,QBoxLayout) and layout.direction()==QBoxLayout.Direction.LeftToRight and layout.count()==2:
         if any(layout.itemAt(i).widget() is None and layout.itemAt(i).layout() is None for i in range(2)):return None
         parts=[layout.takeAt(0),layout.takeAt(0)];surfaces=[]
@@ -74,6 +80,17 @@ def install(page):
     layout.setContentsMargins(0,0,0,0);workspace=ToolWorkspace(inputs,results,panel)
     if isinstance(layout,QBoxLayout):layout.setDirection(QBoxLayout.Direction.TopToBottom)
     layout.addWidget(workspace);page.workspace=workspace;panel.setMinimumWidth(0)
+    context=getattr(page,'context',None)
+    if context is not None:
+        kind=page.tool_item[1]
+        for button in workspace.inputs.findChildren(QPushButton):
+            text=button.property('actionTitle') or button.text()
+            redundant=kind=='fourier' and text.startswith(('Exportar resultado CSV','Guardar resultado JSON')) or kind=='systems' and text.startswith('Exportar respuesta CSV')
+            if redundant:button.hide()
+            elif kind=='symbolic' and text.startswith('Guardar resultado y supuestos'):
+                parent=button.parentWidget();form=parent.layout()
+                if form is not None:form.removeWidget(button)
+                button.setText('Exportar resultado…');button.setToolTip('Guardar el resultado algebraico junto con su entrada, condiciones y supuestos.');context.output.actions.replace_action('export',button);button.setEnabled(False);context.result_export_actions=[button]
     from .result_selector import install as install_selector
     for tabs in workspace.results.findChildren(QTabWidget):install_selector(tabs)
     from .result_action_dock import install as install_action_dock

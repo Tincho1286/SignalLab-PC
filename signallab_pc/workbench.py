@@ -52,12 +52,15 @@ class WorkbenchWindow(ToolboxWindow):
         from .workflow_selector import WorkflowSelector
         self.variant_strip=WorkflowSelector(self)
         self.stack=QStackedWidget();body.addWidget(self.stack,1);self.setCentralWidget(root)
-        self.build_explorer();self.build_workspace();self.build_menus()
+        self.build_explorer();self.build_workspace()
+        from .studio_shell import install_navigation,install_toolbar
+        install_navigation(self);self.build_menus();install_toolbar(self)
         self.cancel_button=QPushButton('Cancelar cálculo');self.cancel_button.clicked.connect(self._cancel_operations);self.cancel_button.hide();self.statusBar().addPermanentWidget(self.cancel_button)
         self._primary_timer=QTimer(self);self._primary_timer.setInterval(300);self._primary_timer.timeout.connect(self._refresh_primary_action);self._primary_timer.start()
-        self.settings=QSettings('SignalLab','Desktop071');geometry=self.settings.value('geometry');state=self.settings.value('panels')
+        self.settings=QSettings('SignalLab','Desktop071');geometry=self.settings.value('geometry');state=self.settings.value('studio/panels')
         if geometry:self.restoreGeometry(geometry)
         if state:self.restoreState(state)
+        self.explorer_dock.hide();self.studio_rail.show()
         available=self.screen().availableGeometry()
         self.resize(min(self.width(),available.width()),min(self.height(),available.height()))
         self.move(max(available.left(),min(self.x(),available.right()-self.width()+1)),max(available.top(),min(self.y(),available.bottom()-self.height()+1)))
@@ -72,6 +75,9 @@ class WorkbenchWindow(ToolboxWindow):
         paint_window(self)
     def resizeEvent(self,event):
         super().resizeEvent(event)
+        if hasattr(self,'studio_rail'):
+            from .studio_shell import adapt_shell
+            adapt_shell(self);return
         if not hasattr(self,'explorer_dock'):return
         compact=self.width()<1000
         if compact!=getattr(self,'_compact_navigation',None):
@@ -132,6 +138,7 @@ class WorkbenchWindow(ToolboxWindow):
             node=QTreeWidgetItem(['No se encontraron herramientas. Probá con otro nombre, como FIR, polos o energía.']);node.setFlags(Qt.ItemFlag.NoItemFlags);self.tree.addTopLevelItem(node)
         self.tree.itemDelegate().update_heights();self.tree.blockSignals(False);self._select_navigation()
     def _select_navigation(self):
+        if hasattr(self,'navigation_rail'):self.navigation_rail.select(self.navigation_area,self.category)
         self.cas_button.setChecked(self.category=='CAS')
         self.area_group.setExclusive(False)
         for area,button in self.area_buttons.items():button.setChecked(area==self.navigation_area)
@@ -288,23 +295,26 @@ class WorkbenchWindow(ToolboxWindow):
         self.active_route=doc_route;self.category=AREA_BY_ID[entry['area']][1];self.activate_view(doc_route,entry['title'],view);self.back.hide();self.help.show()
         self._configure_readable_layouts();self.operation_changed(route)
         if workspace is not None:
-            view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff);view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+            view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded);view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
     def open_cas(self,*_):
         from .cas_panel import CasWorksheet
         if CAS_ROUTE not in self.pages:
-            page=CasWorksheet(self);self.pages[CAS_ROUTE]=page;self.stack.addWidget(page)
+            page=CasWorksheet(self);self.pages[CAS_ROUTE]=page;self._add_auxiliary_view(CAS_ROUTE,page)
         page=self.pages[CAS_ROUTE];self.active_route=CAS_ROUTE;self.current_operation=CAS_ROUTE;self.current_entry=None;self.category='CAS';self.navigation_area=None
-        self.variant_strip.hide();self.operation_menu.hide();self.back.hide();self.help.show();self.activate_view(CAS_ROUTE,'Calculadora CAS',page)
+        self.variant_strip.hide();self.operation_menu.hide();self.back.hide();self.help.show();self.activate_view(CAS_ROUTE,'Calculadora CAS',self.views[CAS_ROUTE])
         self.subtitle.setText('Hoja de cálculo simbólico · variables, funciones y resultados reutilizables');self._render_tools(self.search.text());self._configure_readable_layouts();self._refresh_primary_action();page.input.setFocus()
 
     def open_station(self,index):self.open_tool(ROUTES[STATIONS[index][3][0]])
+    def _add_auxiliary_view(self,key,page):
+        view=QScrollArea();view.setWidgetResizable(True);view.setFrameShape(QFrame.Shape.NoFrame);view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff);view.setWidget(page);view.active_page=page;view.setProperty('auxiliaryDocument',True);self.views[key]=view;self.stack.addWidget(view);return view
     def show_menu(self,category):
         if category not in ('Proyecto','Biblioteca'):self.show_home();return
         key=('menu',category)
         if key not in self.pages:
-            page=self.build_project_page() if category=='Proyecto' else TheoryPanel(self.open_tool,self.open_library_example);self.pages[key]=page;self.stack.addWidget(page);self._configure_readable_layouts()
+            page=self.build_project_page() if category=='Proyecto' else TheoryPanel(self.open_tool,self.open_library_example);self.pages[key]=page;self._add_auxiliary_view(key,page);self._configure_readable_layouts()
         self.variant_strip.hide();self.current_calculate=None;self.operation_menu.hide();self.calculate_action.hide()
-        self.category=category;self.activate_view(key,'Resultados' if category=='Proyecto' else 'Biblioteca',self.pages[key]);self.subtitle.setText('Datos calculados: consultar, exportar o enviar a otra herramienta.' if category=='Proyecto' else 'Figuras y explicaciones de cada herramienta.');self.help.hide();self.back.hide()
+        self.category=category;self.activate_view(key,'Resultados' if category=='Proyecto' else 'Biblioteca',self.views[key]);self.subtitle.setText('Datos calculados: consultar, exportar o enviar a otra herramienta.' if category=='Proyecto' else 'Figuras y explicaciones de cada herramienta.');self.help.hide();self.back.hide()
+        if hasattr(self,'navigation_rail'):self.navigation_rail.select(None,self.category)
     def open_library_example(self,example):
         from .library_actions import apply_example
         apply_example(self,example)
@@ -332,13 +342,27 @@ class WorkbenchWindow(ToolboxWindow):
         query=normalize(self.search.text())
         node=next((node for node,title in self.tool_nodes if normalize(title).startswith(query)),self.tool_nodes[0][0]);self.choose_tool(node)
 
-    def focus_tool_search(self):self.explorer_dock.show();self.explorer_dock.raise_();self.search.setFocus();self.search.selectAll()
+    def focus_tool_search(self):
+        if hasattr(self,'studio_rail'):
+            from .studio_shell import open_search
+            open_search(self);return
+        self.explorer_dock.show();self.explorer_dock.raise_();self.search.setFocus();self.search.selectAll()
     def focus_document(self):
+        if hasattr(self,'studio_rail'):
+            widgets=(self.studio_rail,self.explorer_dock,self.workspace_dock)
+            if any(widget.isVisible() for widget in widgets):
+                self._studio_focus_panels=tuple(widget.isVisible() for widget in widgets)
+                for widget in widgets:widget.hide()
+            else:
+                for widget,visible in zip(widgets,getattr(self,'_studio_focus_panels',(True,False,False))):widget.setVisible(visible)
+            return
         visible=self.explorer_dock.isVisible() or self.workspace_dock.isVisible()
         if visible:self._focus_panels=(self.explorer_dock.isVisible(),self.workspace_dock.isVisible());self.explorer_dock.hide();self.workspace_dock.hide()
         else:
             explorer,workspace=getattr(self,'_focus_panels',(True,False));self.explorer_dock.setVisible(explorer);self.workspace_dock.setVisible(workspace)
     def reset_layout(self):
+        if hasattr(self,'studio_rail'):
+            self.explorer_dock.hide();self.workspace_dock.hide();self.studio_rail.show();return
         self.explorer_dock.setFloating(False);self.workspace_dock.setFloating(False);self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea,self.explorer_dock);self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea,self.workspace_dock);self.explorer_dock.show();self.workspace_dock.hide();self.resizeDocks([self.explorer_dock],[265],Qt.Orientation.Horizontal)
     def refresh_project(self):
         super().refresh_project()
@@ -419,7 +443,7 @@ class WorkbenchWindow(ToolboxWindow):
     def closeEvent(self,event):
         if hasattr(self,'updates') and not self.updates.prepare_close():
             event.ignore();return
-        self.settings.setValue('geometry',self.saveGeometry());self.settings.setValue('panels',self.saveState());super().closeEvent(event)
+        self.settings.setValue('geometry',self.saveGeometry());self.settings.setValue('studio/panels',self.saveState());super().closeEvent(event)
     def _configure_readable_layouts(self):
         from PySide6.QtWidgets import QFormLayout,QScrollArea,QSizePolicy,QTabWidget
         from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
@@ -431,7 +455,11 @@ class WorkbenchWindow(ToolboxWindow):
         for preview in self.findChildren(ExpressionEditor):preview.preview.setMinimumHeight(52);preview.preview.setMaximumHeight(76)
         for field in self.findChildren(QLineEdit)+self.findChildren(QComboBox):
             field.setMinimumHeight(34);field.setMinimumWidth(0);field.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed)
-            if isinstance(field,QComboBox):field.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon);field.setMinimumContentsLength(16)
+            if isinstance(field,QComboBox):
+                field.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon);field.setMinimumContentsLength(16)
+                ancestor=field.parentWidget()
+                while ancestor is not None and ancestor.objectName()!='inputSurface':ancestor=ancestor.parentWidget()
+                if ancestor is not None:field.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Fixed)
         for form in self.findChildren(QFormLayout):
             form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows if form.property('stackFields') else QFormLayout.RowWrapPolicy.WrapLongRows);form.setVerticalSpacing(6);form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
             form.setFormAlignment(Qt.AlignmentFlag.AlignTop);form.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -456,7 +484,8 @@ class WorkbenchWindow(ToolboxWindow):
         for view in self.views.values():
             page=getattr(view,'active_page',None)
             workspace=getattr(page,'workspace',None)
-            if workspace is None:install_tool_columns(view)
+            if workspace is None:
+                if not view.property('auxiliaryDocument'):install_tool_columns(view)
             else:
                 from .result_action_dock import install as install_action_dock
                 install_action_dock(workspace.results)

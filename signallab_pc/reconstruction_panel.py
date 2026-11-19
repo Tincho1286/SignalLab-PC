@@ -35,7 +35,7 @@ class ReconstructionPanel(QWidget):
         form=QFormLayout();form.setProperty('stackFields',True);form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows);left.addLayout(form)
         self.rate=QLineEdit('100');self.start=QLineEdit('0');self.factor=QLineEdit('16');self.before=QLineEdit('0');self.after=QLineEdit('0')
         for label,field in [('Fs de entrada (muestras/s)',self.rate),('Tiempo de la primera muestra (s)',self.start),('Subdivisiones por período',self.factor),('Períodos antes del registro',self.before),('Períodos después del registro',self.after)]:form.addRow(label,field)
-        self.override=QCheckBox('Reinterpretar el reloj con los valores del formulario');form.addRow(self.override)
+        self.override=QCheckBox('Cambiar el reloj registrado');self.override.setToolTip('Usar Fs y el primer instante del formulario en lugar de los del registro. Las muestras no cambian.');form.addRow(self.override)
         from .input_clock import bind_clock
         form.addRow(bind_clock(self.source,self.rate,self.start,self.override))
         self.use_reference=QCheckBox('Comparar con una referencia r(t)');form.addRow(self.use_reference);self.reference=ExpressionEditor('');form.addRow('Referencia r(t)',self.reference)

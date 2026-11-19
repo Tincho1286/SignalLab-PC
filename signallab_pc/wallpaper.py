@@ -110,13 +110,15 @@ def stylesheet():
         'QWidget#desktop > QLabel,QWidget#workspaceWallpaper > QLabel {background:'+shade('window')+';padding:4px;border-radius:5px;}',
         'QWidget#documentHeading {background:'+shade('chrome')+';}',
         'QWidget#explorerPanel {background:'+shade('chrome')+';}',
+        'QWidget#navigationRail,QWidget#resultActionDock,QScrollArea#railScroll,QScrollArea#railScroll > QWidget > QWidget,QToolBar#studioToolbar {background:'+shade('chrome')+';}',
         'QWidget#explorerPanel QTreeWidget {background:transparent;}',
         'QToolBar,QMenuBar,QStatusBar,QDockWidget::title {background:'+shade('chrome')+';}',
-        'QFrame#browserSection,QFrame#inputSurface,QFrame#resultSurface,QGroupBox {background:'+shade('panel')+';}',
+        'QFrame#browserSection,QFrame#inputSurface,QFrame#resultSurface,QWidget#libraryIndex,QWidget#libraryArticle,QGroupBox {background:'+shade('panel')+';}',
         'QFrame#welcomeCard {background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 '+shade('selected')+',stop:.65 '+shade('panel')+',stop:1 '+shade('chrome')+');}',
         'QScrollArea > QWidget > QWidget,QTabWidget::pane,QTabBar#documents {background:transparent;}',
         'QTabBar::tab {background:'+shade('chrome')+';}',
         'QTabBar::tab:selected,QTabBar#documents::tab:selected {background:'+shade('panel')+';}',
+        'QSplitter::handle {background:transparent;}',
     ])
 
 

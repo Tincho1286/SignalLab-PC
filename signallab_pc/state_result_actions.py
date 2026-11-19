@@ -3,6 +3,7 @@ from pathlib import Path
 from PySide6.QtWidgets import QWidget,QHBoxLayout,QPushButton,QMenu,QFileDialog,QMessageBox,QInputDialog
 from .workspaces import ROUTES
 from .state_space import StateModel
+from .result_toolbar import ResultActionBar
 
 
 def read_model_results(path,continuous_only=False):
@@ -36,10 +37,10 @@ def install_model_import(button,owner,receiver,choose_model,continuous_only=Fals
     return menu
 
 
-class StateModelResultActions(QWidget):
+class StateModelResultActions(ResultActionBar):
     def __init__(self,owner,source_action):
         super().__init__();self.owner=owner;self.source_action=source_action;self.model=None;self.key=None
-        row=QHBoxLayout(self);row.setContentsMargins(0,0,0,0)
+        row=self.layout()
         self.reuse=QPushButton('Usar modelo en…');self.reuse.setProperty('actionRole','reuse');self.menu=QMenu(self.reuse);self.reuse.setMenu(self.menu);self.menu.aboutToShow.connect(self.prepare_menu);row.addWidget(self.reuse)
         self.reuse.setToolTip('Copia el último modelo calculado, aunque hayas modificado los campos. El destino conserva su propio resultado hasta que calcules allí.')
         self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas')

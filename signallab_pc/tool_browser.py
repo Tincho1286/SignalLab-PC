@@ -25,15 +25,15 @@ class ToolBrowser(QScrollArea):
         if area:
             label=QLabel(AREA_BY_ID[area][2]);label.setObjectName('muted');label.setWordWrap(True);root.addWidget(label)
         else:
-            hero=QFrame();hero.setObjectName('welcomeCard');hero_box=QVBoxLayout(hero);hero_box.setContentsMargins(22,19,22,20);hero_box.setSpacing(8)
-            eyebrow=QLabel('ANÁLISIS · DISEÑO · APRENDIZAJE');eyebrow.setObjectName('welcomeEyebrow');hero_box.addWidget(eyebrow)
-            title=QLabel('¿Qué querés estudiar?');title.setObjectName('welcomeTitle');title.setWordWrap(True);hero_box.addWidget(title)
-            subtitle=QLabel('Encontrá una herramienta y empezá con tus datos.');subtitle.setObjectName('muted');subtitle.setWordWrap(True);hero_box.addWidget(subtitle)
+            from .studio_cards import StudioHero,QuickAction
+            hero=StudioHero();hero_box=QVBoxLayout(hero);hero_box.setContentsMargins(26,24,26,24);hero_box.setSpacing(12)
+            title=QLabel('Señales y sistemas');title.setObjectName('welcomeTitle');title.setWordWrap(True);hero_box.addWidget(title)
+            subtitle=QLabel('Análisis de señales, diseño de filtros y cálculo simbólico.');subtitle.setObjectName('muted');subtitle.setWordWrap(True);hero_box.addWidget(subtitle)
             self.home_search=QLineEdit();self.home_search.setObjectName('homeSearch');self.home_search.setPlaceholderText('Buscá una tarea: convolución, filtro FIR, transformada Z…');self.home_search.setClearButtonEnabled(True);self.home_search.addAction(icon('search'),QLineEdit.ActionPosition.LeadingPosition);hero_box.addWidget(self.home_search)
             self.quick_grid=QGridLayout();self.quick_grid.setSpacing(9);hero_box.addLayout(self.quick_grid)
-            for text,key,symbol,role,color in [('Crear señal',('basic','generate'),'signal','signal',C['on_primary']),('Analizar sistema',('system_analysis',0),'response','system',C['blue']),('Diseñar filtro',('course_tools','fir'),'design','filter',C['purple'])]:
-                button=QPushButton(text);button.setProperty('quickRole',role);button.setProperty('themeSymbol',symbol);button.setProperty('themeRole','on_primary' if role=='signal' else 'blue' if role=='system' else 'purple');button.setIcon(icon(symbol,color));button.setIconSize(QSize(18,18));button.setMinimumHeight(30);button.setCursor(Qt.CursorShape.PointingHandCursor)
-                button.clicked.connect(lambda checked=False,k=key:window.open_workflow(BY_KEY[k]));self.quick_buttons.append(button)
+            descriptions={'signal':'Fórmulas, muestras y ventanas','system':'Tiempo, frecuencia y polos','filter':'FIR, IIR y respuestas ideales'}
+            for text,key,symbol,role,color in [('Crear señal',('basic','generate'),'signal','signal','green'),('Analizar sistema',('system_analysis',0),'response','system','blue'),('Diseñar filtro',('course_tools','fir'),'design','filter','purple')]:
+                button=QuickAction(text,descriptions[role],symbol,color,lambda checked=False,k=key:window.open_workflow(BY_KEY[k]));button.setProperty('themeSymbol',symbol);button.setProperty('themeRole',color);self.quick_buttons.append(button)
             root.addWidget(hero)
         self.grid=QGridLayout();self.grid.setSpacing(14);root.addLayout(self.grid);self.search_empty=QLabel('No encontré una herramienta con ese nombre. Probá con una tarea, como Fourier, energía o polos.');self.search_empty.setObjectName('muted');self.search_empty.setWordWrap(True);self.search_empty.hide();root.addWidget(self.search_empty);root.addStretch()
         if area:
@@ -81,7 +81,9 @@ class ToolBrowser(QScrollArea):
         for frame,badge,area in self.badges:
             color=AREA_COLORS[area];tint=QColor(color);frame.setStyleSheet('QFrame#browserSection {border-top:2px solid '+color+';}')
             badge.setPixmap(icon(AREA_BY_ID[area][3],color).pixmap(22,22));badge.setStyleSheet('background:rgba('+str(tint.red())+','+str(tint.green())+','+str(tint.blue())+',22);border-radius:10px;')
-        for button in self.quick_buttons:button.setIcon(icon(button.property('themeSymbol'),C[button.property('themeRole')]))
+        for button in self.quick_buttons:
+            if hasattr(button,'refresh_theme'):button.refresh_theme()
+            else:button.setIcon(icon(button.property('themeSymbol'),C[button.property('themeRole')]))
         self.content.update()
     def resizeEvent(self,event):super().resizeEvent(event);self.reflow()
     def reflow(self):

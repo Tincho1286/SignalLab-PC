@@ -39,7 +39,8 @@ class ExpressionMeasuresPanel(QWidget):
         self.save_report=QPushButton('Guardar informe…');self.save_report.clicked.connect(self.save)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(300);split.addWidget(scroll)
         results=QWidget();result_layout=QVBoxLayout(results);result_layout.setContentsMargins(0,0,0,0)
-        actions=QHBoxLayout();result_layout.addLayout(actions)
+        from .result_toolbar import ResultActionBar,attach
+        self.result_actions=ResultActionBar();actions=self.result_actions.layout();result_layout.addWidget(self.result_actions)
         self.measure_window_key=None;self.sample_key=None
         self.reuse_signal=QPushButton('Usar señal en…');self.reuse_signal.setProperty('actionRole','reuse')
         self.signal_menu=QMenu(self.reuse_signal);self.reuse_signal.setMenu(self.signal_menu)
@@ -47,8 +48,8 @@ class ExpressionMeasuresPanel(QWidget):
         self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas')
         self.cas_menu=QMenu(self.cas_button);self.cas_button.setMenu(self.cas_menu)
         self.cas_menu.aboutToShow.connect(self.prepare_cas);self.cas_button.setEnabled(False);actions.addWidget(self.cas_button)
-        actions.addWidget(self.save_report);actions.addStretch()
-        self.tabs=QTabWidget();result_layout.addWidget(self.tabs,1);split.addWidget(results);split.setSizes([350,740]);split.setStretchFactor(1,1)
+        self.save_report.setProperty('actionRole','export');actions.addWidget(self.save_report);actions.addStretch()
+        self.tabs=QTabWidget();result_layout.addWidget(self.tabs,1);attach(self.tabs,self.result_actions);split.addWidget(results);split.setSizes([350,740]);split.setStretchFactor(1,1)
         from .plot_actions import install_result_button
         install_result_button(self.tabs,self.sample_button)
         self.report=ReportView();self.numeric_report=ReportView();self.output=ResultView(details=False);self.tabs.addTab(report_panel(self.report),'Algebraico');self.tabs.addTab(report_panel(self.numeric_report),'Ventana numérica');self.tabs.addTab(self.output,'Gráfico')

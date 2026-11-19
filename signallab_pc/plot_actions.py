@@ -103,6 +103,16 @@ def bind_canvas(canvas,origin):
         canvas._signallab_plot_action_scope = custom
         canvas._signallab_explicit_plot = True
         return
+    scope=origin
+    while scope is not None and scope.objectName()!='resultSurface':scope=scope.parentWidget()
+    if scope is not None and hasattr(scope,'action_dock'):
+        launcher=getattr(scope,'graph_launcher',None)
+        if launcher is None:launcher=PlotLauncher(scope);scope.graph_launcher=launcher;scope.action_dock.set_graph(launcher)
+        label=' · '.join(tabs.tabText(tabs.indexOf(page)) for tabs,page in reversed(routes)) if routes else 'Resultado'
+        for tabs,_ in routes:
+            tabs._signallab_plot_actions=launcher
+            if not hasattr(tabs,'result_action_bar'):tabs.result_action_bar=scope.action_dock.current_bar()
+        canvas._signallab_plot_action_scope=launcher;launcher.register(canvas,routes,label);return
     if routes:
         tabs,page=routes[-1];launcher=getattr(tabs,'_signallab_plot_actions',None)
         if launcher is None:

@@ -49,6 +49,45 @@ class Frontend(unittest.TestCase):
         for i in range(2):
             page=QWidget();layout=QVBoxLayout(page);bar=ResultActionBar();button=QPushButton('usar');button.clicked.connect(lambda checked=False,index=i:clicked.append(index));bar.add_action(button,'reuse');layout.addWidget(bar);tabs.addTab(page,str(i));bars.append(bar)
         space=ToolWorkspace(QWidget(),tabs);self.widgets.append(space);space.resize(1200,700);dock=install(space.results);wrappers={bar:wrapper for bar,_,wrapper in dock.entries};space.show();self.settle();self.assertTrue(wrappers[bars[0]].isVisible());self.assertFalse(wrappers[bars[1]].isVisible());tabs.setCurrentIndex(1);self.settle();self.assertFalse(wrappers[bars[0]].isVisible());self.assertTrue(wrappers[bars[1]].isVisible());bars[1].slots['reuse'].click();self.assertEqual(clicked,[1]);bars[1].hide();self.settle();self.assertTrue(dock.isHidden())
+    def test_last_graph_stays_available_when_the_design_commands_are_disabled(self):
+        from signallab_pc.result_action_dock import install
+        result=QWidget();layout=QVBoxLayout(result);bar=ResultActionBar();layout.addWidget(bar);space=ToolWorkspace(QWidget(),result);self.widgets.append(space);space.resize(1200,700);dock=install(space.results);graph=QPushButton('graph');clicked=[];graph.clicked.connect(lambda:clicked.append(True));dock.set_graph(graph);space.show();self.settle();self.assertIs(graph.parentWidget(),bar);bar.setEnabled(False);self.settle();self.assertIs(graph.parentWidget(),dock.fallback);self.assertTrue(graph.isEnabled());graph.click();self.assertEqual(clicked,[True]);bar.setEnabled(True);self.settle();self.assertIs(graph.parentWidget(),bar)
+    def test_task_search_accepts_keyboard_selection_and_filters_the_cas(self):
+        from signallab_pc.studio_shell import TaskSearch
+        from PySide6.QtCore import Qt
+        parent=QWidget();dialog=TaskSearch(parent);self.widgets.extend([parent,dialog]);dialog.show();self.settle();QTest.keyClick(dialog.query,Qt.Key.Key_Down);self.assertEqual(dialog.list.currentRow(),1);dialog.query.setText('CAS');self.settle();self.assertEqual(dialog.list.item(0).data(Qt.ItemDataRole.UserRole),'cas');QTest.keyClick(dialog.query,Qt.Key.Key_Return);self.assertEqual(dialog.selection,'cas')
+    def test_multiple_outputs_share_one_toolbar_with_an_explicit_target(self):
+        from signallab_pc.result_action_dock import install
+        result=QWidget();layout=QVBoxLayout(result);bars=[];clicked=[]
+        for i in range(2):
+            bar=ResultActionBar();button=QPushButton('Usar señal en…');button.clicked.connect(lambda checked=False,index=i:clicked.append(index));bar.add_action(button,'reuse');layout.addWidget(bar);bars.append(bar)
+        bars[1].setProperty('systemResultActions',True);space=ToolWorkspace(QWidget(),result);self.widgets.append(space);space.resize(1200,700);dock=install(space.results);space.show();self.settle();self.assertTrue(dock.target_row.isVisible());self.assertIs(dock.chosen,bars[1]);dock.target.setCurrentIndex(dock.choices.index(bars[0]));self.settle();self.assertIs(dock.chosen,bars[0]);self.assertEqual(sum(wrapper.isVisible() for _,_,wrapper in dock.entries),1);bars[0].slots['reuse'].click();self.assertEqual(clicked,[0])
+    def test_legacy_signal_result_is_ready_for_reuse_without_an_extra_plot(self):
+        from signallab_pc.toolbox import ResultView,LocalContext
+        from signallab_pc.model import Signal
+        class Host(QWidget):
+            def publish(self,value,**options):return 'captured-signal'
+            def send_signal(self,*args):pass
+            def open_cas(self):pass
+        host=Host();self.widgets.append(host);layout=QVBoxLayout(host);view=ResultView();layout.addWidget(view);context=LocalContext(host,None,view);value=Signal([1,2]);before=len(view.figure.axes);context._remember_signal(value);self.assertIs(view.result,value);self.assertEqual(view.result_ids,['captured-signal']);self.assertTrue(view.send.isEnabled());self.assertTrue(view.cas_button.isEnabled());self.assertTrue(view.save.isEnabled());self.assertEqual(len(view.figure.axes),before);view.clear_result();self.assertFalse(any(button.isEnabled() for button in (view.send,view.cas_button,view.save)))
+    def test_saved_results_keep_selection_and_disable_commands_for_an_empty_filter(self):
+        from signallab_pc.results_browser import ResultsBrowser
+        from signallab_pc.toolbox import ToolboxWindow
+        from signallab_pc.project import Project
+        from signallab_pc.model import Signal
+        class Host(QWidget):
+            refresh_project=ToolboxWindow.refresh_project
+            show_record=ToolboxWindow.show_record
+            def open_selected_signal(self):pass
+            def prepare_selected_reuse(self):pass
+            def export_selected(self):pass
+            def save_project(self):pass
+            def import_project(self):pass
+        host=Host();host.project=Project();key=host.project.add(Signal([0,1,0],-1,name='Pulso'));self.widgets.append(host);layout=QVBoxLayout(host);browser=ResultsBrowser(host);layout.addWidget(browser);host.resize(1200,720);host.show();self.settle();self.assertEqual(host.visible_records[0]['id'],key);self.assertTrue(host.cas_selection.isEnabled());self.assertEqual(set(browser.actions.slots),set(ORDER));host.result_search.setText('no existe');self.settle();self.assertFalse(host.cas_selection.isEnabled());self.assertFalse(host.reuse_selection.isEnabled());host.result_search.clear();host.resize(700,620);self.settle();self.assertEqual([browser.workspace.tabs.tabText(i) for i in range(2)],['Resultados','Detalle']);self.assertTrue(host.cas_selection.isEnabled());self.assertEqual(host.visible_records[0]['id'],key)
+    def test_theme_icon_refresh_handles_widgets_with_a_result_actions_attribute(self):
+        from PySide6.QtGui import QAction
+        from signallab_pc.design import refresh_icons,icon
+        parent=QWidget();self.widgets.append(parent);parent.actions=ResultActionBar(parent);button=QPushButton(parent);button.setIcon(icon('signal'));action=QAction(parent);action.setIcon(icon('book'));parent.addAction(action);before=action.icon().cacheKey();refresh_icons(self.app);self.assertFalse(button.icon().isNull());self.assertNotEqual(action.icon().cacheKey(),before)
 
 
 if __name__=='__main__':unittest.main()

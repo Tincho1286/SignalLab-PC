@@ -243,7 +243,7 @@ class ResultView(QWidget):
         from .active_stack import ActiveTabs
         self.views=ActiveTabs();layout.addWidget(self.views,1);plot=QWidget();layout=QVBoxLayout(plot);self.views.addTab(plot,'Gráfico')
         from .result_toolbar import ResultActionBar,attach
-        self.actions=ResultActionBar();bar=self.actions.layout()
+        self.actions=ResultActionBar();self.actions.result_view=self;bar=self.actions.layout()
         self.label=QLabel('El resultado aparecerá aquí.');self.label.setWordWrap(True);root.insertWidget(0,self.label)
         self.send=QPushButton('Usar señal en…');self.send.setProperty('actionRole','reuse');self.send.setEnabled(False);self.send_menu=QMenu(self.send);self.send.setMenu(self.send_menu);self.send_menu.aboutToShow.connect(self.prepare_send);bar.addWidget(self.send)
         self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas');self.cas_button.setEnabled(False)
@@ -265,13 +265,23 @@ class ResultView(QWidget):
         self.details_view=ReportView();self.details_index=self.views.addTab(report_panel(self.details_view),'Datos del cálculo');self.views.setTabVisible(self.details_index,False)
         if not details:self.views.tabBar().hide()
         from PySide6.QtWidgets import QSizePolicy
-        self.empty=QLabel('Todo listo para empezar\n\nCompletá los datos y pulsá Calcular. Acá vas a encontrar el informe, los valores y las acciones para continuar con el resultado.');self.empty.setObjectName('resultEmpty');self.empty.setWordWrap(True);self.empty.setAlignment(Qt.AlignmentFlag.AlignCenter);self.empty.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding);root.insertWidget(2,self.empty,1);self.views.hide();self.actions.setVisible(self.show_action_bar);self.label.hide()
+        self.empty=QLabel('Sin resultados\n\nCompletá los datos y pulsá Calcular. El informe, los valores y las opciones para reutilizar el resultado aparecerán aquí.');self.empty.setObjectName('resultEmpty');self.empty.setWordWrap(True);self.empty.setAlignment(Qt.AlignmentFlag.AlignCenter);self.empty.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding);root.insertWidget(2,self.empty,1);self.views.hide();self.actions.setVisible(self.show_action_bar);self.label.hide()
         self.development=ReportView();self.development_index=self.views.addTab(report_panel(self.development),'Desarrollo');self.views.setTabVisible(self.development_index,False)
         if details:self.views.setCurrentIndex(1)
     def show_content(self):
         self.empty.hide();self.views.show();self.label.show();self.actions.setVisible(self.show_action_bar)
+    def bind_action_result(self,result,keys=(),*,exportable=True):
+        """Bind captured output to commands without rebuilding its plot or report."""
+        from .cas_transfer import can_send
+        from .result_expressions import expression_result
+        self.result=result;self.result_ids=list(keys);self.expression_key=None;values=result if isinstance(result,tuple) else (result,);numeric=all(isinstance(value,Signal) for value in values);window=self.window();formula=expression_result(result)
+        if formula is not None and keys:self.expression_key=keys[0]
+        reusable=(numeric and hasattr(window,'send_signal')) or self.expression_key is not None
+        self.send.setText('Usar expresión en…' if self.expression_key else 'Usar filtro en…' if numeric and values[0].data_kind=='frequency_response' else 'Usar señal en…' if numeric and values[0].data_kind=='temporal' else 'Usar resultado en…');self.send.setEnabled(reusable);self.send.setVisible(reusable)
+        cas=hasattr(window,'open_cas') and can_send(result);self.cas_button.setEnabled(cas);self.cas_button.setVisible(cas);self.save.setEnabled(exportable);self.actions.setVisible(self.show_action_bar)
     def clear_result(self,message='El resultado aparecerá después de calcular.'):
         self.result=None;self.result_ids=[];self.expression_key=None
+        for button in (self.send,self.cas_button,self.save):button.setEnabled(False)
         self.figure.clear();self.canvas._signallab_has_plot_result=False;self.canvas.draw_idle()
         refresh=getattr(self.canvas,'_signallab_plot_action_refresh',None)
         if refresh is not None:refresh()
@@ -469,14 +479,15 @@ class LocalContext:
         return self.window._run_operation(message,function,accept)
     def _remember_signal(self,result):
         self.saved.append(result);self.result=result
-        self.window.publish(result,operation=self.tool_title,parents=self.parents)
+        key=self.window.publish(result,operation=self.tool_title,parents=self.parents);self.output.bind_action_result(result,[key])
     def _remember_system(self,system):
         if self.ready:
             self.system_id=self.window.publish(system,operation=self.tool_title,parents=self.parents)
             self.last_system=system;self.last_system_id=self.system_id
     def _remember_calculation(self,result):
         if hasattr(self,'result_state') and not getattr(self,'_receiving',False):self.result_state.accept(self.result_state.snapshot())
-        self.window.publish(result,title=self.tool_title,operation=self.tool_title,parents=self.parents)
+        key=self.window.publish(result,title=self.tool_title,operation=self.tool_title,parents=self.parents);self.output.bind_action_result(result,[key],exportable=False)
+        for button in getattr(self,'result_export_actions',()):button.setEnabled(True)
     def _set_signal(self,result):
         self._remember_signal(result);self.output.show_result(result);self.output.show()
         if hasattr(self,'on_result'):self.on_result()
@@ -659,7 +670,7 @@ class ToolPage(QWidget):
                 self.panel.kind.removeItem(3);self.panel.kind.removeItem(2)
                 task_note=form.parentWidget().findChild(QLabel,'taskDescription')
                 if task_note is not None:form.setRowVisible(task_note,False)
-                rc_mode=QComboBox();self.panel.rc_mode=rc_mode;rc_mode.addItems(['Conozco R y C','Quiero calcular un componente desde la frecuencia de corte']);form.insertRow(0,'Cómo definir el circuito',rc_mode)
+                rc_mode=QComboBox();self.panel.rc_mode=rc_mode;rc_mode.addItems(['Conozco R y C','Desde la frecuencia de corte']);rc_mode.setToolTip('Elegí si vas a analizar valores R y C conocidos o calcular un componente desde la frecuencia de corte.');form.insertRow(0,'Cómo definir el circuito',rc_mode)
                 rc_note=QLabel();rc_note.setWordWrap(True);form.insertRow(1,rc_note)
                 rc_buttons=self.panel.findChildren(QPushButton)
                 def update_rc_fields(*_):
@@ -726,7 +737,7 @@ class ToolPage(QWidget):
                     form.setRowVisible(legacy_button,False)
             from .coefficient_editor import CoefficientRows
             from PySide6.QtWidgets import QTableView,QAbstractItemView,QHeaderView
-            result_bar=QHBoxLayout();result_note=QLabel('Completá el diseño para ver el resultado y sus coeficientes.');result_note.setWordWrap(True);result_note.hide();result_bar.addWidget(result_note,1)
+            result_bar=QHBoxLayout();result_bar.setProperty('resultActionsRow',True);result_note=QLabel('Completá el diseño para ver el resultado y sus coeficientes.');result_note.setWordWrap(True);result_note.hide();result_bar.addWidget(result_note,1)
             from .system_result_actions import SystemResultActions
             self.system_actions=SystemResultActions(window);result_bar.addWidget(self.system_actions);self.system_actions.hide()
             if index!=6:
@@ -1177,28 +1188,8 @@ class ToolboxWindow(SignalLabWindow):
         picker=ProjectPicker(self,kind,domains,**constraints)
         return picker.selected_id if picker.exec() else None
     def build_project_page(self):
-        page=QWidget();layout=QVBoxLayout(page)
-        note=QLabel('Los resultados de todas las herramientas se guardan aquí al calcular. Seleccioná uno para consultarlo, exportarlo o usarlo en otra herramienta. Las expresiones conservan su fórmula y sus condiciones.');note.setWordWrap(True);layout.addWidget(note)
-        from PySide6.QtWidgets import QGridLayout
-        bar=QGridLayout()
-        self.view_selection=QPushButton('Abrir resultado');self.view_selection.setEnabled(False);self.view_selection.clicked.connect(self.open_selected_signal);bar.addWidget(self.view_selection,0,0)
-        self.export_selection_button=QPushButton('Exportar selección…');self.export_selection_button.setEnabled(False);self.export_selection_button.clicked.connect(self.export_selected);bar.addWidget(self.export_selection_button,1,0)
-        sessions=QPushButton('Sesión…');session_menu=QMenu(sessions);session_menu.addAction('Guardar sesión…',self.save_project);session_menu.addAction('Abrir sesión…',self.import_project);sessions.setMenu(session_menu);bar.addWidget(sessions,1,1)
-        from .result_comparison import open_comparison
-        compare=QPushButton('Comparar resultados…');compare.clicked.connect(lambda:open_comparison(self));bar.addWidget(compare,0,2)
-        layout.addLayout(bar)
-        filters=QHBoxLayout();self.result_search=QLineEdit();self.result_search.setPlaceholderText('Buscar un resultado por nombre u operación…');self.result_search.setClearButtonEnabled(True);filters.addWidget(self.result_search,1)
-        self.result_kind=QComboBox()
-        for label,kind in [('Todos los tipos',None),('Señales','signal'),('Sistemas','system'),('Modelos de estados','state_space'),('Expresiones','expression'),('Cálculos e informes','calculation')]:self.result_kind.addItem(label,kind)
-        filters.addWidget(self.result_kind);layout.addLayout(filters)
-        self.result_search.textChanged.connect(self.refresh_project);self.result_kind.currentIndexChanged.connect(self.refresh_project)
-        self.result_count=QLabel();self.result_count.setObjectName('muted');layout.addWidget(self.result_count)
-        self.reuse_selection=QPushButton('Usar selección en…');self.reuse_selection.setEnabled(False);self.reuse_menu=QMenu(self.reuse_selection);self.reuse_selection.setMenu(self.reuse_menu);self.reuse_menu.aboutToShow.connect(self.prepare_selected_reuse);bar.addWidget(self.reuse_selection,0,1)
-        self.include_inputs=QCheckBox('Mostrar también las entradas utilizadas');self.include_inputs.toggled.connect(self.refresh_project);layout.addWidget(self.include_inputs)
-        self.project_list=QListWidget();layout.addWidget(self.project_list,2)
-        self.result_origin=QLabel();self.result_origin.setWordWrap(True);self.result_origin.setObjectName('muted');layout.addWidget(self.result_origin)
-        self.project_details=ReportView();self.project_details.setReadOnly(True);layout.addWidget(self.project_details,1)
-        self.project_list.currentRowChanged.connect(self.show_record);self.project_list.itemDoubleClicked.connect(lambda *_:self.open_selected_signal());self.refresh_project();return page
+        from .results_browser import ResultsBrowser
+        return ResultsBrowser(self)
     def refresh_project(self):
         for field in self.findChildren(LocalInput):field.refresh_recent()
         if not hasattr(self,'project_list'):return
@@ -1223,6 +1214,7 @@ class ToolboxWindow(SignalLabWindow):
     def show_record(self,index):
         records=self.visible_records
         available=0<=index<len(records);self.export_selection_button.setEnabled(available)
+        if hasattr(self,'cas_selection'):self.cas_selection.setEnabled(False)
         self.view_selection.setEnabled(available)
         self.reuse_selection.setEnabled(available and (records[index]['kind'] in ('signal','system','state_space') or self.project.expression(records[index]['id']) is not None))
         if not available:
@@ -1235,6 +1227,7 @@ class ToolboxWindow(SignalLabWindow):
         details['entradas']=[parents[p] for p in record['parents']]
         value=self.project.get(record['id'])
         from .cas_transfer import can_send
+        if hasattr(self,'cas_selection'):self.cas_selection.setEnabled(can_send(value))
         if can_send(value):self.reuse_selection.setEnabled(True)
         if isinstance(value,dict) and 'cas_answer' in value:
             from .library_result_view import show_cas_result

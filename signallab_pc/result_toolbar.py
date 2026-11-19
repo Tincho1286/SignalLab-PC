@@ -33,6 +33,7 @@ class ResultActionBar(QWidget):
     def sync_graph(self):
         scope=self.scope()
         if scope is None:return
+        if getattr(getattr(scope,'action_dock',None),'graph',None) is not None:scope.action_dock.schedule();return
         bars=scope.findChildren(ResultActionBar);active=[bar for bar in bars if bar.isVisibleTo(scope)]
         for bar in active:
             home=getattr(bar,'home_graph',None)
@@ -64,13 +65,20 @@ class ResultActionBar(QWidget):
         if role=='graph' and not hasattr(button,'graph_home'):
             button.graph_home=self;self.home_graph=button
         QTimer.singleShot(0,self,self.sync_graph)
+    def replace_action(self,role,button):
+        previous=self.slots.pop(role,None)
+        if previous is not None:self.grid.removeWidget(previous);previous.hide()
+        self.add_action(button,role)
     def resizeEvent(self,event):super().resizeEvent(event);self.reflow()
     def eventFilter(self,watched,event):
+        if event.type()==QEvent.Type.EnabledChange:
+            scope=self.scope()
+            if scope is not None and hasattr(scope,'action_dock'):scope.action_dock.schedule()
         if event.type() in (QEvent.Type.ShowToParent,QEvent.Type.HideToParent) and not self._pending:
             self._pending=True;QTimer.singleShot(0,self,self.reflow)
         return False
     def reflow(self):
-        self._pending=False;columns=4 if self.width()>=620 else 2 if self.width()>=290 else 1
+        self._pending=False;columns=4 if self.width()>=740 else 2 if self.width()>=290 else 1
         for i,role in enumerate(ORDER):
             button=self.slots.get(role);placeholder=self.placeholders[role];visible=button is not None and not button.isHidden();placeholder.setVisible(not visible)
             QGridLayout.addWidget(self.grid,placeholder,i//columns,i%columns)

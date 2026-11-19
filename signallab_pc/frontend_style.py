@@ -57,6 +57,44 @@ QLabel#linkTitle {font-size:11pt;font-weight:600;}
 QLabel#sectionTitle {font-size:12pt;}
 QLabel#badgeCount {border:0;border-radius:10px;padding:5px 8px;}
 QStatusBar {border:0;padding:2px 10px;}
+QToolBar#studioToolbar {background:@window@;border:0;padding:10px 18px;spacing:10px;}
+QLabel#studioBrand {font-size:17pt;font-weight:600;letter-spacing:0.3px;}
+QToolButton#applicationMenu {background:@panel@;border:0;border-radius:16px;padding:11px;}
+QPushButton#studioSearch {text-align:left;background:@panel@;border:1px solid @rule@;border-radius:16px;color:@muted@;padding:10px 16px;font-weight:400;}
+QPushButton#studioSearch:hover {background:@hover@;border-color:@accent@;}
+QWidget#navigationRail {background:@window@;}
+QScrollArea#railScroll,QScrollArea#railScroll > QWidget > QWidget {background:@window@;}
+QToolButton#railItem {background:transparent;border:0;border-radius:19px;padding:9px 2px;color:@muted@;font-size:8pt;}
+QToolButton#railItem:hover {background:@hover@;}
+QToolButton#railItem:checked {background:@selected@;color:@text@;font-weight:600;}
+QLabel#searchTitle {font-size:22pt;font-weight:600;}
+QLineEdit#commandSearch {font-size:12pt;padding:12px 14px;border-radius:16px;}
+QListWidget#commandResults {background:transparent;border:0;padding:0;}
+QListWidget#commandResults::item {padding:13px 12px;border-radius:13px;margin-bottom:5px;}
+QLabel#welcomeTitle {font-size:32pt;}
+QFrame#studioHero {border:0;background:transparent;}
+QPushButton#quickAction {text-align:left;background:@input@;border:1px solid @rule@;border-radius:18px;padding:0;}
+QPushButton#quickAction:hover {background:@hover@;border-color:@accent@;}
+QLabel#quickTitle {font-size:12pt;font-weight:600;}
+QLabel#quickDescription {font-size:9pt;color:@muted@;}
+QFrame#inputSurface {background:@panel@;border:0;border-radius:24px;}
+QFrame#resultSurface {background:@report@;border:0;border-radius:24px;}
+QGroupBox {background:transparent;border:0;border-radius:0;padding:8px 0px;margin-top:16px;}
+QGroupBox::title {left:0;color:@text@;font-size:10pt;}
+QToolButton[segment="true"] {background:@input@;border:1px solid transparent;border-radius:12px;padding:8px 11px;}
+QToolButton[segment="true"]:checked {background:@selected@;border:1px solid @accent@;}
+QLineEdit,QComboBox,QSpinBox,QDoubleSpinBox {background:@input@;border:1px solid transparent;border-radius:12px;padding:8px 10px;}
+QLineEdit:hover,QComboBox:hover {border-color:@border@;}
+QWidget#resultActionDock {background:@chrome@;border:1px solid @rule@;border-radius:18px;}
+QWidget#resultActionDock QPushButton,QWidget#resultActionDock QToolButton {padding:9px 10px;border-radius:13px;}
+QToolButton#plotLauncher,QPushButton#plotLauncher {background:@selected@;border:1px solid @accent@;}
+QSplitter::handle {background:@window@;border:0;}
+QWidget#libraryIndex {background:@panel@;border-radius:24px;}
+QWidget#libraryArticle {background:@report@;border-radius:24px;}
+QListWidget#savedResults {background:@input@;border:0;}
+QListWidget#savedResults::item {padding:12px 10px;margin-bottom:4px;border-radius:10px;}
+QWidget#casToolbar QToolButton {padding:8px 18px 8px 10px;border:1px solid @rule@;background:@input@;}
+QWidget#casToolbar QToolButton::menu-indicator {subcontrol-position:right center;right:6px;width:8px;}
 '''
 
 def stylesheet():return colorize(STYLE)

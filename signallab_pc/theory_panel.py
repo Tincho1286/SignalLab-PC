@@ -12,16 +12,17 @@ from .responsive_help import ResponsiveHelpView
 class TheoryPanel(QWidget):
     def __init__(self,on_open=None,on_example=None):
         super().__init__();self.on_example=on_example;self.sections=library_sections();self.filtered=[];self.on_open=on_open;self.selected_route=None;self.return_route=None;self.fields_open=False;self.field_route=None
-        root=QHBoxLayout(self);self.body_layout=root;self.index_panel=QWidget();left=QVBoxLayout(self.index_panel);left.setContentsMargins(0,0,0,0);root.addWidget(self.index_panel,1)
+        root=QHBoxLayout(self);root.setContentsMargins(14,0,14,12);root.setSpacing(12);self.body_layout=root;self.index_panel=QWidget();self.index_panel.setObjectName('libraryIndex');left=QVBoxLayout(self.index_panel);left.setContentsMargins(16,16,16,16);root.addWidget(self.index_panel,1)
         self.kind=QComboBox();self.kind.addItems(['Toda la biblioteca','Conceptos explicados','Uso de herramientas','Funciones de las fórmulas','Ejemplos resueltos']);left.addWidget(self.kind)
         self.search=QLineEdit();self.search.setObjectName('librarySearch');self.search.setPlaceholderText('Buscar tema, herramienta o sigla…');self.search.setClearButtonEnabled(True);left.addWidget(self.search)
         self.items=QTreeWidget();self.items.setHeaderHidden(True);self.items.setWordWrap(True);self.items.setIndentation(15);self.items.setAccessibleName('Temas y artículos de la biblioteca');left.addWidget(self.items)
-        self.article_panel=QWidget();right=QVBoxLayout(self.article_panel);right.setContentsMargins(0,0,0,0);root.addWidget(self.article_panel,3);actions=QHBoxLayout();right.addLayout(actions)
+        from .wrapping_row import WrappingRow
+        self.article_panel=QWidget();self.article_panel.setObjectName('libraryArticle');right=QVBoxLayout(self.article_panel);right.setContentsMargins(16,16,16,16);root.addWidget(self.article_panel,3);action_row=WrappingRow();actions=action_row.flow;right.addWidget(action_row)
         self.topic_toggle=QPushButton('Buscar otro tema');self.topic_toggle.setCheckable(True);self.topic_toggle.toggled.connect(lambda *_:self.adapt_layout());actions.addWidget(self.topic_toggle)
         self.return_button=QPushButton('Volver a la herramienta');self.return_button.hide();actions.addWidget(self.return_button)
         self.open_button=QPushButton('Abrir herramienta');self.open_button.setObjectName('primary');self.open_button.setEnabled(False);self.open_button.setVisible(on_open is not None);actions.addWidget(self.open_button);actions.addStretch()
         self.open_button.clicked.connect(self.open_selected);self.return_button.clicked.connect(self.return_to_tool)
-        self.text=ResponsiveHelpView();self.text.anchorClicked.connect(self.follow_reference);right.addWidget(report_panel(self.text),1)
+        self.text=ResponsiveHelpView();self.text.setMinimumHeight(210);self.text.anchorClicked.connect(self.follow_reference);right.addWidget(report_panel(self.text),1)
         self.search.textChanged.connect(self.filter);self.kind.currentIndexChanged.connect(lambda *_:self.filter(self.search.text()));self.items.currentItemChanged.connect(lambda item,*_:self.show_section(item.data(0,Qt.ItemDataRole.UserRole)) if item is not None and item.data(0,Qt.ItemDataRole.UserRole) is not None else None);self.items.itemClicked.connect(self.click_topic);self.filter('');self.adapt_layout()
 
     def click_topic(self,item,*_):

@@ -164,10 +164,10 @@ STYLE += "QLabel#pageTitle { font-size:17pt; } QPushButton#toolTile { padding:10
 
 
 def refresh_icons(app):
-    from PySide6.QtWidgets import QAbstractButton
+    from PySide6.QtWidgets import QAbstractButton,QWidget
     alive=set();done=set()
     for widget in app.allWidgets():
-        targets=([widget] if isinstance(widget,QAbstractButton) else [])+list(widget.actions())
+        targets=([widget] if isinstance(widget,QAbstractButton) else [])+list(QWidget.actions(widget))
         for target in targets:
             if id(target) in done:continue
             done.add(id(target));data=_ICON_ROLES.get(target.icon().cacheKey())

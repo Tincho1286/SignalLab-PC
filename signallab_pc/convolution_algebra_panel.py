@@ -19,13 +19,14 @@ class ConvolutionAlgebraPanel(QWidget):
         note=QLabel('R(tau) = ∫ x(t) conjugada(y(t−tau)) dt. Si indicás un periodo, ambas expresiones deben ser periódicas con ese periodo; no se normaliza la integral.' if correlation else 'En modo causal, las fórmulas valen para t ≥ 0. En modo bilateral, incluí los escalones o tramos que definan el soporte.');note.setWordWrap(True);form.addRow(note)
         self.calculate_button=QPushButton('Calcular correlación algebraica' if correlation else 'Calcular convolución algebraica');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);form.addRow(self.calculate_button)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
-        right=QVBoxLayout();root.addLayout(right,2);actions=QHBoxLayout();right.addLayout(actions)
+        from .result_toolbar import ResultActionBar
+        right=QVBoxLayout();root.addLayout(right,2);self.result_actions=ResultActionBar();actions=self.result_actions.layout();right.addWidget(self.result_actions)
         self.result_key=None
         self.reuse=QPushButton('Usar expresión en…' if correlation else 'Usar señal en…');self.reuse.setProperty('actionRole','reuse')
         self.reuse_menu=QMenu(self.reuse);self.reuse.setMenu(self.reuse_menu);self.reuse_menu.aboutToShow.connect(self.prepare_reuse);actions.addWidget(self.reuse)
         self.cas=QPushButton('Enviar a CAS');self.cas.setProperty('actionRole','cas');self.cas.clicked.connect(self.send_to_cas);actions.addWidget(self.cas);actions.addStretch()
         self.reuse.setEnabled(False);self.cas.setEnabled(False)
-        self.report=ReportView();self.report.setReadOnly(True);right.addWidget(report_panel(self.report),1)
+        self.report=ReportView();self.report.setReadOnly(True);right.addWidget(report_panel(self.report),1);self.result_actions.use_report(self.report)
         self.report.setPlainText('El resultado algebraico y sus condiciones quedarán guardados en el proyecto. Si el motor no resuelve la integral, se mostrará como pendiente de evaluación.')
         from .result_state import ResultState
         self.result_state=ResultState([self.left,self.right,self.support,self.period],self.calculate_button);form.insertRow(0,self.result_state)

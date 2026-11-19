@@ -47,12 +47,13 @@ class DifferencePanel(QWidget):
         self.rest.toggled.connect(configure);self.start.textChanged.connect(configure);self.coefficients.textChanged.connect(configure);configure()
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();box=QVBoxLayout(right);box.setContentsMargins(0,0,0,0);root.addWidget(right,2)
-        actions=QHBoxLayout();box.addLayout(actions)
+        from .result_toolbar import ResultActionBar,attach
+        self.result_actions=ResultActionBar();actions=self.result_actions.layout();box.addWidget(self.result_actions)
         self.use_button=QPushButton('Usar resultado en…');self.use_button.setProperty('actionRole','reuse');self.use_button.setEnabled(False);actions.addWidget(self.use_button)
         self.use_menu=QMenu(self.use_button);self.use_button.setMenu(self.use_menu);self.use_menu.aboutToShow.connect(self.prepare_reuse)
         self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas');self.cas_button.setEnabled(False);actions.addWidget(self.cas_button);actions.addStretch()
         self.cas_menu=QMenu(self.cas_button);self.cas_button.setMenu(self.cas_menu);self.cas_menu.aboutToShow.connect(self.prepare_cas)
-        self.tabs=QTabWidget();box.addWidget(self.tabs,1);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Solución')
+        self.tabs=QTabWidget();box.addWidget(self.tabs,1);attach(self.tabs,self.result_actions);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Solución');self.result_actions.use_report(self.report)
         self.output=ResultView();self.tabs.addTab(self.output,'Muestras de y[n]');self.tabs.setTabVisible(1,False)
         from .recurrence_inspector import RecurrenceInspector
         self.inspector=RecurrenceInspector();self.inspector_index=self.tabs.addTab(self.inspector,'Paso a paso');self.tabs.setTabVisible(self.inspector_index,False)

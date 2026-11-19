@@ -33,7 +33,8 @@ class CasWorksheet(QWidget):
         super().__init__();self.window=window;self.state=self._empty();self.entries=[];self.pending=None;self.selected=None
         self.commands=[];self.command_position=0;self.draft='';self._submitting=False;self._serial=0;self._automatic_reference=None;self.math_size=17;self.formula_dialogs=[]
         root=QVBoxLayout(self);root.setContentsMargins(10,8,10,8);root.setSpacing(6)
-        self.toolbar=QToolBar();self.toolbar.setObjectName('casToolbar');self.toolbar.setMovable(False);root.addWidget(self.toolbar)
+        from .wrapping_row import WrappingRow
+        self.toolbar=WrappingRow();self.toolbar.setObjectName('casToolbar');root.addWidget(self.toolbar)
         groups=[('Álgebra',[
             ('Simplificar','simplify(expr)'),('Desarrollar','expand(expr)'),('Factorizar','factor(expr)'),
             ('Unificar fracción','together(expr)'),('Fracciones parciales','apart(expr,x)'),('Sustituir','subst(expr,x,valor)'),
@@ -48,9 +49,9 @@ class CasWorksheet(QWidget):
             ('Transpuesta','transpose(expr)'),('Rango','rank(expr)'),('Autovalores','eigenvalues(expr)'),('Forma escalonada reducida','rref(expr)')])]
         self.template_actions=[]
         for title,items in groups:
-            button=QToolButton();button.setText(title);button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);menu=QMenu(button);button.setMenu(menu);self.toolbar.addWidget(button)
+            button=QToolButton();button.setText(title);button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);menu=QMenu(button);button.setMenu(menu);self.toolbar.flow.addWidget(button)
             for label,template in items:self.template_actions.append(menu.addAction(label,lambda checked=False,t=template:self.insert_template(t)))
-        button=QToolButton();button.setText('Resultado');button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);menu=QMenu(button);button.setMenu(menu);self.toolbar.addWidget(button)
+        button=QToolButton();button.setText('Operar resultado');button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);menu=QMenu(button);button.setMenu(menu);self.result_tools=button
         self.result_operations=[]
         for title,command in [('Simplificar resultado','simplify'),('Desarrollar resultado','expand'),('Factorizar resultado','factor'),('Fracciones parciales del resultado','apart'),('Aproximar resultado','approx')]:
             self.result_operations.append(menu.addAction(title,lambda checked=False,key=command:self.operate_result(key)))
@@ -60,11 +61,10 @@ class CasWorksheet(QWidget):
         if settings is not None:
             self.result_digits.setText(str(settings.value('cas/result_digits','15')));self.result_digits.editingFinished.connect(lambda:settings.setValue('cas/result_digits',self.result_digits.text()))
         precision_layout.addWidget(self.result_digits);precision.setDefaultWidget(precision_row);menu.addAction(precision);menu.addSeparator()
-        menu.addAction('Ver resultado ampliado…',self.show_result);menu.addAction('Copiar resultado',self.copy_result);menu.addAction('Insertar referencia rN',self.insert_reference);menu.addSeparator()
-        for title,destination in [('Usar como señal continua','continuous'),('Usar como secuencia discreta','discrete'),('Usar como H(s)','analog'),('Usar como H(z)','digital'),('Analizar respuesta H(w)','frequency')]:menu.addAction(title,lambda checked=False,key=destination:self.send_result(key))
-        sheet=QToolButton();sheet.setText('Hoja');sheet.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);menu=QMenu(sheet);sheet.setMenu(menu);self.toolbar.addWidget(sheet)
+        menu.addAction('Insertar referencia rN',self.insert_reference)
+        sheet=QToolButton();sheet.setText('Hoja');sheet.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);menu=QMenu(sheet);sheet.setMenu(menu);self.toolbar.flow.addWidget(sheet)
         self.variables_button=menu.addAction('Variables y supuestos…',lambda:self.variables_dialog.show());menu.addSeparator()
-        menu.addAction('Hoja con formato…',lambda:self.report.export_document(True));menu.addAction('Texto completo…',lambda:self.report.export_document(False));menu.addAction('Copiar hoja',lambda:QApplication.clipboard().setText(self.report.toPlainText()))
+        menu.addAction('Copiar hoja',lambda:QApplication.clipboard().setText(self.report.toPlainText()))
         menu.addSeparator();menu.addAction('Aumentar tamaño de fórmulas',lambda:self.change_math_size(2));menu.addAction('Reducir tamaño de fórmulas',lambda:self.change_math_size(-2));menu.addSeparator();self.new_button=menu.addAction('Nueva hoja…',self.new_sheet)
         self.variables_dialog=QDialog(self);self.variables_dialog.setWindowTitle('Variables y supuestos · CAS');self.variables_dialog.resize(520,250);self.variables_dialog.setMinimumSize(300,150)
         variable_layout=QVBoxLayout(self.variables_dialog);self.variables=QTreeWidget();self.variables.setColumnCount(2);self.variables.setHeaderLabels(['Nombre','Valor / definición']);self.variables.setRootIsDecorated(False);variable_layout.addWidget(self.variables)
@@ -77,6 +77,22 @@ class CasWorksheet(QWidget):
         from PySide6.QtWidgets import QPushButton
         load=QPushButton('Cargar resultado o archivo…');load.clicked.connect(self.choose_source);root.addWidget(load)
         self.calculate_button=QPushButton('Evaluar');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);root.addWidget(self.calculate_button)
+        # Keep original editors and callbacks; separate entry from the worksheet.
+        while root.count():root.takeAt(0)
+        controls=QWidget();left=QVBoxLayout(controls);left.setContentsMargins(0,0,0,0);left.setSpacing(12)
+        label=QLabel('Expresión o comando');left.addWidget(label);self.input.setMinimumHeight(120);self.input.setMaximumHeight(220);left.addWidget(self.input);left.addWidget(self.toolbar);left.addWidget(hint);left.addWidget(load);left.addWidget(self.calculate_button);left.addStretch()
+        output=QWidget();right=QVBoxLayout(output);right.setContentsMargins(0,0,0,0);right.setSpacing(10)
+        from .result_toolbar import ResultActionBar
+        self.result_actions=ResultActionBar();right.addWidget(self.result_actions)
+        self.enlarge_result=QPushButton('Ampliar fórmula');self.enlarge_result.setToolTip('Ver el resultado seleccionado en una ventana independiente.');self.enlarge_result.clicked.connect(self.show_result);self.result_actions.add_action(self.enlarge_result,'graph')
+        self.reuse_result=QPushButton('Usar expresión en…');reuse=QMenu(self.reuse_result);self.reuse_result.setMenu(reuse)
+        for title,destination in [('Señal continua','continuous'),('Secuencia discreta','discrete'),('Análisis de H(s)','analog'),('Análisis de H(z)','digital'),('Respuesta en frecuencia H(ω)','frequency')]:reuse.addAction(title,lambda checked=False,key=destination:self.send_result(key))
+        self.result_actions.add_action(self.reuse_result,'reuse');self.result_actions.placeholders['cas'].setToolTip('Este resultado ya está en la hoja CAS. Podés seguir operando con rN o ans.')
+        export=QPushButton('Exportar hoja…');export_menu=QMenu(export);export.setMenu(export_menu);export_menu.addAction('Hoja con formato (HTML)…',lambda:self.report.export_document(True));export_menu.addAction('Texto completo…',lambda:self.report.export_document(False));self.result_actions.add_action(export,'export')
+        self.result_actions.add_action(self.result_tools);self.copy_result_button=QPushButton('Copiar expresión');self.copy_result_button.clicked.connect(self.copy_result);self.result_actions.add_action(self.copy_result_button)
+        right.addWidget(self.selection_note);self.report.setMinimumHeight(210);right.addWidget(self.report,1)
+        from .tool_workspace import ToolWorkspace
+        self.workspace=ToolWorkspace(controls,output,self,titles=('Expresión','Hoja CAS'),captions=('Ingresá una expresión o insertá un comando.','Resultados exactos y condiciones de cada cálculo.'));root.setContentsMargins(0,0,0,0);root.addWidget(self.workspace)
         self.timer=QTimer(self);self.timer.setInterval(200);self.timer.timeout.connect(self.check_pending);self.timer.start();self.render()
 
     def choose_source(self):
@@ -200,6 +216,9 @@ class CasWorksheet(QWidget):
 
     def update_selection(self):
         for action in self.result_operations:action.setEnabled(self.selected_entry() is not None and self.pending is None)
+        if hasattr(self,'result_actions'):
+            entry=self.selected_entry();ready=entry is not None and self.pending is None
+            self.enlarge_result.setEnabled(ready);self.copy_result_button.setEnabled(ready);self.result_tools.setEnabled(ready);self.reuse_result.setEnabled(ready and bool(entry['answer'].get('expression')));self.result_actions.slots['export'].setEnabled(bool(self.entries))
         self.selection_note.setText('Exacto · radianes · '+(str(len(self.state.get('assumptions',{})))+' símbolos con supuestos' if self.state.get('assumptions') else 'sin supuestos declarados')+(' · Resultado: r'+str(self.selected) if self.selected is not None else ''))
 
     def selected_entry(self):
