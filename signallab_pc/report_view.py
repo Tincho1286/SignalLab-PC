@@ -292,7 +292,8 @@ class ReportView(QTextBrowser):
 def report_panel(report):
     """Acciones visibles sobre el informe, sin modificar su contenido original."""
     panel=QWidget();layout=QVBoxLayout(panel);layout.setContentsMargins(0,0,0,0)
-    bar=QHBoxLayout()
+    from .wrapping_row import FlowLayout
+    bar=FlowLayout()
     copy=QPushButton('Copiar texto');copy.clicked.connect(lambda:QApplication.clipboard().setText(report.toPlainText()));bar.addWidget(copy)
     save=QPushButton('Guardar informe con formato…');save.clicked.connect(lambda:report.export_document(True));bar.addWidget(save)
     plain=QPushButton('Guardar texto…');plain.clicked.connect(lambda:report.export_document(False));bar.addWidget(plain)

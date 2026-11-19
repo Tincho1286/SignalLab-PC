@@ -42,13 +42,13 @@ class WorkbenchWindow(ToolboxWindow):
         from .wallpaper import BackgroundSurface
         root=BackgroundSurface();root.setObjectName('desktop');body=QVBoxLayout(root);body.setContentsMargins(0,0,0,0);body.setSpacing(0)
         self.documents=QTabBar();self.documents.setObjectName('documents');self.documents.setExpanding(False);self.documents.setMovable(True);self.documents.setTabsClosable(True);self.documents.setUsesScrollButtons(True);self.documents.setElideMode(Qt.TextElideMode.ElideRight);self.documents.currentChanged.connect(self.activate_document);self.documents.tabCloseRequested.connect(self.close_document);body.addWidget(self.documents)
-        heading=QWidget();heading.setObjectName('documentHeading');row=QHBoxLayout(heading);row.setContentsMargins(14,10,14,10);row.setSpacing(8)
+        heading=QWidget();heading.setObjectName('documentHeading');row=QHBoxLayout(heading);row.setContentsMargins(20,14,20,8);row.setSpacing(10)
         self.title=QLabel('Inicio');self.title.setObjectName('pageTitle');self.title.setWordWrap(True);row.addWidget(self.title,1)
         self.back=QPushButton('Volver a resultados');self.back.clicked.connect(lambda:self.show_menu('Proyecto'));self.back.hide();row.addWidget(self.back)
         self.operation_menu=QToolButton();self.operation_menu.setText('Operaciones');self.operation_menu.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);row.addWidget(self.operation_menu)
         self.calculate_action=QPushButton('Calcular');self.calculate_action.setObjectName('primary');self.calculate_action.setIcon(icon('run',C['on_primary']));self.calculate_action.setIconSize(QSize(16,16));self.calculate_action.setMinimumWidth(124);self.calculate_action.setShortcut('Ctrl+Return');self.calculate_action.setToolTip('Calcular con los datos actuales · Ctrl+Enter');self.calculate_action.clicked.connect(self.calculate_active);row.addWidget(self.calculate_action);self.current_calculate=None
         self.help=QToolButton();self.help.setText('Ayuda');self.help.setObjectName('contextHelp');self.help.setIcon(icon('book',C['green']));self.help.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon);self.help.clicked.connect(self.open_help);row.addWidget(self.help);body.addWidget(heading)
-        self.subtitle=QLabel();self.subtitle.setObjectName('muted');self.subtitle.setWordWrap(True);self.subtitle.setContentsMargins(10,2,10,6);body.addWidget(self.subtitle)
+        self.subtitle=QLabel();self.subtitle.setObjectName('muted');self.subtitle.setWordWrap(True);self.subtitle.setContentsMargins(20,0,20,14);body.addWidget(self.subtitle)
         from .workflow_selector import WorkflowSelector
         self.variant_strip=WorkflowSelector(self)
         self.stack=QStackedWidget();body.addWidget(self.stack,1);self.setCentralWidget(root)
@@ -73,9 +73,13 @@ class WorkbenchWindow(ToolboxWindow):
     def resizeEvent(self,event):
         super().resizeEvent(event)
         if not hasattr(self,'explorer_dock'):return
-        compact=self.width()<950
+        compact=self.width()<1000
         if compact!=getattr(self,'_compact_navigation',None):
-            self._compact_navigation=compact;self.resizeDocks([self.explorer_dock],[190 if compact else 265],Qt.Orientation.Horizontal)
+            self._compact_navigation=compact
+            if compact:
+                self._auto_hidden_explorer=self.explorer_dock.isVisible();self.explorer_dock.hide()
+            elif getattr(self,'_auto_hidden_explorer',False):self.explorer_dock.show()
+            self.resizeDocks([self.explorer_dock],[240],Qt.Orientation.Horizontal)
     def import_matlab(self):
         from PySide6.QtWidgets import QFileDialog,QMessageBox
         from .matlab_import_dialog import MatlabImportDialog
@@ -159,8 +163,8 @@ class WorkbenchWindow(ToolboxWindow):
         help_menu=self.menuBar().addMenu('Ayuda');help_menu.addAction('Ayuda de la herramienta',self.open_help,'F1');help_menu.addAction('Biblioteca',lambda:self.show_menu('Biblioteca'));help_menu.addAction('Funciones de las fórmulas…',self.show_function_help)
         help_menu.addSeparator();help_menu.addAction('Buscar actualizaciones…',lambda:self.updates.show());help_menu.addAction('Acerca de SignalLab…',self.about)
         bar=QToolBar('Acciones');bar.setObjectName('mainToolbar');bar.setMovable(False);bar.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon);bar.setIconSize(QSize(18,18));self.addToolBar(bar)
+        navigation=self.explorer_dock.toggleViewAction();navigation.setText('Menú');navigation.setIcon(icon('menu'));bar.addAction(navigation)
         action=bar.addAction(icon('home'),'Inicio');action.triggered.connect(self.show_home)
-        action=bar.addAction(icon('table',C['green']),'Importar MATLAB');action.triggered.connect(self.import_matlab)
         action=bar.addAction(icon('calculator',C['purple']),'CAS');action.triggered.connect(self.open_cas)
         spacer=QWidget();spacer.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Preferred);bar.addWidget(spacer);action=bar.addAction(icon('search',C['accent']),'Buscar');action.setShortcut('Ctrl+K');action.triggered.connect(self.focus_tool_search)
         action=bar.addAction(icon('table'),'Resultados');action.triggered.connect(lambda:self.show_menu('Proyecto'));action=bar.addAction(icon('book'),'Biblioteca');action.triggered.connect(lambda:self.show_menu('Biblioteca'))
@@ -208,7 +212,7 @@ class WorkbenchWindow(ToolboxWindow):
                 for index in range(self.documents.count()):
                     if self.documents.tabData(index)==self.active_route:self.documents.setTabText(index,entry['title']);self.documents.setTabToolTip(index,detail_label)
         self.current_operation=tuple(item);self.variant_strip.set_entry(entry,item)
-        self.current_entry=entry;self.title.setText(entry['title']);self.subtitle.setText(AREA_BY_ID[entry['area']][1]+'  ›  '+entry['section']);self.category=AREA_BY_ID[entry['area']][1];self._sync_navigation();self.help.show()
+        self.current_entry=entry;self.title.setText(entry['title']);self.subtitle.setText(entry['summary']);self.category=AREA_BY_ID[entry['area']][1];self._sync_navigation();self.help.show()
         self.operation_menu.hide();page=self.pages.get(tuple(item));self.current_calculate=None
         if page is not None:
             buttons=calculation_buttons(page)
@@ -275,12 +279,16 @@ class WorkbenchWindow(ToolboxWindow):
         document=self.pages[doc_route]
         if route not in self.pages:self.pages[route]=ToolPage(self,route)
         page=self.pages[route];document.layout().insertWidget(0,self.variant_strip);document.select_page(page);self.pages[requested]=page if requested[1]!='workspace' else document
+        from .tool_workspace import install as install_workspace
+        workspace=install_workspace(page)
         view=self.views[doc_route];view.active_page=page;view.panel=getattr(page,'panel',None);view.context=getattr(page,'context',None)
         from .navigation import TRANSFORM_ALIASES
         if item[1:3] in TRANSFORM_ALIASES:page.panel.select_legacy(item[1:3])
         if item[1:3]==('systems',7):page.panel.fields['method'].setCurrentIndex(1)
         self.active_route=doc_route;self.category=AREA_BY_ID[entry['area']][1];self.activate_view(doc_route,entry['title'],view);self.back.hide();self.help.show()
         self._configure_readable_layouts();self.operation_changed(route)
+        if workspace is not None:
+            view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff);view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
     def open_cas(self,*_):
         from .cas_panel import CasWorksheet
         if CAS_ROUTE not in self.pages:
@@ -353,7 +361,12 @@ class WorkbenchWindow(ToolboxWindow):
             with capture() as records:result=function()
             journal.calculation_notes=list(records.values())
             return result
-        return super()._run_operation(message,calculate,lambda result:journal.accept(result,on_success))
+        route=self.current_operation
+        def accepted(result):
+            journal.accept(result,on_success)
+            page=self.pages.get(route);workspace=getattr(page,'workspace',None)
+            if workspace is not None:workspace.show_results()
+        return super()._run_operation(message,calculate,accepted)
     def _run_view_operation(self,message,function,on_success):
         """Build a view cache from already registered data, without duplicating it."""
         def accept(result):
@@ -417,7 +430,7 @@ class WorkbenchWindow(ToolboxWindow):
         for guide in self.findChildren(ToolGuide):guide.hide()
         for preview in self.findChildren(ExpressionEditor):preview.preview.setMinimumHeight(52);preview.preview.setMaximumHeight(76)
         for field in self.findChildren(QLineEdit)+self.findChildren(QComboBox):
-            field.setMinimumHeight(28);field.setMinimumWidth(0);field.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed)
+            field.setMinimumHeight(34);field.setMinimumWidth(0);field.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed)
             if isinstance(field,QComboBox):field.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon);field.setMinimumContentsLength(16)
         for form in self.findChildren(QFormLayout):
             form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows if form.property('stackFields') else QFormLayout.RowWrapPolicy.WrapLongRows);form.setVerticalSpacing(6);form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
@@ -431,11 +444,19 @@ class WorkbenchWindow(ToolboxWindow):
             bar=tabs.tabBar();bar.setUsesScrollButtons(True);bar.setElideMode(Qt.TextElideMode.ElideRight)
             for index in range(tabs.count()):
                 if not tabs.tabToolTip(index):tabs.setTabToolTip(index,tabs.tabText(index))
+            from .result_selector import install as install_result_selector
+            install_result_selector(tabs)
         for label in self.findChildren(QLabel):
-            if label.objectName() not in {'brand','pageTitle'}:
+            if label.objectName() not in {'brand','pageTitle','resultEmpty'}:
                 label.setWordWrap(True);label.setSizePolicy(label.sizePolicy().horizontalPolicy(),QSizePolicy.Policy.Fixed)
         for scroll in self.findChildren(QScrollArea):scroll.setWidgetResizable(True)
         from .wallpaper import refresh
         refresh(self)
         from .responsive_tools import install_tool_columns
-        for view in self.views.values():install_tool_columns(view)
+        for view in self.views.values():
+            page=getattr(view,'active_page',None)
+            workspace=getattr(page,'workspace',None)
+            if workspace is None:install_tool_columns(view)
+            else:
+                from .result_action_dock import install as install_action_dock
+                install_action_dock(workspace.results)

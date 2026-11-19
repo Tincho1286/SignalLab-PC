@@ -37,7 +37,8 @@ class TransformLab(QWidget):
         self.result_state=ResultState(fields,self.calculate_button,[self.source]);form.insertRow(0,self.result_state)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(left);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);layout.setContentsMargins(0,0,0,0);root.addWidget(right,2)
-        result_actions=QHBoxLayout();layout.addLayout(result_actions)
+        from .result_toolbar import ResultActionBar,attach
+        self.result_actions=ResultActionBar();result_actions=self.result_actions.layout();layout.addWidget(self.result_actions)
         self.reuse_button=QPushButton('Usar expresión en…')
         self.reuse_button.setProperty('actionRole','reuse');self.reuse_button.setEnabled(False)
         menu=QMenu(self.reuse_button);self.reuse_button.setMenu(menu);menu.aboutToShow.connect(self.prepare_reuse)
@@ -46,7 +47,7 @@ class TransformLab(QWidget):
         self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setProperty('actionRole','cas');self.to_cas_button.setToolTip('Abrir la expresión del último resultado calculado como una celda de la hoja CAS.');self.to_cas_button.clicked.connect(self.to_cas);self.to_cas_button.hide();result_actions.addWidget(self.to_cas_button)
         self.analyze_system=QPushButton();self.analyze_system.clicked.connect(self.to_system);result_actions.addWidget(self.analyze_system);result_actions.addStretch()
         self.roc_button=QPushButton('Explorar ROC…');self.roc_button.setToolTip('Elegir una región abierta en el plano de polos y aplicarla a la inversa.');self.roc_button.clicked.connect(self.explore_roc);result_actions.insertWidget(1,self.roc_button)
-        self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Expresión y condiciones')
+        self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Expresión y condiciones');attach(self.tabs,self.result_actions);self.result_actions.use_report(self.report)
         self.output=ResultView();self.tabs.addTab(self.output,'Muestras de la inversa');self.tabs.setTabVisible(1,False)
         self.steps=ReportView();self.steps_index=self.tabs.addTab(report_panel(self.steps),'Desarrollo');self.tabs.setTabVisible(self.steps_index,False)
         def update(*_):

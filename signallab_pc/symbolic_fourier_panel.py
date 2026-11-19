@@ -33,13 +33,14 @@ class SymbolicFourierPanel(QWidget):
         scope=QLabel('La expresión algebraica y sus muestras se conservan como objetos distintos, vinculados por su procedencia. Las distribuciones y las expresiones no resueltas no se convierten en muestras finitas.');scope.setWordWrap(True);numeric_form.addRow(scope)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);layout.setContentsMargins(0,0,0,0);root.addWidget(right,2)
-        actions=QHBoxLayout();actions.setContentsMargins(0,0,0,0)
+        from .result_toolbar import ResultActionBar,attach
+        self.result_actions=ResultActionBar();actions=self.result_actions.layout()
         self.reuse_button=QPushButton('Usar señal en…' if inverse else 'Usar espectro en…')
         self.reuse_button.setProperty('actionRole','reuse');self.reuse_button.setEnabled(False)
         menu=QMenu(self.reuse_button);self.reuse_button.setMenu(menu)
         menu.aboutToShow.connect(self.prepare_reuse);actions.addWidget(self.reuse_button)
-        self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setProperty('actionRole','cas');self.to_cas_button.setToolTip('Envía la última expresión calculada y sus condiciones. El menú también permite enviar las muestras si generaste un registro.');self.to_cas_button.setEnabled(False);self.to_cas_button.setMenu(QMenu(self.to_cas_button));self.to_cas_button.menu().aboutToShow.connect(self.prepare_cas);actions.addWidget(self.to_cas_button);actions.addStretch();layout.addLayout(actions)
-        self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.report.setReadOnly(True);self.tabs.addTab(report_panel(self.report),'Expresión y condiciones')
+        self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setProperty('actionRole','cas');self.to_cas_button.setToolTip('Envía la última expresión calculada y sus condiciones. El menú también permite enviar las muestras si generaste un registro.');self.to_cas_button.setEnabled(False);self.to_cas_button.setMenu(QMenu(self.to_cas_button));self.to_cas_button.menu().aboutToShow.connect(self.prepare_cas);actions.addWidget(self.to_cas_button);layout.addWidget(self.result_actions)
+        self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.report.setReadOnly(True);self.tabs.addTab(report_panel(self.report),'Expresión y condiciones');attach(self.tabs,self.result_actions);self.result_actions.use_report(self.report)
         from .plot_actions import install_result_button
         install_result_button(self.tabs,self.sample_button)
         self.report.setPlainText('Ingresá la expresión y calculá. Si el resultado admite valores numéricos, aparecerán los campos para graficarlo.')

@@ -1,10 +1,11 @@
 """Consistent actions on the calculated system, never on uncalculated form edits."""
 from PySide6.QtWidgets import QWidget,QHBoxLayout,QPushButton,QMenu
 from .workspaces import ROUTES
+from .result_toolbar import ResultActionBar
 
-class SystemResultActions(QWidget):
+class SystemResultActions(ResultActionBar):
     def __init__(self,window):
-        super().__init__();self.owner=window;self.system=None;self.key=None;self.reuse_excluded=set();row=QHBoxLayout(self);row.setContentsMargins(0,0,0,0)
+        super().__init__();self.setProperty('systemResultActions',True);self.owner=window;self.system=None;self.key=None;self.reuse_excluded=set();row=self.layout()
         self.analysis=QPushButton('Analizar…');self.analysis.setProperty('actionRole','analysis');menu=QMenu(self.analysis);self.analysis.setMenu(menu)
         menu.addAction('Polos y ceros',self.roots)
         menu.addAction('Respuesta en frecuencia',lambda:self.send_to(('system_analysis',0)))

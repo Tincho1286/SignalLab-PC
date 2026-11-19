@@ -239,16 +239,17 @@ class LocalInput(QGroupBox):
 
 class ResultView(QWidget):
     def __init__(self,details=True):
-        super().__init__();self.result=None;self.result_ids=[];self.expression_key=None;self.details=details;self.show_action_bar=True;layout=QVBoxLayout(self);root=layout
+        super().__init__();self.result=None;self.result_ids=[];self.expression_key=None;self.details=details;self.show_action_bar=True;layout=QVBoxLayout(self);layout.setContentsMargins(0,0,0,0);root=layout
         from .active_stack import ActiveTabs
         self.views=ActiveTabs();layout.addWidget(self.views,1);plot=QWidget();layout=QVBoxLayout(plot);self.views.addTab(plot,'Gráfico')
-        self.actions=QWidget();action_layout=QVBoxLayout(self.actions);action_layout.setContentsMargins(0,0,0,0)
-        self.label=QLabel('El resultado aparecerá aquí.');self.label.setWordWrap(True);bar=QHBoxLayout();action_layout.addLayout(bar);action_layout.addWidget(self.label)
+        from .result_toolbar import ResultActionBar,attach
+        self.actions=ResultActionBar();bar=self.actions.layout()
+        self.label=QLabel('El resultado aparecerá aquí.');self.label.setWordWrap(True);root.insertWidget(0,self.label)
         self.send=QPushButton('Usar señal en…');self.send.setProperty('actionRole','reuse');self.send.setEnabled(False);self.send_menu=QMenu(self.send);self.send.setMenu(self.send_menu);self.send_menu.aboutToShow.connect(self.prepare_send);bar.addWidget(self.send)
-        self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas')
+        self.cas_button=QPushButton('Enviar a CAS');self.cas_button.setProperty('actionRole','cas');self.cas_button.setEnabled(False)
         self.cas_menu=QMenu(self.cas_button);self.cas_button.setMenu(self.cas_menu)
         self.cas_menu.aboutToShow.connect(self.prepare_cas);bar.addWidget(self.cas_button)
-        self.save=QPushButton('Exportar datos…');self.save.setEnabled(False);self.save.clicked.connect(self.export);bar.addWidget(self.save);bar.addStretch();root.insertWidget(0,self.actions)
+        self.save=QPushButton('Exportar datos…');self.save.setEnabled(False);self.save.clicked.connect(self.export);bar.addWidget(self.save);bar.addStretch();root.insertWidget(0,self.actions);attach(self.views,self.actions)
         self.plot_mode=QComboBox();self.plot_mode.addItems(['Módulo y fase','Parte real e imaginaria']);self.plot_mode.setAccessibleName('Representación del resultado');self.plot_mode.currentIndexChanged.connect(self.draw_signal);layout.addWidget(self.plot_mode)
         self.dft_axis=QComboBox()
         self.dft_axis.addItems(['Frecuencia ω (rad/muestra)','Índice k centrado'])
@@ -263,16 +264,18 @@ class ResultView(QWidget):
         self.table_view=ResultTable();self.table_index=self.views.addTab(self.table_view,'Valores');self.views.setTabVisible(self.table_index,False)
         self.details_view=ReportView();self.details_index=self.views.addTab(report_panel(self.details_view),'Datos del cálculo');self.views.setTabVisible(self.details_index,False)
         if not details:self.views.tabBar().hide()
-        self.empty=QLabel('El resultado aparecerá después de calcular.');self.empty.setObjectName('muted');self.empty.setWordWrap(True);root.insertWidget(0,self.empty);self.views.hide();self.actions.hide()
+        from PySide6.QtWidgets import QSizePolicy
+        self.empty=QLabel('Todo listo para empezar\n\nCompletá los datos y pulsá Calcular. Acá vas a encontrar el informe, los valores y las acciones para continuar con el resultado.');self.empty.setObjectName('resultEmpty');self.empty.setWordWrap(True);self.empty.setAlignment(Qt.AlignmentFlag.AlignCenter);self.empty.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding);root.insertWidget(2,self.empty,1);self.views.hide();self.actions.setVisible(self.show_action_bar);self.label.hide()
         self.development=ReportView();self.development_index=self.views.addTab(report_panel(self.development),'Desarrollo');self.views.setTabVisible(self.development_index,False)
+        if details:self.views.setCurrentIndex(1)
     def show_content(self):
-        self.empty.hide();self.views.show();self.actions.setVisible(self.show_action_bar)
+        self.empty.hide();self.views.show();self.label.show();self.actions.setVisible(self.show_action_bar)
     def clear_result(self,message='El resultado aparecerá después de calcular.'):
         self.result=None;self.result_ids=[];self.expression_key=None
         self.figure.clear();self.canvas._signallab_has_plot_result=False;self.canvas.draw_idle()
         refresh=getattr(self.canvas,'_signallab_plot_action_refresh',None)
         if refresh is not None:refresh()
-        self.table_view.set_signals(());self.dft_axis.hide();self.views.hide();self.actions.hide();self.empty.setText(message);self.empty.show()
+        self.table_view.set_signals(());self.dft_axis.hide();self.views.hide();self.actions.setVisible(self.show_action_bar);self.empty.setText(message);self.empty.show();self.label.hide()
     def show_result(self,result,*,source=None,operation=None):
         self.operation=operation
         candidates=result if isinstance(result,tuple) else (result,)

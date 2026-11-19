@@ -112,7 +112,7 @@ def stylesheet():
         'QWidget#explorerPanel {background:'+shade('chrome')+';}',
         'QWidget#explorerPanel QTreeWidget {background:transparent;}',
         'QToolBar,QMenuBar,QStatusBar,QDockWidget::title {background:'+shade('chrome')+';}',
-        'QFrame#browserSection,QGroupBox {background:'+shade('panel')+';}',
+        'QFrame#browserSection,QFrame#inputSurface,QFrame#resultSurface,QGroupBox {background:'+shade('panel')+';}',
         'QFrame#welcomeCard {background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 '+shade('selected')+',stop:.65 '+shade('panel')+',stop:1 '+shade('chrome')+');}',
         'QScrollArea > QWidget > QWidget,QTabWidget::pane,QTabBar#documents {background:transparent;}',
         'QTabBar::tab {background:'+shade('chrome')+';}',

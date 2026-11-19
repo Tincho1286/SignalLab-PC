@@ -15,7 +15,9 @@ def style_launcher(button):
 def install_result_button(tabs,button):
     """Tools that must sample a formula keep their original, validated action."""
     style_launcher(button);tabs._signallab_custom_plot_action=button
-    tabs.setCornerWidget(button,Qt.Corner.TopRightCorner)
+    bar=getattr(tabs,'result_action_bar',None)
+    if bar is not None:bar.add_action(button,'graph')
+    else:tabs.setCornerWidget(button,Qt.Corner.TopRightCorner)
 
 
 def _alive(reference):
@@ -105,7 +107,9 @@ def bind_canvas(canvas,origin):
         tabs,page=routes[-1];launcher=getattr(tabs,'_signallab_plot_actions',None)
         if launcher is None:
             launcher=PlotLauncher(tabs);tabs._signallab_plot_actions=launcher
-            tabs.setCornerWidget(launcher,Qt.Corner.TopRightCorner)
+            bar=getattr(tabs,'result_action_bar',None)
+            if bar is not None:bar.add_action(launcher,'graph')
+            else:tabs.setCornerWidget(launcher,Qt.Corner.TopRightCorner)
         label=tabs.tabText(tabs.indexOf(page))
     else:
         launcher=getattr(origin,'_signallab_plot_actions',None)

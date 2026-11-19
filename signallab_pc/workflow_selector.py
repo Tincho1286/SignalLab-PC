@@ -25,7 +25,8 @@ class WorkflowSelector(QWidget):
             if len(values)<2:continue
             label=dimension_label(entry,index,selected)
             if len(values)<=3 and max(map(len,values))<=26:
-                row=QWidget();row.setAccessibleName(label);layout=QHBoxLayout(row);layout.setContentsMargins(0,0,0,0);layout.setSpacing(4);group=QButtonGroup(row)
+                from .wrapping_row import WrappingRow
+                row=WrappingRow();row.setAccessibleName(label);layout=row.layout();layout.text_padding=60;group=QButtonGroup(row)
                 for value in values:
                     button=QToolButton();button.setSizePolicy(QSizePolicy.Policy.Preferred,QSizePolicy.Policy.Fixed);button.setText(value);button.setCheckable(True);button.setChecked(value==current);button.setProperty('segment',True);button.setToolTip(choice_hint(entry,value));group.addButton(button);layout.addWidget(button)
                     button.clicked.connect(lambda checked=False,i=index,v=value:self.select(i,v))

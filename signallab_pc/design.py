@@ -44,6 +44,7 @@ def icon(kind, color=None):
         'math':'M8 5H4v14h4 M16 5h4v14h-4 M10 9l4 6 M14 9l-4 6',
         'book':'M12 5v15 M12 5C8 2 4 3 2 4v15c4-2 7-1 10 1 M12 5c4-3 8-2 10-1v15c-4-2-7-1-10 1',
         'folder':'M3 6h7l2 3h9v11H3z',
+        'menu':'M4 6h16 M4 12h16 M4 18h16',
     }
     paths.update({'signal': 'M2 12h3l3-8 5 16 3-8h6', 'measure': 'M4 20V9h4v11 M10 20V4h4v16 M16 20v-7h4v7', 'convolution': 'M2 18l5-12 5 12 M12 18l5-12 5 12', 'correlation': 'M3 7h10l-3-3 M13 7l-3 3 M21 17H11l3-3 M11 17l3 3', 'spectrum': 'M3 20h18 M5 17v-5 M9 17V4 M13 17V8 M17 17v-3', 'harmonics': 'M3 18V7 M8 18V4 M13 18V9 M18 18v-5 M2 20h20', 'density': 'M3 20V4 M3 20h18 M5 18l4-12 4 4 3 7 4 1 M9 6v12 M13 10v8', 'blocks': 'M2 7h7v10H2z M15 7h7v10h-7z M9 12h6', 'response': 'M2 18h4V6h6c4 0 1 12 10 6', 'design': 'M3 18h4L9 6h7l2 12h3 M5 3v4 M19 3v4', 'convert': 'M4 7h15l-4-4 M19 7l-4 4 M20 17H5l4-4 M5 17l4 4', 'states': 'M3 3h6v6H3z M15 3h6v6h-6z M3 15h6v6H3z M15 15h6v6h-6z M9 6h6 M6 9v6 M18 9v6 M9 18h6', 'sampling': 'M3 19V9 M9 19V4 M15 19V12 M21 19V7', 'rate': 'M2 18V6 M7 18v-8 M12 18V4 M17 18v-8 M22 18V6 M2 21h20', 'quantize': 'M2 19h5v-5h5V9h5V4h5', 'laplace': 'M5 3v17h14 M11 4h8 M15 4v9 M11 13h8', 'zplane': 'M12 2v20 M2 12h20 M6 6h12L6 18h12', 'random': 'M2 14l3-8 3 13 3-16 3 12 3-7 3 10 2-5'})
     svg=f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="{paths.get(kind,paths["wave"])}" fill="none" stroke="{color}" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'

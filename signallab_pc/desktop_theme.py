@@ -144,4 +144,5 @@ def desktop_style():
     from .theme_assets import paths
     from .wallpaper import stylesheet
     arrow,close=paths()
-    return colorize(_DESKTOP_TEMPLATE)+('QComboBox::down-arrow {image:url("'+arrow+'");width:12px;height:12px;} QToolButton#plotLauncher::menu-arrow {image:url("'+arrow+'");width:20px;height:20px;} QTabBar::close-button {image:url("'+close+'");}')+"QPlainTextEdit#casInput {font-family:'Consolas';font-size:11pt;} QToolBar#casToolbar {spacing:0;padding:2px;} QToolBar#casToolbar QToolButton {padding:3px 3px;}"+colorize(stylesheet())
+    from .frontend_style import stylesheet as frontend_stylesheet
+    return colorize(_DESKTOP_TEMPLATE)+('QComboBox::down-arrow {image:url("'+arrow+'");width:12px;height:12px;} QToolButton#plotLauncher::menu-arrow {image:url("'+arrow+'");width:20px;height:20px;} QTabBar::close-button {image:url("'+close+'");}')+"QPlainTextEdit#casInput {font-family:'Consolas';font-size:11pt;} QToolBar#casToolbar {spacing:0;padding:2px;} QToolBar#casToolbar QToolButton {padding:3px 3px;}"+frontend_stylesheet()+colorize(stylesheet())

@@ -71,8 +71,9 @@ class SystemAnalysisPanel(QWidget):
         self.result_state=ResultState([self.domain,self.definition_mode,self.b,self.a,self.transfer_formula,self.w0,self.w1,self.count,self.frequency_scale,self.margins,self.impulse,self.roc_choice,self.roc_radius],self.calculate_button);form.insertRow(1,self.result_state)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);root.addWidget(right,2)
-        layout.addWidget(self.result_actions);self.frequency_export=QPushButton('Exportar respuesta…');self.frequency_export.clicked.connect(self.export_response);self.frequency_export.setEnabled(False);self.result_actions.layout().addWidget(self.frequency_export);self.result_actions.hide()
-        self.expression_actions=QWidget();expression_row=QHBoxLayout(self.expression_actions);expression_row.setContentsMargins(0,0,0,0)
+        layout.addWidget(self.result_actions);self.frequency_export=QPushButton('Exportar respuesta…');self.frequency_export.clicked.connect(self.export_response);self.frequency_export.setEnabled(False);self.result_actions.layout().addWidget(self.frequency_export)
+        from .result_toolbar import ResultActionBar,attach
+        self.expression_actions=ResultActionBar();expression_row=self.expression_actions.layout()
         expression_reuse=QPushButton('Usar sistema en…');expression_reuse.setProperty('actionRole','reuse');self.expression_menu=QMenu(expression_reuse);expression_reuse.setMenu(self.expression_menu);self.expression_menu.aboutToShow.connect(self.prepare_expression_reuse);expression_row.addWidget(expression_reuse)
         expression_cas=QPushButton('Enviar a CAS');expression_cas.setProperty('actionRole','cas')
         expression_cas.clicked.connect(self.send_expression_to_cas);expression_row.addWidget(expression_cas)
@@ -81,7 +82,7 @@ class SystemAnalysisPanel(QWidget):
         layout.addWidget(self.expression_actions);self.expression_actions.hide();self._definition_id=None;self._formula_context=None
         self.reuse_note=QLabel();self.reuse_note.setWordWrap(True);self.reuse_note.setObjectName('muted');layout.addWidget(self.reuse_note);self.reuse_note.hide()
         from .active_stack import ActiveTabs
-        self.result_tabs=ActiveTabs();layout.addWidget(self.result_tabs)
+        self.result_tabs=ActiveTabs();layout.addWidget(self.result_tabs,1);attach(self.result_tabs,self.result_actions)
         self.report=ReportView();self.report.setReadOnly(True);self.report.setPlainText('Ingresá coeficientes exactos (1/3, sqrt(2), pi) o parámetros.\n\nLa vista numérica se calcula cuando los coeficientes no contienen parámetros libres.');self.result_tabs.addTab(report_panel(self.report),'Definición y resultados')
         plot=QWidget();plot_layout=QVBoxLayout(plot);self.result_tabs.addTab(plot,'Respuesta en frecuencia')
         self.figure=Figure(figsize=(7,4));self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumHeight(260);self.frequency_toolbar=NavigationToolbar2QT(self.canvas,self);plot_layout.addWidget(self.frequency_toolbar);plot_layout.addWidget(self.canvas,1)
@@ -95,6 +96,8 @@ class SystemAnalysisPanel(QWidget):
         self.transfer_view=TransferFunctionView();self.transfer_index=self.result_tabs.addTab(self.transfer_view,'Función de transferencia');self.result_tabs.setTabVisible(self.transfer_index,False)
         from .frequency_measurements_panel import FrequencyMeasurementsPanel
         self.measurements=FrequencyMeasurementsPanel(window);self.measurements_index=self.result_tabs.addTab(self.measurements,'Medidas de frecuencia');self.result_tabs.setTabVisible(self.measurements_index,False)
+        for index,title in ((0,'Resumen'),(1,'Frecuencia'),(2,'Polos y ceros'),(3,'Realización'),(self.transfer_index,'Transferencia'),(self.measurements_index,'Medidas')):
+            self.result_tabs.setTabToolTip(index,self.result_tabs.tabText(index));self.result_tabs.setTabText(index,title)
         def update_roc(*_):
             digital=self.domain.currentIndex()==1
             labels=['Secuencia derecha · exterior a polos','Secuencia izquierda · interior a polos','Anillo que contiene un radio','ROC no especificada'] if digital else ['A la derecha de todos los polos','A la izquierda de todos los polos','Franja que contiene una línea σ','ROC no especificada']
@@ -110,7 +113,7 @@ class SystemAnalysisPanel(QWidget):
         self.frequency_data=None;self.frequency_export.setEnabled(False);self.reuse_note.hide()
         self.measurements.set_source(None);self.result_tabs.setTabVisible(self.measurements_index,False)
         self.set_system(system,key);self.analyzed_system=system;self.analysis_advance=0;self.system=system
-        self.empty.hide();self.result_tabs.show();self.result_actions.show();self.result_tabs.setTabVisible(1,False)
+        self.empty.hide();self.result_tabs.show();self.result_actions.show();self.expression_actions.hide();self.result_tabs.setTabVisible(1,False)
         self.result_tabs.setTabVisible(2,True);self.result_tabs.setTabEnabled(2,True);self.realization_view.clear_result();self.result_tabs.setTabVisible(3,True);self.export_button.setEnabled(True);self.send_button.setEnabled(True)
         from .result_summary import transfer_summary
         self.report.set_readable(transfer_summary(system));self.result_state.accept(self.result_state.snapshot())
@@ -314,7 +317,10 @@ class SystemAnalysisPanel(QWidget):
                 self.result_actions.set_result(self.system,self.input_id);self.result_actions.setEnabled(True)
                 message=exact.get('analysis_limits','La fórmula se conserva con sus parámetros y condiciones.') if analytic else ('El sistema conserva '+str(system.advance)+' muestras de avance. Podés exportarlo o reutilizarlo para análisis y Z inversa con ROC. La simulación causal no reemplaza ese avance por un retardo.' if system is not None and system.advance else exact.get('numeric_notice','La fórmula conserva parámetros libres. Asignales valores para exportar o reutilizar un sistema numérico.') if system is None else '')
                 self.reuse_note.setText(message);self.reuse_note.setVisible(bool(message))
-                self.empty.hide();self.result_tabs.show();self.result_actions.setVisible(system is not None);self.expression_actions.setVisible(analytic or system is None);self.expression_frequency_export.setEnabled(data is not None);self.result_tabs.setTabVisible(1,data is not None);self.result_tabs.setTabVisible(self.transfer_index,system is not None);self.result_tabs.setTabVisible(2,system is not None);self.result_tabs.setTabEnabled(2,system is not None);self.result_tabs.setTabVisible(3,system is not None)
+                expression_actions=analytic or system is None
+                self.empty.hide();self.result_tabs.show();self.result_actions.setVisible(not expression_actions);self.expression_actions.setVisible(expression_actions);self.expression_frequency_export.setEnabled(data is not None);self.result_tabs.setTabVisible(1,data is not None);self.result_tabs.setTabVisible(self.transfer_index,system is not None);self.result_tabs.setTabVisible(2,system is not None);self.result_tabs.setTabEnabled(2,system is not None);self.result_tabs.setTabVisible(3,system is not None)
+                from .result_toolbar import attach
+                attach(self.result_tabs,self.expression_actions if expression_actions else self.result_actions)
                 self.result_tabs.setCurrentIndex(0)
                 summary=frequency_summary(exact,data)
                 from .result_summary import Section

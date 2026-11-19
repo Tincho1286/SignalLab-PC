@@ -1,7 +1,7 @@
 """Rounded area cards and direct actions, preserving the existing catalogue."""
 from PySide6.QtCore import Qt,QSize
 from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QGridLayout,QLabel,QPushButton,QFrame,QScrollArea,QSizePolicy
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QGridLayout,QLabel,QPushButton,QFrame,QScrollArea,QSizePolicy,QLineEdit
 from .tool_catalog import AREAS,AREA_BY_ID,ENTRIES,BY_KEY
 from .theme_tokens import COLORS as C,AREA_COLORS
 from .design import icon
@@ -19,7 +19,7 @@ class ToolLink(QPushButton):
 
 class ToolBrowser(QScrollArea):
     def __init__(self,window,area=None):
-        super().__init__();self.window=window;self.area=area;self.cards=[];self.columns=None;self.quick_grid=None;self.quick_buttons=[];self.quick_columns=None;self.badges=[]
+        super().__init__();self.window=window;self.area=area;self.cards=[];self.columns=None;self.quick_grid=None;self.quick_buttons=[];self.quick_columns=None;self.badges=[];self.link_groups=[]
         self.setWidgetResizable(True);self.setFrameShape(QFrame.Shape.NoFrame);self.content=BackgroundSurface();self.content.setObjectName('workspaceWallpaper');self.setWidget(self.content)
         root=QVBoxLayout(self.content);root.setContentsMargins(18,16,18,16);root.setSpacing(14)
         if area:
@@ -27,19 +27,21 @@ class ToolBrowser(QScrollArea):
         else:
             hero=QFrame();hero.setObjectName('welcomeCard');hero_box=QVBoxLayout(hero);hero_box.setContentsMargins(22,19,22,20);hero_box.setSpacing(8)
             eyebrow=QLabel('ANÁLISIS · DISEÑO · APRENDIZAJE');eyebrow.setObjectName('welcomeEyebrow');hero_box.addWidget(eyebrow)
-            title=QLabel('Laboratorio de señales');title.setObjectName('welcomeTitle');title.setWordWrap(True);hero_box.addWidget(title)
-            subtitle=QLabel('Creá señales, estudiá sistemas y diseñá filtros.');subtitle.setObjectName('muted');subtitle.setWordWrap(True);hero_box.addWidget(subtitle)
+            title=QLabel('¿Qué querés estudiar?');title.setObjectName('welcomeTitle');title.setWordWrap(True);hero_box.addWidget(title)
+            subtitle=QLabel('Encontrá una herramienta y empezá con tus datos.');subtitle.setObjectName('muted');subtitle.setWordWrap(True);hero_box.addWidget(subtitle)
+            self.home_search=QLineEdit();self.home_search.setObjectName('homeSearch');self.home_search.setPlaceholderText('Buscá una tarea: convolución, filtro FIR, transformada Z…');self.home_search.setClearButtonEnabled(True);self.home_search.addAction(icon('search'),QLineEdit.ActionPosition.LeadingPosition);hero_box.addWidget(self.home_search)
             self.quick_grid=QGridLayout();self.quick_grid.setSpacing(9);hero_box.addLayout(self.quick_grid)
             for text,key,symbol,role,color in [('Crear señal',('basic','generate'),'signal','signal',C['on_primary']),('Analizar sistema',('system_analysis',0),'response','system',C['blue']),('Diseñar filtro',('course_tools','fir'),'design','filter',C['purple'])]:
                 button=QPushButton(text);button.setProperty('quickRole',role);button.setProperty('themeSymbol',symbol);button.setProperty('themeRole','on_primary' if role=='signal' else 'blue' if role=='system' else 'purple');button.setIcon(icon(symbol,color));button.setIconSize(QSize(18,18));button.setMinimumHeight(30);button.setCursor(Qt.CursorShape.PointingHandCursor)
                 button.clicked.connect(lambda checked=False,k=key:window.open_workflow(BY_KEY[k]));self.quick_buttons.append(button)
             root.addWidget(hero)
-        self.grid=QGridLayout();self.grid.setSpacing(14);root.addLayout(self.grid);root.addStretch()
+        self.grid=QGridLayout();self.grid.setSpacing(14);root.addLayout(self.grid);self.search_empty=QLabel('No encontré una herramienta con ese nombre. Probá con una tarea, como Fourier, energía o polos.');self.search_empty.setObjectName('muted');self.search_empty.setWordWrap(True);self.search_empty.hide();root.addWidget(self.search_empty);root.addStretch()
         if area:
             sections=list(dict.fromkeys(entry['section'] for entry in ENTRIES if entry['area']==area))
             for section in sections:self.cards.append(self.make_card(area,section,[e for e in ENTRIES if e['area']==area and e['section']==section]))
         else:
             for key,title,description,symbol in AREAS:self.cards.append(self.make_card(key,title,[e for e in ENTRIES if e['area']==key]))
+            self.home_search.textChanged.connect(self.apply_query);self.home_search.returnPressed.connect(self.open_search_match);self.apply_query('')
         self.reflow()
     def make_card(self,area,title,entries):
         color=AREA_COLORS[area];frame=QFrame();frame.setObjectName('browserSection');frame.setStyleSheet('QFrame#browserSection {border-top:2px solid '+color+';}')
@@ -49,8 +51,32 @@ class ToolBrowser(QScrollArea):
         self.badges.append((frame,badge,area))
         label=QLabel(title);label.setObjectName('sectionTitle');label.setWordWrap(True);head.addWidget(label,1)
         count=QLabel(str(len(entries)));count.setObjectName('badgeCount');count.setToolTip(str(len(entries))+' herramientas');head.addWidget(count);box.addLayout(head)
-        for entry in entries:box.addWidget(ToolLink(entry['title'],entry['summary'],lambda checked=False,value=entry:self.window.open_workflow(value)))
+        links=[]
+        for entry in entries:
+            link=ToolLink(entry['title'],entry['summary'],lambda checked=False,value=entry:self.window.open_workflow(value));box.addWidget(link);links.append((entry,link))
+        more=None
+        if self.area is None:
+            more=QPushButton('Ver todas las herramientas  ›');more.setObjectName('areaMore');more.clicked.connect(lambda checked=False,key=area:self.window.show_area(key));box.addWidget(more)
+        self.link_groups.append((frame,links,more))
         box.addStretch();return frame
+    def apply_query(self,text):
+        from .tool_catalog import matches
+        query=text.strip();found=False
+        for frame,links,more in self.link_groups:
+            visible=0
+            for index,(entry,link) in enumerate(links):
+                show=matches(entry,query) if query else index<2;link.setVisible(show);visible+=bool(show)
+            frame.setVisible(visible>0)
+            found=found or visible>0
+            if more is not None:more.setVisible(not query and len(links)>2)
+        self.search_empty.setVisible(bool(query) and not found)
+        self.reflow()
+    def open_search_match(self):
+        from .tool_catalog import matches
+        query=self.home_search.text().strip()
+        if not query:return
+        entry=next((entry for entry in ENTRIES if matches(entry,query)),None)
+        if entry is not None:self.window.open_workflow(entry,query)
     def refresh_theme(self):
         for frame,badge,area in self.badges:
             color=AREA_COLORS[area];tint=QColor(color);frame.setStyleSheet('QFrame#browserSection {border-top:2px solid '+color+';}')
