@@ -25,7 +25,7 @@ class Surface(QFrame):
 
 
 class ToolWorkspace(QWidget):
-    def __init__(self,inputs,results,parent=None,*,titles=('Datos de entrada','Resultado'),captions=('Definí qué querés calcular.','Consultá, graficá o continuá con lo calculado.')):
+    def __init__(self,inputs,results,parent=None,*,titles=('Datos de entrada','Resultado'),captions=('Ingresá los datos del cálculo.','Consultá, graficá o continuá con lo calculado.')):
         super().__init__(parent);self.setObjectName('toolWorkspace');self.setProperty('workspaceLayout',True);self.compact=None;self.result_preferred=False;self.titles=titles
         root=QVBoxLayout(self);root.setContentsMargins(14,0,14,12);self.modes=ActiveStack();root.addWidget(self.modes)
         self.split=QSplitter(Qt.Orientation.Horizontal);self.split.setChildrenCollapsible(False);self.split.setHandleWidth(10);self.modes.addWidget(self.split)

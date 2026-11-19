@@ -1,7 +1,7 @@
 """Coeficientes ligados visualmente a sus potencias, sin evaluar la entrada."""
 import re
 from PySide6.QtCore import Qt,QAbstractTableModel,QModelIndex,Signal,QTimer
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QTableView,QHeaderView,QPushButton,QLineEdit,QToolButton,QSizePolicy
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QTableView,QHeaderView,QPushButton,QLineEdit,QToolButton,QSizePolicy,QLabel
 from .report_view import ReportView
 
 def split_coefficients(value):
@@ -35,7 +35,8 @@ class CoefficientEditor(QWidget):
     textChanged=Signal(str)
     def __init__(self,value='1',parent=None,digital=False):
         super().__init__(parent);self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed);box=QVBoxLayout(self);box.setContentsMargins(0,0,0,0);box.setSpacing(4)
-        quick=QHBoxLayout();self.inline=QLineEdit();self.inline.setPlaceholderText('Coeficientes separados por coma');self.inline.setToolTip('Admite pi, fracciones, 10^(-x), notación científica y complejos.');quick.addWidget(self.inline,1);self.detail_button=QToolButton();self.detail_button.setText('Potencias');self.detail_button.setCheckable(True);self.detail_button.setToolTip('Ver y editar cada coeficiente junto a su potencia');quick.addWidget(self.detail_button);box.addLayout(quick)
+        quick=QHBoxLayout();self.inline=QLineEdit();self.inline.setPlaceholderText('Coeficientes separados por coma');self.inline.setToolTip('Admite pi, fracciones, 10^(-x), notación científica y complejos.');quick.addWidget(self.inline,1);self.detail_button=QToolButton();self.detail_button.setText('Editar términos');self.detail_button.setCheckable(True);self.detail_button.setToolTip('Mostrar una tabla con cada coeficiente y su potencia.');quick.addWidget(self.detail_button);box.addLayout(quick)
+        self.order_note=QLabel();self.order_note.setObjectName('muted');self.order_note.setWordWrap(True);box.addWidget(self.order_note)
         self.model=CoefficientRows(self);self.model.digital=digital;self.table=QTableView();self.table.setModel(self.model);self.table.setToolTip('Coeficientes constantes: pi, 10^(-3), 1e-3, fracciones y complejos. Una celda por coeficiente; conservá los ceros intermedios.');self.table.setMinimumHeight(110);self.table.setMaximumHeight(170);self.table.verticalHeader().hide();self.table.horizontalHeader().setSectionResizeMode(0,QHeaderView.ResizeMode.ResizeToContents);self.table.horizontalHeader().setSectionResizeMode(1,QHeaderView.ResizeMode.Stretch);box.addWidget(self.table)
         row=QHBoxLayout();add=QPushButton('+ Mayor orden');remove=QPushButton('− Mayor orden');row.addWidget(add);row.addWidget(remove);self.term_actions=QWidget();self.term_actions.setLayout(row);box.addWidget(self.term_actions);self.table.hide();self.term_actions.hide();self.detail_button.toggled.connect(self.table.setVisible);self.detail_button.toggled.connect(self.term_actions.setVisible)
         add.setToolTip('Agrega un coeficiente cero en la potencia de mayor orden, sin cambiar el polinomio.');remove.setToolTip('Quita el coeficiente de mayor orden; los otros términos conservan su potencia.')
@@ -44,7 +45,13 @@ class CoefficientEditor(QWidget):
         self.model.beginResetModel();self.model.values=split_coefficients(value);self.model.endResetModel();self.fit_table();self.textChanged.emit(self.text())
     def model_changed(self,*_):
         self.inline.setText(self.text());self.textChanged.emit(self.text())
-    def fit_table(self):self.table.setFixedHeight(48+30*min(max(1,len(self.model.values)),5))
+    def fit_table(self):self.table.setFixedHeight(48+30*min(max(1,len(self.model.values)),5));self.update_order_note()
+    def update_order_note(self):
+        count=len(self.model.values);indices=list(range(count)) if count<=5 else [0,1,None,count-1];powers=[]
+        for index in indices:
+            if index is None:powers.append('…');continue
+            powers.append(self.model.data(self.model.index(index,0)))
+        self.order_note.setText('Orden de los coeficientes: '+', '.join(powers))
     def text(self):return ', '.join(self.model.values)
     def coefficients(self):
         from .scalar_expression import exact_constant
@@ -61,7 +68,7 @@ class CoefficientEditor(QWidget):
         values=split_coefficients(str(value))
         self.model.beginResetModel();self.model.values=values;self.model.endResetModel();self.fit_table();self.model_changed()
     def set_domain(self,digital):
-        self.model.beginResetModel();self.model.digital=bool(digital);self.model.endResetModel()
+        self.model.beginResetModel();self.model.digital=bool(digital);self.model.endResetModel();self.update_order_note()
     def add_term(self):
         self.model.beginResetModel()
         if self.model.digital:self.model.values.append('0')

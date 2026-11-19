@@ -2,6 +2,7 @@ from .numeric_input import real_field,integer_field
 from .report_view import ReportView,report_panel
 from .tool_guide import ToolGuide
 from .coefficient_editor import CoefficientEditor,TransferPreview
+from .expression_editor import ExpressionEditor
 """Una definición de sistema, dos representaciones: algebraica y numérica."""
 import numpy as np
 from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineEdit,QComboBox,QPushButton,QLabel,QPlainTextEdit,QCheckBox,QMessageBox,QScrollArea,QTabWidget,QMenu,QSizePolicy,QFileDialog
@@ -22,14 +23,15 @@ class SystemAnalysisPanel(QWidget):
         form.addRow('Sistema',self.domain)
         self.definition_mode=QComboBox();self.definition_mode.addItems(['Coeficientes','Fórmula H(s) / H(z)','Respuesta H(w)']);
         from .choice_buttons import ChoiceButtons
-        self.definition_buttons=ChoiceButtons(self.definition_mode,['Coeficientes','Fórmula H','H(w)']);form.addRow(self.definition_buttons)
-        self.transfer_formula=QLineEdit('1/(s+1)');form.addRow('Función de transferencia',self.transfer_formula)
+        self.definition_buttons=ChoiceButtons(self.definition_mode,['Coeficientes','Fórmula H','H(ω)']);form.addRow(self.definition_buttons)
+        self.transfer_formula=ExpressionEditor('1/(s+1)',symbolic=True);form.addRow('Función de transferencia',self.transfer_formula)
         self.b=CoefficientEditor('1');self.a=CoefficientEditor('1, 1')
         form.addRow('Numerador b',self.b);form.addRow('Denominador a',self.a)
         self.transfer_preview=TransferPreview(self.b,self.a);form.addRow(self.transfer_preview)
         def definition_changed(*_):
             formula=self.definition_mode.currentIndex()!=0
             form.labelForField(self.transfer_formula).setText('Respuesta en frecuencia H(w)' if self.definition_mode.currentIndex()==2 else 'Función de transferencia')
+            self.transfer_formula.method_buttons.setVisible(self.definition_mode.currentIndex()==2)
             form.setRowVisible(self.transfer_formula,formula);form.setRowVisible(self.b,not formula);form.setRowVisible(self.a,not formula);form.setRowVisible(self.transfer_preview,not formula)
         self.definition_mode.currentIndexChanged.connect(definition_changed);definition_changed()
         self.system=None;self.analyzed_system=None;self.analysis_advance=0;self._roots_cache=None;self.frequency_data=None;self._drawn_frequency=None
@@ -159,6 +161,7 @@ class SystemAnalysisPanel(QWidget):
         if changed and self.transfer_formula.text() in ('1/(s+1)','1/(1-0.5*z^(-1))'):
             self.transfer_formula.setText('1/(1-0.5*z^(-1))' if digital else '1/(s+1)')
         self.b.set_domain(digital);self.a.set_domain(digital);self.transfer_preview.schedule()
+        self.transfer_formula.setProperty('variableHint','w' if self.definition_mode.currentIndex()==2 else 'z' if digital else 's');self.transfer_formula.field.setPlaceholderText('Expresión en w, en '+('rad/muestra' if digital else 'rad/s') if self.definition_mode.currentIndex()==2 else 'Función de transferencia en '+('z' if digital else 's'))
         if self.definition_mode.currentIndex()==2:
             self.note.setText('Respuesta H(exp(iw)) en rad/muestra. Permite analizar filtros ideales sin atribuirles una ROC abierta.' if digital else 'Respuesta H(iw) en rad/s. No determina por sí sola una transformada de Laplace ni su ROC.')
         elif self.definition_mode.currentIndex()==1:

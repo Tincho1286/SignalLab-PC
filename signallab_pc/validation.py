@@ -1,4 +1,16 @@
 """Errors tied to the editable field; entered text is never discarded."""
+from contextlib import contextmanager
+from contextvars import ContextVar
+
+_PASSIVE=ContextVar('passive_field_validation',default=False)
+
+
+@contextmanager
+def passive_fields():
+    """Live hints may parse drafts, but must not select text or steal focus."""
+    token=_PASSIVE.set(True)
+    try:yield
+    finally:_PASSIVE.reset(token)
 
 
 class FieldError(ValueError):
@@ -13,7 +25,7 @@ def invalid(widget, detail, expected='', name=None):
     from PySide6.QtWidgets import QApplication,QScrollArea
     from PySide6.QtCore import QThread
     app = QApplication.instance()
-    if widget is not None and app is not None and QThread.currentThread()==app.thread():
+    if not _PASSIVE.get() and widget is not None and app is not None and QThread.currentThread()==app.thread():
         if not hasattr(widget, '_validation_original'):
             widget._validation_original = (widget.styleSheet(),widget.toolTip())
             def clear(*_):

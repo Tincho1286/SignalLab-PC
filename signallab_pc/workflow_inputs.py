@@ -17,10 +17,8 @@ def copy_local_input(src,dst):
     for name in ('expression','samples','origin','count','step'):getattr(dst,name).setText(getattr(src,name).text())
     if hasattr(src,'frequency_units') and hasattr(dst,'frequency_units'):dst.frequency_units.setCurrentIndex(src.frequency_units.currentIndex())
     if src.mode.currentIndex()==2:
-        if src.loaded is not None:dst.set_source(loaded,src.loaded_reference_id)
-        else:
-            dst.loaded=None;dst.reference_id=None;dst.loaded_reference_id=None;dst.fingerprint=None;dst.mode.setCurrentIndex(2)
-            dst.file_note.setText('Elegí un archivo o un resultado anterior. Todavía no hay datos cargados.');dst.source_revision=getattr(dst,'source_revision',0)+1;dst.sourceChanged.emit()
+        if src.loaded is not None:dst.set_source(loaded,src.loaded_reference_id,view=src.entry_modes.view)
+        else:dst.clear_source(src.entry_modes.view)
     else:dst.mode.setCurrentIndex(src.mode.currentIndex())
     origin=getattr(src,'_expression_origin',None)
     dst._expression_origin=(dst.expression.text(),origin[1]) if origin and origin[0]==src.expression.text() else None

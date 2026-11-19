@@ -1,6 +1,7 @@
 """Window an independently supplied h[n] inside the existing FIR workflow."""
 from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QPushButton,QScrollArea,QCheckBox,QTabWidget,QMessageBox,QLabel
 from .numeric_input import real_field,integer_field
+from .validation import passive_fields
 from .result_state import ResultState
 from .report_view import ReportView,report_panel
 from .result_summary import transfer_summary,Section,Formula
@@ -29,6 +30,7 @@ class FirWindowPanel(QWidget):
         self.calculate_button=QPushButton('Enventanar h[n] y obtener FIR');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);form.addRow(self.calculate_button)
         self.state=ResultState([self.window_type,self.beta,self.length,self.position,self.start,self.retard],self.calculate_button,[self.h,self.w]);form.insertRow(0,self.state)
         self._custom_initialized=False
+        @passive_fields()
         def configure(*_):
             custom=self.window_type.currentData()=='custom';formula=self.h.mode.currentIndex()==0
             form.setRowVisible(self.beta,self.window_type.currentData()=='kaiser');form.setRowVisible(self.w,custom)

@@ -5,6 +5,7 @@ from PySide6.QtWidgets import (QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLabe
     QPushButton,QLineEdit,QTableWidget,QTableWidgetItem,QMessageBox,QScrollArea,
     QComboBox,QDialog,QDialogButtonBox)
 from .numeric_input import real_field,integer_field
+from .validation import passive_fields
 from .resources import ensure_working_set
 from .distributions import regular_only
 from .active_stack import ActiveTabs,ActiveStack
@@ -99,6 +100,7 @@ class SignalEditorPanel(QWidget):
         self.table.setHorizontalHeaderLabels(['Índice n' if discrete else f'Tiempo t ({source.units})','Real','Imaginaria'])
         self.tabs.setTabVisible(self.result_tab,False);self.tabs.setTabVisible(self.segment_tab,False);self.tabs.setCurrentIndex(0);self.history.reset();self.render()
 
+    @passive_fields()
     def render(self):
         if self.current is None:return
         start=self.offset;stop=min(start+self.page_size,self.current.values.size)

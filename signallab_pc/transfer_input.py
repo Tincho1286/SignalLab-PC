@@ -44,10 +44,11 @@ def formula_system(expression,domain,name='Sistema definido por fórmula',allow_
 
 
 def install_formula_editor(editor,form):
-    from PySide6.QtWidgets import QComboBox,QLineEdit
+    from PySide6.QtWidgets import QComboBox
+    from .expression_editor import ExpressionEditor
     if hasattr(editor,'definition_mode'):return
     editor.definition_mode=QComboBox();editor.definition_mode.addItems(['Coeficientes','Fórmula H(s) / H(z)'])
-    editor.transfer_formula=QLineEdit('1/(s+1)' if editor.domain.currentIndex()==0 else '1/(1-0.5*z^(-1))')
+    editor.transfer_formula=ExpressionEditor('1/(s+1)' if editor.domain.currentIndex()==0 else '1/(1-0.5*z^(-1))',symbolic=True);editor.transfer_formula.method_buttons.hide()
     from .choice_buttons import ChoiceButtons
     editor.definition_buttons=ChoiceButtons(editor.definition_mode,['Coeficientes','Fórmula H'])
     form.insertRow(0,editor.definition_buttons);form.insertRow(1,'H(s) o H(z)',editor.transfer_formula)
@@ -55,6 +56,7 @@ def install_formula_editor(editor,form):
         definition=getattr(editor,'fields',{}).get('definition')
         ideal=definition is not None and definition.currentData()=='response'
         formula=editor.definition_mode.currentIndex()==1
+        variable='s' if editor.domain.currentIndex()==0 else 'z';editor.transfer_formula.setProperty('variableHint',variable);editor.transfer_formula.field.setPlaceholderText('Función de transferencia en '+variable);form.labelForField(editor.transfer_formula).setText('H('+variable+')')
         form.setRowVisible(editor.definition_buttons,not ideal);form.setRowVisible(editor.transfer_formula,formula and not ideal)
         form.setRowVisible(editor.b,not formula and not ideal);form.setRowVisible(editor.a,not formula and not ideal)
         if hasattr(editor,'preview'):form.setRowVisible(editor.preview,not formula and not ideal)
@@ -62,6 +64,7 @@ def install_formula_editor(editor,form):
         if editor.transfer_formula.text() in ('1/(s+1)','1/(1-0.5*z^(-1))'):
             editor.transfer_formula.setText('1/(s+1)' if editor.domain.currentIndex()==0 else '1/(1-0.5*z^(-1))')
     editor.domain.currentIndexChanged.connect(change_default)
+    editor.domain.currentIndexChanged.connect(update)
     editor.definition_mode.currentIndexChanged.connect(update)
     if 'definition' in getattr(editor,'fields',{}):editor.fields['definition'].currentIndexChanged.connect(update)
     update()

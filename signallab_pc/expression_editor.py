@@ -8,15 +8,16 @@ from .expression_structure import parse_cases,serialize_cases
 
 class ExpressionEditor(QWidget):
     textChanged=Signal(str)
+    textEdited=Signal(str)
     def __init__(self,value='',parent=None,symbolic=False):
         super().__init__(parent);self.symbolic=symbolic;self._loading=False;self._has_cases=False
         box=QVBoxLayout(self);box.setContentsMargins(0,0,0,0);box.setSpacing(6)
         self.mode=QComboBox();self.mode.addItems(['Fórmula','Por tramos']);
         from .choice_buttons import ChoiceButtons
         self.method_buttons=ChoiceButtons(self.mode);box.addWidget(self.method_buttons)
-        self.field=QLineEdit();self.field.setPlaceholderText('Ingresá la expresión de la señal');box.addWidget(self.field)
+        self.field=QLineEdit();self.field.setPlaceholderText('Ingresá la expresión de la señal');self.setFocusProxy(self.field);box.addWidget(self.field)
         self.preview=ReportView();self.preview.setMinimumHeight(80);self.preview.setMaximumHeight(220);box.addWidget(self.preview)
-        self.continuity_note=QLabel('Indeterminaciones removibles: se completa por límite bilateral finito. El informe registra los casos; el criterio se explica en Ayuda (F1).');self.continuity_note.setWordWrap(True);self.continuity_note.setObjectName('muted');box.addWidget(self.continuity_note)
+        self.continuity_note=QLabel('Singularidades removibles: se usa el límite bilateral finito. El informe registra los casos; detalles en F1.');self.continuity_note.setWordWrap(True);self.continuity_note.setObjectName('muted');box.addWidget(self.continuity_note)
         self.replace_button=QPushButton('Reemplazar por otra fórmula…');self.replace_button.clicked.connect(self.replace_formula);box.addWidget(self.replace_button)
         self.table=QTableWidget(0,2);self.table.setHorizontalHeaderLabels(['Valor','Cuando']);self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.Stretch);self.table.setMinimumHeight(180);box.addWidget(self.table)
         self.other_label=QLabel('En los demás casos');box.addWidget(self.other_label)
@@ -27,7 +28,12 @@ class ExpressionEditor(QWidget):
         add.clicked.connect(lambda:self.add_row('1',self.variable()+' >= 0'));remove.clicked.connect(self.remove_row)
         self.preview_timer=QTimer(self);self.preview_timer.setSingleShot(True);self.preview_timer.setInterval(180);self.preview_timer.timeout.connect(self.render_preview)
         self.field.textChanged.connect(self.changed);self.other.textChanged.connect(self.changed);self.table.itemChanged.connect(self.changed);self.mode.currentIndexChanged.connect(self.change_mode)
+        def edited(*_):
+            if not self._loading:self.textEdited.emit(self.text())
+        self.field.textEdited.connect(edited);self.other.textEdited.connect(edited);self.table.itemChanged.connect(edited)
         self.setText(value)
+    def selectAll(self):
+        if not self._has_cases:self.field.selectAll()
     def variable(self):
         try:
             from .math_source import normalize

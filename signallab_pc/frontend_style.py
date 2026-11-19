@@ -89,6 +89,7 @@ QWidget#resultActionDock {background:@chrome@;border:1px solid @rule@;border-rad
 QWidget#resultActionDock QPushButton,QWidget#resultActionDock QToolButton {padding:9px 10px;border-radius:13px;}
 QToolButton#plotLauncher,QPushButton#plotLauncher {background:@selected@;border:1px solid @accent@;}
 QSplitter::handle {background:@window@;border:0;}
+QWidget#bandEdgesEditor {background:transparent;}
 QWidget#libraryIndex {background:@panel@;border-radius:24px;}
 QWidget#libraryArticle {background:@report@;border-radius:24px;}
 QListWidget#savedResults {background:@input@;border:0;}

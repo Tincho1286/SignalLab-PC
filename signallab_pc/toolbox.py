@@ -1,4 +1,5 @@
 from .numeric_input import real_field,integer_field,constant_value
+from .validation import passive_fields
 """Menús de calculadoras independientes, con entradas y resultados locales."""
 from copy import copy
 from dataclasses import asdict
@@ -79,38 +80,64 @@ def system_destinations(value,items):
 class LocalInput(QGroupBox):
     sourceChanged=QtSignal()
     def __init__(self,title,kind='discrete'):
-        super().__init__(title);self.kind=kind;self.loaded=None;self.project_window=None;self.reference_id=None;self.loaded_reference_id=None;self.fingerprint=None
+        super().__init__(title);self.kind=kind;self.loaded=None;self.project_window=None;self.reference_id=None;self.loaded_reference_id=None;self.fingerprint=None;self._external_sources={};self._source_view=None;self._restoring_source=False
         form=QFormLayout(self);form.setProperty('stackFields',True);form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows)
         self.mode=QComboBox();self.mode.addItems(['Definir una fórmula','Ingresar muestras','Usar archivo o resultado anterior'])
-        self.expression=ExpressionEditor('exp(-w^2)' if kind=='frequency' else 'cos(2*pi*t)' if kind=='continuous' else 'cos(pi*n/4)')
+        self.expression=ExpressionEditor('exp(-w^2)' if kind=='frequency' else 'cos(2*pi*t)' if kind=='continuous' else 'cos(pi*n/4)');self.expression.setProperty('variableHint','w' if kind=='frequency' else 't' if kind=='continuous' else 'n')
         self.samples=QLineEdit('1, 2, 1');self.samples.setToolTip('Pegá valores separados por coma, punto y coma o salto de línea. Se admiten pi, fracciones, 10^(-3) y complejos.');self.origin=QLineEdit('0');self.count=QLineEdit('64');self.step=QLineEdit('0.01')
         from .choice_buttons import ChoiceButtons
         from .source_selector import SourceSelector
         self.entry_modes=SourceSelector(self.mode);form.addRow(self.entry_modes);form.addRow('X(ω), usar w como variable' if kind=='frequency' else 'x(t)' if kind=='continuous' else 'x[n]',self.expression);form.addRow('Valores separados por coma',self.samples)
         self.paste_button=QPushButton('Pegar datos…');self.paste_button.setToolTip('Revisar columnas, eje y valores antes de cargar el portapapeles.');self.paste_button.clicked.connect(self.paste_samples);form.addRow(self.paste_button)
         interval=QWidget();self.interval=interval;row=QHBoxLayout(interval);row.setContentsMargins(0,0,0,0);row.setSpacing(8)
-        fields=[('Inicio',self.origin),('Cantidad',self.count)]
-        if kind in ('continuous','frequency'):fields.append(('Paso angular' if kind=='frequency' else 'Paso (s)',self.step))
+        fields=[('Frecuencia inicial ω₀' if kind=='frequency' else 'Tiempo inicial t₀ (s)' if kind=='continuous' else 'Índice inicial n₀',self.origin),('Puntos N' if kind in ('continuous','frequency') else 'Muestras N',self.count)]
+        if kind in ('continuous','frequency'):fields.append(('Paso Δω' if kind=='frequency' else 'Paso Δt (s)',self.step))
         axis_widgets={};self.coordinate_labels={}
         for title,field in fields:
             container=QWidget();column=QVBoxLayout(container);column.setContentsMargins(0,0,0,0);column.setSpacing(4);coordinate_label=QLabel(title);self.coordinate_labels[field]=coordinate_label;column.addWidget(coordinate_label);field.setMaximumWidth(180);column.addWidget(field);row.addWidget(container);axis_widgets[field]=container
         form.addRow(interval)
+        self.range_note=QLabel('Último punto: ω₀ + (N−1)·Δω. Inicio y paso usan la unidad elegida abajo.' if kind=='frequency' else 'Último instante: t₀ + (N−1)·Δt. El paso es la separación entre puntos.' if kind=='continuous' else 'N es la cantidad de muestras. El último índice es n₀ + N−1.');self.range_note.setObjectName('muted');self.range_note.setWordWrap(True);form.addRow(self.range_note)
         if kind=='frequency':
             self.frequency_units=QComboBox();self.frequency_units.addItems(['rad/s','rad/muestra']);form.addRow('Unidad del eje de frecuencia',self.frequency_units)
         if kind=='continuous':self.expression.setToolTip('Usá t en segundos. DiracDelta(t-a), dirac(t-a) e impulse(t-a) conservan posición y peso, incluso entre puntos. La última coordenada es inicio+(cantidad−1)·paso; los impulsos fuera de ese intervalo se informan aparte.')
         self.origin.setToolTip('Primer índice o coordenada del registro; no es la cantidad de valores.')
         self.count.setToolTip('Cantidad entera positiva. Última coordenada = inicio + (cantidad−1)·paso.')
         self.step.setToolTip('Separación positiva entre puntos. No es la frecuencia de muestreo.')
-        self.file_note=QLabel('Abrí JSON, CSV o MATLAB (.mat / .m). Podés elegir las variables, columnas y el eje de los datos externos.');self.file_note.setWordWrap(True);form.addRow(self.file_note)
+        self.file_note=QLabel();self.file_note.setTextFormat(Qt.TextFormat.PlainText);self.file_note.setWordWrap(True);form.addRow(self.file_note)
         load=QPushButton('Elegir archivo…');load.clicked.connect(self.open_file);form.addRow(load)
         def update(index):
+            self.change_source_view(self.entry_modes.view)
             form.setRowVisible(self.expression,index==0);form.setRowVisible(self.samples,index==1);form.setRowVisible(self.paste_button,index==1)
-            form.setRowVisible(interval,index!=2);form.setRowVisible(self.file_note,index==2)
+            form.setRowVisible(interval,index!=2);form.setRowVisible(self.range_note,index==0);form.setRowVisible(self.file_note,index==2)
             if hasattr(self,'frequency_units'):form.setRowVisible(self.frequency_units,index!=2)
-            axis_widgets[self.count].setVisible(index==0);form.setRowVisible(load,index==2)
+            axis_widgets[self.count].setVisible(index==0);form.setRowVisible(load,index==2 and self.entry_modes.view==2)
             if hasattr(self,'recent'):form.setRowVisible(self.recent,index==2 and self.entry_modes.view==3);form.setRowVisible(self.browse_results,index==2 and self.entry_modes.view==3)
         self.entry_modes.viewChanged.connect(lambda:update(self.mode.currentIndex()))
         self.mode.currentIndexChanged.connect(update);self.mode.setCurrentIndex(2 if kind=='import' else 0);update(self.mode.currentIndex())
+    def remember_external_source(self):
+        if self._source_view in (2,3):self._external_sources[self._source_view]=(self.loaded,self.loaded_reference_id,self.reference_id,self.fingerprint)
+    def change_source_view(self,view):
+        if self._restoring_source:return
+        changed=view!=self._source_view
+        if changed:
+            self.remember_external_source();self._source_view=view
+            if view in (2,3):
+                self.loaded,self.loaded_reference_id,self.reference_id,self.fingerprint=self._external_sources.get(view,(None,None,None,None));self.source_revision=getattr(self,'source_revision',0)+1;self.sourceChanged.emit()
+        self.refresh_source_note()
+        if hasattr(self,'recent'):self.refresh_recent()
+    def refresh_source_note(self):
+        if not hasattr(self,'file_note'):return
+        if self.loaded is None:
+            self.file_note.setText('Elegí una señal compatible en la lista o explorá los resultados calculados.' if self.entry_modes.view==3 else 'Abrí CSV, JSON o MATLAB (.mat / .m). Podés elegir las columnas, variables y el eje.');name='muted'
+        else:
+            value=self.loaded;domain={'continuous':'Señal continua','discrete':'Secuencia discreta','frequency':'Datos de frecuencia'}.get(value.domain,value.domain);origin='Resultado' if self.entry_modes.view==3 else 'Archivo'
+            if not value.values.size:axis='Registro sin muestras.'
+            elif value.domain=='discrete':axis='Índices n: '+str(value.origin)+' a '+str(value.origin+value.values.size-1)
+            else:axis=('Frecuencia: ' if value.domain=='frequency' else 'Tiempo: ')+format(value.origin,'.8g')+' a '+format(value.origin+(value.values.size-1)*value.step,'.8g')+' '+value.units+' · paso '+format(value.step,'.8g')
+            self.file_note.setText(value.name+'\n'+origin+' · '+domain+' · '+format(value.values.size,',')+' valores\n'+axis);name='loadedSignal'
+        self.file_note.setObjectName(name);self.file_note.style().unpolish(self.file_note);self.file_note.style().polish(self.file_note)
+    def clear_source(self,view=None):
+        self.entry_modes.select(view if view is not None else self.entry_modes.view if self.entry_modes.view in (2,3) else 2);self.loaded=None;self.loaded_reference_id=None;self.reference_id=None;self.fingerprint=None;self.remember_external_source();self.refresh_source_note();self.refresh_recent();self.source_revision=getattr(self,'source_revision',0)+1;self.sourceChanged.emit()
     def paste_samples(self):
         from PySide6.QtWidgets import QApplication
         from .sample_paste_dialog import PasteSignalDialog
@@ -136,12 +163,14 @@ class LocalInput(QGroupBox):
     def set_role(self,role):
         self.role=role
         if hasattr(self,'recent'):self.refresh_recent()
+        if self.kind=='frequency':self.layout().labelForField(self.expression).setText(('H(ω)' if role=='frequency_response' else 'X(ω)')+' · usar w como variable')
         if self.kind!='discrete':return
         coefficients=role=='series_coefficients'
         self.layout().labelForField(self.expression).setText('c[k]' if coefficients else 'x[n]')
         self.layout().labelForField(self.samples).setText('c[k₀], c[k₀+1], …' if coefficients else 'Valores separados por coma')
-        self.coordinate_labels[self.origin].setText('Primer armónico k₀' if coefficients else 'Inicio')
-        self.coordinate_labels[self.count].setText('Coeficientes' if coefficients else 'Cantidad')
+        self.coordinate_labels[self.origin].setText('Primer armónico k₀' if coefficients else 'Índice inicial n₀')
+        self.coordinate_labels[self.count].setText('Coeficientes' if coefficients else 'Muestras N')
+        self.range_note.setText('Último armónico: k₀ + N−1. N es la cantidad de coeficientes.' if coefficients else 'N es la cantidad de muestras. El último índice es n₀ + N−1.')
     def open_file(self):
         try:
             from .data_import import load_signal
@@ -156,13 +185,13 @@ class LocalInput(QGroupBox):
             if allowed=={'temporal'}:require_temporal(source)
             raise ValueError('Los datos cargados no corresponden a esta operación.')
 
-    def set_source(self,source,reference_id=None):
+    def set_source(self,source,reference_id=None,*,view=None):
         self.validate_data_kind(source)
         accepts_centered = (getattr(self, 'dft_input', False) and ops.is_centered_dft(source)) or source.data_kind in getattr(self,'cross_domain_kinds',())
         if self.kind in ('continuous','discrete','frequency') and source.domain!=self.kind and not accepts_centered:
             raise ValueError('Esta entrada requiere '+('un espectro.' if self.kind=='frequency' else 'una señal continua.' if self.kind=='continuous' else 'una secuencia discreta.'))
-        self.reference_id=reference_id;self.loaded_reference_id=reference_id;self.fingerprint=None
-        self.loaded=source;self.entry_modes.select(3 if reference_id is not None else 2);self.mode.setCurrentIndex(2);self.file_note.setText(f'{source.name}\n{source.values.size:,} muestras · '+{'continuous':'Tiempo continuo','discrete':'Secuencia discreta','frequency':'Espectro'}.get(source.domain,source.domain));self.file_note.setObjectName('loadedSignal');self.file_note.style().unpolish(self.file_note);self.file_note.style().polish(self.file_note)
+        self.entry_modes.select(view if view is not None else 3 if reference_id is not None else 2);self.mode.setCurrentIndex(2)
+        self.reference_id=reference_id;self.loaded_reference_id=reference_id;self.fingerprint=None;self.loaded=source;self.remember_external_source();self.refresh_source_note();self.refresh_recent()
         self.source_revision=getattr(self,'source_revision',0)+1
         self.sourceChanged.emit()
     def bind_project(self,window):
@@ -183,7 +212,9 @@ class LocalInput(QGroupBox):
             self.recent.addItem(f"{record['title']} · {info['count']:,} muestras",record['id'])
             self.recent.setItemData(self.recent.count()-1,record['operation'],Qt.ItemDataRole.ToolTipRole)
             if self.recent.count()>20:break
-        self.recent.setEnabled(self.recent.count()>1);self.recent.blockSignals(False)
+        current=self.recent.findData(self.loaded_reference_id) if self.loaded is not None and self.entry_modes.view==3 else 0
+        if current<0 and self.loaded_reference_id and any(record['id']==self.loaded_reference_id for record in self.project_window.project.headers('signal')):self.recent.addItem('Cargado · '+self.loaded.name,self.loaded_reference_id);current=self.recent.count()-1
+        self.recent.setCurrentIndex(max(0,current));self.recent.setEnabled(self.recent.count()>1);self.recent.blockSignals(False)
     def use_recent(self,index):
         key=self.recent.itemData(index)
         if key:self.set_source(self.project_window.project.get(key),key)
@@ -218,7 +249,7 @@ class LocalInput(QGroupBox):
     def _read(self):
         mode=self.mode.currentIndex()
         if mode==2:
-            if self.loaded is None:raise ValueError('Abrí los datos de entrada dentro de esta herramienta.')
+            if self.loaded is None:raise ValueError('Elegí una señal compatible en Resultados.' if self.entry_modes.view==3 else 'Elegí un archivo de señal antes de calcular.')
             self.validate_data_kind(self.loaded)
             return self.loaded
         if self.kind in ('continuous','frequency'):
@@ -812,6 +843,7 @@ class ToolPage(QWidget):
             if index==0:
                 form.labelForField(self.panel.rate).setText('Frecuencia de muestreo Fs (muestras/s)')
                 timing=QLabel();timing.setWordWrap(True);form.addRow(timing)
+                @passive_fields()
                 def update_timing(*_):
                     try:
                         rate=real_field(self.panel.rate);count=integer_field(self.panel.count);start=real_field(self.panel.start)
@@ -886,6 +918,7 @@ class ToolPage(QWidget):
             self.first.samples.setText('1, 1, 1, 1');self.first.mode.setCurrentIndex(1)
             self.first.layout().labelForField(self.first.expression).setText('X[k] · usar n como índice k')
             self.first.layout().labelForField(self.first.samples).setText('X[0], X[1], …, X[N−1]')
+            self.first.coordinate_labels[self.first.count].setText('Coeficientes N');self.first.range_note.setText('N es la cantidad de coeficientes. Se usan los índices k=0, …, N−1.')
             self.first.origin.setText('0');self.first.origin.parentWidget().hide()
             self.restore_dft_origin=QCheckBox('Restaurar el índice inicial de la señal original')
             self.restore_dft_origin.setChecked(True);box.addWidget(self.restore_dft_origin)

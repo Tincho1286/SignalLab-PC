@@ -2,6 +2,7 @@
 from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QScrollArea,QComboBox,QLineEdit,QCheckBox,QPushButton,QLabel,QMessageBox
 from .window_signals import WINDOWS,generate_window,summary
 from .numeric_input import integer_field,real_field
+from .validation import passive_fields
 from .result_state import ResultState
 
 
@@ -22,6 +23,7 @@ class WindowSignalPanel(QWidget):
         note=QLabel('Se genera la ventana simétrica usada en FIR, con valor cero fuera del intervalo. No necesitás cargar una señal para crearla.');note.setWordWrap(True);form.addRow(note)
         self.calculate_button=QPushButton('Generar ventana');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);form.addRow(self.calculate_button)
         self.state=ResultState([self.kind,self.length,self.beta,self.center,self.origin],self.calculate_button);form.insertRow(0,self.state)
+        @passive_fields()
         def configure(*_):
             kaiser=self.kind.currentData()=='kaiser';form.setRowVisible(self.beta,kaiser);self.beta.setProperty('calculationInput',kaiser)
             form.setRowVisible(self.origin,not self.center.isChecked());self.origin.setProperty('calculationInput',not self.center.isChecked())

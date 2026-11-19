@@ -3,6 +3,7 @@ from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineE
 from .expression_editor import ExpressionEditor
 from .coefficient_editor import split_coefficients
 from .numeric_input import integer_field,constant_value
+from .validation import passive_fields
 from .result_state import ResultState
 from .report_view import ReportView,report_panel
 from .symbolic_process import run_request
@@ -28,6 +29,7 @@ class DifferencePanel(QWidget):
         self.count.setToolTip('Desde n₀ hasta n₀+N−1. Este número no limita ni trunca la solución algebraica.')
         self.button=QPushButton('Resolver ecuación en diferencias');self.button.setObjectName('primary');self.button.clicked.connect(self.calculate);form.addRow(self.button)
         self.state=ResultState([self.coefficients,self.expression,self.start,self.rest,self.initial,self.count],self.button);form.insertRow(0,self.state)
+        @passive_fields()
         def configure(*_):
             rest=self.rest.isChecked();form.setRowVisible(self.initial,not rest);self.initial.setProperty('calculationInput',not rest)
             try:

@@ -43,6 +43,7 @@ class Frontend(unittest.TestCase):
         attach(tabs,bar);install(tabs);parent.resize(440,500);parent.show();self.settle();self.assertTrue(tabs.tabBar().isHidden());buttons=tabs.result_selector.row.findChildren(QPushButton)
         from PySide6.QtWidgets import QToolButton
         buttons=tabs.result_selector.row.findChildren(QToolButton);self.assertEqual([button.text() for button in buttons],['Resumen','Respuesta en frecuencia','Una función de transferencia con título largo']);buttons[-1].click();self.settle();self.assertEqual(tabs.currentIndex(),2);self.assertEqual(clicked,[2]);tabs.setTabVisible(1,False);self.settle();self.assertEqual([button.text() for button in tabs.result_selector.row.findChildren(QToolButton)],['Resumen','Una función de transferencia con título largo']);tabs.setTabVisible(1,True);self.settle();self.assertEqual(len(tabs.result_selector.row.findChildren(QToolButton)),3)
+        tabs.hide();self.settle();self.assertTrue(tabs.result_selector.row.isHidden());tabs.show();self.settle();self.assertTrue(tabs.result_selector.row.isVisible())
     def test_action_dock_tracks_the_selected_result_without_losing_commands(self):
         from signallab_pc.result_action_dock import install
         tabs=ActiveTabs();bars=[];clicked=[]
@@ -115,6 +116,26 @@ class Frontend(unittest.TestCase):
         result=QWidget();layout=QVBoxLayout(result);bar=ResultActionBar();bar.setProperty('systemResultActions',True);reuse=QPushButton('Usar sistema en…');menu=QMenu(reuse);reuse.setMenu(menu)
         def rebuild():menu.clear();menu.addAction('Destino habitual')
         menu.aboutToShow.connect(rebuild);bar.add_action(reuse,'reuse');layout.addWidget(bar);source=QPushButton('Usar modelo');source.setProperty('resultReuseMenu','Modelo de la realización');model=QMenu(source);source.setMenu(model);called=[];model.addAction('Simular',lambda:called.append(True));layout.addWidget(source);space=ToolWorkspace(QWidget(),result);self.widgets.append(space);space.resize(1200,700);install(space.results);space.show();self.settle();self.assertTrue(source.isHidden());menu.aboutToShow.emit();self.assertEqual(menu.actions()[-1].text(),'Modelo de la realización');menu.actions()[-1].menu().actions()[0].trigger();self.assertEqual(called,[True]);menu.aboutToShow.emit();self.assertEqual(len(menu.actions()),3)
+    def test_file_and_saved_result_views_keep_distinct_sources_and_matching_controls(self):
+        from signallab_pc.toolbox import LocalInput
+        from signallab_pc.model import Signal
+        field=LocalInput('Entrada');self.widgets.append(field);field.show();file=Signal([1,2],name='Archivo');saved=Signal([7,8],name='Resultado');field.set_source(file);field.entry_modes.select(3);self.settle();self.assertIsNone(field.loaded);self.assertNotIn('MATLAB',field.file_note.text());load=next(b for b in field.findChildren(QPushButton) if b.text()=='Elegir archivo…');self.assertTrue(load.isHidden())
+        with self.assertRaisesRegex(ValueError,'Resultados'):field.read()
+        field.set_source(saved,'saved-id');field.entry_modes.select(2);self.settle();self.assertIs(field.loaded,file);self.assertFalse(load.isHidden());field.entry_modes.select(3);self.assertIs(field.loaded,saved);self.assertEqual(field.loaded_reference_id,'saved-id');field.clear_source();field.entry_modes.select(2);self.assertIs(field.loaded,file)
+    def test_swapping_drafts_keeps_both_external_sources_and_empty_source_views(self):
+        from signallab_pc.toolbox import LocalInput
+        from signallab_pc.model import Signal
+        from signallab_pc.input_drafts import swap
+        from signallab_pc.workflow_inputs import copy_local_input
+        first=LocalInput('x');second=LocalInput('w');self.widgets.extend((first,second));a=Signal([1]);b=Signal([2]);c=Signal([3]);first.set_source(a);first.set_source(b,'result-b');second.set_source(c);second.entry_modes.select(0);swap(first,second);first.entry_modes.select(2);self.assertEqual(first.read().values[0],3);first.entry_modes.select(3);self.assertIsNone(first.loaded);second.entry_modes.select(3);self.assertEqual(second.loaded_reference_id,'result-b');second.entry_modes.select(2);self.assertEqual(second.read().values[0],1);copy_local_input(first,second);self.assertEqual(second.entry_modes.view,3);self.assertIsNone(second.loaded)
+    def test_live_band_hints_do_not_select_partial_expressions_but_calculation_still_validates(self):
+        from signallab_pc.band_edges import BandEdgesEditor
+        editor=BandEdgesEditor();self.widgets.append(editor);editor.show();field=editor.edits[0];field.setFocus();field.selectAll();QTest.keyClicks(field,'0.2*pi');self.settle();self.assertEqual(field.text(),'0.2*pi');self.assertFalse(field.property('inputError'));field.setText('incompleto');self.assertFalse(field.property('inputError'))
+        with self.assertRaises(ValueError):editor.frequencies()
+        self.assertTrue(field.property('inputError'));self.assertTrue(field.hasSelectedText())
+    def test_coefficient_order_is_visible_for_both_domains_without_parsing_the_values(self):
+        from signallab_pc.coefficient_editor import CoefficientEditor
+        editor=CoefficientEditor('pi, 0, 10^(-3)');self.widgets.append(editor);self.assertIn('s², s, 1',editor.order_note.text());editor.set_domain(True);self.assertIn('1, z⁻¹, z⁻²',editor.order_note.text());self.assertEqual(editor.text(),'pi, 0, 10^(-3)')
 
 
 if __name__=='__main__':unittest.main()
