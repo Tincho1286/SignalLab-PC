@@ -580,8 +580,12 @@ assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
         # may combine or empty them without removing any article or calculation route.
         self.assertTrue(set(v['category'] for v in values)<=set(CATEGORIES))
         self.assertEqual(set(v['topic'] for v in values),set(TOPICS))
-        self.assertEqual(len(values),125)
         by_id={section['article_id']:section for section in values}
+        periodic_references={'reference:repeat','reference:pulse-train','reference:impulse-train'}
+        self.assertEqual(len(values),125+len(periodic_references))
+        self.assertTrue(periodic_references.issubset(by_id))
+        generation=by_id['tool:basic:generate']
+        self.assertTrue(periodic_references.issubset({key for key,_ in generation['related']}))
         for old in old_sections():
             matches=[v for v in values if v['route']==old['route'] and v.get('content_kind')=='tool']
             self.assertEqual(len(matches),1,old['route'])
