@@ -5,7 +5,7 @@ from PySide6.QtGui import QAction,QKeySequence
 from PySide6.QtWidgets import QApplication,QWidget,QScrollArea,QDialog,QVBoxLayout,QFormLayout,QLabel,QDialogButtonBox
 from shiboken6 import isValid
 
-SHORTCUTS=[('Ctrl+Enter','Calcular con los datos de la herramienta abierta'),('Ctrl+K','Buscar una herramienta'),('Ctrl+Tab / Ctrl+Shift+Tab','Cambiar de documento'),('Ctrl+W','Cerrar la pestaña; sus datos se conservan en esta sesión'),('Alt+1 / Alt+2','Ir a los datos de entrada o al resultado'),('Alt+G','Abrir el gráfico o ampliar la fórmula'),('Alt+R','Reutilizar el resultado'),('Alt+E','Exportar el resultado'),('Ctrl+Shift+C','Abrir la calculadora CAS'),('F1','Consultar la ayuda de la herramienta'),('F11','Ocultar o recuperar los paneles laterales')]
+SHORTCUTS=[('Ctrl+Enter','Calcular con los datos de la herramienta abierta'),('Ctrl+K','Buscar una herramienta'),('Ctrl+Tab / Ctrl+Shift+Tab','Cambiar de documento'),('Ctrl+W','Cerrar la pestaña; sus datos se conservan en esta sesión'),('Alt+1 / Alt+2','Ir a los datos de entrada o al resultado'),('Ctrl+Shift+R','Ampliar el resultado o restaurar los paneles'),('Alt+G','Abrir el gráfico o ampliar la fórmula'),('Alt+R','Reutilizar el resultado'),('Alt+E','Exportar el resultado'),('Ctrl+Shift+C','Abrir la calculadora CAS'),('F1','Consultar la ayuda de la herramienta'),('F11','Ocultar o recuperar los paneles laterales')]
 
 
 class DesktopKeys(QObject):
@@ -13,6 +13,11 @@ class DesktopKeys(QObject):
         super().__init__(window);self.owner=window;self.last_focus=weakref.WeakKeyDictionary();self.commands={};self._help_dialog=None
         for name,sequences,callback in [('calculate',['Ctrl+Return','Ctrl+Enter'],window.calculate_active),('next',['Ctrl+Tab'],lambda:self.document(1)),('previous',['Ctrl+Shift+Tab'],lambda:self.document(-1)),('close',['Ctrl+W'],self.close_document),('inputs',['Alt+1'],lambda:self.focus_surface(False)),('results',['Alt+2'],lambda:self.focus_surface(True)),('graph',['Alt+G'],lambda:self.result_action('graph')),('reuse',['Alt+R'],lambda:self.result_action('reuse')),('export',['Alt+E'],lambda:self.result_action('export'))]:
             action=QAction(window);action.setShortcuts([QKeySequence(sequence) for sequence in sequences]);action.triggered.connect(lambda checked=False,run=callback:self.dispatch(run));window.addAction(action);self.commands[name]=action
+        action = QAction(window)
+        action.setShortcut('Ctrl+Shift+R')
+        action.triggered.connect(lambda: self.dispatch(self.toggle_output))
+        window.addAction(action)
+        self.commands['expand-result'] = action
         QApplication.instance().focusChanged.connect(self.remember_focus)
 
     def dispatch(self,callback):
@@ -46,12 +51,20 @@ class DesktopKeys(QObject):
                 if toggle is not None:toggle.setChecked(not result)
                 self.reveal(widget)
             return
-        if space.compact:space.tabs.setCurrentIndex(1 if result else 0)
+        if not result:
+            space.show_inputs()
+        elif space.compact:
+            space.tabs.setCurrentIndex(1)
         surface=space.results if result else space.inputs;reference=self.last_focus.get(surface);widget=reference() if reference is not None else None
         if widget is None or not isValid(widget) or not widget.isVisibleTo(surface) or not widget.isEnabled():
             candidates=[child for child in surface.findChildren(QWidget) if child.window() is self.owner and child.isVisibleTo(surface) and child.isEnabled() and child.focusPolicy() & Qt.FocusPolicy.TabFocus]
             candidates.sort(key=lambda child:(child.mapTo(surface,QPoint()).y(),child.mapTo(surface,QPoint()).x()));widget=next(iter(candidates),surface)
         self.reveal(widget)
+
+    def toggle_output(self):
+        workspace = self.workspace()
+        if workspace is not None:
+            workspace.set_output_expanded(not workspace.output_expanded)
 
     def result_action(self,role):
         space=self.workspace();dock=getattr(space.results,'action_dock',None) if space is not None else None;bar=dock.current_bar() if dock is not None else None;button=bar.slots.get(role) if bar is not None else None

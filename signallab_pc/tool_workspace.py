@@ -1,5 +1,5 @@
 """Input and result surfaces with one compact-screen navigation pattern."""
-from PySide6.QtCore import Qt,QSize,QTimer
+from PySide6.QtCore import Qt,QSize,QTimer,Signal
 from PySide6.QtWidgets import QWidget,QFrame,QVBoxLayout,QHBoxLayout,QLabel,QScrollArea,QSplitter,QTabWidget,QBoxLayout,QSizePolicy,QFormLayout,QPushButton,QApplication
 from .active_stack import ActiveStack,ActiveTabs
 
@@ -25,8 +25,12 @@ class Surface(QFrame):
 
 
 class ToolWorkspace(QWidget):
+    expansionChanged = Signal(bool)
+
     def __init__(self,inputs,results,parent=None,*,titles=('Datos de entrada','Resultado'),captions=('', '')):
         super().__init__(parent);self.setObjectName('toolWorkspace');self.setProperty('workspaceLayout',True);self.compact=None;self.result_preferred=False;self.titles=titles;self.wide_sizes=[400,760]
+        self.output_expanded = False
+        self._compact_index_before_expansion = None
         root=QVBoxLayout(self);root.setContentsMargins(14,0,14,12);self.modes=ActiveStack();root.addWidget(self.modes)
         self.split=QSplitter(Qt.Orientation.Horizontal);self.split.setChildrenCollapsible(False);self.split.setHandleWidth(10);self.modes.addWidget(self.split)
         self.tabs=ActiveTabs();self.tabs.setObjectName('workspaceModes');self.modes.addWidget(self.tabs)
@@ -49,11 +53,41 @@ class ToolWorkspace(QWidget):
             surface.caption.setVisible(not compact and bool(surface.caption.text()))
         if compact:
             for surface,title in zip((self.inputs,self.results),self.titles):self.tabs.addTab(surface,title)
-            self.modes.setCurrentWidget(self.tabs);self.tabs.setCurrentIndex(focused_surface if focused_surface is not None else 1 if self.result_preferred else 0)
+            self.modes.setCurrentWidget(self.tabs)
+            self.tabs.tabBar().setVisible(not self.output_expanded)
+            index = focused_surface if focused_surface is not None else int(self.result_preferred)
+            self.tabs.setCurrentIndex(1 if self.output_expanded else index)
         else:
             while self.tabs.count():self.tabs.removeTab(0)
-            self.split.addWidget(self.inputs);self.split.addWidget(self.results);self.modes.setCurrentWidget(self.split);self.inputs.show();self.results.show();self.split.setStretchFactor(0,0);self.split.setStretchFactor(1,1);self.split.setSizes(self.wide_sizes)
+            self.split.addWidget(self.inputs);self.split.addWidget(self.results);self.modes.setCurrentWidget(self.split);self.inputs.setVisible(not self.output_expanded);self.results.show();self.split.setStretchFactor(0,0);self.split.setStretchFactor(1,1);self.split.setSizes(self.wide_sizes)
         if focused_surface is not None and focused.isVisibleTo(self):focused.setFocus(Qt.FocusReason.OtherFocusReason)
+
+    def set_output_expanded(self, expanded):
+        if expanded == self.output_expanded:
+            return
+        if expanded:
+            self._compact_index_before_expansion = self.tabs.currentIndex() if self.compact else None
+            if not self.compact and all(self.split.sizes()):
+                self.wide_sizes = self.split.sizes()
+        self.output_expanded = expanded
+        if self.compact:
+            self.tabs.tabBar().setVisible(not expanded)
+            previous = self._compact_index_before_expansion
+            self.tabs.setCurrentIndex(1 if expanded or previous is None else previous)
+        else:
+            self.inputs.setVisible(not expanded)
+            if not expanded:
+                self.split.setSizes(self.wide_sizes)
+        self.tabs.updateGeometry()
+        self.modes.updateGeometry()
+        self.updateGeometry()
+        self.expansionChanged.emit(expanded)
+
+    def show_inputs(self):
+        self.set_output_expanded(False)
+        if self.compact:
+            self.tabs.setCurrentIndex(0)
+
     def show_results(self):
         self.result_preferred=True
         if self.compact:self.tabs.setCurrentIndex(1)

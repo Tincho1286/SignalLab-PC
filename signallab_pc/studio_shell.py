@@ -97,4 +97,5 @@ def adapt_shell(window):
     if hasattr(window,'studio_brand_name'):window.studio_brand_name.setVisible(not compact)
     if hasattr(window,'studio_search'):window.studio_search.setText('Buscar herramientas' if compact else 'Buscar herramientas     Ctrl+K')
     for button in getattr(window,'studio_aux_buttons',[]):button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly if compact else Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-    window.subtitle.setVisible(not short and not window.heading.isHidden());window.title.setStyleSheet('font-size:17pt;' if compact else '')
+    window.result_layout.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly if compact else Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+    window.subtitle.setVisible(not short and not window.heading.isHidden() and not window.result_layout.isChecked());window.title.setStyleSheet('font-size:17pt;' if compact else '')

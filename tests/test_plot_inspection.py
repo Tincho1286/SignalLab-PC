@@ -71,6 +71,16 @@ class Interaction(unittest.TestCase):
         self.probe.focus(self.trace,-1,'a');self.probe.focus(self.trace,1,'b');saved=dict(self.probe.b);self.probe.focus(self.trace,0,'a');self.assertEqual(self.probe.b,saved);self.assertEqual(self.probe.a[self.trace.key][0],0);self.probe.key(SimpleNamespace(key='right'));self.assertEqual(self.probe.b[self.trace.key][0],2)
         self.probe.clear()
         with self.assertRaises(ValueError):self.probe.focus(self.trace,0,'b')
+    def test_live_measurements_do_not_open_a_table_until_requested_or_pinned(self):
+        self.assertTrue(self.probe.table.isHidden())
+        self.probe.focus(self.trace,-1)
+        self.assertTrue(self.probe.table.isHidden())
+        self.assertIn('= -1', self.probe.hint.text())
+        self.probe.pin('a')
+        self.assertFalse(self.probe.table.isHidden())
+        self.probe.table_toggle.click()
+        self.assertTrue(self.probe.table.isHidden())
+        self.assertEqual(self.probe.a[self.trace.key][0], -1)
     def test_dragging_a_cursor_preserves_b_and_snaps_to_discrete_points(self):
         self.probe.focus(self.trace,-1,'a');self.probe.focus(self.trace,1,'b');saved=dict(self.probe.b);x,y=self.axis.transData.transform((-1,1));press=MouseEvent('button_press_event',self.canvas,x,y,button=1);self.probe.press(press);self.assertEqual(self.probe._dragging,'a')
         x,y=self.axis.transData.transform((.2,0));self.probe.motion(MouseEvent('motion_notify_event',self.canvas,x,y,button=1),force=True);self.probe.release(None);self.assertEqual(self.probe.a[self.trace.key][0],0);self.assertEqual(self.probe.b,saved)

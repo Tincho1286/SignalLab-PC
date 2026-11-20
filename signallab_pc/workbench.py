@@ -48,6 +48,15 @@ class WorkbenchWindow(ToolboxWindow):
         self.back=QPushButton('Volver a resultados');self.back.clicked.connect(lambda:self.show_menu('Proyecto'));self.back.hide();row.addWidget(self.back)
         self.operation_menu=QToolButton();self.operation_menu.setText('Operaciones');self.operation_menu.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);row.addWidget(self.operation_menu)
         self.calculate_action=QPushButton('Calcular');self.calculate_action.setObjectName('primary');self.calculate_action.setIcon(icon('run',C['on_primary']));self.calculate_action.setIconSize(QSize(16,16));self.calculate_action.setMinimumWidth(124);self.calculate_action.setToolTip('Calcular con los datos actuales · Ctrl+Enter');self.calculate_action.clicked.connect(self.calculate_active);row.addWidget(self.calculate_action);self.current_calculate=None
+        self.result_layout = QToolButton()
+        self.result_layout.setObjectName('resultLayoutAction')
+        self.result_layout.setCheckable(True)
+        self.result_layout.setIconSize(QSize(17,17))
+        self.result_layout.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.result_layout.clicked.connect(lambda: self.desktop_keys.toggle_output())
+        self.result_layout.hide()
+        row.addWidget(self.result_layout)
+        self._layout_workspace = None
         self.help=QToolButton();self.help.setText('Ayuda');self.help.setObjectName('contextHelp');self.help.setIcon(icon('book',C['green']));self.help.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon);self.help.clicked.connect(self.open_help);row.addWidget(self.help);body.addWidget(heading)
         self.subtitle=QLabel();self.subtitle.setObjectName('muted');self.subtitle.setWordWrap(True);self.subtitle.setContentsMargins(20,0,20,8);body.addWidget(self.subtitle)
         from .workflow_selector import WorkflowSelector
@@ -228,6 +237,7 @@ class WorkbenchWindow(ToolboxWindow):
         if page is not None:
             buttons=calculation_buttons(page)
             if buttons:self.current_calculate=buttons[0]
+        self.refresh_result_layout_action()
         self._refresh_primary_action();self.statusBar().showMessage(self.category+' / '+entry['title'])
     def _refresh_primary_action(self):
         page=self.pages.get(getattr(self,'current_operation',None))
@@ -260,7 +270,31 @@ class WorkbenchWindow(ToolboxWindow):
         self.heading.setVisible(not home)
         self.subtitle.setVisible(not home and self.height()>=650)
         self.studio_search_action.setVisible(not home)
+        workspace = self.desktop_keys.workspace()
+        if workspace is not self._layout_workspace:
+            if self._layout_workspace is not None:
+                self._layout_workspace.expansionChanged.disconnect(self.refresh_result_layout_action)
+            self._layout_workspace = workspace
+            if workspace is not None:
+                workspace.expansionChanged.connect(self.refresh_result_layout_action)
+        self.refresh_result_layout_action()
         self.statusBar().showMessage(title)
+
+    def refresh_result_layout_action(self, *_):
+        workspace = self._layout_workspace
+        expanded = workspace is not None and workspace.output_expanded
+        self.result_layout.setVisible(workspace is not None)
+        self.subtitle.setVisible(self.height()>=650 and not self.heading.isHidden() and not expanded)
+        current = self.desktop_keys.active_page()
+        if current is not None and hasattr(current,'tool_item'):
+            self.variant_strip.setVisible(self.variant_strip.form.rowCount()>0 and not expanded)
+        if workspace is not None:
+            self.result_layout.setChecked(expanded)
+            label = 'Restaurar paneles' if expanded else 'Ampliar resultado'
+            self.result_layout.setText(label)
+            self.result_layout.setAccessibleName(label)
+            self.result_layout.setToolTip(label+' · Ctrl+Mayús+R')
+            self.result_layout.setIcon(icon('restore' if expanded else 'expand'))
     def activate_document(self,index):
         key=self.documents.tabData(index)
         if not key:return

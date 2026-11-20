@@ -232,7 +232,7 @@ class CasWorksheet(QWidget):
     def insert_reference(self):
         if self.selected_entry():self.input.insertPlainText('r'+str(self.selected));self.focus_input()
     def focus_input(self):
-        if self.workspace.compact:self.workspace.tabs.setCurrentIndex(0)
+        self.workspace.show_inputs()
         self.input.setFocus()
 
     def render(self,scroll=True):

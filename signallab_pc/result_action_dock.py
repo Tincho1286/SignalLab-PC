@@ -1,12 +1,13 @@
 """Keep result commands above every result view while retaining their own state."""
 from PySide6.QtCore import QEvent,QTimer
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QTabWidget,QStackedWidget,QHBoxLayout,QLabel,QComboBox
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QTabWidget,QStackedWidget,QHBoxLayout,QLabel,QComboBox,QSizePolicy
 from .result_toolbar import ResultActionBar
 
 
 class ResultActionDock(QWidget):
     def __init__(self,surface):
         super().__init__(surface);self.surface=surface;surface.installEventFilter(self);self.setObjectName('resultActionDock');self.box=QVBoxLayout(self);self.box.setContentsMargins(0,0,0,0);self.box.setSpacing(7);self.entries=[];self.pending=False;self.graph=None;self.chosen=None;self.choices=[]
+        self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed)
         self.target_row=QWidget();row=QHBoxLayout(self.target_row);row.setContentsMargins(10,6,10,0);row.addWidget(QLabel('Trabajar con'));self.target=QComboBox();self.target.setMinimumWidth(0);self.target.setProperty('calculationInput',False);self.target.setToolTip('Elegí qué resultado querés reutilizar, enviar al CAS o exportar. No recalcula.');row.addWidget(self.target,1);self.target.currentIndexChanged.connect(self.choose);self.box.addWidget(self.target_row);self.target_row.hide();self.fallback=ResultActionBar(self);self.box.addWidget(self.fallback);self.fallback.hide()
     def set_graph(self,graph):self.graph=graph;self.schedule()
     def candidates(self):return [bar for bar,owner,_ in self.entries if owner.isVisibleTo(self.surface) and not bar.isHidden()]

@@ -15,6 +15,8 @@ QToolButton {border-radius:12px;padding:8px 10px;}
 QPushButton {border-radius:12px;padding:8px 13px;min-height:18px;}
 QPushButton#primary,QPushButton[primaryAction="true"] {border-radius:9px;padding:8px 18px;}
 QToolButton#contextHelp {border:1px solid @rule@;border-radius:9px;background:@panel@;padding:8px 11px;}
+QToolButton#resultLayoutAction {border:1px solid @rule@;border-radius:9px;background:@panel@;padding:8px 10px;}
+QToolButton#resultLayoutAction:checked {background:@selected@;border-color:@accent@;}
 QLineEdit,QComboBox,QSpinBox,QDoubleSpinBox {border:1px solid @rule@;border-radius:11px;padding:7px 10px;}
 QLineEdit:hover,QComboBox:hover {border-color:@border@;}
 QLineEdit:focus,QComboBox:focus {border:1px solid @accent@;}
@@ -104,6 +106,21 @@ QListWidget#savedResults {background:@input@;border:0;}
 QListWidget#savedResults::item {padding:12px 10px;margin-bottom:4px;border-radius:10px;}
 QWidget#casToolbar QToolButton {padding:8px 18px 8px 10px;border:1px solid @rule@;background:@input@;}
 QWidget#casToolbar QToolButton::menu-indicator {subcontrol-position:right center;right:6px;width:8px;}
+QDialog#scientificFigure {background:@window@;}
+QToolBar#figureNavigation {background:@chrome@;border:1px solid @rule@;border-radius:7px;padding:2px 4px;spacing:3px;}
+QToolBar#figureNavigation QToolButton {padding:4px 6px;border-radius:5px;}
+QToolBar#figureNavigation QToolButton:checked {background:@selected@;border-color:@accent@;}
+QToolButton[figureControl="true"] {background:@panel@;border:1px solid @rule@;border-radius:6px;padding:4px 8px;}
+QToolButton[figureControl="true"]:checked,QToolButton[figureControl="true"]:hover {background:@selected@;border-color:@accent@;}
+QToolButton#figureScale {padding-right:19px;}
+QToolButton#figureScale::menu-indicator {subcontrol-position:right center;right:6px;}
+QWidget#cursorPanel {background:@chrome@;border:1px solid @rule@;border-radius:7px;}
+QLabel#cursorReadout {font-family:'Consolas';font-size:9pt;color:@text@;padding:2px 0;}
+QWidget#cursorPanel QPushButton,QWidget#cursorPanel QToolButton {min-height:16px;padding:3px 8px;border-radius:5px;font-size:9pt;}
+QWidget#cursorPanel QToolButton {border:1px solid @rule@;}
+QWidget#cursorPanel QToolButton:checked {background:@selected@;border-color:@accent@;}
+QTableWidget#cursorTable {border-radius:6px;padding:0;}
+QTableWidget#cursorTable QHeaderView::section {padding:3px 7px;}
 QPushButton:focus,QToolButton:focus,QLineEdit:focus,QComboBox:focus,QSpinBox:focus,QDoubleSpinBox:focus,QPlainTextEdit:focus,QTableView:focus {border:1px solid @accent@;}
 QToolButton#railItem:focus,QPushButton#quickAction:focus,QPushButton#areaCard:focus,QPushButton#studioSearch:focus {border:1px solid @accent@;}
 QToolButton[segment="true"]:focus {border:1px solid @text@;}

@@ -2,7 +2,7 @@
 import time
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QLabel,QPushButton,QTableWidget,QTableWidgetItem,QHeaderView
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QLabel,QPushButton,QToolButton,QTableWidget,QTableWidgetItem,QHeaderView,QSizePolicy
 from matplotlib.lines import Line2D
 from matplotlib.artist import Artist
 from .probe_data import collect,readings
@@ -30,20 +30,29 @@ class PlotProbe:
     def __init__(self,canvas,toolbar,layout):
         self.canvas=canvas;self.toolbar=toolbar;self.traces=[];self.signature=None;self.background=None
         self.a=None;self.b=None;self.live={};self.active_axis=None;self.artists=[];self.last_motion=0.;self.enabled=True;self.exporting=False;self._dragging=None;self.inspector=None
-        self.widget=QWidget();box=QVBoxLayout(self.widget);box.setContentsMargins(4,2,4,2);box.setSpacing(2)
-        row=QHBoxLayout();self.hint=QLabel('Editor de diseño: los clics editan; usá Fijar A/B para medir.' if getattr(canvas,'_signallab_editable',False) else 'Mové el mouse: lectura de puntos. Clic fija A; otro clic fija B.');self.hint.setWordWrap(True);row.addWidget(self.hint,1)
+        self.widget=QWidget();self.widget.setObjectName('cursorPanel');box=QVBoxLayout(self.widget);box.setContentsMargins(8,4,8,6);box.setSpacing(4)
+        from .figure_controls import WrappedControls
+        strip=QWidget();policy=QSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum);policy.setHeightForWidth(True);strip.setSizePolicy(policy);row=WrappedControls(strip);row.setContentsMargins(0,0,0,0)
+        self.hint=QLabel();self.hint.setObjectName('cursorReadout');self.hint.setAccessibleName('Coordenadas del cursor');self.hint.setTextFormat(Qt.TextFormat.PlainText)
+        self.hint.setToolTip('Mové el mouse para leer un punto. En un gráfico de análisis, un clic fija A y otro fija B. En un editor, usá los botones Fijar A/B.')
+        self.hint.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Fixed)
+        box.addWidget(self.hint)
         self.pin_a=QPushButton('Fijar A');self.pin_b=QPushButton('Fijar B');self.reset=QPushButton('Seguir');self.pin_b.setEnabled(False)
+        self.table_toggle=QToolButton();self.table_toggle.setText('Tabla A/B');self.table_toggle.setCheckable(True);self.table_toggle.setToolTip('Mostrar las lecturas de todos los paneles. Se abre al fijar el primer cursor.')
         self.copy=QPushButton('Copiar');self.copy.setToolTip('Copiar las lecturas con toda la precisión disponible, como tabla.');self.copy.clicked.connect(self.copy_values)
-        for button in (self.pin_a,self.pin_b,self.reset,self.copy):row.addWidget(button)
-        box.addLayout(row)
+        for button in (self.pin_a,self.pin_b,self.reset,self.table_toggle,self.copy):row.addWidget(button)
+        box.addWidget(strip)
         self.table=QTableWidget(0,7);self.table.setHorizontalHeaderLabels(['Panel / traza','x A','y A','x B','y B','Δx (B−A)','Δy (B−A)'])
-        self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers);self.table.verticalHeader().hide();self.table.setMaximumHeight(146);self.table.setMinimumHeight(58)
+        self.table.setObjectName('cursorTable');self.table.setAccessibleName('Mediciones de los cursores A y B');self.table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers);self.table.verticalHeader().hide();self.table.verticalHeader().setDefaultSectionSize(24)
         self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents);self.table.horizontalHeader().setStretchLastSection(True)
         self.table.setToolTip('A y B leen puntos de las trazas, sin interpolar. Los valores completos están en la descripción de cada celda. Δy usa la representación dibujada; una fase principal puede saltar 2π. Seguir libera ambos cursores.');box.addWidget(self.table);layout.addWidget(self.widget)
         from PySide6.QtGui import QAction
         self.action=QAction('Cursores',toolbar);self.action.setCheckable(True);self.action.setChecked(True);self.action.setToolTip('Leer puntos y medir diferencias con cursores A/B. Clic fija A; otro clic o Mayús+clic fija B. Esc libera los cursores.');toolbar.addAction(self.action)
         self.inspect_action=QAction('Curvas y medidas…',toolbar);self.inspect_action.setToolTip('Ver la definición almacenada, buscar máximos/mínimos y colocar cursores por coordenada.');self.inspect_action.triggered.connect(self.open_inspector);toolbar.addAction(self.inspect_action)
+        from .design import icon
+        self.action.setIcon(icon('cursor'));self.inspect_action.setIcon(icon('measure'))
         self.action.toggled.connect(self.toggle);self.pin_a.clicked.connect(lambda:self.pin('a'));self.pin_b.clicked.connect(lambda:self.pin('b'));self.reset.clicked.connect(self.clear)
+        self.table_toggle.toggled.connect(self.refresh_reading_panel);self.refresh_reading_panel()
         for event,handler in [('draw_event',self.drawn),('resize_event',self.resized),('motion_notify_event',self.motion),('button_press_event',self.press),('button_release_event',self.release),('key_press_event',self.key)]:canvas.mpl_connect(event,handler)
         canvas._signallab_probe=self
 
@@ -63,6 +72,38 @@ class PlotProbe:
     def clear(self):
         self.release(None);self.a=None;self.b=None;self.pin_b.setEnabled(False);self.update()
 
+    def refresh_reading_panel(self):
+        rows = self.table.rowCount()
+        self.table.setVisible(bool(rows) and self.table_toggle.isChecked())
+        if rows and self.table_toggle.isChecked():
+            height = self.table.horizontalHeader().sizeHint().height()
+            height += sum(self.table.rowHeight(row) for row in range(min(rows, 3)))
+            # Keep a complete row visible if the numbers need a horizontal scrollbar.
+            height += self.table.horizontalScrollBar().sizeHint().height() + 4
+            self.table.setFixedHeight(height)
+        self.pin_a.setEnabled(bool(self.live))
+        self.pin_b.setEnabled(self.a is not None and bool(self.live))
+        self.reset.setEnabled(self.a is not None)
+        self.copy.setEnabled(bool(rows))
+        if self.a is not None and self.b is not None:
+            status = 'A y B fijos'
+        elif self.a is not None:
+            status = 'A fijo · B libre'
+        else:
+            status = 'Lectura libre'
+        trace = next((item for item in self.traces if item.axis is self.active_axis and item.key in self.live), None)
+        if trace is None:
+            empty = 'Usá Fijar A/B para medir en el editor' if getattr(self.canvas,'_signallab_editable',False) else 'Mové el puntero sobre la figura'
+            self.hint.setText(empty if self.a is None else status)
+            return
+        axis = trace.axis
+        point = self.live[trace.key]
+        label = axis.get_xlabel() or next((sibling.get_xlabel() for sibling in axis.get_shared_x_axes().get_siblings(axis) if sibling.get_xlabel()), 'x')
+        reading = f'{status}  ·  {label} = {number(point[0])}  ·  {axis.get_ylabel() or "y"} = {number(point[1])}'
+        if getattr(trace,'cell_values',False):
+            reading += '  ·  Valor = '+number(point[2])
+        self.hint.setText(reading)
+
     def open_inspector(self):
         if self.inspector is None:
             from .plot_inspector_dialog import PlotInspector
@@ -77,7 +118,10 @@ class PlotProbe:
         index,x,y=nearest(trace,coordinate);base=getattr(trace.axis,'_signallab_index_origin',0);position=x-base
         self.action.setChecked(True);self.active_axis=trace.axis;self.live=readings(self.traces,trace.axis,position,y)
         if target=='live':self.a=None;self.b=None;self.pin_b.setEnabled(False)
-        elif target=='a':self.a=dict(self.live);self.pin_b.setEnabled(True)
+        elif target=='a':
+            first_pin=self.a is None
+            self.a=dict(self.live)
+            if first_pin:self.table_toggle.setChecked(True)
         else:self.b=dict(self.live)
         low,high=trace.axis.get_xlim()
         if not min(low,high)<=position<=max(low,high):
@@ -89,7 +133,10 @@ class PlotProbe:
 
     def pin(self,which):
         if not self.live:return
-        if which=='a':self.a=dict(self.live);self.b=None;self.pin_b.setEnabled(True)
+        if which=='a':
+            first_pin=self.a is None
+            self.a=dict(self.live);self.b=None
+            if first_pin:self.table_toggle.setChecked(True)
         elif self.a is not None:
             if self.a.keys()&self.live.keys():self.b=dict(self.live)
             else:self.a=dict(self.live);self.b=None
@@ -165,7 +212,8 @@ class PlotProbe:
                 self.markers[trace.key]=[self.artist(trace.axis,[],[],color,linestyle='none',marker='o',markersize=6,markerfacecolor=C['panel'],markeredgewidth=1.5) for color in (C['blue'],C['amber'])]
         only_3d=bool(self.canvas.figure.axes) and all(axis.name=='3d' for axis in self.canvas.figure.axes)
         self.inspect_action.setEnabled(bool(traces) and not only_3d)
-        self.action.setVisible(not only_3d);self.widget.setVisible(self.enabled and not only_3d);self.table.setVisible(bool(traces))
+        self.action.setVisible(not only_3d);self.widget.setVisible(self.enabled and not only_3d)
+        self.table_toggle.setEnabled(bool(traces));self.refresh_reading_panel()
         try:self.background=self.canvas.copy_from_bbox(self.canvas.figure.bbox)
         except (AttributeError,RuntimeError):self.background=None
         # The backend is already painting this draw event. Draw overlays into
@@ -201,14 +249,7 @@ class PlotProbe:
             for column,value in enumerate(values):
                 text=value if column==0 else '—' if value is None else number(value)
                 item=QTableWidgetItem(text);item.setToolTip(str(value) if column==0 else 'Sin punto compatible' if value is None else str(value) if isinstance(value,(int,np.integer)) else format(value,'.17g'));self.table.setItem(row,column,item)
-        self.hint.setText('A sigue al mouse · clic para fijarlo.' if self.a is None else 'A fijo · B sigue al mouse · clic para fijar B.' if self.b is None else 'A y B fijos · Seguir libera los cursores; clic empieza otro intervalo.')
-        if self.a is not None and not getattr(self.canvas,'_signallab_editable',False):self.hint.setText(self.hint.text()+' Arrastrá A/B para moverlos; las flechas recorren puntos.')
-        if self.active_axis is not None:
-            label=self.active_axis.get_xlabel() or next((axis.get_xlabel() for axis in self.active_axis.get_shared_x_axes().get_siblings(self.active_axis) if axis.get_xlabel()),'')
-            if label:self.hint.setText(self.hint.text()+' Eje: '+label+'.')
-            if any(getattr(trace,'cell_values',False) and trace.axis is self.active_axis for trace in self.traces):
-                self.hint.setText(self.hint.text()+' Y: '+self.active_axis.get_ylabel()+'. Valor de la celda original, sin interpolar.')
-        if getattr(self.canvas,'_signallab_editable',False):self.hint.setText('Editor de diseño: los clics cambian polos/ceros. Usá Fijar A/B y Seguir para medir sin editar.')
+        self.refresh_reading_panel()
         self.paint()
 
     def paint(self,blit=True):

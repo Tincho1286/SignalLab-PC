@@ -5,6 +5,10 @@ from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 
 class FigureWindow(QDialog):
     """Persistent non-modal figure; closing hides it without discarding the data."""
+    def __init__(self, parent, flags):
+        super().__init__(parent, flags)
+        self.setObjectName('scientificFigure')
+
     def closeEvent(self,event):
         self.hide();event.ignore()
 
@@ -35,7 +39,7 @@ def open_result_plot(view, owner):
 
 def install_enlarge(toolbar):
     from PySide6.QtCore import Qt,QTimer
-    from PySide6.QtWidgets import QWidget,QLabel,QSizePolicy
+    from PySide6.QtWidgets import QWidget,QLabel,QMenu,QSizePolicy,QToolButton
     if getattr(toolbar,'_signallab_enlarge',False):return
     toolbar._signallab_enlarge=True
     canvas=toolbar.canvas;parent=canvas.parentWidget();layout=parent.layout()
@@ -55,7 +59,7 @@ def install_enlarge(toolbar):
         ancestor=ancestor.parentWidget()
     window=FigureWindow(parent,Qt.WindowType.Window)
     window.setModal(False);window.setWindowTitle(title);window.setWindowIcon(parent.window().windowIcon())
-    content=QVBoxLayout(window);content.setContentsMargins(6,6,6,6);content.addWidget(toolbar)
+    content=QVBoxLayout(window);content.setContentsMargins(10,8,10,8);content.setSpacing(6);content.addWidget(toolbar)
     controls=getattr(canvas,'_signallab_plot_controls',None)
     if controls is not None:content.addWidget(controls)
     content.addWidget(canvas,1)
@@ -64,14 +68,23 @@ def install_enlarge(toolbar):
     from PySide6.QtGui import QAction
     detail=QAction('Detalle vertical',toolbar);detail.setCheckable(True);detail.setChecked(bool(getattr(canvas.figure,'_signallab_detail_vertical',False)))
     detail.setToolTip('Ajustar la escala a los valores originales, incluso variaciones muy pequeñas. Desactivado evita amplificar variaciones menores que 10⁻¹⁰ de la referencia visual (al menos 1). No se redondean ni se borran datos. El zoom manual sigue disponible.')
-    toolbar.addSeparator();toolbar.addAction(detail);canvas._signallab_detail_action=detail
-    vertical_range = QAction('Escala vertical…',toolbar)
+    canvas._signallab_detail_action=detail
+    scale = QToolButton()
+    scale.setObjectName('figureScale')
+    scale.setProperty('figureControl', True)
+    scale.setText('Escala vertical')
+    scale.setToolTip('Detalle de redondeo y rango vertical de los paneles')
+    scale.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+    menu = QMenu(scale)
+    scale.setMenu(menu)
+    menu.addAction(detail)
+    vertical_range = menu.addAction('Ajustar rango…')
     vertical_range.setToolTip('Elegí un panel y ajustá su rango vertical automático, completo o manual.')
     def choose_vertical_range():
         from .plot_limits_dialog import VerticalRangeDialog
         VerticalRangeDialog(canvas,window).exec()
     vertical_range.triggered.connect(choose_vertical_range)
-    toolbar.addAction(vertical_range)
+    toolbar.addWidget(scale)
     scale_note=QLabel();scale_note.setWordWrap(True);scale_note.setStyleSheet('color:'+C['muted']+';font-size:9pt;');scale_note.hide();content.addWidget(scale_note);canvas._signallab_scale_note=scale_note
     def vertical_detail(enabled):
         from .plot_scale import set_vertical_detail
@@ -165,18 +178,49 @@ def prepare_figure(figure):
     return apply_stable_scale(figure)
 
 
+def fit_axis_labels(canvas):
+    """Use horizontal labels when a stack of short panels cannot fit vertical text."""
+    renderer = canvas.get_renderer()
+    for axis in canvas.figure.axes:
+        spec = axis.get_subplotspec()
+        if spec is None or axis.name != 'rectilinear':
+            continue
+        label = axis.yaxis.label
+        original = getattr(label, '_signallab_label_alignment', None)
+        if original is None:
+            if not label.get_text() or label.get_rotation() not in (90, 270):
+                continue
+            original = label.get_rotation(), label.get_ha(), label.get_va()
+        rows = spec.get_gridspec().nrows
+        span = len(spec.rowspan)
+        available = canvas.figure.bbox.height * span / rows - 38
+        bounds = label.get_window_extent(renderer)
+        if label.get_text() and max(bounds.width, bounds.height) > available and rows > 1:
+            label._signallab_label_alignment = original
+            label.set_rotation(0)
+            label.set_ha('right' if axis.yaxis.get_label_position() == 'left' else 'left')
+            label.set_va('center')
+        elif hasattr(label, '_signallab_label_alignment'):
+            rotation, horizontal, vertical = original
+            label.set_rotation(rotation)
+            label.set_ha(horizontal)
+            label.set_va(vertical)
+            del label._signallab_label_alignment
+
+
 def install_figure_layout(canvas):
     if getattr(canvas,'_signallab_layout',False):return
     canvas._signallab_layout=True
     original_draw=canvas.draw;original_print=canvas.print_figure
     def draw(*args,**kwargs):
         protected=prepare_figure(canvas.figure)
+        fit_axis_labels(canvas)
         note=getattr(canvas,'_signallab_scale_note',None)
         if note is not None:
             if any(getattr(axis,'_signallab_db_focused',False) for axis in protected):
-                note.setText('Vista en dB enfocada en el paso y los lóbulos. Para ver los nulos profundos, elegí «Escala vertical» y «Rango completo».')
+                note.setText('Vista en dB enfocada en el paso y los lóbulos. Para ver los nulos, abrí Escala vertical → Ajustar rango y elegí Rango completo.')
             else:
-                note.setText('Escala estable en '+str(len(protected))+' panel(es). Activá «Detalle vertical» para ver pequeñas variaciones.' if protected else '')
+                note.setText('Escala estable en '+str(len(protected))+' panel(es). Para ver pequeñas variaciones, abrí Escala vertical y activá Detalle vertical.' if protected else '')
             note.setVisible(bool(protected))
         return original_draw(*args,**kwargs)
     def print_figure(*args,**kwargs):

@@ -34,6 +34,31 @@ class Frontend(unittest.TestCase):
         from PySide6.QtWidgets import QLabel
         from signallab_pc.problem_document import ProblemDocument
         document=ProblemDocument({});header=QLabel('Opciones del cálculo');header.setWordWrap(True);document.layout().insertWidget(0,header);page=QWidget();page.tool_item=('Prueba','test',0,None);root=QVBoxLayout(page);root.setContentsMargins(0,0,0,0);space=ToolWorkspace(QWidget(),QWidget());root.addWidget(space);document.select_page(page);view=QScrollArea();view.setWidgetResizable(True);view.setWidget(document);self.widgets.append(view);view.resize(650,400);view.show();self.settle();self.assertEqual(view.verticalScrollBar().maximum(),0);self.assertLess(space.height(),600);self.assertTrue(space.inputs.isVisibleTo(view));self.assertTrue(space.tabs.isVisibleTo(view))
+    def test_expanded_output_preserves_the_same_result_across_resize(self):
+        result = QWidget()
+        space = ToolWorkspace(QWidget(), result)
+        self.widgets.append(space)
+        space.resize(1200, 700)
+        space.show()
+        self.settle()
+        initial = space.split.sizes()
+        space.set_output_expanded(True)
+        self.assertTrue(space.inputs.isHidden())
+        self.assertTrue(result.isVisible())
+        space.resize(680, 500)
+        self.settle()
+        self.assertIs(space.tabs.currentWidget(), space.results)
+        self.assertTrue(space.tabs.tabBar().isHidden())
+        space.resize(1200, 700)
+        self.settle()
+        space.show_inputs()
+        self.settle()
+        self.assertFalse(space.output_expanded)
+        self.assertEqual(space.split.sizes(), initial)
+        self.assertIs(space.results.content, result)
+        space.resize(680, 500)
+        self.settle()
+        self.assertTrue(space.tabs.tabBar().isVisible())
     def test_graph_moves_with_the_active_result_action_set(self):
         result=QWidget();layout=QVBoxLayout(result);home=ResultActionBar();system=ResultActionBar();system.setProperty('systemResultActions',True);layout.addWidget(home);layout.addWidget(system);graph=QPushButton('graph');home.add_action(graph,'graph');system.hide();space=ToolWorkspace(QWidget(),result);self.widgets.append(space);space.resize(1200,700);space.show();self.settle();self.assertIs(graph.parentWidget(),home);home.hide();system.show();self.settle();self.assertIs(graph.parentWidget(),system);system.hide();home.show();self.settle();self.assertIs(graph.parentWidget(),home)
     def test_long_visible_choices_wrap_without_changing_the_selected_value(self):

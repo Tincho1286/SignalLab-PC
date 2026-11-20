@@ -60,7 +60,7 @@ def apply(window,key,*,persist=True):
             for artist in probe.artists:
                 line=artist.line;line.set_color(remap(line.get_color()));line.set_markeredgecolor(remap(line.get_markeredgecolor()));line.set_markerfacecolor(remap(line.get_markerfacecolor()))
         toolbar=getattr(canvas,'toolbar',None)
-        if toolbar is not None and hasattr(toolbar,'_icon'):
+        if toolbar is not None and toolbar.objectName()!='figureNavigation' and hasattr(toolbar,'_icon'):
             for text,tip,image,callback in toolbar.toolitems:
                 if image and callback in toolbar._actions:toolbar._actions[callback].setIcon(toolbar._icon(image+'.png'))
         if canvas.isVisible():canvas.draw_idle()
