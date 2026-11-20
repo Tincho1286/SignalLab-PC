@@ -61,7 +61,7 @@ def design_compensator(system,low,high,taps,delay,gain=1.,regularization=1e-4):
         if not np.isfinite(probe).all() or np.max(abs(probe-actual)/np.maximum(1,abs(actual)))>1e-8:raise ValueError('La forma polinómica conjunta pierde precisión frente al producto de las respuestas.')
         combined.name='Sistema compensado H(z) C(z)'
     except ValueError as exc:
-        combined=None;combined_note='Se conserva C y se evalúa la cascada por producto de respuestas. No se exporta una transferencia conjunta que pierda precisión: '+str(exc)
+        combined=None;combined_note='El compensador C está disponible. La figura calcula la cascada multiplicando las respuestas. La transferencia conjunta no se pudo guardar con suficiente precisión. '+str(exc)
     plot_w=np.linspace(0,np.pi,max(2049,2*points+1));plot_h=system.response(plot_w);plot_c=compensator.response(plot_w)
     plot_joint=plot_h*plot_c
     if not np.isfinite(plot_joint).all():raise ValueError('La comparación de banda completa no es finita en doble precisión.')
@@ -80,13 +80,32 @@ def compensation_summary(data,selected):
     symbol='C' if selected is data['compensator'] else 'G';formula,compact=transfer_formula(selected,symbol)
     metrics=data['metrics'];sections=[Section('Sistema seleccionado · '+selected.name,formulas=[formula])]
     if compact:sections.append(Section('Coeficientes de la fórmula',rows=[('b[k]',', '.join(number(v) for v in selected.b)),('a[k]',', '.join(number(v) for v in selected.a))]))
-    sections+=[Section('Objetivo de la cascada',paragraphs=['Se diseña un FIR causal C para que G=H·C se acerque a una ganancia constante con un retardo elegido dentro de la banda. Se ajusta la respuesta compleja: módulo y fase se evalúan juntos.'],formulas=[Formula('G(z) = H(z)*C(z)','G(z) = H(z)·C(z)'),Formula('F(w) = '+number(data['gain'])+'*exp(-i*w*'+str(data['delay'])+')','Objetivo: F(ω) = '+number(data['gain'])+'·exp(−iω·'+str(data['delay'])+')')],rows=[('Banda (rad/muestra)',number(data['low'])+' a '+number(data['high'])),('Coeficientes de C',str(data['taps'])),('Retardo objetivo',str(data['delay'])+' muestras'),('Regularización λ',number(data['regularization']))]),
-    Section('Error en una rejilla independiente',paragraphs=['Estos errores comparan H·C con el objetivo y se dividen por la ganancia objetivo. El RMS resume el ajuste y el máximo muestra el peor punto evaluado. No son una garantía entre todos los puntos.'],rows=[('Error complejo RMS previo',number(metrics['original_relative_rms'])),('Error complejo RMS compensado',number(metrics['relative_rms'])),('Error complejo máximo compensado',number(metrics['relative_max'])),('Máximo |C| evaluado en 0…π',number(metrics['max_compensator_gain'])),('Puntos de diseño / comprobación',str(metrics['points'])+' / '+str(metrics['validation_points']))]),
-    Section('Cómo se elige C',paragraphs=['Se minimiza el promedio de |H·C/ganancia − exp(−iωD)|² en la banda más λ·Σ|c[k]|². Los coeficientes son reales. La solución se obtiene por mínimos cuadrados con SVD, sin formar ecuaciones normales.',
-        'Una λ mayor penaliza coeficientes grandes y puede reducir la amplificación de ruido a costa de un ajuste menos preciso. Aumentar longitud o permitir más retardo puede mejorar algunos casos, pero no asegura un mejor error máximo.'],rows=[('Rango del problema resuelto',str(metrics['rank'])+' / '+str(metrics['variables'])),('Condición del problema resuelto',number(metrics['condition']) if metrics['condition'] is not None else 'No finita o no determinada')]),
-    Section('Interpretación y límites',paragraphs=['C es un FIR causal y estable. El diseño requiere un H digital de coeficientes reales y polos numéricos estables; no cancela raíces ni estabiliza modos internos. Las condiciones de fase mínima no se deducen de una curva de módulo sola.',
-        'Un cero de H en la banda no puede convertirse en ganancia no nula mediante C finito. La compensación es aproximada y no garantiza módulo constante fuera de la banda. El retardo objetivo debe interpretarse junto con el error obtenido.',
-        'Las figuras comparan el sistema original, la cascada y el objetivo. El error de fase usa su diferencia angular principal y no se define donde la respuesta es cero. El retardo de la cascada es la suma de los retardos de H y C. Exportar y reutilizar toman el sistema seleccionado; CSV de comparación conserva las curvas.']+([data['combined_note']] if data['combined_note'] else []))]
+    gain=number(data['gain']);delay=data['delay']
+    sections.extend([
+        Section('Ajuste dentro de la banda',rows=[
+            ('Error RMS antes de compensar',number(metrics['original_relative_rms'])),
+            ('Error RMS después de compensar',number(metrics['relative_rms'])),
+            ('Error máximo medido después de compensar',number(metrics['relative_max'])),
+            ('Puntos de comprobación',metrics['validation_points']),
+            ('Máximo |C| medido entre 0 y π',number(metrics['max_compensator_gain'])),
+        ],paragraphs=['Los errores se expresan como fracción de la ganancia objetivo y corresponden a los puntos evaluados.']),
+        Section('Objetivo de la cascada',rows=[
+            ('Banda (rad/muestra)',number(data['low'])+' a '+number(data['high'])),
+            ('Ganancia objetivo',gain),('Retardo objetivo',f'{delay} muestras'),
+            ('Coeficientes de C',data['taps']),('Puntos de diseño',metrics['points']),
+            ('Regularización λ',number(data['regularization'])),
+        ],formulas=[
+            Formula('G(z) = H(z)*C(z)','G(z) = H(z)·C(z)'),
+            Formula(f'F(w) = {gain}*exp(-i*w*{delay})',f'F(ω) = {gain}·exp(−iω·{delay})'),
+        ]),
+    ])
+    if metrics['rank']<metrics['variables'] or metrics['condition'] is None:
+        sections.append(Section('Diagnóstico del ajuste',rows=[
+            ('Rango / incógnitas',f"{metrics['rank']} / {metrics['variables']}"),
+            ('Condición numérica',number(metrics['condition']) if metrics['condition'] is not None else 'No disponible'),
+        ]))
+    if data['combined_note']:
+        sections.append(Section('Transferencia de la cascada',paragraphs=[data['combined_note']]))
     original,original_compact=transfer_formula(data['input'],'H');source=data['input']
     sections.append(Section('Sistema de entrada',formulas=[original],rows=[('b[k]',', '.join(number(v) for v in source.b)),('a[k]',', '.join(number(v) for v in source.a))] if original_compact else []))
     return Summary('Compensación de respuesta',sections)

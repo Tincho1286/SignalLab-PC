@@ -116,7 +116,7 @@ def summary(data):
     rows=[('Coordenadas comunes finitas',str(m['count']))]
     if data.get('domain')=='discrete':rows.insert(0,('Alineación','Instantes físicos (s)' if physical else 'Índices n'))
     for key,label in [('absolute_max','Máximo |B−A|'),('rms','RMS de B−A'),('relative_max','Máximo relativo a la mayor amplitud de A/B')]:rows.append((label,number(m[key]) if m[key] is not None else 'Fuera de rango float64' if m['count'] else 'No disponible'))
-    sections=[Section('Diferencias sobre coordenadas comunes',rows=rows,formulas=[Formula('e = B-A','e = B − A')]),Section('Interpretación',paragraphs=[data['scope'],'La fase se compara en la diferencia compleja, conservando su referencia. RMS es el promedio sobre los puntos comparados; no una integral temporal.'])]
+    sections=[Section('Diferencias sobre coordenadas comunes',rows=rows,formulas=[Formula('e = B-A','e = B − A')],paragraphs=[data['scope']])]
     if data.get('clock_note'):sections.append(Section('Reloj físico',paragraphs=[data['clock_note']]))
     impulses=data.get('impulses')
     if impulses:
@@ -127,10 +127,10 @@ def summary(data):
             ('Impulsos en A',str(impulses['terms_a'])),('Impulsos en B',str(impulses['terms_b'])),
             ('Posiciones con pesos distintos',str(impulses['different_positions'])),
             ('Máxima diferencia de peso',number(maximum) if maximum is not None else 'Fuera de rango'),*details],
-            paragraphs=['Se comparan los pesos en la unión de las posiciones de A y B. Las métricas de muestras de arriba corresponden a la parte ordinaria. Se listan hasta doce posiciones con diferencias.']))
+            paragraphs=['Las diferencias de pesos se miden por separado. La lista muestra hasta doce posiciones.']))
     trace=data.get('trace')
     if trace is not None:
-        sections.append(Section('Diferencia y exportación',rows=[('Coordenadas almacenadas comunes',str(len(trace['coordinates']))),('Pares no definidos',str(trace['undefined_count'])),('Restas fuera de rango float64',str(trace['overflow_count']))],paragraphs=['La figura Diferencia B−A y el CSV utilizan estas coordenadas comunes, conservando signo y fase. No se completan huecos ni se interpola. El CSV distingue entradas no definidas y diferencias fuera de rango; una métrica positiva no representable no se presenta como cero.']))
+        sections.append(Section('Puntos de la diferencia',rows=[('Coordenadas comunes',len(trace['coordinates'])),('Pares no definidos',trace['undefined_count']),('Restas fuera de rango numérico',trace['overflow_count'])]))
     for index,condition in enumerate(data.get('conditions',())):sections.append(Section('Sistema '+('A' if index==0 else 'B'),rows=[('ROC',condition['roc']),('Causalidad',condition['causality']),('BIBO',condition['bibo_stability'])],paragraphs=[condition['frequency_interpretation']]))
     return Summary('Comparación de resultados',sections)
 

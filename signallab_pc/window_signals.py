@@ -49,7 +49,7 @@ def summary(signal):
     expression='Piecewise(('+core+', '+str(origin)+' <= n <= '+str(last)+'), (0, True))'
     rows=[('Ventana',meta['window_name']),('Longitud L (muestras)',str(length)),('Índices',str(origin)+' a '+str(last)),('Centro geométrico',str(Fraction(2*origin+length-1,2))),('Simetría','Simétrica, como en diseño FIR')]
     if meta['window']=='kaiser':rows.append(('β de Kaiser',number(meta['beta'])))
-    notes=['L es la cantidad total de muestras. Para un FIR de esa longitud, el orden nominal es M=L−1. Cambiar el índice inicial desplaza la ventana y su fase; no cambia sus muestras ni el módulo de su DTFT.','No se añade una normalización de pico, suma ni energía. Con L par, una ventana simétrica puede no tener una muestra en el centro ni alcanzar exactamente uno.']
-    if length==1:notes.append('Con L=1 se usa una única muestra de valor 1.')
-    if meta['window']=='kaiser':notes.append('I₀ es la función de Bessel modificada de primera especie y orden cero. La fórmula es una definición matemática; al exportar se conservan las muestras numéricas generadas.')
-    return Summary(signal.name,[Section('Ventana generada',rows=rows,paragraphs=notes,formulas=[Formula('w[n] = '+expression,'w[n] = '+core+' para '+str(origin)+' ≤ n ≤ '+str(last)+'; 0 fuera.',numeric=True)]),Section('Exportar y analizar',paragraphs=['El resultado es una señal discreta independiente. Exportar guarda sus muestras e índices en JSON o CSV. Desde Usar señal en… podés llevarla a DTFT, DFT/FFT, Transformada Z → Muestras finitas, o al producto de señales para enventanar. También queda disponible en Resultados.','La Z finita usa estos coeficientes: W(z)=Σ w[n]z^(−n). La DTFT usa los mismos índices en W(ω)=Σ w[n]exp(−jωn). Elegir un intervalo centrado conserva los índices negativos; no se renumeran al exportar.'])])
+    if length==1:rows.append(('Única muestra', '1'))
+    return Summary(signal.name,[Section('Ventana generada',rows=rows,formulas=[
+        Formula('w[n] = '+expression,'w[n] = '+core+' para '+str(origin)+' ≤ n ≤ '+str(last)+'. Vale cero fuera de ese intervalo.',numeric=True)
+    ])])

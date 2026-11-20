@@ -5,6 +5,7 @@ from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QCombo
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg,NavigationToolbar2QT
 from .report_view import ReportView,report_panel
+from .result_summary import Summary,Section
 from .atomic_file import atomic_text_file
 from .numeric_input import real_field
 from . import stft_tools as math
@@ -55,9 +56,13 @@ class StftExplorer(QWidget):
         self.clock.blockSignals(True);continuous=m['input_domain']=='continuous';self.clock.setCurrentIndex(1 if continuous else 0)
         self.clock.setEnabled(not continuous and 'sample_rate_hz' in m['input_clock']);self.clock.blockSignals(False)
         self.clock.setToolTip('El reloj registrado permite convertir los ejes.' if self.clock.isEnabled() or continuous else 'Sin Fs registrada, se utilizan índices y rad/muestra.')
-        self.inverse_view.clear_result();self.inverse_note.setText('La inversa verifica cobertura muestra a muestra antes de publicar el registro.')
-        self.report.setPlainText('STFT y espectrograma\n\n'+f"Ventana periódica: {m['window']}\nLongitud: {m['window_length']}\nSolapamiento: {m['overlap']}\nSalto: {m['hop']}\nPuntos FFT: {m['nfft']}\nVentanas: {m['frames']}\nCeros iniciales: {m['left_padding']}\nCeros en la última ventana: {m['last_frame_zeros']}\n\n"+
-            'Amplitud = FFT(tramo·ventana)/Σventana. La densidad bilateral divide |FFT(tramo·ventana)|² por 2π·Fs·Σventana²; Fs=1 en rad/muestra. Su integral por suma de bins es la potencia del tramo ponderada por ventana², no una certificación del espectro del proceso. No se resta la media.\n\nEl rango en dB sólo recorta la vista: el CSV conserva la matriz compleja. Más puntos FFT densifican el eje sin aumentar la duración de la ventana. Hacé clic sobre el mapa para seleccionar un tramo; durante zoom o desplazamiento se conserva la navegación.\n\nVentana seleccionada permite reutilizar el tramo, los pesos, su producto o el espectro. La fase puede usar el origen temporal original o el inicio local. El reloj y las unidades de cada salida se conservan.\n\nLa reconstrucción aplica IFFT y suma ponderada, dividiendo por la suma de ventanas². Si hay muestras sin cobertura suficiente se informa y no se inventa una señal completa.')
+        self.inverse_view.clear_result();self.inverse_note.setText('Calculá la inversa para recuperar el registro.')
+        self.report.set_readable(Summary('STFT y espectrograma',[Section('Ventanas calculadas',rows=[
+            ('Ventana periódica',m['window']),('Longitud (muestras)',m['window_length']),
+            ('Solapamiento (muestras)',m['overlap']),('Salto (muestras)',m['hop']),
+            ('Puntos por FFT',m['nfft']),('Cantidad de ventanas',m['frames']),
+            ('Ceros iniciales',m['left_padding']),('Ceros en la última ventana',m['last_frame_zeros']),
+        ])]))
         self.redraw()
 
     @property

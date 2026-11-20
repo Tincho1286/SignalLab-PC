@@ -28,24 +28,21 @@ def numeric_section(model,symbol):
                 text=formula
             else:formula=text=f'{symbol}[n] = 0'
         rows=[('Origen angular ω₀',origin+' rad/muestra'),('Período de los coeficientes',str(length)+' muestras')]
-        paragraphs=['Los c[r] son los coeficientes calculados para la rejilla ingresada, con el peso medio de los extremos si se repiten. El factor exponencial conserva el origen angular.']
         name='c'
     else:
         formula=f'{symbol}(t) = ({step})*Sum(q[k]*H[k]*exp(i*(({origin})+k*({step}))*t),(k,0,{length-1}))/(2*pi)'
         text=f'{symbol}(t) = ΔΩ/(2π) · Σ de k=0 a {length-1} de q[k]·H[k]·exp(j(Ω₀+kΔΩ)t)'
         rows=[('Origen angular Ω₀',origin+' rad/s'),('Paso ΔΩ',step+' rad/s')]
-        paragraphs=['La suma usa los valores de la rejilla calculada. q vale 1/2 en ambos extremos y 1 en los puntos interiores.']
         name='H'
     rows.extend((f'{name}[{i}]',number(complex(*value))) for i,value in enumerate(model['values']))
-    if length>len(model['values']):paragraphs.append('La tabla muestra los primeros ocho coeficientes. La expresión usa el conjunto completo.')
+    paragraphs=['La tabla muestra los primeros ocho coeficientes de la expresión.'] if length>len(model['values']) else []
     return Section('Expresión de la aproximación calculada',paragraphs=paragraphs,rows=rows,formulas=[Formula(formula,text)])
 
 
 def exact_section(result,symbol):
     left=symbol+'[n]' if result['output_variable']=='n' else symbol+'(t)'
     text=left+' = '+result.get('display_result',result['result'])
-    return Section('Expresión algebraica obtenida',formulas=[Formula(text,text)],
-                   paragraphs=['Esta fórmula corresponde a la definición de frecuencia. La rejilla finita produce la aproximación numérica indicada aparte.'])
+    return Section('Expresión algebraica de la inversa',formulas=[Formula(text,text)])
 
 
 def from_signal(spectrum):

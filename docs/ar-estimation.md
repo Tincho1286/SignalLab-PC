@@ -2,7 +2,7 @@
 
 [← Herramientas](tools.md)
 
-La preliminar **1.8.6** amplía **Modelos de procesos → Estimar AR desde un registro**. Se mantiene Yule–Walker y la generación de realizaciones estacionarias; las nuevas opciones permiten comparar modelos y comprobar cómo predicen. La estable recomendada continúa siendo la 1.8.3.
+En **Modelos de procesos → Estimar AR desde un registro** podés ajustar una recurrencia a partir de las muestras disponibles. Elegí un orden o compará varios, y reservá un tramo final si querés medir la capacidad predictiva fuera del ajuste.
 
 ## Ajustar una recurrencia
 

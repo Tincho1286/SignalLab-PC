@@ -99,31 +99,35 @@ def conversion_summary(info):
     method_title={'bilinear':'Bilineal','impulse':'Invarianza al impulso','inverse':'Bilineal inversa','impulse_inverse':'Inversa de invarianza · candidatos'}.get(method,method)
     def definition(title,data):
         return Section(title,formulas=[Formula(data['expression'],data['text'])],rows=[('b',data['b']),('a',data['a'])] if 'b' in data else [])
-    sections=[Section('Método',rows=[('Transformación',method_title),('Período T (s)',number(period))]),definition('Definición de entrada',info['input'])]
+    sections=[Section('Conversión realizada',rows=[('Método',method_title),('Período T (s)',number(period))])]
+    for output in info['outputs']:
+        sections.append(definition('Transferencia resultante · '+output['name'],output['formula']))
+    sections.append(definition('Definición de entrada',info['input']))
     if method in ('bilinear','inverse'):
         formulas=[Formula('s = (2/T)*(z-1)/(z+1)','s = (2/T)·(z−1)/(z+1)'),Formula('z = (1+s*T/2)/(1-s*T/2)','z = (1+sT/2)/(1−sT/2)'),Formula('omega = 2*atan(Omega*T/2)','ω = 2·atan(ΩT/2)'),Formula('Omega = (2/T)*tan(omega/2)','Ω = (2/T)·tan(ω/2)')]
-        paragraphs=['La sustitución relaciona las transferencias completas. Comprime el eje analógico infinito dentro de −π<ω<π. El mapeo no introduce aliasing; la frecuencia se deforma.']
+        paragraphs=[]
     else:
         formulas=[Formula('z = exp(s*T)','z = exp(sT)'),Formula('omega = Omega*T','ω = ΩT, módulo 2π')]
-        paragraphs=['El mapeo exponencial relaciona los polos; no se obtiene toda H(z) sustituyendo s por log(z)/T en H(s). Se usa h[n]=T·ha(nT). Las réplicas espectrales pueden producir aliasing y cambiar el corte efectivo. La transformación inversa tiene distintas ramas.']
+        paragraphs=['La relación exponencial corresponde a los polos.']
     sections.append(Section('Relación entre s y z',formulas=formulas,paragraphs=paragraphs))
     if info['mappings']:
         rows=[]
         for item in info['mappings']:
             text=number(item['digital'])+' rad/muestra'
-            if method=='impulse':text+=' · ΩcT = '+number(item['unwrapped'])+(' rad/muestra; plegado por aliasing' if item['aliased'] else ' rad/muestra, sin plegado')
+            if method=='impulse' and item['aliased']:
+                text+=' (plegado desde '+number(item['unwrapped'])+' rad/muestra)'
             rows.append(('Ωc = '+number(item['analog'])+' rad/s',text))
-        sections.append(Section('Frecuencias de corte mapeadas',rows=rows,paragraphs=['Se usan los cortes analógicos ingresados.' if info['references_entered'] else 'Se usan los cruces analógicos detectados a −3.0103 dB respecto del máximo evaluado.','En invarianza al impulso, el corte mapeado es una referencia. Los cruces del filtro obtenido se muestran por separado.'] if method=='impulse' else ['Se usan los cortes analógicos ingresados.' if info['references_entered'] else 'Se usan los cruces analógicos detectados a −3.0103 dB respecto del máximo evaluado.']))
+        basis='Se usaron los cortes analógicos ingresados.' if info['references_entered'] else 'Se usaron los cruces analógicos de media potencia (−3.01 dB).'
+        sections.append(Section('Frecuencias de corte mapeadas',rows=rows,paragraphs=[basis]))
     elif method in ('bilinear','impulse'):
-        sections.append(Section('Frecuencias de referencia',paragraphs=['No se detectaron cortes analógicos con el criterio automático. Podés indicar uno o varios Ωc de referencia en el formulario; ese dato sólo se usa para mostrar el mapeo y no modifica el filtro.']))
+        sections.append(Section('Frecuencias de referencia',paragraphs=['El cálculo no encontró cortes por media potencia. Podés indicar los cortes de referencia en el formulario.']))
     for output in info['outputs']:
-        sections.append(definition('Transferencia resultante · '+output['name'],output['formula']))
         measurement=output['measurement']
         if measurement is None:continue
         unit='rad/muestra' if output['domain']=='digital' else 'rad/s'
         rows=[('Cruces de media potencia',', '.join(number(v) for v in measurement['frequencies'])+' '+unit if measurement['frequencies'] else 'No detectados en el intervalo evaluado'),('Ganancia de referencia',number(measurement['reference_gain'])),('Intervalo evaluado',number(measurement['range'][0])+' … '+number(measurement['range'][1])+' '+unit)]
-        sections.append(Section('Cortes medidos en el resultado',rows=rows,paragraphs=['Se busca |H|=referencia/√2, equivalente a −3.0103 dB. La referencia toma el máximo de la rejilla y, para H(s), su límite conocido en infinito si es mayor. Este criterio de media potencia no equivale a cualquier borde de tolerancia de un diseño. La rejilla y el refinamiento numérico pueden omitir cruces muy estrechos.']))
+        title='Cortes medidos' if len(info['outputs'])==1 else 'Cortes medidos · '+output['name']
+        sections.append(Section(title,rows=rows))
     if info.get('notices'):sections.append(Section('Mediciones complementarias no disponibles',paragraphs=info['notices']))
     if info.get('ideal') or method=='impulse_inverse':sections.append(Section('Alcance de la conversión',paragraphs=[info['base_report']]))
-    sections.append(Section('Lectura y uso',paragraphs=['Los cortes de referencia sólo muestran el mapeo: no rediseñan ni predeforman la transferencia ingresada. El módulo puede verse en amplitud lineal o en dB desde los controles del resultado y desde la barra del gráfico. La transferencia calculada puede exportarse o reutilizarse en las demás herramientas.']))
     return Summary('Conversión analógico / digital',sections)

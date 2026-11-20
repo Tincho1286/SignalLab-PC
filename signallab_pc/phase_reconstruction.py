@@ -122,15 +122,15 @@ def reconstruction_summary(data):
     if phase:rows.append(('Módulo fijado en ω=0',number(m['reference_gain_dc'])))
     if m['completed_by_real_symmetry']:rows.append(('Semiperíodo completado','Simetría de un modelo real; hipótesis indicada por el usuario'))
     if m['coarse_grid_sensitivity'] is not None:rows.append(('Cambio máximo al usar la mitad de puntos',number(m['coarse_grid_sensitivity'])+(' en log-módulo' if phase else ' rad')))
+    rows.append(('Componente del logaritmo en Nyquist',number(m['nyquist_log_component'])))
+    assumptions='La ganancia en ω=0 fija la escala que falta al partir de la fase.' if phase else 'La reconstrucción parte de un modelo de fase mínima y aplica el desplazamiento y la fase constante elegidos.'
     return Summary('Reconstrucción de módulo y fase',[
-        Section('Resultado y convenciones',rows=rows,formulas=[Formula('H(w) = exp(L(w))*exp(-i*w*'+str(m['delay_samples'])+')','H(ω)=exp(L(ω))·exp(−jωd)'),Formula('L(w) = Sum(c[k]*exp(-i*w*k),(k,0,'+str(len(m['log_model_coefficients'])-1)+'))','L(ω) es una suma de exponenciales con los coeficientes c[k] guardados en el JSON.')],paragraphs=['Se construye un logaritmo de respuesta con cepstrum causal: sus coeficientes son la transformada inversa del logaritmo del espectro y sólo se conservan índices no negativos. El módulo y la fase forman un par bajo esa hipótesis; los factores paso todo desconocidos no quedan determinados. d>0 agrega retardo y d<0 agrega avance.']),
-        Section('Qué fija la información faltante',paragraphs=['La fase sola no fija la escala del módulo: se impone el valor indicado en frecuencia cero.' if phase else 'El módulo no fija el retardo, la fase constante ni factores paso todo. Se usa un modelo base de fase mínima y después se aplica el desplazamiento y la fase constante indicados.',
-            'La relación usa logaritmo del módulo, no el módulo directamente. Un piso positivo modifica los ceros y los niveles pequeños antes del cálculo; el informe cuenta esos cambios.']),
-        Section('Cómo interpretar la resolución',paragraphs=['Se usa un período completo de 2π rad/muestra con el extremo final repetido, o datos 0…π completados por simetría real cuando se indicó esa hipótesis. El cálculo no duplica el extremo final; la salida se centra entre −π y π para reutilizarla como respuesta en frecuencia.',
-            'La sensibilidad compara la rejilla con una versión de la mitad de puntos cuando es posible; no es una cota de error frente al sistema real. Aumentá resolución y compará resultados cerca de cambios rápidos. En una rejilla par, el armónico Nyquist no tiene un compañero independiente: se usa una convención cepstral y su componente puede perderse en un viaje módulo→fase→módulo. Componente logarítmica en Nyquist: '+number(m['nyquist_log_component'])+'.']),
-        Section('Resultados disponibles',paragraphs=['H reconstruida es una respuesta compleja en rad/muestra, exportable y reutilizable en filtros definidos en frecuencia. No se presenta como un numerador/denominador racional exacto.',
-            'h[n] es un registro aproximado de la inversa numérica, centrado alrededor del desplazamiento elegido. La rejilla finita produce réplicas temporales; la presencia de pequeñas muestras negativas no prueba que el modelo base sea no causal. El registro no se convierte automáticamente en un FIR exacto.',
-            'La figura de H muestra módulo, fase y retardo del modelo cepstral interpolado; no deriva la fase principal con saltos. El CSV conserva esas curvas y el JSON de H conserva el modelo y sus convenciones.'])])
+        Section('Respuesta reconstruida',rows=rows,formulas=[
+            Formula('H(w) = exp(L(w))*exp(-i*w*'+str(m['delay_samples'])+')','H(ω)=exp(L(ω))·exp(−jωd)'),
+            Formula('L(w) = Sum(c[k]*exp(-i*w*k),(k,0,'+str(len(m['log_model_coefficients'])-1)+'))','L(ω) usa los coeficientes c[k] guardados con el resultado.'),
+        ]),
+        Section('Alcance',paragraphs=[assumptions,'La salida temporal h[n] es un registro de la inversa numérica.']),
+    ])
 
 
 def export_reconstruction(data,path):

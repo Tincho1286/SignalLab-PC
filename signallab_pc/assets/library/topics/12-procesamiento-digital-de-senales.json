@@ -366,7 +366,7 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Esta herramienta reúne tres estudios: separar factores de H(z), compensar su respuesta con un FIR y reconstruir módulo/fase bajo una hipótesis de fase mínima. Los dos primeros usan una transferencia conocida; la reconstrucción parte de datos propios y no exige cargar H."
+          "Podés separar los factores de H(z), diseñar un FIR que compense la respuesta o reconstruir el módulo a partir de la fase, y viceversa. Para reconstruir se carga el dato de frecuencia disponible."
         ],
         [
           "Cómo preparar el cálculo",
@@ -378,7 +378,15 @@
         ],
         [
           "Qué tener en cuenta",
-          "El módulo no revela retardos ni factores paso todo, y la fase sola no fija la ganancia. Otra banda parcial no basta sin hipótesis adicionales; la resolución y el modelo de interpolación importan. El registro h[n] tiene aliasing temporal y no se presenta como un FIR exacto. Factorizar y compensar siguen disponibles; esta opción numérica discreta no equivale a una reconstrucción analógica general."
+          "Para reconstruir desde el módulo, elegí el desplazamiento y la fase constante. Los factores pasa todo desconocidos quedan indeterminados. Para reconstruir desde la fase, indicá una ganancia conocida en ω=0. El informe muestra esas elecciones junto con el error en la rejilla."
+        ],
+        [
+          "Cómo se calcula el compensador",
+          "El FIR C se conecta en cascada con H. El ajuste minimiza el error complejo cuadrático medio entre H·C y el objetivo, dividido por el cuadrado de la ganancia objetivo. También suma λ por la energía de los coeficientes. Se resuelve por mínimos cuadrados con descomposición en valores singulares (SVD) y coeficientes reales.\n\nλ permite moderar los coeficientes grandes. Una penalización mayor puede reducir la amplificación de ruido, aunque el ajuste resulte menos preciso. C requiere un H digital estable. Si H tiene un cero en la banda, multiplicarlo por un C finito no puede recuperar una ganancia distinta de cero en esa frecuencia. Los errores del informe se miden sobre otra rejilla y describen el ajuste dentro de la banda evaluada."
+        ],
+        [
+          "Cómo leer el modelo reconstruido",
+          "La reconstrucción aplica un modelo de fase mínima al logaritmo del módulo. Para formar el cepstrum causal, se toman los índices no negativos de la inversa de ese logaritmo. Un piso positivo reemplaza los módulos bajos antes de calcularlo. Con una rejilla par, el término de Nyquist sigue una convención especial y puede perderse al transformar de módulo a fase y volver a módulo.\n\nLa comparación con la mitad de puntos mide sensibilidad a la rejilla. Para estudiarla, podés repetir el cálculo con más puntos. Las muestras de h[n] pueden incluir réplicas temporales debidas a la rejilla finita, mientras que H sigue siendo la respuesta compleja del modelo. El CSV guarda módulo, fase y retardo. El JSON conserva también el modelo."
         ],
         [
           "Indeterminaciones y valores por continuidad",

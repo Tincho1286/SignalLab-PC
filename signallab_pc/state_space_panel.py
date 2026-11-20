@@ -193,13 +193,12 @@ class StateSpacePanel(QWidget):
                     from .result_journal import snapshot as stored
                     data_id=self.window.publish(stored(data,self.window),title='Análisis de estados',operation='Controlabilidad, observabilidad y estabilidad',parents=[model_id])
                     self.diagnostics.set_result(data['diagnostics']);self.coordinate_study.set_model(model,model_id);self.equilibrium_study.set_model(model,model_id)
-                    explanation=(['No hay estados dinámicos que controlar u observar.'] if model.states==0 else [
-                        'Controlabilidad completa: las entradas permiten alcanzar cualquier estado.' if data['controllability_rank']==model.states else 'Controlabilidad incompleta: hay estados que no pueden alcanzarse desde las entradas.',
-                        'Observabilidad completa: el estado inicial puede deducirse de las salidas y entradas conocidas.' if data['observability_rank']==model.states else 'Observabilidad incompleta: estados distintos pueden producir las mismas salidas.'])
+                    explanation=(['El modelo no tiene estados dinámicos.'] if model.states==0 else [
+                        'El modelo es controlable.' if data['controllability_rank']==model.states else 'Hay estados que no se pueden alcanzar mediante las entradas.',
+                        'El modelo es observable.' if data['observability_rank']==model.states else 'Hay estados que no se pueden distinguir mediante las salidas.'])
                     self.report.set_readable(Summary('Estructura y estabilidad del modelo',[
                         Section('Modelo',rows=[('Nombre',model.name),('Dominio','Continuo' if model.dt is None else 'Discreto · T='+number(model.dt)+' s'),('Estados / entradas / salidas',f'{model.states} / {model.inputs} / {model.outputs}')]),
-                        Section('Resultados',rows=[('Controlabilidad: rango / estados',str(data['controllability_rank'])+' / '+str(model.states)),('Observabilidad: rango / estados',str(data['observability_rank'])+' / '+str(model.states)),('Estabilidad interna',data['stability'])],paragraphs=explanation),
-                        Section('Alcance numérico',paragraphs=['Los rangos dependen de la escala del modelo. '+data['rank_method']+'.','La estabilidad corresponde a los estados del modelo; no se deduce sólo de una transferencia con cancelaciones. Los polos se muestran en el gráfico.','Usar modelo calculado en copia estas matrices a otro estudio sin tener que recuperarlas de Resultados.'])]))
+                        Section('Resultados',rows=[('Controlabilidad (rango / estados)',str(data['controllability_rank'])+' / '+str(model.states)),('Observabilidad (rango / estados)',str(data['observability_rank'])+' / '+str(model.states)),('Estabilidad interna',data['stability'])],paragraphs=explanation)]))
                     self.model_actions.set_result(model,model_id)
                     self.window.publish({'report':self.report.toPlainText(),'calculated_data':{'result_id':data_id}},title='Estructura y estabilidad del modelo',operation='Informe de estados',parents=[model_id,data_id])
                     journal=getattr(self.window,'_result_journal',None)
@@ -214,9 +213,10 @@ class StateSpacePanel(QWidget):
             elif self.action=='frequency':self.frequency(model,model_id)
             elif self.action=='discretize':
                 method=['zoh','bilinear','euler','backward_diff'][self.method.currentIndex()]
+                method_title=self.method.currentText()
                 def accept(discrete):
                     key=self.window.publish(discrete,operation='Discretización '+method,parents=[model_id]);self.model_actions.set_result(discrete,key)
-                    self.report.set_matrices(f'Modelo discreto: {discrete.name}\n\nPeriodo T: {discrete.dt} s\nMétodo: {method}\n\nx[n+1] = A x[n] + B u[n]\ny[n] = C x[n] + D u[n]\n\nUsar modelo calculado en permite simular, analizar u obtener H(z) directamente. La entrada continua se conserva para cambiar T. ZOH supone entrada constante en cada intervalo; los demás métodos usan su aproximación correspondiente. La interpretación de los estados iniciales puede cambiar según el método.',{name:getattr(discrete,name) for name in ('A','B','C','D')});self.result_tabs.setCurrentIndex(0)
+                    self.report.set_matrices(f'Modelo discreto {discrete.name}\n\nPeríodo T: {discrete.dt} s\nMétodo: {method_title}\n\nx[n+1] = A x[n] + B u[n]\ny[n] = C x[n] + D u[n]',{name:getattr(discrete,name) for name in ('A','B','C','D')});self.result_tabs.setCurrentIndex(0)
                 self.run('Discretizando modelo…',lambda:model.discretize(step,method),accept)
             else:
                 input_index=integer_field(self.input_channel)-1;output_index=integer_field(self.output_channel)-1
@@ -225,7 +225,7 @@ class StateSpacePanel(QWidget):
                     summary=transfer_summary(system);rows=[('Canal',f'u{input_index+1} → y{output_index+1}'),('Estados del modelo',str(model.states))]
                     if model.dt is not None:rows.append(('Periodo T del modelo (s)',number(model.dt)))
                     summary.sections.insert(0,summary.sections.pop(1))
-                    summary.sections.insert(1,Section('Canal calculado',rows=rows,paragraphs=['La transferencia relaciona la entrada y salida elegidas con estado inicial nulo. Puede ocultar modos internos no controlables u observables. Los factores exactamente comunes se cancelan antes de convertir los coeficientes a doble precisión.']))
+                    summary.sections.insert(1,Section('Canal calculado',rows=[*rows,('Estado inicial','Nulo')]))
                     self.report.set_readable(summary);self.result_tabs.setCurrentIndex(0)
                 self.run('Obteniendo transferencia…',lambda:model.to_transfer(input_index,output_index),accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá el modelo',str(exc))
@@ -269,7 +269,7 @@ class StateSpacePanel(QWidget):
         self.cas_signal.setText('Enviar '+channel.name+' a CAS')
         self.reuse_signal.setToolTip('Reutilizar '+channel.name+' en otra herramienta.')
         formulas=temporal_sections(channel)
-        note=Section('Canal de la fórmula',paragraphs=[channel.name+' · Elegí otro canal en el selector del gráfico para consultar su expresión.'])
+        note=Section('Canal de la fórmula',rows=[('Canal',channel.name)])
         self.report.set_readable(Summary(summary.title,[note,*formulas,*summary.sections]))
 
     def frequency(self,model,model_id):

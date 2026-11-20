@@ -182,12 +182,24 @@ def analyze(data,mode,**options):
 def summary(result):
     from .result_summary import Summary,Section,number
     titles={'points':'Lecturas de la definición','level':'Cruces de nivel','bands':'Bandas y tolerancias','delay':'Retardo de grupo por banda'}
-    sections=[Section('Definición y alcance',paragraphs=[result['scope']],rows=[('Frecuencias',result['units']),('Retardo de grupo',result['delay_units'])])]
+    sections=[Section('Unidades',rows=[('Frecuencia',result['units']),('Retardo de grupo',result['delay_units'])])]
     show=lambda x:'No definido' if x is None else '−∞' if np.isneginf(x) else number(x)
     if result['mode']=='level':
-        sections.append(Section('Nivel buscado',rows=[('Módulo absoluto (dB)',show(result['target_db'])),('Cruces aislados encontrados',str(len(result['rows']))),('Intervalos rechazados',str(result['rejected'])),('Puntos no definidos',str(result['undefined']))],paragraphs=['Nivel relativo a |H| en la frecuencia de referencia.' if result['relative'] else 'Nivel absoluto en amplitud lineal.','Hay tramos indistinguibles del nivel; no se asigna una frecuencia única.' if result['nonisolated'] else 'Un salto entre dos valores no se acepta como cruce si la definición no alcanza el nivel.']))
+        level_rows = [
+            ('Tipo de nivel', 'Relativo a la referencia' if result['relative'] else 'Absoluto'),
+            ('Módulo absoluto (dB)', show(result['target_db'])),
+            ('Cruces aislados', str(len(result['rows']))),
+            ('Intervalos rechazados', str(result['rejected'])),
+            ('Puntos no definidos', str(result['undefined'])),
+        ]
+        warnings = ['Hay tramos que coinciden con el nivel dentro de la precisión de la búsqueda.'] if result['nonisolated'] else []
+        sections.append(Section('Nivel buscado', rows=level_rows, paragraphs=warnings))
         if result['partition_complete']:
-            for band in result['above']:sections.append(Section('Tramo observado por encima del nivel',rows=[('Desde',show(band['low'])),('Hasta',show(band['high'])),('Ancho observado',show(band['width']))],paragraphs=['El tramo toca el borde de la ventana: no se presenta como ancho de banda completo.' if band['window_limited'] else 'Ambos extremos son cruces encontrados dentro de la ventana.']))
+            for band in result['above']:
+                width_label = 'Ancho hasta el borde de la ventana' if band['window_limited'] else 'Ancho entre cruces'
+                sections.append(Section('Tramo por encima del nivel', rows=[
+                    ('Desde', show(band['low'])), ('Hasta', show(band['high'])), (width_label, show(band['width'])),
+                ]))
         else:sections.append(Section('Tramos pendientes',paragraphs=['No se asignan anchos de banda: hay valores no definidos, tramos sobre el nivel o candidatos sin resolver. Los cruces que sí se resolvieron se conservan en la tabla.']))
     if result['mode'] in ('bands','delay'):
         for row in result['rows']:

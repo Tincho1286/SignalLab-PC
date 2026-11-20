@@ -1,6 +1,6 @@
 # Medir un registro: intervalo y distribución temporal
 
-La **1.8.12 preliminar** amplía **Señales → Energía, potencia y RMS → Registro finito**. Mantiene una entrada propia y reúne el informe, las figuras, la tabla de cruces y las acciones de reutilización en el área de resultados.
+En **Señales → Energía y potencia → Medir un registro**, elegí el intervalo de la señal que querés estudiar. Podés medir su energía, separar el promedio de las variaciones y buscar cruces de un nivel. El informe, las figuras y la tabla corresponden al mismo intervalo.
 
 ## Seleccionar el intervalo
 

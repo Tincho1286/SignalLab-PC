@@ -1,12 +1,12 @@
 # Estudios de estados: coordenadas, equilibrio y memoria
 
-Estas ampliaciones corresponden a la **1.8.11 preliminar**. Se integran en **Analizar modelo de estados** y **Simular estados y salidas**, con las mismas matrices A, B, C, D y el período disponible. Cada estudio conserva el último modelo calculado; editar las entradas principales no lo reemplaza hasta volver a analizarlo.
+Usá **Analizar modelo de estados** para estudiar las matrices y **Simular estados y salidas** para ver la evolución del modelo. Cada estudio usa las matrices y el período de su último cálculo. Si cambiás una matriz, recalculá antes de interpretar los resultados nuevos.
 
 ## Ver las matrices del diagnóstico
 
 **Controlabilidad / observabilidad** muestra Qc=[B, AB, …, A^(n−1)B] y Qo=[C; CA; …; CA^(n−1)]. La tabla permite recorrer todos los elementos y exportarlos junto con el criterio de rango.
 
-La SVD se calcula después de reescalar la matriz para evitar desbordes del espectro singular. El informe muestra la escala, los valores σ/escala y el umbral en esa misma escala. El rango cuenta los valores mayores que el umbral. Es un diagnóstico numérico, dependiente de las coordenadas y del condicionamiento; no se presenta como un rango algebraico exacto.
+La tabla muestra los valores singulares de la matriz tras reescalarla. El rango cuenta cuántos superan el umbral de tolerancia. Podés consultar en la misma vista el factor de escala y el umbral usado. El rango puede variar con las coordenadas o con el condicionamiento del modelo.
 
 La estabilidad pertenece a los estados internos del modelo. Una transferencia de un canal puede ocultar modos que no se controlan u observan; por eso no reemplaza este análisis.
 

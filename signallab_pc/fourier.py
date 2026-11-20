@@ -293,16 +293,14 @@ def energy_report(spectrum, source=None, density=None):
     if not np.isfinite(area):raise ValueError('La integral de energía excede el rango numérico.')
     lines=['Densidad espectral de energía','D(ω) = |X(ω)|²','E = integral D(ω) dω / (2π)',
            '',f'Intervalo representado: [{start:.12g}, {stop:.12g}] {spectrum.units}',
-           f'Puntos: {count}; paso angular: {density.step:.12g}',
-           f'Energía integrada en ese intervalo: {area:.12g}',
-           'La integración usa trapecios y no duplica una banda positiva.']
-    if count<2:lines+=['Un solo punto no define una banda de integración: el intervalo tiene ancho cero.']
+           f'Puntos: {count}',f'Paso angular: {density.step:.12g} {spectrum.units}',
+           f'Energía integrada en ese intervalo: {area:.12g}']
+    if count<2:lines+=['Un solo punto da un intervalo de ancho cero.']
     if is_complete_dft(spectrum):
         energy=float(np.sum(power/count))
         if not np.isfinite(energy):raise ValueError('La suma de Parseval excede el rango numérico.')
         lines+=['','Parseval de la DFT',f'Suma |X[k]|²/N = {energy:.12g}',
-                'La DFT contiene N frecuencias sin repetir el extremo de su período. Esta suma incluye el período completo; la integral anterior abarca sólo del primer al último punto.',
-                'La energía corresponde al registro transformado, incluida su ventana, recorte o escala si los hubiera.']
+                'La suma de Parseval cubre todo el período. La integral de arriba cubre el intervalo dibujado.']
     if source is not None and source.domain=='discrete':
         from .operations import finite_measures
         energy=finite_measures(source).energy
@@ -312,19 +310,15 @@ def energy_report(spectrum, source=None, density=None):
             lines += [f'Diferencia absoluta: {difference:.12g}']
             if energy:lines += [f'Diferencia relativa: {difference/energy:.6g}']
             if count-1<source.values.size:
-                lines+=['Rejilla insuficiente para una comprobación general de Parseval: usá al menos N+1 puntos para un registro de N muestras en un período de 2π. Una rejilla gruesa puede ocultar oscilaciones de |X|².']
-            else:lines+=['Se integró un período completo con al menos N subintervalos. Para este registro finito, la identidad de Parseval debe coincidir salvo redondeo numérico.']
-        else:lines+=['No se compara como energía total: el intervalo no es exactamente un período de 2π. Una banda parcial omite energía; varios períodos la cuentan varias veces.']
+                lines+=['La comprobación de Parseval requiere al menos N+1 frecuencias para N muestras en un período de 2π.']
+        else:lines+=['El intervalo elegido difiere de un período de 2π. La integral se informa para ese intervalo.']
     elif source is not None and source.domain=='continuous':
         from .distributions import dirac_terms
         if dirac_terms(source):
-            lines+=['','Entrada con impulso ideal','La entrada incluye impulsos Dirac. Su transformada incluye sus pesos y fases exactos, pero esta señal no tiene energía finita ordinaria: no se puede integrar el cuadrado de una delta como una función ordinaria. La energía de la banda mostrada no es la energía total de la señal.']
+            lines+=['','Entrada con impulso ideal','La entrada tiene impulsos Dirac. La integral describe la banda mostrada. La energía ordinaria total de la señal no está definida.']
             return '\n'.join(lines)
         energy=float(np.sum(abs(source.values)**2)*source.step)
         if not np.isfinite(energy):raise ValueError('La energía temporal excede el rango numérico.')
         lines+=['','Referencia temporal',f'Suma rectangular Δt·Σ|x(tk)|² = {energy:.12g}',
-                'La transformada numérica usa una suma sobre un registro muestreado. La banda espectral finita, el paso temporal y los extremos afectan la aproximación; no se certifica Parseval de la señal continua completa.',
-                'La transformada de estas muestras repite su módulo cada 2π/Δt. Integrar más allá de un período puede contar réplicas numéricas; aumentá la resolución temporal para analizar una banda mayor.']
-    else:lines+=['','Interpretación','Sin el registro temporal no se puede comprobar su energía. En discreto, Parseval usa un período de 2π; en continuo, la integral sobre una banda finita es sólo parcial.']
-    lines+=['','Gráfico','La vista en dB usa 10 log10(D), equivalente a 20 log10(|X|). Los valores nulos corresponden a −∞ dB y no se dibujan como valores finitos.']
+                'La integral de frecuencia es parcial. Una banda mayor que 2π/Δt puede incluir réplicas del registro muestreado.']
     return '\n'.join(lines)

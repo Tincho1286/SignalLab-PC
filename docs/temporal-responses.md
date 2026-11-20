@@ -1,6 +1,6 @@
 # Respuesta temporal: ventana, comparación y transitorio
 
-Estas ampliaciones corresponden a la **1.8.9 preliminar** y se integran en **Sistemas LTI → Respuesta temporal**. La herramienta conserva sus entradas locales: una transferencia H(s) o H(z) y la excitación elegida. Se pueden importar definiciones anteriores sin depender de otro cálculo abierto.
+En **Sistemas LTI → Respuesta temporal**, elegí una transferencia H(s) o H(z) y definí la entrada. Podés usar un impulso, un escalón o una señal propia. También podés cargar una definición guardada desde la misma herramienta.
 
 ## Elegir la ventana
 

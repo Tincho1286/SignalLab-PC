@@ -35,8 +35,9 @@ def summary(result,system,note=None):
     if m.get('requested_rate_expression') is not None:rows.append(('Frecuencia de salida solicitada',m['requested_rate_expression']))
     if system is not None:
         rows.extend([('T de la rejilla intermedia (s)',number(system.sample_period_s)),('Ganancia DC del FIR',number(sum(system.b))),('Corte del ideal del diseño (rad/muestra intermedia)',number(math.pi/max(up,down)) if up!=down else 'Sin filtro · conversión identidad')])
-    paragraphs=['El procesamiento combina expansión ↑L, FIR y reducción ↓M. El FIR se analiza sobre la rejilla intermedia, cuya tasa es Fs de entrada × L. Su ganancia incluye L para compensar la inserción de ceros.',
-                'El cambio de tasa compensa el retardo del FIR para análisis fuera de tiempo real. Analizar o reutilizar el FIR conserva su retardo y su período intermedio; las muestras convertidas conservan su propio reloj de salida.']
-    if up==down:paragraphs=['L/M=1: se conservan las muestras y se registra el reloj indicado. El sistema auxiliar es la identidad.']
-    if note:paragraphs.append('La señal convertida se conserva. El sistema auxiliar no pudo representarse: '+note)
+    paragraphs=['Se compensó el retardo del FIR en la señal de salida. El filtro guardado conserva su propio retardo.']
+    if up==down:
+        paragraphs=['La relación es 1. Se conservan las muestras con el reloj indicado.']
+    if note:
+        paragraphs.append('La señal convertida está disponible. No se pudo guardar el filtro auxiliar. '+note)
     summary.sections.append(Section('Conversión y filtro antialias',rows=rows,paragraphs=paragraphs));return summary

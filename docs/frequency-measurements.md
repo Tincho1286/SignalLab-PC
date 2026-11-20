@@ -1,8 +1,8 @@
 # Medir la respuesta de un sistema
 
-Desde la **1.8.10 preliminar**, **Analizar sistema → Medidas de frecuencia** permite consultar el último resultado de H(s), H(z) o una respuesta definida como H(w). Las mediciones conservan esa definición y sus condiciones. Editar las entradas principales no cambia el sistema medido hasta volver a analizarlo.
+Después de calcular, abrí **Medidas** en **Analizar un sistema**. Podés consultar H(s), H(z) o una respuesta definida en frecuencia. Si editás la transferencia, volvé a analizarla antes de medirla. Las mediciones usan la última respuesta calculada.
 
-El botón **Medir resultado** pertenece a esta pestaña. **Analizar sistema** continúa siendo la acción principal de la herramienta. El informe, la tabla y la figura describen una misma medición, que también queda registrada en Resultados.
+Pulsá **Medir resultado** para ejecutar la medición elegida. La tabla muestra los valores, la figura los ubica en la respuesta y Resultados conserva la medición.
 
 ## Leer frecuencias elegidas
 
@@ -14,7 +14,7 @@ La tabla muestra parte real, parte imaginaria, módulo, dB, ángulo principal y 
 
 Elegí **módulo absoluto**, expresado como amplitud positiva, o **dB relativos** al módulo en una frecuencia de referencia. Una caída de −3.0102999566 dB corresponde a 1/√2 de esa referencia, es decir, media potencia cuando corresponde interpretar |H|² como relación de potencias.
 
-Desde/Hasta vacíos utilizan el intervalo del análisis. La búsqueda conserva puntos de ese análisis, agrega la rejilla solicitada y explora vecindades de polos de los modelos racionales. Refina cambios de signo y contactos locales con el nivel mediante nuevas evaluaciones de la definición.
+Si dejás **Desde** o **Hasta** vacíos, se usan los extremos del análisis. La búsqueda agrega puntos dentro del intervalo y cerca de los polos conocidos. Al detectar un candidato, vuelve a evaluar la expresión para precisar dónde el módulo alcanza el nivel.
 
 El informe reúne los cruces aislados encontrados y los tramos observados por encima del nivel. Un tramo que toca el borde de la ventana tiene un ancho recortado: no se presenta como ancho de banda completo. Una tangencia, un tramo sobre el nivel o una discontinuidad requiere una interpretación diferente de un corte transversal.
 

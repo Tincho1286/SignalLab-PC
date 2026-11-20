@@ -2,7 +2,7 @@
 
 [← Herramientas](tools.md)
 
-**Medir un espectro** reúne las medidas por bandas y la inspección de picos sin alterar el resultado de entrada. Se puede cargar una fórmula o un registro, o reutilizar un espectro, una densidad o una DFT. La función está ampliada en la preliminar 1.8.5; la estable recomendada sigue siendo la 1.8.3.
+En **Medir un espectro** podés calcular cuánto aporte queda dentro de una banda y localizar sus picos. Cargá una fórmula o un registro, o elegí un espectro, una densidad o una DFT desde Resultados.
 
 ## Elegir qué se mide
 
@@ -22,11 +22,17 @@ La interpretación automática utiliza el tipo y la normalización del resultado
 
 Los impulsos de frecuencia no se interpretan como alturas finitas ni se elevan al cuadrado. Una densidad de fluctuaciones excluye la línea de media en cero; el informe lo indica. El periodograma antiguo sin calibración debe recalcularse con un estimador calibrado antes de medir potencia.
 
+## Energía y Parseval
+
+La densidad espectral de energía integra |X(ω)|² por trapecios sobre la banda disponible. Si la entrada es una DFT completa, el informe agrega la suma |X[k]|²/N por Parseval. Esa suma cubre todo el período y la integral abarca los extremos del intervalo dibujado.
+
+Para contrastar la DTFT de un registro de N muestras con su energía temporal, elegí un período de 2π y al menos N+1 puntos si incluís los dos extremos. En continuo, la referencia temporal integra el registro muestreado y la banda de frecuencia cubre parte del espectro. Con paso temporal Δt, una banda mayor que 2π/Δt puede incluir réplicas de la aproximación muestreada.
+
 ## Bandas y porcentajes
 
 Agregá una fila por banda con su nombre, inicio y final. Se admiten expresiones como `pi/4` y `1e-3`. Dejar un extremo vacío utiliza el límite disponible. Las bandas deben estar contenidas en ese intervalo: la herramienta no extrapola el espectro.
 
-Una curva se integra suponiendo que la densidad varía linealmente entre sus muestras. Los bins DFT y las líneas conocidas se suman en intervalos **[desde, hasta)**. Así, dos bandas contiguas no cuentan dos veces el mismo bin. Las bandas positivas no incluyen automáticamente su reflejo negativo.
+Para una curva, la herramienta integra la densidad interpolada entre muestras. Para coeficientes DFT o líneas espectrales, suma los aportes desde el primer extremo y excluye el último. Así, dos bandas contiguas cuentan una sola vez el coeficiente del borde. Agregá otra banda si querés incluir el reflejo de una banda positiva.
 
 El porcentaje se refiere al total disponible. Si las bandas se superponen, sus porcentajes no forman una partición; el informe lo advierte. Un intervalo parcial no demuestra que el espectro sea cero fuera de él.
 

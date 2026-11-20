@@ -4,7 +4,7 @@ from .inverse_dtft import inverse_dtft
 from .numeric_input import integer_field
 from .result_state import ResultState
 from .report_view import ReportView,report_panel
-from .result_summary import Summary,Section,Formula
+from .result_summary import Summary,Section
 
 class InverseDtftPanel(QWidget):
     def __init__(self,window):
@@ -29,7 +29,7 @@ class InverseDtftPanel(QWidget):
         self.source.mode.currentIndexChanged.connect(frequency_grid);self.source.count.textChanged.connect(frequency_grid);frequency_grid()
         self.start=QLineEdit('-16');self.count=QLineEdit('33');form.addRow('Primer índice n de salida',self.start);form.addRow('Cantidad de muestras de salida',self.count)
         self.start.setToolTip('Entero, positivo o negativo. No es un tiempo continuo.');self.count.setToolTip('Cantidad de índices consecutivos, no el último índice.')
-        self.note=QLabel('X(ω) debe cubrir un período completo de 2π en rad/muestra. La salida es x[n], con n entero. La ayuda explica la rejilla y la diferencia con la DFT inversa.');self.note.setWordWrap(True);form.addRow(self.note)
+        self.note=QLabel('Ingresá un período completo de 2π rad/muestra. Elegí qué índices de x[n] querés ver.');self.note.setWordWrap(True);form.addRow(self.note)
         self.calculate_button=QPushButton('Calcular DTFT inversa');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);form.addRow(self.calculate_button)
         self.state=ResultState([self.start,self.count],self.calculate_button,[self.source]);form.insertRow(0,self.state)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
@@ -54,9 +54,12 @@ class InverseDtftPanel(QWidget):
                     self.output.expression_key=self.window.publish({'result':exact},title='Expresión algebraica de x[n]',operation='DTFT inversa algebraica',parents=[key])
                 sections.append(numeric_section(result.metadata['inverse_model'],'x'))
                 self.report.set_readable(Summary('DTFT inversa numérica',sections+[
-                    Section('Regla de la transformada',formulas=[Formula('x[n] = Integral(X(w)*exp(i*w*n),(w,-pi,pi))/(2*pi)','x[n] = (1/2π) ∫ de −π a π X(ω)e^(iωn)dω')]),
-                    Section('Entrada y salida',rows=[('Unidad de frecuencia','rad/muestra'),('Puntos ingresados',str(len(source.values))),('Frecuencias independientes',str(result.metadata['independent_frequencies'])),('Índices de salida',str(start)+' a '+str(start+count-1)),('Integración',result.metadata['quadrature'])]),
-                    Section('Cómo interpretarlo',paragraphs=[result.metadata['scope'],'Aumentá la resolución de X(ω) para estudiar la aproximación. El intervalo elegido muestra una parte de la secuencia; no impone que la secuencia completa sea finita.']),
+                    Section('Muestras calculadas',rows=[
+                        ('Índices de salida',f'{start} a {start+count-1}'),
+                        ('Frecuencias independientes',result.metadata['independent_frequencies']),
+                        ('Puntos de entrada',len(source.values)),
+                        ('Integración',result.metadata['quadrature']),
+                    ],paragraphs=['Las muestras aproximan la inversa en el intervalo elegido.']),
                 ]));self.state.accept(snapshot)
             self.window._run_operation('Calculando DTFT inversa…',compute,accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá la DTFT inversa',str(exc))

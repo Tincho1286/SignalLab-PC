@@ -2,13 +2,13 @@
 
 [← Herramientas](tools.md)
 
-Estas ampliaciones están disponibles en la **1.8.4 preliminar**. Las operaciones trabajan con registros finitos y conservan el origen y el reloj de las salidas que se reutilizan.
+Usá la STFT para ver cómo cambia el espectro durante un registro. Si querés estudiar cómo se divide una convolución en tramos, usá el inspector de bloques. Ambas herramientas conservan el origen y el reloj de los resultados reutilizables.
 
 ## Leer un espectrograma
 
 En **STFT y espectrograma**, elegí la longitud de ventana, el solapamiento y los puntos de FFT. La ventana es periódica, como corresponde al análisis espectral. Por defecto se completan ambos extremos del registro con ceros para que las ventanas también cubran sus bordes. Esto prepara el análisis del registro observado; no determina la señal real fuera de él.
 
-El mapa ofrece cuatro escalas:
+Elegí la escala del mapa según lo que quieras medir.
 
 | Escala | Interpretación |
 | --- | --- |
@@ -27,7 +27,7 @@ Hacé clic sobre el mapa o utilizá el número de ventana y sus botones anterior
 
 En **Ventana seleccionada** se pueden consultar el espectro complejo, el tramo original, los pesos de la ventana, su producto y la densidad bilateral del tramo. Cada salida utiliza las acciones habituales de informe, gráfico, exportación, CAS y reutilización que correspondan a su tipo. Los registros conservan sus índices o tiempos originales.
 
-La fase del espectro puede referirse al origen del registro o al comienzo local del tramo. En el primer caso se incluye el desplazamiento temporal; en el segundo, el índice local empieza en cero. El selector no cambia el módulo ni la densidad. Exportar la STFT completa guarda las unidades y la referencia de fase elegidas junto con sus valores complejos.
+Elegí si la fase se refiere al origen del registro o al comienzo de cada tramo. Con el origen del registro se incluye el desplazamiento temporal. Con el origen local, el índice de cada tramo empieza en cero. El módulo y la densidad son iguales en ambas vistas. La exportación guarda las unidades y la referencia elegidas.
 
 ## Segundos y frecuencia angular física
 

@@ -164,18 +164,31 @@ def simulate(system,source,encoding,*,preserve_sections=True,initial=(0,),tail=6
 
 
 def simulation_summary(data):
-    from .result_summary import Summary,Section,Formula,number
+    from .result_summary import Summary,Section,number
     from .phase_summary import transfer_formula
     metadata=data['metadata'];formula,_=transfer_formula(data['system'],'Hq');counts=metadata['operation_counts'];cycle=metadata['cycle']
-    cycle_text=('Se repitió un estado no nulo: ciclo de período '+str(cycle['period'])+' muestras.' if cycle['nonzero_state'] else 'El estado alcanzó el reposo (todas las memorias en cero).') if cycle else 'No se confirmó una repetición de estado en el tramo final de entrada nula.'
-    if not metadata['final_states']:cycle_text='La realización no tiene memorias; no hay un estado interno que pueda sostener un ciclo.'
+    if not metadata['final_states']:
+        cycle_text='La realización carece de memoria interna.'
+    elif cycle:
+        cycle_text='Se confirmó un ciclo con entrada nula.' if cycle['nonzero_state'] else 'Todas las memorias llegaron a cero.'
+    else:
+        cycle_text='En el tramo de entrada nula no se observó una repetición del estado.'
     def metrics(value):
         return [('Escala S',number(value['scale'])),('Máximo |error|/S',number(value['max_error_over_scale']) if value['max_error_over_scale'] is not None else 'Sin referencia finita'),('RMS del error / S',number(value['rms_error_over_scale']) if value['rms_error_over_scale'] is not None else 'Sin referencia finita'),('SNR del registro (dB)',number(value['snr_db']) if value['snr_db'] is not None else 'Sin error medido' if value['zero_error'] else 'No definida'),('Muestras de referencia finitas',value['finite_reference_samples'])]
-    stages=[f'{name}: {row["casts"]} conversiones, {row["changed"]} cambios, {row["overflows"]} desbordes tratados.' for name,row in counts.items()]
-    sections=[Section('Realización calculada',formulas=[formula],rows=[('Formato',metadata['format']),('Estructura',metadata['structure']),('Redondeo interno','Productos, sumas, salida y memorias' if metadata['quantize_operations'] else 'Salida y memorias'),('Bits extra de acumulador',metadata['accumulator_guard_bits']),('Desborde en ejecución','Saturación' if metadata['overflow']=='saturate' else 'Complemento a dos cíclico')],paragraphs=['Los coeficientes se convierten primero al formato elegido, con a[0]=1 implícito y saturación de coeficientes Q. La transferencia Hq describe ese almacenamiento; el filtrado con redondeos internos es una operación adicional que puede dejar de ser lineal.']),
-        Section('Comparación total',rows=metrics(data['metrics']),paragraphs=['Se compara la salida con el filtro original, la entrada original y la memoria inicial solicitada, evaluados en doble precisión. S es la mayor componente real o imaginaria absoluta de salida y referencia, con mínimo uno. Las métricas usan sólo las muestras con referencia finita.']),
-        Section('Error de ejecución',rows=metrics(data['arithmetic_metrics']),paragraphs=['Esta referencia usa los mismos coeficientes, entrada y memoria inicial ya cuantizados, pero calcula en doble precisión. Así se separa el efecto de los redondeos durante el filtrado del cambio inicial de almacenamiento. La SNR es una medida del registro; no supone ruido blanco independiente.']),
-        Section('Conversiones y desbordes',paragraphs=stages),
-        Section('Entrada nula y ciclos',rows=[('Cantidad de memorias',len(metadata['final_states'])),('Período confirmado',cycle['period'] if cycle else 'No confirmado'),('Índice de detección',cycle['detected_at'] if cycle else 'No corresponde')],paragraphs=[cycle_text,'Se añaden '+str(metadata['tail_zeros'])+' ceros al registro. La memoria se ordena desde d[0] y, en SOS, por sección. El detector compara estados exactos: un ciclo puede existir aunque no haya saturación. La duración del registro limita lo que se observa.']),
-        Section('Qué se puede reutilizar',paragraphs=['Salida y permite exportar o enviar la secuencia a otra herramienta. Las acciones de filtro toman Hq y no trasladan los redondeos internos; para repetir esa ejecución hay que conservar sus formatos y memorias. El CSV de comparación incluye ambas referencias. El JSON de la salida conserva parámetros, contadores y estados exactos.',metadata['scope']])]
+    stages=[(name,f'{row["casts"]} conversiones · {row["changed"]} cambios · {row["overflows"]} desbordes') for name,row in counts.items()]
+    realization=[('Formato',metadata['format']),('Estructura',metadata['structure']),
+                 ('Dónde se redondeó','Productos, sumas, salida y memorias' if metadata['quantize_operations'] else 'Salida y memorias')]
+    if data['encoding'].kind=='fixed':
+        realization.extend([('Bits extra del acumulador',metadata['accumulator_guard_bits']),
+                            ('Desbordes en ejecución','Saturación' if metadata['overflow']=='saturate' else 'Complemento a dos cíclico')])
+    cycle_rows=[('Ceros agregados',metadata['tail_zeros']),('Memorias de la realización',len(metadata['final_states']))]
+    if cycle and cycle['nonzero_state']:
+        cycle_rows.extend([('Período (muestras)',cycle['period']),('Índice de detección',cycle['detected_at'])])
+    sections=[
+        Section('Error total',rows=metrics(data['metrics']),paragraphs=['Referencia en doble precisión con los datos originales.']),
+        Section('Error por redondear durante el filtrado',rows=metrics(data['arithmetic_metrics']),paragraphs=['Referencia en doble precisión con los datos ya cuantizados.']),
+        Section('Realización calculada',formulas=[formula],rows=realization),
+        Section('Conversiones y desbordes',rows=stages),
+        Section('Comportamiento con entrada nula',rows=cycle_rows,paragraphs=[cycle_text]),
+    ]
     return Summary('Filtrado con precisión finita',sections)

@@ -167,7 +167,7 @@ def quantize_coefficients(system,encoding,preserve_sections=True):
 
 
 def precision_summary(data):
-    from .result_summary import Summary,Section,Formula,number
+    from .result_summary import Summary,Section,number
     from .phase_summary import transfer_formula
     if 'system' not in data:
         shown_value=data['represented_exact'] if len(data['represented_exact'])<=50 else data.get('represented_approx',data['represented_exact'])+' (aproximado; exacto en JSON)'
@@ -176,16 +176,19 @@ def precision_summary(data):
         bits=data['word'];rows.append(('Palabra binaria',bits if len(bits)<=128 else bits[:48]+'…'+bits[-48:]+' (vista abreviada)'))
         if 'exponent_bits' in data:rows.extend([('Signo',str(data['sign'])),('Exponente almacenado',data['exponent_bits']),('Fracción almacenada',data['fraction_bits'])])
         else:rows.append(('Código con signo',data['code']))
-        return Summary('Representación numérica',[Section('Resultado',rows=rows),Section('Referencia y redondeo',paragraphs=[data['reference_note'],'Punto fijo usa complemento a dos, saturación y el redondeo o truncamiento elegidos. IEEE 754 usa redondeo al más cercano con empates al par, incluidos subnormales y cero con signo. La palabra completa se conserva al exportar el resultado.'])])
+        return Summary('Representación numérica',[Section('Resultado',rows=rows),Section('Referencia del error',paragraphs=[data['reference_note']])])
     metrics=data['metrics'];formula,compact=transfer_formula(data['system'],'Hq')
-    sections=[Section('Filtro cuantizado',formulas=[formula],paragraphs=['Se cuantiza el almacenamiento de los coeficientes normalizados de H(z). a[0]=1 es una constante implícita de la recurrencia y no se redondea ni satura.',data.get('roc_note','')])]
+    roc_note=data.get('roc_note')
+    sections=[Section('Filtro cuantizado',formulas=[formula],paragraphs=[roc_note] if roc_note else [])]
     if compact:sections.append(Section('Coeficientes de la fórmula',rows=[('b[k]',', '.join(number(v) for v in data['system'].b)),('a[k]',', '.join(number(v) for v in data['system'].a))]))
     sections+=[Section('Formato y realización',rows=[('Formato',data['encoding'].name),('Estructura','Cascada SOS conservada' if data['sections'] else 'Polinomios directos'),('Componentes cuantizadas',metrics['components']),('Componentes modificadas',metrics['changed']),('Saturaciones',metrics['saturated'])]),
-        Section('Efecto sobre los polos',rows=[('Radio máximo original',number(metrics['original_pole_radius'])),('Radio máximo cuantizado',number(metrics['stored_pole_radius'])),('Polos originales',metrics['original_poles']),('Polos cuantizados',metrics['stored_poles'])],paragraphs=['Se comparan los polos del denominador, sin cancelar ceros próximos. Un polo sobre el círculo unidad no es estrictamente estable. Una transferencia externa con cancelaciones puede ocultar modos internos.']),
-        Section('Efecto sobre la respuesta',rows=[('Escala de comparación S',number(metrics['response_scale'])),('Máximo |Hq−H|/S en la rejilla',number(metrics['scaled_response_error_max']) if metrics['scaled_response_error_max'] is not None else 'No hay puntos comunes finitos'),('Puntos no definidos',metrics['undefined_points'])],paragraphs=['S es la mayor componente real o imaginaria en valor absoluto de ambas respuestas finitas, con mínimo uno. Esta normalización evita desbordes y no es un error relativo punto a punto. Se evalúan 4097 frecuencias entre 0 y π rad/muestra, sin garantizar máximos entre todos los puntos.']),
-        Section('Qué representa esta comparación',paragraphs=['Los coeficientes cuantizados se evalúan después con el motor de doble precisión. No se redondean productos, sumas, acumuladores ni estados durante la ejecución: esta opción estudia almacenamiento de coeficientes, no ruido aritmético ni ciclos límite de una implementación completa.',
-        'Si se conservan SOS, se redondea cada sección y se mantiene su orden. Elegir polinomios directos expande la definición y puede aumentar la sensibilidad numérica. Los coeficientes de entrada se toman de los valores binarios almacenados en el sistema, no de una constante exacta anterior desconocida.',
-        'La tabla y el CSV muestran las conversiones y saturaciones. Exportar o reutilizar toma el filtro cuantizado del último cálculo, aunque después se editen los datos.'])]
+        Section('Efecto sobre los polos',rows=[('Radio máximo original',number(metrics['original_pole_radius'])),('Radio máximo cuantizado',number(metrics['stored_pole_radius'])),('Polos originales',metrics['original_poles']),('Polos cuantizados',metrics['stored_poles'])]),
+        Section('Efecto sobre la respuesta',rows=[
+            ('Escala común S',number(metrics['response_scale'])),
+            ('Máximo |Hq−H|/S medido',number(metrics['scaled_response_error_max']) if metrics['scaled_response_error_max'] is not None else 'Sin frecuencias comunes con respuesta finita'),
+            ('Frecuencias evaluadas',len(data['omega'])),
+            ('Puntos sin respuesta',metrics['undefined_points']),
+        ],paragraphs=['La comparación mide el efecto de almacenar los coeficientes en el formato elegido.'])]
     if data.get('sensitivity'):
         from .coefficient_sensitivity import section
         sections.insert(2,section(data['sensitivity']))

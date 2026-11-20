@@ -68,10 +68,7 @@ def realize_system(system,advance=0):
 
 def realization_summary(value):
     from .result_summary import Summary,Section,Formula,number
-    digital=value.domain=='digital';sections=[Section('Estructura',rows=[('Dominio','Discreto' if digital else 'Continuo'),('Forma','Cascada de secciones · directa II' if value.cascade else 'Directa II · cadena de retardos' if digital else 'Cadena de integradores'),('Estados',value.states)],paragraphs=[
-        'Los bloques azules multiplican por b[k]; los ámbar por −a[k]. Los círculos suman sus entradas. Cada bloque verde guarda una muestra anterior.' if digital else 'Los bloques azules multiplican por b[k]; los ámbar por −a[k]. Los círculos suman sus entradas. Cada bloque verde integra su entrada.',
-        'Los sumadores de cada columna acumulan hacia arriba. Los coeficientes ya están divididos por a[0].'])]
-    if value.cascade:sections.append(Section('Conexión de las secciones',paragraphs=['La salida de cada sección alimenta la entrada de la siguiente, en el orden de la cascada conservada. Cada sección tiene su propia variable v y sus propios estados q. No se desarrolla un único polinomio para construir estas matrices.']))
+    digital=value.domain=='digital';sections=[Section('Estructura',rows=[('Dominio','Discreto' if digital else 'Continuo'),('Forma','Cascada de secciones · directa II' if value.cascade else 'Directa II · cadena de retardos' if digital else 'Cadena de integradores'),('Estados',value.states)])]
     for index,stage in enumerate(value.stages,1):
         n=stage.order
         equations=([Formula('v = u - Sum(a[k]*q[k],(k,1,'+str(n)+'))','v = u − Σ desde k=1 hasta '+str(n)+' de a[k]·q[k]'),Formula('y = b[0]*v + Sum(b[k]*q[k],(k,1,'+str(n)+'))','y = b[0]·v + Σ desde k=1 hasta '+str(n)+' de b[k]·q[k]')] if n else [Formula('y = ('+number(stage.b[0]).replace('i','*i')+')*u','y = ('+number(stage.b[0])+')·u')])
@@ -81,9 +78,5 @@ def realization_summary(value):
             if n==1:paragraphs=['q₁[n+1] = v[n]. La salida del retardo es el estado q₁[n].' if digital else 'dq₁/dt = v(t). La salida del integrador es el estado q₁(t).']
         sections.append(Section('Sección '+str(index) if value.cascade else 'Ecuaciones de la realización',paragraphs=paragraphs,formulas=equations))
         sections.append(Section('Coeficientes · sección '+str(index) if value.cascade else 'Coeficientes del diagrama',rows=[('k='+str(k),'a[k] = '+number(a)+'; b[k] = '+number(b)) for k,(a,b) in enumerate(zip(stage.a,stage.b))]))
-    sections.append(Section('Condiciones e interpretación',paragraphs=[
-        'La transferencia relaciona entrada y salida con estados iniciales nulos. Al enviar las matrices a Espacio de estados podés estudiar otros estados iniciales. Los q de esta realización no son, en general, las derivadas ni las muestras anteriores de y.',
-        'No se cancelan polos y ceros ni se garantiza una realización mínima. H=0 o una cancelación externa pueden ocultar modos internos. Se eliminan solamente coeficientes extremos exactamente nulos que no aportan dinámica; los coeficientes pequeños no se recortan.',
-        'Las matrices usan el orden de estados q₁,…,qN; en una cascada, sección por sección. Se usa precisión compleja de 64 bits por componente. Una forma directa de orden alto puede estar mal condicionada; las secciones SOS recibidas se conservan.',
-        'En discreto, T sólo establece el reloj físico al enviar el modelo de estados: no cambia los coeficientes, el número de retardos ni H(z).' if digital else 'El diagrama realiza transferencias racionales propias. No convierte filtros ideales definidos por bandas en sistemas finitos exactos.']))
+    sections.append(Section('Condición inicial',paragraphs=['La transferencia corresponde a los estados q inicialmente en cero.']))
     return Summary('Realización del sistema',sections)

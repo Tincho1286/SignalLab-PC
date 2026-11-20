@@ -64,7 +64,7 @@
         ],
         [
           "Matrices y estudios del modelo",
-          "Controlabilidad / observabilidad muestra las matrices utilizadas, sus valores singulares reescalados y el umbral del rango numérico. Coordenadas permite definir x=Pq, transformar las matrices y q₀ y cargar el resultado en simulación. Equilibrio resuelve la condición de estado constante para una entrada dada; puede ser único, una familia o no existir. Ninguna de estas opciones modifica el último modelo hasta calcular su estudio."
+          "En Controlabilidad / observabilidad podés consultar las matrices y los valores singulares. El rango cuenta los valores singulares que superan el umbral numérico después de reescalar cada matriz. Por eso puede variar con las coordenadas o el condicionamiento del modelo.\n\nCoordenadas cambia la base y transforma el estado inicial. Equilibrio busca un estado constante para la entrada elegida. El resultado puede ser una solución única, una familia o ningún equilibrio."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -192,7 +192,7 @@
         ],
         [
           "Qué tener en cuenta",
-          "La transferencia supone estado inicial nulo. Un canal puede ocultar estados que no se controlan u observan desde ese par de entrada y salida. Los coeficientes se calculan numéricamente y pueden contener residuos de redondeo. Si cambiás el modelo, las acciones siguen usando el último resultado hasta recalcular."
+          "La transferencia describe la relación entre los canales elegidos con estado inicial nulo. Los modos que no se controlan u observan desde ese par pueden cancelarse. Para estudiar la estabilidad interna, volvé al modelo completo. Al construir la transferencia se cancelan los factores exactamente comunes antes de convertir los coeficientes a doble precisión."
         ],
         [
           "Indeterminaciones y valores por continuidad",

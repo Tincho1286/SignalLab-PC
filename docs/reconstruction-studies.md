@@ -1,10 +1,10 @@
 # Comparar e inspeccionar reconstrucciones
 
-La **1.8.13 preliminar** amplía **Muestreo y A/D → Reconstruir una señal**. Reúne ZOH, lineal y SINC sobre las mismas muestras, con un reloj común. El selector del área de resultados permite superponer métodos o elegir una reconstrucción, referencia o curva de error para exportarla, enviarla al CAS o utilizarla en otra herramienta.
+En **Muestreo y A/D → Reconstruir una señal** podés comparar retención constante (ZOH), interpolación lineal y SINC sobre las mismas muestras. Las tres curvas usan el mismo reloj. En Resultados, elegí qué reconstrucción, referencia o curva de error querés guardar o reutilizar.
 
 ## Reloj y ventana
 
-Cargá una secuencia desde una fórmula, muestras, un archivo o Resultados. Fs indica muestras por segundo y t₀ es el tiempo de la primera muestra guardada. Un índice original n₀ distinto de cero no desplaza ese instante automáticamente: t[k]=t₀+k/Fs, con k contando posiciones locales desde cero.
+Cargá una secuencia desde una fórmula, una lista, un archivo o Resultados. Fs indica muestras por segundo y t₀ es el tiempo de la primera muestra. Para calcular los instantes se usa t[k] = t₀ + k/Fs, donde k cuenta las posiciones desde cero dentro del registro.
 
 Si la entrada conserva su reloj, se utiliza ese dato. Reinterpretar permite sustituirlo de manera explícita. Las subdivisiones L determinan el paso de dibujo 1/(L·Fs); no agregan información a las muestras originales. Los períodos antes y después amplían la ventana en unidades de 1/Fs.
 
@@ -28,9 +28,9 @@ Estas medidas asignan igual peso a todos los puntos, con ambos extremos incluido
 
 ## Nudos y aportes por muestra
 
-Nudos originales muestra la diferencia entre cada reconstrucción y la entrada en las posiciones de las muestras. Los núcleos son cardinales y el método FFT restaura esos puntos por construcción. Por eso un desvío cero no demuestra que no haya aliasing ni que se haya recuperado la señal infinita de origen.
+**Nudos originales** compara cada reconstrucción con la entrada en los instantes de muestreo. En esos puntos, el núcleo de la muestra correspondiente vale uno y los demás valen cero. La evaluación con FFT también conserva esos puntos por construcción. Para comparar los valores entre muestras necesitás una referencia.
 
-Aportes por muestra permite elegir un instante y un método. La tabla conserva el índice original, el tiempo, el valor, el peso del núcleo y su contribución. Se publican también los pesos y, cuando pueden representarse, los aportes como secuencias. El inspector puede evaluar instantes entre puntos o fuera de la ventana mostrada; utiliza el modelo y reloj del último cálculo.
+En **Aportes por muestra**, elegí un instante y un método. Por cada muestra, la tabla muestra su valor, el peso del núcleo y el producto de ambos. La suma de los productos da el valor reconstruido. Podés consultar instantes fuera del gráfico y reutilizar los pesos y aportes disponibles.
 
 Editar una entrada conserva el resultado anterior hasta recalcular. Evaluar un instante no vuelve a reconstruir todas las curvas. Cambiar el método de una curva individual y el del inspector conserva la selección correspondiente.
 

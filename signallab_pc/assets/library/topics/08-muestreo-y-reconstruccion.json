@@ -202,11 +202,11 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Esta herramienta reúne la representación de números, el almacenamiento de coeficientes y el filtrado con precisión finita. Los tres estudios comparten formato, pero responden preguntas distintas: qué valor queda guardado, cómo cambia H(z) y qué ocurre al redondear durante la ejecución."
+          "Representar un número muestra qué valor puede guardar un formato. Coeficientes mide cómo cambia H(z) al almacenar el filtro. Filtrar simula también el redondeo mientras se calcula la salida."
         ],
         [
           "Cómo preparar el cálculo",
-          "Elegí el estudio y el formato. Q usa bits enteros contando el signo, bits fraccionarios y redondeo o truncamiento. Los formatos flotantes ofrecen binary16/32/64 y empates al par. Para filtros, cargá H(z) por fórmula, coeficientes o un resultado anterior. Al filtrar, definí además x[n], las memorias iniciales y los ceros que querés añadir para observar la cola."
+          "Elegí el estudio y el formato. Podés cargar H(z) por fórmula, coeficientes o desde Resultados. Para Filtrar, indicá además x[n], el valor inicial de las memorias y cuántos ceros querés agregar para observar la cola."
         ],
         [
           "Cómo interpretar la salida",
@@ -214,7 +214,19 @@
         ],
         [
           "Qué tener en cuenta",
-          "En ejecución elegís redondear productos y sumas o sólo salida y memorias. Los bits extra amplían el rango del acumulador Q. Podés saturar o aplicar complemento a dos cíclico; los coeficientes Q se almacenan siempre con saturación y a[0]=1 es implícito. Un ciclo se confirma al repetirse exactamente el estado con entrada nula; un registro sin repeticiones no demuestra que no exista. El modelo flotante redondea valores y subnormales, pero no reproduce flags ni signo de cero de un procesador. Los desbordes flotantes detienen el cálculo conservando el último resultado válido."
+          "El informe de Filtrar distingue dos errores. La referencia con datos originales mide el efecto total. La referencia con los datos ya cuantizados aísla el efecto de los redondeos de ejecución. Ambas referencias usan doble precisión. El cálculo de error excluye muestras cuya referencia no sea finita."
+        ],
+        [
+          "Formatos y redondeo",
+          "En punto fijo Q, los bits enteros incluyen el signo. Se usa complemento a dos con el redondeo o truncamiento elegido. Los coeficientes Q saturan al salir del rango y a[0]=1 permanece implícito. En ejecución, podés ampliar el acumulador y elegir saturación o desborde cíclico. IEEE 754 redondea al valor más cercano con empates al par. La representación escalar distingue subnormales y cero con signo. La simulación incluye subnormales y detiene el cálculo si un resultado flotante se desborda."
+        ],
+        [
+          "Respuesta, polos y escala de error",
+          "Coeficientes mide los polos del denominador y compara ambas respuestas entre 0 y π rad/muestra. Si conservás las secciones de segundo orden, cada una se cuantiza por separado. La escala S vale al menos 1 y toma la mayor componente real o imaginaria absoluta de los datos finitos comparados. Dividir por S permite comparar escalas sin convertir la medida en un error relativo punto por punto.\n\nEl desplazamiento de polos se mide emparejando raíces con sus multiplicidades. La amplificación divide el mayor desplazamiento por el cambio relativo observado en los coeficientes del denominador. Describe esa conversión concreta. El valor puede cambiar al usar otra realización."
+        ],
+        [
+          "Ciclos y reutilización",
+          "Con entrada nula, un estado no nulo que vuelve a repetirse confirma un ciclo en esta realización. Si no aparece en el tramo observado, puede existir más adelante. El filtro reutilizable Hq conserva los coeficientes cuantizados. Para repetir una ejecución con redondeos internos, conservá también los formatos, la entrada y las memorias iniciales. El JSON guarda los parámetros del resultado y el CSV guarda las dos referencias."
         ],
         [
           "Indeterminaciones y valores por continuidad",

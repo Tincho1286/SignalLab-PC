@@ -38,4 +38,4 @@ def section(data):
     from .result_summary import Section,number
     rows=[]
     for key,label in [('denominator_relative_change','Cambio relativo máximo del denominador'),('matched_pole_shift','Máximo desplazamiento de polos emparejados'),('observed_amplification','Amplificación observada'),('distance_to_unit_circle_before','Distancia mínima al círculo unidad · original'),('distance_to_unit_circle_after','Distancia mínima al círculo unidad · cuantizado')]:rows.append((label,number(data[key]) if data[key] is not None else 'No corresponde o no se pudo determinar'))
-    return Section('Sensibilidad numérica observada',rows=rows,paragraphs=[*data['warnings'],data['scope']])
+    return Section('Sensibilidad numérica observada',rows=rows,paragraphs=list(data['warnings']))

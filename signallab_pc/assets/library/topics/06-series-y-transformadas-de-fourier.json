@@ -402,15 +402,19 @@
         ],
         [
           "Cómo interpretar la salida",
-          {
-            "ref": "como-interpretar-la-salida-d86616e6"
-          }
+          "El informe muestra x[n] en los índices elegidos y la fórmula de la aproximación numérica. Si la entrada permite calcular también una expresión algebraica, el informe la muestra por separado."
         ],
         [
           "Qué tener en cuenta",
-          {
-            "ref": "que-tener-en-cuenta-80bc06f0"
-          }
+          "La rejilla de frecuencia es finita. Con N frecuencias independientes, los coeficientes numéricos se repiten cada N índices, salvo un factor de fase que depende de dónde empieza el período. Pedir más índices amplía la vista. Para mejorar la aproximación, aumentá la cantidad de frecuencias de entrada."
+        ],
+        [
+          "Relación matemática",
+          "x[n] = Integral(X(w)*exp(i*w*n),(w,-pi,pi))/(2*pi)"
+        ],
+        [
+          "Cómo se integra un período",
+          "Podés elegir cualquier período de 2π rad/muestra. Si cargás los dos extremos, la regla trapezoidal les da peso 1/2 para contarlos una sola vez en total. Si omitís el último extremo, se usa una rejilla periódica sin duplicarlo. El factor exponencial de la fórmula numérica conserva el origen angular."
         ],
         [
           "Indeterminaciones y valores por continuidad",

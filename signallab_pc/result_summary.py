@@ -82,35 +82,33 @@ def signal_summary(value,operation=None):
         sections.append(Section(signal.name,rows=rows))
         from .temporal_formula import sections as temporal_sections
         sections.extend(temporal_sections(signal))
-        if signal.expression and signal.expression!='lista ingresada':sections.append(Section('Expresión de origen',paragraphs=['Las transformaciones posteriores se reflejan en los valores almacenados.'],formulas=[Formula(signal.expression,signal.expression)]))
+        if signal.expression and signal.expression!='lista ingresada':
+            sections.append(Section('Expresión de origen',formulas=[Formula(signal.expression,signal.expression)]))
         op=meta.get('operation','');reading=[];formulas=[]
         if op=='DFT' and meta.get('dft_order')=='centered':
             formulas=[Formula('X[k] = Sum(v[m]*exp(-2*pi*i*k*m/N),(m,0,N-1))','X[k] = Σ desde m=0 hasta N−1 de v[m]·exp(−j2πkm/N)')]
-            reading=['Se muestran los N bins en orden creciente dentro de −π ≤ ω < π, con ω = 2πk/N. Para N par, Nyquist aparece una sola vez en −π. La suma usa el orden de las muestras de entrada, con la primera en m=0, y no divide por N. La DFT inversa reconoce el orden centrado al reutilizar el resultado.']
+            reading=['La DFT está centrada. Las frecuencias se ordenan entre −π y π, con ω = 2πk/N.']
         elif op=='DFT' and signal.domain=='discrete':
             formulas=[Formula('X[k] = Sum(v[m]*exp(-2*pi*i*k*m/N),(m,0,N-1))','X[k] = Σ desde m=0 hasta N−1 de v[m]·exp(−j2πkm/N)')]
-            reading=['v[m] son los valores en el orden almacenado. La DFT no divide por N y usa índices k desde cero; no incorpora el origen temporal original. La transformada inversa divide por N.']
-        elif op=='DFT' and signal.domain=='frequency':reading=['La DFT se representa mediante muestras en frecuencia angular. No son puntos conectados de una función continua. El informe de FFT y ventanas conserva la normalización y la referencia de fase del cálculo.']
+            reading=['La DFT usa k desde cero y toma la primera muestra como m=0.']
+        elif op=='DFT' and signal.domain=='frequency':reading=['Cada tallo corresponde a un coeficiente DFT en una frecuencia angular.']
         elif op=='IDFT':
             formulas=[Formula('x[n0+m] = Sum(X[k]*exp(2*pi*i*k*m/N),(k,0,N-1))/N','x[n₀+m] = (1/N)·Σ desde k=0 hasta N−1 de X[k]·exp(j2πkm/N)')]
-            reading=['La entrada manual usa el orden desde k=0. Al cargar una DFT centrada, el programa reconoce el orden y la invierte. El primer índice de la salida es '+str(signal.origin)+'. El reloj registrado se conserva también cuando se elige n₀=0.']
         elif op=='linear_convolution':
             formulas=[Formula('y[n] = Sum(x[m]*h[n-m],(m,-oo,oo))','y[n] = Σ sobre m de x[m]·h[n−m]')]
-            reading=['Las entradas se consideran cero fuera de sus registros. La salida completa tiene Nx+Nh−1 muestras y su primer índice es la suma de los primeros índices de ambas entradas.']
-        elif op=='circular_convolution':reading=['Se usan los valores en orden desde cero y se completan con ceros hasta la mayor longitud de entrada. El resultado representa un período de la convolución circular; los orígenes originales no se suman como en la convolución lineal.']
+            reading=['Las entradas se extienden con ceros antes y después de sus registros.']
+        elif op=='circular_convolution':reading=['El resultado representa un período de la convolución circular.']
         elif op in ('linear_cross_correlation','correlation'):
-            reading=['El eje es el retardo entero. Se conserva la conjugación de la segunda señal. El signo del retardo depende del orden de las entradas; intercambiarlas cambia esa interpretación.']
-        elif op=='continuous_convolution':reading=['El resultado es una aproximación numérica. La parte regular de las entradas se interpola linealmente entre puntos y se considera nula fuera del intervalo almacenado. Los impulsos ideales se conservan por su posición y peso.']
-        elif op=='continuous_correlation':reading=['El eje es el retardo temporal en segundos. La segunda señal se invierte y se conjuga antes de la convolución. La aproximación y su normalización dependen del modelo de los registros.']
-        elif op=='sampling':reading=['El reloj es t = t₀ + (n−n₀)/Fs. La duración entre la primera y la última muestra es (N−1)/Fs. Muestrear no recupera información que se pierda por aliasing.']
-        elif op=='reconstruction':reading=['Se reconstruye entre la primera y la última muestra, usando el reloj registrado o los valores del formulario si activaste la opción de reinterpretación. Los campos también completan los datos que falten. ZOH mantiene el valor; lineal une puntos; SINC utiliza el registro finito completo y supone cero fuera. No se recupera información perdida por aliasing ni se muestran colas SINC infinitas.']
+            reading=['El eje indica el retardo en muestras según el orden de las entradas.']
+        elif op=='continuous_convolution':reading=['La aproximación usa tramos lineales para la parte regular de cada entrada.']
+        elif op=='continuous_correlation':reading=['El eje indica el retardo en segundos según el orden de las entradas.']
+        elif op=='sampling':reading=['El tiempo de cada muestra sigue t = t₀ + (n−n₀)/Fs.']
         elif op=='resample_rational':
             rows=[('Multiplicador L',str(meta['up'])),('Divisor M',str(meta['down'])),('Fs de entrada',number(meta['input_rate_hz'])+' muestras/s'),('Coeficientes del filtro',str(meta['filter_taps']))]
             sections.append(Section('Conversión de tasa',rows=rows))
-            reading=['Fs de salida = Fs de entrada × L/M. La salida conserva el instante de la primera muestra. Se aplica un FIR de transición finita y se compensa su retardo para procesamiento fuera de tiempo real; los extremos dependen de la extensión elegida.']
         elif op=='even_odd_decomposition':
             formulas=[Formula('p[n] = (x[n]+x[-n])/2','Parte par: p[n] = (x[n]+x[−n])/2'),Formula('q[n] = (x[n]-x[-n])/2','Parte impar: q[n] = (x[n]−x[−n])/2')]
-            reading=['La señal se extiende con ceros fuera del registro; se conserva el soporte reflejado. La suma de ambas componentes recupera la señal sobre ese soporte.']
+            reading=['La suma de las dos partes recupera la señal extendida con ceros.']
         if reading or formulas:sections.append(Section('Cómo leer el resultado',paragraphs=reading,formulas=formulas))
         from .inverse_fourier_report import numeric_section,stored_model
         inverse=stored_model(signal)
@@ -120,7 +118,8 @@ def signal_summary(value,operation=None):
         terms=dirac_terms(signal)
         if terms:
             rows=[('Posición '+('ω' if signal.domain=='frequency' else 't')+' = '+number(t)+' '+signal.units,'Peso '+number(w)) for t,w in terms[:12]]
-            sections.append(Section('Impulsos ideales',rows=rows,paragraphs=['La señal incluye '+str(len(terms))+' términos Dirac. Los valores de la tabla son la parte ordinaria. Los impulsos se conservan por posición y peso; no son muestras de altura finita. El panel Peso Dirac representa sus pesos. Las posiciones y pesos completos permanecen en los datos y en la exportación.']))
+            visible='Se muestran los primeros 12.' if len(terms)>12 else ''
+            sections.append(Section('Impulsos ideales',rows=rows,paragraphs=[f'La señal incluye {len(terms)} impulsos registrados por separado. {visible}'.strip()]))
         if meta.get('excluded_dirac_positions'):sections.append(Section('Intervalo observado',paragraphs=[str(len(meta['excluded_dirac_positions']))+' posiciones Dirac quedaron fuera del intervalo elegido y no forman parte de este registro. Ampliá el intervalo para incluirlas.']))
     sections.append(Section('Lectura y exportación',paragraphs=['Los valores completos están en Valores y en la exportación de la señal. Los índices enteros se muestran completos; las demás coordenadas se presentan con hasta 12 cifras significativas y sus unidades.']))
     return Summary(operation_label(operation) if operation else 'Resumen del resultado',sections)

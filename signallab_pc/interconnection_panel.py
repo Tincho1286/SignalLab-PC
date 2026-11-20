@@ -96,7 +96,7 @@ class InterconnectionPanel(QWidget):
                 for button in self.actions:button.setEnabled(True)
                 from .result_summary import transfer_summary,Section
                 summary=transfer_summary(value)
-                summary.sections.insert(0,Section('Conexión calculada',paragraphs=[relation,'Se combina la relación racional completa, incluidos retardos y avances. La transferencia equivalente no demuestra estabilidad interna ni realizabilidad causal de todos los bloques. No se cancelan raíces por proximidad.']))
+                summary.sections.insert(0,Section('Conexión calculada',paragraphs=[relation]))
                 self.report.set_readable(summary);self.system_actions.set_result(value,self.result_id);self.result_state.accept(snapshot)
             self.window._run_operation('Conectando sistemas…',lambda:interconnect(*systems,mode),accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá los sistemas',str(exc))

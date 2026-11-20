@@ -112,7 +112,7 @@
         ],
         [
           "Qué tener en cuenta",
-          "Se requiere un modelo real causal y estable. La inicialización usa la covarianza estacionaria, no reposo. El espectro continuo representa x−media; una media no nula agrega una línea ideal en cero que no se representa como una muestra finita."
+          "Usá un modelo real, causal y estable. Para generar el registro, el estado inicial gaussiano usa la covarianza estacionaria obtenida mediante la ecuación de Lyapunov. La semilla permite repetir ese registro, cuyas estadísticas pueden diferir de las del modelo.\n\nLa densidad de potencia describe x menos su media. Su integral en un período, dividida por 2π, da la varianza. Con media distinta de cero, el espectro completo agrega una línea ideal en ω=0 con peso 2π·media². La línea se registra por separado."
         ],
         [
           "Indeterminaciones y valores por continuidad",

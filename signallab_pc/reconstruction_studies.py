@@ -176,16 +176,16 @@ def inspect(run,time,method):
 
 
 def summary(run):
-    from .result_summary import Summary,Section,number,Formula
-    sections=[Section('Reloj y ventana',rows=[('Fs de entrada',number(run['source_rate'])+' muestras/s'),('Primer instante original',number(run['source_start'])+' s'),('Subdivisiones por período',str(run['factor'])),('Ventana mostrada',str(run['interval'])+' s'),('Puntos comunes',str(run['count']))],paragraphs=['Los tres métodos usan las mismas muestras y el mismo reloj. Un origen n distinto de cero no cambia el instante asignado a la primera muestra. Ampliar la ventana agrega períodos antes y después, sin inventar muestras originales.']),Section('Núcleos de reconstrucción',formulas=[Formula('x_r(t) = Sum(x[k]*p(Fs*(t-t0)-k), (k, 0, N-1))','xᵣ(t) = Σ x[k] · p(Fs·(t−t₀)−k)')],paragraphs=['k es la posición local del registro, desde cero. ZOH usa p(u)=1 para 0≤u<1; lineal usa max(1−|u|,0); SINC usa sin(πu)/(πu), con valor 1 en u=0. La secuencia vale cero fuera de sus muestras guardadas. ZOH conserva la última muestra un período; lineal tiene una rampa hacia cero en cada borde. Las colas SINC siguen fuera de la ventana dibujada.'])]
+    from .result_summary import Summary,Section,number
+    sections=[Section('Reloj y ventana',rows=[('Fs de entrada',number(run['source_rate'])+' muestras/s'),('Primer instante original',number(run['source_start'])+' s'),('Subdivisiones por período',str(run['factor'])),('Ventana mostrada',str(run['interval'])+' s'),('Puntos comunes',str(run['count']))])]
     for row in run['methods']:
         if row['error']:sections.append(Section(row['label'],paragraphs=['No se obtuvo una señal representable: '+row['error']]));continue
         rows=[('Máximo desvío en los nudos originales',row['nodes']['maximum']['text']),('RMS del desvío en los nudos',row['nodes']['rms']['text'])]
-        sections.append(Section(row['label']+' · nudos originales',rows=rows,paragraphs=[row['algorithm'],'Los nudos se conservan por la definición cardinal y, en FFT, se restauran por construcción. Un desvío nulo no demuestra ausencia de aliasing ni recuperación de una señal infinita.']))
+        sections.append(Section(row['label']+' · muestras originales',rows=rows,paragraphs=[row['algorithm']]))
         if row['method'] in run['errors']:
-            e=run['errors'][row['method']];sections.append(Section(row['label']+' · error frente a referencia',rows=[('RMS de los puntos de error',e['metrics']['rms']['text']),('Máximo módulo del error',e['metrics']['maximum']['text']),('SNR referencia/error',e['snr_text'])],paragraphs=['Las medidas usan todos los puntos de la rejilla común, con ambos extremos incluidos e igual peso. No se presentan como una integral continua del error.',e['notice']]))
-    if run['reference_notice']:sections.append(Section('Referencia',paragraphs=[run['reference_notice'],'Las reconstrucciones se conservan y se pueden utilizar sin referencia.']))
-    sections.append(Section('Interpretación',paragraphs=['SINC reconstruye el modelo de una secuencia finita extendida por cero. La exactitud en los nudos no permite deducir lo ocurrido entre muestras ni descartar aliasing. Comparar con una referencia y ampliar el registro son estudios distintos. Las curvas y el inspector conservan el último cálculo aunque edites las entradas.']))
+            e=run['errors'][row['method']];sections.append(Section(row['label']+' · error frente a referencia',rows=[('RMS de los puntos de error',e['metrics']['rms']['text']),('Máximo módulo del error',e['metrics']['maximum']['text']),('SNR referencia/error',e['snr_text'])],paragraphs=[e['notice']] if e['notice'] else []))
+    if run['reference_notice']:sections.append(Section('Referencia',paragraphs=[run['reference_notice']]))
+    sections.append(Section('Alcance',paragraphs=['La coincidencia en las muestras originales comprueba ese punto de la reconstrucción. El error entre muestras se mide frente a una referencia.']))
     return Summary('Comparación de reconstrucciones',sections)
 
 
@@ -193,4 +193,5 @@ def inspection_summary(data):
     from .result_summary import Summary,Section,number
     rows=[('Método',METHODS[data['method']]),('Instante',number(data['time'])+' s'),('Posición local Fs·(t−t₀)',number(data['position'])),('Suma de aportes',number(data['value']))]
     if data['stored'] is not None:rows.extend([('Punto guardado en la figura',number(data['stored'])),('Guardado menos suma',number(data['residual']))])
-    return Summary('Aportes de las muestras a la reconstrucción',[Section('Instante consultado',rows=rows,paragraphs=['Cada peso multiplica la muestra del índice indicado; los tiempos provienen del reloj del último cálculo. SINC incluye todas las muestras, sin renormalizar sus pesos. Una diferencia con FFT refleja las dos evaluaciones numéricas; no modifica la curva guardada.','El instante está fuera de la ventana dibujada, pero pertenece al mismo modelo de reconstrucción.' if data['outside_window'] else 'El inspector evalúa el núcleo directamente, incluso entre puntos de la figura.'])])
+    paragraphs=['El instante consultado queda fuera de la ventana del gráfico.'] if data['outside_window'] else []
+    return Summary('Aportes de las muestras a la reconstrucción',[Section('Instante consultado',rows=rows,paragraphs=paragraphs)])

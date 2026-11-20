@@ -54,7 +54,7 @@ class PrecisionPanel(QWidget):
         self.system_import=install_system_import(copy,window,self.set_system,self.choose,domains=['digital'],allow_advance=False)
         self.system_form=sf
         self.structure=QComboBox();self.structure.addItems(['Conservar secciones si existen','Polinomios directos']);sf.addRow('Representación de H(z)',self.structure)
-        self.scope=QLabel('Se redondean los coeficientes almacenados. Los cálculos posteriores usan doble precisión; no se simulan redondeos de productos, sumas o estados. a[0]=1 es implícito y no se cuantiza.');self.scope.setWordWrap(True);sf.addRow(self.scope);form.addRow(self.system_box)
+        self.scope=QLabel();self.scope.setWordWrap(True);sf.addRow(self.scope);form.addRow(self.system_box)
         from .toolbox import LocalInput,ResultView
         self.simulation_box=QWidget();af=QFormLayout(self.simulation_box);af.setProperty('stackFields',True);af.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows)
         self.input=LocalInput('Entrada x[n]','discrete');self.input.bind_project(window);self.input.expression.setText('impulse(n)');af.addRow(self.input)
@@ -83,7 +83,7 @@ class PrecisionPanel(QWidget):
         for widget in (self.integer_bits,self.fractional_bits,self.rounding):form.setRowVisible(widget,fixed)
         form.setRowVisible(self.value,not system);self.system_box.setVisible(system)
         self.simulation_box.setVisible(simulation);self.simulation_box.layout().setRowVisible(self.guard_bits,fixed and self.operation_rounding.currentIndex()==0);self.simulation_box.layout().setRowVisible(self.overflow,fixed)
-        self.scope.setText('Se simula la realización II transpuesta: productos, sumas y memorias según el modo elegido. La entrada y los coeficientes se cuantizan primero. La comparación separa el error de almacenamiento y el de ejecución.' if simulation else 'Se redondean los coeficientes almacenados. Los cálculos posteriores usan doble precisión; este estudio no redondea operaciones internas. a[0]=1 es implícito y no se cuantiza.')
+        self.scope.setText('Elegí dónde aplicar el redondeo al filtrar.' if simulation else 'Este estudio mide el efecto de redondear los coeficientes.')
     def update_structure(self,*_):
         source=getattr(self,'_preserved_system',None)
         has_sections=source is not None and source.sos is not None and self.definition_mode.currentIndex()==0 and (self.b.text(),self.a.text(),self.domain.currentIndex())==getattr(self,'_preserved_definition',None)
