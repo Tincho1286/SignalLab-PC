@@ -28,6 +28,10 @@ def rational_components(density, variable):
             return None
         if variable.is_integer:
             frequency = sp.simplify(sp.Mod(frequency+sp.pi, 2*sp.pi)-sp.pi)
+        if frequency.is_zero is None:
+            return None
+        if frequency.is_zero:
+            frequency = sp.S.Zero
         coefficient = sp.Mul(*factors)
         coefficients[frequency] = coefficients.get(frequency, sp.S.Zero) + coefficient
 
@@ -88,6 +92,7 @@ def oscillatory_measures(density, variable):
     averages = {}
     convergent = True
     logarithmic_growth = False
+    has_harmonics = False
     whole_axis_components = None
     for expression, lower, upper in intervals:
         components = rational_components(expression, variable)
@@ -96,6 +101,7 @@ def oscillatory_measures(density, variable):
         sample_mean = sp.S.Zero
         infinite = lower == -sp.oo or upper == sp.oo
         for frequency, numerator, denominator in components:
+            has_harmonics |= frequency != 0
             if not _no_axis_poles(denominator, variable, lower, upper):
                 return None
             if not infinite:
@@ -121,7 +127,7 @@ def oscillatory_measures(density, variable):
         if lower == -sp.oo and upper == sp.oo:
             whole_axis_components = components
 
-    if len(averages) != 2:
+    if not has_harmonics or len(averages) != 2:
         return None
     mean = sp.simplify(sp.re((averages[-1]+averages[1])/2))
     if mean.is_nonnegative is not True:
