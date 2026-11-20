@@ -14,7 +14,11 @@
         ],
         [
           "Cómo preparar el cálculo",
-          "Elegí H(s) para continuo o H(z) para discreto. Ingresá los coeficientes, escribí una fórmula o cargá un sistema guardado. Para relacionar H con una respuesta al impulso, indicá la región de convergencia (ROC) cuando la conozcas."
+          "Elegí H(s) para continuo o H(z) para discreto. Podés ingresar coeficientes, escribir una fórmula, armar un diagrama de bloques o cargar un sistema guardado. Para una fórmula o lista de coeficientes, indicá la región de convergencia (ROC) cuando la conozcas."
+        ],
+        [
+          "Obtener H a partir de un diagrama",
+          "Elegí Diagrama y abrí el editor. Agregá las ganancias y los sumadores que necesites. En continuo se usa el integrador 1/s; en discreto, el retardo unitario z⁻¹. Para cada conexión seleccioná su origen y luego su destino. Conectar suma la señal en el destino y Restar la recibe con signo negativo. Una salida puede alimentar varios bloques para formar una rama.\n\nElegí Usar diagrama y luego Analizar sistema. El cálculo obtiene Y/X con estado inicial nulo y conserva la transferencia para los demás análisis. Los lazos de realimentación deben definir una solución única en cada instante o muestra. Podés guardar el diagrama editable en JSON o abrir el JSON exportado desde Realización."
         ],
         [
           "Cómo interpretar la salida",

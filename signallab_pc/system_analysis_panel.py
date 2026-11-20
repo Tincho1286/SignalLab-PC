@@ -18,21 +18,26 @@ class SystemAnalysisPanel(QWidget):
     def __init__(self,window):
         super().__init__();self.window=window;self.input_id=None
         root=QHBoxLayout(self);controls=QWidget();form=QFormLayout(controls);form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows)
-        form.addRow(ToolGuide('Definí H(s) o H(z) con coeficientes o una fórmula. El análisis conserva la expresión y permite consultar módulo, fase y retardo. Copiar un resultado anterior es opcional.',('Coeficientes','Sistema H','Módulo / fase')))
+        form.addRow(ToolGuide('Definí el sistema con coeficientes, una fórmula o un diagrama. Calculá H y consultá su respuesta, polos y ceros.',('Definición','Sistema H','Módulo / fase')))
         self.domain=QComboBox();self.domain.addItems(['Continuo · H(s)','Discreto · H(z)'])
         form.addRow('Sistema',self.domain)
-        self.definition_mode=QComboBox();self.definition_mode.addItems(['Coeficientes','Fórmula H(s) / H(z)','Respuesta H(w)']);
+        self.definition_mode=QComboBox();self.definition_mode.addItems(['Coeficientes','Fórmula H(s) / H(z)','Respuesta H(w)','Diagrama de realización'])
         from .choice_buttons import ChoiceButtons
-        self.definition_buttons=ChoiceButtons(self.definition_mode,['Coeficientes','Fórmula H','H(ω)']);form.addRow(self.definition_buttons)
+        self.definition_buttons=ChoiceButtons(self.definition_mode,['Coeficientes','Fórmula H','H(ω)','Diagrama']);form.addRow(self.definition_buttons)
         self.transfer_formula=ExpressionEditor('1/(s+1)',symbolic=True);form.addRow('Función de transferencia',self.transfer_formula)
         self.b=CoefficientEditor('1');self.a=CoefficientEditor('1, 1')
         form.addRow('Numerador b',self.b);form.addRow('Denominador a',self.a)
         self.transfer_preview=TransferPreview(self.b,self.a);form.addRow(self.transfer_preview)
+        from .realization_editor import RealizationInput
+        self.diagram_input=RealizationInput(self);form.addRow(self.diagram_input)
+        self.diagram_input.button.clicked.connect(self.open_diagram_editor)
         def definition_changed(*_):
-            formula=self.definition_mode.currentIndex()!=0
-            form.labelForField(self.transfer_formula).setText('Respuesta en frecuencia H(w)' if self.definition_mode.currentIndex()==2 else 'Función de transferencia')
-            self.transfer_formula.method_buttons.setVisible(self.definition_mode.currentIndex()==2)
-            form.setRowVisible(self.transfer_formula,formula);form.setRowVisible(self.b,not formula);form.setRowVisible(self.a,not formula);form.setRowVisible(self.transfer_preview,not formula)
+            mode=self.definition_mode.currentIndex()
+            form.labelForField(self.transfer_formula).setText('Respuesta en frecuencia H(w)' if mode==2 else 'Función de transferencia')
+            self.transfer_formula.method_buttons.setVisible(mode==2)
+            form.setRowVisible(self.transfer_formula,mode in (1,2))
+            for field in (self.b,self.a,self.transfer_preview):form.setRowVisible(field,mode==0)
+            form.setRowVisible(self.diagram_input,mode==3)
         self.definition_mode.currentIndexChanged.connect(definition_changed);definition_changed()
         self.system=None;self.analyzed_system=None;self.analysis_advance=0;self._roots_cache=None;self.frequency_data=None;self._drawn_frequency=None
         self.note=QLabel();self.note.setWordWrap(True);form.addRow(self.note)
@@ -56,9 +61,9 @@ class SystemAnalysisPanel(QWidget):
 
         self.roc_choice=QComboBox();self.roc_choice.addItems(['Secuencia derecha · exterior a polos','Secuencia izquierda · interior a polos','Anillo que contiene un radio','ROC no especificada']);form.addRow('Región de convergencia (ROC)',self.roc_choice)
         self.roc_radius=QLineEdit('1');form.addRow('Radio dentro de la ROC',self.roc_radius)
-        self.roc_choice.currentIndexChanged.connect(lambda *_:form.setRowVisible(self.roc_radius,self.roc_choice.currentIndex()==2))
         self._form=form
         self.impulse=QCheckBox('Calcular también h(t) causal');form.addRow(self.impulse)
+        self.roc_choice.currentIndexChanged.connect(lambda *_:self.set_definition_capabilities(getattr(self,'_definition_rational',True)))
         choose=QPushButton('Copiar un sistema anterior…');choose.clicked.connect(self.choose);form.addRow(choose)
         from .system_import import install_system_import
         self.system_import=install_system_import(choose,window,self.set_system,self.choose)
@@ -70,7 +75,7 @@ class SystemAnalysisPanel(QWidget):
         # marks it stale, and every action uses its captured Transfer and record id.
         self.calculate_button=QPushButton('Analizar sistema');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);form.insertRow(0,self.calculate_button)
         from .result_state import ResultState
-        self.result_state=ResultState([self.domain,self.definition_mode,self.b,self.a,self.transfer_formula,self.w0,self.w1,self.count,self.frequency_scale,self.margins,self.impulse,self.roc_choice,self.roc_radius],self.calculate_button);form.insertRow(1,self.result_state)
+        self.result_state=ResultState([self.domain,self.definition_mode,self.b,self.a,self.transfer_formula,self.diagram_input,self.w0,self.w1,self.count,self.frequency_scale,self.margins,self.impulse,self.roc_choice,self.roc_radius],self.calculate_button);form.insertRow(1,self.result_state)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);root.addWidget(right,2)
         layout.addWidget(self.result_actions);self.frequency_export=QPushButton('Exportar respuesta…');self.frequency_export.clicked.connect(self.export_response);self.frequency_export.setEnabled(False);self.result_actions.layout().addWidget(self.frequency_export)
@@ -105,9 +110,9 @@ class SystemAnalysisPanel(QWidget):
             labels=['Secuencia derecha · exterior a polos','Secuencia izquierda · interior a polos','Anillo que contiene un radio','ROC no especificada'] if digital else ['A la derecha de todos los polos','A la izquierda de todos los polos','Franja que contiene una línea σ','ROC no especificada']
             for index,label in enumerate(labels):self.roc_choice.setItemText(index,label)
             self._form.labelForField(self.roc_radius).setText('Radio dentro de la ROC' if digital else 'Parte real σ dentro de la ROC')
-            self._form.setRowVisible(self.roc_radius,self.roc_choice.currentIndex()==2)
             if getattr(self,'_roc_domain',None)!=digital:self.roc_choice.setCurrentIndex(3)
             self._roc_domain=digital
+            self.set_definition_capabilities(getattr(self,'_definition_rational',True))
         self.domain.currentIndexChanged.connect(update_roc);update_roc()
         self.result_tabs.currentChanged.connect(self._result_tab_changed);self.result_tabs.tabBar().tabBarClicked.connect(self._result_tab_changed)
         self.empty=QLabel('El análisis aparecerá después de calcular.');self.empty.setObjectName('muted');layout.addWidget(self.empty);self.result_tabs.hide()
@@ -158,6 +163,7 @@ class SystemAnalysisPanel(QWidget):
     def update_note(self,*_):
         digital=self.domain.currentIndex()==1;changed=digital!=getattr(self,'_noted_domain',None)
         self._noted_domain=digital
+        if changed:self.diagram_input.set_domain('digital' if digital else 'analog')
         if changed and self.transfer_formula.text() in ('1/(s+1)','1/(1-0.5*z^(-1))'):
             self.transfer_formula.setText('1/(1-0.5*z^(-1))' if digital else '1/(s+1)')
         self.b.set_domain(digital);self.a.set_domain(digital);self.transfer_preview.schedule()
@@ -165,15 +171,39 @@ class SystemAnalysisPanel(QWidget):
         self.note.setText('Frecuencias en rad/muestra.' if digital else 'Frecuencias en rad/s.')
         if changed and hasattr(self,'w1'):self.w1.setText('pi' if digital else '10')
         if hasattr(self,'impulse'):
-            if self.definition_mode.currentIndex()!=1:self.set_definition_capabilities(self.definition_mode.currentIndex()==0)
+            if self.definition_mode.currentIndex()!=1:self.set_definition_capabilities(self.definition_mode.currentIndex()!=2)
             self.impulse.setVisible(not digital and getattr(self,'_definition_rational',True))
             if digital:self.impulse.setChecked(False)
     def set_definition_capabilities(self,rational):
         self._definition_rational=bool(rational)
         if not hasattr(self,'_form'):return
-        self._form.setRowVisible(self.roc_choice,rational)
-        self._form.setRowVisible(self.roc_radius,rational and self.roc_choice.currentIndex()==2)
+        show_roc=rational and self.definition_mode.currentIndex()!=3
+        self._form.setRowVisible(self.roc_choice,show_roc)
+        self._form.setRowVisible(self.roc_radius,show_roc and self.roc_choice.currentIndex()==2)
         self.impulse.setVisible(rational and self.domain.currentIndex()==0)
+
+    def open_diagram_editor(self):
+        from .realization_editor import RealizationEditor
+        from .realization_graph import RealizationGraph
+
+        graph = self.diagram_input.graph or RealizationGraph.empty(self.diagram_input.domain)
+        editor = RealizationEditor(graph, self)
+        try:
+            if not editor.exec():
+                return False
+            self.load_diagram(editor.graph())
+            return True
+        finally:
+            editor.deleteLater()
+
+    def load_diagram(self, graph):
+        from .system_clock import remember_period
+
+        self.input_id = None
+        self.domain.setCurrentIndex(1 if graph.domain == 'digital' else 0)
+        self.diagram_input.set_graph(graph)
+        self.definition_mode.setCurrentIndex(3)
+        remember_period(self,None)
     def load_expression(self,expression,key=None,record=None,roc_spec=None):
         from copy import deepcopy
         from .transform_context import result_roc
@@ -238,10 +268,14 @@ class SystemAnalysisPanel(QWidget):
             self.report.setPlainText('Se importaron coeficientes numéricos. El análisis algebraico representa estos decimales almacenados; no recupera una fórmula exacta anterior desconocida.')
     def calculate(self):
         try:
+            if self.definition_mode.currentIndex()==3 and self.diagram_input.graph is None and not self.open_diagram_editor():return
+            mode=self.definition_mode.currentIndex()
             request=dict(operation='system_analysis',domain='analog' if self.domain.currentIndex()==0 else 'digital',
-                b=self.b.coefficients() if self.definition_mode.currentIndex()==0 else [],a=self.a.coefficients() if self.definition_mode.currentIndex()==0 else [],impulse=self.impulse.isChecked())
-            if self.definition_mode.currentIndex()!=0:request=dict(operation='system_frequency_expression' if self.definition_mode.currentIndex()==2 else 'system_formula',expression=self.transfer_formula.text(),domain=request['domain'],impulse=self.impulse.isChecked())
-            if self.definition_mode.currentIndex()!=0 and (self.transfer_formula.text(),self.domain.currentIndex())==getattr(self,'_formula_context_signature',None) and self._formula_context is not None:
+                b=self.b.coefficients() if mode==0 else [],a=self.a.coefficients() if mode==0 else [],impulse=self.impulse.isChecked())
+            if mode in (1,2):request=dict(operation='system_frequency_expression' if mode==2 else 'system_formula',expression=self.transfer_formula.text(),domain=request['domain'],impulse=self.impulse.isChecked())
+            if mode==3:
+                request=dict(operation='system_realization',domain=request['domain'],diagram=self.diagram_input.graph.to_document(),impulse=self.impulse.isChecked())
+            if mode in (1,2) and (self.transfer_formula.text(),self.domain.currentIndex())==getattr(self,'_formula_context_signature',None) and self._formula_context is not None:
                 from copy import deepcopy
                 request['source_calculation']=deepcopy(self._formula_context)
             preserved=getattr(self,'_preserved_system',None) if (self.definition_mode.currentIndex()==0 and (self.b.text(),self.a.text(),self.domain.currentIndex())==getattr(self,'_preserved_definition',None)) or (self.definition_mode.currentIndex()==1 and (self.transfer_formula.text(),self.domain.currentIndex())==getattr(self,'_preserved_formula',None)) else None
@@ -256,7 +290,10 @@ class SystemAnalysisPanel(QWidget):
             from .system_clock import editor_period,apply_period
             period=editor_period(self)
             digital=request['domain']=='digital'
-            roc_spec=({'mode':['right','left','radius' if digital else 'line'][self.roc_choice.currentIndex()],**({('radius' if digital else 'sigma'):real_field(self.roc_radius,minimum=0 if digital else None,strict=digital)} if self.roc_choice.currentIndex()==2 else {})} if self.roc_choice.currentIndex()<3 else None)
+            if mode==3:
+                roc_spec={'mode':'right'}
+            else:
+                roc_spec=({'mode':['right','left','radius' if digital else 'line'][self.roc_choice.currentIndex()],**({('radius' if digital else 'sigma'):real_field(self.roc_radius,minimum=0 if digital else None,strict=digital)} if self.roc_choice.currentIndex()==2 else {})} if self.roc_choice.currentIndex()<3 else None)
             request['roc_spec']=roc_spec
             parent=self.input_id;calculated_inputs=self.result_state.snapshot()
             def compute():
@@ -264,7 +301,9 @@ class SystemAnalysisPanel(QWidget):
                     exact={'transfer':'B(z^(-1))/A(z^(-1))' if preserved.domain=='digital' else 'B(s)/A(s)','factored':'Cascada de secciones' if preserved.sos is not None else 'Numerador y denominador del filtro calculado','scope':'Se analizan los coeficientes numéricos cargados, con su realización preservada. B y A se definen en las tablas de coeficientes.','numeric_b':[[v.real,v.imag] for v in preserved.b],'numeric_a':[[v.real,v.imag] for v in preserved.a]}
                     from .phase_summary import transfer_formula
                     exact['transfer']=transfer_formula(preserved,digits=17)[0].text.split('=',1)[1].strip();exact['advance']=preserved.advance
-                else:exact=run_request(request)
+                else:
+                    exact=run_request(request)
+                    if mode==3:request['expression']=exact['diagram_expression']
                 omega_grid=None
                 notice=grid_notice
                 if grid_request is not None:
@@ -313,7 +352,7 @@ class SystemAnalysisPanel(QWidget):
                 if data is not None:self.draw_frequency()
                 else:
                     self.figure.clear();empty=self.figure.add_subplot(111);empty.set_axis_off();empty.text(.5,.5,exact.get('frequency_notice','Asigná valores a los parámetros para obtener la respuesta numérica.'),ha='center',va='center',wrap=True,transform=empty.transAxes);self.canvas.draw_idle()
-                self.result_actions.set_result(self.system,self.input_id);self.result_actions.setEnabled(True)
+                self.result_actions.set_result(self.system,self.input_id,expression_key=definition if mode==3 else None);self.result_actions.setEnabled(True)
                 message=exact.get('analysis_limits','La fórmula se conserva con sus parámetros y condiciones.') if analytic else ('El sistema conserva '+str(system.advance)+' muestras de avance. Podés exportarlo o reutilizarlo para análisis y Z inversa con ROC. La simulación causal no reemplaza ese avance por un retardo.' if system is not None and system.advance else exact.get('numeric_notice','La fórmula conserva parámetros libres. Asignales valores para exportar o reutilizar un sistema numérico.') if system is None else '')
                 self.reuse_note.setText(message);self.reuse_note.setVisible(bool(message))
                 expression_actions=analytic or system is None
@@ -326,6 +365,9 @@ class SystemAnalysisPanel(QWidget):
                 if system is not None:
                     from .system_conditions import section
                     summary.sections.insert(1,section(system))
+                if mode==3:
+                    diagram=request['diagram']
+                    summary.sections.insert(1,Section('Diagrama de entrada',rows=[('Bloques',len(diagram['blocks'])),('Conexiones',len(diagram['wires']))],paragraphs=['La transferencia se obtiene con estado inicial nulo.']))
                 if system is not None and system.sample_period_s is not None:
                     from .result_summary import Section,number
                     summary.sections.append(Section('Muestreo del sistema',rows=[('Período T (s)',number(system.sample_period_s))]))

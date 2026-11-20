@@ -100,6 +100,17 @@ def execute(request):
 
 def _execute(request):
     operation = request["operation"]
+    if operation == 'system_realization':
+        from .realization_graph import RealizationGraph
+
+        graph = RealizationGraph.from_document(request['diagram'])
+        if graph.domain != request['domain']:
+            raise ValueError('El diagrama pertenece a otro dominio.')
+        expression = str(graph.transfer())
+        result = execute({**request, 'operation': 'system_formula', 'expression': expression})
+        result.update(operation=operation, diagram_expression=expression,
+                      scope='Relación entrada–salida del diagrama con estado inicial nulo.')
+        return result
     if operation=='frequency_definition':
         from .fourier_bands import frequency_definition
         return frequency_definition(request)

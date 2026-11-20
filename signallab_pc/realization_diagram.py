@@ -87,6 +87,7 @@ class RealizationWindow(QDialog):
         if .25<=self.view.transform().m11()*factor<=4:self.view.scale(factor,factor)
     def set_realization(self,value):
         scene=diagram_scene(value,self);previous=self.view.scene();self.view.setScene(scene)
+        self.realization=value
         if previous is not None:previous.deleteLater()
         self.view.resetTransform();self.view.verticalScrollBar().setValue(0);self.view.horizontalScrollBar().setValue(0)
     def fit_width(self):
@@ -95,11 +96,16 @@ class RealizationWindow(QDialog):
     def export(self):
         scene=self.view.scene()
         if scene is None:return
-        path,selected=QFileDialog.getSaveFileName(self,'Exportar diagrama completo','realizacion','Diagrama vectorial SVG (*.svg);;Imagen PNG (*.png)')
+        path,selected=QFileDialog.getSaveFileName(self,'Exportar diagrama completo','realizacion','Diagrama editable JSON (*.json);;Diagrama vectorial SVG (*.svg);;Imagen PNG (*.png)')
         if not path:return
         from pathlib import Path
-        if not Path(path).suffix:path+='.svg' if 'SVG' in selected else '.png'
+        if not Path(path).suffix:path+='.json' if 'JSON' in selected else '.svg' if 'SVG' in selected else '.png'
         try:
+            if Path(path).suffix.lower()=='.json':
+                from .atomic_file import write_json
+                from .realization_graph import graph_from_realization
+                write_json(path,graph_from_realization(self.realization).to_document())
+                return
             data=QByteArray();buffer=QBuffer(data);buffer.open(QIODevice.OpenModeFlag.WriteOnly)
             if Path(path).suffix.lower()=='.svg':
                 from PySide6.QtSvg import QSvgGenerator

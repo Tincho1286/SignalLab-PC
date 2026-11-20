@@ -64,6 +64,53 @@ class WorkflowContracts(unittest.TestCase):
         request=dict(operation='z_expression',expression=SOURCE,lower='0',upper='oo')
         return dict(request=request,result=execute(request))
 
+    def test_realization_editor_to_transfer_and_frequency(self):
+        from PySide6.QtCore import Qt
+        from PySide6.QtTest import QTest
+        from signallab_pc.realization_editor import RealizationEditor
+        from signallab_pc.realization_graph import RealizationGraph
+
+        self.host.open_tool(ROUTES['system_analysis', 0])
+        panel = self.host.pages[self.host.current_operation].panel
+        editor = RealizationEditor(RealizationGraph.empty('digital'), panel)
+        self.widgets.append(editor)
+        editor.show()
+        self.app.processEvents()
+        editor.add_block('memory')
+        for source, target in ((1, 3), (3, 2)):
+            editor.connect_button.click()
+            for ident in (source, target):
+                pos = editor.view.mapFromScene(editor.blocks[ident].pos())
+                QTest.mouseClick(editor.view.viewport(), Qt.MouseButton.LeftButton, pos=pos)
+        self.assertEqual(len(editor.graph().wires), 2)
+        editor.hide()
+
+        with tempfile.TemporaryDirectory() as folder:
+            path = str(Path(folder) / 'retardo.json')
+            with patch('PySide6.QtWidgets.QFileDialog.getSaveFileName', return_value=(path, 'JSON')):
+                editor.save_file()
+            reader = RealizationEditor(RealizationGraph.empty('analog'), panel)
+            self.widgets.append(reader)
+            with patch('PySide6.QtWidgets.QFileDialog.getOpenFileName', return_value=(path, 'JSON')):
+                reader.open_file()
+            self.assertEqual(reader.graph(), editor.graph())
+
+        panel.load_diagram(reader.graph())
+        panel.roc_choice.setCurrentIndex(2)
+        panel.roc_radius.setText('campo fuera de uso')
+        panel = self.calculated_analysis()
+        self.assertTrue(panel.roc_choice.isHidden())
+        self.assertTrue(panel.roc_radius.isHidden())
+        self.assertEqual(panel.system.roc, {'mode': 'right'})
+        assert_allclose(panel.frequency_data.response, np.exp(-1j * panel.frequency_data.omega), atol=2e-14)
+        record = self.host.project.get(panel._definition_id)
+        self.assertEqual(record['request']['diagram'], editor.graph().to_document())
+        self.assertEqual(record['result']['transfer'], '1/z')
+        self.assertIn('Diagrama de entrada', panel.report.toPlainText())
+        with patch('signallab_pc.cas_transfer.send_to_cas') as send:
+            panel.result_actions.cas_button.click()
+            send.assert_called_once_with(self.host, panel._definition_id)
+
     def test_impulse_alias_transform_to_analysis_and_cas(self):
         from signallab_pc.cas_transfer import payload
         from signallab_pc.cas_import import import_result

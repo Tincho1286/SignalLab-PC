@@ -3,6 +3,7 @@ import numpy as np
 from scipy import signal
 from signallab_pc.filters import Transfer
 from signallab_pc.realization import realize_system
+from signallab_pc.realization_graph import Block, RealizationGraph, Wire, graph_from_realization
 from signallab_pc.state_space import StateModel
 
 
@@ -40,5 +41,45 @@ class RealizationTests(unittest.TestCase):
         for dt in (None,0,-1,np.inf):
             with self.assertRaises(ValueError):realize_system(Transfer([1],[1])).to_model(dt)
         with self.assertRaises(ValueError):realize_system(Transfer([1],[1],'analog')).to_model(.1)
+
+
+class RealizationGraphTests(unittest.TestCase):
+    def test_negative_feedback_uses_domain_and_preserves_exact_gain(self):
+        from signallab_pc.symbolic import execute, parse, S, Z
+        import sympy as sp
+
+        blocks = (Block(1, 'input', 0, 0), Block(2, 'output', 500, 0),
+                  Block(3, 'sum', 130, 0), Block(4, 'gain', 270, 0, '1/3'),
+                  Block(5, 'memory', 400, 0))
+        wires = (Wire(1, 3), Wire(3, 4), Wire(4, 5), Wire(5, 2), Wire(5, 3, -1))
+        for domain, variable in (('analog', S), ('digital', Z)):
+            graph = RealizationGraph(domain, blocks, wires)
+            result = execute({'operation': 'system_realization', 'domain': domain, 'diagram': graph.to_document()})
+            self.assertEqual(sp.cancel(parse(result['transfer']) - 1 / (3 * variable + 1)), 0)
+            self.assertIn('numeric_b', result)
+
+    def test_export_preserves_parallel_paths_and_pure_delay(self):
+        from signallab_pc.symbolic import execute
+
+        for original in (Transfer([0, 0, 2], [1]), Transfer([1, 0, .5], [1, -.25]),
+                         Transfer([.25j, 1], [1, 2, 1], 'analog'),
+                         Transfer.from_sos([[1, .5, 0, 1, -.25, 0], [0, 1, 0, 1, 0, 0]])):
+            value = graph_from_realization(realize_system(original))
+            data = execute({'operation': 'system_realization', 'domain': original.domain, 'diagram': value.to_document()})
+            system = Transfer([complex(*v) for v in data['numeric_b']], [complex(*v) for v in data['numeric_a']], original.domain)
+            omega = np.array([.1, .5, 1.3, 3.])
+            np.testing.assert_allclose(system.response(omega), original.response(omega), atol=1e-14)
+
+    def test_singular_instantaneous_feedback_and_unconnected_branch(self):
+        from sympy import Rational
+
+        blocks = (Block(1, 'input', 0, 0), Block(2, 'output', 450, 0), Block(3, 'sum', 230, 0))
+        direct = (Wire(1, 3), Wire(3, 2))
+        with self.assertRaisesRegex(ValueError, 'lazo instantáneo'):
+            RealizationGraph('analog', blocks, direct + (Wire(3, 3),)).transfer()
+        self.assertEqual(RealizationGraph('analog', blocks, direct + (Wire(3, 3, -1),)).transfer(), Rational(1, 2))
+        extra = blocks + (Block(4, 'gain', 140, 100),)
+        with self.assertRaisesRegex(ValueError, 'camino hacia la salida'):
+            RealizationGraph('analog', extra, direct + (Wire(1, 4),)).transfer()
 
 if __name__=='__main__':unittest.main()

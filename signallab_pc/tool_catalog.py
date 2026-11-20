@@ -25,7 +25,7 @@ for key,title,summary in [
  (('expression_measures','interval'),'Medir en un intervalo','Energía de una expresión en límites definidos.'),
  (('expression_measures','global'),'Medir en todo el eje','Energía y potencia globales; condiciones de convergencia.'),
  (('expression_measures','periodic'),'Medir señal periódica','Energía por período y potencia media.')]:add('signals','Energía y potencia',key,title,summary,'energia potencia rms')
-add('systems','Analizar y simular',('system_analysis',0),'Función de transferencia y análisis','H(s) o H(z): módulo/dB, fase, retardo, polos/ceros y realización.','bode logaritmico decibelios margenes frecuencia estabilidad grupo numerador denominador coeficientes formula polos ceros realizacion diagrama integradores retardos estados directa cascada')
+add('systems','Analizar y simular',('system_analysis',0),'Función de transferencia y análisis','Obtené H(s) o H(z) desde coeficientes, una fórmula o un diagrama. Consultá su respuesta, polos y ceros.','bode logaritmico decibelios margenes frecuencia estabilidad grupo numerador denominador coeficientes formula polos ceros realizacion diagrama integradores retardos estados directa cascada')
 add('systems','Analizar y simular',('systems',9),'Respuesta temporal','Impulso, escalón o entrada propia; condiciones iniciales.','filtrar convolucion diferencias simulacion')
 add('systems','Analizar y simular',('interconnection',0),'Conectar sistemas','Cascada, paralelo o realimentación de bloques.','retroalimentacion feedback')
 for key,title,summary in [

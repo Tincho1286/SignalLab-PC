@@ -15,8 +15,8 @@ class SystemResultActions(ResultActionBar):
         self.cas_button.clicked.connect(self.send_to_cas);row.addWidget(self.cas_button);row.addWidget(self.analysis)
         self.export_button=QPushButton('Exportar filtro…');self.export_button.clicked.connect(lambda:self.owner.export_transfer(self.system) if self.system is not None else None);row.addWidget(self.export_button)
         self.set_result(None)
-    def set_result(self,system,key=None):
-        self.system=system;self.key=key;self.setEnabled(system is not None)
+    def set_result(self,system,key=None,*,expression_key=None):
+        self.system=system;self.key=key;self.expression_key=expression_key;self.setEnabled(system is not None)
         for button in (self.analysis,self.reuse,self.export_button):button.setEnabled(system is not None)
         self.temporal_action.setEnabled(system is not None and not system.advance)
         self.temporal_action.setToolTip('Para un sistema con avance, usá Z inversa con ROC y un intervalo de índices.' if system is not None and system.advance else '')
@@ -27,7 +27,8 @@ class SystemResultActions(ResultActionBar):
     def send_to_cas(self):
         if self.system is not None:
             from .cas_transfer import send_to_cas
-            send_to_cas(self.owner,self.key,value=self.system)
+            if self.expression_key is not None:send_to_cas(self.owner,self.expression_key)
+            else:send_to_cas(self.owner,self.key,value=self.system)
 
     def prepare_reuse(self):
         self.reuse_menu.clear()
