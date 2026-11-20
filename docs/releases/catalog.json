@@ -1,6 +1,22 @@
 {
   "releases": [
     {
+      "tag": "v1.8.17",
+      "title": "Informes y guías de trabajo",
+      "channel": "preview",
+      "summary": "La 1.8.17 preliminar amplía la revisión de los informes de Fourier, filtros y sistemas. Las salidas muestran las fórmulas, los valores y las condiciones que se aplican al cálculo. La Biblioteca y el manual explican los métodos.",
+      "changes": [
+        "La DTFT inversa distingue la expresión obtenida de las muestras calculadas.",
+        "Los informes de fase y precisión finita identifican las referencias de cada comparación.",
+        "Las medidas, ecuaciones y conversiones muestran primero los datos del resultado.",
+        "Las guías de Fourier, muestreo, precisión y sistemas desarrollan los métodos y sus condiciones."
+      ],
+      "limits": [
+        "Las condiciones de validez y los avisos que dependen de los datos se conservan en cada informe."
+      ],
+      "notes": "docs/releases/v1.8.17.md"
+    },
+    {
       "tag": "v1.8.16",
       "title": "Informes, gráficos y ayuda",
       "channel": "preview",

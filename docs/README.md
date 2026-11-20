@@ -6,7 +6,7 @@ La [1.8.14 estable](releases/v1.8.14.md) consolida las mejoras de las preliminar
 
 ## Instalar y empezar
 
-La [1.8.16 preliminar](releases/v1.8.16.md) mejora la lectura de resultados y ayuda. El catálogo **Herramientas** permite elegir el cálculo por área o buscarlo por nombre.
+La [1.8.17 preliminar](releases/v1.8.17.md) amplía la revisión de informes y guías de trabajo. El catálogo **Herramientas** permite elegir el cálculo por área o buscarlo por nombre.
 
 La [guía de instalación](installation.md) ayuda a elegir el paquete adecuado. Después, [Primeros pasos](getting-started.md) recorre un cálculo completo y muestra cómo continuar con su resultado. Si ya tenés la edición instalada, la [guía de actualizaciones](installed-updates.md) explica cómo incorporar nuevas versiones conservando la configuración.
 

@@ -36,7 +36,7 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 ### Canal estable y preliminares
 
-La [1.8.16 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.16) mejora la lectura de gráficos y resultados. El instalador actualizable se ofrece al elegir **Estables y preliminares (Pre-releases)**. También podés descargar los cuatro formatos directamente desde la publicación.
+La [1.8.17 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.17) amplía la revisión de informes y guías. Podés descargar el instalador o el portable para Windows y Linux. Para recibirla desde el actualizador, elegí **Estables y preliminares (Pre-releases)**.
 
 La **1.8.14 estable** consolida las mejoras de las preliminares 1.8.9 a 1.8.14 y está disponible con **Sólo versiones estables** del actualizador. Incluye las ampliaciones de respuesta temporal, medidas de frecuencia, estudios de modelos, registros y reconstrucción, junto con las mejoras de carga y edición de muestras. El selector **Estables y preliminares (Pre-releases)** permite recibir futuras entregas de prueba cuando sean más nuevas que la estable instalada.
 
@@ -81,6 +81,8 @@ El alcance depende del método elegido y de sus hipótesis. Una evaluación sobr
 
 ## Novedades e historial
 
+La 1.8.17 preliminar amplía la revisión de los informes de Fourier, filtros y sistemas. Las salidas muestran las fórmulas, los valores y las condiciones que se aplican al cálculo. La Biblioteca y el manual explican los métodos. [Notas de la 1.8.17](docs/releases/v1.8.17.md).
+
 La 1.8.16 preliminar corrige la superposición de controles al desplazarse y mantiene verticales los rótulos de los gráficos. Los informes revisados priorizan los valores calculados y sus condiciones; la Biblioteca concentra el detalle de los métodos. [Notas de la 1.8.16](docs/releases/v1.8.16.md).
 
 La 1.8.15 preliminar agrupa la navegación en un catálogo con búsqueda por nombre o concepto. Los formularios y los informes usan el ancho de la ventana y las acciones de salida se encuentran siempre junto al resultado. [Notas de la 1.8.15](docs/releases/v1.8.15.md).
@@ -111,7 +113,7 @@ La [1.8.1 estable](docs/releases/v1.8.1.md) amplía las herramientas de análisi
 
 La [versión 1.8.0](docs/releases/v1.8.0.md) incorpora los instaladores y el canal de actualizaciones, manteniendo los portables y las mejoras matemáticas de la [1.7.0](docs/releases/v1.7.0.md). El [historial de cambios](CHANGELOG.md) ofrece un recorrido resumido; las [notas de cada versión](docs/releases/README.md) explican las incorporaciones, correcciones y límites de cada entrega.
 
-## Vistas de la 1.8.16 preliminar
+## Informes y gráficos
 
 | Informe de análisis LTI | Respuesta en frecuencia |
 | --- | --- |

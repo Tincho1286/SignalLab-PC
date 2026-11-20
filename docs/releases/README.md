@@ -8,6 +8,7 @@ Este índice conserva las publicaciones anteriores con sus notas y canales hist�
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.17](v1.8.17.md) | Informes de Fourier, filtros y sistemas. Guías de trabajo actualizadas. | Preliminar |
 | [1.8.16](v1.8.16.md) | Controles, rótulos verticales e informes más fáciles de leer | Preliminar |
 | [1.8.15](v1.8.15.md) | Catálogo por áreas, informes ampliables y cursores | Preliminar |
 | [1.8.14](v1.8.14.md) | Carga, edición y combinación de señales · estable acumulativa | Estable |

@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.14](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.14). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.17 · Preliminar
+
+La 1.8.17 preliminar amplía la revisión de los informes de Fourier, filtros y sistemas. Las salidas muestran las fórmulas, los valores y las condiciones que se aplican al cálculo. La Biblioteca y el manual explican los métodos.
+
+[Novedades completas](docs/releases/v1.8.17.md)
+
 ## 1.8.16 · Preliminar
 
 La 1.8.16 preliminar corrige la superposición de controles al desplazarse y mantiene verticales los rótulos de los gráficos. Los informes revisados priorizan los valores calculados y sus condiciones; la Biblioteca concentra el detalle de los métodos.
