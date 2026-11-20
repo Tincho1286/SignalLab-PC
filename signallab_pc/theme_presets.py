@@ -46,11 +46,11 @@ def recolor(text,previous=None):
 
 
 def restore():
-    from PySide6.QtCore import QSettings
+    from .desktop_settings import desktop_settings
     global HAS_CUSTOM
     from .custom_appearance import load
     config,HAS_CUSTOM=load();set_custom(config)
-    return select(QSettings('SignalLab','Desktop071').value('appearance/theme','navy'))
+    return select(desktop_settings().value('appearance/theme','navy'))
 
 
 def set_custom(config):

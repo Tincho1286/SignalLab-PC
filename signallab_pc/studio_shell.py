@@ -11,7 +11,7 @@ class NavigationRail(QWidget):
         super().__init__();self.setObjectName('navigationRail');self.buttons={};self.symbols={};root=QVBoxLayout(self);root.setContentsMargins(7,10,7,10);root.setSpacing(6)
         from .tool_catalog import AREAS
         items=[('home','Inicio','home',C['accent'],window.show_home)]
-        labels={'signals':'Señales','systems':'Sistemas','filters':'Filtros','spectra':'Fourier','sampling':'Muestreo','transforms':'Laplace / Z','random':'Aleatorias'}
+        labels={'signals':'Señales','systems':'Sistemas LTI','filters':'Filtros','spectra':'Fourier','sampling':'Muestreo','transforms':'Laplace y Z','random':'Aleatorias'}
         items.extend((key,labels[key],symbol,AREA_COLORS[key],lambda checked=False,k=key:window.show_area(k)) for key,_,_,symbol in AREAS);items.append(('cas','CAS','calculator',C['purple'],window.open_cas))
         for key,title,symbol,color,callback in items:
             button=QToolButton();button.setObjectName('railItem');button.setText(title);button.setIcon(icon(symbol,color));button.setIconSize(QSize(23,23));button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon);button.setCheckable(True);button.setAccessibleName(title);button.setToolTip(title);button.setCursor(Qt.CursorShape.PointingHandCursor);button.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed);button.clicked.connect(callback);root.addWidget(button);self.buttons[key]=button;self.symbols[key]=symbol
@@ -21,6 +21,18 @@ class NavigationRail(QWidget):
         for key,button in self.buttons.items():button.setChecked(key==selected)
     def refresh_theme(self):
         for key,button in self.buttons.items():button.setIcon(icon(self.symbols[key],C['accent'] if key=='home' else C['purple'] if key=='cas' else AREA_COLORS[key]))
+
+    def set_expanded(self,expanded):
+        style = Qt.ToolButtonStyle.ToolButtonTextBesideIcon if expanded else Qt.ToolButtonStyle.ToolButtonTextUnderIcon
+        short_labels = {'systems':'Sistemas', 'transforms':'Laplace/Z'}
+        margins = 7 if expanded else 4
+        self.layout().setContentsMargins(margins,8,margins,8)
+        self.layout().setSpacing(6 if expanded else 3)
+        for key,button in self.buttons.items():
+            button.setToolButtonStyle(style)
+            button.setText(button.accessibleName() if expanded else short_labels.get(key,button.accessibleName()))
+            button.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Fixed)
+            button.setMinimumHeight(42 if expanded else 49)
 
 
 def install_navigation(window):
@@ -77,10 +89,12 @@ def install_toolbar(window):
 
 def adapt_shell(window):
     """Preserve task controls and reading space on small desktop windows."""
-    compact=window.width()<960;short=window.height()<650
-    if getattr(window,'_studio_density',None)==(compact,short):return
-    window._studio_density=compact,short
+    compact=window.width()<960;short=window.height()<650;expanded=window.width()>=1240
+    if getattr(window,'_studio_density',None)==(compact,short,expanded):return
+    window._studio_density=compact,short,expanded
+    window.studio_rail.setFixedWidth(152 if expanded else 88)
+    window.navigation_rail.set_expanded(expanded)
     if hasattr(window,'studio_brand_name'):window.studio_brand_name.setVisible(not compact)
     if hasattr(window,'studio_search'):window.studio_search.setText('Buscar herramientas' if compact else 'Buscar herramientas     Ctrl+K')
     for button in getattr(window,'studio_aux_buttons',[]):button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly if compact else Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-    window.subtitle.setVisible(not short);window.title.setStyleSheet('font-size:17pt;' if compact else '')
+    window.subtitle.setVisible(not short and not window.heading.isHidden());window.title.setStyleSheet('font-size:17pt;' if compact else '')

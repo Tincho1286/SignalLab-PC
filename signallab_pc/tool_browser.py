@@ -1,100 +1,241 @@
-"""Rounded area cards and direct actions, preserving the existing catalogue."""
-from PySide6.QtCore import Qt,QSize
-from PySide6.QtGui import QColor
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QGridLayout,QLabel,QPushButton,QFrame,QScrollArea,QSizePolicy,QLineEdit
-from .tool_catalog import AREAS,AREA_BY_ID,ENTRIES,BY_KEY
-from .theme_tokens import COLORS as C,AREA_COLORS
+"""Task shortcuts, area navigation and search from the desktop start page."""
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtWidgets import (
+    QFrame, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
+    QScrollArea, QSizePolicy, QVBoxLayout, QWidget,
+)
+
 from .design import icon
+from .studio_cards import QuickAction, SamplingIllustration
+from .theme_tokens import AREA_COLORS
+from .tool_catalog import AREAS, AREA_BY_ID, BY_KEY, ENTRIES, matches, normalize
 from .wallpaper import BackgroundSurface
 
+
+SHORTCUTS = (
+    ('Crear señal', 'Fórmulas, muestras y ventanas', ('basic', 'generate'), 'signal', 'green'),
+    ('Analizar sistema', 'Transferencia, frecuencia y tiempo', ('system_analysis', 0), 'response', 'blue'),
+    ('Diseñar filtro', 'Bandas, ventanas o polos y ceros', ('course_tools', 'fir'), 'design', 'purple'),
+    ('Transformada de Fourier', 'DTFT, DFT y Fourier continua', ('fourier', 0), 'spectrum', 'amber'),
+)
+
+AREA_SUMMARIES = {
+    'signals': 'Edición, operaciones y medidas',
+    'systems': 'Transferencias y respuestas',
+    'filters': 'FIR, IIR, ideales y conversión',
+    'spectra': 'Series, transformadas y densidades',
+    'sampling': 'Aliasing, reconstrucción y tasa',
+    'transforms': 'Transformadas y ecuaciones',
+    'random': 'Estadística, correlación y modelos',
+}
+
+
+def label(text, name):
+    widget = QLabel(text)
+    widget.setObjectName(name)
+    widget.setWordWrap(True)
+    return widget
+
+
 class ToolLink(QPushButton):
-    def __init__(self,title,description,callback):
-        super().__init__();self.setObjectName('toolLink');self.setAccessibleName(title);self.setCursor(Qt.CursorShape.PointingHandCursor);self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum)
-        row=QHBoxLayout(self);row.setContentsMargins(11,9,11,9);row.setSpacing(8);box=QVBoxLayout();box.setSpacing(3);row.addLayout(box,1)
-        for text,name in [(title,'linkTitle'),(description,'muted')]:
-            label=QLabel(text);label.setObjectName(name);label.setWordWrap(True);label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents);box.addWidget(label)
-        arrow=QLabel('›');arrow.setObjectName('linkArrow');arrow.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents);row.addWidget(arrow)
+    def __init__(self, entry, callback):
+        super().__init__()
+        self.setObjectName('toolLink')
+        self.setAccessibleName(entry['title'])
+        self.setAccessibleDescription(entry['summary'])
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        row = QHBoxLayout(self)
+        row.setContentsMargins(12, 8, 12, 8)
+        column = QVBoxLayout()
+        column.setSpacing(2)
+        for text, name in [(entry['title'], 'linkTitle'), (entry['summary'], 'muted')]:
+            item = label(text, name)
+            item.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+            column.addWidget(item)
+        row.addLayout(column, 1)
+        arrow = label('›', 'linkArrow')
+        arrow.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        row.addWidget(arrow)
         self.clicked.connect(callback)
-    def sizeHint(self):return self.layout().sizeHint().expandedTo(QSize(100,54))
+
+    def sizeHint(self):
+        return self.layout().sizeHint().expandedTo(QSize(100, 49))
+
 
 class ToolBrowser(QScrollArea):
-    def __init__(self,window,area=None):
-        super().__init__();self.window=window;self.area=area;self.cards=[];self.columns=None;self.quick_grid=None;self.quick_buttons=[];self.quick_columns=None;self.badges=[];self.link_groups=[]
-        self.setWidgetResizable(True);self.setFrameShape(QFrame.Shape.NoFrame);self.content=BackgroundSurface();self.content.setObjectName('workspaceWallpaper');self.setWidget(self.content)
-        root=QVBoxLayout(self.content);root.setContentsMargins(18,16,18,16);root.setSpacing(14)
+    def __init__(self, window, area=None):
+        super().__init__()
+        self.window = window
+        self.area = area
+        self.sections = []
+        self.quick_buttons = []
+        self.area_buttons = []
+        self.columns = None
+        self.card_columns = None
+        self.setWidgetResizable(True)
+        self.setFrameShape(QFrame.Shape.NoFrame)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.content = BackgroundSurface()
+        self.content.setObjectName('workspaceWallpaper')
+        self.setWidget(self.content)
+        root = QVBoxLayout(self.content)
+        root.setContentsMargins(18, 12, 18, 16)
+        root.setSpacing(12)
+        if area is None:
+            self.build_home(root)
+        self.grid = QGridLayout()
+        self.grid.setSpacing(10)
+        root.addLayout(self.grid)
+        root.addStretch()
+
         if area:
-            label=QLabel(AREA_BY_ID[area][2]);label.setObjectName('muted');label.setWordWrap(True);root.addWidget(label)
+            entries = [entry for entry in ENTRIES if entry['area'] == area]
+            for title in dict.fromkeys(entry['section'] for entry in entries):
+                self.add_section(area, title, [entry for entry in entries if entry['section'] == title])
         else:
-            from .studio_cards import StudioHero,QuickAction
-            hero=StudioHero();hero_box=QVBoxLayout(hero);hero_box.setContentsMargins(26,24,26,24);hero_box.setSpacing(12)
-            title=QLabel('Señales y sistemas');title.setObjectName('welcomeTitle');title.setWordWrap(True);hero_box.addWidget(title)
-            subtitle=QLabel('Análisis de señales, diseño de filtros y cálculo simbólico.');subtitle.setObjectName('muted');subtitle.setWordWrap(True);hero_box.addWidget(subtitle)
-            self.home_search=QLineEdit();self.home_search.setObjectName('homeSearch');self.home_search.setPlaceholderText('Buscá una tarea: convolución, filtro FIR, transformada Z…');self.home_search.setClearButtonEnabled(True);self.home_search.addAction(icon('search'),QLineEdit.ActionPosition.LeadingPosition);hero_box.addWidget(self.home_search)
-            self.quick_grid=QGridLayout();self.quick_grid.setSpacing(9);hero_box.addLayout(self.quick_grid)
-            descriptions={'signal':'Fórmulas, muestras y ventanas','system':'Tiempo, frecuencia y polos','filter':'FIR, IIR y respuestas ideales'}
-            for text,key,symbol,role,color in [('Crear señal',('basic','generate'),'signal','signal','green'),('Analizar sistema',('system_analysis',0),'response','system','blue'),('Diseñar filtro',('course_tools','fir'),'design','filter','purple')]:
-                button=QuickAction(text,descriptions[role],symbol,color,lambda checked=False,k=key:window.open_workflow(BY_KEY[k]));button.setProperty('themeSymbol',symbol);button.setProperty('themeRole',color);self.quick_buttons.append(button)
-            root.addWidget(hero)
-        self.grid=QGridLayout();self.grid.setSpacing(14);root.addLayout(self.grid);self.search_empty=QLabel('No encontré una herramienta con ese nombre. Probá con una tarea, como Fourier, energía o polos.');self.search_empty.setObjectName('muted');self.search_empty.setWordWrap(True);self.search_empty.hide();root.addWidget(self.search_empty);root.addStretch()
-        if area:
-            sections=list(dict.fromkeys(entry['section'] for entry in ENTRIES if entry['area']==area))
-            for section in sections:self.cards.append(self.make_card(area,section,[e for e in ENTRIES if e['area']==area and e['section']==section]))
-        else:
-            for key,title,description,symbol in AREAS:self.cards.append(self.make_card(key,title,[e for e in ENTRIES if e['area']==key]))
-            self.home_search.textChanged.connect(self.apply_query);self.home_search.returnPressed.connect(self.open_search_match);self.apply_query('')
+            for key, title, _, _ in AREAS:
+                self.add_section(key, title, [entry for entry in ENTRIES if entry['area'] == key])
+            self.home_search.textChanged.connect(self.apply_query)
+            self.home_search.returnPressed.connect(self.open_search_match)
+            self.apply_query('')
         self.reflow()
-    def make_card(self,area,title,entries):
-        color=AREA_COLORS[area];frame=QFrame();frame.setObjectName('browserSection');frame.setStyleSheet('QFrame#browserSection {border-top:2px solid '+color+';}')
-        box=QVBoxLayout(frame);box.setContentsMargins(12,12,12,12);box.setSpacing(4);head=QHBoxLayout();head.setSpacing(9)
-        tint=QColor(color);badge=QLabel();badge.setFixedSize(34,34);badge.setPixmap(icon(AREA_BY_ID[area][3],color).pixmap(22,22));badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        badge.setStyleSheet('background:rgba('+str(tint.red())+','+str(tint.green())+','+str(tint.blue())+',22);border-radius:10px;');head.addWidget(badge)
-        self.badges.append((frame,badge,area))
-        label=QLabel(title);label.setObjectName('sectionTitle');label.setWordWrap(True);head.addWidget(label,1)
-        count=QLabel(str(len(entries)));count.setObjectName('badgeCount');count.setToolTip(str(len(entries))+' herramientas');head.addWidget(count);box.addLayout(head)
-        links=[]
+
+    def build_home(self, root):
+        hero = QFrame()
+        hero.setObjectName('studioHero')
+        hero_row = QHBoxLayout(hero)
+        hero_row.setContentsMargins(22, 12, 18, 12)
+        hero_row.setSpacing(24)
+        introduction = QVBoxLayout()
+        introduction.setSpacing(8)
+        introduction.addStretch()
+        introduction.addWidget(label('Señales y sistemas', 'welcomeTitle'))
+        introduction.addWidget(label('Análisis de señales, diseño de filtros y cálculo simbólico.', 'heroDescription'))
+        self.home_search = QLineEdit()
+        self.home_search.setObjectName('homeSearch')
+        self.home_search.setAccessibleName('Buscar herramientas')
+        self.home_search.setPlaceholderText('Buscar por nombre o concepto…')
+        self.home_search.setClearButtonEnabled(True)
+        self.home_search.addAction(icon('search'), QLineEdit.ActionPosition.LeadingPosition)
+        introduction.addWidget(self.home_search)
+        introduction.addStretch()
+        hero_row.addLayout(introduction, 6)
+        self.illustration = SamplingIllustration()
+        hero_row.addWidget(self.illustration, 5)
+        root.addWidget(hero)
+
+        self.home_links = QWidget()
+        shortcuts = QVBoxLayout(self.home_links)
+        shortcuts.setContentsMargins(0, 0, 0, 0)
+        shortcuts.setSpacing(8)
+        shortcuts.addWidget(label('Accesos directos', 'browseHeading'))
+        self.quick_grid = QGridLayout()
+        self.quick_grid.setSpacing(8)
+        shortcuts.addLayout(self.quick_grid)
+        for title, description, key, symbol, role in SHORTCUTS:
+            self.quick_buttons.append(QuickAction(title, description, symbol, role,
+                lambda checked=False, entry=BY_KEY[key]: self.window.open_workflow(entry)))
+        shortcuts.addSpacing(6)
+        shortcuts.addWidget(label('Áreas de trabajo', 'browseHeading'))
+        self.area_grid = QGridLayout()
+        self.area_grid.setSpacing(8)
+        shortcuts.addLayout(self.area_grid)
+        for key, title, _, symbol in AREAS:
+            self.area_buttons.append(QuickAction(title, AREA_SUMMARIES[key], symbol, None,
+                lambda checked=False, area=key: self.window.show_area(area), area=key))
+        cas = QuickAction('Calculadora CAS', 'Álgebra y cálculo simbólico',
+                          'calculator', 'purple', self.window.open_cas)
+        cas.setObjectName('areaCard')
+        self.area_buttons.append(cas)
+        root.addWidget(self.home_links)
+        self.search_heading = label('Resultados de búsqueda', 'browseHeading')
+        self.search_empty = label('No hay coincidencias. Probá con Fourier, energía o polos.', 'muted')
+        root.addWidget(self.search_heading)
+        root.addWidget(self.search_empty)
+
+    def add_section(self, area, title, entries):
+        frame = QFrame(self.content)
+        frame.setObjectName('browserSection')
+        heading = label(title, 'sectionTitle')
+        box = QVBoxLayout(frame)
+        box.setContentsMargins(10, 10, 10, 10)
+        box.setSpacing(4)
+        box.addWidget(heading)
+        links = []
         for entry in entries:
-            link=ToolLink(entry['title'],entry['summary'],lambda checked=False,value=entry:self.window.open_workflow(value));box.addWidget(link);links.append((entry,link))
-        more=None
-        if self.area is None:
-            more=QPushButton('Ver todas las herramientas  ›');more.setObjectName('areaMore');more.clicked.connect(lambda checked=False,key=area:self.window.show_area(key));box.addWidget(more)
-        self.link_groups.append((frame,links,more))
-        box.addStretch();return frame
-    def apply_query(self,text):
-        from .tool_catalog import matches
-        query=text.strip();found=False
-        for frame,links,more in self.link_groups:
-            visible=0
-            for index,(entry,link) in enumerate(links):
-                show=matches(entry,query) if query else index<2;link.setVisible(show);visible+=bool(show)
-            frame.setVisible(visible>0)
-            found=found or visible>0
-            if more is not None:more.setVisible(not query and len(links)>2)
+            link = ToolLink(entry, lambda checked=False, value=entry: self.open_entry(value))
+            box.addWidget(link)
+            links.append((entry, link))
+        box.addStretch()
+        self.sections.append((frame, heading, area, links))
+        heading.setStyleSheet('color:'+AREA_COLORS[area])
+
+    def query(self):
+        return self.home_search.text().strip() if self.area is None else ''
+
+    def open_entry(self, entry):
+        self.window.open_workflow(entry, self.query())
+
+    def apply_query(self, text):
+        query = text.strip()
+        self.home_links.setVisible(not query)
+        self.search_heading.setVisible(bool(query))
+        found = False
+        for frame, _, _, links in self.sections:
+            visible = False
+            for entry, link in links:
+                matching = bool(query) and matches(entry, query)
+                link.setVisible(matching)
+                visible = visible or matching
+            frame.setVisible(visible)
+            found = found or visible
         self.search_empty.setVisible(bool(query) and not found)
-        self.reflow()
+        self.layout_sections()
+
     def open_search_match(self):
-        from .tool_catalog import matches
-        query=self.home_search.text().strip()
-        if not query:return
-        entry=next((entry for entry in ENTRIES if matches(entry,query)),None)
-        if entry is not None:self.window.open_workflow(entry,query)
+        query = self.query()
+        if not query:
+            return
+        candidates = [entry for entry in ENTRIES if matches(entry, query)]
+        if candidates:
+            selected = min(candidates, key=lambda entry: normalize(entry['title']) != normalize(query))
+            self.open_entry(selected)
+
     def refresh_theme(self):
-        for frame,badge,area in self.badges:
-            color=AREA_COLORS[area];tint=QColor(color);frame.setStyleSheet('QFrame#browserSection {border-top:2px solid '+color+';}')
-            badge.setPixmap(icon(AREA_BY_ID[area][3],color).pixmap(22,22));badge.setStyleSheet('background:rgba('+str(tint.red())+','+str(tint.green())+','+str(tint.blue())+',22);border-radius:10px;')
-        for button in self.quick_buttons:
-            if hasattr(button,'refresh_theme'):button.refresh_theme()
-            else:button.setIcon(icon(button.property('themeSymbol'),C[button.property('themeRole')]))
+        for _, heading, area, _ in self.sections:
+            heading.setStyleSheet('color:'+AREA_COLORS[area])
+        for button in self.quick_buttons + self.area_buttons:
+            button.refresh_theme()
+        if self.area is None:
+            self.illustration.update()
         self.content.update()
-    def resizeEvent(self,event):super().resizeEvent(event);self.reflow()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        self.reflow()
+
+    def layout_sections(self):
+        columns = self.columns or 1
+        visible = (frame for frame, _, _, _ in self.sections if not frame.isHidden())
+        for index, frame in enumerate(visible):
+            self.grid.addWidget(frame, index // columns, index % columns)
+        for column in range(2):
+            self.grid.setColumnStretch(column, int(column < columns))
+
     def reflow(self):
-        width=self.viewport().width();columns=2 if width>=760 else 1
-        if self.quick_grid is not None:
-            quick_columns=3 if width>=760 else 2 if width>=520 else 1
-            if quick_columns!=self.quick_columns:
-                self.quick_columns=quick_columns
-                for index,button in enumerate(self.quick_buttons):self.quick_grid.addWidget(button,index//quick_columns,index%quick_columns)
-                for index in range(3):self.quick_grid.setColumnStretch(index,1 if index<quick_columns else 0)
-        if columns==self.columns:return
-        self.columns=columns
-        for index,card in enumerate(self.cards):self.grid.addWidget(card,index//columns,index%columns)
-        self.grid.setColumnStretch(0,1);self.grid.setColumnStretch(1,1 if columns>1 else 0)
+        width = self.viewport().width()
+        if self.area is None:
+            self.illustration.setVisible(width >= 720)
+            columns = 4 if width >= 1000 else 2 if width >= 480 else 1
+            if columns != self.card_columns:
+                self.card_columns = columns
+                for grid, buttons in ((self.quick_grid, self.quick_buttons), (self.area_grid, self.area_buttons)):
+                    for index, button in enumerate(buttons):
+                        grid.addWidget(button, index // columns, index % columns)
+                    for column in range(4):
+                        grid.setColumnStretch(column, int(column < columns))
+        columns = 2 if width >= 730 else 1
+        if columns != self.columns:
+            self.columns = columns
+            self.layout_sections()

@@ -1,6 +1,7 @@
 """Local custom palette configuration and readable accent selection."""
 import json
 from PySide6.QtGui import QColor
+from .desktop_settings import desktop_settings
 
 DEFAULT={'base':'navy','accent':'','photo':'','opacity':35,'fit':'cover','surface_opacity':100}
 
@@ -20,15 +21,13 @@ def validate(value):
 
 
 def load():
-    from PySide6.QtCore import QSettings
-    text=QSettings('SignalLab','Desktop071').value('appearance/custom','')
+    text=desktop_settings().value('appearance/custom','')
     try:return validate(json.loads(text)),bool(text)
     except (ValueError,TypeError):return dict(DEFAULT),False
 
 
 def save(config):
-    from PySide6.QtCore import QSettings
-    QSettings('SignalLab','Desktop071').setValue('appearance/custom',json.dumps(validate(config),ensure_ascii=False))
+    desktop_settings().setValue('appearance/custom',json.dumps(validate(config),ensure_ascii=False))
 
 
 def luminance(color):

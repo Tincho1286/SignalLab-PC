@@ -33,7 +33,8 @@ class PlotLauncher(QToolButton):
         self.clicked.connect(self.open_default);self.setEnabled(False)
     def sizeHint(self):
         base=super().sizeHint();extra=36 if self.property('hasPlotChoices') else 0
-        return QSize(max(base.width(),self.fontMetrics().horizontalAdvance(self.text())+28+extra),max(base.height(),self.fontMetrics().height()+14,32))
+        icon_width=self.iconSize().width()+4 if not self.icon().isNull() else 0
+        return QSize(max(base.width(),self.fontMetrics().horizontalAdvance(self.text())+28+extra+icon_width),max(base.height(),self.fontMetrics().height()+14,32))
     def minimumSizeHint(self):return self.sizeHint()
     def register(self,canvas,routes,label):
         if any(_alive(entry[0]) is canvas for entry in self.entries):return

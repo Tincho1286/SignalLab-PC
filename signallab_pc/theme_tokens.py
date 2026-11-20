@@ -1,13 +1,13 @@
 """Shared colors for the scientific desktop, reports, figures and help."""
 COLORS = {
-    'window':'#0d1016', 'chrome':'#12161e', 'panel':'#1c222d',
-    'input':'#121821', 'report':'#171d27', 'hover':'#2a3241',
-    'border':'#374052', 'rule':'#29313f', 'grid':'#333d4e',
-    'text':'#f1f3f9', 'muted':'#aeb7c8', 'disabled':'#758094',
-    'accent':'#c2b2ff', 'selected':'#36304f', 'primary':'#bca6ff',
-    'primary_hover':'#d2c3ff', 'on_primary':'#1c1530',
-    'green':'#8bdec7', 'amber':'#f0c78d', 'blue':'#a1c1ff',
-    'purple':'#c7b3ff', 'red':'#efadbf', 'cyan':'#96dce7',
+    'window':'#0e1417', 'chrome':'#131c20', 'panel':'#182429',
+    'input':'#101a1e', 'report':'#141f23', 'hover':'#223438',
+    'border':'#3c555a', 'rule':'#2a3d42', 'grid':'#30464b',
+    'text':'#eaf3f2', 'muted':'#aabfc0', 'disabled':'#7d9295',
+    'accent':'#79e5c7', 'selected':'#1d3b36', 'primary':'#8defd4',
+    'primary_hover':'#b3f6e5', 'on_primary':'#102b27',
+    'green':'#84dec2', 'amber':'#ffbd82', 'blue':'#97c3f6',
+    'purple':'#c6b5ef', 'red':'#f3a7ac', 'cyan':'#92d8ed',
 }
 
 AREA_COLORS = {

@@ -1,9 +1,11 @@
 """Stable result action slots, shared by numeric and algebraic tools."""
 from PySide6.QtCore import Qt,QEvent,QSize,QTimer
-from PySide6.QtWidgets import QWidget,QGridLayout,QPushButton,QSizePolicy,QMenu
+from PySide6.QtWidgets import QWidget,QGridLayout,QPushButton,QSizePolicy,QMenu,QToolButton
+from .design import icon
 
 ORDER=('graph','reuse','cas','export')
 LABELS={'graph':'Abrir gráfico','reuse':'Usar resultado en…','cas':'Enviar a CAS','export':'Exportar…'}
+SYMBOLS={'graph':'chart','reuse':'convert','cas':'calculator','export':'export'}
 
 
 class ActionLayout(QGridLayout):
@@ -60,6 +62,11 @@ class ResultActionBar(QWidget):
         elif role in ORDER and role not in self.slots:
             self.slots[role]=button;button.setProperty('resultAction',role)
         elif button not in self.extras:self.extras.append(button)
+        if role in SYMBOLS and self.slots.get(role) is button and button.icon().isNull():
+            button.setIcon(icon(SYMBOLS[role]))
+            button.setIconSize(QSize(15,15))
+            if isinstance(button,QToolButton):
+                button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         shortcut={'graph':'Alt+G','reuse':'Alt+R','export':'Alt+E'}.get(role)
         if shortcut and shortcut not in button.toolTip():button.setToolTip((button.toolTip()+' · ' if button.toolTip() else '')+shortcut)
         visible=not button.isHidden() or not button.testAttribute(Qt.WidgetAttribute.WA_WState_ExplicitShowHide)
@@ -81,7 +88,10 @@ class ResultActionBar(QWidget):
             self._pending=True;QTimer.singleShot(0,self,self.reflow)
         return False
     def reflow(self):
-        self._pending=False;columns=4 if self.width()>=740 else 2 if self.width()>=290 else 1
+        self._pending=False
+        active = [self.slots.get(role) or self.placeholders[role] for role in ORDER]
+        single_row_min = sum(button.sizeHint().width() for button in active) + 3*self.grid.spacing()
+        columns=4 if self.width()>=max(600,single_row_min) else 2 if self.width()>=330 else 1
         for i,role in enumerate(ORDER):
             button=self.slots.get(role);placeholder=self.placeholders[role];visible=button is not None and not button.isHidden();placeholder.setVisible(not visible)
             QGridLayout.addWidget(self.grid,placeholder,i//columns,i%columns)

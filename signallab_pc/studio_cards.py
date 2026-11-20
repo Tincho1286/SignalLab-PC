@@ -1,38 +1,106 @@
-"""Native vector accents and clear task cards for the Studio home screen."""
+"""Native scientific illustration and navigation cards for the desktop."""
 import math
-from PySide6.QtCore import Qt,QPointF,QSize
-from PySide6.QtGui import QPainter,QPainterPath,QColor,QLinearGradient,QPen
-from PySide6.QtWidgets import QFrame,QPushButton,QHBoxLayout,QVBoxLayout,QLabel,QSizePolicy
-from .theme_tokens import COLORS as C
+
+from PySide6.QtCore import QPointF, QRectF, QSize, Qt
+from PySide6.QtGui import QColor, QPainter, QPainterPath, QPen
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QPushButton, QSizePolicy, QVBoxLayout, QWidget
+
 from .design import icon
+from .theme_tokens import AREA_COLORS, COLORS
 
 
-class StudioHero(QFrame):
-    def __init__(self):super().__init__();self.setObjectName('studioHero')
-    def paintEvent(self,event):
-        super().paintEvent(event);p=QPainter(self);p.setRenderHint(QPainter.RenderHint.Antialiasing);rect=self.rect().adjusted(1,1,-1,-1);p.setPen(Qt.PenStyle.NoPen);gradient=QLinearGradient(0,0,self.width(),self.height());start,end=QColor(C['selected']),QColor(C['panel'])
-        from . import theme_presets
-        if theme_presets.CURRENT=='custom' and theme_presets.CUSTOM.get('photo'):
-            from .wallpaper import panel_color
-            start,end=panel_color(start.name(),theme_presets.CUSTOM.get('surface_opacity',100)),panel_color(end.name(),theme_presets.CUSTOM.get('surface_opacity',100))
-        gradient.setColorAt(0,start);gradient.setColorAt(1,end);p.setBrush(gradient);p.drawRoundedRect(rect,26,26)
-        if self.width()>700:
-            left=self.width()*.60;right=self.width()-30;axis_y=88;scale=38;color=QColor(C['green']);color.setAlpha(90);p.setPen(QPen(color,1));p.drawLine(QPointF(left,axis_y),QPointF(right,axis_y));path=QPainterPath()
-            for i in range(181):
-                x=left+(right-left)*i/180;y=axis_y-scale*math.sin(i/180*math.pi*4)
-                if i:path.lineTo(x,y)
-                else:path.moveTo(x,y)
-            p.setPen(QPen(color,2));p.drawPath(path);color=QColor(C['purple']);color.setAlpha(150);p.setPen(QPen(color,2));p.setBrush(color)
-            for i in range(16):
-                x=left+(right-left)*i/15;y=axis_y-scale*math.sin(i/15*math.pi*4);p.drawLine(QPointF(x,axis_y),QPointF(x,y));p.drawEllipse(QPointF(x,y),3,3)
-        p.end()
+class SamplingIllustration(QWidget):
+    """Draw a continuous sinusoid and its uniformly spaced samples on one axis."""
+
+    def __init__(self):
+        super().__init__()
+        self.setMinimumSize(300, 150)
+        self.setAccessibleName('Una señal continua y sus muestras sobre el mismo eje')
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        left, right = 17, self.width() - 18
+        top, bottom = 12, self.height() - 29
+        middle = (top + bottom) / 2
+        amplitude = (bottom - top) * 0.36
+
+        def point(fraction):
+            return QPointF(left + (right - left) * fraction,
+                           middle - amplitude * math.sin(4 * math.pi * fraction))
+
+        painter.setPen(QPen(QColor(COLORS['grid']), 1))
+        for row in range(5):
+            y = top + (bottom - top) * row / 4
+            painter.drawLine(QPointF(left, y), QPointF(right, y))
+        for column in range(9):
+            x = left + (right - left) * column / 8
+            painter.drawLine(QPointF(x, top), QPointF(x, bottom))
+        painter.setPen(QPen(QColor(COLORS['muted']), 1))
+        painter.drawLine(QPointF(left, middle), QPointF(right, middle))
+
+        curve = QPainterPath(point(0))
+        for index in range(1, 161):
+            curve.lineTo(point(index / 160))
+        painter.setPen(QPen(QColor(COLORS['accent']), 2.2))
+        painter.drawPath(curve)
+        sample = QColor(COLORS['amber'])
+        painter.setPen(QPen(sample, 1.5))
+        painter.setBrush(sample)
+        for index in range(17):
+            marker = point(index / 16)
+            painter.drawLine(QPointF(marker.x(), middle), marker)
+            painter.drawEllipse(marker, 2.6, 2.6)
+
+        painter.setPen(QColor(COLORS['accent']))
+        painter.drawText(QRectF(left, bottom + 6, 105, 18), 'Señal continua')
+        painter.setPen(sample)
+        painter.drawText(QRectF(left + 116, bottom + 6, 100, 18), 'Muestras')
+        painter.end()
 
 
 class QuickAction(QPushButton):
-    def __init__(self,title,description,symbol,role,callback):
-        super().__init__();self.symbol=symbol;self.role=role;self.setObjectName('quickAction');self.setAccessibleName(title);self.setCursor(Qt.CursorShape.PointingHandCursor);self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Preferred);root=QHBoxLayout(self);root.setContentsMargins(16,16,16,16);root.setSpacing(12);badge=QLabel();self.badge=badge;badge.setPixmap(icon(symbol,C[role]).pixmap(30,30));badge.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents);root.addWidget(badge);copy=QVBoxLayout();copy.setSpacing(4)
-        for text,name in ((title,'quickTitle'),(description,'quickDescription')):
-            label=QLabel(text);label.setObjectName(name);label.setWordWrap(True);label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents);copy.addWidget(label)
-        root.addLayout(copy,1);self.clicked.connect(callback)
-    def sizeHint(self):return self.layout().sizeHint().expandedTo(QSize(170,82))
-    def refresh_theme(self):self.badge.setPixmap(icon(self.symbol,C[self.role]).pixmap(30,30))
+    def __init__(self, title, description, symbol, role, callback, *, area=None):
+        super().__init__()
+        self.symbol = symbol
+        self.role = role
+        self.area = area
+        self.setObjectName('areaCard' if area else 'quickAction')
+        self.setAccessibleName(title)
+        self.setAccessibleDescription(description)
+        self.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+        row = QHBoxLayout(self)
+        row.setContentsMargins(12, 10, 12, 10)
+        row.setSpacing(10)
+        self.badge = QLabel()
+        self.badge.setFixedSize(34, 34)
+        self.badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.badge.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        row.addWidget(self.badge)
+        copy = QVBoxLayout()
+        copy.setSpacing(2)
+        for text, name in ((title, 'quickTitle'), (description, 'quickDescription')):
+            label = QLabel(text)
+            label.setObjectName(name)
+            label.setWordWrap(True)
+            label.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+            copy.addWidget(label)
+        row.addLayout(copy, 1)
+        arrow = QLabel('›')
+        arrow.setObjectName('linkArrow')
+        arrow.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
+        row.addWidget(arrow)
+        self.clicked.connect(callback)
+        self.refresh_theme()
+
+    def sizeHint(self):
+        return self.layout().sizeHint().expandedTo(QSize(145, 62))
+
+    def refresh_theme(self):
+        color = AREA_COLORS[self.area] if self.area else COLORS[self.role]
+        tint = QColor(color)
+        self.badge.setPixmap(icon(self.symbol, color).pixmap(20, 20))
+        self.badge.setStyleSheet(
+            f'background:rgba({tint.red()},{tint.green()},{tint.blue()},28);border-radius:8px;'
+        )

@@ -1,7 +1,7 @@
 """Escritorio científico: explorador acoplable, documentos y espacio de trabajo."""
 from pathlib import Path
 import unicodedata
-from PySide6.QtCore import Qt,QThreadPool,QSettings,QSize,QTimer
+from PySide6.QtCore import Qt,QThreadPool,QSize,QTimer
 from PySide6.QtGui import QIcon,QAction
 from PySide6.QtWidgets import (QHeaderView,QComboBox,QMainWindow,QWidget,QHBoxLayout,QVBoxLayout,QLabel,QLineEdit,
     QPushButton,QStackedWidget,QSplitter,QTabBar,QToolButton,QScrollArea,QFrame,QDockWidget,QTreeWidget,QTreeWidgetItem,QToolBar,QStyle,QMenu,QButtonGroup,QSizePolicy)
@@ -9,6 +9,7 @@ from .toolbox import ToolboxWindow,ToolPage
 from .project import Project
 from .design import configure_theme,icon
 from .desktop_theme import desktop_style,configure_desktop
+from .desktop_settings import desktop_settings
 from .workspaces import STATIONS,STATION_FOR,ROUTES
 from .theory_panel import TheoryPanel
 from .tool_descriptions import describe_tool
@@ -42,13 +43,13 @@ class WorkbenchWindow(ToolboxWindow):
         from .wallpaper import BackgroundSurface
         root=BackgroundSurface();root.setObjectName('desktop');body=QVBoxLayout(root);body.setContentsMargins(0,0,0,0);body.setSpacing(0)
         self.documents=QTabBar();self.documents.setObjectName('documents');self.documents.setExpanding(False);self.documents.setMovable(True);self.documents.setTabsClosable(True);self.documents.setUsesScrollButtons(True);self.documents.setElideMode(Qt.TextElideMode.ElideRight);self.documents.currentChanged.connect(self.activate_document);self.documents.tabCloseRequested.connect(self.close_document);body.addWidget(self.documents)
-        heading=QWidget();heading.setObjectName('documentHeading');row=QHBoxLayout(heading);row.setContentsMargins(20,14,20,8);row.setSpacing(10)
+        heading=QWidget();self.heading=heading;heading.setObjectName('documentHeading');row=QHBoxLayout(heading);row.setContentsMargins(20,10,20,7);row.setSpacing(10)
         self.title=QLabel('Inicio');self.title.setObjectName('pageTitle');self.title.setWordWrap(True);row.addWidget(self.title,1)
         self.back=QPushButton('Volver a resultados');self.back.clicked.connect(lambda:self.show_menu('Proyecto'));self.back.hide();row.addWidget(self.back)
         self.operation_menu=QToolButton();self.operation_menu.setText('Operaciones');self.operation_menu.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);row.addWidget(self.operation_menu)
         self.calculate_action=QPushButton('Calcular');self.calculate_action.setObjectName('primary');self.calculate_action.setIcon(icon('run',C['on_primary']));self.calculate_action.setIconSize(QSize(16,16));self.calculate_action.setMinimumWidth(124);self.calculate_action.setToolTip('Calcular con los datos actuales · Ctrl+Enter');self.calculate_action.clicked.connect(self.calculate_active);row.addWidget(self.calculate_action);self.current_calculate=None
         self.help=QToolButton();self.help.setText('Ayuda');self.help.setObjectName('contextHelp');self.help.setIcon(icon('book',C['green']));self.help.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon);self.help.clicked.connect(self.open_help);row.addWidget(self.help);body.addWidget(heading)
-        self.subtitle=QLabel();self.subtitle.setObjectName('muted');self.subtitle.setWordWrap(True);self.subtitle.setContentsMargins(20,0,20,14);body.addWidget(self.subtitle)
+        self.subtitle=QLabel();self.subtitle.setObjectName('muted');self.subtitle.setWordWrap(True);self.subtitle.setContentsMargins(20,0,20,8);body.addWidget(self.subtitle)
         from .workflow_selector import WorkflowSelector
         self.variant_strip=WorkflowSelector(self)
         self.stack=QStackedWidget();body.addWidget(self.stack,1);self.setCentralWidget(root)
@@ -59,7 +60,7 @@ class WorkbenchWindow(ToolboxWindow):
         self.desktop_keys=DesktopKeys(self)
         self.cancel_button=QPushButton('Cancelar cálculo');self.cancel_button.clicked.connect(self._cancel_operations);self.cancel_button.hide();self.statusBar().addPermanentWidget(self.cancel_button)
         self._primary_timer=QTimer(self);self._primary_timer.setInterval(300);self._primary_timer.timeout.connect(self._refresh_primary_action);self._primary_timer.start()
-        self.settings=QSettings('SignalLab','Desktop071');geometry=self.settings.value('geometry');state=self.settings.value('studio/panels')
+        self.settings=desktop_settings();geometry=self.settings.value('geometry');state=self.settings.value('studio/panels')
         if geometry:self.restoreGeometry(geometry)
         if state:self.restoreState(state)
         self.explorer_dock.hide();self.studio_rail.show()
@@ -192,14 +193,14 @@ class WorkbenchWindow(ToolboxWindow):
         from .tool_browser import ToolBrowser
         key=('home',)
         if key not in self.pages:self.pages[key]=ToolBrowser(self);self.stack.addWidget(self.pages[key])
-        self.variant_strip.hide();self.active_route=None;self.current_entry=None;self.current_calculate=None;self.category='Inicio';self.activate_view(key,'Inicio',self.pages[key]);self.title.setText('Herramientas');self.subtitle.setText('SignalLab PC · Señales y sistemas · '+__version__.split('.dev')[0]);self.help.hide();self.back.hide();self.operation_menu.hide();self.calculate_action.hide()
+        self.variant_strip.hide();self.active_route=None;self.current_entry=None;self.current_calculate=None;self.category='Inicio';self.activate_view(key,'Inicio',self.pages[key]);self.help.hide();self.back.hide();self.operation_menu.hide();self.calculate_action.hide()
         self.navigation_area=None;self._render_tools(self.search.text());self.tree.clearSelection()
     def show_area(self,area):
         from .tool_browser import ToolBrowser
         from .tool_catalog import AREA_BY_ID
         key=('area',area)
         if key not in self.pages:self.pages[key]=ToolBrowser(self,area);self.stack.addWidget(self.pages[key])
-        self.variant_strip.hide();self.active_route=None;self.current_entry=None;self.current_calculate=None;self.category=AREA_BY_ID[area][1];self.activate_view(key,self.category,self.pages[key]);self.subtitle.setText('Elegí directamente la operación que necesitás.');self.help.hide();self.back.hide();self.operation_menu.hide();self.calculate_action.hide()
+        self.variant_strip.hide();self.active_route=None;self.current_entry=None;self.current_calculate=None;self.category=AREA_BY_ID[area][1];self.activate_view(key,self.category,self.pages[key]);self.subtitle.setText(AREA_BY_ID[area][2]);self.help.hide();self.back.hide();self.operation_menu.hide();self.calculate_action.hide()
         self.navigation_area=area;self._render_tools(self.search.text())
     def route_for_key(self,key):return ROUTES[key]
     def open_workflow(self,entry,query=''):
@@ -246,11 +247,19 @@ class WorkbenchWindow(ToolboxWindow):
         if button is not None and button.isEnabled():button.click();self._refresh_primary_action()
 
     def activate_view(self,key,title,page):
+        home=key[0]=='home'
+        tab_title=title
         self.documents.blockSignals(True)
-        if key[0] in ('home','area'):self._browser_location=key;key=('browser',);title='Herramientas'
+        if key[0] in ('home','area'):
+            self._browser_location=key
+            key=('browser',)
+            tab_title='Herramientas'
         index=next((i for i in range(self.documents.count()) if self.documents.tabData(i)==key),-1)
-        if index<0:index=self.documents.addTab(title);self.documents.setTabData(index,key);self.documents.setTabToolTip(index,title)
+        if index<0:index=self.documents.addTab(tab_title);self.documents.setTabData(index,key);self.documents.setTabToolTip(index,tab_title)
         self.documents.setCurrentIndex(index);self.documents.blockSignals(False);self.title.setText(title);self.stack.setCurrentWidget(page)
+        self.heading.setVisible(not home)
+        self.subtitle.setVisible(not home and self.height()>=650)
+        self.studio_search.setVisible(not home)
         self.statusBar().showMessage(title)
     def activate_document(self,index):
         key=self.documents.tabData(index)

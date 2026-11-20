@@ -6,7 +6,7 @@ from .active_stack import ActiveStack,ActiveTabs
 
 class Surface(QFrame):
     def __init__(self,title,caption,content,scroll=False):
-        super().__init__();self.setObjectName('workspaceSurface');self.setMinimumWidth(0);root=QVBoxLayout(self);root.setContentsMargins(18,16,18,16);root.setSpacing(12)
+        super().__init__();self.setObjectName('workspaceSurface');self.setMinimumWidth(0);root=QVBoxLayout(self);root.setContentsMargins(16,12,16,12);root.setSpacing(9)
         header=QHBoxLayout();self.title=QLabel(title);self.title.setObjectName('surfaceTitle');header.addWidget(self.title,1);root.addLayout(header);self.caption=QLabel(caption);self.caption.setObjectName('surfaceCaption');self.caption.setWordWrap(True);root.addWidget(self.caption)
         if scroll and not isinstance(content,QScrollArea):
             inner=content.layout()
@@ -25,7 +25,7 @@ class Surface(QFrame):
 
 
 class ToolWorkspace(QWidget):
-    def __init__(self,inputs,results,parent=None,*,titles=('Datos de entrada','Resultado'),captions=('Ingresá los datos del cálculo.','Consultá, graficá o continuá con lo calculado.')):
+    def __init__(self,inputs,results,parent=None,*,titles=('Datos de entrada','Resultado'),captions=('', '')):
         super().__init__(parent);self.setObjectName('toolWorkspace');self.setProperty('workspaceLayout',True);self.compact=None;self.result_preferred=False;self.titles=titles;self.wide_sizes=[400,760]
         root=QVBoxLayout(self);root.setContentsMargins(14,0,14,12);self.modes=ActiveStack();root.addWidget(self.modes)
         self.split=QSplitter(Qt.Orientation.Horizontal);self.split.setChildrenCollapsible(False);self.split.setHandleWidth(10);self.modes.addWidget(self.split)
@@ -44,7 +44,9 @@ class ToolWorkspace(QWidget):
             sizes=self.split.sizes()
             if all(size>0 for size in sizes):self.wide_sizes=sizes
         self.compact=compact
-        for surface in (self.inputs,self.results):surface.title.setVisible(not compact);surface.caption.setVisible(not compact)
+        for surface in (self.inputs,self.results):
+            surface.title.setVisible(not compact)
+            surface.caption.setVisible(not compact and bool(surface.caption.text()))
         if compact:
             for surface,title in zip((self.inputs,self.results),self.titles):self.tabs.addTab(surface,title)
             self.modes.setCurrentWidget(self.tabs);self.tabs.setCurrentIndex(focused_surface if focused_surface is not None else 1 if self.result_preferred else 0)

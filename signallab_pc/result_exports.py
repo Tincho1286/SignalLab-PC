@@ -38,7 +38,7 @@ class ResultExports(QObject):
         bar.export_source=original
         for button in bar.extras:
             if bar.role_for(button)=='export':self.register(button,getattr(bar,'_result_origin',bar.parentWidget()),bar)
-        proxy=QPushButton('Exportar…');proxy.setProperty('resultExportProxy',True);proxy.setToolTip('Guardar los datos, las tablas o los informes disponibles de esta herramienta.');menu=QMenu(proxy);proxy.setMenu(menu);menu.aboutToShow.connect(lambda b=bar:self.prepare(b));bar.add_action(proxy,'export');self.proxies[bar]=proxy
+        proxy=QPushButton('Exportar…');proxy.setProperty('resultExportProxy',True);proxy.setToolTip('Guardar datos, tablas e informes, o copiar el texto del informe.');menu=QMenu(proxy);proxy.setMenu(menu);menu.aboutToShow.connect(lambda b=bar:self.prepare(b));bar.add_action(proxy,'export');self.proxies[bar]=proxy
 
     def path(self,owner,ordered=False):
         """Available result tabs stay exportable without selecting each one."""

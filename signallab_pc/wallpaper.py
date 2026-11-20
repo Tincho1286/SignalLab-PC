@@ -8,6 +8,14 @@ from PySide6.QtWidgets import QWidget,QApplication
 _cache={}
 
 
+def appearance_folder():
+    from PySide6.QtCore import QSettings
+    from .desktop_settings import desktop_settings
+    if QSettings.defaultFormat() == QSettings.Format.IniFormat:
+        return Path(desktop_settings().fileName()).parent / 'appearance'
+    return Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.GenericDataLocation)) / 'SignalLab' / 'appearance'
+
+
 def read_photo(path):
     reader=QImageReader(str(path));reader.setAutoTransform(True)
     if not reader.canRead():raise ValueError('No se pudo leer la foto. Elegí una imagen PNG, JPEG, WebP o BMP válida.')
@@ -37,7 +45,7 @@ def save_photo(source,directory=None):
     """Copy only into the app's own data directory; never modify the original."""
     if not source:return ''
     path=Path(source).expanduser().resolve();read_photo(path)
-    folder=Path(directory) if directory is not None else Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.GenericDataLocation))/'SignalLab'/'appearance'
+    folder=Path(directory) if directory is not None else appearance_folder()
     folder=folder.resolve();folder.mkdir(parents=True,exist_ok=True)
     suffix=path.suffix.lower()
     if suffix not in ('.png','.jpg','.jpeg','.webp','.bmp'):suffix='.img'
@@ -54,7 +62,7 @@ def save_photo(source,directory=None):
 
 
 def clean_previous(current):
-    path=Path(current).resolve() if current else None;folder=(Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.GenericDataLocation))/'SignalLab'/'appearance').resolve()
+    path=Path(current).resolve() if current else None;folder=appearance_folder().resolve()
     if path is not None and path.parent!=folder:return
     if not folder.exists():return
     for old in folder.iterdir():
@@ -130,6 +138,7 @@ def stylesheet():
         'QWidget#explorerPanel QTreeWidget {background:transparent;}',
         'QToolBar,QMenuBar,QStatusBar,QDockWidget::title {background:'+shade('chrome')+';}',
         'QFrame#browserSection,QFrame#inputSurface,QFrame#resultSurface,QWidget#libraryIndex,QWidget#libraryArticle {background:'+shade('panel')+';}',
+        'QFrame#studioHero {background:'+shade('panel',reading)+';}',
         'QFrame#welcomeCard {background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 '+shade('selected')+',stop:.65 '+shade('panel')+',stop:1 '+shade('chrome')+');}',
         'QScrollArea > QWidget > QWidget,QTabWidget::pane,QTabBar#documents {background:transparent;}',
         'QTabBar::tab {background:'+shade('chrome')+';}',

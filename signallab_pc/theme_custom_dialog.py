@@ -71,8 +71,8 @@ class CustomThemeDialog(QDialog):
             config=validate(self.config);config['photo']=wallpaper.save_photo(config['photo']) if config['photo'] else ''
             theme_presets.set_custom(config);apply(self._owner,'custom',persist=False)
             save(config)
-            from PySide6.QtCore import QSettings
-            QSettings('SignalLab','Desktop071').setValue('appearance/theme','custom');theme_presets.HAS_CUSTOM=True
+            from .desktop_settings import desktop_settings
+            desktop_settings().setValue('appearance/theme','custom');theme_presets.HAS_CUSTOM=True
             wallpaper.clean_previous(config['photo'])
         except (ValueError,MemoryError,OSError) as exc:
             theme_presets.set_custom(previous);apply(self._owner,old_key,persist=False);QMessageBox.warning(self,'No se pudo aplicar el tema',str(exc));return

@@ -78,8 +78,8 @@ def apply(window,key,*,persist=True):
     from .wallpaper import refresh
     refresh(window)
     if persist:
-        from PySide6.QtCore import QSettings
-        QSettings('SignalLab','Desktop071').setValue('appearance/theme',key)
+        from .desktop_settings import desktop_settings
+        desktop_settings().setValue('appearance/theme',key)
     actions=getattr(window,'theme_actions',{})
     for name,action in actions.items():action.setChecked(name==key)
 
