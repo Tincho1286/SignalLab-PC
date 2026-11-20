@@ -2,4 +2,4 @@
 
 __version__ = "1.8.15"
 
-__release_channel__ = "stable"
+__release_channel__ = "preview"

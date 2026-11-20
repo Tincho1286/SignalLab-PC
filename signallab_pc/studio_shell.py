@@ -1,43 +1,9 @@
-"""A compact navigation rail, app menu and task search for the refreshed desktop."""
+"""Desktop commands and search across the catalog."""
 from PySide6.QtCore import Qt,QSize,QEvent
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QLabel,QToolButton,QPushButton,QScrollArea,QDockWidget,QToolBar,QMenu,QSizePolicy,QDialog,QLineEdit,QListWidget,QListWidgetItem
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QLabel,QToolButton,QToolBar,QMenu,QSizePolicy,QDialog,QLineEdit,QListWidget,QListWidgetItem
 from PySide6.QtGui import QAction
 from .design import icon
 from .theme_tokens import COLORS as C,AREA_COLORS
-
-
-class NavigationRail(QWidget):
-    def __init__(self,window):
-        super().__init__();self.setObjectName('navigationRail');self.buttons={};self.symbols={};root=QVBoxLayout(self);root.setContentsMargins(7,10,7,10);root.setSpacing(6)
-        from .tool_catalog import AREAS
-        items=[('home','Inicio','home',C['accent'],window.show_home)]
-        labels={'signals':'Señales','systems':'Sistemas LTI','filters':'Filtros','spectra':'Fourier','sampling':'Muestreo','transforms':'Laplace y Z','random':'Aleatorias'}
-        items.extend((key,labels[key],symbol,AREA_COLORS[key],lambda checked=False,k=key:window.show_area(k)) for key,_,_,symbol in AREAS);items.append(('cas','CAS','calculator',C['purple'],window.open_cas))
-        for key,title,symbol,color,callback in items:
-            button=QToolButton();button.setObjectName('railItem');button.setText(title);button.setIcon(icon(symbol,color));button.setIconSize(QSize(23,23));button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextUnderIcon);button.setCheckable(True);button.setAccessibleName(title);button.setToolTip(title);button.setCursor(Qt.CursorShape.PointingHandCursor);button.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed);button.clicked.connect(callback);root.addWidget(button);self.buttons[key]=button;self.symbols[key]=symbol
-        root.addStretch()
-    def select(self,area,category):
-        selected='home' if category=='Inicio' else 'cas' if category=='CAS' else area
-        for key,button in self.buttons.items():button.setChecked(key==selected)
-    def refresh_theme(self):
-        for key,button in self.buttons.items():button.setIcon(icon(self.symbols[key],C['accent'] if key=='home' else C['purple'] if key=='cas' else AREA_COLORS[key]))
-
-    def set_expanded(self,expanded):
-        style = Qt.ToolButtonStyle.ToolButtonTextBesideIcon if expanded else Qt.ToolButtonStyle.ToolButtonTextUnderIcon
-        short_labels = {'systems':'Sistemas', 'transforms':'Laplace/Z'}
-        margins = 7 if expanded else 4
-        self.layout().setContentsMargins(margins,8,margins,8)
-        self.layout().setSpacing(6 if expanded else 3)
-        for key,button in self.buttons.items():
-            button.setToolButtonStyle(style)
-            button.setText(button.accessibleName() if expanded else short_labels.get(key,button.accessibleName()))
-            button.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Fixed)
-            button.setMinimumHeight(42 if expanded else 49)
-
-
-def install_navigation(window):
-    dock=QDockWidget(window);dock.setObjectName('studioNavigation');dock.setFeatures(QDockWidget.DockWidgetFeature.NoDockWidgetFeatures);dock.setTitleBarWidget(QWidget());dock.setAllowedAreas(Qt.DockWidgetArea.LeftDockWidgetArea);dock.setFixedWidth(88)
-    scroll=QScrollArea();scroll.setObjectName('railScroll');scroll.setWidgetResizable(True);scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff);scroll.setFrameShape(QScrollArea.Shape.NoFrame);rail=NavigationRail(window);scroll.setWidget(rail);dock.setWidget(scroll);window.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea,dock);window.explorer_dock.hide();window.studio_rail=dock;window.navigation_rail=rail
 
 
 class TaskSearch(QDialog):
@@ -73,29 +39,75 @@ def open_search(window):
 
 
 def install_toolbar(window):
-    bar=window.findChild(QToolBar,'mainToolbar');bar.clear();bar.setObjectName('studioToolbar');bar.setIconSize(QSize(20,20));menu=QMenu(window)
-    for action in window.menuBar().actions():menu.addAction(action)
-    application=QToolButton();application.setObjectName('applicationMenu');application.setIcon(icon('menu',C['text']));application.setMenu(menu);application.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup);application.setAccessibleName('Menú de la aplicación');application.setToolTip('Archivo, herramientas, vista y ayuda');bar.addWidget(application)
-    brand=QWidget();row=QHBoxLayout(brand);row.setContentsMargins(4,0,14,0);row.setSpacing(8);mark=QLabel();mark.setPixmap(window.windowIcon().pixmap(28,28));row.addWidget(mark);name=QLabel('SignalLab');name.setObjectName('studioBrand');row.addWidget(name);bar.addWidget(brand);window.studio_brand_name=name
-    spacer=QWidget();spacer.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Preferred);bar.addWidget(spacer)
-    search=QPushButton('Buscar herramientas     Ctrl+K');search.setObjectName('studioSearch');search.setIcon(icon('search'));search.setMinimumWidth(190);search.setMaximumWidth(540);search.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed);search.setToolTip('Buscar herramientas · Ctrl+K');search.clicked.connect(lambda:open_search(window));window.studio_search_action=bar.addWidget(search);window.studio_search=search
-    spacer=QWidget();spacer.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Preferred);bar.addWidget(spacer)
-    window.studio_aux_buttons=[]
-    for title,symbol,callback in [('Resultados','table',lambda:window.show_menu('Proyecto')),('Biblioteca','book',lambda:window.show_menu('Biblioteca'))]:
-        button=QToolButton();button.setObjectName('chromeAction');button.setText(title);button.setToolTip(title);button.setAccessibleName(title);button.setIcon(icon(symbol));button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon);button.clicked.connect(callback);bar.addWidget(button);window.studio_aux_buttons.append(button)
-    shortcut=QAction(window);shortcut.setShortcut('Ctrl+K');shortcut.triggered.connect(lambda:open_search(window));window.addAction(shortcut);window.menuBar().hide()
+    bar = QToolBar('Navegación', window)
+    bar.setObjectName('studioToolbar')
+    bar.setMovable(False)
+    bar.setFloatable(False)
+    bar.setIconSize(QSize(20, 20))
+    window.addToolBar(bar)
+    window.studio_toolbar = bar
+
+    menu = QMenu(window)
+    for action in window.menuBar().actions():
+        menu.addAction(action)
+    application = QToolButton()
+    application.setObjectName('applicationMenu')
+    application.setIcon(icon('menu'))
+    application.setMenu(menu)
+    application.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+    application.setAccessibleName('Menú de la aplicación')
+    application.setToolTip('Archivo, herramientas, vista y ayuda')
+    bar.addWidget(application)
+    brand = QWidget()
+    brand_row = QHBoxLayout(brand)
+    brand_row.setContentsMargins(4, 0, 5, 0)
+    mark = QLabel()
+    mark.setPixmap(window.windowIcon().pixmap(23, 23))
+    brand_row.addWidget(mark)
+    window.studio_brand_name = QLabel('SignalLab')
+    window.studio_brand_name.setObjectName('studioBrand')
+    brand_row.addWidget(window.studio_brand_name)
+    bar.addWidget(brand)
+
+    def action(title, symbol, callback, role='chromeAction'):
+        button = QToolButton()
+        button.setObjectName(role)
+        button.setText(title)
+        button.setAccessibleName(title)
+        button.setToolTip(title)
+        button.setIcon(icon(symbol))
+        button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        button.clicked.connect(callback)
+        return button, bar.addWidget(button)
+
+    action('Herramientas', 'blocks', window.show_home, 'studioCatalog')
+    spacer = QWidget()
+    spacer.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
+    bar.addWidget(spacer)
+    search, window.studio_search_action = action('Buscar', 'search', window.focus_tool_search)
+    search.setToolTip('Buscar herramientas · Ctrl+K')
+    window.studio_aux_buttons = [
+        search,
+        action('Resultados', 'table', lambda: window.show_menu('Proyecto'))[0],
+        action('Biblioteca', 'book', lambda: window.show_menu('Biblioteca'))[0],
+        action('CAS', 'calculator', window.open_cas)[0],
+    ]
+    shortcut = QAction(window)
+    shortcut.setShortcut('Ctrl+K')
+    shortcut.triggered.connect(window.focus_tool_search)
+    window.addAction(shortcut)
+    window.menuBar().hide()
     adapt_shell(window)
 
 
 def adapt_shell(window):
     """Preserve task controls and reading space on small desktop windows."""
-    compact=window.width()<960;short=window.height()<650;expanded=window.width()>=1240
-    if getattr(window,'_studio_density',None)==(compact,short,expanded):return
-    window._studio_density=compact,short,expanded
-    window.studio_rail.setFixedWidth(152 if expanded else 88)
-    window.navigation_rail.set_expanded(expanded)
-    if hasattr(window,'studio_brand_name'):window.studio_brand_name.setVisible(not compact)
-    if hasattr(window,'studio_search'):window.studio_search.setText('Buscar herramientas' if compact else 'Buscar herramientas     Ctrl+K')
-    for button in getattr(window,'studio_aux_buttons',[]):button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly if compact else Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-    window.result_layout.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonIconOnly if compact else Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
-    window.subtitle.setVisible(not short and not window.heading.isHidden() and not window.result_layout.isChecked());window.title.setStyleSheet('font-size:17pt;' if compact else '')
+    compact = window.width() < 790
+    if getattr(window, '_studio_compact', None) == compact:
+        return
+    window._studio_compact = compact
+    window.studio_brand_name.setVisible(not compact)
+    style = Qt.ToolButtonStyle.ToolButtonIconOnly if compact else Qt.ToolButtonStyle.ToolButtonTextBesideIcon
+    for button in window.studio_aux_buttons:
+        button.setToolButtonStyle(style)
+    window.result_layout.setToolButtonStyle(style)

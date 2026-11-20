@@ -1,33 +1,17 @@
-"""Task shortcuts, area navigation and search from the desktop start page."""
+"""Search and browse tools in a single catalog."""
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtWidgets import (
-    QFrame, QGridLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton,
-    QScrollArea, QSizePolicy, QVBoxLayout, QWidget,
+    QComboBox, QFrame, QHBoxLayout, QLabel, QLineEdit,
+    QPushButton, QScrollArea, QSizePolicy, QVBoxLayout, QWidget,
 )
 
 from .design import icon
-from .studio_cards import QuickAction, SamplingIllustration
-from .theme_tokens import AREA_COLORS
+from .theme_tokens import AREA_COLORS, COLORS
 from .tool_catalog import AREAS, AREA_BY_ID, BY_KEY, ENTRIES, matches, normalize
 from .wallpaper import BackgroundSurface
 
 
-SHORTCUTS = (
-    ('Crear señal', 'Fórmulas, muestras y ventanas', ('basic', 'generate'), 'signal', 'green'),
-    ('Analizar sistema', 'Transferencia, frecuencia y tiempo', ('system_analysis', 0), 'response', 'blue'),
-    ('Diseñar filtro', 'Bandas, ventanas o polos y ceros', ('course_tools', 'fir'), 'design', 'purple'),
-    ('Transformada de Fourier', 'DTFT, DFT y Fourier continua', ('fourier', 0), 'spectrum', 'amber'),
-)
-
-AREA_SUMMARIES = {
-    'signals': 'Edición, operaciones y medidas',
-    'systems': 'Transferencias y respuestas',
-    'filters': 'FIR, IIR, ideales y conversión',
-    'spectra': 'Series, transformadas y densidades',
-    'sampling': 'Aliasing, reconstrucción y tasa',
-    'transforms': 'Transformadas y ecuaciones',
-    'random': 'Estadística, correlación y modelos',
-}
+SHORTCUTS = (('basic', 'generate'), ('system_analysis', 0), ('course_tools', 'fir'), ('fourier', 0))
 
 
 def label(text, name):
@@ -40,202 +24,210 @@ def label(text, name):
 class ToolLink(QPushButton):
     def __init__(self, entry, callback):
         super().__init__()
+        self.entry = entry
         self.setObjectName('toolLink')
         self.setAccessibleName(entry['title'])
         self.setAccessibleDescription(entry['summary'])
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         row = QHBoxLayout(self)
-        row.setContentsMargins(12, 8, 12, 8)
+        row.setContentsMargins(12, 9, 12, 9)
+        row.setSpacing(12)
+        self.mark = QLabel()
+        self.mark.setFixedSize(26, 26)
+        self.mark.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        row.addWidget(self.mark)
         column = QVBoxLayout()
         column.setSpacing(2)
-        for text, name in [(entry['title'], 'linkTitle'), (entry['summary'], 'muted')]:
-            item = label(text, name)
-            item.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-            column.addWidget(item)
+        self.title = label(entry['title'], 'linkTitle')
+        self.summary = label(entry['summary'], 'muted')
+        column.addWidget(self.title)
+        column.addWidget(self.summary)
         row.addLayout(column, 1)
-        arrow = label('›', 'linkArrow')
-        arrow.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
-        row.addWidget(arrow)
+        row.addWidget(label('›', 'linkArrow'))
+        for child in self.findChildren(QLabel):
+            child.setAttribute(Qt.WidgetAttribute.WA_TransparentForMouseEvents)
         self.clicked.connect(callback)
+        self.refresh_theme()
 
     def sizeHint(self):
-        return self.layout().sizeHint().expandedTo(QSize(100, 49))
+        return self.layout().sizeHint().expandedTo(QSize(100, 54))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        row = self.layout()
+        contents = row.contentsMargins()
+        arrow = row.itemAt(2).widget()
+        text_width = max(1, self.width() - contents.left() - contents.right()
+                         - self.mark.width() - arrow.sizeHint().width() - 2 * row.spacing())
+        title_height = self.title.heightForWidth(text_width)
+        summary_height = self.summary.heightForWidth(text_width)
+        self.title.setFixedHeight(title_height)
+        self.summary.setFixedHeight(summary_height)
+        self.setMinimumHeight(max(54, contents.top() + contents.bottom() + title_height + summary_height + 4))
+
+    def refresh_theme(self):
+        _, _, _, symbol = AREA_BY_ID[self.entry['area']]
+        self.mark.setPixmap(icon(symbol, AREA_COLORS[self.entry['area']]).pixmap(20, 20))
 
 
-class ToolBrowser(QScrollArea):
-    def __init__(self, window, area=None):
+class ToolBrowser(BackgroundSurface):
+    def __init__(self, window):
         super().__init__()
         self.window = window
-        self.area = area
-        self.sections = []
-        self.quick_buttons = []
-        self.area_buttons = []
-        self.columns = None
-        self.card_columns = None
-        self.setWidgetResizable(True)
-        self.setFrameShape(QFrame.Shape.NoFrame)
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.content = BackgroundSurface()
-        self.content.setObjectName('workspaceWallpaper')
-        self.setWidget(self.content)
-        root = QVBoxLayout(self.content)
-        root.setContentsMargins(18, 12, 18, 16)
+        self.area = None
+        self.setObjectName('workspaceWallpaper')
+        root = QVBoxLayout(self)
+        root.setContentsMargins(18, 14, 18, 14)
         root.setSpacing(12)
-        if area is None:
-            self.build_home(root)
-        self.grid = QGridLayout()
-        self.grid.setSpacing(10)
-        root.addLayout(self.grid)
-        root.addStretch()
 
-        if area:
-            entries = [entry for entry in ENTRIES if entry['area'] == area]
-            for title in dict.fromkeys(entry['section'] for entry in entries):
-                self.add_section(area, title, [entry for entry in entries if entry['section'] == title])
-        else:
-            for key, title, _, _ in AREAS:
-                self.add_section(key, title, [entry for entry in ENTRIES if entry['area'] == key])
-            self.home_search.textChanged.connect(self.apply_query)
-            self.home_search.returnPressed.connect(self.open_search_match)
-            self.apply_query('')
-        self.reflow()
-
-    def build_home(self, root):
-        hero = QFrame()
-        hero.setObjectName('studioHero')
-        hero_row = QHBoxLayout(hero)
-        hero_row.setContentsMargins(22, 12, 18, 12)
-        hero_row.setSpacing(24)
-        introduction = QVBoxLayout()
-        introduction.setSpacing(8)
-        introduction.addStretch()
-        introduction.addWidget(label('Señales y sistemas', 'welcomeTitle'))
-        introduction.addWidget(label('Análisis de señales, diseño de filtros y cálculo simbólico.', 'heroDescription'))
+        title = label('Herramientas', 'catalogTitle')
         self.home_search = QLineEdit()
         self.home_search.setObjectName('homeSearch')
-        self.home_search.setAccessibleName('Buscar herramientas')
-        self.home_search.setPlaceholderText('Buscar por nombre o concepto…')
+        self.home_search.setAccessibleName('Buscar en todas las herramientas')
+        self.home_search.setPlaceholderText('Buscar una herramienta · Ctrl+K')
         self.home_search.setClearButtonEnabled(True)
         self.home_search.addAction(icon('search'), QLineEdit.ActionPosition.LeadingPosition)
-        introduction.addWidget(self.home_search)
-        introduction.addStretch()
-        hero_row.addLayout(introduction, 6)
-        self.illustration = SamplingIllustration()
-        hero_row.addWidget(self.illustration, 5)
-        root.addWidget(hero)
+        header = QHBoxLayout()
+        header.setSpacing(16)
+        header.addWidget(title)
+        header.addStretch(1)
+        header.addWidget(self.home_search, 3)
+        root.addLayout(header)
 
-        self.home_links = QWidget()
-        shortcuts = QVBoxLayout(self.home_links)
-        shortcuts.setContentsMargins(0, 0, 0, 0)
-        shortcuts.setSpacing(8)
-        shortcuts.addWidget(label('Accesos directos', 'browseHeading'))
-        self.quick_grid = QGridLayout()
-        self.quick_grid.setSpacing(8)
-        shortcuts.addLayout(self.quick_grid)
-        for title, description, key, symbol, role in SHORTCUTS:
-            self.quick_buttons.append(QuickAction(title, description, symbol, role,
-                lambda checked=False, entry=BY_KEY[key]: self.window.open_workflow(entry)))
-        shortcuts.addSpacing(6)
-        shortcuts.addWidget(label('Áreas de trabajo', 'browseHeading'))
-        self.area_grid = QGridLayout()
-        self.area_grid.setSpacing(8)
-        shortcuts.addLayout(self.area_grid)
-        for key, title, _, symbol in AREAS:
-            self.area_buttons.append(QuickAction(title, AREA_SUMMARIES[key], symbol, None,
-                lambda checked=False, area=key: self.window.show_area(area), area=key))
-        cas = QuickAction('Calculadora CAS', 'Álgebra y cálculo simbólico',
-                          'calculator', 'purple', self.window.open_cas)
-        cas.setObjectName('areaCard')
-        self.area_buttons.append(cas)
-        root.addWidget(self.home_links)
-        self.search_heading = label('Resultados de búsqueda', 'browseHeading')
-        self.search_empty = label('No hay coincidencias. Probá con Fourier, energía o polos.', 'muted')
-        root.addWidget(self.search_heading)
-        root.addWidget(self.search_empty)
+        self.area_picker = QComboBox()
+        self.area_picker.setAccessibleName('Área de trabajo')
+        self.area_picker.textActivated.connect(lambda _: self.choose_area(self.area_picker.currentData()))
+        self.area_picker.addItem('Accesos directos', None)
+        root.addWidget(self.area_picker)
 
-    def add_section(self, area, title, entries):
-        frame = QFrame(self.content)
-        frame.setObjectName('browserSection')
+        body = QHBoxLayout()
+        body.setSpacing(12)
+        root.addLayout(body, 1)
+        self.index = QScrollArea()
+        self.index.setObjectName('catalogIndex')
+        self.index.setFrameShape(QFrame.Shape.NoFrame)
+        self.index.setWidgetResizable(True)
+        self.index.setFixedWidth(222)
+        self.index.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        index_content = QWidget()
+        index_content.setObjectName('catalogIndexContent')
+        index_layout = QVBoxLayout(index_content)
+        index_layout.setContentsMargins(8, 8, 8, 8)
+        index_layout.setSpacing(4)
+        self.area_buttons = {}
+        for key, text, description, symbol in [(None, 'Accesos directos', '', 'home'), *AREAS]:
+            button = QPushButton(text)
+            button.setObjectName('catalogArea')
+            button.setCheckable(True)
+            button.setToolTip(description or text)
+            button.clicked.connect(lambda checked=False, area=key: self.choose_area(area))
+            index_layout.addWidget(button)
+            self.area_buttons[key] = (button, symbol)
+            if key is not None:
+                self.area_picker.addItem(text, key)
+        index_layout.addStretch()
+        self.index.setWidget(index_content)
+        body.addWidget(self.index)
+
+        self.list = QScrollArea()
+        self.list.setObjectName('catalogList')
+        self.list.setFrameShape(QFrame.Shape.NoFrame)
+        self.list.setWidgetResizable(True)
+        self.list.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        content = QWidget()
+        content.setObjectName('catalogListContent')
+        self.groups = QVBoxLayout(content)
+        self.groups.setContentsMargins(14, 8, 14, 14)
+        self.groups.setSpacing(12)
+        self.empty = label('No hay coincidencias. Probá con Fourier, energía o polos.', 'muted')
+        self.groups.addWidget(self.empty)
+        self.quick = self.add_group('Accesos directos', [BY_KEY[key] for key in SHORTCUTS])
+        self.sections = {}
+        for key, _, _, _ in AREAS:
+            entries = [entry for entry in ENTRIES if entry['area'] == key]
+            for section in dict.fromkeys(entry['section'] for entry in entries):
+                self.sections[key, section] = self.add_group(section, [e for e in entries if e['section'] == section])
+        self.groups.addStretch()
+        self.list.setWidget(content)
+        body.addWidget(self.list, 1)
+
+        self.home_search.textChanged.connect(self.apply_query)
+        self.home_search.returnPressed.connect(self.open_search_match)
+        self.refresh_theme()
+        self.select_area(None)
+
+    def choose_area(self, area):
+        if area is None:
+            self.window.show_home()
+        else:
+            self.window.show_area(area)
+
+    def select_area(self, area):
+        self.area = area
+        self.area_picker.setCurrentIndex(list(self.area_buttons).index(area))
+        for key, (button, _) in self.area_buttons.items():
+            button.setChecked(key == area)
+        if self.home_search.text():
+            self.home_search.clear()
+        else:
+            self.apply_query('')
+
+    def add_group(self, title, entries):
+        group = QFrame()
+        group.setObjectName('catalogGroup')
+        box = QVBoxLayout(group)
+        box.setContentsMargins(0, 0, 0, 0)
+        box.setSpacing(1)
         heading = label(title, 'sectionTitle')
-        box = QVBoxLayout(frame)
-        box.setContentsMargins(10, 10, 10, 10)
-        box.setSpacing(4)
         box.addWidget(heading)
         links = []
         for entry in entries:
             link = ToolLink(entry, lambda checked=False, value=entry: self.open_entry(value))
             box.addWidget(link)
-            links.append((entry, link))
-        box.addStretch()
-        self.sections.append((frame, heading, area, links))
-        heading.setStyleSheet('color:'+AREA_COLORS[area])
-
-    def query(self):
-        return self.home_search.text().strip() if self.area is None else ''
+            links.append(link)
+        self.groups.addWidget(group)
+        return group, heading, links
 
     def open_entry(self, entry):
-        self.window.open_workflow(entry, self.query())
+        self.window.open_workflow(entry, self.home_search.text())
 
     def apply_query(self, text):
         query = text.strip()
-        self.home_links.setVisible(not query)
-        self.search_heading.setVisible(bool(query))
+        # Browsing an area shows its groups. Search spans the catalog in place.
+        self.quick[0].setVisible(not query and self.area is None)
         found = False
-        for frame, _, _, links in self.sections:
-            visible = False
-            for entry, link in links:
-                matching = bool(query) and matches(entry, query)
-                link.setVisible(matching)
-                visible = visible or matching
-            frame.setVisible(visible)
+        for (area, section), (group, heading, links) in self.sections.items():
+            if query:
+                heading.setText(AREA_BY_ID[area][1] + ' · ' + section)
+                visible_links = [matches(link.entry, query) for link in links]
+                visible = any(visible_links)
+            else:
+                heading.setText(section)
+                visible = area == self.area
+                visible_links = [visible] * len(links)
+            for link, link_visible in zip(links, visible_links):
+                link.setVisible(link_visible)
+            group.setVisible(visible)
             found = found or visible
-        self.search_empty.setVisible(bool(query) and not found)
-        self.layout_sections()
+        self.empty.setVisible(bool(query) and not found)
+        self.list.verticalScrollBar().setValue(0)
 
     def open_search_match(self):
-        query = self.query()
-        if not query:
-            return
-        candidates = [entry for entry in ENTRIES if matches(entry, query)]
+        query = self.home_search.text().strip()
+        candidates = [entry for entry in ENTRIES if query and matches(entry, query)]
         if candidates:
-            selected = min(candidates, key=lambda entry: normalize(entry['title']) != normalize(query))
-            self.open_entry(selected)
+            self.open_entry(min(candidates, key=lambda entry: normalize(entry['title']) != normalize(query)))
 
     def refresh_theme(self):
-        for _, heading, area, _ in self.sections:
-            heading.setStyleSheet('color:'+AREA_COLORS[area])
-        for button in self.quick_buttons + self.area_buttons:
-            button.refresh_theme()
-        if self.area is None:
-            self.illustration.update()
-        self.content.update()
+        for key, (button, symbol) in self.area_buttons.items():
+            button.setIcon(icon(symbol, AREA_COLORS[key] if key else COLORS['accent']))
+        for _, _, links in [self.quick, *self.sections.values()]:
+            for link in links:
+                link.refresh_theme()
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
-        self.reflow()
-
-    def layout_sections(self):
-        columns = self.columns or 1
-        visible = (frame for frame, _, _, _ in self.sections if not frame.isHidden())
-        for index, frame in enumerate(visible):
-            self.grid.addWidget(frame, index // columns, index % columns)
-        for column in range(2):
-            self.grid.setColumnStretch(column, int(column < columns))
-
-    def reflow(self):
-        width = self.viewport().width()
-        if self.area is None:
-            self.illustration.setVisible(width >= 720)
-            columns = 4 if width >= 1000 else 2 if width >= 480 else 1
-            if columns != self.card_columns:
-                self.card_columns = columns
-                for grid, buttons in ((self.quick_grid, self.quick_buttons), (self.area_grid, self.area_buttons)):
-                    for index, button in enumerate(buttons):
-                        grid.addWidget(button, index // columns, index % columns)
-                    for column in range(4):
-                        grid.setColumnStretch(column, int(column < columns))
-        columns = 2 if width >= 730 else 1
-        if columns != self.columns:
-            self.columns = columns
-            self.layout_sections()
+        compact = self.width() < 710
+        self.index.setVisible(not compact)
+        self.area_picker.setVisible(compact)

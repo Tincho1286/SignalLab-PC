@@ -134,11 +134,11 @@ def stylesheet():
         'QWidget#desktop > QLabel,QWidget#workspaceWallpaper > QLabel {background:'+shade('window',reading)+';padding:4px;border-radius:5px;}',
         'QWidget#documentHeading {background:'+shade('chrome')+';}',
         'QWidget#explorerPanel {background:'+shade('chrome')+';}',
-        'QWidget#navigationRail,QWidget#resultActionDock,QScrollArea#railScroll,QScrollArea#railScroll > QWidget > QWidget,QToolBar#studioToolbar {background:'+shade('chrome')+';}',
+        'QWidget#resultActionDock,QToolBar#studioToolbar {background:'+shade('chrome')+';}',
         'QWidget#explorerPanel QTreeWidget {background:transparent;}',
         'QToolBar,QMenuBar,QStatusBar,QDockWidget::title {background:'+shade('chrome')+';}',
-        'QFrame#browserSection,QFrame#inputSurface,QFrame#resultSurface,QWidget#libraryIndex,QWidget#libraryArticle {background:'+shade('panel')+';}',
-        'QFrame#studioHero {background:'+shade('panel',reading)+';}',
+        'QFrame#inputSurface,QFrame#resultSurface,QWidget#libraryIndex,QWidget#libraryArticle {background:'+shade('panel')+';}',
+        'QScrollArea#catalogIndex,QWidget#catalogIndexContent,QScrollArea#catalogList,QWidget#catalogListContent {background:'+shade('panel',reading)+';}',
         'QFrame#welcomeCard {background:qlineargradient(x1:0,y1:0,x2:1,y2:1,stop:0 '+shade('selected')+',stop:.65 '+shade('panel')+',stop:1 '+shade('chrome')+');}',
         'QScrollArea > QWidget > QWidget,QTabWidget::pane,QTabBar#documents {background:transparent;}',
         'QTabBar::tab {background:'+shade('chrome')+';}',
@@ -148,7 +148,7 @@ def stylesheet():
     if reading>opacity:
         rules.extend([
             'QLabel[photoReading="true"] {background:'+shade('panel',reading)+';border-radius:5px;}',
-            'QToolButton#railItem,QToolButton#chromeAction,QPushButton#toolLink,QStatusBar {background:'+shade('chrome',reading)+';}',
+            'QToolButton#chromeAction,QPushButton#catalogArea,QPushButton#toolLink,QStatusBar {background:'+shade('chrome',reading)+';}',
             'QTabBar#documents::tab {background:'+shade('chrome',reading)+';}',
             'QTabBar#documents::tab:selected {background:'+shade('selected',reading)+';}',
             'QGroupBox::title {background:'+shade('panel',reading)+';border-radius:4px;}',
