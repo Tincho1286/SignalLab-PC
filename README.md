@@ -38,7 +38,7 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 La 1.8.18 está disponible con **Sólo versiones estables**. El canal **Estables y preliminares (Pre-releases)** también ofrece la 1.8.18 y permite recibir entregas de prueba cuando haya una preliminar posterior. [Notas de la versión estable](docs/releases/v1.8.18.md).
 
-La 1.8.20 amplía el cálculo de energía, Fourier y Laplace. Elegí **Estables y preliminares (Pre-releases)** para recibirla desde el actualizador. [Descargas de la 1.8.20 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.20).
+La 1.8.21 mejora la visibilidad de las casillas y amplía el cálculo de señales periódicas. Elegí **Estables y preliminares (Pre-releases)** para recibirla desde el actualizador. [Descargas de la 1.8.21 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.21).
 
 ### Actualizar una instalación
 
@@ -78,6 +78,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La 1.8.21 mejora el contraste y el tamaño de las casillas en toda la aplicación. También amplía energía, Z y Laplace para trenes recortados y reconoce espectros periódicos pegados en Fourier inversa. [Notas de la 1.8.21](docs/releases/v1.8.21.md).
 
 La 1.8.20 amplía el cálculo exacto de energía y potencia con envolventes oscilatorias. Fourier recupera formas periódicas a partir de su espectro de líneas y Laplace integra un período completo. [Notas de la 1.8.20](docs/releases/v1.8.20.md).
 

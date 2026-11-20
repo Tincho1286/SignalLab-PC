@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.18](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.18). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.21 · Preliminar
+
+La 1.8.21 mejora el contraste y el tamaño de las casillas en toda la aplicación. También amplía energía, Z y Laplace para trenes recortados y reconoce espectros periódicos pegados en Fourier inversa.
+
+[Novedades completas](docs/releases/v1.8.21.md)
+
 ## 1.8.20 · Preliminar
 
 La 1.8.20 amplía el cálculo exacto de energía y potencia con envolventes oscilatorias. Fourier recupera formas periódicas a partir de su espectro de líneas y Laplace integra un período completo. La biblioteca incorpora guías ilustradas para las funciones periódicas y enlaces desde las herramientas que las usan.

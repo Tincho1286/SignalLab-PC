@@ -1,6 +1,22 @@
 {
   "releases": [
     {
+      "tag": "v1.8.21",
+      "title": "Controles visibles y señales periódicas",
+      "channel": "preview",
+      "summary": "La 1.8.21 mejora el contraste y el tamaño de las casillas en toda la aplicación. También amplía energía, Z y Laplace para trenes recortados y reconoce espectros periódicos pegados en Fourier inversa.",
+      "changes": [
+        "Casillas con indicador de 18 px, marca visible y foco de teclado en todos los temas.",
+        "Energía y potencia separan las colas periódicas y los tramos temporales finitos.",
+        "Z y Laplace obtienen la convergencia según el soporte efectivo de la entrada.",
+        "Fourier inversa reconoce pesos de espectros de líneas de ondas periódicas por tramos polinómicos."
+      ],
+      "limits": [
+        "La inversión desde una fórmula pegada admite los pesos que pueden verificarse como transformadas de tramos polinómicos compactos."
+      ],
+      "notes": "docs/releases/v1.8.21.md"
+    },
+    {
       "tag": "v1.8.20",
       "title": "Energía global, Fourier y Laplace",
       "channel": "preview",
