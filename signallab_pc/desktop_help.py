@@ -1,8 +1,4 @@
 """A short, illustrated introduction to the common scientific workspace."""
-from PySide6.QtCore import Qt,QRectF
-from PySide6.QtGui import QImage,QPainter,QColor,QPen,QFont
-from .theme_tokens import COLORS as C
-
 ARTICLE_ID='reference:Interfaz de trabajo'
 
 
@@ -18,6 +14,10 @@ def sections():
 
 
 def workspace_image():
+    from PySide6.QtCore import Qt,QRectF
+    from PySide6.QtGui import QImage,QPainter,QColor,QPen,QFont
+    from .theme_tokens import COLORS as C
+
     image=QImage(960,480,QImage.Format.Format_ARGB32_Premultiplied);image.fill(QColor(C['report']));p=QPainter(image);p.setRenderHint(QPainter.RenderHint.Antialiasing)
     def text(x,y,w,h,value,role='text',size=12):
         p.setPen(QColor(C[role]));p.setFont(QFont('Segoe UI',size));p.drawText(QRectF(x,y,w,h),Qt.AlignmentFlag.AlignCenter|Qt.TextFlag.TextWordWrap,value)
