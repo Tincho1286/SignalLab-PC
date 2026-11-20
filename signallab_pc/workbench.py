@@ -259,7 +259,7 @@ class WorkbenchWindow(ToolboxWindow):
         self.documents.setCurrentIndex(index);self.documents.blockSignals(False);self.title.setText(title);self.stack.setCurrentWidget(page)
         self.heading.setVisible(not home)
         self.subtitle.setVisible(not home and self.height()>=650)
-        self.studio_search.setVisible(not home)
+        self.studio_search_action.setVisible(not home)
         self.statusBar().showMessage(title)
     def activate_document(self,index):
         key=self.documents.tabData(index)
