@@ -1,6 +1,23 @@
 {
   "releases": [
     {
+      "tag": "v1.8.16",
+      "title": "Informes, gráficos y ayuda",
+      "channel": "preview",
+      "summary": "La 1.8.16 preliminar corrige la superposición de controles al desplazarse y mantiene verticales los rótulos de los gráficos. Los informes revisados priorizan los valores calculados y sus condiciones; la Biblioteca concentra el detalle de los métodos.",
+      "changes": [
+        "Las filas de controles conservan su espacio al dividirse en varias líneas.",
+        "La vista de frecuencia del FIR enventanado permite desplazarse hasta los últimos controles.",
+        "Los rótulos verticales de los gráficos conservan su orientación y sus unidades.",
+        "Los informes de análisis, transformadas, FIR, fase y medidas destacan fórmulas, valores y condiciones.",
+        "Las guías explican los métodos y enlazan las referencias compartidas."
+      ],
+      "limits": [
+        "El informe registra los valores completados por continuidad cuando se aplica ese criterio."
+      ],
+      "notes": "docs/releases/v1.8.16.md"
+    },
+    {
       "tag": "v1.8.15",
       "title": "Nuevo espacio de trabajo",
       "channel": "preview",

@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.14](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.14). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.16 · Preliminar
+
+La 1.8.16 preliminar corrige la superposición de controles al desplazarse y mantiene verticales los rótulos de los gráficos. Los informes revisados priorizan los valores calculados y sus condiciones; la Biblioteca concentra el detalle de los métodos.
+
+[Novedades completas](docs/releases/v1.8.16.md)
+
 ## 1.8.15 · Preliminar
 
 La 1.8.15 preliminar agrupa la navegación en un catálogo con búsqueda por nombre o concepto. Los formularios y los informes usan el ancho de la ventana y las acciones de salida se encuentran siempre junto al resultado.

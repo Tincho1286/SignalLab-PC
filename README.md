@@ -36,7 +36,7 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 ### Canal estable y preliminares
 
-La [1.8.15 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.15) presenta el nuevo escritorio, con un catálogo por áreas, informes ampliables y controles de gráficos reorganizados. Podés descargarla en GitHub o activar **Estables y preliminares (Pre-releases)** en el actualizador.
+La [1.8.16 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.16) mejora la lectura de gráficos y resultados. El instalador actualizable se ofrece al elegir **Estables y preliminares (Pre-releases)**. También podés descargar los cuatro formatos directamente desde la publicación.
 
 La **1.8.14 estable** consolida las mejoras de las preliminares 1.8.9 a 1.8.14 y está disponible con **Sólo versiones estables** del actualizador. Incluye las ampliaciones de respuesta temporal, medidas de frecuencia, estudios de modelos, registros y reconstrucción, junto con las mejoras de carga y edición de muestras. El selector **Estables y preliminares (Pre-releases)** permite recibir futuras entregas de prueba cuando sean más nuevas que la estable instalada.
 
@@ -81,6 +81,8 @@ El alcance depende del método elegido y de sus hipótesis. Una evaluación sobr
 
 ## Novedades e historial
 
+La 1.8.16 preliminar corrige la superposición de controles al desplazarse y mantiene verticales los rótulos de los gráficos. Los informes revisados priorizan los valores calculados y sus condiciones; la Biblioteca concentra el detalle de los métodos. [Notas de la 1.8.16](docs/releases/v1.8.16.md).
+
 La 1.8.15 preliminar agrupa la navegación en un catálogo con búsqueda por nombre o concepto. Los formularios y los informes usan el ancho de la ventana y las acciones de salida se encuentran siempre junto al resultado. [Notas de la 1.8.15](docs/releases/v1.8.15.md).
 
 La [1.8.14 estable](docs/releases/v1.8.14.md) concentra cinco mejoras en la carga, edición y combinación de señales. La vista previa valida los datos antes de usarlos; el historial mantiene independientes las salidas aplicadas y la extracción conserva los índices y el reloj. Suma y producto permiten intercambiar definiciones y consultar sus valores alineados junto al informe. La [guía de herramientas básicas](docs/basic-usability.md) desarrolla el alcance de estas operaciones.
@@ -109,11 +111,11 @@ La [1.8.1 estable](docs/releases/v1.8.1.md) amplía las herramientas de análisi
 
 La [versión 1.8.0](docs/releases/v1.8.0.md) incorpora los instaladores y el canal de actualizaciones, manteniendo los portables y las mejoras matemáticas de la [1.7.0](docs/releases/v1.7.0.md). El [historial de cambios](CHANGELOG.md) ofrece un recorrido resumido; las [notas de cada versión](docs/releases/README.md) explican las incorporaciones, correcciones y límites de cada entrega.
 
-## Vistas de la 1.8.15 preliminar
+## Vistas de la 1.8.16 preliminar
 
-| Catálogo de herramientas | Análisis de un sistema LTI |
+| Informe de análisis LTI | Respuesta en frecuencia |
 | --- | --- |
-| [![Catálogo por áreas](docs/assets/workspace-catalog-1815.png)](docs/assets/workspace-catalog-1815.png) | [![Formulario e informe del análisis LTI](docs/assets/workspace-analysis-1815.png)](docs/assets/workspace-analysis-1815.png) |
+| [![Informe de un sistema](docs/assets/workspace-analysis-1816.png)](docs/assets/workspace-analysis-1816.png) | [![Gráfico con rótulos verticales](docs/assets/workspace-plot-1816.png)](docs/assets/workspace-plot-1816.png) |
 
 ## Documentación y desarrollo
 

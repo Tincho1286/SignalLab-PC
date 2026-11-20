@@ -8,6 +8,7 @@ Este índice conserva las publicaciones anteriores con sus notas y canales hist�
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.16](v1.8.16.md) | Controles, rótulos verticales e informes más fáciles de leer | Preliminar |
 | [1.8.15](v1.8.15.md) | Catálogo por áreas, informes ampliables y cursores | Preliminar |
 | [1.8.14](v1.8.14.md) | Carga, edición y combinación de señales · estable acumulativa | Estable |
 | [1.8.13](v1.8.13.md) | Reconstrucciones, referencia, bordes y aportes de las muestras | Preliminar |
