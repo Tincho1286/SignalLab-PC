@@ -23,6 +23,14 @@ def intervals(region):
 
 
 def pieces(expression,lower,upper,*,preserve_structure=False):
+    from .periodic_support import split_periodic_support
+    split=split_periodic_support(expression,N)
+    if split is not None:
+        clipped=[]
+        for branch,left,right in split:
+            start,stop=sp.Max(left,lower),sp.Min(right,upper)
+            if start<=stop:clipped.append((branch if preserve_structure else sp.simplify(branch),start,stop))
+        return clipped
     # Keep the explicitly completed sample separate before integer identities
     # such as sin(pi*n)=0 simplify the regular branch.
     value=expression.replace(lambda v:v.func in (sp.Heaviside,sp.KroneckerDelta),lambda v:v.rewrite(sp.Piecewise))
@@ -105,6 +113,30 @@ def half(term,start):
 def interval(value,lower,upper):
     if value==0:return sp.S.Zero,sp.true,sp.true
     if lower==upper:return sp.simplify(value.subs(N,lower)*Z**(-lower)),sp.true,sp.true
+    if value.has(sp.Mod):
+        if lower.is_finite and upper.is_finite:
+            from .resources import ensure_working_set
+            ensure_working_set(int(upper-lower+1),bytes_per_sample=1024,live_arrays=8)
+            terms=[]
+            for index in range(int(lower),int(upper+1)):
+                checkpoint()
+                sample=sp.simplify(value.subs(N,index))
+                if sample.has(sp.nan,sp.zoo,sp.oo,-sp.oo):return None
+                if sample!=0:terms.append(sample*Z**(-index))
+            return sp.Add(*terms),sp.true,sp.true
+        from .periodic_signals import cycle_weight,discrete_cycle
+        cycle=discrete_cycle(value,N)
+        if cycle is not None:
+            samples=cycle[1]
+            if all(sample==0 for sample in samples):return sp.S.Zero,sp.true,sp.true
+            if not any(sample.is_zero is False for sample in samples):return None
+            if lower==-sp.oo and upper==sp.oo:
+                return sp.S.Zero,sp.false,sp.false
+            period=len(samples)
+            right=lower.is_finite
+            first=lower if right else upper-period+1
+            numerator=cycle_weight(cycle,first,lambda index:Z**(-index))
+            return numerator/(1-Z**(-period if right else period)),sp.Abs(Z)>1 if right else sp.Abs(Z)<1,sp.false
     if lower.is_finite and upper.is_finite:
         result=sp.summation(value*Z**(-N),(N,lower,upper))
         return None if result.has(sp.Sum,sp.nan,sp.zoo,sp.oo) else (result,sp.true,sp.true)

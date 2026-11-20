@@ -7,6 +7,16 @@ from .jobs import checkpoint
 from .periodic_signals import ImpulseTrain, repeat, wrapped_period
 
 
+def _slice_cycle(pieces, period, start, time, lower, upper):
+    """Yield the pieces of an interval no longer than one period."""
+    offset = period*sp.floor((lower-start)/period)
+    for lo,hi,branch in pieces:
+        for shift in (offset,offset+period):
+            left,right = sp.Max(lower,lo+shift),sp.Min(upper,hi+shift)
+            if left < right:
+                yield left,right,branch.subs(time,time-shift)
+
+
 def _bounded_cycle(value, time):
     if value.free_symbols - {time} or value.has(ImpulseTrain, sp.DiracDelta):
         return None
@@ -85,18 +95,75 @@ def periodic_laplace(value, time, output):
     if cycle is None:
         return None
     period, start, pieces, _ = cycle
-    offset = period*sp.floor(-start/period)
     kernel = sp.exp(-output*time)
     terms = []
-    for lower, upper, branch in pieces:
-        for shift in (offset, offset+period):
-            left, right = sp.Max(0, lower+shift), sp.Min(period, upper+shift)
-            if left >= right:
-                continue
-            checkpoint()
-            region = branch.subs(time, time-shift)
-            area = sp.integrate(region*kernel, (time, left, right), conds='none')
-            if area.has(sp.Integral, sp.oo, -sp.oo, sp.zoo, sp.nan):
-                return None
-            terms.append(area)
+    for left,right,branch in _slice_cycle(pieces,period,start,time,sp.S.Zero,period):
+        checkpoint()
+        area = sp.integrate(branch*kernel, (time,left,right), conds='none')
+        if area.has(sp.Integral, sp.oo, -sp.oo, sp.zoo, sp.nan):
+            return None
+        terms.append(area)
     return sp.Add(*terms)/(1-sp.exp(-output*period))
+
+
+def finite_laplace_piece(value,time,output,lower,upper):
+    result=sp.integrate(value*sp.exp(-output*time),(time,lower,upper))
+    # Parameter branches from integration can include real-line infinity
+    # guards. Here s ranges over all finite complex numbers.
+    return result.xreplace({output>-sp.oo:sp.true,output<sp.oo:sp.true,-sp.oo<output:sp.true,sp.oo>output:sp.true})
+
+
+def periodic_integral(value, time, lower, upper, *, laplace_variable=None):
+    """Integrate full cycles once, plus the remaining fraction of a cycle."""
+    cycle = _bounded_cycle(value,time)
+    if cycle is None:
+        return None
+    period,start,pieces,_ = cycle
+    cycles = sp.floor((upper-lower)/period)
+    if not isinstance(cycles,sp.Integer):
+        return None
+    def integrate(start_at, stop_at):
+        terms=[]
+        for left,right,branch in _slice_cycle(pieces,period,start,time,start_at,stop_at):
+            checkpoint()
+            area=(sp.integrate(branch,(time,left,right)) if laplace_variable is None
+                  else finite_laplace_piece(branch,time,laplace_variable,left,right))
+            terms.append(area)
+        return sp.Add(*terms)
+    whole = integrate(lower,lower+period) if cycles else sp.S.Zero
+    remainder = integrate(lower,upper-cycles*period)
+    if laplace_variable is None or not cycles:
+        return cycles*whole+remainder
+    factor = sp.exp(-laplace_variable*period)
+    repeat_count = sp.Piecewise((cycles,sp.Eq(factor,1)),((1-factor**cycles)/(1-factor),True))
+    return whole*repeat_count+factor**cycles*remainder
+
+
+def gated_periodic_laplace(value, time, output):
+    """Laplace from zero with an exact ROC for a gated periodic waveform."""
+    if value.has(ImpulseTrain,sp.DiracDelta):
+        return None
+    from .periodic_support import split_periodic_support
+    split=split_periodic_support(value,time)
+    if split is None:
+        return None
+    finite=[]
+    tail=sp.S.Zero
+    for branch,left,right in split:
+        start=sp.Max(0,left)
+        if start>=right or branch==0:
+            continue
+        if right==sp.oo:
+            transformed=periodic_laplace(branch.subs(time,time+start),time,output)
+            if transformed is None and not branch.has(time):
+                transformed=branch/output
+            if transformed is None:
+                return None
+            tail=sp.exp(-output*start)*transformed
+        else:
+            transformed=(periodic_integral(branch,time,start,right,laplace_variable=output) if branch.has(sp.Mod)
+                         else finite_laplace_piece(branch,time,output,start,right))
+            if transformed is None or transformed.has(sp.Integral,sp.nan,sp.oo,sp.zoo):
+                return None
+            finite.append(transformed)
+    return sp.Add(*finite),tail

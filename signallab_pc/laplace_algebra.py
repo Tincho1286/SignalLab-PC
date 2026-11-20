@@ -24,7 +24,8 @@ def direct(request):
     if value.has(S, N, Z, W):
         raise ValueError('Laplace directa: ingresá x(t) usando t.')
     from .periodic_signals import affine_train_term
-    from .periodic_fourier import periodic_fourier_pair
+    from .periodic_fourier import finite_laplace_piece,periodic_fourier_pair,periodic_integral,periodic_laplace
+    from .periodic_support import split_periodic_support
     from .impulse_pairs import fourier_pairs
 
     periodic = periodic_fourier_pair(value,T,W) if value.has(sp.Mod) else None
@@ -51,14 +52,21 @@ def direct(request):
         impulse+=current
         records.append(step('Aporte de impulso','Integración distribucional sobre toda la recta',term,current,conditions='El peso se incorpora una sola vez, también en t=0.',source='impulse_pairs.impulse_integral'))
     regular = sp.piecewise_fold(sp.Add(*regular).rewrite(sp.Piecewise))
+    split = split_periodic_support(regular,T)
     try:
-        regions = regular.as_expr_set_pairs(domain=sp.S.Reals) if isinstance(regular, sp.Piecewise) else [(regular, sp.S.Reals)]
+        if split is not None:
+            regions=[(branch,sp.Interval(start,stop)) for branch,start,stop in split]
+        else:
+            regions = regular.as_expr_set_pairs(domain=sp.S.Reals) if isinstance(regular, sp.Piecewise) else [(regular, sp.S.Reals)]
     except (NotImplementedError, ValueError) as exc:
         raise ValueError('No se pudo determinar el soporte real de los tramos. Usá bordes temporales reales y condiciones sobre t.') from exc
     lower = -sp.oo; upper = sp.oo; conditions = []; pieces = [impulse]
     u = sp.Dummy('u', positive=True)
     def half(value):
-        return (sp.S.Zero, -sp.oo, sp.true) if value == 0 else sp.laplace_transform(value, u, S)
+        if value == 0:return sp.S.Zero,-sp.oo,sp.true
+        extension=periodic_laplace(value.xreplace({u:T}),T,S) if value.has(sp.Mod) else None
+        if extension is not None:return extension,sp.S.Zero if extension!=0 else -sp.oo,sp.true
+        return sp.laplace_transform(value, u, S)
     for amplitude, region in regions:
         if amplitude == 0:
             continue
@@ -74,7 +82,8 @@ def direct(request):
                 # A bounded time interval has no tail convergence restriction.
                 # Applying a unilateral table to a clipped exponential can
                 # otherwise report its un-clipped exponent as a false bound.
-                pieces.append(sp.integrate(amplitude*sp.exp(-S*T), (T, a, b)))
+                period_area=periodic_integral(amplitude,T,a,b,laplace_variable=S) if amplitude.has(sp.Mod) else None
+                pieces.append(period_area if period_area is not None else finite_laplace_piece(amplitude,T,S,a,b))
                 records.append(step('Tramo temporal acotado','Integración en el intervalo real registrado',sp.Integral(amplitude*sp.exp(-S*T),(T,a,b)),pieces[-1],conditions='No se agregan restricciones de cola infinita a un tramo acotado.',source='laplace_algebra.direct'))
                 continue
             if b == sp.oo:

@@ -30,10 +30,12 @@ En **Energía y potencia → Medir en todo el eje**, un tren de pulsos unitarios
 
 Probá `cos(n)` y `cos(pi*n)` en discreto. La primera tiene potencia 1/2. En la segunda, cada muestra vale 1 o −1, así que la potencia es 1. Para `cos(pi*t)` en continuo, la potencia es 1/2. Una señal que decae también puede tener energía finita, como `cos(n)/sqrt(1+n^2)`, o infinita, como `cos(n)/sqrt(1+abs(n))`. Ambas tienen potencia cero.
 
+Para conservar sólo la mitad derecha de un tren, multiplicá su fórmula por `Step(t)` o `Step(n)`. Por ejemplo, `Step(t)*PulseTrain(t,1,1/4)` tiene energía infinita y potencia media global 1/8. El tren completo tiene potencia 1/4. Si además lo cortás en t = 2 con `(Step(t)-Step(t-2))`, la energía queda en 1/2 y la potencia global en cero.
+
 ## Graficar y reutilizar transformadas
 
 En **DTFT algebraica**, usá `ImpulseTrain(n-1,4)` con límites `-oo` y `oo` para obtener todo el espectro. Abrí **Graficar resultado** para ver las líneas por frecuencia y peso. Para recuperar la secuencia elegí **DTFT inversa algebraica** en **Usar espectro en…**.
 
-En **Fourier continua**, `PulseTrain(t-1,4,2)` da líneas separadas por 2π/4 rad/s. Reutilizá el espectro guardado en **Fourier continua inversa** para reconstruir el período. En un salto, el resultado toma el promedio de los límites laterales.
+En **Fourier continua**, `PulseTrain(t-1,4,2)` da líneas separadas por 2π/4 rad/s. Reutilizá el espectro guardado en **Fourier continua inversa** para reconstruir el período. También podés pegar la fórmula del espectro de un tren rectangular u otro período formado por tramos polinómicos. En un salto, el resultado toma el promedio de los límites laterales.
 
 En **Laplace → Directa → Unilateral**, el cálculo integra un período desde t = 0 y suma las repeticiones hacia la derecha. En **Bilateral**, un tren periódico no nulo tiene región de convergencia vacía y su espectro de Fourier se puede reutilizar. En Z ocurre algo equivalente al elegir `-oo` y `oo` para un tren discreto. El informe conserva su DTFT.

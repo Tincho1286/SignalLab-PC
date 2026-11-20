@@ -37,6 +37,10 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Trenes con inicio o fin",
+          "Step(t-1)*PulseTrain(t,3,2) empieza en t=1 y continúa hacia la derecha. Su región de convergencia es Re(s)>0. Si recortás ambos extremos con (Step(t-1)-Step(t-6)), el soporte queda acotado y la transformada es válida en todo el plano s finito, incluido cero."
         ]
       ]
     },

@@ -168,5 +168,36 @@ class PracticalUi(unittest.TestCase):
             QTimer.singleShot(50,select);QTest.mouseClick(button,Qt.MouseButton.LeftButton,pos=menu.center())
             self.assertEqual(opened.call_count,1);self.assertIs(opened.call_args.args[0][0](),canvases[1])
 
+    def test_checkbox_indicator_distinguishes_states_in_dark_and_light_themes(self):
+        from PySide6.QtCore import Qt
+        from PySide6.QtWidgets import QCheckBox,QStyle,QStyleOptionButton
+        from PySide6.QtTest import QTest
+        from signallab_pc import theme_assets,theme_presets
+        from signallab_pc.desktop_theme import desktop_style
+        from signallab_pc.theme_tokens import COLORS
+
+        check=QCheckBox('Repetir un período en todo el eje');self.widgets.append(check)
+        current=theme_presets.CURRENT
+        def indicator_pixels():
+            option=QStyleOptionButton();check.initStyleOption(option)
+            box=check.style().subElementRect(QStyle.SubElement.SE_CheckBoxIndicator,option,check)
+            self.assertGreaterEqual(box.width(),18)
+            frame=check.grab().toImage()
+            ratio=frame.devicePixelRatio()
+            return {frame.pixelColor(round(x*ratio),round(y*ratio)).name()
+                    for x in range(box.left(),box.right()+1) for y in range(box.top(),box.bottom()+1)}
+        try:
+            with tempfile.TemporaryDirectory() as folder, patch.object(theme_assets.QStandardPaths,'writableLocation',return_value=folder):
+                for theme in ('vanta','white'):
+                    with self.subTest(theme=theme):
+                        theme_presets.select(theme);check.setStyleSheet(desktop_style())
+                        check.setChecked(False);check.resize(320,35);check.show();check.setFocus();self.app.processEvents()
+                        self.assertTrue({COLORS['muted'],COLORS['accent']}&indicator_pixels())
+                        QTest.keyClick(check,Qt.Key.Key_Space)
+                        self.assertTrue(check.isChecked())
+                        self.assertTrue({COLORS['primary'],COLORS['on_primary']}<=indicator_pixels())
+        finally:
+            theme_presets.select(current)
+
 
 if __name__=='__main__':unittest.main()

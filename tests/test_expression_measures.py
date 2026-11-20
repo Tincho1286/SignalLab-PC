@@ -45,6 +45,15 @@ class ExpressionMeasureTests(unittest.TestCase):
         result=self.measure('cos(n)/sqrt(1+abs(n))',domain='discrete',mode='global')
         self.assertEqual(result['energy']['exact'],'oo')
         self.assertEqual(result['mean_square']['exact'],'0')
+    def test_temporal_gates_apply_to_complete_periodic_measures(self):
+        cases=(('continuous','Step(t)*PulseTrain(t,1,1/4)','oo','1/8'),
+               ('continuous','(Step(t)-Step(t-2))*PulseTrain(t,1,1/4)','1/2','0'),
+               ('discrete','Step(n-3)*PulseTrain(n,5,2)','oo','1/5'),
+               ('discrete','(Step(n)-Step(n-5))*PulseTrain(n,5,2)','2','0'))
+        for domain,expression,energy,power in cases:
+            with self.subTest(expression=expression):
+                result=self.measure(expression,domain=domain,mode='global')
+                self.assertEqual((result['energy']['exact'],result['mean_square']['exact']),(energy,power))
     def test_harmonic_power_without_requiring_a_period(self):
         cases=(('discrete','Cos(n)','1/2'),('discrete','cos(pi*n)','1'),
                ('discrete','cos(n)+cos((2*pi+1)*n)','2'),('discrete','cos(pi*n)/sqrt(2)','1/2'),

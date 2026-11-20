@@ -182,6 +182,12 @@ def fourier_pairs(value,variable,output,*,inverse=False):
             phase=sp.exp((sp.I if inverse else -sp.I)*output*origin)
             known.append(2*sp.pi*area*phase*ImpulseTrain(output,2*sp.pi/period)/(period*divisor))
             continue
+        if inverse and term.has(ImpulseTrain):
+            from .periodic_comb_inverse import inverse_weighted_comb
+            answer=inverse_weighted_comb(term,variable,output)
+            if answer is not None:
+                known.append(answer)
+                continue
         cycle=wrapped_period(term,variable)
         if cycle is not None and not term.has(ImpulseTrain,sp.DiracDelta):
             period,first,ordinary=cycle
@@ -206,8 +212,13 @@ def fourier_pairs(value,variable,output,*,inverse=False):
 
 def unilateral_laplace(value,variable,output):
     """Keep 0-minus impulse weights and derivative scaling out of generic tables."""
-    from .periodic_fourier import periodic_laplace
+    from .periodic_fourier import gated_periodic_laplace,periodic_laplace
     from .periodic_signals import affine_train_term
+
+    gated=gated_periodic_laplace(value,variable,output)
+    if gated is not None:
+        finite,tail=gated
+        return sp.factor_terms(finite+tail),sp.S.Zero if tail!=0 else -sp.oo,sp.true
 
     known=[];remaining=[];periodic=[]
     for term in sp.Add.make_args(sp.expand_mul(value)):
@@ -219,6 +230,11 @@ def unilateral_laplace(value,variable,output):
         extension=periodic_laplace(term,variable,output) if term.has(sp.Mod) else None
         if extension is not None:
             periodic.append(extension)
+            continue
+        gated=gated_periodic_laplace(term,variable,output)
+        if gated is not None:
+            known.append(gated[0])
+            periodic.append(gated[1])
             continue
         answer=impulse_integral(term,variable,sp.exp(-output*variable),sp.S.Zero,sp.oo) if term.has(sp.DiracDelta) else None
         (remaining if answer is None else known).append(term if answer is None else answer)

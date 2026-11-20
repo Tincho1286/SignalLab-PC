@@ -195,6 +195,14 @@ def cycle_weight(cycle, start, multiplier):
     return sp.Add(*(sample*multiplier(position) for position, sample in ordered if sample != 0))
 
 
+def cycle_sum(cycle, lower, upper):
+    """Sum an inclusive integer range, even if it covers many periods."""
+    origin,samples=cycle
+    count,remainder=divmod(int(upper-lower+1),len(samples))
+    start=int(lower)-origin
+    return count*sp.Add(*samples)+sp.Add(*(samples[(start+k) % len(samples)] for k in range(remainder)))
+
+
 def cycle_dtft(cycle, frequency):
     origin, samples = cycle
     spacing = 2*sp.pi/len(samples)

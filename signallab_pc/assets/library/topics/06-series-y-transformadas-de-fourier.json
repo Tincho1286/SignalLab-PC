@@ -263,6 +263,10 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Pegar la fórmula del espectro",
+          "También podés pegar el espectro de líneas de un tren rectangular o de un período formado por tramos polinómicos. La inversa recupera la forma temporal a partir de los pesos de las líneas y toma el valor medio en cada salto."
         ]
       ]
     },

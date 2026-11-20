@@ -24,6 +24,27 @@ class SymbolicFourierTests(unittest.TestCase):
         self.assertTrue(result['evaluated']);self.assertEqual(result['convergence_abscissa'],'0')
         expected=(1-sp.exp(-S/4)+sp.exp(-3*S/4)-sp.exp(-S))/(S*(1-sp.exp(-S)))
         self.assertEqual(sp.simplify(parse(result['result'])-expected),0)
+    def test_gated_periodic_transforms_respect_the_actual_support(self):
+        from signallab_pc.symbolic import S,Z
+        clipped='(Step(t-1)-Step(t-6))*PulseTrain(t,3,2)'
+        for mode in ('unilateral','bilateral'):
+            with self.subTest(mode=mode):
+                r=execute(dict(operation='laplace',interpretation=mode,expression=clipped))
+                self.assertTrue(r['evaluated'])
+                self.assertEqual(r.get('roc_lower',r.get('convergence_abscissa')),'-oo')
+                self.assertEqual(parse(r['result']).subs(S,0),3)
+        sequence='Step(n-3)*PulseTrain(n,5,2)'
+        r=execute(dict(operation='z_expression',expression=sequence,lower='-oo',upper='oo'))
+        self.assertTrue(r['evaluated'])
+        self.assertEqual(sp.cancel(parse(r['branches'][0]['expression'])-(Z**-5+Z**-6)/(1-Z**-5)),0)
+    def test_inverse_of_a_copied_periodic_spectrum_has_no_provenance(self):
+        forward=self.transform('PulseTrain(t-1/4,1,1/4)')
+        inverse=self.transform(forward['result'],True)
+        self.assertTrue(inverse['evaluated'])
+        waveform=parse(inverse['result'])
+        grid=[-sp.Rational(3,4),0,sp.Rational(1,4),sp.Rational(3,8),sp.Rational(1,2),sp.Rational(11,8)]
+        self.assertEqual([sp.simplify(waveform.subs(T,point)) for point in grid],
+                         [sp.S.Half,0,sp.S.Half,1,sp.S.Half,1])
     def test_an_excluded_frequency_cannot_drop_an_impulse_train_line(self):
         request=dict(operation='inverse_fourier_angular',expression='2*pi*ImpulseTrain(w,2*pi)',input_frequency_condition='Ne(w,0)')
         with self.assertRaisesRegex(ValueError,'no está definida'):

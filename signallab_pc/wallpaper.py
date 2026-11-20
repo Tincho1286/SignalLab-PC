@@ -148,6 +148,7 @@ def stylesheet():
     if reading>opacity:
         rules.extend([
             'QLabel[photoReading="true"] {background:'+shade('panel',reading)+';border-radius:5px;}',
+            'QCheckBox {background:'+shade('panel',reading)+';}',
             'QToolButton#chromeAction,QPushButton#catalogArea,QPushButton#toolLink,QStatusBar {background:'+shade('chrome',reading)+';}',
             'QTabBar#documents::tab {background:'+shade('chrome',reading)+';}',
             'QTabBar#documents::tab:selected {background:'+shade('selected',reading)+';}',

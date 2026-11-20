@@ -125,7 +125,15 @@ QToolButton#areaNavigation {text-align:left;background:transparent;border:1px so
 QToolButton#areaNavigation:checked {background:@selected@;border-color:@accent@;color:@text@;font-weight:600;}
 QToolButton#areaNavigation:hover {background:@hover@;}
 QTreeWidget {background:@chrome@;border:0;}
-QCheckBox {spacing:8px;}
+QCheckBox {spacing:9px;min-height:22px;padding:2px 4px;border:1px solid transparent;border-radius:6px;color:@text@;}
+QCheckBox:focus {border-color:@accent@;}
+QCheckBox:disabled {color:@disabled@;}
+QCheckBox::indicator {width:16px;height:16px;border:1px solid @muted@;border-radius:4px;background:@input@;}
+QCheckBox::indicator:unchecked:enabled:hover {border-color:@accent@;background:@hover@;}
+QCheckBox::indicator:checked,QCheckBox::indicator:indeterminate {border-color:@primary@;background:@primary@;}
+QCheckBox::indicator:checked:enabled:hover,QCheckBox::indicator:indeterminate:enabled:hover {border-color:@text@;}
+QCheckBox::indicator:unchecked:disabled {border-color:@rule@;background:@chrome@;}
+QCheckBox::indicator:checked:disabled,QCheckBox::indicator:indeterminate:disabled {border-color:@disabled@;background:@disabled@;}
 QLineEdit {font-family:'Consolas';font-size:10pt;}
 QLineEdit#toolSearch,QLineEdit#librarySearch {font-family:'Segoe UI';font-size:9pt;}
 """
@@ -143,6 +151,16 @@ DESKTOP_STYLE += "QToolBar#casToolbar {spacing:0;padding:2px;} QToolBar#casToolb
 def desktop_style():
     from .theme_assets import paths
     from .wallpaper import stylesheet
-    arrow,close=paths()
+    arrow,close,check,mixed=paths()
     from .frontend_style import stylesheet as frontend_stylesheet
-    return colorize(_DESKTOP_TEMPLATE)+('QComboBox::down-arrow {image:url("'+arrow+'");width:12px;height:12px;} QToolButton#plotLauncher::menu-arrow {image:url("'+arrow+'");width:20px;height:20px;} QTabBar::close-button {image:url("'+close+'");}')+"QPlainTextEdit#casInput {font-family:'Consolas';font-size:11pt;} QToolBar#casToolbar {spacing:0;padding:2px;} QToolBar#casToolbar QToolButton {padding:3px 3px;}"+frontend_stylesheet()+colorize(stylesheet())
+    controls=f'''
+QComboBox::down-arrow {{image:url("{arrow}");width:12px;height:12px;}}
+QToolButton#plotLauncher::menu-arrow {{image:url("{arrow}");width:20px;height:20px;}}
+QTabBar::close-button {{image:url("{close}");}}
+QCheckBox::indicator:checked {{image:url("{check}");}}
+QCheckBox::indicator:indeterminate {{image:url("{mixed}");}}
+QPlainTextEdit#casInput {{font-family:'Consolas';font-size:11pt;}}
+QToolBar#casToolbar {{spacing:0;padding:2px;}}
+QToolBar#casToolbar QToolButton {{padding:3px 3px;}}
+'''
+    return colorize(_DESKTOP_TEMPLATE)+controls+frontend_stylesheet()+colorize(stylesheet())

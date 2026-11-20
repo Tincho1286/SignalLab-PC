@@ -6,7 +6,9 @@ from .resources import ensure_working_set
 
 def measure_expression(request):
     from .symbolic import parse,T,N,W,S,Z
-    from .periodic_signals import ImpulseTrain, discrete_cycle, wrapped_period
+    from .periodic_signals import ImpulseTrain, cycle_sum, discrete_cycle, wrapped_period
+    from .periodic_support import split_periodic_support
+    from .periodic_fourier import periodic_integral
     domain=request.get('domain','continuous');mode=request.get('mode','interval')
     if domain not in ('continuous','discrete') or mode not in ('interval','global','periodic'):raise ValueError('Dominio o alcance no admitido.')
     variable=T if domain=='continuous' else N
@@ -27,6 +29,9 @@ def measure_expression(request):
     def simplify_measure(expression):
         return expression if unresolved(expression) else sp.simplify(expression)
     def accumulated(lower,upper,density=power_density):
+        if lower.is_finite and upper.is_finite and density.has(sp.Mod) and not (lower.free_symbols or upper.free_symbols):
+            total=bounded_modular_measure(lower,upper,density)
+            if total is not None:return simplify_measure(total)
         if domain=='discrete':
             if lower.is_number and upper.is_number and lower.is_finite and upper.is_finite:ensure_working_set(int(upper-lower+1),bytes_per_sample=1024,live_arrays=8)
             if not (lower.free_symbols or upper.free_symbols) and density.has(sp.Piecewise):
@@ -41,6 +46,36 @@ def measure_expression(request):
             return simplify_measure(sp.summation(density,(N,lower,upper)))
         integrand=sp.piecewise_fold(density.rewrite(sp.Piecewise)) if density.has(sp.Heaviside) else density
         return simplify_measure(sp.integrate(integrand,(T,lower,upper)))
+    def bounded_modular_measure(lower,upper,density):
+        from .jobs import checkpoint
+        parts=split_periodic_support(density,variable) or [(density,lower,upper)]
+        terms=[]
+        for branch,begin,end in parts:
+            checkpoint()
+            start,stop=sp.Max(begin,lower),sp.Min(end,upper)
+            if start>stop or domain=='continuous' and start==stop:
+                continue
+            if not branch.has(sp.Mod):
+                terms.append(accumulated(start,stop,branch))
+            elif domain=='continuous':
+                area=periodic_integral(branch,variable,start,stop)
+                if area is None:return None
+                terms.append(area)
+            else:
+                wrapping=wrapped_period(branch,variable)
+                if wrapping is not None and stop-start+1>=wrapping[0]:
+                    terms.append(cycle_sum(discrete_cycle(branch,variable),start,stop))
+                else:
+                    ensure_working_set(int(stop-start+1),bytes_per_sample=1024,live_arrays=8)
+                    samples=[]
+                    for position in range(int(start),int(stop+1)):
+                        checkpoint()
+                        sample=sp.simplify(branch.subs(variable,position))
+                        if sample.has(sp.nan,sp.zoo,sp.oo,-sp.oo):
+                            raise ValueError(f'La secuencia no tiene una muestra finita en n = {position}.')
+                        samples.append(sample)
+                    terms.append(sp.Add(*samples))
+        return sp.Add(*terms)
     def state(expression):
         if expression.has(sp.nan,sp.zoo) or isinstance(expression,sp.AccumBounds):return 'undefined'
         if expression==sp.oo:return 'divergent'
@@ -67,6 +102,29 @@ def measure_expression(request):
                 samples=sequence[1]
                 return sp.Add(*samples)*(cycle/len(samples))
         return accumulated(first,first+cycle-(1 if domain=='discrete' else 0),density)
+    def gated_periodic_measures():
+        parts=split_periodic_support(power_density,variable)
+        if parts is None:return None
+        tail_means=[]
+        finite_areas=[]
+        for density,lo,hi in parts:
+            if lo.is_finite and hi.is_finite:
+                area=accumulated(lo,hi,density)
+                if state(area)!='finite':return None
+                finite_areas.append(area)
+                continue
+            if not density.has(variable):
+                mean=density
+            else:
+                cycle=wrapped_period(density,variable)
+                if cycle is None:return None
+                period,start,base=cycle
+                mean=simplify_measure(cycle_energy(period,start,base)/period)
+            if state(mean)!='finite':return None
+            tail_means.append(mean)
+        if len(tail_means)!=2:return None
+        power=sp.simplify(sp.Add(*tail_means)/2)
+        return (sp.oo if power.is_positive is True else sp.Add(*finite_areas)),power
     wrapping=wrapped_period(value if mode=='periodic' else power_density,variable) if mode!='interval' else None
     interval_energy=None;period_verified=False;energy_converges=False
     if mode=='interval':
@@ -108,6 +166,9 @@ def measure_expression(request):
             energy=energy_from_mean(power)
             scope='Se agrupan las componentes con la misma frecuencia antes de calcular su potencia.'
             if domain=='discrete':scope+=' Las frecuencias separadas por un múltiplo de 2π representan la misma secuencia.'
+        elif (gated:=gated_periodic_measures()) is not None:
+            energy,power=gated
+            scope='Los cambios de soporte separan las colas del tramo finito. La potencia global promedia las potencias de ambas colas. Si las dos son nulas, la energía se suma en el tramo restante.'
         elif (tails:=piecewise_harmonic_power(value,variable,accumulated)) is not None and tails.is_positive is True:
             power=tails;energy=sp.oo
             scope='Se calcula la potencia de cada cola armónica y se promedian las dos mitades del eje.'
