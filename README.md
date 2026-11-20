@@ -77,7 +77,7 @@ El alcance depende del método elegido y de sus hipótesis. Una evaluación sobr
 
 ## Novedades e historial
 
-La 1.8.18 estable permite armar o cargar un diagrama de bloques y obtener H(s) o H(z) en Sistemas LTI. Incluye el nuevo catálogo por áreas, los ajustes de controles y gráficos y la revisión de informes y guías de las versiones 1.8.15 a 1.8.17. [Notas de la 1.8.18](docs/releases/v1.8.18.md).
+La 1.8.18 estable permite obtener H(s) o H(z) desde un diagrama en Sistemas LTI. Podés conectar bloques de transferencia en cascada, paralelo o realimentación y cargar cada bloque desde una fórmula o un sistema guardado. Incluye el nuevo catálogo por áreas, los ajustes de controles y gráficos y la revisión de informes y guías de las versiones 1.8.15 a 1.8.17. [Notas de la 1.8.18](docs/releases/v1.8.18.md).
 
 La 1.8.17 preliminar amplía la revisión de los informes de Fourier, filtros y sistemas. Las salidas muestran las fórmulas, los valores y las condiciones que se aplican al cálculo. La Biblioteca y el manual explican los métodos. [Notas de la 1.8.17](docs/releases/v1.8.17.md).
 
