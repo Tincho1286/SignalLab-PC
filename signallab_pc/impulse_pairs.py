@@ -43,6 +43,45 @@ def affine_impulse(delta,variable):
     return scale,position
 
 
+def distribution_parts(value, variable, lower, upper, *, right_open=False):
+    """Split a window into its ordinary expression and exact impulse areas."""
+    from .periodic_signals import ImpulseTrain, weighted_lines
+
+    regular = []
+    lines = {}
+    for term in sp.Add.make_args(sp.expand_mul(value)):
+        checkpoint()
+        if term.has(ImpulseTrain):
+            entries = weighted_lines(term, variable, lower, upper, right_open=right_open)
+            if entries is None:
+                raise ValueError('Para graficar el tren, usá un argumento afín real y un período conocido.')
+        elif term.has(sp.DiracDelta):
+            atoms = term.atoms(sp.DiracDelta)
+            if len(atoms) != 1:
+                raise ValueError('Separá los impulsos en una suma de líneas.')
+            delta, = atoms
+            geometry = affine_impulse(delta, variable)
+            if geometry is None or len(delta.args)>1 and delta.args[1]!=0:
+                raise ValueError('La figura de líneas admite impulsos de orden cero con argumento afín real.')
+            _, position = geometry
+            inside = sp.simplify(sp.And(position>=lower, position<upper if right_open else position<=upper))
+            if inside is sp.false:
+                continue
+            if inside is not sp.true:
+                raise ValueError('No se pudo ubicar un impulso dentro de la ventana.')
+            area = impulse_integral(term, variable, sp.S.One)
+            if area is None:
+                raise ValueError('No se obtuvo un área finita para un impulso.')
+            entries = [(position, area)]
+        else:
+            regular.append(term)
+            continue
+        for position, area in entries:
+            lines[position] = lines.get(position, sp.S.Zero)+area
+    return sp.Add(*regular), [(position, area) for position, total in lines.items()
+                              if (area:=sp.simplify(total)) != 0]
+
+
 def impulse_integral(term,variable,kernel,lower=-sp.oo,upper=sp.oo):
     """Sifting of one affine Dirac derivative; None means no certified pair.
 
@@ -88,11 +127,18 @@ def impulse_integral(term,variable,kernel,lower=-sp.oo,upper=sp.oo):
 
 def inverse_periodic_impulses(value,frequency,index,lower,upper):
     """Count the periodic seam once, with full weight for a single endpoint."""
-    if not value.has(sp.DiracDelta):return sp.S.Zero,value
+    from .periodic_signals import ImpulseTrain, weighted_lines
+
+    if not value.has(sp.DiracDelta,ImpulseTrain):return sp.S.Zero,value
     known=[];remaining=[];ends={lower:[],upper:[]}
     kernel=sp.exp(sp.I*frequency*index)
     for term in sp.Add.make_args(sp.expand_mul(value)):
         checkpoint()
+        if term.has(ImpulseTrain):
+            lines=weighted_lines(term,frequency,lower,upper)
+            if lines is None:remaining.append(term)
+            else:known.extend(area*kernel.subs(frequency,point) for point,area in lines)
+            continue
         deltas=term.atoms(sp.DiracDelta)
         answer=impulse_integral(term,frequency,kernel,lower,upper) if deltas else None
         if answer is None:

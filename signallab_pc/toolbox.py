@@ -110,7 +110,7 @@ class LocalInput(QGroupBox):
             form.setRowVisible(self.expression,index==0);form.setRowVisible(self.samples,index==1);form.setRowVisible(self.paste_button,index==1)
             form.setRowVisible(interval,index!=2);form.setRowVisible(self.range_note,index==0);form.setRowVisible(self.file_note,index==2)
             if hasattr(self,'frequency_units'):form.setRowVisible(self.frequency_units,index!=2)
-            axis_widgets[self.count].setVisible(index==0);form.setRowVisible(load,index==2 and self.entry_modes.view==2)
+            axis_widgets[self.count].setVisible(index==0 or index==1 and hasattr(self,'repeat_period') and self.repeat_period.isChecked());form.setRowVisible(load,index==2 and self.entry_modes.view==2)
             if hasattr(self,'recent'):form.setRowVisible(self.recent,index==2 and self.entry_modes.view==3);form.setRowVisible(self.browse_results,index==2 and self.entry_modes.view==3)
         self.entry_modes.viewChanged.connect(lambda:update(self.mode.currentIndex()))
         self.mode.currentIndexChanged.connect(update);self.mode.setCurrentIndex(2 if kind=='import' else 0);update(self.mode.currentIndex())
@@ -123,11 +123,15 @@ class LocalInput(QGroupBox):
         form.insertRow(index+1,self.repeat_period)
         form.insertRow(index+2,'Período N (muestras)' if self.kind=='discrete' else 'Período T (s)',self.period)
         form.insertRow(index+3,'Inicio del período',self.period_origin)
-        self.repeat_period.setToolTip('La fórmula describe un período. Inicio, paso y cantidad del gráfico sólo determinan la ventana visible.')
+        self.repeat_period.setToolTip('La fórmula o las muestras describen un período. Inicio y cantidad del gráfico determinan la ventana visible.')
         def refresh(*_):
             formula=self.mode.currentIndex()==0
-            form.setRowVisible(self.repeat_period,formula)
-            for field in (self.period,self.period_origin):form.setRowVisible(field,formula and self.repeat_period.isChecked())
+            available=self.mode.currentIndex() in (0,1)
+            enabled=available and self.repeat_period.isChecked()
+            form.setRowVisible(self.repeat_period,available)
+            form.setRowVisible(self.period,formula and enabled)
+            form.setRowVisible(self.period_origin,enabled)
+            self.count.parentWidget().setVisible(formula or enabled)
         self.repeat_period.toggled.connect(refresh);self.mode.currentIndexChanged.connect(refresh);refresh()
         return [self.repeat_period,self.period,self.period_origin]
     def remember_external_source(self):
@@ -269,15 +273,21 @@ class LocalInput(QGroupBox):
             self.validate_data_kind(self.loaded)
             return self.loaded
         expression=self.expression.text()
-        periodic=mode==0 and hasattr(self,'repeat_period') and self.repeat_period.isChecked()
+        periodic=hasattr(self,'repeat_period') and self.repeat_period.isChecked()
         if periodic:
-            if not expression.strip():raise ValueError('Escribí la fórmula de un período antes de calcular.')
             variable='n' if self.kind=='discrete' else 't'
-            expression=f'Repeat(({expression}), {variable}, ({self.period.text()}), ({self.period_origin.text()}))'
+            if mode==0:
+                if not expression.strip():raise ValueError('Escribí la fórmula de un período antes de calcular.')
+                expression=f'Repeat(({expression}), {variable}, ({self.period.text()}), ({self.period_origin.text()}))'
+            else:
+                from .engine import sequence_parts
+                samples=', '.join('('+value+')' for value in sequence_parts(self.samples.text()))
+                spacing=f', ({self.step.text()})' if variable=='t' else ''
+                expression=f'RepeatSamples({variable}, ({self.period_origin.text()}), ({samples},){spacing})'
         if self.kind in ('continuous','frequency'):
             origin=real_field(self.origin);step=real_field(self.step)
             if step<=0:raise ValueError('El paso del eje debe ser positivo.')
-            if mode==0:
+            if mode==0 or periodic:
                 count=integer_field(self.count)
                 from .resources import ensure_working_set
                 ensure_working_set(count)
@@ -291,7 +301,7 @@ class LocalInput(QGroupBox):
                 values=evaluate_expression(self.expression.text(),origin+step*np.arange(count))
             else:values=sequence_from_values(self.samples.text(),0).values
             return Signal(values,origin,step,self.frequency_units.currentText() if self.kind=='frequency' else 's','X(ω)' if self.kind=='frequency' else 'x(t)',self.kind,self.expression.text() if mode==0 else '')
-        result=(sequence_from_expression(expression,integer_field(self.origin),integer_field(self.count)) if mode==0 else sequence_from_values(self.samples.text(),integer_field(self.origin)))
+        result=(sequence_from_expression(expression,integer_field(self.origin),integer_field(self.count)) if mode==0 or periodic else sequence_from_values(self.samples.text(),integer_field(self.origin)))
         if periodic:result.metadata['periodic_definition']=expression
         return result
 
@@ -432,6 +442,16 @@ class ResultView(QWidget):
         self.figure.clear();polar=self.plot_mode.currentIndex()==0
         delay_view=polar and all(v.metadata.get('operation')=='frequency_filter' for v in signals)
         from .distributions import dirac_terms
+        from .signal_plot import plot_impulse_areas
+        if all(source.metadata.get('lines_only') for source in signals):
+            axis=self.figure.add_subplot(111)
+            for source in signals:
+                plot_impulse_areas(axis,dirac_terms(source),source.name)
+            configure_signal_axis(axis,signals[0]);axis.set_xlim(min(source.origin for source in signals),max(source.axis[-1] for source in signals))
+            axis.set_ylabel('Área Dirac');axis.set_title('Impulsos ideales',fontsize=9);axis.grid(alpha=.2)
+            if axis.get_legend_handles_labels()[0]:axis.legend()
+            else:axis.text(.5,.5,'No hay impulsos en esta ventana',ha='center',transform=axis.transAxes)
+            self.figure.tight_layout();self.canvas.draw_idle();return
         ideal_view=any(dirac_terms(source) for source in signals)
         axes=self.figure.subplots(2+int(delay_view)+int(ideal_view),1,sharex=True)
         density=all(source.metadata.get('operation') in {'spectral_density','energy_density'} for source in signals)
@@ -455,14 +475,11 @@ class ResultView(QWidget):
                     if segment.size>2:delay[segment[1:-1]]=-np.gradient(np.unwrap(np.angle(source.values[segment])),source.step)[1:-1]
                 delay_line=axes[2].plot(source.axis[shown],delay[shown],label=name)[0];delay_line._signallab_probe_values=(source.origin,source.step,delay);axes[2].set_ylabel('Retardo aprox. (muestras)' if source.units=='rad/muestra' else 'Retardo aprox. (s)')
                 axes[2].set_title('Derivada numérica de fase; no definida en ceros o discontinuidades',fontsize=8)
-            from .distributions import dirac_terms
             impulses=dirac_terms(source)
             if impulses:
-                positions=np.array([position for position,weight in impulses]);weights=np.array([weight for position,weight in impulses])
                 weight_axis=axes[-1]
-                plot_samples(weight_axis,positions,weights.real,discrete=True,label=name+' · peso real')
-                if np.any(weights.imag):plot_samples(weight_axis,positions,weights.imag,discrete=True,label=name+' · peso imaginario')
-                weight_axis.set_ylabel('Peso Dirac');weight_axis.set_title('Impulsos ideales · peso (área)',fontsize=9)
+                plot_impulse_areas(weight_axis,impulses,name)
+                weight_axis.set_title('Impulsos ideales',fontsize=9)
                 axes[0].set_title('Parte ordinaria · los impulsos se muestran por separado',fontsize=9)
         if any(SignalLabWindow._plot_indices(v.values).size<v.values.size for v in signals):axes[0].set_title('Vista reducida: consultá Valores o exportá para ver todas las muestras',fontsize=9)
         axes[0].set_ylabel('Densidad' if polar and density else 'Módulo' if polar else 'Parte real');axes[1].set_ylabel('Densidad (dB)' if polar and density else 'Fase (rad)' if polar else 'Parte imaginaria');configure_signal_axis(axes[-1],signals[0])

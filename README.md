@@ -38,7 +38,7 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 La 1.8.18 está disponible con **Sólo versiones estables**. El canal **Estables y preliminares (Pre-releases)** también ofrece la 1.8.18 y permite recibir entregas de prueba cuando haya una preliminar posterior. [Notas de la versión estable](docs/releases/v1.8.18.md).
 
-La [1.8.19 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.19) incorpora señales periódicas, desplazamiento vertical y nuevos símbolos en el editor LTI. Se ofrece cuando elegís **Estables y preliminares (Pre-releases)**.
+La 1.8.19 preliminar se ofrece cuando elegís **Estables y preliminares (Pre-releases)**. Si ya tenés una compilación anterior de la 1.8.19, descargá de nuevo el instalador o el portable. [Descargas de la 1.8.19 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.19).
 
 ### Actualizar una instalación
 
@@ -79,7 +79,7 @@ El alcance depende del método elegido y de sus hipótesis. Una evaluación sobr
 
 ## Novedades e historial
 
-La 1.8.19 preliminar añade extensión periódica, trenes de pulsos e impulsos y desplazamiento vertical. También amplía el cálculo de potencia global y actualiza los símbolos de los diagramas LTI. [Notas de la 1.8.19](docs/releases/v1.8.19.md).
+La 1.8.19 preliminar crea señales periódicas a partir de fórmulas o muestras, permite desplazarlas verticalmente y muestra sus espectros de líneas. También amplía el cálculo de energía y potencia global, y actualiza los símbolos del editor LTI. [Notas de la 1.8.19](docs/releases/v1.8.19.md).
 
 La 1.8.18 estable permite obtener H(s) o H(z) desde un diagrama en Sistemas LTI. Podés conectar bloques de transferencia en cascada, paralelo o realimentación y cargar cada bloque desde una fórmula o un sistema guardado. Incluye el nuevo catálogo por áreas, los ajustes de controles y gráficos y la revisión de informes y guías de las versiones 1.8.15 a 1.8.17. [Notas de la 1.8.18](docs/releases/v1.8.18.md).
 

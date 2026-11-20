@@ -166,3 +166,16 @@ def configure_frequency_overlay(axes,signals):
         width=abs(signals[0].step);low-=width/2;high+=width/2
     for axis in axes:
         configure_signal_axis(axis,signals[0]);axis.set_xlim(low,high)
+
+
+def plot_impulse_areas(axis, terms, label):
+    """Draw the area of a distribution separately from its ordinary values."""
+    if not terms:
+        return
+    positions = np.array([position for position, _ in terms])
+    weights = np.array([weight for _, weight in terms])
+    plot_samples(axis, positions, weights.real, discrete=True, label=label+' · área real')
+    if np.any(weights.imag):
+        plot_samples(axis, positions, weights.imag, discrete=True, label=label+' · área imaginaria')
+    axis.set_ylabel('Área Dirac')
+    axis.grid(alpha=.2)

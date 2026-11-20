@@ -19,6 +19,8 @@ class Signal:
 
     def __post_init__(self) -> None:
         if not isinstance(self.metadata,dict):raise ValueError('Los metadatos de la señal deben ser un diccionario.')
+        if 'periodic_definition' in self.metadata and self.metadata['periodic_definition']!=self.expression:
+            self.metadata={key:value for key,value in self.metadata.items() if key!='periodic_definition'}
         self.values = np.asarray(self.values, dtype=np.complex128).reshape(-1).copy()
         if self.values.size == 0:
             raise ValueError("La señal debe contener al menos una muestra.")

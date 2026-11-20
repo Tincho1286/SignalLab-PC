@@ -165,7 +165,8 @@ class TransformLab(QWidget):
         self.analyze_system.setText('Analizar X('+variable+') '+('ingresada' if inverse else 'calculada')+' como H('+variable+')…')
         boundary=not inverse and self.last is not None and bool(self.last.get('boundary_dtft'))
         if boundary:self.analyze_system.setText('Analizar respuesta H(exp(iw))…')
-        self.analyze_system.setVisible(True);self.analyze_system.setEnabled(inverse or boundary or (self.last is not None and self.last.get('evaluated',True) and len(self.last.get('branches',[]))<=1))
+        lines=boundary and self.last.get('boundary_distribution')
+        self.analyze_system.setVisible(not lines);self.analyze_system.setEnabled(not lines and (inverse or boundary or (self.last is not None and self.last.get('evaluated',True) and len(self.last.get('branches',[]))<=1)))
         self.analyze_system.setToolTip('Abre el análisis con la expresión y sus condiciones. Una DTFT permite consultar módulo, fase y retardo aunque no exista un anillo abierto de convergencia de Z. Polos/ceros y realizaciones finitas requieren una transferencia racional.')
     def display_record(self,record):
         self.to_cas_button.setText('Enviar a CAS');self.to_cas_button.show();self.to_cas_button.setEnabled(False);self.copy_inverse.hide();self.tabs.setTabVisible(1,False);self.tabs.setTabVisible(self.steps_index,False);self.tabs.setCurrentIndex(0)

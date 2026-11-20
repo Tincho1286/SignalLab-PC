@@ -69,25 +69,86 @@ def impulse_train(argument, period):
     return ImpulseTrain(argument, period)
 
 
-SYMBOLIC_FUNCTIONS = {'repeat': repeat, 'pulsetrain': pulse_train, 'impulsetrain': impulse_train}
+def repeat_samples(variable, start, samples, step=sp.S.One):
+    """Periodize integer samples or their closed linear interpolation."""
+    if not isinstance(variable, sp.Symbol) or variable.name not in ('n', 't'):
+        raise ValueError('RepeatSamples requiere n o t como primera entrada.')
+    discrete = variable.name == 'n'
+    start = start_value(start, discrete=discrete)
+    step = period_value(step, discrete=discrete)
+    if discrete and step != 1:
+        raise ValueError('Los índices de una secuencia tienen paso 1.')
+    if not isinstance(samples, (tuple, sp.Tuple)) or not samples or any(
+        not isinstance(sample, sp.Expr) or sample.free_symbols or sample.is_finite is not True for sample in samples
+    ):
+        raise ValueError('El período requiere una lista de muestras constantes finitas.')
+    phase = sp.Mod(variable-start, step*len(samples))
+    if discrete:
+        return sp.Piecewise(*[(value, sp.Eq(phase,index))
+                              for index,value in enumerate(samples[:-1])], (samples[-1], True))
+    values = []
+    for index, value in enumerate(samples):
+        next_value = samples[(index+1) % len(samples)]
+        segment = value+(next_value-value)*(phase/step-index)
+        values.append((segment, phase<(index+1)*step if index<len(samples)-1 else True))
+    return sp.Piecewise(*values)
+
+
+SYMBOLIC_FUNCTIONS = {'repeat': repeat, 'pulsetrain': pulse_train, 'impulsetrain': impulse_train,
+                      'repeatsamples': repeat_samples}
 
 
 def wrapped_period(value, variable):
-    """Recover a complete half-open period from expressions using one phase."""
-    phases = [phase for phase in value.atoms(sp.Mod) if phase.has(variable)]
-    if len(phases) != 1:
+    """Recover a full period for commensurate affine wrapped coordinates."""
+    phases = sorted((phase for phase in value.atoms(sp.Mod) if phase.has(variable)),key=sp.default_sort_key)
+    if not phases or value.xreplace({phase:sp.Dummy('phase') for phase in phases}).has(variable):
         return None
-    phase, = phases
-    coordinate, period = phase.args
-    origin = variable - coordinate
-    if origin.free_symbols or origin.is_real is not True or not period.is_positive or not period.is_finite:
-        return None
-    if variable.is_integer and period.is_integer is not True:
-        return None
-    if value.xreplace({phase: sp.Dummy('phase')}).has(variable):
-        return None
-    first = sp.ceiling(origin) if variable.is_integer else origin
-    return period, first, value.xreplace({phase: variable - origin})
+    discrete=variable.is_integer is True
+    entries=[]
+    for phase in phases:
+        coordinate,modulus=phase.args
+        slope=sp.diff(coordinate,variable)
+        offset=sp.simplify(coordinate-slope*variable)
+        if (slope.free_symbols or offset.free_symbols or modulus.free_symbols or slope.is_real is not True
+                or slope.is_zero is not False or offset.is_real is not True or modulus.is_positive is not True
+                or any(part.is_finite is not True for part in (slope,offset,modulus))):
+            return None
+        rate=sp.simplify(slope/modulus)
+        if discrete and rate.is_Rational is not True:return None
+        entries.append((phase,coordinate,modulus,slope,offset,sp.Integer(rate.q) if discrete else modulus/sp.Abs(slope)))
+    if len(entries)==1 and entries[0][3]==1:
+        phase,coordinate,modulus,_,offset,period=entries[0]
+        if not discrete or modulus==period:
+            origin=-offset
+            first=sp.ceiling(origin) if discrete else origin
+            return period,first,value.xreplace({phase:coordinate})
+    base=entries[0][-1]
+    ratios=[sp.simplify(entry[-1]/base) for entry in entries]
+    if any(ratio.is_Rational is not True for ratio in ratios):return None
+    from math import lcm
+
+    period=sp.simplify(base*lcm(*(int(ratio.p) for ratio in ratios)))
+    if discrete:return period,sp.S.Zero,value
+    from .jobs import checkpoint
+    from .resources import ensure_working_set
+
+    breaks={sp.S.Zero,period}
+    for _,_,modulus,slope,offset,_ in entries:
+        start,end=sorted((offset/modulus,(slope*period+offset)/modulus))
+        first,last=sp.floor(start)+1,sp.ceiling(end)-1
+        if not isinstance(first,sp.Integer) or not isinstance(last,sp.Integer):return None
+        ensure_working_set(max(0,int(last-first+1))+len(breaks),bytes_per_sample=4096,live_arrays=8)
+        for index in range(int(first),int(last+1)):
+            checkpoint()
+            breaks.add(sp.simplify((index*modulus-offset)/slope))
+    points=sorted(breaks);pieces=[]
+    for low,high in zip(points,points[1:]):
+        checkpoint()
+        midpoint=(low+high)/2
+        substitutions={phase:coordinate-modulus*sp.floor(coordinate.subs(variable,midpoint)/modulus)
+                       for phase,coordinate,modulus,_,_,_ in entries}
+        pieces.append((value.xreplace(substitutions),variable<high if high!=period else True))
+    return period,sp.S.Zero,sp.Piecewise(*pieces)
 
 
 def affine_train_term(term, variable):
@@ -105,6 +166,80 @@ def affine_train_term(term, variable):
     if scale.has(variable) or scale.is_real is not True or scale.is_zero is not False or shift.has(variable) or shift.is_real is not True:
         return None
     return period/sp.Abs(scale), -shift/scale, amplitude/sp.Abs(scale)
+
+
+def discrete_cycle(value, index):
+    cycle = wrapped_period(value, index)
+    if cycle is None:
+        return None
+    from .jobs import checkpoint
+    from .resources import ensure_working_set
+
+    period, origin, ordinary = cycle
+    ensure_working_set(int(period), bytes_per_sample=1024, live_arrays=8)
+    samples = []
+    for position in range(int(origin), int(origin+period)):
+        checkpoint()
+        sample = sp.simplify(ordinary.subs(index, position))
+        if sample.has(sp.zoo, sp.oo, -sp.oo, sp.nan):
+            raise ValueError(f'El período incluye una muestra no finita en n = {position}.')
+        samples.append(sample)
+    return int(origin), samples
+
+
+def cycle_weight(cycle, start, multiplier):
+    origin, samples = cycle
+    period = len(samples)
+    start = int(start)
+    ordered = ((start+k, samples[(start+k-origin) % period]) for k in range(period))
+    return sp.Add(*(sample*multiplier(position) for position, sample in ordered if sample != 0))
+
+
+def cycle_dtft(cycle, frequency):
+    origin, samples = cycle
+    spacing = 2*sp.pi/len(samples)
+    return spacing*cycle_weight(cycle, origin, lambda n: sp.exp(-sp.I*frequency*n))*ImpulseTrain(frequency, spacing)
+
+
+def weighted_lines(term, variable, lower, upper, *, right_open=True):
+    """Expand one weighted comb on a finite interval."""
+    atoms = term.atoms(ImpulseTrain)
+    if len(atoms) != 1:
+        return None
+    train, = atoms
+    amplitude = term.extract_multiplicatively(train)
+    if amplitude is None or amplitude.has(ImpulseTrain, sp.DiracDelta):
+        raise ValueError('El espectro debe sumar las líneas. El producto de trenes de impulsos no está definido.')
+    geometry = affine_train_term(train, variable)
+    if geometry is None:
+        return None
+    from .jobs import checkpoint
+    from .resources import ensure_working_set
+
+    spacing, origin, area = geometry
+    start = sp.ceiling((lower-origin)/spacing)
+    edge = (upper-origin)/spacing
+    stop = sp.ceiling(edge) if right_open else sp.floor(edge)+1
+    if not isinstance(start, sp.Integer) or not isinstance(stop, sp.Integer):
+        return None
+    ensure_working_set(max(0, int(stop-start)), bytes_per_sample=1024, live_arrays=8)
+    answer = []
+    for index in range(int(start), int(stop)):
+        checkpoint()
+        phase = sp.simplify(origin+index*spacing)
+        weight = sp.simplify(amplitude.subs(variable, phase))
+        if weight.has(sp.nan, sp.zoo, sp.oo, -sp.oo) or amplitude.has(sp.Piecewise, sp.Heaviside, sp.sign):
+            left = sp.limit(amplitude, variable, phase, dir='-')
+            right = sp.limit(amplitude, variable, phase, dir='+')
+            if left.is_finite is not True or sp.simplify(left-right)!=0:
+                raise ValueError('El peso de una línea espectral es discontinuo o no finito en su frecuencia.')
+            if weight.has(sp.nan, sp.zoo, sp.oo, -sp.oo):
+                weight = left
+            elif sp.simplify(left-weight)!=0:
+                raise ValueError('El valor puntual de una línea difiere del límite de su peso.')
+        if weight != 0:
+            answer.append((phase, area*weight))
+    return answer
 
 
 def sample_phase(coordinates, period):

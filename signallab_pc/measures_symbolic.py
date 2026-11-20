@@ -6,7 +6,7 @@ from .resources import ensure_working_set
 
 def measure_expression(request):
     from .symbolic import parse,T,N,W,S,Z
-    from .periodic_signals import ImpulseTrain, wrapped_period
+    from .periodic_signals import ImpulseTrain, discrete_cycle, wrapped_period
     domain=request.get('domain','continuous');mode=request.get('mode','interval')
     if domain not in ('continuous','discrete') or mode not in ('interval','global','periodic'):raise ValueError('Dominio o alcance no admitido.')
     variable=T if domain=='continuous' else N
@@ -23,6 +23,9 @@ def measure_expression(request):
         if result.free_symbols or result.is_real is not True or result.is_finite is not True:raise ValueError('Los límites y el periodo deben ser constantes reales finitas.')
         if integer and result.is_integer is not True:raise ValueError('Los índices y periodos discretos deben ser enteros.')
         return result
+    def unresolved(expression):return expression.has(sp.Sum,sp.Integral,sp.Limit)
+    def simplify_measure(expression):
+        return expression if unresolved(expression) else sp.simplify(expression)
     def accumulated(lower,upper,density=power_density):
         if domain=='discrete':
             if lower.is_number and upper.is_number and lower.is_finite and upper.is_finite:ensure_working_set(int(upper-lower+1),bytes_per_sample=1024,live_arrays=8)
@@ -30,15 +33,14 @@ def measure_expression(request):
                 from .z_direct_pairs import pieces
                 intervals = pieces(density, lower, upper)
                 if intervals is not None:
-                    return sp.simplify(sp.Add(*(sp.summation(value, (N, start, stop))
+                    return simplify_measure(sp.Add(*(sp.summation(value, (N, start, stop))
                                                 for value, start, stop in intervals if value != 0)))
             # Separar en n<0 y n>=0 ayuda a conservar los soportes de Abs/Piecewise.
             if lower==-sp.oo and upper==sp.oo:
-                return sp.simplify(sp.summation(density,(N,-sp.oo,-1))+sp.summation(density,(N,0,sp.oo)))
-            return sp.simplify(sp.summation(density,(N,lower,upper)))
+                return simplify_measure(sp.summation(density,(N,-sp.oo,-1))+sp.summation(density,(N,0,sp.oo)))
+            return simplify_measure(sp.summation(density,(N,lower,upper)))
         integrand=sp.piecewise_fold(density.rewrite(sp.Piecewise)) if density.has(sp.Heaviside) else density
-        return sp.simplify(sp.integrate(integrand,(T,lower,upper)))
-    def unresolved(expression):return expression.has(sp.Sum,sp.Integral,sp.Limit)
+        return simplify_measure(sp.integrate(integrand,(T,lower,upper)))
     def state(expression):
         if expression.has(sp.nan,sp.zoo) or isinstance(expression,sp.AccumBounds):return 'undefined'
         if expression==sp.oo:return 'divergent'
@@ -58,13 +60,20 @@ def measure_expression(request):
         if unresolved(power) or power.has(sp.nan,sp.zoo):
             return sp.Sum(power_density,(N,-sp.oo,sp.oo)) if domain=='discrete' else sp.Integral(power_density,(T,-sp.oo,sp.oo))
         return sp.Piecewise((0,sp.Eq(power,0)),(sp.oo,True))
+    def cycle_energy(cycle,first,density):
+        if domain=='discrete' and density.has(sp.Mod):
+            sequence=discrete_cycle(density,variable)
+            if sequence is not None:
+                samples=sequence[1]
+                return sp.Add(*samples)*(cycle/len(samples))
+        return accumulated(first,first+cycle-(1 if domain=='discrete' else 0),density)
     wrapping=wrapped_period(value if mode=='periodic' else power_density,variable) if mode!='interval' else None
     interval_energy=None;period_verified=False
     if mode=='interval':
         lower=constant(request.get('lower','0'),domain=='discrete');upper=constant(request.get('upper','1'),domain=='discrete')
         if upper<lower or domain=='continuous' and upper==lower:raise ValueError('El intervalo debe ser creciente; en discreto puede contener un único índice.')
         measure=upper-lower+(1 if domain=='discrete' else 0)
-        energy=accumulated(lower,upper);power=sp.simplify(energy/measure)
+        energy=accumulated(lower,upper);power=simplify_measure(energy/measure)
         scope='Promedio sobre el intervalo indicado; no es la potencia media de toda la señal. Los índices discretos incluyen ambos extremos.'
         classification='Medidas del intervalo; sin clasificación global'
     elif mode=='periodic':
@@ -74,38 +83,53 @@ def measure_expression(request):
             cycle, lower, one_period=wrapping
             density=sp.simplify(one_period*sp.conjugate(one_period))
             upper=lower+period-(1 if domain=='discrete' else 0)
-            interval_energy=accumulated(lower,lower+cycle-(1 if domain=='discrete' else 0),density)*(period/cycle)
+            interval_energy=cycle_energy(cycle,lower,density)*(period/cycle)
         else:
             residual=sp.trigsimp(sp.simplify(value.subs(variable,variable+period)-value))
             if residual!=0:raise ValueError('No se pudo demostrar que el período indicado repita la expresión. Revisá el período o usá el análisis global.')
             lower=sp.Integer(0);upper=period-1 if domain=='discrete' else period
             interval_energy=accumulated(lower,upper)
-        period_verified=True;power=sp.simplify(interval_energy/period)
+        period_verified=True;power=simplify_measure(interval_energy/period)
         energy=energy_from_mean(power)
         scope='Periodicidad demostrada para el periodo indicado. Promedio calculado en un periodo; energía total sobre todo el eje.'
         classification=None
     else:
-        from .harmonic_measures import harmonic_power
+        from .harmonic_measures import exponential_energy, harmonic_power, piecewise_harmonic_power, rational_tail_measures
 
         lower,upper=-sp.oo,sp.oo
         power=harmonic_power(value,variable) if wrapping is None else None
         if wrapping is not None:
             cycle,first,density=wrapping
-            power=sp.simplify(accumulated(first,first+cycle-(1 if domain=='discrete' else 0),density)/cycle)
+            power=simplify_measure(cycle_energy(cycle,first,density)/cycle)
             energy=energy_from_mean(power)
             scope='La definición se repite en todo el eje. La potencia se calcula sobre un período completo.'
         elif power is not None:
             energy=energy_from_mean(power)
             scope='Se agrupan las componentes con la misma frecuencia antes de calcular su potencia.'
             if domain=='discrete':scope+=' Las frecuencias separadas por un múltiplo de 2π representan la misma secuencia.'
+        elif (tails:=piecewise_harmonic_power(value,variable,accumulated)) is not None and tails.is_positive is True:
+            power=tails;energy=sp.oo
+            scope='Se calcula la potencia de cada cola armónica y se promedian las dos mitades del eje.'
+        elif (energy:=exponential_energy(power_density,variable,accumulated)) is not None:
+            power=sp.S.Zero
+            scope='La energía se obtiene sumando los aportes de decaimiento exponencial. Como es finita, la potencia media vale cero.'
+        elif (asymptotic:=rational_tail_measures(power_density,variable)) is not None:
+            energy,power=asymptotic
+            scope='La energía diverge. El promedio simétrico se determina por los límites de la densidad o por sus polos no integrables.'
         else:
-            energy=accumulated(lower,upper)
+            aggregate=sp.Sum if domain=='discrete' else sp.Integral
+            try:energy=accumulated(lower,upper)
+            except (NotImplementedError,RecursionError):energy=aggregate(power_density,(variable,lower,upper))
             if state(energy)=='finite':power=sp.S.Zero
             else:
                 limit_variable=sp.Symbol('M',positive=True,integer=True) if domain=='discrete' else sp.Symbol('R',positive=True)
-                average=accumulated(-limit_variable,limit_variable)/(2*limit_variable+(1 if domain=='discrete' else 0))
-                try:power=sp.simplify(sp.limit(average,limit_variable,sp.oo))
-                except (NotImplementedError,ValueError,TypeError):power=sp.Limit(average,limit_variable,sp.oo)
+                try:area=accumulated(-limit_variable,limit_variable)
+                except (NotImplementedError,RecursionError):area=aggregate(power_density,(variable,-limit_variable,limit_variable))
+                average=area/(2*limit_variable+(1 if domain=='discrete' else 0))
+                power=sp.Limit(average,limit_variable,sp.oo)
+                if not unresolved(area):
+                    try:power=simplify_measure(power.doit())
+                    except (NotImplementedError,ValueError,TypeError,RecursionError):pass
             scope='La energía abarca todo el eje. La potencia usa el límite del promedio en ventanas simétricas crecientes.'
         classification=None
     if classification is None:

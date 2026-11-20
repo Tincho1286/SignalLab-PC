@@ -45,3 +45,25 @@ def transform_signal(source,operation,*,amplitude=1,delay=0,time_scale=1,offset=
         if operation=='scale':return transform_time(source,amplitude,1,0,offset=offset)
         if operation=='affine':return transform_time(source,amplitude,time_scale,delay,offset=offset)
     raise ValueError('La transformación no corresponde al dominio de la entrada.')
+
+
+def periodic_transform(source, result, operation, *, amplitude, delay, time_scale, offset):
+    """Carry the infinite definition alongside its transformed sample window."""
+    definition=source.metadata.get('periodic_definition')
+    if not definition or operation=='parity':return result
+    import sympy as sp
+    from .symbolic import N,T,parse
+
+    def exact(value):
+        converted=complex(value)
+        return sp.Rational(str(converted.real))+sp.I*sp.Rational(str(converted.imag))
+
+    variable=N if source.domain=='discrete' else T
+    shift=sp.Integer(delay) if source.domain=='discrete' else exact(delay)
+    coordinate={'shift':variable-shift,'reverse':-variable,'scale':variable,
+                'affine':exact(time_scale)*(variable-shift)}[operation]
+    expression=parse(definition).subs(variable,coordinate)
+    if operation in ('scale','affine'):
+        expression=exact(amplitude)*expression+exact(offset)
+    text=str(expression)
+    return result.copy_with(expression=text,metadata={**result.metadata,'periodic_definition':text})

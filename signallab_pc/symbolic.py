@@ -151,13 +151,10 @@ def _execute(request):
         definition=prepare(expression,N,'discrete',(lower,upper),request.get('input_conditions',()));value=definition.expression
         if value.has(W,T,S,Z):raise ValueError('La secuencia usa n y no puede contener variables temporales continuas o de frecuencia.')
         if lower==-sp.oo and upper==sp.oo:
-            from .periodic_signals import ImpulseTrain, wrapped_period
-            cycle=wrapped_period(value,N)
+            from .periodic_signals import cycle_dtft, discrete_cycle
+            cycle=discrete_cycle(value,N)
             if cycle is not None:
-                period,first,one_period=cycle
-                ensure_working_set(int(period),bytes_per_sample=1024,live_arrays=8)
-                coefficients=sp.summation(one_period*sp.exp(-sp.I*W*N),(N,first,first+period-1))
-                result=2*sp.pi/period*coefficients*ImpulseTrain(W,2*sp.pi/period)
+                result=cycle_dtft(cycle,W)
                 return attach({'operation':'dtft_expression','result':str(result),'condition':'True',
                     'output_variable':'w','evaluated':not result.has(sp.Sum),'method':'periodic_spectrum',
                     'frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n)',
@@ -251,8 +248,11 @@ def _execute(request):
             value=restore(request['encoded'])
         else:value=parse(expression)
         from .periodic_signals import ImpulseTrain
-        if value.has(sp.DiracDelta,ImpulseTrain,sp.FourierTransform,sp.InverseFourierTransform,sp.Integral,sp.Sum):
-            raise ValueError('Una distribución o integral sin evaluar no se puede convertir en muestras finitas.')
+        if value.has(sp.FourierTransform,sp.InverseFourierTransform,sp.Integral,sp.Sum):
+            raise ValueError('Una transformada o integral pendiente no se puede graficar.')
+        distribution=value.has(sp.DiracDelta,ImpulseTrain)
+        if distribution and not request.get('allow_distribution'):
+            raise ValueError('Una distribución no se puede convertir en muestras ordinarias.')
         condition=parse(request.get('condition','True'))
         parameters=(value.free_symbols|condition.free_symbols)-{variable}
         if parameters:raise ValueError('Asigná valores a los parámetros: '+', '.join(sorted(str(p) for p in parameters)))
@@ -261,6 +261,24 @@ def _execute(request):
         ensure_working_set(count,live_arrays=16)
         grid=np.linspace(start,stop,count)
         if np.any(np.diff(grid)<=0):raise ValueError('La rejilla no se distingue con la precisión disponible.')
+        extra={}
+        if distribution:
+            from .impulse_pairs import distribution_parts
+            from .scalar_expression import exact_constant,numerical_value
+            from .distributions import attach_terms
+            lower=exact_constant(request.get('start_exact',str(start)))
+            upper=exact_constant(request.get('stop_exact',str(stop)))
+            if lower.is_real is not True or upper.is_real is not True or float(lower)!=start or float(upper)!=stop:
+                raise ValueError('Los límites de la figura deben coincidir con la ventana numérica.')
+            right_open=request.get('periodic_frequency') and sp.simplify(upper-lower-2*sp.pi)==0
+            value,lines=distribution_parts(value,variable,lower,upper,right_open=right_open)
+            terms=[]
+            for position,weight in lines:
+                valid=sp.simplify(condition.subs(variable,position))
+                if valid is sp.false:continue
+                if valid is not sp.true:raise ValueError('No se pudo verificar la condición en una línea espectral.')
+                terms.append((float(position),numerical_value(weight)))
+            extra=attach_terms({'distribution':True,'lines_only':value==0},terms)
         if request.get('allow_undefined'):
             from .analytic_frequency import _sample,_condition_mask
             eligible=_condition_mask(condition.xreplace({variable:W}),grid)
@@ -270,7 +288,7 @@ def _execute(request):
             return dict(format='signallab-expression-grid',schema_version=1,operation='expression_grid',
                 samples=[[float(v.real),float(v.imag)] if good else None for v,good in zip(values,valid)],valid=valid.tolist(),
                 origin=start,step=(stop-start)/(count-1),variable=request['variable'],expression=expression,condition=str(condition),
-                undefined_count=int(np.count_nonzero(~valid)),scope='Cada posición del eje se conserva. N/D indica una condición incumplida o un valor no finito; no se sustituye por cero ni se interpolan esos puntos.')
+                undefined_count=int(np.count_nonzero(~valid)),scope=('Los impulsos se indican por posición y área. ' if distribution else '')+'N/D indica que la parte ordinaria no está definida en ese punto.',**extra)
         if condition is not sp.true:raise ValueError('Esta expresión tiene condiciones. Usá la vista de valores condicionados para conservar las posiciones N/D.')
         from .singularities import sample_symbolic
         values=sample_symbolic(value,variable,grid)
@@ -279,7 +297,7 @@ def _execute(request):
         values=_finite_output(values,'La evaluación de la expresión')
         return {'operation':'expression_grid','samples':[[float(v.real),float(v.imag)] for v in values],
                 'origin':start,'step':(stop-start)/(count-1),'variable':request['variable'],'expression':expression,
-                'scope':'Muestras de la expresión indicada en una ventana finita; no reemplazan la definición algebraica.'}
+                'scope':'Ventana de la expresión. Los impulsos conservan su posición y área.' if distribution else 'Muestras de la expresión indicada en una ventana finita.',**extra}
     if operation == 'continuous_correlation':
         left=parse(request['left']);right=parse(request['right'])
         if left.has(TAU) or right.has(TAU):raise ValueError('Las entradas no deben contener la variable de retardo tau.')
@@ -308,12 +326,14 @@ def _execute(request):
                 'scope':'Ambas entradas son cero para t<0; las fórmulas indicadas valen para t>=0.' if causal else 'Convolución bilateral; las expresiones deben incluir su soporte y cumplir las condiciones de convergencia.',
                 'convention':'integral x(tau) h(t-tau) d tau'}
     if operation == 'system_frequency_expression':
+        from .periodic_signals import ImpulseTrain
         domain=request['domain']
         if domain not in ('analog','digital'):raise ValueError('Dominio de sistema inválido.')
         expr=parse(expression)
         if expr.has(T,N,S,Z):raise ValueError('La respuesta en frecuencia usa w, en rad/muestra o rad/s según el dominio.')
+        if expr.has(sp.DiracDelta,ImpulseTrain):raise ValueError('Un espectro de líneas requiere Fourier algebraica. La respuesta de un filtro usa valores ordinarios de H(w).')
         if expr in (sp.zoo,sp.nan,sp.oo,-sp.oo):raise ValueError('La respuesta no define un valor ordinario finito. Revisá la fórmula y sus condiciones.')
-        pending=expr.has(sp.Sum,sp.Integral,sp.Derivative,sp.Limit,sp.DiracDelta)
+        pending=expr.has(sp.Sum,sp.Integral,sp.Derivative,sp.Limit)
         return dict(operation=operation,domain=domain,model_kind='frequency',transfer=str(expr),factored=str(expr),evaluated=not pending,output_variable='w',frequency_units='rad/muestra' if domain=='digital' else 'rad/s',
             parameters=sorted(map(str,expr.free_symbols-{W})),scope='Respuesta en frecuencia definida directamente en w. No implica una transformada Z o Laplace en una región abierta ni una realización finita con coeficientes b/a.')
     if operation == "system_formula":

@@ -8,6 +8,12 @@ class ExpressionResult:
     conditions:tuple=()
     units:str=''
     numerical_source:str=''
+    distribution:bool=False
+
+
+def distribution_source(source):
+    import re
+    return bool(re.search(r'\b(?:DiracDelta|Dirac|ImpulseTrain)\s*\(',source,re.IGNORECASE))
 
 def expression_result(value):
     if not isinstance(value,dict):return None
@@ -18,12 +24,13 @@ def expression_result(value):
         if not source:return None
         known=[v for v in symbols if v in ('n','t','s','z','w')]
         variable=cas.get('coordinate_variable') if not known and cas.get('coordinate_variable') else known[0] if len(known)==1 else 'mixed' if len(known)>1 else symbols[0] if len(symbols)==1 else None
-        return ExpressionResult(source,variable,tuple(dict.fromkeys([*['Supuesto '+str(k)+': '+str(v) for k,v in cas.get('assumptions',[])],*map(str,cas.get('notices',[]))])),cas.get('frequency_units',''))
+        return ExpressionResult(source,variable,tuple(dict.fromkeys([*['Supuesto '+str(k)+': '+str(v) for k,v in cas.get('assumptions',[])],*map(str,cas.get('notices',[]))])),cas.get('frequency_units',''),distribution=variable=='w' and distribution_source(source))
     result=value.get('result');request=value.get('request',{})
     if not isinstance(result,dict):return None
     if result.get('evaluated') is False:
         if result.get('boundary_dtft'):
-            return ExpressionResult(result['boundary_dtft'],'w',tuple(str(result[k]) for k in ('roc','scope') if result.get(k)), 'rad/muestra')
+            text=result['boundary_dtft']
+            return ExpressionResult(text,'w',tuple(str(result[k]) for k in ('roc','scope') if result.get(k)), 'rad/muestra',distribution=bool(result.get('boundary_distribution')) or distribution_source(text))
         return None
     branches=result.get('branches',[])
     if len(branches)>1:return None
@@ -38,7 +45,7 @@ def expression_result(value):
         conditions.extend(label+': '+result['mathematical_conditions'][key] for key,label in [('domain','Dominio'),('causality','Causalidad'),('bibo_stability','Estabilidad BIBO')])
     if branches and branches[0].get('condition'):conditions.append(str(branches[0]['condition']))
     conditions.extend(str(value) for value in request.get('input_conditions',()))
-    return ExpressionResult(source,variable,tuple(dict.fromkeys(conditions)),(result.get('frequency_units','') if variable=='w' else ''),result.get('display_result','') if result.get('display_numeric') else '')
+    return ExpressionResult(source,variable,tuple(dict.fromkeys(conditions)),(result.get('frequency_units','') if variable=='w' else ''),result.get('display_result','') if result.get('display_numeric') else '',bool(result.get('distribution')) or variable=='w' and distribution_source(source))
 
 def expression_destinations(expression):
     v=expression.variable;destinations=[('Copiar expresión','copy'),('Calculadora CAS','cas')]
@@ -48,10 +55,11 @@ def expression_destinations(expression):
     if v=='tau':destinations.append(('Crear señal continua desde la correlación','signal'))
     if v=='n':destinations.append(('Enventanar como h[n] de un FIR','fir_window'))
     if v in ('s','z'):destinations += [('Transformada '+('Z inversa' if v=='z' else 'de Laplace inversa'),'inverse'),('Analizar como H('+v+')','system')]
-    if v=='w' and expression.units in ('rad/s','rad/muestra'):destinations.append(('Analizar como sistema H(w)','system'))
+    if v=='w' and expression.units in ('rad/s','rad/muestra') and not expression.distribution:destinations.append(('Analizar como sistema H(w)','system'))
     if v=='w' and expression.units=='rad/s':destinations.append(('Fourier continua inversa','fourier_inverse'))
     if v=='w' and expression.units in ('','rad/muestra'):
-        destinations.extend([('DTFT inversa algebraica','inverse_dtft'),('DTFT inversa numérica','inverse_dtft_numeric')])
+        destinations.append(('DTFT inversa algebraica','inverse_dtft'))
+        if not expression.distribution:destinations.append(('DTFT inversa numérica','inverse_dtft_numeric'))
     return destinations
 
 def signal_source(source):
@@ -63,6 +71,8 @@ def signal_source(source):
 def frequency_validity(record):
     if not isinstance(record,dict):return 'True'
     result=record.get('cas_answer') or record.get('result',{})
+    if result.get('evaluated') is False and result.get('boundary_dtft'):
+        return result.get('boundary_frequency_condition','True')
     return result.get('frequency_condition') or result.get('condition') or 'True'
 
 
@@ -121,6 +131,8 @@ def send_expression(window,key,destination):
     record=window.project.get(key)
     expression=expression_result(record)
     if expression is None:raise ValueError('Este resultado no contiene una expresión única evaluada.')
+    if expression.variable=='w' and expression.distribution and destination in ('system','inverse_dtft_numeric'):
+        raise ValueError('Para reutilizar un espectro de líneas, elegí la inversa algebraica correspondiente.')
     check_cas_destination(record.get('cas_answer',{}),destination)
     text=expression.source;v=expression.variable
     if destination=='copy':QApplication.clipboard().setText(text);return

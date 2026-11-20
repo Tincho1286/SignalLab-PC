@@ -246,6 +246,18 @@ class WorkflowContracts(unittest.TestCase):
         panel.sample_button.click();self.app.processEvents()
         self.assertTrue(window.isVisible());assert_allclose(panel.output.result.values, 0)
 
+    def test_periodic_dtft_draws_spectral_lines(self):
+        from signallab_pc.distributions import dirac_terms
+        from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
+        panel=SymbolicFourierPanel(self.host,discrete=True);self.widgets.append(panel)
+        panel.expression.setText('ImpulseTrain(n-1,4)');panel.lower.setText('-oo');panel.upper.setText('oo')
+        panel.calculate_button.click();panel.sample_button.click();self.app.processEvents()
+        window=panel.output.canvas._signallab_window;self.widgets.append(window)
+        self.assertTrue(window.isVisible());self.assertEqual(self.warnings,[])
+        lines=dirac_terms(panel.output.result)
+        assert_allclose([position for position,_ in lines],[-np.pi,-np.pi/2,0,np.pi/2])
+        assert_allclose([abs(weight) for _,weight in lines],np.pi/2)
+
     def test_dtft_result_reused_as_frequency_system(self):
         request=dict(operation='dtft_expression',expression='sin(0.3*pi*(n-4))/(pi*(n-4))',lower='-oo',upper='oo')
         from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel

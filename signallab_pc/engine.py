@@ -47,7 +47,7 @@ _FUNCS = {"sin": np.sin, "cos": np.cos, "tan": np.tan, "exp": np.exp,
 
 from .hyperbolic import NUMERIC as _HYPERBOLIC
 _FUNCS.update(_HYPERBOLIC)
-_PERIODIC = {'repeat','pulsetrain','impulsetrain'}
+_PERIODIC = {'repeat','repeatsamples','pulsetrain','impulsetrain'}
 
 
 class ExpressionError(ValueError):
@@ -190,6 +190,27 @@ def _periodic_call(name, args, x):
     def exact(node):
         return exact_constant(ast.unparse(node))
 
+    if name=='repeatsamples':
+        if len(args) not in (3,4) or not isinstance(args[0],ast.Name) or args[0].id.lower() not in ('n','t') or not isinstance(args[2],ast.Tuple) or not args[2].elts:
+            raise ExpressionError('Usá RepeatSamples(n, inicio, (valores,)) o RepeatSamples(t, inicio, (valores,), paso).')
+        discrete=args[0].id.lower()=='n'
+        origin=start_value(exact(args[1]),discrete=discrete)
+        step=period_value(exact(args[3]),discrete=discrete) if len(args)==4 else exact_constant('1')
+        samples=np.array([numerical_value(exact(node)) for node in args[2].elts])
+        count=samples.size
+        if discrete:
+            if step!=1 or np.any(x!=np.floor(x)):
+                raise ExpressionError('El período discreto se evalúa en índices enteros y con paso 1.')
+            phase=np.remainder(np.remainder(x.astype(np.int64),count)-int(origin)%count,count).astype(np.intp)
+            return samples[phase]
+        spacing=numerical_value(step).real
+        period=count*spacing
+        if not np.isfinite(period):raise ExpressionError('El período de las muestras excede el rango numérico.')
+        phase=sample_phase(x-numerical_value(origin).real,period)/spacing
+        indexes=np.minimum(np.floor(phase).astype(np.intp),count-1)
+        ratio=phase-indexes
+        return (1-ratio)*samples[indexes]+ratio*samples[(indexes+1)%count]
+
     if name=='repeat':
         if len(args) not in (3,4) or not isinstance(args[1],ast.Name) or args[1].id.lower() not in ('n','t'):
             raise ExpressionError('Usá Repeat(f, n, N, inicio) o Repeat(f, t, T, inicio). El inicio es opcional.')
@@ -236,14 +257,19 @@ def sequence_from_expression(expression: str, origin: int, count: int, *, name="
     return result
 
 
-def sequence_from_values(text: str, origin: int, *, name="x") -> Signal:
-    if isinstance(origin, bool) or not isinstance(origin, (int, np.integer)):
-        raise ValueError("El índice inicial debe ser un entero.")
+def sequence_parts(text):
     source = text.strip()
     if source.startswith("[") and source.endswith("]"):source=source[1:-1]
     fields = [part.strip() for part in source.replace(";", ",").replace("\n", ",").split(",") if part.strip()]
     if not fields:
         raise ValueError("Ingresá al menos una muestra separada por comas.")
+    return fields
+
+
+def sequence_from_values(text: str, origin: int, *, name="x") -> Signal:
+    if isinstance(origin, bool) or not isinstance(origin, (int, np.integer)):
+        raise ValueError("El índice inicial debe ser un entero.")
+    fields=sequence_parts(text)
     limit = np.iinfo(np.int64)
     if int(origin) < limit.min or int(origin) + len(fields) - 1 > limit.max:
         raise ValueError("El eje excede el rango de índices enteros de 64 bits.")

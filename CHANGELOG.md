@@ -4,7 +4,7 @@ La versión estable actual es la [1.8.18](https://github.com/Tincho1286/SignalLa
 
 ## 1.8.19 · Preliminar
 
-La 1.8.19 preliminar añade extensión periódica, trenes de pulsos e impulsos y desplazamiento vertical. También amplía el cálculo de potencia global y actualiza los símbolos de los diagramas LTI.
+La 1.8.19 preliminar añade extensión periódica a partir de fórmulas o muestras, trenes de pulsos e impulsos, desplazamiento vertical y gráficos de espectros de líneas. También amplía el cálculo de energía y potencia global y actualiza los símbolos de los diagramas LTI.
 
 [Novedades completas](docs/releases/v1.8.19.md)
 

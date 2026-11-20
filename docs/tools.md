@@ -8,7 +8,9 @@ Elegí un área según lo que quieras calcular. Cada herramienta conserva sus da
 
 Permite crear secuencias y registros mediante fórmulas, tramos o muestras, y generar ventanas simétricas rectangular, Hann, Hamming, Blackman, Bartlett y Kaiser. Las operaciones incluyen desplazamiento, inversión, amplitud, componentes par e impar, suma, producto punto a punto, convolución, correlación y medidas de energía, potencia y RMS.
 
-En **Crear una señal**, activá **Repetir un período en todo el eje** para extender una fórmula. La definición periódica queda en Resultados y la ventana dibujada se guarda como registro. También podés escribir `Repeat`, `PulseTrain` e `ImpulseTrain` en las fórmulas. En **Ajustar amplitud**, usá **B** para desplazar el registro verticalmente. Dejá **A = 1** si querés conservar su escala.
+En **Crear una señal**, activá **Repetir un período en todo el eje** para extender una fórmula o una lista de muestras. En continuo, el paso fija la distancia entre puntos de la lista y el programa interpola hasta el primer punto del período siguiente. La definición periódica queda en Resultados junto a la ventana dibujada. También podés escribir `Repeat`, `RepeatSamples`, `PulseTrain` e `ImpulseTrain` en las fórmulas. En **Ajustar amplitud**, usá **B** para desplazar la señal verticalmente. Dejá **A = 1** si querés conservar su escala.
+
+`RepeatSamples(n,-1,(2,0,3))` repite los valores 2, 0 y 3 desde n = −1. `RepeatSamples(t,0,(0,1),1)` repite una señal triangular de período 2 s, que sube durante el primer segundo y baja durante el segundo.
 
 El producto punto a punto sirve para enventanar una señal. Las entradas se alinean por sus índices o coordenadas; al reutilizarlas se conservan el origen y el reloj disponibles. El resultado puede enviarse a Fourier, Z u otras operaciones compatibles, o exportarse como registro.
 

@@ -15,6 +15,34 @@ def direct(request):
     definition=prepare(request['expression'],N,'discrete',(lower,upper),request.get('input_conditions',()))
     expression=definition.expression
     if expression.has(Z,T,S,W):raise ValueError('Z directa: la secuencia x[n] usa n. Para X(z), elegí Inversa.')
+    if lower==-sp.oo or upper==sp.oo:
+        from .periodic_signals import cycle_dtft, cycle_weight, discrete_cycle
+
+        cycle=discrete_cycle(expression,N)
+        if cycle is not None:
+            _,samples=cycle
+            period=len(samples)
+            if all(sample.is_zero is True for sample in samples):
+                return attach({'operation':'Transformada Z algebraica','result':'0','evaluated':True,
+                    'condition':'True','output_variable':'z','roc_finite_plane':'Todo el plano z',
+                    'scope':'Las muestras de un período son nulas.'},definition,exact=sp.S.Zero)
+            if lower==-sp.oo and upper==sp.oo and any(sample.is_zero is False for sample in samples):
+                spectrum=cycle_dtft(cycle,W)
+                return attach({'operation':'Transformada Z algebraica','result':'No existe una ROC abierta.',
+                    'evaluated':False,'condition':'False','output_variable':'z','convergence_empty':True,
+                    'boundary_dtft':str(spectrum),'boundary_distribution':True,'roc':'Sin región de convergencia bilateral.',
+                    'scope':'La secuencia se repite a ambos lados y tiene al menos una muestra no nula. Las dos colas requieren |z| > 1 y |z| < 1, respectivamente. Su DTFT existe como espectro de líneas.'},definition)
+            if lower.is_finite or upper.is_finite:
+                right=lower.is_finite
+                first=lower if right else upper-period+1
+                numerator=cycle_weight(cycle,first,lambda index: Z**(-index))
+                result=numerator/(1-Z**(-period if right else period))
+                condition=sp.Abs(Z)>1 if right else sp.Abs(Z)<1
+                return attach({'operation':'Transformada Z algebraica','result':str(result),'evaluated':True,
+                    'condition':str(condition),'output_variable':'z','roc':str(condition),
+                    'branches':[{'expression':str(result),'condition':str(condition)}],
+                    'inverse_roc_hint':'right' if right else 'left','method':'periodic_geometric_sum',
+                    'scope':'Cada período aporta los mismos coeficientes desplazados. La suma de esos aportes es geométrica.'},definition,exact=result,condition=condition)
     from .z_direct_pairs import direct_pairs
     try:pair=direct_pairs(expression,lower,upper)
     except (sp.PolynomialError,NotImplementedError):pair=None

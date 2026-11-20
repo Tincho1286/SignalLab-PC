@@ -24,6 +24,17 @@ class ExpressionMeasureTests(unittest.TestCase):
     def test_half_axis_step_symmetric_power(self):
         r=self.measure('heaviside(t)',mode='global')
         self.assertEqual(r['mean_square']['exact'],'1/2')
+    def test_global_energy_and_power_with_mixed_tails(self):
+        for variable,domain in (('n','discrete'),('t','continuous')):
+            with self.subTest(domain=domain):
+                gated=self.measure(f'Step({variable})*cos({variable})',domain=domain,mode='global')
+                self.assertEqual(gated['mean_square']['exact'],'1/4')
+                decaying=self.measure(f'exp(-abs({variable}))*cos({variable})',domain=domain,mode='global')
+                self.assertEqual(decaying['energy']['status'],'finite')
+                self.assertEqual(decaying['mean_square']['exact'],'0')
+                mixed=self.measure(f'1+exp(-abs({variable}))*cos({variable})',domain=domain,mode='global')
+                self.assertEqual(mixed['energy']['exact'],'oo')
+                self.assertEqual(mixed['mean_square']['exact'],'1')
     def test_harmonic_power_without_requiring_a_period(self):
         cases=(('discrete','Cos(n)','1/2'),('discrete','cos(pi*n)','1'),
                ('discrete','cos(n)+cos((2*pi+1)*n)','2'),('discrete','cos(pi*n)/sqrt(2)','1/2'),
@@ -42,7 +53,9 @@ class ExpressionMeasureTests(unittest.TestCase):
     def test_periodic_waveforms_use_one_complete_cycle(self):
         cases=(('discrete','Repeat(n,n,4,1)','15/2'),('discrete','ImpulseTrain(n-1,5)','1/5'),
                ('discrete','PulseTrain(n-1,5,2)','2/5'),('continuous','Repeat(t,t,1)','1/3'),
-               ('continuous','PulseTrain(t-1/4,1,1/4)','1/4'))
+               ('continuous','PulseTrain(t-1/4,1,1/4)','1/4'),
+               ('discrete','PulseTrain(n,2,1)+PulseTrain(n-1,3,1)','7/6'),
+               ('continuous','RepeatSamples(t,0,(0,1),1)','1/3'))
         for domain, expression, power in cases:
             with self.subTest(expression=expression):
                 result=self.measure(expression,domain=domain,mode='global')

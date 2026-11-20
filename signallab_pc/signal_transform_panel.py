@@ -3,7 +3,7 @@ from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineE
 from .numeric_input import constant_value,real_field,integer_field
 from .result_state import ResultState
 from .result_summary import signal_summary,Section,Formula,number
-from .signal_transformations import transform_signal
+from .signal_transformations import periodic_transform,transform_signal
 
 TITLES={'shift':'Desplazar señal','reverse':'Invertir señal','scale':'Ajustar amplitud','parity':'Obtener partes par e impar','affine':'Transformación afín'}
 
@@ -57,6 +57,11 @@ class SignalTransformPanel(QWidget):
                 values=result if isinstance(result,tuple) else (result,)
                 keys=[self.window.publish(value,operation=TITLES[operation],parents=[parent] if parent else []) for value in values]
                 self.output.show_result(result);self.output.result_ids=keys
+                if values[0].metadata.get('periodic_definition'):
+                    variable='n' if discrete else 't'
+                    payload={'result':{'result':values[0].expression,'output_variable':variable,'evaluated':True}}
+                    self.output.expression_key=self.window.publish(payload,title='Definición periódica transformada',
+                        operation=TITLES[operation],parents=keys)
                 if operation=='parity':relations=['x_e[n] = (x[n]+x[-n])/2','x_o[n] = (x[n]-x[-n])/2'] if discrete else ['x_e(t) = (x(t)+x(-t))/2','x_o(t) = (x(t)-x(-t))/2']
                 elif operation=='shift':relations=['y[n] = x[n-('+str(delay)+')]'] if discrete else ['y(t) = x(t-('+str(delay)+'))']
                 elif operation=='reverse':relations=['y[n] = x[-n]'] if discrete else ['y(t) = x(-t)']
@@ -66,5 +71,9 @@ class SignalTransformPanel(QWidget):
                 summary=signal_summary(result,TITLES[operation]);summary.sections.insert(0,Section('Transformación aplicada',formulas=[Formula(value,value) for value in relations]))
                 summary.sections.append(Section('Interpretación',paragraphs=[explanation,values[0].metadata.get('scope','Los intervalos no almacenados se consideran cero. La salida conserva sus índices o instantes.')]))
                 self.output.text.set_readable(summary);self.tabs.setCurrentIndex(0);self.result_state.accept(snapshot)
-            self.window._run_operation('Transformando señal…',lambda:transform_signal(source,operation,amplitude=amplitude,time_scale=scale,delay=delay,offset=offset),accept)
+            parameters=dict(amplitude=amplitude,time_scale=scale,delay=delay,offset=offset)
+            def calculate():
+                result=transform_signal(source,operation,**parameters)
+                return periodic_transform(source,result,operation,**parameters)
+            self.window._run_operation('Transformando señal…',calculate,accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá la transformación',str(exc))

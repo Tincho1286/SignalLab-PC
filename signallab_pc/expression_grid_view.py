@@ -17,7 +17,7 @@ class ExpressionGridView(QWidget):
         self.table=ResultTable();self.tabs.addTab(self.table,'Valores');self.components.currentIndexChanged.connect(self.draw)
     def set_grid(self,data,units):
         self.data={**data,'units':units};values=np.array([complex(*v) if v is not None else complex(np.nan,np.nan) for v in data['samples']])
-        self.source=SimpleNamespace(values=values,origin=data['origin'],step=data['step'],units=units,name='Resultado condicionado',domain='continuous' if data['variable']=='t' else 'frequency',metadata={})
+        self.source=SimpleNamespace(values=values,origin=data['origin'],step=data['step'],units=units,name='Resultado condicionado',domain='continuous' if data['variable']=='t' else 'frequency',metadata={field:data[field] for field in ('dirac_terms','dirac_at_zero') if field in data})
         self.table.set_signals([self.source]);self.table.note.setText('N/D conserva su posición; no se interpola ni se convierte en cero. Para reutilizar la función usá el resultado algebraico.')
         self.note.setText(str(data['undefined_count'])+' posiciones no definidas. Condición: '+data['condition']+'. '+data['scope'])
         self.tabs.setCurrentIndex(0);self.draw()
@@ -25,27 +25,34 @@ class ExpressionGridView(QWidget):
         install_enlarge(self.toolbar);self.canvas.draw();enlarge_plot(self.canvas,self)
     def draw(self,*_):
         if self.data is None:return
-        source=self.source;values=source.values;axis=source.origin+source.step*np.arange(len(values));self.figure.clear();axes=self.figure.subplots(2,1,sharex=True)
+        from .distributions import dirac_terms
+        from .signal_plot import configure_signal_axis,plot_impulse_areas
+        source=self.source;values=source.values;axis=source.origin+source.step*np.arange(len(values));self.figure.clear()
+        impulses=dirac_terms(source)
+        axes=self.figure.subplots(2+bool(impulses),1,sharex=True)
         polar=self.components.currentIndex()==0
         first=abs(values) if polar else values.real
         second=np.where(abs(values)>0,np.angle(values),np.nan) if polar else values.imag
         for plot,component,label in zip(axes,(first,second),('Módulo' if polar else 'Parte real','Fase (rad)' if polar else 'Parte imaginaria')):
             line=plot.plot(axis,component)[0];line._signallab_probe_values=(source.origin,source.step,component);plot.set_ylabel(label);plot.grid(alpha=.2)
         if not np.isfinite(values).any():axes[0].text(.5,.5,'No hay valores definidos en este intervalo',ha='center',transform=axes[0].transAxes)
-        from .signal_plot import configure_signal_axis
+        if impulses:
+            plot_impulse_areas(axes[-1],impulses,source.name);axes[-1].legend()
         configure_signal_axis(axes[-1],source);self.canvas.draw_idle()
     def save(self,path):
         from pathlib import Path
         if Path(path).suffix.lower()=='.json':
             from .atomic_file import write_json
             write_json(path,self.data);return
+        if self.data.get('distribution'):raise ValueError('Usá JSON para conservar por separado los valores N/D y las áreas Dirac.')
         import csv
         from .atomic_file import atomic_text_file
         with atomic_text_file(path,encoding='utf-8-sig',newline='') as stream:
             writer=csv.writer(stream);writer.writerow(['# SignalLab expression grid','units='+self.data['units'],'condition='+self.data['condition']]);writer.writerow(['axis','real','imag','defined'])
             for index,pair in enumerate(self.data['samples']):writer.writerow([format(self.data['origin']+index*self.data['step'],'.17g'),*(pair if pair is not None else ('','')),pair is not None])
     def export(self):
-        path,selected=QFileDialog.getSaveFileName(self,'Exportar valores con N/D','resultado_condicionado','SignalLab JSON (*.json);;Tabla CSV (*.csv)')
+        filters='SignalLab JSON (*.json)' if self.data and self.data.get('distribution') else 'SignalLab JSON (*.json);;Tabla CSV (*.csv)'
+        path,selected=QFileDialog.getSaveFileName(self,'Exportar valores con N/D','resultado_condicionado',filters)
         if not path:return
         try:
             from pathlib import Path

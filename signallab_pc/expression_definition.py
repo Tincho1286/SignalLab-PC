@@ -26,7 +26,8 @@ class Definition:
 
     def integral_expression(self):
         """Isolated ordinary point values have zero measure, unlike impulses."""
-        if self.expression.has(sp.DiracDelta):return self.expression
+        from .periodic_signals import ImpulseTrain
+        if self.expression.has(sp.DiracDelta,ImpulseTrain):return self.expression
         def strip(piece):
             if piece.has(sp.DiracDelta) or piece.args[-1].cond is not sp.true or any(condition.free_symbols-{self.variable} for _,condition in piece.args):return piece
             kept=[]
@@ -87,7 +88,9 @@ def prepare(source,variable,domain,support=None,conditions=(),support_kind='sign
 def attach(result,definition,*,exact=None,condition=None):
     if exact is not None and result.get('evaluated'):
         from .cas_engine import encode
+        from .periodic_signals import ImpulseTrain
         result['cas_encoded']=encode(exact)
+        if exact.has(sp.DiracDelta,ImpulseTrain):result['distribution']=True
         if condition is not None and condition is not sp.true:
             result['cas_domain_condition']=encode(condition)
     result['input_definition']=definition.metadata()

@@ -26,11 +26,11 @@ class SymbolicFourierPanel(QWidget):
         self.result_state=ResultState([self.expression]+([self.lower,self.upper] if discrete and not inverse else []),self.calculate_button);form.insertRow(0,self.result_state)
         self.numeric_controls=QWidget();numeric_form=QFormLayout(self.numeric_controls);form.addRow(self.numeric_controls);self.numeric_controls.hide()
         label=QLabel('Registro numérico del último resultado');label.setObjectName('cardTitle');numeric_form.addRow(label)
-        self.start=QLineEdit('-16' if discrete and inverse else '-3.141592653589793' if discrete else '-5');self.stop=QLineEdit('3.141592653589793' if discrete else '5');self.count=QLineEdit('33' if discrete and inverse else '501')
+        self.start=QLineEdit('-16' if discrete and inverse else '-pi' if discrete else '-5');self.stop=QLineEdit('pi' if discrete else '5');self.count=QLineEdit('33' if discrete and inverse else '501')
         for title,field in [('Primer índice n' if discrete and inverse else 'Inicio (rad/muestra)' if discrete else 'Inicio (s)' if inverse else 'Inicio (rad/s)',self.start),('Final (rad/muestra)' if discrete else 'Final (s)' if inverse else 'Final (rad/s)',self.stop),('Cantidad de muestras' if discrete and inverse else 'Cantidad de puntos',self.count)]:
             if not (discrete and inverse and field is self.stop):numeric_form.addRow(title,field)
         self.sample_button=QPushButton('Graficar resultado');self.sample_button.setEnabled(False);self.sample_button.clicked.connect(self.sample);self.sample_button.setToolTip('Evaluar el último resultado en el intervalo indicado y abrir su figura.')
-        scope=QLabel('La expresión algebraica y sus muestras se conservan como objetos distintos, vinculados por su procedencia. Las distribuciones y las expresiones no resueltas no se convierten en muestras finitas.');scope.setWordWrap(True);numeric_form.addRow(scope)
+        scope=QLabel('La ventana permite ver los valores de la expresión. Los impulsos se dibujan aparte, por posición y área.');scope.setWordWrap(True);numeric_form.addRow(scope)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);layout.setContentsMargins(0,0,0,0);root.addWidget(right,2)
         from .result_toolbar import ResultActionBar,attach
@@ -74,15 +74,16 @@ class SymbolicFourierPanel(QWidget):
         if self.last is not None:populate_reuse_menu(menu,self.window,self.last[0])
         if self.tabs.isTabVisible(1) and self.output.result_ids:
             from .toolbox import populate_signal_menu
-            samples=menu.addMenu('Muestras del registro numérico')
-            self._sample_routes=populate_signal_menu(samples,self.window,self.output.result,self.output.result_ids[0])
+            if self.output.result.data_kind!='spectral_lines':
+                samples=menu.addMenu('Muestras del registro numérico')
+                self._sample_routes=populate_signal_menu(samples,self.window,self.output.result,self.output.result_ids[0])
     def prepare_cas(self):
         menu=self.to_cas_button.menu();menu.clear()
         menu.addAction('Fórmula del resultado',self.to_cas)
         if self.tabs.isTabVisible(1) and self.output.result_ids:
             from .cas_transfer import send_to_cas
             key=self.output.result_ids[0]
-            menu.addAction('Muestras del registro numérico',lambda:send_to_cas(self.window,key))
+            menu.addAction('Registro de la ventana',lambda:send_to_cas(self.window,key))
     def to_cas(self):
         if self.last is not None:
             from .cas_transfer import send_to_cas
@@ -170,7 +171,7 @@ class SymbolicFourierPanel(QWidget):
                 open_result_plot(self.output, self)
                 self._sampled_plot = (key, request, self.output.canvas)
             self.window._run_operation('Evaluando DTFT inversa…',lambda:run_request(request),accept);return
-        try:request=dict(operation='expression_grid',expression=result['result'],variable=result['output_variable'],condition=result['condition'],encoded=result.get('cas_encoded'),allow_undefined=True,start=real_field(self.start),stop=real_field(self.stop),count=integer_field(self.count))
+        try:request=dict(operation='expression_grid',expression=result['result'],variable=result['output_variable'],condition=result['condition'],encoded=result.get('cas_encoded'),allow_undefined=True,allow_distribution=True,periodic_frequency=self.discrete,start=real_field(self.start),stop=real_field(self.stop),start_exact=self.start.text(),stop_exact=self.stop.text(),count=integer_field(self.count))
         except ValueError as exc:QMessageBox.warning(self,'Revisá la rejilla',str(exc));return
         if self.reopen_plot(key, request):
             return
@@ -186,7 +187,8 @@ class SymbolicFourierPanel(QWidget):
                 return
             temporal=data['variable']=='t'
             signal=Signal([complex(*v) for v in data['samples']],data['origin'],data['step'],'s' if temporal else result['frequency_units'],'x(t)' if temporal else 'X(w)','continuous' if temporal else 'frequency',data['expression'],
-                {'operation':'fourier_expression_samples','scope':data['scope'],'source_condition':result['condition'],'convention':result['convention']})
+                {'operation':'fourier_expression_samples','scope':data['scope'],'source_condition':result['condition'],'convention':result['convention'],
+                 **{field:data[field] for field in ('distribution','lines_only','dirac_terms','dirac_at_zero') if field in data}})
             if temporal:
                 from .temporal_formula import attach_temporal_formula
                 attach_temporal_formula(signal,result)
