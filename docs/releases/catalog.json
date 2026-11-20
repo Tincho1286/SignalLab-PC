@@ -9,7 +9,8 @@
         "Energía exacta y potencia media cero para envolventes racionales oscilatorias compatibles.",
         "Fourier inversa recupera el período al reutilizar un espectro de líneas desde Resultados.",
         "Laplace unilateral integra un período desde cero y suma las repeticiones.",
-        "Laplace bilateral entrega el espectro de Fourier cuando la señal periódica tiene ROC vacía."
+        "Laplace bilateral entrega el espectro de Fourier cuando la señal periódica tiene ROC vacía.",
+        "La biblioteca incluye guías ilustradas para Repeat, RepeatSamples, PulseTrain e ImpulseTrain, con enlaces desde las herramientas."
       ],
       "limits": [
         "La reconstrucción exacta de un espectro ponderado usa la definición de origen conservada en Resultados."
