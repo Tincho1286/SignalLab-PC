@@ -8,6 +8,8 @@ Descargá la [versión estable](https://github.com/Tincho1286/SignalLab-PC/relea
 
 ## Resolver un problema
 
+En la **1.8.15 preliminar**, abrí **Herramientas** y elegí un área o escribí una búsqueda. El enlace sobre el título de un cálculo vuelve a su área. En una ventana angosta, **Datos de entrada** y **Resultado** se muestran en pestañas. También podés ampliarlo con **Ctrl+Mayús+R**.
+
 1. Elegí una operación desde el explorador o buscala con **Ctrl+K**.
 2. Completá sus entradas. Según la operación, podés usar fórmulas, tramos, muestras, archivos o resultados compatibles.
 3. Presioná **Calcular** o **Ctrl+Enter**.

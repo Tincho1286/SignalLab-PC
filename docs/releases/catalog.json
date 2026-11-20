@@ -1,6 +1,25 @@
 {
   "releases": [
     {
+      "tag": "v1.8.15",
+      "title": "Nuevo espacio de trabajo",
+      "channel": "preview",
+      "summary": "La 1.8.15 preliminar agrupa la navegación en un catálogo con búsqueda por nombre o concepto. Los formularios y los informes usan el ancho de la ventana y las acciones de salida se encuentran siempre junto al resultado.",
+      "changes": [
+        "Herramientas concentra el índice por áreas, los accesos directos y la búsqueda.",
+        "El enlace del título lleva al área y las pestañas conservan los documentos abiertos.",
+        "Los datos de entrada distinguen fórmulas, muestras, archivos y resultados previos.",
+        "Gráficos, reutilización, CAS y exportación conservan el orden en la cabecera del resultado.",
+        "Ampliar resultado permite leer a todo el ancho y volver a la distribución anterior.",
+        "Los gráficos tienen lectura de cursores, escalas y tabla A/B plegable."
+      ],
+      "limits": [
+        "Las acciones de salida usan el último cálculo disponible.",
+        "Los cursores informan los valores disponibles en las trazas y conservan las unidades del eje."
+      ],
+      "notes": "docs/releases/v1.8.15.md"
+    },
+    {
       "tag": "v1.8.14",
       "title": "Carga, edición y combinación de señales",
       "channel": "stable",
