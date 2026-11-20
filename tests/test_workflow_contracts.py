@@ -142,8 +142,8 @@ class WorkflowContracts(unittest.TestCase):
         from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
         panel=SymbolicFourierPanel(self.host,discrete=True);self.widgets.append(panel)
         panel.expression.setText('sin(0.5*pi*(n-4))/(pi*(n-4))');panel.lower.setText('-oo');panel.upper.setText('oo');panel.calculate_button.click()
-        from PySide6.QtCore import Qt
-        self.assertIs(panel.tabs.cornerWidget(Qt.Corner.TopRightCorner),panel.sample_button)
+        self.assertIs(panel.result_actions.slots['graph'], panel.sample_button)
+        self.assertIs(panel.sample_button.parentWidget(), panel.result_actions)
         self.assertEqual(self.warnings,[]);self.assertTrue(panel.sample_button.isEnabled());panel.sample_button.click();self.app.processEvents()
         window=panel.output.canvas._signallab_window;self.widgets.append(window)
         self.assertTrue(window.isVisible());self.assertEqual(panel.output.views.currentIndex(),0);self.assertGreater(len(panel.output.figure.axes[0].lines),0)
@@ -472,13 +472,14 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(self.warnings,[])
 
     def test_measures_plot_action_stays_with_report(self):
-        from PySide6.QtCore import Qt
         from signallab_pc.expression_measures_panel import ExpressionMeasuresPanel
         panel=ExpressionMeasuresPanel(self.host,'interval');self.widgets.append(panel);panel.resize(1040,620);panel.show()
         from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
         from signallab_pc.plot_view import install_enlarge
         for toolbar in panel.findChildren(NavigationToolbar2QT):install_enlarge(toolbar)
-        self.assertIs(panel.tabs.cornerWidget(Qt.Corner.TopRightCorner),panel.sample_button);self.assertFalse(panel.sample_button.isEnabled())
+        self.assertIs(panel.result_actions.slots['graph'], panel.sample_button)
+        self.assertIs(panel.sample_button.parentWidget(), panel.result_actions)
+        self.assertFalse(panel.sample_button.isEnabled())
         panel.domain.setCurrentIndex(1);panel.expression.setText('Impulse(n)');panel.lower.setText('-2');panel.upper.setText('2');panel.start.setText('-2');panel.stop.setText('2');panel.calculate_button.click()
         self.assertEqual(self.warnings,[]);self.assertTrue(panel.sample_button.isEnabled());self.app.processEvents();self.assertTrue(panel.sample_button.isVisible())
         panel.sample_button.click();self.app.processEvents();self.assertEqual(self.warnings,[]);window=panel.output.canvas._signallab_window;self.widgets.append(window);self.assertTrue(window.isVisible())
