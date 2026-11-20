@@ -15,6 +15,7 @@ La importación está disponible desde el selector de Resultados y los editores 
 | MATLAB `.mat` | Variables numéricas compatibles, con selección de variable, canal y eje. |
 | MATLAB `.m` | Subconjunto admitido por el importador de datos. No es un intérprete general de MATLAB. |
 | JSON de sistema | Numerador, denominador, dominio, secciones cuando existen, avances, reloj y ROC registrada según versión del formato. |
+| JSON de realización | Bloques, conexiones, signos y posiciones. Se abre desde **Diagrama** en Función de transferencia y análisis. |
 | JSON de Resultados | Selección exportada con sus datos y dependencias. Permite recuperar objetos compatibles y su procedencia. |
 | JSON algebraico | Expresión, variable y condiciones de un cálculo compatible. |
 

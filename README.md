@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.8.14" src="https://img.shields.io/badge/estable-1.8.14-71d7c4?style=flat-square&amp;labelColor=172632"></a>
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.8.18" src="https://img.shields.io/badge/estable-1.8.18-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
   <img alt="Instaladores y portables para Windows y Linux" src="https://img.shields.io/badge/Windows%20%2B%20Linux-instaladores%20y%20portables-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
@@ -25,22 +25,18 @@ Cada herramienta tiene sus propias entradas y puede utilizarse de manera indepen
 
 ## Descargar
 
-La versión estable **1.8.14** está disponible para Windows x64 y Linux x86_64. Los cuatro paquetes incluyen Python y las dependencias de la aplicación; no hace falta instalar Python por separado.
+La versión estable **1.8.18** está disponible para Windows x64 y Linux x86_64. Los cuatro paquetes incluyen Python y las dependencias de la aplicación; no hace falta instalar Python por separado.
 
 | Formato | Cuándo elegirlo | Windows x64 | Linux x86_64 |
 | --- | --- | --- | --- |
-| **Instalable** | Para tener accesos en el sistema y actualizar desde la aplicación. | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.14/SignalLab-PC-1.8.14-setup.exe) | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.14/SignalLab-PC-1.8.14-linux-x86_64.run) |
-| **Portable** | Para ejecutar la aplicación desde una carpeta, sin registrar una instalación. | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.14/SignalLab-PC-1.8.14.exe) | [Paquete .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.14/SignalLab-PC-1.8.14-linux-x86_64.tar.gz) |
+| **Instalable** | Para tener accesos en el sistema y actualizar desde la aplicación. | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.18/SignalLab-PC-1.8.18-setup.exe) | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.18/SignalLab-PC-1.8.18-linux-x86_64.run) |
+| **Portable** | Para ejecutar la aplicación desde una carpeta, sin registrar una instalación. | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.18/SignalLab-PC-1.8.18.exe) | [Paquete .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.18/SignalLab-PC-1.8.18-linux-x86_64.tar.gz) |
 
-En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh ./SignalLab-PC-1.8.14-linux-x86_64.run`; el portable se descomprime para ejecutar `SignalLab-PC` dentro de su carpeta. La [guía de instalación](docs/installation.md) explica ambos recorridos y enlaza los requisitos y las posibles alertas del sistema.
+En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh ./SignalLab-PC-1.8.18-linux-x86_64.run`; el portable se descomprime para ejecutar `SignalLab-PC` dentro de su carpeta. La [guía de instalación](docs/installation.md) explica ambos recorridos y enlaza los requisitos y las posibles alertas del sistema.
 
 ### Canal estable y preliminares
 
-La [1.8.17 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.17) amplía la revisión de informes y guías. Podés descargar el instalador o el portable para Windows y Linux. Para recibirla desde el actualizador, elegí **Estables y preliminares (Pre-releases)**.
-
-La **1.8.14 estable** consolida las mejoras de las preliminares 1.8.9 a 1.8.14 y está disponible con **Sólo versiones estables** del actualizador. Incluye las ampliaciones de respuesta temporal, medidas de frecuencia, estudios de modelos, registros y reconstrucción, junto con las mejoras de carga y edición de muestras. El selector **Estables y preliminares (Pre-releases)** permite recibir futuras entregas de prueba cuando sean más nuevas que la estable instalada.
-
-La [1.8.14 estable](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.14) agiliza el trabajo con muestras: permite pegar tablas con vista previa, deshacer y rehacer en el editor, extraer tramos e intercambiar entradas. La tabla Operación por muestra permite leer la alineación de una suma o un producto y exportar sus valores. La [guía de herramientas básicas](docs/basic-usability.md) explica estos recorridos.
+La 1.8.18 está disponible con **Sólo versiones estables**. El canal **Estables y preliminares (Pre-releases)** también ofrece la 1.8.18 y permite recibir entregas de prueba cuando haya una preliminar posterior. [Notas de la versión estable](docs/releases/v1.8.18.md).
 
 ### Actualizar una instalación
 
@@ -53,7 +49,7 @@ Desde el mismo diálogo podés elegir sólo estables o incluir preliminares (Pre
 | Área | Qué permite estudiar |
 | --- | --- |
 | **Señales** | Definir fórmulas, tramos y muestras; generar ventanas; desplazar, invertir, sumar o multiplicar señales; calcular convolución, correlación, energía, potencia y RMS. |
-| **Sistemas LTI** | Analizar H(s) y H(z), respuestas temporales y en frecuencia, fase, retardo de grupo, polos y ceros; trabajar con conexiones, realizaciones y espacio de estados. |
+| **Sistemas LTI** | Obtener H(s) y H(z) a partir de coeficientes, fórmulas o diagramas de bloques. Analizar respuestas, fase, retardo, polos y ceros, y estudiar modelos de espacio de estados. |
 | **Filtros** | Diseñar FIR e IIR por bandas y tolerancias; enventanar una h[n] propia; ubicar polos y ceros; ajustar fase y convertir entre filtros analógicos y digitales. Los filtros ideales se pueden definir por tramos en frecuencia. |
 | **Fourier y espectros** | Calcular DFT/FFT, DTFT, Fourier continua e inversas disponibles; estudiar series, densidades espectrales, periodograma, Welch, Hilbert y STFT. |
 | **Muestreo y precisión** | Explorar muestreo, aliasing, reconstrucción, cambios de tasa, cuantización y efectos de la representación numérica en señales y filtros. |
@@ -65,7 +61,7 @@ El [catálogo de herramientas](docs/tools.md) describe las entradas y salidas de
 
 ## Cómo se trabaja
 
-Elegí una herramienta desde el explorador o buscala con **Ctrl+K**. Completá sus entradas y presioná **Calcular**; el resultado reúne el informe, las fórmulas y las opciones de tabla o gráfico que correspondan. **F1** abre la ayuda de la herramienta activa, con explicaciones de los parámetros y de la interpretación del cálculo.
+Elegí una operación en **Herramientas** o buscala con **Ctrl+K**. Completá sus entradas y presioná **Calcular**; el resultado reúne el informe, las fórmulas y las opciones de tabla o gráfico que correspondan. **F1** abre la ayuda de la herramienta activa, con explicaciones de los parámetros y de la interpretación del cálculo.
 
 Las figuras se abren en ventanas independientes y las secuencias discretas se representan mediante tallos. Los cursores permiten consultar muestras y comparar dos posiciones sin modificar los datos calculados. La [guía de gráficos](docs/cursors.md) explica qué se mide en cada tipo de vista y cómo ajustar el alcance del plano de polos y ceros.
 
@@ -80,6 +76,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La 1.8.18 estable permite armar o cargar un diagrama de bloques y obtener H(s) o H(z) en Sistemas LTI. Incluye el nuevo catálogo por áreas, los ajustes de controles y gráficos y la revisión de informes y guías de las versiones 1.8.15 a 1.8.17. [Notas de la 1.8.18](docs/releases/v1.8.18.md).
 
 La 1.8.17 preliminar amplía la revisión de los informes de Fourier, filtros y sistemas. Las salidas muestran las fórmulas, los valores y las condiciones que se aplican al cálculo. La Biblioteca y el manual explican los métodos. [Notas de la 1.8.17](docs/releases/v1.8.17.md).
 

@@ -8,7 +8,7 @@ Descargá la [versión estable](https://github.com/Tincho1286/SignalLab-PC/relea
 
 ## Resolver un problema
 
-Las preliminares con el nuevo escritorio reúnen la navegación en **Herramientas**. En la edición estable 1.8.14, elegí la operación desde el explorador. En ambas podés buscar con **Ctrl+K**.
+Abrí **Herramientas** para elegir una operación por área. Si ya sabés qué querés calcular, buscala por nombre con **Ctrl+K**.
 
 1. Elegí la herramienta y completá sus entradas. Según la operación, podés usar fórmulas, tramos, muestras, archivos o resultados compatibles.
 2. Presioná **Calcular** o **Ctrl+Enter**.

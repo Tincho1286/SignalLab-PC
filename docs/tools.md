@@ -16,7 +16,7 @@ Podés pegar una tabla de muestras y revisar sus columnas antes de incorporarla.
 
 ## Sistemas LTI
 
-El análisis admite H(s) y H(z) por fórmula o coeficientes, así como respuestas definidas directamente en frecuencia. Reúne módulo lineal o en dB, fase, retardo de grupo y, cuando el modelo es racional, polos, ceros y realizaciones. Las conexiones en serie, paralelo o realimentación y el espacio de estados permiten estudiar modelos relacionados.
+El análisis acepta H(s) y H(z) por fórmula o coeficientes, y respuestas definidas directamente en frecuencia. También podés armar un diagrama de bloques y obtener su transferencia con estado inicial nulo. Reúne módulo lineal o en dB, fase, retardo de grupo y, cuando el modelo es racional, polos, ceros y realizaciones. Las conexiones en serie, paralelo o realimentación y el espacio de estados permiten estudiar modelos relacionados.
 
 La respuesta temporal utiliza la entrada y las condiciones iniciales elegidas. Su interpretación depende de la causalidad y la región de convergencia del sistema. Una fórmula general no se transforma automáticamente en un cociente de polinomios ni en una realización finita; los informes indican qué análisis permite su representación.
 

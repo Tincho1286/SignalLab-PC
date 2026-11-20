@@ -1,12 +1,10 @@
 # Documentación de SignalLab PC
 
-Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e interpretar sus resultados. La versión estable actual es la [1.8.14](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.14), disponible como instalable y portable para Windows x64 y Linux x86_64.
+Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e interpretar sus resultados. La 1.8.18 estable ofrece instalador y portable para Windows x64 y Linux x86_64. [Descargas](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.18).
 
-La [1.8.14 estable](releases/v1.8.14.md) consolida las mejoras de las preliminares 1.8.9 a 1.8.14. La [guía de herramientas básicas](basic-usability.md) explica cómo pegar tablas, deshacer ediciones, extraer tramos y consultar las entradas alineadas de una suma o producto. También incluye las ampliaciones de respuesta temporal, medidas de frecuencia, registros y reconstrucción de las entregas anteriores.
+En Sistemas LTI podés calcular la transferencia desde un diagrama editable. La versión también incluye el catálogo por áreas, los ajustes de gráficos y controles, y los informes y guías revisados. [Notas de la 1.8.18](releases/v1.8.18.md).
 
 ## Instalar y empezar
-
-La [1.8.17 preliminar](releases/v1.8.17.md) amplía la revisión de informes y guías de trabajo. El catálogo **Herramientas** permite elegir el cálculo por área o buscarlo por nombre.
 
 La [guía de instalación](installation.md) ayuda a elegir el paquete adecuado. Después, [Primeros pasos](getting-started.md) recorre un cálculo completo y muestra cómo continuar con su resultado. Si ya tenés la edición instalada, la [guía de actualizaciones](installed-updates.md) explica cómo incorporar nuevas versiones conservando la configuración.
 

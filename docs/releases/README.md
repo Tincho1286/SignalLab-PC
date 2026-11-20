@@ -2,12 +2,13 @@
 
 [← Documentación](../README.md)
 
-La descarga estable actual es la **1.8.14**. Consolida las mejoras de las preliminares 1.8.9 a 1.8.14 y facilita cargar, editar y combinar señales. La [nota de la versión](v1.8.14.md) presenta el pegado validado, el historial del editor, los tramos independientes y la lectura por muestra. Se ofrece en el canal de actualizaciones estables.
+La descarga estable actual es la **1.8.18**. Incorpora la entrada por diagrama en Sistemas LTI y reúne las mejoras de interfaz, informes y ayuda de las versiones 1.8.15 a 1.8.17. [Notas de la 1.8.18](v1.8.18.md).
 
-Este índice conserva las publicaciones anteriores con sus notas y canales históricos. La 1.8.8 queda como estable anterior; las mejoras de las preliminares posteriores están incluidas en la 1.8.14.
+Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.18](v1.8.18.md) | Diagramas de realización a H(s) y H(z) · mejoras de interfaz | Estable |
 | [1.8.17](v1.8.17.md) | Informes de Fourier, filtros y sistemas. Guías de trabajo actualizadas. | Preliminar |
 | [1.8.16](v1.8.16.md) | Controles, rótulos verticales e informes más fáciles de leer | Preliminar |
 | [1.8.15](v1.8.15.md) | Catálogo por áreas, informes ampliables y cursores | Preliminar |
