@@ -193,7 +193,7 @@ def summary(result):
         for row in result['rows']:
             fields=[('Desde',row['low']),('Hasta',row['high']),('Mínimo |H|',row['minimum']),('En frecuencia',row['minimum_at']),('Máximo |H|',row['maximum']),('En frecuencia',row['maximum_at']),('Margen de amplitud',row['margin'])]
             if result['mode']=='delay':fields.extend([('Menor retardo observado',row.get('delay_min')),('En frecuencia',row.get('delay_min_at')),('Mayor retardo observado',row.get('delay_max')),('En frecuencia',row.get('delay_max_at')),('Mediana de retardos',row.get('delay_median')),('Variación observada',row.get('delay_spread')),('Puntos sin retardo definido',row['delay_undefined'])])
-            sections.append(Section(row['name'],rows=[(key,show(v)) for key,v in fields],paragraphs=[row['status'],'Los extremos de módulo se refinan localmente. Las estadísticas de retardo utilizan los puntos evaluados, sin promediar a través de valores no definidos.']))
+            sections.append(Section(row['name'],rows=[(key,show(v)) for key,v in fields],paragraphs=[row['status']]))
     else:
         for row in result['rows'][:20]:sections.append(Section('Frecuencia '+show(row['frequency'])+' '+result['units'],rows=[('Parte real',show(row['real'])),('Parte imaginaria',show(row['imag'])),('Módulo',show(row['magnitude'])),('Módulo (dB)',show(row['db'])),('Ángulo principal (rad)',show(row['phase'])),('Retardo de grupo',show(row['delay']))]))
         if len(result['rows'])>20:sections.append(Section('Tabla completa',paragraphs=['El informe resume las primeras 20 lecturas. La tabla y el CSV conservan todas.']))

@@ -10,7 +10,7 @@ class FrequencyFilterPanel(QWidget):
         from .toolbox import LocalInput,ResultView
         root=QHBoxLayout(self);controls=QWidget();form=QFormLayout(controls)
         self.domain=QComboBox();self.domain.addItems(['Discreto · ω en rad/muestra','Continuo · Ω en rad/s']);form.addRow('Dominio',self.domain)
-        note=QLabel('Definí H por tramos. El valor es la ganancia (puede ser compleja); la condición indica en qué frecuencias se aplica. Usá w para la frecuencia.');note.setWordWrap(True);form.addRow(note)
+        note=QLabel('En cada tramo, indicá la ganancia y las frecuencias donde se aplica.');note.setWordWrap(True);form.addRow(note)
         self.h=LocalInput('Respuesta del filtro H(ω)','frequency');self.h.set_role('frequency_response');self.h.bind_project(window)
         for label in self.h.findChildren(QLabel):
             if label.text()=='Paso (rad/s)':label.setText('Paso angular')

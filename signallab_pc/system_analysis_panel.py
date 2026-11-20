@@ -162,11 +162,7 @@ class SystemAnalysisPanel(QWidget):
             self.transfer_formula.setText('1/(1-0.5*z^(-1))' if digital else '1/(s+1)')
         self.b.set_domain(digital);self.a.set_domain(digital);self.transfer_preview.schedule()
         self.transfer_formula.setProperty('variableHint','w' if self.definition_mode.currentIndex()==2 else 'z' if digital else 's');self.transfer_formula.field.setPlaceholderText('Expresión en w, en '+('rad/muestra' if digital else 'rad/s') if self.definition_mode.currentIndex()==2 else 'Función de transferencia en '+('z' if digital else 's'))
-        if self.definition_mode.currentIndex()==2:
-            self.note.setText('Respuesta H(exp(iw)) en rad/muestra. Permite analizar filtros ideales sin atribuirles una ROC abierta.' if digital else 'Respuesta H(iw) en rad/s. No determina por sí sola una transformada de Laplace ni su ROC.')
-        elif self.definition_mode.currentIndex()==1:
-            self.note.setText('Fórmula en z, con potencias positivas o negativas, logaritmos u otras funciones. Frecuencia en rad/muestra.' if digital else 'Fórmula en s; se conserva como expresión cuando no es racional. Frecuencia en rad/s.')
-        else:self.note.setText('b y a en potencias ascendentes de z⁻¹. Frecuencia en rad/muestra.' if digital else 'b y a en potencias descendentes de s. Frecuencia en rad/s.')
+        self.note.setText('Frecuencias en rad/muestra.' if digital else 'Frecuencias en rad/s.')
         if changed and hasattr(self,'w1'):self.w1.setText('pi' if digital else '10')
         if hasattr(self,'impulse'):
             if self.definition_mode.currentIndex()!=1:self.set_definition_capabilities(self.definition_mode.currentIndex()==0)

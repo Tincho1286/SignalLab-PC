@@ -2,9 +2,7 @@
 
 [← Documentación](README.md)
 
-Las operaciones se agrupan por el problema que resuelven. Una herramienta puede reunir variantes de cálculo, pero cada definición mantiene sus propios datos. Después de calcular, el área de resultados ofrece el informe y las acciones de gráfico, exportación y reutilización adecuadas para ese objeto.
-
-La biblioteca de ayuda agrupa los artículos por temas y conserva la búsqueda por sus nombres anteriores; cada herramienta mantiene su acceso directo a la explicación correspondiente.
+Elegí un área según lo que quieras calcular. Cada herramienta conserva sus datos al cambiar de variante. Al terminar el cálculo, podés consultar el informe, abrir una figura o reutilizar la salida en otra operación. Para ver qué significa un campo o cómo se obtuvo un resultado, presioná **F1**.
 
 ## Señales
 
@@ -12,9 +10,9 @@ Permite crear secuencias y registros mediante fórmulas, tramos o muestras, y ge
 
 El producto punto a punto sirve para enventanar una señal. Las entradas se alinean por sus índices o coordenadas; al reutilizarlas se conservan el origen y el reloj disponibles. El resultado puede enviarse a Fourier, Z u otras operaciones compatibles, o exportarse como registro.
 
-Desde la 1.8.12 preliminar, Medir un registro permite seleccionar un intervalo y consultar la energía acumulada, el centro, la dispersión y un porcentaje central de energía. Publica la media compleja y la alterna como señales independientes y localiza cruces y contactos. Conserva la diferencia entre muestras, segmentos lineales y retención ZOH. La [guía de medidas de registros](record-measurements.md) explica los intervalos, las unidades y las salidas disponibles.
+**Medir un registro** calcula energía, potencia media y RMS en el intervalo elegido. También muestra dónde se concentra la energía y dónde la señal alcanza un nivel, y permite guardar la media compleja y la componente alterna. [Guía de medidas de registros](record-measurements.md).
 
-Desde la 1.8.14 estable, las entradas de muestras ofrecen pegado con vista previa y columnas explícitas. El editor incorpora deshacer, rehacer y extracción de tramos independientes. Suma y producto intercambian sus definiciones y muestran la alineación y la cobertura de cada registro en Operación por muestra. La [guía de herramientas básicas](basic-usability.md) explica la conservación de las salidas aplicadas, los índices y el reloj.
+Podés pegar una tabla de muestras y revisar sus columnas antes de incorporarla. El editor permite deshacer cambios o guardar un tramo como señal independiente. En suma y producto, **Operación por muestra** muestra qué valores de cada entrada se alinean en cada posición. [Guía de herramientas básicas](basic-usability.md).
 
 ## Sistemas LTI
 
@@ -24,7 +22,7 @@ La respuesta temporal utiliza la entrada y las condiciones iniciales elegidas. S
 
 H(s) y H(z) también pueden explorarse en el plano complejo mediante mallas de parte real/imaginaria o módulo/ángulo. Esta vista se distingue de la respuesta en frecuencia, evaluada sobre el eje imaginario o el círculo unitario.
 
-Desde la 1.8.11 preliminar, el análisis de estados muestra las matrices y el criterio de rango y permite cambiar coordenadas junto con la condición inicial o buscar equilibrios. Su simulación separa memoria y entrada y ofrece un inspector de los pasos guardados. La [guía de estudios de estados](state-studies.md) explica qué se conserva al reutilizar el modelo, la diferencia entre posición e índice y el papel de ZOH en continuo.
+**Espacio de estados** permite analizar las matrices, cambiar coordenadas con su condición inicial y buscar equilibrios. En la simulación podés ver por separado qué aporta la entrada y qué aporta el estado inicial. **Paso a paso** muestra cómo se calculó la salida o el siguiente estado. [Guía de espacio de estados](state-studies.md).
 
 ## Diseño y análisis de filtros
 
@@ -36,7 +34,7 @@ Las tolerancias pueden expresarse en amplitud absoluta, relativa o dB. Un rechaz
 
 El ajuste de fase informa el sistema obtenido y la relación con el original. Las conversiones analógico/digital utilizan el método elegido y conservan el período de muestreo disponible. Las condiciones de causalidad, estabilidad y convergencia siguen formando parte del resultado.
 
-Desde la 1.8.10 preliminar, **Medidas de frecuencia** trabaja con el último resultado de Analizar sistema. Evalúa lecturas puntuales, busca niveles, comprueba bandas con límites de módulo y resume el retardo. La [guía de medidas de frecuencia](frequency-measurements.md) distingue las evaluaciones de la definición, las estimaciones numéricas y los límites de la ventana. Las medidas se registran, se relacionan con una figura y se exportan completas a CSV.
+Para medir un filtro o sistema ya calculado, abrí **Medidas** en el análisis LTI. Podés leer frecuencias concretas, buscar cruces de nivel y comprobar límites por banda. La tabla se puede exportar a CSV. [Guía de medidas de frecuencia](frequency-measurements.md).
 
 ## Fourier y espectros
 
@@ -50,7 +48,7 @@ Un espectro complejo conserva la información necesaria para una inversa; su mó
 
 Permite explorar muestreo, aliasing, tasas pasabanda, reconstrucción, diezmado, expansión y conversión racional de tasa. Las operaciones elementales de diezmado y expansión aplican su definición; la conversión racional incorpora el tratamiento antialias indicado por su método.
 
-Desde la 1.8.13 preliminar, Reconstruir una señal compara ZOH, lineal y SINC con un reloj común. Permite evaluar una referencia, medir errores puntuales, comprobar nudos, ampliar la vista e inspeccionar pesos y aportes. Las curvas se conservan por separado y la exportación de la comparación incluye todos sus miembros. La [guía de reconstrucción](reconstruction-studies.md) distingue las muestras originales de los puntos dibujados y explica los bordes de cada núcleo.
+**Reconstruir una señal** compara retención constante, interpolación lineal y SINC usando el mismo reloj. Podés contrastar las curvas con una referencia, comprobar qué pasa en las muestras originales y ver cuánto aporta cada una en el instante elegido. [Guía de reconstrucción](reconstruction-studies.md).
 
 Las herramientas de precisión estudian cuantización, SNR, formatos numéricos y efectos sobre los coeficientes y la aritmética de filtros. Los informes distinguen una representación almacenada de la simulación de una realización concreta. La [matriz de cobertura](scope/sys-i-ii.md) detalla las realizaciones y los modelos de error disponibles.
 
@@ -62,7 +60,7 @@ Las ecuaciones diferenciales y en diferencias lineales con coeficientes constant
 
 ## Señales aleatorias
 
-Incluye generación de realizaciones, estadísticas de registros, correlación y covarianza. Los modelos discretos estacionarios AR/MA/ARMA permiten consultar momentos y espectros teóricos; el ajuste AR obtiene un modelo estimado desde un registro. La preliminar 1.8.6 agrega mínimos cuadrados, comparación de órdenes, validación y pronóstico con diagnóstico de residuos, explicados en la [guía de estimación AR](ar-estimation.md).
+Podés generar realizaciones y medir sus estadísticas, correlación y covarianza. Con un modelo AR, MA o ARMA conocido, podés consultar sus momentos y su espectro teórico. Si partís de un registro, el ajuste AR permite comparar órdenes, validar un modelo y pronosticar muestras. [Guía de estimación AR](ar-estimation.md).
 
 Las propiedades teóricas de un proceso y las estimaciones de una realización finita se presentan por separado. Los modelos conocidos admitidos son reales, causales y estables; la [cobertura de Señales Aleatorias](scope/random-signals.md) explica sus convenciones y los temas todavía pendientes.
 
@@ -85,4 +83,4 @@ La [guía de gráficos](cursors.md) explica las lecturas A/B de mapas, la vista 
 
 ## Continuar cálculos desde los resultados
 
-Desde la 1.8.3, Cambiar tasa con antialias permite elegir la frecuencia de salida y consultar el FIR real en Filtro antialias. Su análisis utiliza el período de la rejilla intermedia, mientras que la señal convertida conserva el reloj de salida. En el CAS, Resultado permite simplificar, desarrollar, factorizar, descomponer y aproximar la referencia seleccionada sin borrar la entrada que estés escribiendo. La ayuda de cada herramienta desarrolla las unidades y condiciones de estas operaciones.
+En **Cambiar tasa con antialias**, podés elegir la frecuencia de salida y consultar el FIR aplicado. El filtro usa el reloj intermedio y la señal convertida conserva su propio reloj de salida. En el CAS, **Operar resultado** aplica una operación a la referencia seleccionada y conserva el texto que estás escribiendo.

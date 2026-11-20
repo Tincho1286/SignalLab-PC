@@ -65,9 +65,17 @@ class TransformLab(QWidget):
             form.setRowVisible(self.include_samples,z and inverse)
             for field in (self.start,self.count):form.setRowVisible(field,samples)
             form.setRowVisible(self.copy_note,inverse and bool(self.copy_note.text()))
-            self.note.setText(('Los valores y el primer índice definen la secuencia finita; cero fuera de ella.' if finite else 'Índices inclusivos. Se admiten enteros, -oo y oo; cero fuera del soporte indicado.') if z and index==0 else (('Exterior: términos derechos.' if self.roc.currentIndex()==0 else 'Interior: términos izquierdos para los polos no nulos.' if self.roc.currentIndex()==1 else 'El radio elige un anillo sin polos; no fija sus bordes.')+' El intervalo numérico no limita la fórmula.') if z and inverse else 'Los valores y el primer índice definen el registro; cero fuera de él.' if finite else 'Ingresá X(s). La inversa se interpreta como causal: cero para t<0.' if inverse else 'Ingresá x(t). Laplace unilateral integra desde 0−; los valores para t<0 no intervienen.')
-            if not z and bilateral:self.note.setText('Ingresá X(s) racional; admite un factor global exp(-d*s). La ROC decide el soporte de cada término. σ elige una franja, no sus bordes.' if inverse else 'Ingresá la señal completa, incluyendo t<0. Usá escalones o tramos para indicar su soporte. Se calcula la zona común de convergencia de ambas mitades.')
-            if inverse and ((z and self.roc.currentIndex()<0) or (not z and bilateral and self.laplace_roc.currentIndex()<0)):self.note.setText('El resultado de origen no especifica una ROC. Seleccioná la región de convergencia antes de calcular la inversa; no se supone un soporte causal.')
+            if z and inverse:
+                note='El intervalo de muestras solo se usa para el gráfico y la tabla.'
+            elif z:
+                note='La secuencia vale cero fuera del registro.' if finite else 'Podés usar -oo y oo para un soporte infinito. Se incluyen los extremos finitos.'
+            elif bilateral:
+                note='Elegí la región de convergencia para obtener la inversa.' if inverse else 'Incluí la señal para t<0. Usá escalones o tramos si necesitás indicar su soporte.'
+            else:
+                note='La inversa vale cero para t<0.' if inverse else 'La transformada unilateral comienza en 0−.'
+            if inverse and ((z and self.roc.currentIndex()<0) or (bilateral and self.laplace_roc.currentIndex()<0)):
+                note='El resultado de origen no indica una región de convergencia. Elegila antes de calcular.'
+            self.note.setText(note)
             tracked=[self.mode]
             if not z:tracked.append(self.interpretation)
             if bilateral and inverse:
