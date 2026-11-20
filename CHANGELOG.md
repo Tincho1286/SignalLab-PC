@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.18](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.18). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.19 · Preliminar
+
+La 1.8.19 preliminar añade extensión periódica, trenes de pulsos e impulsos y desplazamiento vertical. También amplía el cálculo de potencia global y actualiza los símbolos de los diagramas LTI.
+
+[Novedades completas](docs/releases/v1.8.19.md)
+
 ## 1.8.18 · Estable
 
 La 1.8.18 estable permite armar o cargar un diagrama de bloques y obtener H(s) o H(z) en Sistemas LTI. Incluye el nuevo catálogo por áreas, los ajustes de controles y gráficos y la revisión de informes y guías de las versiones 1.8.15 a 1.8.17.

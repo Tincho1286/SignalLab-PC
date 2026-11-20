@@ -1,6 +1,23 @@
 {
   "releases": [
     {
+      "tag": "v1.8.19",
+      "title": "Señales periódicas y diagramas",
+      "channel": "preview",
+      "summary": "La 1.8.19 preliminar añade extensión periódica, trenes de pulsos e impulsos y desplazamiento vertical. También amplía el cálculo de potencia global y actualiza los símbolos de los diagramas LTI.",
+      "changes": [
+        "Ajustar amplitud permite sumar un desplazamiento vertical B.",
+        "Crear una señal conserva la definición periódica y su ventana de muestras.",
+        "Repeat, PulseTrain e ImpulseTrain se incorporan a los campos de fórmula.",
+        "El promedio global de tonos distingue las frecuencias discretas equivalentes.",
+        "Los diagramas LTI muestran triángulos de ganancia, círculos de suma y signos de entrada."
+      ],
+      "limits": [
+        "La energía de un tren continuo de Dirac no se calcula como el cuadrado de sus impulsos."
+      ],
+      "notes": "docs/releases/v1.8.19.md"
+    },
+    {
       "tag": "v1.8.18",
       "title": "Diagramas LTI",
       "channel": "stable",
