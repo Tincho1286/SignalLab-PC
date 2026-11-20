@@ -285,7 +285,7 @@ class UpdateUiContracts(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder, patch('signallab_pc.update_ui.installed', return_value=None):
             from PySide6.QtCore import QSettings
             settings = QSettings(str(Path(folder) / 'settings.ini'), QSettings.Format.IniFormat)
-            with patch('signallab_pc.workbench.QSettings', return_value=settings):
+            with patch('signallab_pc.workbench.desktop_settings', return_value=settings):
                 window = WorkbenchWindow()
             actions = window.menuBar().actions()  # Keep the QAction wrappers alive while using their menus.
             menu = next(a for a in actions if a.text() == 'Ayuda').menu()
