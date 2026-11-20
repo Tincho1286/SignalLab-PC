@@ -22,6 +22,8 @@ FUNCTIONS = {"sinc": lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x
 
 from .hyperbolic import symbolic_functions
 FUNCTIONS.update(symbolic_functions())
+from .periodic_signals import SYMBOLIC_FUNCTIONS as periodic_functions
+FUNCTIONS.update(periodic_functions)
 
 
 def parse(expression):
@@ -149,6 +151,17 @@ def _execute(request):
         definition=prepare(expression,N,'discrete',(lower,upper),request.get('input_conditions',()));value=definition.expression
         if value.has(W,T,S,Z):raise ValueError('La secuencia usa n y no puede contener variables temporales continuas o de frecuencia.')
         if lower==-sp.oo and upper==sp.oo:
+            from .periodic_signals import ImpulseTrain, wrapped_period
+            cycle=wrapped_period(value,N)
+            if cycle is not None:
+                period,first,one_period=cycle
+                ensure_working_set(int(period),bytes_per_sample=1024,live_arrays=8)
+                coefficients=sp.summation(one_period*sp.exp(-sp.I*W*N),(N,first,first+period-1))
+                result=2*sp.pi/period*coefficients*ImpulseTrain(W,2*sp.pi/period)
+                return attach({'operation':'dtft_expression','result':str(result),'condition':'True',
+                    'output_variable':'w','evaluated':not result.has(sp.Sum),'method':'periodic_spectrum',
+                    'frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n)',
+                    'scope':'Espectro de líneas. Cada peso se obtiene de un período de la secuencia.'},definition,exact=result)
             from .dtft_pairs import direct as dtft_pairs
             spectrum=dtft_pairs(value)
             if spectrum is not None:
@@ -237,7 +250,8 @@ def _execute(request):
             from .cas_engine import restore
             value=restore(request['encoded'])
         else:value=parse(expression)
-        if value.has(sp.DiracDelta,sp.FourierTransform,sp.InverseFourierTransform,sp.Integral,sp.Sum):
+        from .periodic_signals import ImpulseTrain
+        if value.has(sp.DiracDelta,ImpulseTrain,sp.FourierTransform,sp.InverseFourierTransform,sp.Integral,sp.Sum):
             raise ValueError('Una distribución o integral sin evaluar no se puede convertir en muestras finitas.')
         condition=parse(request.get('condition','True'))
         parameters=(value.free_symbols|condition.free_symbols)-{variable}

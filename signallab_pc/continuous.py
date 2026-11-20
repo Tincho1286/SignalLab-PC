@@ -152,12 +152,12 @@ def periodic_correlation(x,h=None,*,normalization='sum'):
          'quadrature':'exact segment-product integrals at aligned lag grid, up to floating point error'})
 
 
-def transform_time(source, amplitude=1, time_scale=1, delay=0):
-    """y(t)=A*x(a*(t-t0)): transforma el eje del registro sin interpolar."""
+def transform_time(source, amplitude=1, time_scale=1, delay=0, *, offset=0):
+    """y(t)=A*x(a*(t-t0))+B sobre el eje transformado del registro."""
     _validate(source)
-    amplitude=complex(amplitude);time_scale=float(time_scale);delay=float(delay)
-    if not np.isfinite(amplitude) or not np.isfinite(time_scale) or not np.isfinite(delay):
-        raise ValueError("Amplitud, escala y desplazamiento deben ser finitos.")
+    amplitude=complex(amplitude);time_scale=float(time_scale);delay=float(delay);offset=complex(offset)
+    if not all(np.isfinite(value) for value in (amplitude,time_scale,delay,offset)):
+        raise ValueError('La escala, los desplazamientos y el factor de amplitud deben ser finitos.')
     if time_scale==0:
         raise ValueError("La escala temporal a debe ser distinta de cero. a=0 requiere conocer x(0) y definir otra ventana de salida.")
     reverse=time_scale<0
@@ -169,7 +169,8 @@ def transform_time(source, amplitude=1, time_scale=1, delay=0):
         raise ValueError("El eje transformado excede el rango numérico disponible.")
     if source.values.size>1 and (origin+step<=origin or last-step>=last):
         raise ValueError("El paso temporal no se distingue con ese desplazamiento y escala.")
-    values=_finite_output(amplitude*(source.values[::-1] if reverse else source.values),"La amplitud transformada")
+    with np.errstate(over='ignore',invalid='ignore'):
+        values=_finite_output(amplitude*(source.values[::-1] if reverse else source.values)+offset,'La amplitud transformada')
     from .distributions import dirac_terms,attach_terms
     singular=attach_terms({},[(t/time_scale+delay,amplitude*w/abs(time_scale)) for t,w in dirac_terms(source)])
     if source.units=='s':
@@ -178,8 +179,9 @@ def transform_time(source, amplitude=1, time_scale=1, delay=0):
     singular['input_expression']=source.expression
     return Signal(values,origin,step,source.units,"Señal transformada y(t)","continuous","",{**singular,
         "operation":"continuous_time_transform",
-        "convention":"y(t)=A*x(a*(t-t0))",
+        "convention":"y(t)=A*x(a*(t-t0))+B",
         "amplitude":[amplitude.real,amplitude.imag],"time_scale":time_scale,"delay":delay,
+        "vertical_offset":[offset.real,offset.imag],
         "source_interval":[source.origin,source.origin+(source.values.size-1)*source.step],
         "scope":"Transformación del registro finito; no extrapola la señal fuera de su intervalo. Se conserva la cantidad de puntos y se transforma su eje, sin interpolar.",
     })

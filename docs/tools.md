@@ -8,6 +8,8 @@ Elegí un área según lo que quieras calcular. Cada herramienta conserva sus da
 
 Permite crear secuencias y registros mediante fórmulas, tramos o muestras, y generar ventanas simétricas rectangular, Hann, Hamming, Blackman, Bartlett y Kaiser. Las operaciones incluyen desplazamiento, inversión, amplitud, componentes par e impar, suma, producto punto a punto, convolución, correlación y medidas de energía, potencia y RMS.
 
+En **Crear una señal**, activá **Repetir un período en todo el eje** para extender una fórmula. La definición periódica queda en Resultados y la ventana dibujada se guarda como registro. También podés escribir `Repeat`, `PulseTrain` e `ImpulseTrain` en las fórmulas. En **Ajustar amplitud**, usá **B** para desplazar el registro verticalmente. Dejá **A = 1** si querés conservar su escala.
+
 El producto punto a punto sirve para enventanar una señal. Las entradas se alinean por sus índices o coordenadas; al reutilizarlas se conservan el origen y el reloj disponibles. El resultado puede enviarse a Fourier, Z u otras operaciones compatibles, o exportarse como registro.
 
 **Medir un registro** calcula energía, potencia media y RMS en el intervalo elegido. También muestra dónde se concentra la energía y dónde la señal alcanza un nivel, y permite guardar la media compleja y la componente alterna. [Guía de medidas de registros](record-measurements.md).

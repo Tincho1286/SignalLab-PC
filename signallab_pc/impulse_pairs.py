@@ -109,6 +109,8 @@ def inverse_periodic_impulses(value,frequency,index,lower,upper):
 
 def fourier_pairs(value,variable,output,*,inverse=False):
     """Extract certified distributions without breaking ordinary cancellations."""
+    from .periodic_signals import ImpulseTrain, affine_train_term, wrapped_period
+
     known=[];remaining=[];kernel=sp.exp((sp.I if inverse else -sp.I)*variable*output)
     divisor=2*sp.pi if inverse else sp.S.One
     def polynomial_pair(term):
@@ -128,6 +130,18 @@ def fourier_pairs(value,variable,output,*,inverse=False):
         return scale*sp.Add(*(c*multiplier**m[0]*sp.DiracDelta(argument,m[0]) for m,c in polynomial.terms()))
     for term in sp.Add.make_args(value):
         checkpoint()
+        train=affine_train_term(term,variable)
+        if train is not None:
+            period,origin,area=train
+            phase=sp.exp((sp.I if inverse else -sp.I)*output*origin)
+            known.append(2*sp.pi*area*phase*ImpulseTrain(output,2*sp.pi/period)/(period*divisor))
+            continue
+        cycle=wrapped_period(term,variable)
+        if cycle is not None and not term.has(ImpulseTrain,sp.DiracDelta):
+            period,first,ordinary=cycle
+            weight=sp.integrate(ordinary*kernel,(variable,first,first+period))
+            known.append(2*sp.pi*weight*ImpulseTrain(output,2*sp.pi/period)/(period*divisor))
+            continue
         if term.has(sp.DiracDelta):
             answer=impulse_integral(term,variable,kernel)
             if answer is not None:known.append(answer/divisor);continue
@@ -146,10 +160,19 @@ def fourier_pairs(value,variable,output,*,inverse=False):
 
 def unilateral_laplace(value,variable,output):
     """Keep 0-minus impulse weights and derivative scaling out of generic tables."""
-    known=[];remaining=[]
+    from .periodic_signals import affine_train_term
+
+    known=[];remaining=[];periodic=[]
     for term in sp.Add.make_args(sp.expand_mul(value)):
+        train=affine_train_term(term,variable)
+        if train is not None:
+            period,origin,area=train
+            periodic.append(area*sp.exp(-output*sp.Mod(origin,period))/(1-sp.exp(-output*period)))
+            continue
         answer=impulse_integral(term,variable,sp.exp(-output*variable),sp.S.Zero,sp.oo) if term.has(sp.DiracDelta) else None
         (remaining if answer is None else known).append(term if answer is None else answer)
     regular=sp.Add(*remaining)
     result,plane,condition=sp.laplace_transform(regular,variable,output) if regular!=0 else (sp.S.Zero,-sp.oo,sp.true)
-    return sp.simplify(sp.Add(*known)+result),plane,condition
+    periodic=sp.simplify(sp.Add(*periodic))
+    if periodic!=0:plane=sp.Max(plane,0)
+    return sp.simplify(sp.Add(*known)+result+periodic),plane,condition

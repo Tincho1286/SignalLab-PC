@@ -114,6 +114,22 @@ class LocalInput(QGroupBox):
             if hasattr(self,'recent'):form.setRowVisible(self.recent,index==2 and self.entry_modes.view==3);form.setRowVisible(self.browse_results,index==2 and self.entry_modes.view==3)
         self.entry_modes.viewChanged.connect(lambda:update(self.mode.currentIndex()))
         self.mode.currentIndexChanged.connect(update);self.mode.setCurrentIndex(2 if kind=='import' else 0);update(self.mode.currentIndex())
+    def enable_periodic_definition(self):
+        form=self.layout()
+        self.repeat_period=QCheckBox('Repetir un período en todo el eje')
+        self.period=QLineEdit('4' if self.kind=='discrete' else '2*pi')
+        self.period_origin=QLineEdit('0')
+        index,_=form.getWidgetPosition(self.expression)
+        form.insertRow(index+1,self.repeat_period)
+        form.insertRow(index+2,'Período N (muestras)' if self.kind=='discrete' else 'Período T (s)',self.period)
+        form.insertRow(index+3,'Inicio del período',self.period_origin)
+        self.repeat_period.setToolTip('La fórmula describe un período. Inicio, paso y cantidad del gráfico sólo determinan la ventana visible.')
+        def refresh(*_):
+            formula=self.mode.currentIndex()==0
+            form.setRowVisible(self.repeat_period,formula)
+            for field in (self.period,self.period_origin):form.setRowVisible(field,formula and self.repeat_period.isChecked())
+        self.repeat_period.toggled.connect(refresh);self.mode.currentIndexChanged.connect(refresh);refresh()
+        return [self.repeat_period,self.period,self.period_origin]
     def remember_external_source(self):
         if self._source_view in (2,3):self._external_sources[self._source_view]=(self.loaded,self.loaded_reference_id,self.reference_id,self.fingerprint)
     def change_source_view(self,view):
@@ -252,6 +268,12 @@ class LocalInput(QGroupBox):
             if self.loaded is None:raise ValueError('Elegí una señal compatible en Resultados.' if self.entry_modes.view==3 else 'Elegí un archivo de señal antes de calcular.')
             self.validate_data_kind(self.loaded)
             return self.loaded
+        expression=self.expression.text()
+        periodic=mode==0 and hasattr(self,'repeat_period') and self.repeat_period.isChecked()
+        if periodic:
+            if not expression.strip():raise ValueError('Escribí la fórmula de un período antes de calcular.')
+            variable='n' if self.kind=='discrete' else 't'
+            expression=f'Repeat(({expression}), {variable}, ({self.period.text()}), ({self.period_origin.text()}))'
         if self.kind in ('continuous','frequency'):
             origin=real_field(self.origin);step=real_field(self.step)
             if step<=0:raise ValueError('El paso del eje debe ser positivo.')
@@ -261,12 +283,17 @@ class LocalInput(QGroupBox):
                 ensure_working_set(count)
                 if count<1:raise ValueError('La cantidad debe ser positiva.')
                 from .continuous_expression import sample_continuous,has_dirac
-                if self.kind=='continuous':return sample_continuous(self.expression.text(),origin,step,count)
+                if self.kind=='continuous':
+                    result=sample_continuous(expression,origin,step,count)
+                    if periodic:result.metadata['periodic_definition']=expression
+                    return result
                 if has_dirac(self.expression.text()):raise ValueError('Un impulso en frecuencia es una distribución. Usá Fourier algebraica o sus series; esta entrada numérica requiere valores ordinarios de X(ω).')
                 values=evaluate_expression(self.expression.text(),origin+step*np.arange(count))
             else:values=sequence_from_values(self.samples.text(),0).values
             return Signal(values,origin,step,self.frequency_units.currentText() if self.kind=='frequency' else 's','X(ω)' if self.kind=='frequency' else 'x(t)',self.kind,self.expression.text() if mode==0 else '')
-        return (sequence_from_expression(self.expression.text(),integer_field(self.origin),integer_field(self.count)) if mode==0 else sequence_from_values(self.samples.text(),integer_field(self.origin)))
+        result=(sequence_from_expression(expression,integer_field(self.origin),integer_field(self.count)) if mode==0 else sequence_from_values(self.samples.text(),integer_field(self.origin)))
+        if periodic:result.metadata['periodic_definition']=expression
+        return result
 
 class ResultView(QWidget):
     def __init__(self,details=True):
@@ -944,6 +971,8 @@ class ToolPage(QWidget):
         from .result_state import ResultState
         tracked=[self.parameter] if operation in ('scale','shift') else []
         sources=[field for field in (self.first,self.second,getattr(self,'continuous_source',None)) if field is not None]
+        if operation=='generate':
+            for field in sources:tracked.extend(field.enable_periodic_definition())
         if hasattr(self,'source_domain'):tracked.append(self.source_domain)
         if operation=='idft':tracked.append(self.restore_dft_origin)
         self.result_state=ResultState(tracked,button,sources);box.insertWidget(1,self.result_state)
@@ -962,6 +991,10 @@ class ToolPage(QWidget):
                     for part in value if isinstance(value,tuple) else (value,):
                         window.publish(part if isinstance(part,Signal) else asdict(part),title=operation_label(operation) if not isinstance(part,Signal) else None,operation=operation_label(operation),parents=parents)
                     result.show_result(value,source=x,operation=operation);self.result_state.accept(calculated_inputs)
+                    if operation=='generate' and x.metadata.get('periodic_definition'):
+                        variable='n' if x.domain=='discrete' else 't'
+                        periodic=dict(result=dict(result=x.metadata['periodic_definition'],output_variable=variable,evaluated=True))
+                        result.expression_key=window.publish(periodic,title='Definición periódica',operation='Extensión periódica',parents=parents)
                 calculate_value=functions[operation]
                 if operation=='convolve':
                     from .convolution_steps import calculate as convolution_with_steps

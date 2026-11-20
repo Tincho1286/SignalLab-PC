@@ -47,6 +47,7 @@ _FUNCS = {"sin": np.sin, "cos": np.cos, "tan": np.tan, "exp": np.exp,
 
 from .hyperbolic import NUMERIC as _HYPERBOLIC
 _FUNCS.update(_HYPERBOLIC)
+_PERIODIC = {'repeat','pulsetrain','impulsetrain'}
 
 
 class ExpressionError(ValueError):
@@ -119,7 +120,7 @@ def _visit(node, x):
                 if isinstance(value,ast.BinOp) and isinstance(value.op,ast.Mult):flatten(value.left);flatten(value.right)
                 else:factors.append(value)
             flatten(node)
-            gates=[value for value in factors if isinstance(value,ast.Call) and isinstance(value.func,ast.Name) and value.func.id.lower() in ('step','impulse','dirac','diracdelta','heaviside','kroneckerdelta')]
+            gates=[value for value in factors if isinstance(value,ast.Call) and isinstance(value.func,ast.Name) and value.func.id.lower() in ('step','impulse','dirac','diracdelta','heaviside','kroneckerdelta','pulsetrain','impulsetrain')]
             if gates:
                 # A supported signal is zero outside its support. Do not first
                 # overflow an exponential there and then multiply infinity by 0.
@@ -161,7 +162,11 @@ def _visit(node, x):
     if isinstance(node, ast.IfExp):
         return _piecewise(node.test, node.body, node.orelse, x)
     if isinstance(node, ast.Call) and isinstance(node.func, ast.Name) and not node.keywords:
-        if node.func.id.lower() == "where" and len(node.args) == 3:
+        name=node.func.id.lower()
+        if name in _PERIODIC:return _periodic_call(name,node.args,x)
+        if name=='mod' and len(node.args)==2:
+            return _BIN[ast.Mod](*[_visit(arg,x) for arg in node.args])
+        if name == "where" and len(node.args) == 3:
             return _piecewise(*node.args, x)
         if node.func.id.lower()=='heaviside' and len(node.args)==2:
             return _FUNCS['heaviside'](*[_visit(arg,x) for arg in node.args])
@@ -176,6 +181,41 @@ def _visit(node, x):
             raise ExpressionError("Función no permitida; disponibles: " + ", ".join(_FUNCS))
         return fn(_visit(node.args[0], x))
     raise ExpressionError("La expresión contiene sintaxis no admitida.")
+
+
+def _periodic_call(name, args, x):
+    from .periodic_signals import period_value, sample_phase, start_value, width_value
+    from .scalar_expression import exact_constant, numerical_value
+
+    def exact(node):
+        return exact_constant(ast.unparse(node))
+
+    if name=='repeat':
+        if len(args) not in (3,4) or not isinstance(args[1],ast.Name) or args[1].id.lower() not in ('n','t'):
+            raise ExpressionError('Usá Repeat(f, n, N, inicio) o Repeat(f, t, T, inicio). El inicio es opcional.')
+        variable=args[1].id.lower()
+        other={'n','t','x','w','k'}-({variable,'x'} if variable=='t' else {variable})
+        if any(isinstance(node,ast.Name) and node.id.lower() in other for node in ast.walk(args[0])):
+            raise ExpressionError('El tramo debe usar la misma variable temporal que Repeat.')
+        discrete=variable=='n'
+        period=numerical_value(period_value(exact(args[2]),discrete=discrete)).real
+        origin=numerical_value(start_value(exact(args[3]),discrete=discrete)).real if len(args)==4 else 0
+        return evaluate_expression(ast.unparse(args[0]),origin+sample_phase(x-origin,period))
+
+    if len(args)!=(3 if name=='pulsetrain' else 2):
+        raise ExpressionError('Usá PulseTrain(variable, período, ancho) o ImpulseTrain(variable, período).')
+    discrete=any(isinstance(node,ast.Name) and node.id.lower() in ('n','k') for node in ast.walk(args[0]))
+    exact_period=period_value(exact(args[1]),discrete=discrete)
+    period=numerical_value(exact_period).real
+    coordinate=_real_argument(_visit(args[0],x))
+    phase=sample_phase(coordinate,period)
+    if name=='impulsetrain':
+        if not discrete:raise ExpressionError('Cargá el tren de Dirac como una señal continua para conservar posición y peso.')
+        return phase==0
+    width=numerical_value(width_value(exact(args[2]),exact_period,discrete=discrete)).real
+    if width==period:return np.ones_like(phase,dtype=bool)
+    tolerance=np.minimum(4*np.spacing(np.abs(coordinate)),period*1e-8)
+    return phase<width-tolerance
 
 
 def sequence_from_expression(expression: str, origin: int, count: int, *, name="x") -> Signal:

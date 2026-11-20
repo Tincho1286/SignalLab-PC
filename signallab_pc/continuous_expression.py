@@ -9,7 +9,7 @@ from .distributions import attach_terms
 from .resources import ensure_working_set
 from .expression_dialects import to_numeric
 
-DIRAC_NAMES={'dirac','diracdelta','impulse'}
+DIRAC_NAMES={'dirac','diracdelta','impulse','impulsetrain'}
 AXIS_NAMES={'t','x'}
 
 
@@ -113,11 +113,29 @@ class Pulse:
     gates:tuple=()
 
 
-def _split(node):
+def _split(node, bounds):
     if not any(isinstance(n,ast.Call) and isinstance(n.func,ast.Name) and n.func.id.lower() in DIRAC_NAMES for n in ast.walk(node)):
         return node,[]
     if isinstance(node,ast.Call) and isinstance(node.func,ast.Name):
         name=node.func.id.lower()
+        if name=='impulsetrain':
+            if len(node.args)!=2 or node.keywords or _depends(node.args[1]):
+                raise ValueError('Usá ImpulseTrain(t-inicio, T) con un período constante.')
+            period=_value(node.args[1],0.)
+            a,b=_affine(node.args[0])
+            if period.imag or period.real<=0 or not np.isfinite(period) or a.imag or b.imag or not np.isfinite(a) or not np.isfinite(b) or not a:
+                raise ValueError('El tren requiere un argumento afín real y un período positivo y finito.')
+            spacing=period.real/abs(a.real);reference=-b.real/a.real
+            if not math.isfinite(spacing) or spacing<=0 or not math.isfinite(reference) or not math.isfinite(1/abs(a.real)):
+                raise ValueError('La separación o el peso de los impulsos exceden el rango representable.')
+            lower,upper=bounds
+            lo,hi=(lower-reference)/spacing,(upper-reference)/spacing
+            if not math.isfinite(lo) or not math.isfinite(hi) or max(abs(lo),abs(hi))>2**53:
+                raise ValueError('La ventana no distingue las posiciones del tren de impulsos con la precisión disponible.')
+            first=math.ceil(lo-8*math.ulp(lo));last=math.floor(hi+8*math.ulp(hi))
+            ensure_working_set(max(0,last-first+1),bytes_per_sample=256,live_arrays=4)
+            weight=_number(1/abs(a.real))
+            return _number(0),[Pulse(reference+k*spacing,weight) for k in range(first,last+1)]
         if name in DIRAC_NAMES:
             if name in ('dirac','diracdelta') and len(node.args)==2 and isinstance(node.args[1],ast.Constant) and node.args[1].value==0:node.args=node.args[:1]
             if len(node.args)!=1 or node.keywords:raise ValueError('Esta carga admite Dirac de orden cero. Las derivadas de Dirac deben permanecer como expresiones algebraicas.')
@@ -131,20 +149,20 @@ def _split(node):
             return _number(0),[Pulse(position,_number(weight))]
         if name=='where' and len(node.args)==3 and not node.keywords:
             condition,left,right=node.args
-            a,pa=_split(left);b,pb=_split(right)
+            a,pa=_split(left,bounds);b,pb=_split(right,bounds)
             for pulse in pa:pulse.gates+=((condition,True),)
             for pulse in pb:pulse.gates+=((condition,False),)
             return ast.Call(func=ast.Name(id='where',ctx=ast.Load()),args=[condition,a,b],keywords=[]),pa+pb
     if isinstance(node,ast.IfExp):
-        return _split(ast.Call(func=ast.Name(id='where',ctx=ast.Load()),args=[node.test,node.body,node.orelse],keywords=[]))
+        return _split(ast.Call(func=ast.Name(id='where',ctx=ast.Load()),args=[node.test,node.body,node.orelse],keywords=[]),bounds)
     if isinstance(node,ast.UnaryOp) and isinstance(node.op,(ast.UAdd,ast.USub)):
-        regular,pulses=_split(node.operand)
+        regular,pulses=_split(node.operand,bounds)
         if isinstance(node.op,ast.USub):
             regular=_binary(_number(-1),ast.Mult(),regular)
             for pulse in pulses:pulse.weight=_binary(_number(-1),ast.Mult(),pulse.weight)
         return regular,pulses
     if isinstance(node,ast.BinOp):
-        left,pa=_split(node.left);right,pb=_split(node.right)
+        left,pa=_split(node.left,bounds);right,pb=_split(node.right,bounds)
         if isinstance(node.op,(ast.Add,ast.Sub)):
             if isinstance(node.op,ast.Sub):
                 for pulse in pb:pulse.weight=_binary(_number(-1),ast.Mult(),pulse.weight)
@@ -169,9 +187,9 @@ def _parts(expression,lower,upper,*,right_open=False):
     source=to_numeric(expression);tree=ast.parse(source,mode='eval')
     if has_dirac(source) and any(isinstance(n,ast.Name) and n.id.lower() in {'n','k','w'} for n in ast.walk(tree)):
         raise ValueError('Una Dirac temporal usa t como variable. Para el impulso discreto usá impulse(n) en una entrada discreta.')
-    regular,pulses=_split(tree.body)
-    ordinary=ast.unparse(regular)
     if not math.isfinite(lower) or not math.isfinite(upper) or upper<lower:raise ValueError('El intervalo de los impulsos debe ser real, finito y creciente.')
+    regular,pulses=_split(tree.body,(lower,upper))
+    ordinary=ast.unparse(regular)
     terms=[];excluded=[]
     for pulse in pulses:
         if _zero(pulse.weight):continue

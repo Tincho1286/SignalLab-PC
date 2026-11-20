@@ -97,12 +97,17 @@ def reverse(x: Signal) -> Signal:
                   _clock_for_index_transform(x,-(int(x.origin)+x.values.size-1),"time_reversal"))
 
 
-def scale_amplitude(x: Signal, factor: complex) -> Signal:
+def scale_amplitude(x: Signal, factor: complex, *, offset: complex = 0) -> Signal:
     _discrete(x)
-    if not np.isfinite(factor):
-        raise ValueError("El factor debe ser finito.")
+    factor, offset = complex(factor), complex(offset)
+    if not np.isfinite(factor) or not np.isfinite(offset):
+        raise ValueError('El factor y el desplazamiento vertical deben ser finitos.')
     ensure_working_set(x.values.size, live_arrays=3)
-    return x.copy_with(values=_finite_output(x.values * factor, "El escalado"),expression="",metadata=dict(x.metadata,operation="scale",amplitude=[float(complex(factor).real),float(complex(factor).imag)],input_expression=x.expression))
+    with np.errstate(over='ignore', invalid='ignore'):
+        values = _finite_output(x.values * factor + offset, 'El ajuste de amplitud')
+    return x.copy_with(values=values, expression='', metadata=dict(
+        x.metadata, operation='scale', amplitude=[factor.real, factor.imag],
+        vertical_offset=[offset.real, offset.imag], input_expression=x.expression))
 
 
 def add_sequences(x: Signal, h: Signal) -> Signal:

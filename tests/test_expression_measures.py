@@ -24,12 +24,34 @@ class ExpressionMeasureTests(unittest.TestCase):
     def test_half_axis_step_symmetric_power(self):
         r=self.measure('heaviside(t)',mode='global')
         self.assertEqual(r['mean_square']['exact'],'1/2')
+    def test_harmonic_power_without_requiring_a_period(self):
+        cases=(('discrete','Cos(n)','1/2'),('discrete','cos(pi*n)','1'),
+               ('discrete','cos(n)+cos((2*pi+1)*n)','2'),('discrete','cos(pi*n)/sqrt(2)','1/2'),
+               ('discrete','exp(i*n)+2*exp(3*i*n)','5'),('continuous','cos(pi*t)','1/2'))
+        for domain, expression, power in cases:
+            with self.subTest(expression=expression):
+                result=self.measure(expression,domain=domain,mode='global')
+                self.assertEqual(result['mean_square']['exact'],power)
+                self.assertEqual(result['energy']['status'],'divergent')
     def test_period_proof_continuous_and_discrete(self):
         r=self.measure('sin(t)',mode='periodic',period='2*pi')
         self.assertTrue(r['period_verified']);self.assertEqual(r['mean_square']['exact'],'1/2');self.assertEqual(r['period_energy']['exact'],'pi')
         r=self.measure('exp(i*pi*n/2)',domain='discrete',mode='periodic',period='4')
         self.assertEqual(r['mean_square']['exact'],'1');self.assertEqual(r['period_energy']['exact'],'4')
         with self.assertRaises(ValueError):self.measure('sin(t)',mode='periodic',period='1')
+    def test_periodic_waveforms_use_one_complete_cycle(self):
+        cases=(('discrete','Repeat(n,n,4,1)','15/2'),('discrete','ImpulseTrain(n-1,5)','1/5'),
+               ('discrete','PulseTrain(n-1,5,2)','2/5'),('continuous','Repeat(t,t,1)','1/3'),
+               ('continuous','PulseTrain(t-1/4,1,1/4)','1/4'))
+        for domain, expression, power in cases:
+            with self.subTest(expression=expression):
+                result=self.measure(expression,domain=domain,mode='global')
+                self.assertEqual(result['mean_square']['exact'],power)
+                self.assertEqual(result['energy']['exact'],'oo')
+        with self.assertRaisesRegex(ValueError,'función ordinaria'):
+            self.measure('ImpulseTrain(t,1)',mode='global')
+        with self.assertRaisesRegex(ValueError,'periodo indicado|período indicado'):
+            self.measure('(-1)^n*Repeat(n,n,3)',domain='discrete',mode='periodic',period='3')
     def test_parameters_preserve_conditions(self):
         r=self.measure('a*exp(-abs(t))',mode='global')
         self.assertEqual(r['parameters'],['a']);self.assertEqual(r['energy']['status'],'conditional')

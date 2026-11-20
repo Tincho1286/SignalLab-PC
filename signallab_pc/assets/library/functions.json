@@ -19,6 +19,10 @@
           "En señales discretas usá n; en tiempo continuo, t; y en frecuencia angular, w. La herramienta determina el dominio: cambiar la letra no transforma una señal continua en discreta. pi y e son constantes, e i es la unidad imaginaria."
         ],
         [
+          "Períodos, pulsos e impulsos",
+          "Repeat(f, n, N, n0) y Repeat(f, t, T, t0) repiten en todo el eje la fórmula f escrita para un período. El inicio es opcional y vale cero si se omite. Por ejemplo, Repeat(n,n,4) repite 0, 1, 2 y 3 a ambos lados de cero.\n\nPulseTrain(n,5,2) vale uno durante dos muestras de cada período de cinco. PulseTrain(t,1,1/4) vale uno durante el primer cuarto de segundo de cada período. El comienzo pertenece al pulso y el final queda fuera.\n\nImpulseTrain(n,5) coloca una muestra unitaria en cada múltiplo de cinco. ImpulseTrain(t,1) coloca Dirac de área unitaria en cada segundo entero. Desplazá el argumento, por ejemplo ImpulseTrain(t-1/4,1), para mover el tren. El período discreto es entero; el continuo se expresa en segundos."
+        ],
+        [
           "Cómo leer los ejemplos",
           "Los ejemplos siguientes muestran el significado de cada función y cómo desplazarla o escalarla. Recordá elegir un intervalo que incluya la parte que querés ver: una fórmula puede ser válida y quedar fuera de la ventana dibujada."
         ]

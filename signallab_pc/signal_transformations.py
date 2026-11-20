@@ -32,16 +32,16 @@ def continuous_even_odd(source):
     return tuple(outputs)
 
 
-def transform_signal(source,operation,*,amplitude=1,delay=0,time_scale=1):
+def transform_signal(source,operation,*,amplitude=1,delay=0,time_scale=1,offset=0):
     if source.domain=='discrete':
         if operation=='shift':return shift(source,delay)
         if operation=='reverse':return reverse(source)
-        if operation=='scale':return scale_amplitude(source,amplitude)
+        if operation=='scale':return scale_amplitude(source,amplitude,offset=offset)
         if operation=='parity':return even_odd_parts(source)
     elif source.domain=='continuous':
         if operation=='parity':return continuous_even_odd(source)
         if operation=='shift':return transform_time(source,1,1,delay)
         if operation=='reverse':return transform_time(source,1,-1,0)
-        if operation=='scale':return transform_time(source,amplitude,1,0)
-        if operation=='affine':return transform_time(source,amplitude,time_scale,delay)
+        if operation=='scale':return transform_time(source,amplitude,1,0,offset=offset)
+        if operation=='affine':return transform_time(source,amplitude,time_scale,delay,offset=offset)
     raise ValueError('La transformación no corresponde al dominio de la entrada.')

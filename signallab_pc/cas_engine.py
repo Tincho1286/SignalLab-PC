@@ -35,6 +35,8 @@ FUNCTIONS.update({'int':sp.integrate,'derive':sp.diff,
     'exp2trig':lambda value:value.replace(lambda v:v.func==sp.exp,lambda v:sp.cos(v.args[0]/sp.I)+sp.I*sp.sin(v.args[0]/sp.I))})
 from .hyperbolic import symbolic_functions
 FUNCTIONS.update(symbolic_functions())
+from .periodic_signals import ImpulseTrain, SYMBOLIC_FUNCTIONS as periodic_functions
+FUNCTIONS.update(periodic_functions)
 SPECIAL={'assume','solve','solve_real','linsolve','approx','evalf','exact','subst','purge','ans'}
 NAME=re.compile(r'[A-Za-z][A-Za-z0-9_]*\Z')
 
@@ -47,6 +49,7 @@ def empty_state():return {'version':1,'variables':{},'functions':{},'results':{}
 HEADS={name:value for name,value in vars(sp).items() if isinstance(value,type) and issubclass(value,sp.Basic)}
 HEADS.update(MutableDenseMatrix=sp.MutableDenseMatrix,ImmutableDenseMatrix=sp.ImmutableDenseMatrix)
 HEADS[sp.CRootOf.__name__]=sp.CRootOf
+HEADS['ImpulseTrain']=ImpulseTrain
 from sympy.functions.elementary.piecewise import ExprCondPair
 HEADS['ExprCondPair']=ExprCondPair
 

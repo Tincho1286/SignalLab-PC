@@ -22,7 +22,8 @@ from .wrapping_row import WrappingRow
 
 class BlockItem(QGraphicsRectItem):
     def __init__(self, block, domain, editor):
-        super().__init__(-60, -23, 120, 46)
+        bounds={'sum':QRectF(-23,-23,46,46), 'input':QRectF(-34,-16,68,32), 'output':QRectF(-34,-16,68,32)}
+        super().__init__(bounds.get(block.kind,QRectF(-60,-23,120,46)))
         self.block = block
         self.editor = editor
         self.variable = 'z' if domain == 'digital' else 's'
@@ -38,7 +39,8 @@ class BlockItem(QGraphicsRectItem):
         if block.kind in ('gain', 'transfer'):
             self.set_definition(block)
         else:
-            names = {'input': 'Entrada x', 'output': 'Salida y', 'sum': 'Σ',
+            names = {'input': 'x[n]' if domain=='digital' else 'x(t)',
+                     'output': 'y[n]' if domain=='digital' else 'y(t)', 'sum': '',
                      'memory': 'Retardo z⁻¹' if domain == 'digital' else 'Integrador 1/s'}
             self.set_label(names[block.kind], BLOCK_NAMES[block.kind])
 
@@ -54,10 +56,43 @@ class BlockItem(QGraphicsRectItem):
             text = f'H{block.id}({self.variable}) = {block.formula}'
             tooltip = text
         else:
-            text = '× ' + block.gain
+            text = block.gain
             tooltip = 'Ganancia ' + block.gain
-        display = self.editor.fontMetrics().elidedText(text, Qt.TextElideMode.ElideRight, 108)
+        display = self.editor.fontMetrics().elidedText(text, Qt.TextElideMode.ElideRight, 68 if block.kind=='gain' else 108)
         self.set_label(display, tooltip)
+
+    def gain_direction(self):
+        for wire,item in self.editor.wires.items():
+            if wire.source==self.block.id and item.target is not self:
+                return -1 if item.target.x()<self.x() else 1
+        return 1
+
+    def edge(self, tangent):
+        rect=self.rect()
+        return QPointF(tangent.x()*rect.width()/2,tangent.y()*rect.height()/2)
+
+    def paint(self,painter,option,widget=None):
+        kind=self.block.kind
+        if kind not in ('gain','sum','input','output'):
+            super().paint(painter,option,widget)
+            return
+        painter.setPen(self.pen() if not self.isSelected() else QPen(QColor(C['green']),2.5))
+        painter.setBrush(self.brush())
+        if kind=='gain':
+            direction=self.gain_direction()
+            path=QPainterPath(QPointF(-direction*59,-22))
+            path.lineTo(QPointF(direction*59,0));path.lineTo(QPointF(-direction*59,22));path.closeSubpath()
+            painter.drawPath(path)
+        elif kind=='sum':
+            painter.drawEllipse(self.rect())
+            incoming=[item for wire,item in self.editor.wires.items() if wire.target==self.block.id]
+            painter.setPen(QColor(C['text']))
+            for item in incoming:
+                position=-item.incoming_direction*12
+                painter.drawText(QRectF(position.x()-7,position.y()-7,14,14),Qt.AlignmentFlag.AlignCenter,
+                                 '+' if item.wire.sign==1 else '−')
+        elif self.isSelected():
+            painter.drawRoundedRect(self.rect(),4,4)
 
     def itemChange(self, change, value):
         if change == QGraphicsItem.GraphicsItemChange.ItemPositionHasChanged and self.scene() is not None:
@@ -94,7 +129,7 @@ class WireItem(QGraphicsPathItem):
     def redraw(self, opposite=False):
         source, target = self.source.pos(), self.target.pos()
         if self.source is self.target:
-            start, end = source + QPointF(60, 0), source + QPointF(0, -23)
+            start=source+self.source.edge(QPointF(1,0));end=source+self.target.edge(QPointF(0,-1))
             path = QPainterPath(start)
             path.cubicTo(source + QPointF(145, 0), source + QPointF(0, -100), end)
             tangent = QPointF(0, 1)
@@ -102,18 +137,50 @@ class WireItem(QGraphicsPathItem):
             dx, dy = target.x() - source.x(), target.y() - source.y()
             if abs(dx) >= 100 or abs(dy) < 30:
                 tangent = QPointF(1 if dx >= 0 else -1, 0)
-                offset = tangent * 60
-                bend = tangent * max(35, abs(dx) * .38)
             else:
                 tangent = QPointF(0, 1 if dy > 0 else -1)
-                offset = tangent * 23
-                bend = tangent * max(25, abs(dy) * .4)
-            start, end = source + offset, target - offset
+            outgoing,incoming=tangent,tangent
+            if self.source.block.kind in ('input','transfer','sum'):
+                outgoing=QPointF(1,0)
+            elif self.source.block.kind=='gain':
+                outgoing=QPointF(self.source.gain_direction(),0)
+            if self.target.block.kind in ('output','transfer'):
+                incoming=QPointF(1,0)
+            elif self.target.block.kind=='gain':
+                incoming=QPointF(self.target.gain_direction(),0)
+            elif self.target.block.kind=='sum' and dx<0:
+                incoming=QPointF(0,-1 if dy<0 or (dy==0 and self.wire.sign<0) else 1)
+            start,end=source+self.source.edge(outgoing),target-self.target.edge(incoming)
             path = QPainterPath(start)
-            lane = QPointF(-tangent.y(), tangent.x()) * (40 if opposite else 0)
-            path.cubicTo(start + bend + lane, end - bend + lane, end)
-        if self.minus is not None:
+            lead=18
+            direction=outgoing.x() if outgoing.x() else outgoing.y()
+            space=(end.x()-start.x()) if outgoing.x() else (end.y()-start.y())
+            if outgoing==incoming and direction*space>0:lead=min(lead,direction*space/3)
+            first,last=start+outgoing*lead,end-incoming*lead
+            path.lineTo(first)
+            if outgoing.x() and incoming.x():
+                if outgoing.x()!=incoming.x():
+                    middle=max(first.x(),last.x()) if outgoing.x()>0 else min(first.x(),last.x())
+                else:
+                    middle=(first.x()+last.x())/2
+                lane=(35 if outgoing.x()>0 else -35) if opposite or (last.x()-first.x())*outgoing.x()<0 else 0
+                path.lineTo(first.x(),first.y()+lane)
+                path.lineTo(middle,first.y()+lane);path.lineTo(middle,last.y()+lane)
+                path.lineTo(last.x(),last.y()+lane)
+            elif outgoing.y() and incoming.y():
+                middle=(first.y()+last.y())/2
+                path.lineTo(first.x(),middle);path.lineTo(last.x(),middle)
+            elif outgoing.x():
+                path.lineTo(last.x(),first.y())
+            else:
+                path.lineTo(first.x(),last.y())
+            path.lineTo(last);path.lineTo(end)
+            tangent=incoming
+        self.incoming_direction=tangent
+        self.target.update()
+        if self.minus is not None and self.target.block.kind!='sum':
             self.minus.setPos(path.pointAtPercent(.68) + QPointF(-6, -18))
+        if self.minus is not None:self.minus.setVisible(self.target.block.kind!='sum')
         side = QPointF(-tangent.y(), tangent.x())
         path.moveTo(end - tangent * 10 + side * 5)
         path.lineTo(end)
@@ -309,10 +376,7 @@ class RealizationEditor(QDialog):
         item = WireItem(wire, self.blocks[wire.source], self.blocks[wire.target])
         self.wires[wire] = item
         self.scene.addItem(item)
-        reverse = self.reverse_wire(wire)
-        if reverse is not None:
-            item.redraw(True)
-            reverse.redraw(True)
+        self.redraw_wires(wire.source)
 
     def reverse_wire(self, wire):
         if wire.source != wire.target:
@@ -320,9 +384,13 @@ class RealizationEditor(QDialog):
         return None
 
     def redraw_wires(self, ident):
+        affected={ident}
+        affected.update(wire.source for wire,item in self.wires.items()
+                        if wire.target==ident and item.source.block.kind=='gain')
         for wire, item in self.wires.items():
-            if ident in (wire.source, wire.target):
+            if wire.source in affected or wire.target in affected:
                 item.redraw(self.reverse_wire(wire) is not None)
+        for key in affected:self.blocks[key].update()
 
     def update_selection(self):
         selected = self.scene.selectedItems()
