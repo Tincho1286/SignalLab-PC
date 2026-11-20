@@ -29,7 +29,8 @@ class NoGui(importlib.abc.MetaPathFinder):
             raise ImportError('The library catalog must not load '+fullname)
 sys.meta_path.insert(0,NoGui())
 from signallab_pc.library_catalog import sections
-assert len(sections())==123
+from signallab_pc.desktop_help import FIGURES_ID,LIMITS_ID
+assert {FIGURES_ID,LIMITS_ID}.issubset(section['article_id'] for section in sections())
 from signallab_pc.tool_catalog import normalized_key
 assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
 """
@@ -571,16 +572,25 @@ assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
         from signallab_pc.library_catalog import sections,CATEGORIES
         from signallab_pc.help_content import sections as old_sections
         from signallab_pc.library_articles import article_blocks
+        from signallab_pc.desktop_help import ARTICLE_ID,FIGURES_ID,LIMITS_ID,LIMITS_HEADING
         values=sections();self.assertEqual(len({v['article_id'] for v in values}),len(values))
         self.assertTrue(all(v.get('purpose') and v.get('usage') for v in values))
         from signallab_pc.library_titles import TOPICS
         # Legacy category names remain valid metadata; the visible subject groups
         # may combine or empty them without removing any article or calculation route.
         self.assertTrue(set(v['category'] for v in values)<=set(CATEGORIES))
-        self.assertEqual(set(v['topic'] for v in values),set(TOPICS));self.assertEqual(len(values),123)
+        self.assertEqual(set(v['topic'] for v in values),set(TOPICS))
+        self.assertEqual(len(values),125)
+        by_id={section['article_id']:section for section in values}
         for old in old_sections():
             matches=[v for v in values if v['route']==old['route'] and v.get('content_kind')=='tool']
-            self.assertEqual(len(matches),1,old['route']);self.assertEqual(matches[0]['blocks'],article_blocks(old['route']))
+            self.assertEqual(len(matches),1,old['route'])
+            original=article_blocks(old['route'])
+            self.assertEqual(matches[0]['blocks'],[(name,text) for name,text in original if name!=LIMITS_HEADING])
+            related={key for key,_ in matches[0]['related']}
+            self.assertTrue({ARTICLE_ID,FIGURES_ID}.issubset(related))
+            self.assertEqual(LIMITS_ID in related,any(name==LIMITS_HEADING for name,_ in original))
+            self.assertTrue(related.issubset(by_id))
         self.assertEqual(sum(bool(v.get('example')) for v in values),11)
 
     def test_audit_transform_receipts_never_claim_pending_answers_are_solved(self):
@@ -731,7 +741,7 @@ assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
         self.assertEqual(len(articles),85);self.assertEqual(len(guides),109)
         self.assertTrue(all(len(value['flow'])==3 for value in guides.values()))
         self.assertEqual(guides['basic','measures']['flow'][1],'E = Σ|x[n]|²')
-        self.assertEqual(len(sections()),123)
+        self.assertTrue(all(section['blocks'] for section in sections()))
         references=function_sections()
         for page in references:
             self.assertTrue(all(title and text for title,text in page['blocks']))

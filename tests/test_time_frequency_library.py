@@ -144,7 +144,9 @@ class RealPanels(unittest.TestCase):
         from signallab_pc.theory_panel import TheoryPanel
         from signallab_pc.workspaces import ROUTES
         panel=TheoryPanel(lambda _:None);self.widgets.append(panel)
-        self.assertEqual(len(panel.sections),123);self.assertTrue(all(len(s['title'])<=38 for s in panel.sections))
+        from signallab_pc.desktop_help import FIGURES_ID,LIMITS_ID
+        self.assertTrue({FIGURES_ID,LIMITS_ID}.issubset(s['article_id'] for s in panel.sections))
+        self.assertTrue(all(len(s['title'])<=38 for s in panel.sections))
         self.assertLess(panel.items.topLevelItemCount(),14)
         topics={s['original_title']:s['topic'] for s in panel.sections if s['content_kind']=='concept'}
         self.assertEqual(topics['Detección y estimación: dos preguntas distintas'],'Señales aleatorias');self.assertEqual(topics['Realizaciones, estacionariedad y ergodicidad'],'Señales aleatorias')
