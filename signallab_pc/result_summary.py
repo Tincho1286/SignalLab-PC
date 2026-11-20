@@ -48,15 +48,15 @@ def measurement_summary(value,source=None):
     if continuous:
         start,stop=data['interval'];unit=data.get('axis_units','s');duration=data.get('duration') if data.get('duration') is not None else stop-start;rows.extend([('Intervalo temporal',number(start)+' a '+number(stop)+' '+unit),('Duración T',number(duration)+' '+unit)])
         formulas=[Formula('E = Integral(abs(x(t))^2,(t,a,a+T))','E = ∫ desde a hasta a+T de |x(t)|² dt'),Formula('P = E/T','P = E / T'),Formula('R = sqrt(P)','R = √P')]
-        interpretation='Se interpola x(t) linealmente entre puntos y se integra |x(t)|² de ese modelo. En cada intervalo se usa Δt·(|x₀|² + Re(x₀·conj(x₁)) + |x₁|²)/3; no se aplica un trapecio a |x|². Es exacto para el modelo por tramos y una aproximación de la función original si ésta no era lineal entre muestras.'
+        interpretation='La integración usa una interpolación lineal entre los puntos del registro.'
     else:
         if source is not None:rows.append(('Índices del registro',str(source.origin)+' a '+str(source.origin+count-1)))
         formulas=[Formula('E = Sum(abs(x[n])^2,(n,a,a+N-1))','E = Σ desde n=a hasta a+N−1 de |x[n]|²'),Formula('P = E/N','P = E / N'),Formula('R = sqrt(P)','R = √P')]
-        interpretation='a es el primer índice y N la cantidad de muestras. Se usa el módulo al cuadrado, también para valores complejos.'
+        interpretation='La suma incluye las muestras del intervalo indicado.'
     return Summary('Energía, potencia y RMS del registro',[
         Section('Resultados',rows=[('Energía E',number(data['energy'])),('Potencia media del registro P',number(data['average_power'])),('RMS R',number(data['rms']))]),
         Section('Definición',rows=rows,formulas=formulas),
-        Section('Cómo interpretarlo',paragraphs=[interpretation,'P es el promedio del registro observado. No determina por sí solo la potencia límite de una señal infinita. Si el registro contiene un período completo y se repite, ese promedio corresponde a la señal periódica. Si se supone cero fuera del registro, la señal tiene energía finita y potencia límite cero.','Los resultados se presentan con hasta 12 cifras significativas; el cálculo conserva doble precisión. No se asignan joules o watts sin conocer las unidades físicas de amplitud y el modelo correspondiente.'])])
+        Section('Alcance',paragraphs=[interpretation+' La potencia media corresponde al registro observado.'])])
 
 def signal_summary(value,operation=None):
     signals=value if isinstance(value,tuple) else (value,)
@@ -156,7 +156,7 @@ def calculation_summary(value):
 def transfer_summary(value):
     from .filters import Transfer
     if not isinstance(value,Transfer):return None
-    digital=value.domain=='digital';variable='z' if digital else 's'
+    digital=value.domain=='digital'
     rows=[('Dominio','Discreto · H(z)' if digital else 'Continuo · H(s)'),('Numerador b',', '.join(number(v) for v in value.b)),('Denominador a',', '.join(number(v) for v in value.a))]
     if value.sample_period_s is not None:rows.append(('Período físico T (s)',number(value.sample_period_s)))
     if value.sos is not None:rows.append(('Realización','Cascada de '+str(len(value.sos))+' secciones de segundo orden'))
@@ -167,7 +167,6 @@ def transfer_summary(value):
     from .phase_summary import transfer_formula
     formula,compact=transfer_formula(value)
     sections.append(Section('Función de transferencia',formulas=[formula],paragraphs=['La suma finita usa los coeficientes b[k] y a[k] indicados, sin omitir términos.'] if compact else []))
-    sections.append(Section('Cómo interpretarlo',paragraphs=['b y a están ordenados por potencias ascendentes de z⁻¹.' if digital else 'b y a están ordenados por potencias descendentes de s.','El informe presenta hasta 12 cifras significativas. La exportación conserva los coeficientes almacenados y las secciones, si existen. La transferencia sola no fija una región de convergencia ni demuestra la estabilidad interna de una realización con cancelaciones.']))
     from .system_conditions import section
     sections.insert(0,section(value))
     return Summary(value.name,sections)
@@ -178,7 +177,7 @@ def alias_summary(value):
     sections=[Section('Frecuencias',rows=[('Tono Ω',number(original)+' rad/s'),('Tasa de muestreo Fs',number(fs)+' muestras/s'),('Límite de Nyquist π·Fs',number(nyquist)+' rad/s'),('Alias firmado Ωa',number(alias)+' rad/s'),('Equivalente angular discreto ωa',number(alias/fs)+' rad/muestra')])]
     reading='El tono cumple |Ω| < π·Fs.' if value['strict_nyquist'] else 'El tono no cumple la condición estricta |Ω| < π·Fs.'
     if value.get('alias_at_nyquist',abs(alias)==nyquist):reading+=' En el borde de Nyquist, la fase puede hacer desaparecer las muestras de un seno.'
-    sections.append(Section('Interpretación',paragraphs=[reading,'El representante firmado está en [−π·Fs, π·Fs). Para un seno o coseno real se puede usar |Ωa| con la fase correspondiente. Este cálculo analiza un tono; no demuestra que una señal arbitraria sea de banda limitada.'],formulas=[Formula('omega = Omega/Fs','ω = Ω / Fs, equivalente módulo 2π')]))
+    sections.append(Section('Condición de Nyquist',paragraphs=[reading]))
     return Summary('Nyquist y aliasing',sections)
 
 
@@ -194,12 +193,12 @@ def transform_summary(request,result):
     elif op=='z_finite':sections.append(Section('Registro de entrada',rows=[('Primer índice',str(request['origin'])),('Muestras',str(len(request['samples'])))],paragraphs=['Se considera cero fuera del registro. Los decimales representan los valores almacenados.']))
     branches=result.get('branches',[])
     if result.get('convergence_empty'):
-        sections.append(Section('Convergencia de Z y Fourier' if result.get('boundary_dtft') else 'Sin región de convergencia',paragraphs=['Las condiciones de las colas temporales son incompatibles. '+('La suma bilateral' if z else 'La integral bilateral')+' no converge en una región abierta; la expresión de definición se conserva para identificar el cálculo.']))
+        sections.append(Section('Sin región abierta de convergencia',paragraphs=[('La suma bilateral' if z else 'La integral bilateral')+' exige condiciones incompatibles para las dos colas de la señal.']))
     elif result.get('evaluated') is False:
-        sections.append(Section('Cálculo pendiente',paragraphs=['El motor no obtuvo una expresión cerrada para este caso. La expresión siguiente conserva el cálculo sin resolver; no representa una solución evaluada.']))
+        sections.append(Section('Cálculo pendiente',paragraphs=['Quedaron términos sin resolver en la expresión.']))
     if result.get('boundary_dtft'):
         boundary='X(exp(i*w)) = '+result['boundary_dtft']
-        sections.append(Section('Resultado calculado: DTFT',paragraphs=['La secuencia tiene esta transformada de Fourier. Su suma formal de Z no define una función en un anillo abierto de convergencia absoluta; no se presenta esa sumatoria como un resultado simplificable. «Enviar DTFT al CAS» copia la expresión de Fourier en w. Es 2π-periódica y en los saltos toma el promedio de los límites laterales. Podés analizar módulo, fase y retardo con «Analizar respuesta H(exp(iw))». También podés calcularla y graficarla en Fourier → DTFT con soporte de −oo a oo.'],formulas=[Formula(boundary,boundary)]))
+        sections.append(Section('Transformada de Fourier (DTFT)',paragraphs=['La DTFT existe aunque la transformada Z carece de una ROC abierta. Su período es 2π y en los saltos toma el promedio de los límites laterales.'],formulas=[Formula(boundary,boundary)]))
     if branches:
         for i,branch in enumerate(branches):
             expression=lhs+' = '+branch['expression']
@@ -208,7 +207,8 @@ def transform_summary(request,result):
         expression=lhs+' = '+result.get('display_result',result['result'])
         terms=result.get('display_terms',[]);lines=[]
         if len(terms)>1:lines=[lhs+' = '+terms[0],*[(term if term.startswith('-') else '+'+term) for term in terms[1:]]]
-        sections.append(Section(('Suma de definición' if z else 'Integral de definición') if result.get('convergence_empty') else 'Expresión numérica obtenida' if result.get('display_numeric') else 'Expresión obtenida' if result.get('evaluated',True) else 'Expresión sin resolver',paragraphs=['Vista redondeada a 6 cifras significativas para facilitar la lectura. Copiar texto y Guardar texto conservan al menos 17 cifras; este redondeo visual no interviene en los cálculos.' ] if result.get('display_numeric') else [],formulas=[Formula(expression,expression,lines,numeric=bool(result.get('display_numeric')))]))
+        heading=('Suma de definición' if z else 'Integral de definición') if result.get('convergence_empty') else 'Aproximación de la expresión' if result.get('display_numeric') else 'Expresión obtenida' if result.get('evaluated',True) else 'Expresión sin resolver'
+        sections.append(Section(heading,formulas=[Formula(expression,expression,lines,numeric=bool(result.get('display_numeric')))]))
     rows=([('Estado del cálculo',result['calculation_status']['label'])] if result.get('calculation_status') else [])+[('Dominio','Discreto · índices n enteros' if z else 'Continuo · tiempo t'),('Interpretación','Transformada inversa con ROC' if inverse and z else 'Suma sobre el soporte indicado' if z else 'Bilateral' if request.get('interpretation')=='bilateral' else 'Unilateral / causal')]
     for key,label in [('convergence','Convergencia'),('condition','Condición adicional'),('roc','Región de convergencia'),('roc_finite_plane','ROC en el plano finito')]:
         if key in result and result[key]!='True':
@@ -224,7 +224,7 @@ def transform_summary(request,result):
         values=result.get('numeric_samples')
         if result.get('sample_scope_notice'):paragraphs.append(result['sample_scope_notice'])
         if result.get('numeric_notice'):paragraphs.append(result['numeric_notice'])
-        if values:paragraphs.append('La tabla y la figura muestran las muestras en doble precisión. La fórmula describe la secuencia completa. Otra ROC puede producir otra secuencia para la misma X(z).')
+        if values:paragraphs.append('La tabla y el gráfico muestran el intervalo elegido. La fórmula describe la secuencia completa.')
         elif result.get('parameters'):paragraphs.append('La expresión conserva parámetros. Asignales valores antes de obtener muestras numéricas.')
         elif not result.get('numeric_notice'):paragraphs.append('Se obtuvo la expresión sin generar un registro numérico. Activá Graficar un intervalo si querés consultar muestras.')
     if paragraphs:sections.append(Section('Cómo interpretarlo',paragraphs=paragraphs))

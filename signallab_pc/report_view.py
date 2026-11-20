@@ -110,7 +110,9 @@ class ReportView(QTextBrowser):
             from .vector_math import render_latex
             def render(value):return self.vector_math_html(render_latex(value,size=15))
             callout=callout_html(self._calculation_notes,render)
-            text=re.sub(r'(<body[^>]*>)',lambda match:match.group(1)+callout,str(text),count=1,flags=re.I) if re.search(r'<body[^>]*>',str(text),re.I) else callout+str(text)
+            if re.search(r'</body\s*>',text,re.I):
+                text=re.sub(r'</body\s*>',lambda match:callout+match.group(),text,count=1,flags=re.I)
+            else:text+=callout
         super().setHtml(paper_html(text))
         self._math_handler.prune({html.unescape(value) for value in re.findall(r'src="([^"]+)"',str(text))})
     def refresh_theme(self,previous):
@@ -171,7 +173,6 @@ class ReportView(QTextBrowser):
                 cells+='<tr>'+(left_bracket if index==0 else '')+''.join('<td align="right" style="padding:6px 12px">'+html.escape(number(z))+'</td>' for z in row)+(right_bracket if index==0 else '')+'</tr>'
             body.append('<table cellspacing="0">'+cells+'</table>')
             if rows>20 or columns>12:body.append('<p>Vista parcial: primeras 20 filas y 12 columnas como máximo. La matriz completa se conserva en el modelo disponible en Resultados anteriores.</p>')
-        body.append('<p style="color:#95a9bf">Presentación con hasta 12 cifras significativas. El modelo conserva la precisión numérica de sus coeficientes.</p>')
         self._raw='\n\n'.join(raw)
         self.setHtml('<html><body style="font-family:Segoe UI;font-size:11pt;color:#dce4ef;margin:18px">'+''.join(body)+'</body></html>')
     def _render_formula(self,source,numeric=False,leading_dot=False,math_size=15):
@@ -207,7 +208,7 @@ class ReportView(QTextBrowser):
             if rows:
                 undefined='<p>Fuera de estos casos no hay un valor definido.</p>' if not any(condition=='True' for _,condition in rows) else ''
                 body=''.join('<tr><td style="padding:8px">'+(render(value) or html.escape(value))+'</td><td style="padding:8px">'+('en los demás casos' if condition=='True' else 'si '+(render(condition) or html.escape(condition)))+'</td></tr>' for value,condition in rows)
-                return '<table><tr><td style="font-size:36pt">{</td><td><table>'+body+'</table></td></tr></table><p style="color:#95a9bf;font-size:9pt">Tramos en orden: se usa la primera condición que se cumple.</p>'+undefined
+                return '<table><tr><td style="font-size:36pt">{</td><td><table>'+body+'</table></td></tr></table>'+undefined
             if 'Piecewise' in source:
                 # Preserve arbitrary supports: show a short expression and the
                 # actual cases as definitions instead of leaking Python syntax.
@@ -292,12 +293,13 @@ class ReportView(QTextBrowser):
 def report_panel(report):
     """Acciones visibles sobre el informe, sin modificar su contenido original."""
     panel=QWidget();layout=QVBoxLayout(panel);layout.setContentsMargins(0,0,0,0)
-    from .wrapping_row import FlowLayout
-    bar=FlowLayout()
+    from .wrapping_row import WrappingRow
+    row=WrappingRow(panel);layout.addWidget(row)
+    bar=row.flow
     copy=QPushButton('Copiar texto del informe');copy.clicked.connect(lambda:QApplication.clipboard().setText(report.toPlainText()));bar.addWidget(copy)
     save=QPushButton('Guardar informe con formato…');save.clicked.connect(lambda:report.export_document(True));bar.addWidget(save)
     plain=QPushButton('Guardar texto…');plain.clicked.connect(lambda:report.export_document(False));bar.addWidget(plain)
     from .result_exports import mark_export
     for button in (copy,save,plain):mark_export(button);button.report_export=report
-    bar.addStretch();layout.addLayout(bar);layout.addWidget(report,1)
+    layout.addWidget(report,1)
     return panel

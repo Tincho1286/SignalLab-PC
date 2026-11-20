@@ -234,7 +234,7 @@
           }
         ]
       ],
-      "reading": "Paso a paso permite recorrer n, ver los productos y abrir su alineación con el mismo botón Abrir gráfico del resultado. La vista gráfica tiene componentes reales, imaginarias y módulo. La diferencia entre la suma directa y la salida guardada puede reflejar redondeo de FFT; no verifica una identidad simbólica. El origen de salida es la suma de los orígenes. No confundir convolución con multiplicación muestra a muestra. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Paso a paso permite recorrer n, ver los productos y abrir su alineación con el mismo botón Abrir gráfico del resultado. La vista gráfica tiene componentes reales, imaginarias y módulo. La diferencia entre la suma directa y la salida guardada puede reflejar redondeo de FFT; no verifica una identidad simbólica. El origen de salida es la suma de los orígenes. No confundir convolución con multiplicación muestra a muestra."
     },
     {
       "key": [
@@ -274,7 +274,7 @@
           }
         ]
       ],
-      "reading": "La salida circular puede superponer extremos; no equivale a la convolución lineal sin relleno suficiente. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La salida circular puede superponer extremos; no equivale a la convolución lineal sin relleno suficiente."
     },
     {
       "key": [

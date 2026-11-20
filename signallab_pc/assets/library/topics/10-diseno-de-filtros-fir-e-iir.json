@@ -164,7 +164,7 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Esta opción obtiene un FIR multiplicando una respuesta h[n] propia por una ventana de longitud y ubicación elegidas."
+          "Multiplicá tu respuesta al impulso h[n] por una ventana de longitud y posición elegidas. El resultado es un FIR que podés analizar o reutilizar."
         ],
         [
           "Cómo preparar el cálculo",
@@ -176,7 +176,7 @@
         ],
         [
           "Qué tener en cuenta",
-          "L significa cantidad total de muestras, no orden ni semilongitud. Con L par el centro de una ventana simétrica es semientero; no se desplaza automáticamente h para imponerle otra simetría. La ganancia no se normaliza. Si hay extremos nulos o desplazamientos, el orden efectivo de H puede diferir de L−1."
+          "El producto ocupa el intervalo de la ventana. Si h[n] es una fórmula, se evalúa en esos índices. Si es un registro, se toma cero fuera de sus datos. El orden efectivo puede cambiar si hay ceros en los extremos. Cuando pedís mover el inicio a n=0, el retardo se calcula desde el primer índice del registro."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -218,7 +218,7 @@
           }
         ]
       ],
-      "reading": "La forma de la respuesta depende de la ventana y longitud. Módulo es amplitud; dB es 20 log10 |H|. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La forma de la respuesta depende de la ventana y longitud. Módulo es amplitud; dB es 20 log10 |H|."
     },
     {
       "key": [
@@ -246,7 +246,7 @@
           }
         ]
       ],
-      "reading": "Una ganancia de pico distinta de uno no implica un error gráfico. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Una ganancia de pico distinta de uno no implica un error gráfico."
     },
     {
       "key": [
@@ -278,7 +278,7 @@
           }
         ]
       ],
-      "reading": "El eje de frecuencia puede ser logarítmico: distancias iguales representan razones iguales, no diferencias. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "El eje de frecuencia puede ser logarítmico: distancias iguales representan razones iguales, no diferencias."
     },
     {
       "key": [
@@ -342,7 +342,7 @@
           "La ventana del gráfico permite elegir polo, cero, mover o quitar. Usá la rueda o Acercar/Alejar para cambiar el alcance; Ajustar a raíces encuadra el diseño completo. El círculo unitario no limita las posiciones."
         ]
       ],
-      "reading": "Cruces son polos y círculos son ceros. La escala de ambos ejes debe ser igual; el círculo unidad debe verse circular. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En el origen se mantienen las coordenadas exactas. Círculo y cruz distinguen cero y polo coincidentes, y la leyenda informa su cantidad. Una marca superpuesta no elimina ni cancela las raíces del diseño. La carga exacta conserva las expresiones en las listas; las operaciones numéricas usan la precisión disponible. Los múltiplos exactos de pi/2 en la carga polar se ubican sobre los ejes sin residuos imaginarios artificiales. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Cruces son polos y círculos son ceros. La escala de ambos ejes debe ser igual; el círculo unidad debe verse circular."
     },
     {
       "key": [
@@ -376,7 +376,7 @@
           }
         ]
       ],
-      "reading": "Se conserva la entrada H(s); la salida H(z) es la que se exporta o reutiliza. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones. En Resultados → Comparar resultados podés estudiar dos señales con iguales dominio y unidades o dos H del mismo dominio. No se alinean orígenes ni fases automáticamente; los sistemas se evalúan sobre las mismas frecuencias."
+      "reading": "Se conserva la entrada H(s); la salida H(z) es la que se exporta o reutiliza."
     },
     {
       "key": [
@@ -408,7 +408,7 @@
           }
         ]
       ],
-      "reading": "Un filtro ideal puede ser no causal y de duración infinita. La respuesta temporal mostrada es una aproximación, no un FIR/IIR exacto. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Un filtro ideal puede ser no causal y de duración infinita. La respuesta temporal mostrada es una aproximación, no un FIR/IIR exacto."
     },
     {
       "key": [
@@ -462,7 +462,7 @@
           }
         ]
       ],
-      "reading": "La salida contiene L muestras sobre el intervalo de la ventana. Con L par, una ventana simétrica tiene centro semientero; para centrarla exactamente en n=0 se necesita L impar. No se desplaza la fórmula h automáticamente para cambiar su centro de simetría. El informe indica intervalo, L, orden nominal y retardo. Los extremos nulos o desplazamientos pueden cambiar el orden efectivo de la transferencia. No se normaliza automáticamente la ganancia. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La salida contiene L muestras sobre el intervalo de la ventana. Con L par, una ventana simétrica tiene centro semientero; para centrarla exactamente en n=0 se necesita L impar. No se desplaza la fórmula h automáticamente para cambiar su centro de simetría. El informe indica intervalo, L, orden nominal y retardo. Los extremos nulos o desplazamientos pueden cambiar el orden efectivo de la transferencia. No se normaliza automáticamente la ganancia."
     }
   ]
 }

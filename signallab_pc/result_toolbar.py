@@ -101,7 +101,9 @@ class ResultActionBar(QWidget):
         for i in range(4):self.grid.setColumnStretch(i,1 if i<columns else 0)
         sequence=[self.slots.get(role) for role in ORDER]+self.extras;sequence=[button for button in sequence if button is not None and not button.isHidden()]
         for first,second in zip(sequence,sequence[1:]):QWidget.setTabOrder(first,second)
-        self._columns=columns;self.updateGeometry()
+        self._columns=columns
+        self.setMinimumHeight(self.grid.minimumSize().height())
+        self.updateGeometry()
     def minimumSizeHint(self):return QSize(0,self.grid.minimumSize().height())
     def use_report(self,report):
         if 'export' in self.slots:return

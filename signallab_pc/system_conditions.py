@@ -46,4 +46,4 @@ def record(system):
 def section(system):
     from .result_summary import Section
     data = record(system)
-    return Section('Condiciones de validez', rows=[('Dominio', data['domain']), ('Región de convergencia', data['roc']), ('Causalidad', data['causality']), ('Estabilidad BIBO', data['bibo_stability'])], paragraphs=[data['frequency_interpretation'], data['scope']])
+    return Section('Condiciones del sistema', rows=[('Dominio', data['domain']), ('Región de convergencia (ROC)', data['roc']), ('Causalidad', data['causality']), ('Estabilidad entrada–salida (BIBO)', data['bibo_stability']), ('Interpretación en frecuencia', data['frequency_interpretation'])])

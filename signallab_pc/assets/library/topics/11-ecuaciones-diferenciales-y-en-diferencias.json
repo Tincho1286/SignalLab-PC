@@ -98,7 +98,7 @@
           }
         ]
       ],
-      "reading": "No confundir este orden con coeficientes de polinomios en s. Revisá condiciones y estado de evaluación. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "No confundir este orden con coeficientes de polinomios en s. Revisá condiciones y estado de evaluación."
     },
     {
       "key": [
@@ -142,7 +142,7 @@
           }
         ]
       ],
-      "reading": "Entrada cero conserva el historial y elimina f[n]. Estado cero conserva f[n] y anula el historial. H(z)=1/Σaₖz⁻ᵏ es la transferencia desde f[n] bajo condiciones iniciales nulas. La solución se aplica sólo desde n₀. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones. Después de resolver con muestras numéricas, abrí Paso a paso. Elegí n o usá Anterior/Siguiente: la tabla muestra f[n]/a₀, cada coeficiente normalizado y la muestra anterior utilizada. Se distingue el historial cargado de los valores ya calculados. La suma se contrasta con y[n] y la diferencia mide redondeo numérico, no una prueba de la fórmula. Editar entradas conserva el último cálculo hasta recalcular."
+      "reading": "Entrada cero conserva el historial y elimina f[n]. Estado cero conserva f[n] y anula el historial. H(z)=1/Σaₖz⁻ᵏ es la transferencia desde f[n] bajo condiciones iniciales nulas. La solución se aplica sólo desde n₀."
     }
   ]
 }

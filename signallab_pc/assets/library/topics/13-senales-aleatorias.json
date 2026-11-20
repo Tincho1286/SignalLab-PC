@@ -206,7 +206,7 @@
           }
         ]
       ],
-      "reading": "El promedio medido puede diferir de la media teórica. En uniforme, extremos = media ± √3·desviación. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "El promedio medido puede diferir de la media teórica. En uniforme, extremos = media ± √3·desviación."
     },
     {
       "key": [
@@ -240,7 +240,7 @@
           }
         ]
       ],
-      "reading": "El eje horizontal es amplitud. El área del histograma representa probabilidad; una altura puede superar 1 si las barras son angostas. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "El eje horizontal es amplitud. El área del histograma representa probabilidad; una altura puede superar 1 si las barras son angostas."
     },
     {
       "key": [
@@ -290,7 +290,7 @@
           }
         ]
       ],
-      "reading": "Rxy[k]=Σ x[n+k]·conj(y[n])/divisor. k positivo compara una muestra posterior de x con y. La cruzada puede ser compleja y no par. Con divisor N−|k| la normalización no garantiza magnitud menor o igual a uno en todos los retardos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Rxy[k]=Σ x[n+k]·conj(y[n])/divisor. k positivo compara una muestra posterior de x con y. La cruzada puede ser compleja y no par. Con divisor N−|k| la normalización no garantiza magnitud menor o igual a uno en todos los retardos."
     },
     {
       "key": [
@@ -340,7 +340,7 @@
           }
         ]
       ],
-      "reading": "Todos los polos deben estar dentro del círculo unidad. La covarianza se obtiene con Lyapunov. La PSD dibujada excluye la línea de la media en ω=0; su integral dividida por 2π es la varianza. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Todos los polos deben estar dentro del círculo unidad. La covarianza se obtiene con Lyapunov. La PSD dibujada excluye la línea de la media en ω=0; su integral dividida por 2π es la varianza."
     },
     {
       "key": [

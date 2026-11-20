@@ -51,5 +51,4 @@ def phase_summary(original,systems,selected,report):
         sections.append(Section('Sistema de entrada',rows=coefficients(original) if original_compact else [],formulas=[original_formula]))
     paragraphs=[line for line in report.split('\n\n')[1:] if line.strip()]
     sections.append(Section('Clasificación y alcance',paragraphs=['La comprobación de fase lineal y simetría corresponde al sistema de entrada. La condición estricta de fase mínima depende también de polos, ceros sobre el círculo y retardo.',*paragraphs]))
-    sections.append(Section('Precisión',paragraphs=['Las fórmulas y tablas muestran hasta 12 cifras significativas de los coeficientes calculados. La exportación y la reutilización conservan los valores almacenados. Para fórmulas largas, la vista usa la notación de suma finita con b[k] y a[k] del sistema indicado; Copiar texto y Guardar texto incluyen el polinomio desarrollado.']))
     return Summary('Resultado de ajustar fase',sections)

@@ -13,7 +13,7 @@ class TheoryPanel(QWidget):
     def __init__(self,on_open=None,on_example=None):
         super().__init__();self.on_example=on_example;self.sections=library_sections();self.filtered=[];self.on_open=on_open;self.selected_route=None;self.return_route=None;self.fields_open=False;self.field_route=None
         root=QHBoxLayout(self);root.setContentsMargins(14,0,14,12);root.setSpacing(12);self.body_layout=root;self.index_panel=QWidget();self.index_panel.setObjectName('libraryIndex');left=QVBoxLayout(self.index_panel);left.setContentsMargins(16,16,16,16);root.addWidget(self.index_panel,1)
-        self.kind=QComboBox();self.kind.addItems(['Toda la biblioteca','Conceptos explicados','Uso de herramientas','Funciones de las fórmulas','Ejemplos resueltos']);left.addWidget(self.kind)
+        self.kind=QComboBox();self.kind.addItems(['Toda la biblioteca','Conceptos','Guías de herramientas','Funciones de las fórmulas','Ejemplos resueltos']);left.addWidget(self.kind)
         self.search=QLineEdit();self.search.setObjectName('librarySearch');self.search.setPlaceholderText('Buscar tema, herramienta o sigla…');self.search.setClearButtonEnabled(True);left.addWidget(self.search)
         self.items=QTreeWidget();self.items.setHeaderHidden(True);self.items.setWordWrap(True);self.items.setIndentation(15);self.items.setAccessibleName('Temas y artículos de la biblioteca');left.addWidget(self.items)
         from .wrapping_row import WrappingRow
@@ -108,7 +108,7 @@ class TheoryPanel(QWidget):
         if section.get('field_reference'):
             from .library_fields import field_rows
             fields=field_rows(self.selected_route)
-            body.append('<h2>Referencia de los campos</h2><p>Para consultar un dato puntual del formulario, abrí sus definiciones. La explicación de arriba muestra cómo se relacionan durante el cálculo.</p><p><a href="library:fields">'+('Ocultar definiciones' if self.fields_open else 'Ver definiciones de los campos')+'</a></p>')
+            body.append('<h2>Campos de entrada</h2><p><a href="library:fields">'+('Ocultar definiciones' if self.fields_open else 'Ver qué significa cada campo')+'</a></p>')
             if self.fields_open:
                 for name,meaning in fields:body.append('<h3>'+html.escape(name)+'</h3><p style="line-height:150%">'+html.escape(meaning)+'</p>')
             # Include the complete reference when copying/exporting the article.

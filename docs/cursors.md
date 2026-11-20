@@ -4,7 +4,7 @@
 
 En las ventanas de gráficos 2D, activá **Cursores** en la barra. La lectura aparece debajo de la figura, sin tapar los datos.
 
-La preliminar **1.8.7** separa la navegación de los controles científicos. Zoom, desplazamiento y guardado permanecen en la barra de iconos. Las escalas, componentes y herramientas de medida se acomodan en filas visibles según el ancho disponible; no quedan ocultos los selectores dentro del menú de una barra estrecha.
+Usá la barra de iconos para ampliar, desplazar o guardar la figura. Los controles de escala y componentes permiten cambiar la lectura de la figura. En **Escala vertical**, **Detalle vertical** muestra variaciones pequeñas y **Ajustar rango** permite elegir los límites de un panel.
 
 1. Mové el mouse sobre una traza: A sigue el punto más cercano en su eje horizontal. En n se eligen muestras enteras. Los planos de polos y ceros utilizan coordenadas libres del mouse; las otras nubes de puntos seleccionan el punto más cercano en pantalla.
 2. Hacé clic para fijar A. Al mover el mouse, B sigue la nueva posición.
@@ -14,7 +14,7 @@ La preliminar **1.8.7** separa la navegación de los controles científicos. Zoo
 
 Los paneles con un eje compartido o explícitamente compatible se consultan juntos. En módulo, fase y retardo se ve el valor de cada traza. No se enlazan índices n con frecuencias ω ni rad/s con rad/muestra.
 
-Desde la preliminar 1.8.7, podés **arrastrar un cursor fijo A/B** para moverlo conservando el otro. En una secuencia sigue eligiendo muestras enteras. Con el foco en la figura, las flechas izquierda/derecha recorren puntos de la traza activa. El editor de polos y ceros conserva sus gestos de diseño; los botones o la carga de coordenadas permiten medir sin editar raíces.
+Podés **arrastrar A o B** sin mover el otro cursor. En secuencias se siguen eligiendo índices enteros. Con el foco en la figura, las flechas izquierda y derecha recorren puntos de la traza activa. En el editor de polos y ceros, usá los botones o cargá una coordenada para medir sin editar raíces.
 
 ## Curvas, fórmulas y posición exacta
 
@@ -26,7 +26,7 @@ En **Coordenada x para leer** se admiten expresiones como `pi/2` o `1e-3`; los �
 
 ## Máximos y mínimos
 
-Desde la estable **1.8.8**, la pestaña **Máximos y mínimos** llena la tabla al abrirse. **Actualizar máximos y mínimos** ocupa una fila propia y vuelve a medir cuando lo necesitás. Elegí el tramo visible, toda la curva o el intervalo entre A y B. La cabecera muestra los límites efectivamente utilizados, la cantidad de puntos y los valores mayor y menor.
+La pestaña **Máximos y mínimos** mide la curva al abrirse. Elegí el tramo visible, toda la curva o el intervalo entre A y B. La cabecera indica los límites usados, la cantidad de puntos y los dos extremos. Si cambiás el intervalo, pulsá **Actualizar máximos y mínimos** para repetir la medición.
 
 Por defecto se muestran todas las apariciones del máximo y del mínimo del intervalo. Si varios puntos consecutivos tienen exactamente el mismo valor, una fila los agrupa como meseta: **Desde x**, **Hasta x** y **Puntos iguales** indican su extensión. Los picos separados siguen teniendo filas distintas. **Incluir también los picos y valles interiores** agrega extremos locales; no se unen huecos ni saltos de fase.
 

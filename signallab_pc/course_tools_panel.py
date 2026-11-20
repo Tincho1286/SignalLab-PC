@@ -490,7 +490,8 @@ class CourseToolsPanel(QWidget):
             w=np.unique(np.r_[w,spec['wp'],spec['ws']])
         plotted=self.items if self.comparing_systems and self.show_all_systems.isChecked() else [value]
         magnitude_label='|H| · amplitud' if linear else 'Módulo (dB)'
-        labels=(magnitude_label,'Fase (rad)','Retardo de grupo\n(muestras)' if value.domain=='digital' else 'Retardo de grupo\n(s)') if mode==0 else (magnitude_label,) if mode in (1,3) else ('Retardo (muestras)' if value.domain=='digital' else 'Retardo (s)',)
+        delay_label='Retardo (muestras)' if value.domain=='digital' else 'Retardo (s)'
+        labels=(magnitude_label,'Fase (rad)',delay_label) if mode==0 else (magnitude_label,) if mode in (1,3) else (delay_label,)
         palette=['#68c7b4','#e8b56b','#91a5f6','#dd8baf','#c2a3ed','#c4d788']
         from .frequency_analysis import response_magnitudes
         from .frequency_phase import principal_phase, rational_phase

@@ -10,29 +10,33 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Analizá H(s) o H(z) sin confundir la función racional del plano complejo con su respuesta en frecuencia."
+          "Cargá un sistema para ver su transferencia, su respuesta en frecuencia y sus polos y ceros. También podés medir la respuesta o consultar una realización."
         ],
         [
           "Cómo preparar el cálculo",
-          "Ingresá fórmula o coeficientes. En digital elegí también la ROC: secuencia derecha, izquierda, anillo por radio o no especificada. Los sistemas importados conservan su ROC registrada."
+          "Elegí H(s) para continuo o H(z) para discreto. Ingresá los coeficientes, escribí una fórmula o cargá un sistema guardado. Para relacionar H con una respuesta al impulso, indicá la región de convergencia (ROC) cuando la conozcas."
         ],
         [
           "Cómo interpretar la salida",
-          "Función de transferencia muestra H(s) o H(z) mediante dos mallas seleccionables: módulo/ángulo o parte real/imaginaria. Sus ejes horizontales recorren el plano complejo; la altura representa una componente de H. La respuesta en frecuencia tiene su propia figura y el mismo selector de componentes, junto al retardo de grupo."
+          "Respuesta en frecuencia evalúa el sistema sobre el eje imaginario de s o el círculo unitario de z. Podés ver módulo y fase o las partes real e imaginaria. Transferencia muestra H en el plano complejo, con la altura de cada superficie dada por una de esas componentes."
         ],
         [
           "Qué tener en cuenta",
-          "La expresión racional puede evaluarse fuera de la ROC sin que esa evaluación sea la transformada convergente de h[n]. La fórmula sola no define una ROC. Los bordes con polos están excluidos y una raíz numéricamente sobre el círculo impide certificar su inclusión."
+          "La región de convergencia determina si la evaluación sobre la frontera de Fourier representa una respuesta en frecuencia. La misma fórmula puede corresponder a señales con soportes distintos. Para clasificar la estabilidad entrada–salida se cancelan los factores exactamente comunes y se evalúan numéricamente los polos que quedan. La estabilidad interna de una realización requiere estudiar también los modos que desaparecen al cancelar."
         ],
         [
           "Medir la respuesta",
-          "Medidas de frecuencia trabaja con el último análisis. Permite leer frecuencias elegidas, buscar un nivel, comprobar límites de módulo por bandas o consultar el retardo de grupo. Se reevalúa la definición conservada; editar el formulario principal no cambia ese resultado. Las tablas, figuras y CSV describen la misma medición."
+          "Abrí Medidas para leer frecuencias concretas, buscar cruces de un nivel, comprobar límites por bandas o medir el retardo. La herramienta reevalúa el último sistema calculado. Si cambiaste sus datos, recalculá antes de volver a medir."
         ],
         [
           "Indeterminaciones y valores por continuidad",
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Leer valores no disponibles",
+          "N/D indica que la evaluación no produjo un valor utilizable. Puede ocurrir en un polo, por mala condición numérica o porque el valor supera el rango representable. En un cero de H se puede leer el módulo lineal como cero, pero el módulo en dB es −∞ y la fase y el retardo quedan indefinidos. El módulo en dB se calcula como 20 log₁₀|H|."
         ]
       ]
     },
@@ -250,7 +254,7 @@
           "Si una componente exacta no puede representarse como float64, se conserva su expresión. No se convierte en cero ni se habilita una condición inicial o un modelo numérico que no pueda representar esos valores."
         ]
       ],
-      "reading": "La estabilidad interna depende de A; no sólo del canal externo elegido. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La estabilidad interna depende de A; no sólo del canal externo elegido."
     },
     {
       "key": [
@@ -314,7 +318,7 @@
           "La salida del último punto sí se puede consultar; su transición posterior no fue simulada. Editar el modelo o la entrada conserva la explicación anterior hasta recalcular. Preparar el inspector no vuelve a simular ni duplica las trayectorias en Resultados."
         ]
       ],
-      "reading": "Se guardan entradas, salidas, estados y datos del cálculo en Resultados. Los gráficos discretos usan índices enteros, tallos y cursor por muestra. El estado inicial se aplica al comienzo del registro, aunque su origen sea negativo o distinto de cero; no se deduce la historia anterior. En continuo se propaga con entrada constante por intervalo (ZOH). En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Se guardan entradas, salidas, estados y datos del cálculo en Resultados. Los gráficos discretos usan índices enteros, tallos y cursor por muestra. El estado inicial se aplica al comienzo del registro, aunque su origen sea negativo o distinto de cero; no se deduce la historia anterior. En continuo se propaga con entrada constante por intervalo (ZOH)."
     },
     {
       "key": [
@@ -358,7 +362,7 @@
           }
         ]
       ],
-      "reading": "El gráfico y los espectros guardados comparten unidades. Las frecuencias singulares se conservan como no disponibles, sin sustituirlas por ceros. Cambiar matrices, dominio o rango indica que el resultado debe recalcularse. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "El gráfico y los espectros guardados comparten unidades. Las frecuencias singulares se conservan como no disponibles, sin sustituirlas por ceros. Cambiar matrices, dominio o rango indica que el resultado debe recalcularse."
     },
     {
       "key": [
@@ -410,7 +414,7 @@
           }
         ]
       ],
-      "reading": "La entrada continua permanece disponible para cambiar T. Reutilizar envía el último modelo calculado, aunque se hayan editado los campos posteriormente. La interpretación de los estados iniciales puede cambiar según el método. Una transferencia de un canal no describe necesariamente todos los modos internos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La entrada continua permanece disponible para cambiar T. Reutilizar envía el último modelo calculado, aunque se hayan editado los campos posteriormente. La interpretación de los estados iniciales puede cambiar según el método. Una transferencia de un canal no describe necesariamente todos los modos internos."
     },
     {
       "key": [
@@ -458,7 +462,7 @@
           }
         ]
       ],
-      "reading": "La transferencia corresponde al canal con estado inicial nulo. Puede ocultar modos internos no controlables u observables. El cálculo de coeficientes es numérico; los residuos de redondeo no se eliminan por una tolerancia arbitraria. La transferencia y sus datos quedan en Resultados. Editar el modelo no reemplaza ese resultado hasta volver a calcular. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La transferencia corresponde al canal con estado inicial nulo. Puede ocultar modos internos no controlables u observables. El cálculo de coeficientes es numérico; los residuos de redondeo no se eliminan por una tolerancia arbitraria. La transferencia y sus datos quedan en Resultados. Editar el modelo no reemplaza ese resultado hasta volver a calcular."
     },
     {
       "key": [
@@ -576,7 +580,7 @@
           "Abrir gráfico está en la cabecera de resultados. La figura muestra las mismas bandas, niveles y extremos; seleccionar una fila marca sus coordenadas. Cambiar lineal/dB sólo cambia la vista. El CSV conserva todas las filas, la definición, las unidades y el criterio. Las medidas también quedan en Resultados."
         ]
       ],
-      "reading": "La evaluación numérica necesita coeficientes sin parámetros libres. Una expresión algebraica puede conservarlos. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. El criterio de polos usa interpretación causal; en Z la ROC y la causalidad deben verificarse. Una fórmula simplificada no conserva necesariamente la estabilidad interna de una realización anterior. La figura mantiene las tres vistas sobre el mismo eje. Cambiar el módulo en la barra de la figura sólo cambia la presentación del último resultado. Para cambiar la distribución o rango de frecuencias, analizá de nuevo. Los polos y ceros en 0 se dibujan en el origen exacto, por encima de los ejes. Si coinciden, se ven círculo y cruz juntos; la leyenda informa cuántos hay en (0,0). En polar, módulo cero es el centro y su ángulo no está definido. Los parámetros libres deben recibir valores antes de reutilizar un filtro numérico. Si H(z) tiene un avance, puede analizarse y exportarse la respuesta, pero no se convierte silenciosamente en un filtro causal para enviarlo a simulación. Realización trabaja con H(s) propia o H(z) causal sin avances. No elimina cancelaciones de polos/ceros ni afirma minimalidad. La cadena directa II se usa para coeficientes; si el resultado conserva secciones SOS, el diagrama y las matrices mantienen su cascada. Una fórmula algebraicamente simplificada sólo conserva la dinámica de esa fórmula, no estados internos desconocidos. Para una ecuación diferencial a₀ y^(N)+…+aN y=b₀ u^(N)+…+bN u, cargá esas listas en continuo; en diferencias, a₀ y[n]+a₁ y[n−1]+…=b₀ u[n]+b₁ u[n−1]+… se carga en discreto. No confundas estos órdenes con el ingreso ascendente de derivadas del solucionador de EDO. Condiciones de validez reúne dominio, ROC, causalidad y estabilidad BIBO. En H(s) elegí semiplano derecho, izquierdo o franja con una línea σ interior; en H(z), exterior, interior o anillo con un radio interior. Sin ROC, una curva evaluada sobre el eje imaginario o el círculo unitario es formal y no demuestra una transformada de Fourier convergente. Una cancelación de la transferencia tampoco demuestra estabilidad interna. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones. En Resultados → Comparar resultados podés estudiar dos señales con iguales dominio y unidades o dos H del mismo dominio. No se alinean orígenes ni fases automáticamente; los sistemas se evalúan sobre las mismas frecuencias."
+      "reading": "La evaluación numérica necesita coeficientes sin parámetros libres. Una expresión algebraica puede conservarlos."
     }
   ]
 }

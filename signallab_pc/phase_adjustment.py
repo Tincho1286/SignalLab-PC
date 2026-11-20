@@ -64,5 +64,6 @@ def adjustment_summary(original,systems,selected,report,details):
     for index,value in enumerate(systems):
         if index!=selected:sections.append(describe('Resultado disponible · '+value.name,value,symbols[index]))
     sections.append(describe('Sistema original',original,'H'))
-    sections.append(Section('Condiciones y lectura',paragraphs=[line for line in report.split('\n\n')[1:] if line.strip()]+['Cada sistema y complemento está disponible en Resultados para analizarlo, exportarlo o llevarlo a otra herramienta. La fase y el retardo no se definen en los ceros. Las identidades de frecuencia se refieren al círculo unitario; una ROC original incompatible no se modifica retroactivamente.', 'Los coeficientes son numéricos. La fórmula muestra hasta 12 cifras significativas; los datos reutilizados conservan la precisión almacenada.']))
+    conditions = report.split('\n\n')[-1]
+    sections.append(Section('Condiciones del ajuste',paragraphs=[conditions]))
     return Summary('Ajuste de fase · sistemas y complementos',sections)

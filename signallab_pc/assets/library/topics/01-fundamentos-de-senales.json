@@ -250,7 +250,7 @@
           }
         ]
       ],
-      "reading": "Cada opción conserva sus datos. Analizar el filtro obtenido lleva el resultado al análisis común sin reescribir coeficientes. La comprobación de tolerancias refina extremos entre frecuencias de la rejilla, incluye bordes y explora vecindades de polos. El informe muestra las frecuencias de mínimos y máximos y el margen frente a cada límite; positivo significa holgura y negativo significa exceso. En analógico se considera el límite en infinito. Sigue siendo una estimación numérica local, no una certificación global ni una demostración de orden mínimo. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Cada opción conserva sus datos. Analizar el filtro obtenido lleva el resultado al análisis común sin reescribir coeficientes. La comprobación de tolerancias refina extremos entre frecuencias de la rejilla, incluye bordes y explora vecindades de polos. El informe muestra las frecuencias de mínimos y máximos y el margen frente a cada límite; positivo significa holgura y negativo significa exceso. En analógico se considera el límite en infinito. Sigue siendo una estimación numérica local, no una certificación global ni una demostración de orden mínimo."
     },
     {
       "key": [

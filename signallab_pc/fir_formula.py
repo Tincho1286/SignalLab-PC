@@ -50,22 +50,14 @@ def design_summary(kind, length, cutoffs, window, beta, gain=1, details='', titl
     final = 'Piecewise((' + product + ', ' + condition + '), (0, True))'
     ideal = kernel(kind, cutoffs, 'n')
     sections = [
-        Section('Respuesta al impulso ideal', paragraphs=[
-            'El ideal no está truncado: se define para todos los índices enteros n. Las frecuencias de corte están en rad/muestra.',
-            'Se usa sinc(x)=sin(πx)/(πx), con sinc(0)=1. En índices enteros, sinc(n)=δ[n].'
-        ], rows=[('Cortes del ideal', ', '.join(angular(c) for c in cutoffs) + ' rad/muestra')], formulas=[
+        Section('Respuesta al impulso ideal', rows=[('Cortes del ideal', ', '.join(angular(c) for c in cutoffs) + ' rad/muestra')], formulas=[
             Formula('h_ideal[n] = ' + ideal, 'h_ideal[n] = ' + ideal),
             Formula('g(x) = ' + core, 'g(x) = ' + core)
         ]),
-        Section('Ventana y desplazamiento', paragraphs=[
-            'g(x) es el núcleo anterior evaluado también entre índices. El FIR se centra en D=(L−1)/2 y queda limitado a 0≤n≤L−1. Si L es par, D es semientero; los índices n del filtro siguen siendo enteros.',
-            'I₀ es la función de Bessel modificada de primera especie y orden cero.' if window == 'kaiser' else 'La ventana es simétrica y vale cero fuera del intervalo indicado.'
-        ], rows=[('Longitud L', str(length)), ('Orden M=L−1', str(length-1)), ('Desplazamiento D (muestras)', delay)], formulas=[
+        Section('Ventana y desplazamiento', rows=[('Longitud L', str(length)), ('Orden M=L−1', str(length-1)), ('Desplazamiento D (muestras)', delay)], formulas=[
             Formula('w[n] = Piecewise((' + window_expression(window, length, beta) + ', ' + condition + '), (0, True))', 'w[n] = ' + window_expression(window, length, beta) + ' para ' + condition + '; 0 fuera')
         ]),
-        Section('Respuesta al impulso del filtro', rows=[('Factor de ganancia C', number(gain))], paragraphs=[
-            'Se multiplica el ideal desplazado por la ventana. El factor C es el aplicado a los coeficientes; no se supone ganancia unitaria si el diseño no la normaliza. El texto copiable conserva hasta 12 cifras significativas; la vista redondea los decimales para facilitar la lectura. Los coeficientes conservan su precisión numérica.'
-        ], formulas=[Formula('h[n] = ' + final, 'h[n] = ' + product + ' para ' + condition + '; 0 fuera'),
+        Section('Respuesta al impulso del filtro', rows=[('Factor de ganancia C', number(gain))], formulas=[Formula('h[n] = ' + final, 'h[n] = ' + product + ' para ' + condition + '; 0 fuera'),
                      Formula('h[n] = ' + expanded, 'Dentro del intervalo: h[n] = ' + expanded)])
     ]
     for section in sections:

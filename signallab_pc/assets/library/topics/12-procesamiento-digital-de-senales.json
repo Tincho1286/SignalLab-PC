@@ -204,7 +204,7 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Diseñá un FIR por bandas, amplitudes y tolerancias. Un rechazabanda puede conservar las frecuencias bajas con amplitud 1 y las altas con amplitud 2."
+          "Diseñá un FIR que cumpla las bandas de paso y rechazo que necesitás. Podés elegir una ventana o comparar varias con las mismas especificaciones."
         ],
         [
           "Cómo preparar el cálculo",
@@ -227,6 +227,14 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Fórmulas del ideal y del FIR",
+          "La respuesta ideal está definida para todo índice entero. Para formar el FIR, SignalLab evalúa el núcleo ideal en n − D y lo multiplica por la ventana. D = (L − 1)/2 puede ser semientero cuando L es par. Los índices n siguen siendo enteros y la ventana es cero fuera de 0 ≤ n ≤ L − 1.\n\nLa sinc que se usa en las fórmulas es sin(πx)/(πx) y vale 1 en x=0. En la ventana Kaiser, I₀ es la función de Bessel modificada de orden cero. El informe indica el factor de ganancia aplicado a los coeficientes."
+        ],
+        [
+          "Cómo leer el cumplimiento",
+          "Compará los mínimos y máximos medidos en cada banda con sus límites. Las transiciones quedan fuera de esa comparación. Cuando se estima la longitud, el resultado pasa una verificación numérica; demostrar el orden mínimo exacto exigiría comprobar los extremos de todo el intervalo continuo."
         ]
       ]
     },
@@ -506,7 +514,7 @@
           }
         ]
       ],
-      "reading": "Agregar ceros no mejora la separación de tonos que el registro no resuelve. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Agregar ceros no mejora la separación de tonos que el registro no resuelve."
     },
     {
       "key": [
@@ -572,7 +580,7 @@
           }
         ]
       ],
-      "reading": "Compará la respuesta obtenida con el objetivo y los límites de cada banda. En FIR, Kaiser estima la longitud usando la transición más estrecha y el menor error absoluto referido a la mayor amplitud; la estimación no garantiza cumplimiento. El informe evalúa las bandas originales y declara si la respuesta queda fuera de tolerancias. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones. En Cálculo podés mantener el diseño individual, comparar con las mismas tolerancias o comparar con igual longitud. Elegí las ventanas y, si corresponde, la longitud común L. Kaiser calcula β a partir de las tolerancias. La pestaña Comparación muestra L, M=L−1, tipo simétrico I/II, retardo, error de paso, rechazo y tiempo. Seleccionar una fila elige el filtro para analizar, exportar o reutilizar; la tabla CSV incluye intentos fallidos y sus motivos. Un FIR simétrico de longitud par tiene un cero en π, por lo que no sirve para un paso no nulo en esa frecuencia."
+      "reading": "Compará la respuesta obtenida con el objetivo y los límites de cada banda. En FIR, Kaiser estima la longitud usando la transición más estrecha y el menor error absoluto referido a la mayor amplitud; la estimación no garantiza cumplimiento. El informe evalúa las bandas originales y declara si la respuesta queda fuera de tolerancias."
     },
     {
       "key": [
@@ -694,7 +702,7 @@
           }
         ]
       ],
-      "reading": "La bilineal deforma frecuencias; la invarianza puede introducir aliasing. Su inversa no es única. El retardo de grupo se evalúa con la derivada analítica de los polinomios, en muestras para H(z) y segundos para H(s). En filtros SOS se suman los retardos de sus secciones sin expandirlas. No depende del desenrollado de la fase dibujada. Los ceros, polos y puntos con cancelación numérica severa se omiten; no se reemplazan por retardo cero. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. La respuesta ideal se conserva por separado del FIR aproximado obtenido por ventana. Ambos se exportan y reutilizan; el FIR no equivale exactamente al ideal. Un filtro ideal puede ser no causal y tener duración infinita. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La bilineal deforma frecuencias; la invarianza puede introducir aliasing. Su inversa no es única. El retardo de grupo se evalúa con la derivada analítica de los polinomios, en muestras para H(z) y segundos para H(s). En filtros SOS se suman los retardos de sus secciones sin expandirlas. No depende del desenrollado de la fase dibujada. Los ceros, polos y puntos con cancelación numérica severa se omiten; no se reemplazan por retardo cero."
     },
     {
       "key": [
@@ -732,7 +740,7 @@
           }
         ]
       ],
-      "reading": "No se puede fijar una ganancia no nula en un cero de H mediante un factor finito. El retardo de grupo se evalúa con la derivada analítica de los polinomios, en muestras para H(z) y segundos para H(s). En filtros SOS se suman los retardos de sus secciones sin expandirlas. No depende del desenrollado de la fase dibujada. Los ceros, polos y puntos con cancelación numérica severa se omiten; no se reemplazan por retardo cero. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "No se puede fijar una ganancia no nula en un cero de H mediante un factor finito. El retardo de grupo se evalúa con la derivada analítica de los polinomios, en muestras para H(z) y segundos para H(s). En filtros SOS se suman los retardos de sus secciones sin expandirlas. No depende del desenrollado de la fase dibujada. Los ceros, polos y puntos con cancelación numérica severa se omiten; no se reemplazan por retardo cero."
     },
     {
       "key": [
@@ -766,7 +774,7 @@
           }
         ]
       ],
-      "reading": "Fase mínima conserva el módulo mediante reflexión de ceros y compensación de ganancia. Fase lineal exacta usa un complemento conjugado invertido y eleva el módulo al cuadrado; un IIR puede requerir una realización no causal. El informe incluye fórmulas y condiciones. El retardo de grupo se evalúa con la derivada analítica de los polinomios, en muestras para H(z) y segundos para H(s). En filtros SOS se suman los retardos de sus secciones sin expandirlas. No depende del desenrollado de la fase dibujada. Los ceros, polos y puntos con cancelación numérica severa se omiten; no se reemplazan por retardo cero. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. La comprobación de fase lineal se refiere al FIR de entrada. El factor con ceros reflejados no se declara estrictamente de fase mínima si sus polos, ceros sobre el círculo o condiciones indicadas no lo permiten. La fórmula y la tabla del resultado calculado se conservan al editar datos hasta volver a calcular. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Fase mínima conserva el módulo mediante reflexión de ceros y compensación de ganancia. Fase lineal exacta usa un complemento conjugado invertido y eleva el módulo al cuadrado; un IIR puede requerir una realización no causal. El informe incluye fórmulas y condiciones. El retardo de grupo se evalúa con la derivada analítica de los polinomios, en muestras para H(z) y segundos para H(s). En filtros SOS se suman los retardos de sus secciones sin expandirlas. No depende del desenrollado de la fase dibujada. Los ceros, polos y puntos con cancelación numérica severa se omiten; no se reemplazan por retardo cero."
     },
     {
       "key": [
@@ -808,7 +816,7 @@
           }
         ]
       ],
-      "reading": "La misma expresión H(z) puede representar señales distintas según la región de convergencia. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La misma expresión H(z) puede representar señales distintas según la región de convergencia."
     },
     {
       "key": [
@@ -836,7 +844,7 @@
           }
         ]
       ],
-      "reading": "No se duplica automáticamente la banda positiva. Una ventana finita no demuestra la energía total. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "No se duplica automáticamente la banda positiva. Una ventana finita no demuestra la energía total."
     },
     {
       "key": [
@@ -868,7 +876,7 @@
           }
         ]
       ],
-      "reading": "Los tallos representan pesos de deltas, no alturas finitas de una densidad. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Los tallos representan pesos de deltas, no alturas finitas de una densidad."
     },
     {
       "key": [
@@ -896,7 +904,7 @@
           }
         ]
       ],
-      "reading": "Muestreo relaciona ω y ΩT módulo 2π. Bilineal usa tangente y no produce un mapeo lineal. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Muestreo relaciona ω y ΩT módulo 2π. Bilineal usa tangente y no produce un mapeo lineal."
     },
     {
       "key": [
@@ -924,7 +932,7 @@
           }
         ]
       ],
-      "reading": "La parte imaginaria de z es Hilbert(x) y |z| es la envolvente. En continuo es una aproximación sobre muestras, no una transformada algebraica sobre todo el eje. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La parte imaginaria de z es Hilbert(x) y |z| es la envolvente. En continuo es una aproximación sobre muestras, no una transformada algebraica sobre todo el eje."
     },
     {
       "key": [
@@ -996,7 +1004,7 @@
           }
         ]
       ],
-      "reading": "Overlap-add suma las colas de bloques independientes. Overlap-save incorpora historia y descarta M−1 salidas contaminadas por circularidad. Fuera de las entradas se supone cero y el origen de salida suma ambos orígenes. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Overlap-add suma las colas de bloques independientes. Overlap-save incorpora historia y descarta M−1 salidas contaminadas por circularidad. Fuera de las entradas se supone cero y el origen de salida suma ambos orígenes."
     },
     {
       "key": [
@@ -1092,7 +1100,7 @@
           }
         ]
       ],
-      "reading": "Cada zona m admite un intervalo diferente. No cualquier tasa superior a 2B sirve. Elegí el interior para dejar margen; los extremos y los intervalos de ancho nulo son contactos teóricos. Se supone señal real y soporte limitado a ±[ΩL, ΩH]. El gráfico muestra hasta 40 zonas y el informe hasta 100; CSV conserva todas. No se interpreta una componente impulsiva en un borde como reconstrucción garantizada. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Cada zona m admite un intervalo diferente. No cualquier tasa superior a 2B sirve. Elegí el interior para dejar margen; los extremos y los intervalos de ancho nulo son contactos teóricos. Se supone señal real y soporte limitado a ±[ΩL, ΩH]. El gráfico muestra hasta 40 zonas y el informe hasta 100; CSV conserva todas. No se interpreta una componente impulsiva en un borde como reconstrucción garantizada."
     }
   ]
 }

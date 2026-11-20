@@ -71,6 +71,10 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Usar la DTFT de un caso bilateral",
+          "Puede existir una DTFT aunque Z no tenga un anillo abierto de convergencia. Si aparece X(eʲω) como salida, podés usarla como respuesta en frecuencia, graficarla desde Fourier o enviarla al CAS. Para la sinc bilateral, la DTFT es periódica y toma el promedio de los límites en un salto."
         ]
       ]
     }
@@ -98,7 +102,7 @@
           }
         ]
       ],
-      "reading": "La transformación es unilateral; revisá el semiplano y las condiciones del resultado. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La transformación es unilateral; revisá el semiplano y las condiciones del resultado."
     },
     {
       "key": [
@@ -122,7 +126,7 @@
           }
         ]
       ],
-      "reading": "La herramienta elige la interpretación causal indicada, no todas las señales bilaterales posibles. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La herramienta elige la interpretación causal indicada, no todas las señales bilaterales posibles."
     },
     {
       "key": [
@@ -152,7 +156,7 @@
           }
         ]
       ],
-      "reading": "Se conservan índices negativos si existen. No se supone que el registro se repite infinitamente. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Se conservan índices negativos si existen. No se supone que el registro se repite infinitamente."
     },
     {
       "key": [
@@ -180,7 +184,7 @@
           }
         ]
       ],
-      "reading": "Esta opción usa rama derecha. Para elegir otra región, usá Z inversa con región de convergencia. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Esta opción usa rama derecha. Para elegir otra región, usá Z inversa con región de convergencia."
     },
     {
       "key": [
@@ -224,7 +228,7 @@
           }
         ]
       ],
-      "reading": "Expresión y condiciones forman el resultado. Una rama convergente se presenta con su condición; una suma sin resolver se identifica como pendiente. La inversa admite funciones racionales cuyos polos puedan obtenerse algebraicamente. Parámetros sin valor conservan una expresión simbólica; no se inventan muestras numéricas. Las operaciones conservan sus entradas y resultados por separado durante la sesión. La pestaña Desarrollo muestra los pasos registrados del último cálculo sin volver a resolverlo. La inversión racional bilateral puede mostrar fracciones parciales; Z también muestra los pares geométricos reconocidos y sus desplazamientos. En rutas que no registran descomposición se indica esa limitación. Copiar a análisis o cargar desde Resultados conserva una ROC compatible, también para H(s). En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones. Las muestras completadas por continuidad se separan antes de aplicar tablas y propiedades. sin(pi*n)/(pi*n) completada equivale a delta[n] y da X(z)=1. Una sinc bilateral de corte menor que pi puede tener DTFT sin una ROC abierta de Z; el informe diferencia ambos resultados. En Inversa, Explorar ROC abre una ventana separada con polos y regiones abiertas. Hacé clic dentro de un anillo o elegilo en la lista; Aplicar ROC actualiza los campos, y Aplicar y calcular inversa obtiene la secuencia con esa elección. Los bordes no pertenecen a una ROC abierta. Las cancelaciones son exactas y los radios muy próximos no se fusionan. La inclusión de cero o infinito se consulta en el informe. El selector necesita una expresión racional numérica."
+      "reading": "Expresión y condiciones forman el resultado. Una rama convergente se presenta con su condición; una suma sin resolver se identifica como pendiente. La inversa admite funciones racionales cuyos polos puedan obtenerse algebraicamente. Parámetros sin valor conservan una expresión simbólica; no se inventan muestras numéricas. Las operaciones conservan sus entradas y resultados por separado durante la sesión. La pestaña Desarrollo muestra los pasos registrados del último cálculo sin volver a resolverlo. La inversión racional bilateral puede mostrar fracciones parciales; Z también muestra los pares geométricos reconocidos y sus desplazamientos. En rutas que no registran descomposición se indica esa limitación. Copiar a análisis o cargar desde Resultados conserva una ROC compatible, también para H(s)."
     },
     {
       "key": [
@@ -272,7 +276,7 @@
           }
         ]
       ],
-      "reading": "La misma X(s) puede representar señales diferentes según su ROC. Por ejemplo, 1/(s+1) da exp(-t)·u(t) si Re(s)>-1, y -exp(-t)·u(-t) si Re(s)<-1. Los bordes están excluidos. Cambiar la ROC cambia el soporte, no los polos. Si el motor deja un cálculo sin evaluar, el informe lo indica y no ofrece esa expresión como un resultado resuelto. La pestaña Desarrollo muestra los pasos registrados del último cálculo sin volver a resolverlo. La inversión racional bilateral puede mostrar fracciones parciales; Z también muestra los pares geométricos reconocidos y sus desplazamientos. En rutas que no registran descomposición se indica esa limitación. Copiar a análisis o cargar desde Resultados conserva una ROC compatible, también para H(s). En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones. En Inversa, Explorar ROC permite elegir un semiplano o franja entre los polos. Aplicar pasa a interpretación bilateral y conserva la expresión; la región elegida determina el soporte de cada término. Admite una expresión racional numérica con un retardo global exp(-d*s). Un clic en el borde no selecciona una ROC. Para otras expresiones se mantienen los campos habituales."
+      "reading": "La misma X(s) puede representar señales diferentes según su ROC. Por ejemplo, 1/(s+1) da exp(-t)·u(t) si Re(s)>-1, y -exp(-t)·u(-t) si Re(s)<-1. Los bordes están excluidos. Cambiar la ROC cambia el soporte, no los polos. Si el motor deja un cálculo sin evaluar, el informe lo indica y no ofrece esa expresión como un resultado resuelto. La pestaña Desarrollo muestra los pasos registrados del último cálculo sin volver a resolverlo. La inversión racional bilateral puede mostrar fracciones parciales; Z también muestra los pares geométricos reconocidos y sus desplazamientos. En rutas que no registran descomposición se indica esa limitación. Copiar a análisis o cargar desde Resultados conserva una ROC compatible, también para H(s)."
     }
   ]
 }

@@ -1,6 +1,6 @@
 """Visible choices wrap at their natural widths instead of truncating labels."""
-from PySide6.QtCore import Qt,QRect,QSize
-from PySide6.QtWidgets import QLayout,QWidget
+from PySide6.QtCore import Qt,QEvent,QRect,QSize
+from PySide6.QtWidgets import QLayout,QSizePolicy,QWidget
 
 
 class FlowLayout(QLayout):
@@ -39,5 +39,27 @@ class FlowLayout(QLayout):
 
 
 class WrappingRow(QWidget):
-    def __init__(self,parent=None):super().__init__(parent);self.flow=FlowLayout(self)
-    def minimumSizeHint(self):return QSize(0,self.flow.minimumSize().height())
+    def __init__(self,parent=None):
+        super().__init__(parent)
+        self.flow=FlowLayout(self)
+        self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed)
+
+    def minimumSizeHint(self):
+        return QSize(0,self.flow.minimumSize().height())
+
+    def reserve_rows(self):
+        # The minimum size of a flow is one row. Its parent must also honor
+        # the number of rows at the current width, even under vertical pressure.
+        height=self.flow.heightForWidth(self.width())
+        if height!=self.minimumHeight():
+            self.setMinimumHeight(height)
+
+    def event(self,event):
+        result=super().event(event)
+        if event.type() in (QEvent.Type.LayoutRequest,QEvent.Type.Show) and hasattr(self,'flow'):
+            self.reserve_rows()
+        return result
+
+    def resizeEvent(self,event):
+        super().resizeEvent(event)
+        self.reserve_rows()

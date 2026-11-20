@@ -11,7 +11,7 @@ def draw_comparison(panel,data):
     source=data['input'];compensator=data['compensator']
     source_delay=source.group_delay(w) if mode in (0,2) else np.zeros(len(w))
     delays=(source_delay,source_delay+compensator.group_delay(w) if mode in (0,2) else source_delay,np.full(len(w),data['delay'],float))
-    labels=('Módulo (dB)','Error de fase (rad)','Retardo de grupo (muestras)') if mode==0 else ('Módulo (dB)',) if mode==1 else ('|H| · amplitud',) if mode==3 else ('Retardo de grupo (muestras)',)
+    labels=('Módulo (dB)','Error de fase (rad)','Retardo (muestras)') if mode==0 else ('Módulo (dB)',) if mode==1 else ('|H| · amplitud',) if mode==3 else ('Retardo (muestras)',)
     for h,delay,label,color,is_target in zip((data['original'],data['joint'],desired),delays,('Original H','Compensado H·C','Objetivo en la banda'),(C['muted'],C['green'],C['amber']),(False,False,True)):
         amplitude=abs(h);valid=np.isfinite(h)&(amplitude>0)
         db=np.full(len(w),np.nan);db[valid]=20*np.log10(amplitude[valid])

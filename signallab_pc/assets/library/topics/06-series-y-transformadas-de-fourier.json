@@ -494,7 +494,7 @@
           }
         ]
       ],
-      "reading": "La frecuencia ωk=2πk/N se muestra centrada en cero, dentro de −π ≤ ωk < π. La directa conserva N bins y no divide por N. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La frecuencia ωk=2πk/N se muestra centrada en cero, dentro de −π ≤ ωk < π. La directa conserva N bins y no divide por N."
     },
     {
       "key": [
@@ -534,7 +534,7 @@
           }
         ]
       ],
-      "reading": "Un espectro sin simetría conjugada puede producir una señal compleja. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Un espectro sin simetría conjugada puede producir una señal compleja."
     },
     {
       "key": [
@@ -568,7 +568,7 @@
           }
         ]
       ],
-      "reading": "DTFT es una curva periódica; DFT son muestras de esa curva. La fase principal salta entre −π y π. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "DTFT es una curva periódica; DFT son muestras de esa curva. La fase principal salta entre −π y π."
     },
     {
       "key": [
@@ -602,7 +602,7 @@
           }
         ]
       ],
-      "reading": "El espectro corresponde al registro finito. Una ventana corta y un paso temporal grande pueden afectar la aproximación. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "El espectro corresponde al registro finito. Una ventana corta y un paso temporal grande pueden afectar la aproximación."
     },
     {
       "key": [
@@ -636,7 +636,7 @@
           }
         ]
       ],
-      "reading": "La banda truncada afecta la salida. Los límites temporales de salida no amplían la banda del espectro de entrada. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La banda truncada afecta la salida. Los límites temporales de salida no amplían la banda del espectro de entrada."
     },
     {
       "key": [
@@ -674,7 +674,7 @@
           }
         ]
       ],
-      "reading": "Los coeficientes son discretos. Aumentar K puede mejorar la síntesis, pero no elimina el fenómeno de Gibbs en discontinuidades. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Los coeficientes son discretos. Aumentar K puede mejorar la síntesis, pero no elimina el fenómeno de Gibbs en discontinuidades."
     },
     {
       "key": [
@@ -708,7 +708,7 @@
           }
         ]
       ],
-      "reading": "La normalización difiere de la DFT. Los coeficientes se muestran como muestras no conectadas. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La normalización difiere de la DFT. Los coeficientes se muestran como muestras no conectadas."
     },
     {
       "key": [
@@ -746,7 +746,7 @@
           }
         ]
       ],
-      "reading": "La densidad es |X|². La energía de una banda se obtiene integrando con el factor 1/(2π). La banda finita sólo representa parte del espectro. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La densidad es |X|². La energía de una banda se obtiene integrando con el factor 1/(2π). La banda finita sólo representa parte del espectro."
     },
     {
       "key": [
@@ -784,7 +784,7 @@
           }
         ]
       ],
-      "reading": "La PSD no tiene fase. En dB se usa 10 log10 de la densidad, no 20 log10. La integral usa las unidades del eje mostrado. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La PSD no tiene fase. En dB se usa 10 log10 de la densidad, no 20 log10. La integral usa las unidades del eje mostrado."
     },
     {
       "key": [
@@ -934,7 +934,7 @@
           }
         ]
       ],
-      "reading": "Se integra numéricamente un período: no se impone causalidad. La frecuencia finita produce aliasing temporal entre índices separados por la cantidad de frecuencias independientes. Con ambos extremos, cada uno pesa la mitad. Se usa 2π como período exacto, admitiendo sólo redondeo en el paso. La salida elegida es un tramo de x[n], no toda la secuencia infinita. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Se integra numéricamente un período: no se impone causalidad. La frecuencia finita produce aliasing temporal entre índices separados por la cantidad de frecuencias independientes. Con ambos extremos, cada uno pesa la mitad. Se usa 2π como período exacto, admitiendo sólo redondeo en el paso. La salida elegida es un tramo de x[n], no toda la secuencia infinita."
     },
     {
       "key": [
@@ -970,7 +970,7 @@
           }
         ]
       ],
-      "reading": "La fórmula usa x[n]=(1/2π)∫ de −π a π X(ω)e^(iωn)dω. Una integral que queda pendiente no se presenta como resuelta. Los parámetros sin asignar o singularidades sobre el círculo unidad requieren hipótesis o un tratamiento adicional; no se fuerza una secuencia causal. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La fórmula usa x[n]=(1/2π)∫ de −π a π X(ω)e^(iωn)dω. Una integral que queda pendiente no se presenta como resuelta. Los parámetros sin asignar o singularidades sobre el círculo unidad requieren hipótesis o un tratamiento adicional; no se fuerza una secuencia causal."
     }
   ]
 }

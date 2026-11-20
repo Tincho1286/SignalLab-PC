@@ -51,7 +51,10 @@ def compare(wp,ws,dp,ds,windows,*,mode='tolerances',length=65,amplitudes=(1,),un
 
 def comparison_summary(data):
     from .result_summary import Summary,Section,number
-    sections=[Section('Criterio común',paragraphs=[data['scope'],'Las bandas de transición no se incluyen en las tolerancias. Kaiser obtiene β de esos límites. Los errores de paso y rechazo se expresan en amplitud lineal; el retardo está en muestras.'])]
+    sections=[Section('Criterio común',paragraphs=[
+        f'Todas las ventanas usan L = {data["length"]}.' if data['mode']=='length' else
+        'Se comprobó cada ventana con las mismas bandas y tolerancias. La longitud informada es la menor que pasó la verificación numérica.'
+    ])]
     for row in data['rows']:
         if row['error']:
             sections.append(Section(row['name'],paragraphs=['No se obtuvo un diseño: '+row['error']]));continue
@@ -69,7 +72,6 @@ def comparison_summary(data):
                         ('Mínimo |H|',number(band['minimum'])),('En ω',number(band['minimum_at'])+' rad/muestra'),
                         ('Máximo |H|',number(band['maximum'])),('En ω',number(band['maximum_at'])+' rad/muestra')]))
         else:sections.append(Section('Detalle',paragraphs=[row['report']]))
-    sections.append(Section('Uso de la comparación',paragraphs=['Elegí una fila para seleccionar el filtro. Graficar puede superponer los diseños sobre las mismas frecuencias; exportar y reutilizar toman el filtro elegido. La tabla CSV conserva también los intentos sin diseño y su motivo.']))
     return Summary('Comparación FIR por ventanas',sections)
 
 

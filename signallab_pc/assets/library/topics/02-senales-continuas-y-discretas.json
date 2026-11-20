@@ -82,7 +82,7 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Medí energía, potencia y RMS dentro de un intervalo guardado. La misma herramienta permite consultar la energía acumulada, el centro y la dispersión temporal, separar media y alterna y localizar cruces de nivel. Las medidas también admiten valores complejos."
+          "Medí la energía, la potencia media y el valor eficaz (RMS) de un registro discreto o continuo."
         ],
         [
           "Cómo elegir el intervalo",
@@ -113,6 +113,18 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Cómo interpretar la salida",
+          "En discreto, la energía suma |x[n]|² y la potencia media divide esa suma por la cantidad de muestras. En continuo, la energía integra el módulo al cuadrado y la potencia lo divide por la duración observada. El valor eficaz es la raíz cuadrada de la potencia media."
+        ],
+        [
+          "Qué tener en cuenta",
+          "La potencia media del informe corresponde al intervalo elegido. Si ese intervalo contiene un período completo y la señal se repite, la medida es también su potencia periódica. Si la señal vale cero fuera del registro, su potencia límite es cero. Las unidades físicas dependen de qué representa la amplitud."
+        ],
+        [
+          "Integración entre puntos",
+          "Para un registro continuo se une cada par de puntos con un tramo lineal. La integral de |x(t)|² en un tramo es Δt·(|x₀|² + Re(x₀·conj(x₁)) + |x₁|²)/3. El resultado es exacto para esa interpolación y puede aproximar una señal que varíe de otra manera entre puntos."
         ]
       ]
     },
@@ -418,7 +430,7 @@
           }
         ]
       ],
-      "reading": "Los tallos representan muestras independientes. Parte real conserva los signos; módulo muestra valores absolutos. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Los tallos representan muestras independientes. Parte real conserva los signos; módulo muestra valores absolutos."
     },
     {
       "key": [
@@ -656,7 +668,7 @@
           }
         ]
       ],
-      "reading": "La salida es y=x+v. Cambiar de pestaña de entrada no recalcula ni borra datos. Cambiar Suma/Producto conserva el borrador de cada operación; Copiar entrada permite transferir ambas entradas y su dominio. La suma no recorta el resultado al primer registro. La interpolación continua es una aproximación entre muestras y no agrega información a las señales originales. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La salida es y=x+v. Cambiar de pestaña de entrada no recalcula ni borra datos. Cambiar Suma/Producto conserva el borrador de cada operación; Copiar entrada permite transferir ambas entradas y su dominio. La suma no recorta el resultado al primer registro. La interpolación continua es una aproximación entre muestras y no agrega información a las señales originales."
     },
     {
       "key": [
@@ -690,7 +702,7 @@
           }
         ]
       ],
-      "reading": "La curva es una aproximación numérica. El paso afecta la integración; la ventana temporal limita qué parte de las señales se conoce. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. Los impulsos Dirac reutilizados se conservan por posición y peso: δ(t−a)*x(t)=x(t−a). La parte regular se interpreta linealmente entre puntos y nula fuera del registro; su integral se evalúa sobre la rejilla de salida. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "La curva es una aproximación numérica. El paso afecta la integración; la ventana temporal limita qué parte de las señales se conoce."
     },
     {
       "key": [
@@ -722,7 +734,7 @@
           }
         ]
       ],
-      "reading": "Muestras conserva el borrador; Resultado contiene la última edición aplicada, con gráfico externo, valores, exportación y envío a otra herramienta. Editar el borrador no modifica una salida ya enviada. Se conserva la entrada original. Un registro continuo finito no define una función continua exacta ni términos Dirac. Ejes: n o k son índices enteros; cada índice tiene su marca cuando la escala permite distinguirlas y los números se espacian para no superponerse. La barra del gráfico indica el índice más cercano al mouse y el valor de la muestra dibujada; t y τ se expresan en segundos. Los tallos indican muestras independientes. En frecuencia digital, π rad/muestra es una frecuencia angular, no una frecuencia normalizada; la DTFT es continua y la DFT se representa con tallos. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "Muestras conserva el borrador; Resultado contiene la última edición aplicada, con gráfico externo, valores, exportación y envío a otra herramienta. Editar el borrador no modifica una salida ya enviada. Se conserva la entrada original. Un registro continuo finito no define una función continua exacta ni términos Dirac."
     },
     {
       "key": [
@@ -766,7 +778,7 @@
           }
         ]
       ],
-      "reading": "El informe reúne la definición temporal y las medidas espectrales. En Abrir gráfico elegí Espectro de la ventana para estudiar su módulo relativo; el selector lineal/dB viaja con la figura. El cruce de media potencia se refina sobre la DTFT de las muestras y es independiente de n₀. L no es la semilongitud ni el orden M. No se normaliza el pico, la suma ni la energía después de generar. La simetría no obliga a que exista una muestra central cuando L es par. Fuera del intervalo se usa cero; la ventana no se convierte en una secuencia periódica. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "El informe reúne la definición temporal y las medidas espectrales. En Abrir gráfico elegí Espectro de la ventana para estudiar su módulo relativo; el selector lineal/dB viaja con la figura. El cruce de media potencia se refina sobre la DTFT de las muestras y es independiente de n₀. L no es la semilongitud ni el orden M. No se normaliza el pico, la suma ni la energía después de generar. La simetría no obliga a que exista una muestra central cuando L es par. Fuera del intervalo se usa cero; la ventana no se convierte en una secuencia periódica."
     }
   ]
 }

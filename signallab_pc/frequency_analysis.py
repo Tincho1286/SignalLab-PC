@@ -168,46 +168,43 @@ def crossover_margins(system,omega,response,*,advance=0):
 
 def frequency_summary(exact,data):
     from .result_summary import Summary,Section,Formula,number
-    sections=[Section('Definición',paragraphs=[exact['scope']],formulas=[Formula('H = '+exact['transfer'],'H = '+exact['transfer'])])]
+    sections=[Section('Función de transferencia',formulas=[Formula('H = '+exact['transfer'],'H = '+exact['transfer'])])]
     if exact.get('model_kind') in ('expression','frequency'):
-        sections.append(Section('Alcance de la expresión',paragraphs=[exact.get('analysis_limits','La definición se conserva sin convertirla en una lista de coeficientes.'),exact.get('frequency_interpretation','')],rows=[('Condición de frecuencia',exact.get('frequency_condition','No determinada')),('Muestras excluidas por la condición',str(exact.get('masked_frequency_samples',0))) ]))
+        sections.append(Section('Validez de la expresión',paragraphs=[exact.get('frequency_interpretation') or exact['scope']],rows=[('Condición en frecuencia',exact.get('frequency_condition','No determinada')),('Puntos excluidos',str(exact.get('masked_frequency_samples',0)))]))
     if exact.get('cas_input_domain'):
-        sections.append(Section('Dominio de la fórmula de origen',rows=[('Condición del CAS',exact['cas_input_domain'])],
-            paragraphs=['Los polos y ceros corresponden a la forma racional. Un punto excluido por la expresión original puede tener un valor en su continuación racional.']))
+        sections.append(Section('Dominio de la fórmula original',rows=[('Condición del CAS',exact['cas_input_domain'])]))
     original=exact.get('source_calculation',{})
     if original.get('request',{}).get('operation')=='z_expression':
         source=original['request'];calculation=original.get('result',{});branches=calculation.get('branches',[])
-        sections.append(Section('Secuencia y soporte de origen',rows=[('Primer índice',str(source.get('lower','0'))),('Último índice',str(source.get('upper','oo'))),('Condición de Z',str(branches[0].get('condition','No determinada')) if branches else str(calculation.get('roc','No determinada')))],paragraphs=['Se interpreta la secuencia original como h[n], con el soporte indicado. Su DTFT se comprueba independientemente de la ROC abierta.'],formulas=[Formula('h[n] = '+source['expression'],'h[n] = '+source['expression'])]))
+        sections.append(Section('Secuencia de origen',rows=[('Primer índice',str(source.get('lower','0'))),('Último índice',str(source.get('upper','oo'))),('Convergencia de Z',str(branches[0].get('condition','No determinada')) if branches else str(calculation.get('roc','No determinada')))],formulas=[Formula('h[n] = '+source['expression'],'h[n] = '+source['expression'])]))
     if exact.get('frequency_limit_extensions'):
         sections.append(Section('Valores completados por límite',rows=[(item['role']+' en frecuencia '+item['point'],item['value']) for item in exact['frequency_limit_extensions']]))
     if exact.get('factored')!=exact['transfer']:sections.append(Section('Forma factorizada',formulas=[Formula(exact['factored'],exact['factored'])]))
-    if 'causal_impulse' in exact:sections.append(Section('Respuesta bajo hipótesis causal',paragraphs=['Este apartado impone soporte causal. Si se eligió otra ROC, no es la respuesta impulsiva bilateral de esa ROC.'],formulas=[Formula('h(t) = '+exact['causal_impulse'],'h(t) = '+exact['causal_impulse'])]))
+    if 'causal_impulse' in exact:sections.append(Section('Respuesta al impulso si el sistema es causal',formulas=[Formula('h(t) = '+exact['causal_impulse'],'h(t) = '+exact['causal_impulse'])]))
     if data is None:
         sections.append(Section('Vista numérica',paragraphs=[exact['frequency_notice']] if exact.get('frequency_notice') else ['Asigná valores a '+', '.join(exact.get('parameters',[]))+'.']))
         return Summary('Análisis del sistema',sections)
-    sections.append(Section('Respuesta en frecuencia',rows=[('Intervalo',number(data.omega[0])+' a '+number(data.omega[-1])+' '+data.units),
-        ('Frecuencias evaluadas',str(data.omega.size)),('Distribución','Logarítmica' if data.logarithmic else 'Lineal'),
-        ('Respuesta no disponible (N/D)',str(int(np.count_nonzero(~np.isfinite(data.response))))),
-        ('Retardo de grupo','Muestras' if data.system.domain=='digital' else 'Segundos')],
-        paragraphs=['En la figura podés alternar módulo lineal o dB sin recalcular. La fase y las frecuencias angulares se muestran en radianes. N/D indica un polo, una evaluación mal condicionada o un valor fuera del rango numérico; no equivale a cero. En ceros de H, fase y retardo no están definidos; el módulo en dB es −∞. La interpretación de la curva y las condiciones de convergencia se indican en la definición y en Condiciones de validez; una evaluación formal de H no demuestra por sí sola la existencia de Fourier.'],
-        formulas=[Formula('M = 20*log(abs(H))/log(10)','M = 20 log10 |H|')]))
-    if data.advance:sections.append(Section('Avance temporal',paragraphs=[f'La representación conserva un factor z elevado a {data.advance}. Se incluye en la respuesta, fase, retardo, exportación y reutilización para análisis; no se sustituye por un retardo causal. Una ROC sigue siendo necesaria para determinar la secuencia bilateral.']))
+    rows=[('Intervalo',number(data.omega[0])+' a '+number(data.omega[-1])+' '+data.units),
+          ('Frecuencias evaluadas',str(data.omega.size)),('Distribución','Logarítmica' if data.logarithmic else 'Lineal')]
+    unavailable=int(np.count_nonzero(~np.isfinite(data.response)))
+    if unavailable:rows.append(('Puntos sin respuesta (N/D)',str(unavailable)))
+    if data.advance:rows.append(('Avance temporal',f'{data.advance} muestras'))
+    sections.append(Section('Respuesta en frecuencia',rows=rows))
     margins=data.margins
     if margins is not None:
-        sections.append(Section('Márgenes de lazo abierto',paragraphs=[margins['convention'],margins['scope']]))
-        if not margins['available']:sections.append(Section('Alcance',paragraphs=[margins['reason']]))
+        if not margins['available']:sections.append(Section('Márgenes de lazo abierto',paragraphs=[margins['reason']]))
         else:
-            sections.append(Section('Intervalo de búsqueda',rows=[('Frecuencia',number(margins['interval'][0])+' a '+number(margins['interval'][1])+' '+margins['units'])],paragraphs=['Se excluye el cruce estático en frecuencia cero. En digital no se repiten cruces fuera de 0…π.']))
+            sections.append(Section('Márgenes de lazo abierto',rows=[('Intervalo de búsqueda',number(margins['interval'][0])+' a '+number(margins['interval'][1])+' '+margins['units'])],paragraphs=['Realimentación negativa unitaria.']))
             if margins['gain_crossings']:
                 rows=[('ωg = '+number(row['frequency'])+' '+data.units,'MF = '+number(row['phase_margin_rad'])+' rad') for row in margins['gain_crossings'][:20]]
-                sections.append(Section('Cruces de ganancia · |L| = 1',rows=rows,paragraphs=['MF es la distancia angular con signo al eje real negativo, en [−π, π). Un valor positivo representa el margen de fase convencional para el caso usual de fase decreciente.']))
-            else:sections.append(Section('Cruces de ganancia',paragraphs=['No se detectaron cruces aislados |L| = 1 en el intervalo. No se asigna un margen de fase infinito.']))
+                sections.append(Section('Cruces de ganancia (margen de fase)',rows=rows))
+            else:sections.append(Section('Cruces de ganancia',paragraphs=['Sin cruces aislados en el intervalo.']))
             if margins['phase_crossings']:
                 rows=[('ωp = '+number(row['frequency'])+' '+data.units,'MG = '+number(row['gain_margin'])+' · '+number(row['gain_margin_db'])+' dB') for row in margins['phase_crossings'][:20]]
-                sections.append(Section('Cruces de fase · L real negativo',rows=rows,formulas=[Formula('MG = 1/abs(L)','MG = 1 / |L| en el cruce de fase')]))
-            else:sections.append(Section('Cruces de fase',paragraphs=['No se detectaron cruces aislados de fase impar·π en el intervalo. No se declara un margen de ganancia infinito.']))
+                sections.append(Section('Cruces de fase (margen de ganancia)',rows=rows))
+            else:sections.append(Section('Cruces de fase',paragraphs=['Sin cruces aislados en el intervalo.']))
             if margins['nonisolated_gain'] or margins['nonisolated_phase']:
-                sections.append(Section('Cruces no aislados',paragraphs=['Hay tramos indistinguibles del nivel crítico con esta precisión numérica. No se asigna una lista de cruces únicos a esos tramos.']))
+                sections.append(Section('Cruces no aislados',paragraphs=['Hay tramos sobre el nivel buscado dentro de la precisión numérica.']))
             if margins['rejected_intervals']:sections.append(Section('Intervalos no resueltos',paragraphs=[str(margins['rejected_intervals'])+' candidatos no cumplieron la tolerancia o no pudieron resolverse; revisá singularidades y resolución.']))
             if max(len(margins['gain_crossings']),len(margins['phase_crossings']))>20:
                 sections.append(Section('Lista parcial',paragraphs=['Se muestran hasta 20 cruces de cada tipo; la exportación JSON conserva todos los detectados.']))

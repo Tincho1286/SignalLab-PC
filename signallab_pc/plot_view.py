@@ -67,7 +67,7 @@ def install_enlarge(toolbar):
     if editor is not None:editor.install_plot_controls(window,content)
     from PySide6.QtGui import QAction
     detail=QAction('Detalle vertical',toolbar);detail.setCheckable(True);detail.setChecked(bool(getattr(canvas.figure,'_signallab_detail_vertical',False)))
-    detail.setToolTip('Ajustar la escala a los valores originales, incluso variaciones muy pequeñas. Desactivado evita amplificar variaciones menores que 10⁻¹⁰ de la referencia visual (al menos 1). No se redondean ni se borran datos. El zoom manual sigue disponible.')
+    detail.setToolTip('Mostrar variaciones pequeñas en la escala automática.')
     canvas._signallab_detail_action=detail
     scale = QToolButton()
     scale.setObjectName('figureScale')
@@ -179,33 +179,27 @@ def prepare_figure(figure):
 
 
 def fit_axis_labels(canvas):
-    """Use horizontal labels when a stack of short panels cannot fit vertical text."""
+    """Keep labels vertical and adapt their size to the height of each row."""
     renderer = canvas.get_renderer()
     for axis in canvas.figure.axes:
         spec = axis.get_subplotspec()
         if spec is None or axis.name != 'rectilinear':
             continue
         label = axis.yaxis.label
-        original = getattr(label, '_signallab_label_alignment', None)
-        if original is None:
-            if not label.get_text() or label.get_rotation() not in (90, 270):
-                continue
-            original = label.get_rotation(), label.get_ha(), label.get_va()
+        if not label.get_text() or label.get_rotation() not in (90, 270):
+            continue
+        current = label.get_fontsize()
+        nominal, fitted = getattr(label, '_signallab_label_size', (current, current))
+        if current != fitted:
+            nominal = current
+        label.set_fontsize(nominal)
         rows = spec.get_gridspec().nrows
-        span = len(spec.rowspan)
-        available = canvas.figure.bbox.height * span / rows - 38
-        bounds = label.get_window_extent(renderer)
-        if label.get_text() and max(bounds.width, bounds.height) > available and rows > 1:
-            label._signallab_label_alignment = original
-            label.set_rotation(0)
-            label.set_ha('right' if axis.yaxis.get_label_position() == 'left' else 'left')
-            label.set_va('center')
-        elif hasattr(label, '_signallab_label_alignment'):
-            rotation, horizontal, vertical = original
-            label.set_rotation(rotation)
-            label.set_ha(horizontal)
-            label.set_va(vertical)
-            del label._signallab_label_alignment
+        available = canvas.figure.bbox.height * len(spec.rowspan) / rows - 32
+        length = label.get_window_extent(renderer).height
+        floor = min(8, nominal)
+        fitted = max(floor, nominal * available / length) if rows > 1 and length > available and length else nominal
+        label.set_fontsize(fitted)
+        label._signallab_label_size = nominal, fitted
 
 
 def install_figure_layout(canvas):
@@ -218,9 +212,9 @@ def install_figure_layout(canvas):
         note=getattr(canvas,'_signallab_scale_note',None)
         if note is not None:
             if any(getattr(axis,'_signallab_db_focused',False) for axis in protected):
-                note.setText('Vista en dB enfocada en el paso y los lóbulos. Para ver los nulos, abrí Escala vertical → Ajustar rango y elegí Rango completo.')
+                note.setText('dB enfocados en paso y lóbulos. Para ver los nulos, elegí Rango completo.')
             else:
-                note.setText('Escala estable en '+str(len(protected))+' panel(es). Para ver pequeñas variaciones, abrí Escala vertical y activá Detalle vertical.' if protected else '')
+                note.setText('Para ver variaciones pequeñas, activá Detalle vertical.' if protected else '')
             note.setVisible(bool(protected))
         return original_draw(*args,**kwargs)
     def print_figure(*args,**kwargs):

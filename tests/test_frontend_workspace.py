@@ -66,6 +66,44 @@ class Frontend(unittest.TestCase):
         combo=QComboBox();combo.addItems(['Una opción con un título extenso','Una segunda opción']);choices=ChoiceButtons(combo);self.widgets.append(choices);choices.resize(260,120);choices.show();self.settle();self.assertGreater(choices.buttons[1].y(),choices.buttons[0].y());choices.buttons[1].click();self.assertEqual(combo.currentIndex(),1);choices.resize(900,120);self.settle();self.assertEqual(choices.buttons[1].y(),choices.buttons[0].y())
     def test_nested_controls_use_one_scroll_container(self):
         content=QWidget();layout=QVBoxLayout(content);inner=QScrollArea();body=QWidget();inner.setWidget(body);layout.addWidget(inner);space=ToolWorkspace(content,QWidget());self.widgets.append(space);space.show();self.settle();self.assertEqual(len(space.inputs.findChildren(QScrollArea)),1);self.assertIs(body.parentWidget(),content)
+
+    def test_wrapped_controls_reserve_all_rows_in_a_short_scroll_view(self):
+        from signallab_pc.wrapping_row import WrappingRow
+        scroll = QScrollArea()
+        self.widgets.append(scroll)
+        scroll.setWidgetResizable(True)
+        body = QWidget()
+        layout = QVBoxLayout(body)
+        choices = WrappingRow()
+        layout.addWidget(choices)
+        buttons = [QPushButton('Una opción amplia ' + str(index)) for index in range(5)]
+        for button in buttons:
+            choices.flow.addWidget(button)
+        last = QPushButton('Último control')
+        layout.addWidget(last)
+        scroll.setWidget(body)
+        scroll.resize(320, 125)
+        scroll.show()
+        self.settle()
+        self.assertGreater(buttons[-1].y(), buttons[0].y())
+        self.assertTrue(choices.rect().contains(buttons[-1].geometry()))
+        self.assertLess(choices.geometry().bottom(), last.geometry().top())
+        scroll.verticalScrollBar().setValue(scroll.verticalScrollBar().maximum())
+        self.assertTrue(scroll.viewport().rect().contains(last.mapTo(scroll.viewport(), last.rect().center())))
+
+    def test_short_figure_keeps_vertical_axis_titles(self):
+        from matplotlib.backends.backend_agg import FigureCanvasAgg
+        from matplotlib.figure import Figure
+        from signallab_pc.plot_view import fit_axis_labels
+        figure = Figure(figsize=(5.6, 3.1))
+        canvas = FigureCanvasAgg(figure)
+        axes = figure.subplots(3, 1, sharex=True)
+        expected = ('Módulo (dB)', 'Fase continua (rad)', 'Retardo (muestras)')
+        for axis, label in zip(axes, expected):
+            axis.set_ylabel(label)
+        fit_axis_labels(canvas)
+        self.assertEqual(tuple(axis.get_ylabel() for axis in axes), expected)
+        self.assertTrue(all(axis.yaxis.label.get_rotation() == 90 for axis in axes))
     def test_result_choices_expose_complete_labels_and_keep_existing_callbacks(self):
         from signallab_pc.result_selector import install
         parent=QWidget();layout=QVBoxLayout(parent);bar=ResultActionBar();layout.addWidget(bar);tabs=ActiveTabs();layout.addWidget(tabs);self.widgets.append(parent);clicked=[];tabs.tabBar().tabBarClicked.connect(clicked.append)

@@ -189,7 +189,7 @@ def simulate(system,source,*,kind=None,duration=None,extra=0,interpolation='line
 
 def measurement_summary(metrics):
     from .result_summary import Summary,Section,number,Formula
-    if metrics is None:return Summary('Medidas del escalón',[Section('Entrada y condiciones',paragraphs=['Estas medidas corresponden al escalón unitario desde reposo. Elegí esa entrada para medir valor final, subida, sobreimpulso y permanencia en banda. La respuesta a una entrada propia o a memoria no nula conserva sus datos y gráficos sin asignarle estas medidas de escalón.'])])
+    if metrics is None:return Summary('Medidas del escalón',[Section('',paragraphs=['Elegí un escalón unitario desde reposo para obtener estas medidas.'])])
     notes=list(metrics.get('notes',[]));sections=[]
     if metrics.get('available'):
         unit=metrics['units'];target=metrics['final_value']
@@ -201,7 +201,7 @@ def measurement_summary(metrics):
         if physical:
             labels={'rise_time':'Subida 10–90 %','settling_from_start':'Desde el inicio hasta la banda','peak_from_start':'Desde el inicio hasta el extremo'}
             sections.append(Section('Lectura con el reloj registrado',rows=[(labels[key],'No disponible en segundos' if value is None else number(value)+' s') for key,value in physical.items()]))
-    sections.append(Section('Interpretación y alcance',paragraphs=notes))
+    if notes:sections.append(Section('Observaciones de esta medición',paragraphs=notes))
     return Summary('Medidas de la respuesta al escalón',sections)
 
 
@@ -209,13 +209,11 @@ def context_sections(snapshot):
     from .result_summary import Section
     source=snapshot['input'];outputs=snapshot['outputs'];digital=source.domain=='discrete';extension=source.metadata.get('response_extension')
     rows=[('Puntos de la entrada usada',str(len(source.values))),('Primera coordenada',str(source.origin)),('Última coordenada',str(int(source.axis[-1]) if digital else float(source.axis[-1])))]
-    paragraphs=['La entrada y la salida comparten el eje calculado. Comparación permite superponerlas y consultar las componentes con los cursores, sin recalcular. Cada señal conserva sus acciones de exportación y reutilización.']
+    paragraphs=[]
     if not digital:
         paragraphs.append('Entre puntos se usa interpolación lineal.' if snapshot['interpolation']=='linear' else 'Entre puntos se usa retención constante de la entrada; la comparación la dibuja como escalones.')
-        if snapshot['kind'] is None:paragraphs.append('Se reutiliza la entrada reconstruida desde sus muestras. Cuando había una fórmula original, se conserva además como un resultado padre; la reconstrucción no se presenta como si fuese esa función exacta entre puntos.')
     if extension:
         rows.extend([('Puntos cargados',str(extension['original_count'])),('Ceros agregados',str(extension['extra_count'])),('Última coordenada cargada',str(extension['last_loaded_coordinate']))]);paragraphs.append(extension['scope'])
-    else:paragraphs.append('No se calcula la evolución posterior a la ventana. En una entrada propia podés agregar puntos cero para observar la cola sin reescribir sus datos.')
-    if len(outputs)>1:paragraphs.append('Total = estado cero + entrada cero. El historial se ordena desde n₀−1 hacia atrás. La respuesta de entrada cero conserva la memoria previa; el inspector describe la realización usada, incluidas las secciones cuando corresponde.')
+    if len(outputs)>1:paragraphs.append('La salida total suma la respuesta a la entrada y la respuesta a la memoria inicial.')
     if snapshot['system'].sos is not None and outputs[0].metadata.get('realization')=='polynomial':paragraphs.append('El historial global de entradas y salidas se ejecuta con la ecuación polinómica, no como estados internos SOS. En órdenes altos puede perder precisión; las tres componentes usan esa misma realización.')
-    return [Section('Entrada, comparación y ventana observada',rows=rows,paragraphs=paragraphs)]
+    return [Section('Intervalo calculado',rows=rows,paragraphs=paragraphs)]

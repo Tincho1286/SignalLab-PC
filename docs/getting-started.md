@@ -8,15 +8,14 @@ Descargá la [versión estable](https://github.com/Tincho1286/SignalLab-PC/relea
 
 ## Resolver un problema
 
-En la **1.8.15 preliminar**, abrí **Herramientas** y elegí un área o escribí una búsqueda. El enlace sobre el título de un cálculo vuelve a su área. En una ventana angosta, **Datos de entrada** y **Resultado** se muestran en pestañas. También podés ampliarlo con **Ctrl+Mayús+R**.
+Las preliminares con el nuevo escritorio reúnen la navegación en **Herramientas**. En la edición estable 1.8.14, elegí la operación desde el explorador. En ambas podés buscar con **Ctrl+K**.
 
-1. Elegí una operación desde el explorador o buscala con **Ctrl+K**.
-2. Completá sus entradas. Según la operación, podés usar fórmulas, tramos, muestras, archivos o resultados compatibles.
-3. Presioná **Calcular** o **Ctrl+Enter**.
-4. Leé el informe y sus condiciones. Abrí la tabla o el gráfico desde las acciones del área de resultados.
-5. Exportá la salida o elegí **Usar señal en…**, **Usar filtro en…** o el destino compatible para continuar.
+1. Elegí la herramienta y completá sus entradas. Según la operación, podés usar fórmulas, tramos, muestras, archivos o resultados compatibles.
+2. Presioná **Calcular** o **Ctrl+Enter**.
+3. Consultá el informe o la tabla. **Abrir gráfico** abre la figura en otra ventana.
+4. Exportá la salida o elegí **Usar señal en…** o **Usar filtro en…** para continuar con ese resultado.
 
-Cada herramienta conserva sus parámetros. Cuando hay dos operandos, cada uno tiene sus propios datos: por ejemplo, podés multiplicar una señal importada por una ventana calculada sin convertirlas primero en una única señal de proyecto.
+Cada variante conserva sus parámetros. Podés volver a su área desde el enlace sobre el título. Cuando hay poco ancho, **Datos de entrada** y **Resultado** se muestran en pestañas. **Ctrl+Mayús+R** amplía el informe.
 
 ## Ejemplo: generar y estudiar una ventana
 
@@ -34,7 +33,7 @@ Para continuar el álgebra, enviá la expresión al **CAS**. Allí podés simpli
 
 ## Ayuda y apariencia
 
-Presioná **F1** para consultar la explicación de la herramienta activa. En **Vista → Tema** podés elegir una paleta oscura o clara, o configurar una imagen de fondo. La elección se conserva al reiniciar; la [guía de apariencia](appearance.md) describe las opciones de intensidad y transparencia.
+Presioná **F1** para consultar los parámetros, el método de cálculo y sus límites. En la Biblioteca también están **Interfaz de trabajo**, **Gráficos y cursores** y **Valores por continuidad**. En **Vista → Tema** podés elegir una paleta clara u oscura o cargar una foto. La elección se conserva al reiniciar. [Guía de apariencia](appearance.md).
 
 ## Atajos
 

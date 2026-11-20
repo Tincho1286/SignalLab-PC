@@ -314,7 +314,7 @@
           }
         ]
       ],
-      "reading": "El resultado es y=x·w, no una convolución ni un producto con conjugación. No se normaliza la ganancia. Los productos generales de Dirac no se admiten como productos de muestras. Para diseñar un FIR desde h[n] y elegir L independientemente usá Diseñar filtro → FIR → h[n] propia. Cambiar de operación conserva sus datos y resultado hasta volver a calcular. En las figuras 2D, Cursores muestra las coordenadas y valores de las trazas. Mové el mouse; un clic fija A y el siguiente fija B. Seguir o Esc libera ambos. La tabla muestra Δx y Δy; Copiar conserva la precisión completa. Los paneles con eje compatible comparten la lectura. No se interpola entre muestras; una fase principal puede saltar 2π. Los cursores no cambian la escala ni aparecen en la exportación. En el editor de polos y ceros, los clics conservan su función de diseño: fijá A/B con los botones."
+      "reading": "El resultado es y=x·w, no una convolución ni un producto con conjugación. No se normaliza la ganancia. Los productos generales de Dirac no se admiten como productos de muestras. Para diseñar un FIR desde h[n] y elegir L independientemente usá Diseñar filtro → FIR → h[n] propia. Cambiar de operación conserva sus datos y resultado hasta volver a calcular."
     },
     {
       "key": [

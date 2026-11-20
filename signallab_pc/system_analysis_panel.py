@@ -329,10 +329,10 @@ class SystemAnalysisPanel(QWidget):
                 from .result_summary import Section
                 if system is not None:
                     from .system_conditions import section
-                    summary.sections.insert(0,section(system))
+                    summary.sections.insert(1,section(system))
                 if system is not None and system.sample_period_s is not None:
                     from .result_summary import Section,number
-                    summary.sections.insert(0,Section('Reloj físico',rows=[('Período T (s)',number(system.sample_period_s))],paragraphs=['La frecuencia digital permanece en rad/muestra. El reloj se conserva al exportar o reutilizar el sistema.']))
+                    summary.sections.append(Section('Muestreo del sistema',rows=[('Período T (s)',number(system.sample_period_s))]))
                 self.report.set_readable(summary);self.result_state.accept(calculated_inputs)
             self.window._run_operation('Analizando sistema algebraico y numérico…',compute,accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá el sistema',str(exc))
@@ -361,7 +361,7 @@ class SystemAnalysisPanel(QWidget):
                     message = 'Respuesta no definida en el intervalo'
                 axes[0].text(.5, .5, message, ha='center', transform=axes[0].transAxes)
             if not np.isfinite(data.phase).any():axes[1].text(.5,.5,'Ángulo no definido en el intervalo',ha='center',transform=axes[1].transAxes)
-        axes[2].plot(omega,data.delay);axes[2].set_ylabel('Retardo de grupo (muestras)' if data.system.domain=='digital' else 'Retardo de grupo (s)')
+        axes[2].plot(omega,data.delay);axes[2].set_ylabel('Retardo (muestras)' if data.system.domain=='digital' else 'Retardo (s)')
         from .plot_inspection import system_curve
         components=('real','imag','delay') if cartesian else ('db' if db else 'magnitude','phase','delay')
         for axis,component in zip(axes,components):

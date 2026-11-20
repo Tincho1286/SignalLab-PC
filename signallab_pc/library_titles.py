@@ -2,6 +2,8 @@
 TOPICS=('Primeros pasos','Señales','Convolución y correlación','Sistemas','Filtros','Fourier y espectros','Laplace y Z','Muestreo','Ecuaciones','Señales aleatorias','Matemática y CAS')
 CONCEPT_CATEGORIES={
  'Interfaz de trabajo':0,
+ 'Gráficos y cursores':0,
+ 'Valores por continuidad':0,
  'Glosario: siglas y palabras frecuentes':0,
  'Señal, eje y dominio':0,
  'Energía, potencia y valor eficaz':1,

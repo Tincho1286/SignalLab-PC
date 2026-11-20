@@ -10,10 +10,4 @@ def add(keys,purpose,load,result,conditions):
 
 def article_blocks(route):
     # Missing authorship is an error during development, not generic prose in UI.
-    blocks=list(ARTICLES[tuple(route[1:3])])
-    from .tool_catalog import locate
-    entry=locate(route)
-    if entry and len(entry['variants'])>1:blocks.insert(2,('Cambiar de vista','Cada variante conserva su entrada y su último resultado. La primera vez puede prepararse una copia compatible de la vista anterior. Al volver, tus datos se conservan; el enlace Copiar entrada permite reemplazarlos cuando lo elegís. Copiar datos no recalcula ni modifica una salida ya obtenida.'))
-    blocks.append(('Leer las figuras','Abrir gráfico muestra la figura en una ventana independiente. En Curvas y medidas, Definición desarrolla la componente seleccionada cuando se conserva su fórmula: el módulo se obtiene de las partes real e imaginaria y la fase se expresa con arctangente, respetando los cuadrantes. La fase continua aplica además el desenrollado indicado. Máximos y mínimos completa su tabla al abrirse; compara puntos calculados en la vista, en toda la curva o entre A/B. No deriva la fórmula ni garantiza extremos entre muestras. Actualizar máximos y mínimos vuelve a medir el intervalo; elegir una fila la marca en el gráfico y permite colocar un cursor o exportar la tabla. Los cursores fijos se pueden arrastrar; el editor de polos y ceros conserva sus gestos de diseño.'))
-    blocks.append(('Biblioteca de resultados','Al calcular, la salida queda registrada en Resultados junto con su herramienta de origen. Allí podés consultarla, exportarla o usarla en un destino compatible. Una expresión se conserva como fórmula con sus condiciones: no necesitás convertirla primero en una función de transferencia. Las muestras, los sistemas y los modelos de estados conservan sus propios tipos.'))
-    return blocks
+    return list(ARTICLES[tuple(route[1:3])])

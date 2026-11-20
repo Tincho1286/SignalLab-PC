@@ -6,8 +6,6 @@ import ast,html
 _active=ContextVar('signallab_calculation_notes',default=None)
 _source=ContextVar('signallab_expression_source',default=None)
 TITLE='Levantamiento de indeterminaciones'
-CRITERION='Se completó la expresión por continuidad: los límites por izquierda y por derecha coinciden y son finitos.'
-SCOPE='En una secuencia discreta es una convención de carga de la fórmula. Un valor definido explícitamente por tramos se conserva. Los polos, las divergencias y los límites laterales distintos no se levantan con este criterio.'
 
 @contextmanager
 def capture():
@@ -50,19 +48,19 @@ def record_extension(expression,variable,point,value):
 
 def plain_text(records):
     if not records:return ''
-    lines=[TITLE,CRITERION]
-    for record in records:lines.append(record['expression']+'; '+record['variable']+' = '+record['point']+' → valor usado: '+record['value'])
-    return '\n\n'.join([*lines,SCOPE])
+    lines=[TITLE,'Valores completados por continuidad.']
+    for record in records:lines.append(record['expression']+' en '+record['variable']+' = '+record['point']+' → '+record['value'])
+    return '\n\n'.join(lines)
 
 def callout_html(records,render=None):
     if not records:return ''
-    parts=['<div style="background-color:#172e35;border-left:3px solid #79c4ad;padding:12px;margin-bottom:16px"><h2>'+TITLE+'</h2><p>'+CRITERION+'</p>']
+    parts=['<div style="background-color:#172e35;border-left:3px solid #79c4ad;padding:12px"><h2>'+TITLE+'</h2><p>Valores completados por continuidad.</p>']
     for record in records:
         formula=None
         if render:
             try:formula=render(record['latex'])
             except (ValueError,TypeError,RuntimeError):pass
-        text=record['expression']+'; '+record['variable']+' = '+record['point']+' → '+record['value']
+        text=record['expression']+' en '+record['variable']+' = '+record['point']+' → '+record['value']
         parts.append('<p>'+(formula or html.escape(text))+'</p>')
-    parts.extend(['<p>'+SCOPE+'</p></div>'])
+    parts.append('</div>')
     return ''.join(parts)

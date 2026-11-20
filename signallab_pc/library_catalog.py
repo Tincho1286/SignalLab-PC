@@ -71,14 +71,16 @@ def sections():
     from .function_reference import function_sections
     from .learning_content import concept_sections
     from .help_content import sections as tools
-    from .desktop_help import sections as desktop
+    from .desktop_help import ARTICLE_ID,FIGURES_ID,sections as desktop
     from .workspaces import ROUTES
     values=desktop()+cas_sections()+function_sections()+concept_sections()+tools()
-    for index,section in enumerate(values):
+    for section in values:
         route=section.get('route')
         section.setdefault('article_id','tool:'+str(route[1])+':'+str(route[2]) if route else 'reference:'+section['title'])
         section['category']=category(section)
         section['content_kind']='reference' if section.get('reference') else 'tool' if route else 'concept'
+        if section['content_kind']=='tool':
+            section.setdefault('related',[]).extend([(ARTICLE_ID,'Interfaz de trabajo'),(FIGURES_ID,'Gráficos y cursores')])
     for example in example_records():
         route=ROUTES[tuple(example['tool'])]
         values.append(dict(title='Ejemplo: '+example['title'],article_id='example:'+example['id'],category=example['category'],route=route,content_kind='example',example=example,blocks=[('Enunciado',example['statement']),('Objetivo',example['objective']),('Datos',data_description(example['request'])),('Procedimiento verificado',example['procedure']),('Relación matemática',example['expected']),('Condiciones',example['conditions']),('Interpretación',example['interpretation'])]))
@@ -95,7 +97,7 @@ def sections():
     for relation in read_data('relations.json','relations'):
         source=tuple(relation['key']);targets=list(map(tuple,relation['targets']))
         if source in seen or source not in tools_by_key or len(targets)!=len(set(targets)) or any(target not in tools_by_key for target in targets):raise ValueError('Referencia cruzada inválida o duplicada en la biblioteca.')
-        seen.add(source);tools_by_key[source]['related']=[(tools_by_key[target]['article_id'],tools_by_key[target]['title']) for target in targets]
+        seen.add(source);tools_by_key[source].setdefault('related',[]).extend((tools_by_key[target]['article_id'],tools_by_key[target]['title']) for target in targets)
     order={'concept':0,'tool':1,'example':2,'reference':3}
     values.sort(key=lambda value:(CATEGORIES.index(value['category']),order[value['content_kind']],value['title']))
     return values
