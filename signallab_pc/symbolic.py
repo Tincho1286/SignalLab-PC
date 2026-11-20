@@ -197,6 +197,7 @@ def _execute(request):
                 'convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic',
                 'scope':'Secuencia indicada entre límites inclusivos; cero fuera si los límites son finitos. Las condiciones y ramas de convergencia permanecen dentro de la expresión.'},definition,exact=result)
     if operation in ('fourier_angular','inverse_fourier_angular'):
+        from .periodic_fourier import periodic_fourier_pair
         frequency=sp.Dummy('frequency',real=True)
         from .expression_definition import prepare,attach
         inverse=operation=='inverse_fourier_angular'
@@ -205,6 +206,15 @@ def _execute(request):
         if inverse:
             from .inverse_frequency_domain import require_inverse_domain
             require_inverse_domain(request,value,sp.S.Reals,W)
+            if request.get('periodic_fourier_source'):
+                original=prepare(request['periodic_fourier_source'],T,'continuous').integral_expression()
+                pair=periodic_fourier_pair(original,T,W)
+                if pair is not None and parse(str(pair[0]))==parse(expression):
+                    exact=pair[1]
+                    return attach({'operation':operation,'result':str(exact),'condition':'True','evaluated':True,
+                        'output_variable':'t','frequency_units':'rad/s','method':'periodic_fourier_pair',
+                        'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
+                        'scope':'Se recupera el período que genera estas líneas. En un salto se toma el promedio de ambos límites laterales. El espectro no distingue cambios en instantes aislados.'},definition,exact=exact)
             from .fourier_bands import inverse_bands
             records=[];exact=inverse_bands(value,W,T,discrete=False,trace=records)
             if exact is not None:
@@ -212,6 +222,15 @@ def _execute(request):
                     'output_variable':'t','frequency_units':'rad/s',
                     'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
                     'scope':'Inversa por integración de bandas y pares de Fourier. Los valores aislados de frecuencia tienen medida nula.'},definition,exact=exact)
+        else:
+            pair=periodic_fourier_pair(value,T,W)
+            if pair is not None:
+                exact=pair[0]
+                return attach({'operation':operation,'result':str(exact),'condition':'True','evaluated':True,
+                    'output_variable':'w','frequency_units':'rad/s','method':'periodic_fourier_pair',
+                    'periodic_fourier_source':expression,
+                    'convention':'X(w) = integral x(t) exp(-i*w*t) dt',
+                    'scope':'Las líneas están separadas por 2π/T. Cada área se calcula integrando un período y multiplicando por 2π/T.'},definition,exact=exact)
         from .impulse_pairs import fourier_pairs
         from .fourier_ordinary_pairs import pairs as ordinary_pairs
         records=[]

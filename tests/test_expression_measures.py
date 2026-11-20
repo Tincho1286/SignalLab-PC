@@ -35,6 +35,16 @@ class ExpressionMeasureTests(unittest.TestCase):
                 mixed=self.measure(f'1+exp(-abs({variable}))*cos({variable})',domain=domain,mode='global')
                 self.assertEqual(mixed['energy']['exact'],'oo')
                 self.assertEqual(mixed['mean_square']['exact'],'1')
+    def test_oscillatory_envelopes_have_exact_zero_power(self):
+        cases=(('n','discrete',1.8113713486543286),('t','continuous',np.pi*(1+np.exp(-2))/2))
+        for variable,domain,energy in cases:
+            with self.subTest(domain=domain):
+                result=self.measure(f'cos({variable})/sqrt(1+{variable}^2)',domain=domain,mode='global')
+                self.assertEqual(result['mean_square']['exact'],'0')
+                self.assertAlmostEqual(result['energy']['approximation'],energy,places=12)
+        result=self.measure('cos(n)/sqrt(1+abs(n))',domain='discrete',mode='global')
+        self.assertEqual(result['energy']['exact'],'oo')
+        self.assertEqual(result['mean_square']['exact'],'0')
     def test_harmonic_power_without_requiring_a_period(self):
         cases=(('discrete','Cos(n)','1/2'),('discrete','cos(pi*n)','1'),
                ('discrete','cos(n)+cos((2*pi+1)*n)','2'),('discrete','cos(pi*n)/sqrt(2)','1/2'),

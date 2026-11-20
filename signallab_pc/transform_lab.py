@@ -177,7 +177,8 @@ class TransformLab(QWidget):
         from .transform_steps import summary as steps_summary
         self.steps.set_readable(steps_summary(result.get('derivation',[])));self.tabs.setTabVisible(self.steps_index,bool(result.get('derivation')))
         if result.get('boundary_dtft'):self.to_cas_button.setText('Enviar DTFT al CAS')
-        self.to_cas_button.setEnabled(bool(result.get('boundary_dtft')) or result.get('evaluated',True) and len(result.get('branches',[]))<=1)
+        elif result.get('boundary_fourier'):self.to_cas_button.setText('Enviar espectro de Fourier al CAS')
+        self.to_cas_button.setEnabled(bool(result.get('boundary_dtft') or result.get('boundary_fourier')) or result.get('evaluated',True) and len(result.get('branches',[]))<=1)
         direct=request['operation'] not in ('inverse_laplace','z_inverse_expression')
         self.reuse_button.setText('Usar expresión en…' if direct else 'Usar señal en…')
         self.reuse_button.setEnabled(self.to_cas_button.isEnabled())

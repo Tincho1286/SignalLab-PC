@@ -198,11 +198,14 @@ def transform_summary(request,result):
     if result.get('boundary_dtft'):
         boundary='X(exp(i*w)) = '+result['boundary_dtft']
         sections.append(Section('Transformada de Fourier (DTFT)',paragraphs=['La DTFT existe aunque la transformada Z carece de una ROC abierta. Su período es 2π y en los saltos toma el promedio de los límites laterales.'],formulas=[Formula(boundary,boundary)]))
+    elif result.get('boundary_fourier'):
+        boundary='X(w) = '+result['boundary_fourier']
+        sections.append(Section('Espectro de Fourier continuo',paragraphs=['La señal periódica tiene un espectro de líneas que podés reutilizar en Fourier inversa.'],formulas=[Formula(boundary,boundary)]))
     if branches:
         for i,branch in enumerate(branches):
             expression=lhs+' = '+branch['expression']
             sections.append(Section('Resultado condicionado' if len(branches)==1 else 'Resultado: rama '+str(i+1),rows=[('Válido cuando',branch['condition'])],formulas=[Formula(expression,expression)]))
-    elif not result.get('boundary_dtft'):
+    elif not (result.get('boundary_dtft') or result.get('boundary_fourier')):
         expression=lhs+' = '+result.get('display_result',result['result'])
         terms=result.get('display_terms',[]);lines=[]
         if len(terms)>1:lines=[lhs+' = '+terms[0],*[(term if term.startswith('-') else '+'+term) for term in terms[1:]]]
@@ -238,7 +241,7 @@ def expression_measure_summary(request,result):
     if mode=='interval':rows=[('Desde',request['lower']),('Hasta',request['upper'])]
     if mode=='periodic':rows=[('Período en muestras' if discrete else 'Período (s)',request['period'])]
     sections.append(Section('Alcance',rows=rows,paragraphs=[result['scope']]))
-    states={'finite':'Finito','divergent':'Divergente (+∞)','conditional':'Sujeto a parámetros o condiciones','unevaluated':'Pendiente de evaluación','undetermined':'No determinado','undefined':'No definido'}
+    states={'finite':'Finito','divergent':'Divergente (+∞)','conditional':'Sujeto a parámetros o condiciones','unevaluated':'Pendiente de evaluación','convergent':'Finito, en forma de suma o integral','undetermined':'No determinado','undefined':'No definido'}
     quantities=[('Energía del intervalo' if mode=='interval' else 'Energía total','E',result['energy']),('Promedio cuadrático del intervalo' if mode=='interval' else 'Potencia media','P',result['mean_square']),('Valor eficaz','R',result['rms'])]
     if 'period_energy' in result:quantities.append(('Energía de un período','Ep',result['period_energy']))
     for title,symbol,data in quantities:

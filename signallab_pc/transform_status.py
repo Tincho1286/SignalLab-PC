@@ -29,7 +29,11 @@ def finalize(result):
     complete=bool(result.get('evaluated',False)) and (bool(valid) if branches else closed(result['result'])) and not empty and len(valid)==len(branches)
     result['evaluated']=complete
     restricted=bool(valid) or any(result.get(name) not in (None,'','True','Todo el plano s finito','Todo z finito') for name in ('condition','roc','convergence','roc_finite_plane'))
-    if empty:code,label='no_convergence',('DTFT disponible; sin anillo abierto de ROC' if result.get('boundary_dtft') else 'Sin región de convergencia')
+    if empty:
+        label='Sin región de convergencia'
+        if result.get('boundary_dtft'):label='DTFT disponible con ROC vacía'
+        elif result.get('boundary_fourier'):label='Fourier continua disponible con ROC vacía'
+        code='no_convergence'
     elif complete and restricted:code,label='conditional','Expresión obtenida con condiciones'
     elif complete:code,label='computed','Expresión obtenida'
     elif valid:code,label='partial','Resultado parcialmente resuelto'

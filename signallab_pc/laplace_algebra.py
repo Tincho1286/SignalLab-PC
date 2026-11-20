@@ -23,6 +23,19 @@ def direct(request):
     value = definition.integral_expression()
     if value.has(S, N, Z, W):
         raise ValueError('Laplace directa: ingresá x(t) usando t.')
+    from .periodic_signals import affine_train_term
+    from .periodic_fourier import periodic_fourier_pair
+    from .impulse_pairs import fourier_pairs
+
+    periodic = periodic_fourier_pair(value,T,W) if value.has(sp.Mod) else None
+    if (periodic is not None and periodic[0] != 0) or affine_train_term(value,T) is not None:
+        spectrum = periodic[0] if periodic is not None else fourier_pairs(value,T,W)[0]
+        return attach({'operation':'Laplace bilateral','output_variable':'s','evaluated':False,
+            'result':str(sp.Integral(value*sp.exp(-S*T),(T,-sp.oo,sp.oo))),'condition':'False',
+            'convergence_empty':True,'roc':'Vacía para una señal periódica bilateral no nula',
+            'roc_lower':'0','roc_upper':'0','boundary_fourier':str(spectrum),'boundary_distribution':True,
+            'periodic_fourier_source':request['expression'] if periodic is not None else None,
+            'scope':'La cola derecha requiere Re(s) > 0 y la izquierda requiere Re(s) < 0. En el eje imaginario la transformada de Fourier está definida como espectro de líneas.'},definition)
     # Distributions at t=0 belong to the full transform once, not to both
     # unilateral halves. Integrate singular additive terms separately.
     regular = []; singular = []

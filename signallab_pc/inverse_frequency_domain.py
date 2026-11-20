@@ -25,7 +25,14 @@ def require_inverse_domain(request,value,domain,variable):
     except (SyntaxError,TypeError,NotImplementedError) as exc:
         raise ValueError('No se pudo verificar el dominio de la fórmula importada.') from exc
     if omitted is sp.S.EmptySet:return
-    if isinstance(omitted,sp.FiniteSet) and not value.has(sp.DiracDelta):return
+    if isinstance(omitted,sp.FiniteSet):
+        from .periodic_signals import ImpulseTrain
+        if not value.has(sp.DiracDelta,ImpulseTrain):return
+        from .impulse_pairs import distribution_parts
+        try:
+            if all(not distribution_parts(value,variable,point,point)[1] for point in omitted):return
+        except (ValueError,NotImplementedError,TypeError):
+            pass
     raise ValueError('La fórmula importada no está definida en todo el intervalo de la inversa. Definí explícitamente los tramos faltantes antes de integrarla.')
 
 

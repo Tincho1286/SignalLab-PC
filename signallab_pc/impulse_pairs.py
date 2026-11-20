@@ -206,6 +206,7 @@ def fourier_pairs(value,variable,output,*,inverse=False):
 
 def unilateral_laplace(value,variable,output):
     """Keep 0-minus impulse weights and derivative scaling out of generic tables."""
+    from .periodic_fourier import periodic_laplace
     from .periodic_signals import affine_train_term
 
     known=[];remaining=[];periodic=[]
@@ -214,6 +215,10 @@ def unilateral_laplace(value,variable,output):
         if train is not None:
             period,origin,area=train
             periodic.append(area*sp.exp(-output*sp.Mod(origin,period))/(1-sp.exp(-output*period)))
+            continue
+        extension=periodic_laplace(term,variable,output) if term.has(sp.Mod) else None
+        if extension is not None:
+            periodic.append(extension)
             continue
         answer=impulse_integral(term,variable,sp.exp(-output*variable),sp.S.Zero,sp.oo) if term.has(sp.DiracDelta) else None
         (remaining if answer is None else known).append(term if answer is None else answer)

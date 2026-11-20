@@ -48,8 +48,8 @@ def measure_expression(request):
         if expression.has(sp.Piecewise) or expression.free_symbols:return 'conditional'
         if expression.is_real is True and expression.is_nonnegative is True and expression.is_finite is True:return 'finite'
         return 'undetermined'
-    def record(expression):
-        status=state(expression);data={'exact':str(expression),'status':status}
+    def record(expression,*,convergent=False):
+        status=state(expression);data={'exact':str(expression),'status':'convergent' if status=='unevaluated' and convergent else status}
         if status=='finite':
             approximation=float(sp.N(expression,17))
             if math.isfinite(approximation):data['approximation']=approximation
@@ -68,7 +68,7 @@ def measure_expression(request):
                 return sp.Add(*samples)*(cycle/len(samples))
         return accumulated(first,first+cycle-(1 if domain=='discrete' else 0),density)
     wrapping=wrapped_period(value if mode=='periodic' else power_density,variable) if mode!='interval' else None
-    interval_energy=None;period_verified=False
+    interval_energy=None;period_verified=False;energy_converges=False
     if mode=='interval':
         lower=constant(request.get('lower','0'),domain=='discrete');upper=constant(request.get('upper','1'),domain=='discrete')
         if upper<lower or domain=='continuous' and upper==lower:raise ValueError('El intervalo debe ser creciente; en discreto puede contener un único índice.')
@@ -95,6 +95,7 @@ def measure_expression(request):
         classification=None
     else:
         from .harmonic_measures import exponential_energy, harmonic_power, piecewise_harmonic_power, rational_tail_measures
+        from .oscillatory_measures import oscillatory_measures
 
         lower,upper=-sp.oo,sp.oo
         power=harmonic_power(value,variable) if wrapping is None else None
@@ -116,6 +117,17 @@ def measure_expression(request):
         elif (asymptotic:=rational_tail_measures(power_density,variable)) is not None:
             energy,power=asymptotic
             scope='La energía diverge. El promedio simétrico se determina por los límites de la densidad o por sus polos no integrables.'
+        elif (oscillatory:=oscillatory_measures(power_density,variable)) is not None:
+            power,energy,energy_converges=oscillatory
+            if energy is None:
+                aggregate=sp.Sum if domain=='discrete' else sp.Integral
+                energy=aggregate(power_density,(variable,lower,upper))
+                if power_density.is_rational_function(variable):
+                    try:energy=accumulated(lower,upper)
+                    except (NotImplementedError,RecursionError):pass
+            scope='El promedio se obtiene de la componente constante de la densidad en cada semieje. Las componentes oscilatorias con amplitud acotada tienen promedio nulo cuando su frecuencia efectiva es distinta de cero.'
+            if energy_converges and unresolved(energy):
+                scope+=' El decaimiento de la densidad certifica que la energía total es finita.'
         else:
             aggregate=sp.Sum if domain=='discrete' else sp.Integral
             try:energy=accumulated(lower,upper)
@@ -134,13 +146,13 @@ def measure_expression(request):
         classification=None
     if classification is None:
         if energy==0:classification='Energía nula'
-        elif state(energy)=='finite' and energy.is_positive is True:classification='Señal de energía'
+        elif state(energy)=='finite' and energy.is_positive is True or energy_converges and unresolved(energy):classification='Señal de energía'
         elif state(power)=='finite' and power.is_positive is True:classification='Señal de potencia'
-        elif energy==sp.oo and power==sp.oo:classification='Ni señal de energía ni de potencia finita'
+        elif energy==sp.oo and power in (0,sp.oo):classification='Ni señal de energía ni de potencia finita'
         else:classification='Clasificación no determinada; revisar condiciones o resultados pendientes'
     rms=sp.sqrt(power)
     result={'operation':'signal_measures_expression','domain':domain,'mode':mode,'expression':request['expression'],'resolved_expression':str(value),
-        'energy':record(energy),'mean_square':record(power),'rms':record(rms),'classification':classification,'scope':scope,
+        'energy':record(energy,convergent=energy_converges),'mean_square':record(power),'rms':record(rms),'classification':classification,'scope':scope,
         'power_density':str(power_density),'bounds':[str(lower),str(upper)],'period_verified':period_verified,
         'convention':'E=sum |x[n]|^2; P=lim M→∞ sum(n=-M..M) |x[n]|^2/(2M+1)' if domain=='discrete' else 'E=integral |x(t)|^2 dt; P=lim R→∞ integral(-R..R) |x(t)|^2 dt/(2R)',
         'parameters':sorted(str(p) for p in value.free_symbols-{variable})}

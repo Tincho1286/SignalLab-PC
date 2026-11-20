@@ -18,6 +18,19 @@ class SymbolicFourierTests(unittest.TestCase):
     def test_time_shift_phase(self):
         result=self.transform('exp(-(t-2)^2)')
         self.assertEqual(sp.simplify(parse(result['result'])-sp.sqrt(sp.pi)*sp.exp(-W**2/4)*sp.exp(-2*sp.I*W)),0)
+    def test_unilateral_laplace_of_shifted_pulse_uses_a_complete_cycle(self):
+        from signallab_pc.symbolic import S
+        result=execute(dict(operation='laplace',interpretation='unilateral',expression='PulseTrain(t+1/4,1,1/2)'))
+        self.assertTrue(result['evaluated']);self.assertEqual(result['convergence_abscissa'],'0')
+        expected=(1-sp.exp(-S/4)+sp.exp(-3*S/4)-sp.exp(-S))/(S*(1-sp.exp(-S)))
+        self.assertEqual(sp.simplify(parse(result['result'])-expected),0)
+    def test_an_excluded_frequency_cannot_drop_an_impulse_train_line(self):
+        request=dict(operation='inverse_fourier_angular',expression='2*pi*ImpulseTrain(w,2*pi)',input_frequency_condition='Ne(w,0)')
+        with self.assertRaisesRegex(ValueError,'no está definida'):
+            execute(request)
+        request['input_frequency_condition']='Ne(w,pi)'
+        result=execute(request)
+        self.assertTrue(result['evaluated']);self.assertEqual(parse(result['result']),parse('ImpulseTrain(t,1)'))
     def test_complex_grid_and_constant(self):
         result=execute(dict(operation='expression_grid',variable='w',expression='exp(-i*w)',start=0,stop=1,count=5))
         values=np.array([complex(*v) for v in result['samples']]);np.testing.assert_allclose(values,np.exp(-1j*np.linspace(0,1,5)))

@@ -116,6 +116,10 @@ class SymbolicFourierPanel(QWidget):
         if intact and self.inverse:
             request['input_frequency_condition']=self._frequency_condition
             if self._frequency_origin is not None:request['period_origin']=self._frequency_origin
+            if parent and not self.discrete:
+                record=self.window.project.get(parent)
+                source=record.get('result',{}).get('periodic_fourier_source') if isinstance(record,dict) else None
+                if source:request['periodic_fourier_source']=source
         if self.discrete and not self.inverse:request.update(lower=self.lower.text(),upper=self.upper.text())
         snapshot=self.result_state.snapshot()
         def accept(result):

@@ -28,9 +28,10 @@ def expression_result(value):
     result=value.get('result');request=value.get('request',{})
     if not isinstance(result,dict):return None
     if result.get('evaluated') is False:
-        if result.get('boundary_dtft'):
-            text=result['boundary_dtft']
-            return ExpressionResult(text,'w',tuple(str(result[k]) for k in ('roc','scope') if result.get(k)), 'rad/muestra',distribution=bool(result.get('boundary_distribution')) or distribution_source(text))
+        boundary=result.get('boundary_dtft') or result.get('boundary_fourier')
+        if boundary:
+            units='rad/muestra' if result.get('boundary_dtft') else 'rad/s'
+            return ExpressionResult(boundary,'w',tuple(str(result[k]) for k in ('roc','scope') if result.get(k)),units,distribution=bool(result.get('boundary_distribution')) or distribution_source(boundary))
         return None
     branches=result.get('branches',[])
     if len(branches)>1:return None
@@ -71,7 +72,7 @@ def signal_source(source):
 def frequency_validity(record):
     if not isinstance(record,dict):return 'True'
     result=record.get('cas_answer') or record.get('result',{})
-    if result.get('evaluated') is False and result.get('boundary_dtft'):
+    if result.get('evaluated') is False and (result.get('boundary_dtft') or result.get('boundary_fourier')):
         return result.get('boundary_frequency_condition','True')
     return result.get('frequency_condition') or result.get('condition') or 'True'
 

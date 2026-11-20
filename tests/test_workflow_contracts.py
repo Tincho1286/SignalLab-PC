@@ -258,6 +258,21 @@ class WorkflowContracts(unittest.TestCase):
         assert_allclose([position for position,_ in lines],[-np.pi,-np.pi/2,0,np.pi/2])
         assert_allclose([abs(weight) for _,weight in lines],np.pi/2)
 
+    def test_periodic_laplace_spectrum_reused_by_inverse_fourier(self):
+        from signallab_pc.result_expressions import send_expression
+        source=TransformLab(self.host,'laplace');self.widgets.append(source)
+        source.interpretation.setCurrentIndex(1);source.expression.setText('PulseTrain(t-1/4,1,1/4)')
+        source.calculate_button.click()
+        self.assertEqual(self.warnings,[])
+        self.assertTrue(source.last['convergence_empty']);self.assertTrue(source.reuse_button.isEnabled())
+        key=source.records[source.record_key()][2]
+        send_expression(self.host,key,'fourier_inverse')
+        panel=self.host.pages[self.host.current_operation].panel
+        panel.calculate_button.click();panel.start.setText('0');panel.stop.setText('1');panel.count.setText('9');panel.sample_button.click()
+        self.app.processEvents();self.assertEqual(self.warnings,[])
+        self.assertEqual(panel.last[1]['method'],'periodic_fourier_pair')
+        assert_allclose(panel.output.result.values,[0,0,.5,1,.5,0,0,0,0])
+
     def test_dtft_result_reused_as_frequency_system(self):
         request=dict(operation='dtft_expression',expression='sin(0.3*pi*(n-4))/(pi*(n-4))',lower='-oo',upper='oo')
         from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
