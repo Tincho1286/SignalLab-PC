@@ -29,6 +29,7 @@ El [catálogo de herramientas](tools.md) organiza las operaciones por el problem
 | Leer niveles y comprobar bandas de un filtro | [Medidas de frecuencia](frequency-measurements.md) |
 | Estudiar coordenadas, equilibrios y memoria | [Estudios de estados](state-studies.md) |
 | Cargar tablas, deshacer ediciones y combinar muestras | [Herramientas básicas](basic-usability.md) |
+| Repetir un período y escribir trenes de pulsos o impulsos | [Señales periódicas y trenes](periodic-signals.md) |
 | Medir energía temporal, componentes y cruces | [Medidas de registros](record-measurements.md) |
 | Comparar reconstrucciones y explicar sus núcleos | [Reconstrucción de señales](reconstruction-studies.md) |
 | Configurar colores y foto de fondo | [Temas de apariencia](appearance.md) |

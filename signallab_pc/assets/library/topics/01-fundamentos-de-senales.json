@@ -61,6 +61,14 @@
           }
         ],
         [
+          "Potencia de tonos y trenes",
+          "En discreto, cos(n) tiene potencia media 1/2. En cos(pi*n), cada muestra vale +1 o −1 y el cuadrado es siempre 1. En continuo, cos(pi*t) sí promedia 1/2. Para un tren de pulsos unitarios, también podés comprobar el resultado con ancho dividido por período."
+        ],
+        [
+          "Energía finita, divergencia y potencia cero",
+          "Probá cos(n)/sqrt(1+n^2). Su envolvente decae y la suma de |x[n]|² es finita, por lo que la potencia media es cero. En cos(n)/sqrt(1+abs(n)), la suma crece sin límite y el promedio sigue tendiendo a cero. La clasificación usa ambas medidas. Cuando se certifica la convergencia y queda una suma o integral, el informe indica que la energía es finita."
+        ],
+        [
           "Qué tener en cuenta",
           {
             "ref": "que-tener-en-cuenta-d2576ac1"

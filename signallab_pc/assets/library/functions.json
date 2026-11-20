@@ -19,12 +19,18 @@
           "En señales discretas usá n; en tiempo continuo, t; y en frecuencia angular, w. La herramienta determina el dominio: cambiar la letra no transforma una señal continua en discreta. pi y e son constantes, e i es la unidad imaginaria."
         ],
         [
-          "Períodos, pulsos e impulsos",
-          "Repeat(f, n, N, n0) y Repeat(f, t, T, t0) repiten en todo el eje la fórmula f escrita para un período. El inicio es opcional y vale cero si se omite. Por ejemplo, Repeat(n,n,4) repite 0, 1, 2 y 3 a ambos lados de cero.\n\nPulseTrain(n,5,2) vale uno durante dos muestras de cada período de cinco. PulseTrain(t,1,1/4) vale uno durante el primer cuarto de segundo de cada período. El comienzo pertenece al pulso y el final queda fuera.\n\nImpulseTrain(n,5) coloca una muestra unitaria en cada múltiplo de cinco. ImpulseTrain(t,1) coloca Dirac de área unitaria en cada segundo entero. Desplazá el argumento, por ejemplo ImpulseTrain(t-1/4,1), para mover el tren. El período discreto es entero; el continuo se expresa en segundos."
+          "Señales periódicas",
+          "Buscá Repeat o RepeatSamples para repetir un tramo, PulseTrain para pulsos rectangulares o ImpulseTrain para impulsos. Cada página explica qué recibe la función y muestra un gráfico. Los cuatro nombres sirven en las entradas de señales y en el CAS."
         ],
         [
           "Cómo leer los ejemplos",
           "Los ejemplos siguientes muestran el significado de cada función y cómo desplazarla o escalarla. Recordá elegir un intervalo que incluya la parte que querés ver: una fórmula puede ser válida y quedar fuera de la ventana dibujada."
+        ]
+      ],
+      "tools": [
+        [
+          "basic",
+          "generate"
         ]
       ]
     },
@@ -79,6 +85,128 @@
         [
           "Por qué se simplifica una secuencia",
           "Un impulso en el borde puede completar un escalón. Por ejemplo, (1/2)^n·u[n−1]+δ[n] es la misma secuencia que (1/2)^n·u[n]. La app combina esos términos sólo cuando sus valores coinciden. Si una condición o una singularidad impide esa equivalencia, conserva los tramos; la región de convergencia sigue siendo parte del resultado de una transformada."
+        ]
+      ]
+    },
+    {
+      "id": "reference:repeat",
+      "title": "Repeat y RepeatSamples",
+      "illustration": "repeat_period",
+      "illustration_caption": "La zona azul marca un período. La lista 1, 3, 2 vuelve a aparecer cada tres índices a ambos lados de cero.",
+      "tools": [
+        [
+          "basic",
+          "generate"
+        ],
+        [
+          "expression_measures",
+          "global"
+        ],
+        [
+          "fourier_symbolic",
+          0
+        ]
+      ],
+      "blocks": [
+        [
+          "Cuándo usarlas",
+          "Usá Repeat si conocés una fórmula para un período. Usá RepeatSamples si ya tenés sus valores en orden. Ambas funciones repiten el período hacia los tiempos positivos y negativos."
+        ],
+        [
+          "Repetir una fórmula",
+          "Repeat(f,n,N,n0) repite la fórmula f escrita entre n0 y n0+N−1. En continuo usá Repeat(f,t,T,t0) para repetir el tramo t0 ≤ t < t0+T. El inicio es cero si lo omitís. Por ejemplo, Repeat(n,n,4) repite 0, 1, 2, 3."
+        ],
+        [
+          "Repetir una lista",
+          "RepeatSamples(n,0,(1,3,2)) empieza con 1 en n=0 y repite la lista cada tres muestras. En RepeatSamples(t,0,(0,1),1), el último argumento fija un paso de un segundo. La señal sube de 0 a 1 y baja a 0 al llegar al período siguiente. El período dura dos segundos. Si escribís un único valor, usá (valor,) para marcar que es una lista."
+        ],
+        [
+          "En Crear una señal",
+          "También podés activar Repetir un período en todo el eje. Poné el inicio del período y su duración en Fórmula o el inicio y los valores en Muestras. El período y la ventana que ves en el gráfico son datos distintos. Para Fourier, Z o potencia global, reutilizá la definición guardada en Resultados."
+        ]
+      ]
+    },
+    {
+      "id": "reference:pulse-train",
+      "title": "PulseTrain · tren de pulsos",
+      "illustration": "pulse_train",
+      "illustration_caption": "El tramo sombreado marca el período T. La llave amarilla indica el ancho del pulso. El punto abierto muestra dónde termina el nivel alto.",
+      "tools": [
+        [
+          "basic",
+          "generate"
+        ],
+        [
+          "expression_measures",
+          "global"
+        ],
+        [
+          "dtft_symbolic",
+          0
+        ],
+        [
+          "fourier_symbolic",
+          0
+        ],
+        [
+          "transform_lab",
+          "laplace"
+        ]
+      ],
+      "blocks": [
+        [
+          "Qué genera",
+          "PulseTrain(v,P,D) genera pulsos rectangulares de altura 1. P es el período y D es cuánto dura el nivel alto. El pulso incluye el comienzo y vuelve a cero al alcanzar el final."
+        ],
+        [
+          "Dominio y desplazamiento",
+          "En discreto, P y D son cantidades enteras de muestras. PulseTrain(n-1,5,2) vale uno en n=1 y n=2 y repite esas posiciones cada cinco muestras. En continuo, P y D se miden en segundos. PulseTrain(t-1,4,2) empieza en t=1 s y vuelve a comenzar cada cuatro segundos."
+        ],
+        [
+          "Amplitud y potencia",
+          "Multiplicá por la amplitud que quieras. Si la amplitud es A, el tren completo tiene potencia media |A|²·D/P. En Energía y potencia → Medir en todo el eje se usa esa definición periódica. El ancho puede ir de cero a un período completo."
+        ]
+      ]
+    },
+    {
+      "id": "reference:impulse-train",
+      "title": "ImpulseTrain · tren de impulsos",
+      "illustration": "impulse_train",
+      "illustration_caption": "Las flechas señalan instantes y áreas de Dirac. Entre flechas la parte ordinaria es cero.",
+      "tools": [
+        [
+          "basic",
+          "generate"
+        ],
+        [
+          "dtft_symbolic",
+          0
+        ],
+        [
+          "fourier_symbolic",
+          0
+        ],
+        [
+          "transform_lab",
+          "z"
+        ],
+        [
+          "transform_lab",
+          "laplace"
+        ]
+      ],
+      "blocks": [
+        [
+          "Qué genera",
+          "ImpulseTrain(v,P) coloca un impulso en cada múltiplo de P, en ambas direcciones. Para desplazar todos los impulsos, restá un desplazamiento en el primer argumento."
+        ],
+        [
+          "Discreto",
+          "ImpulseTrain(n-1,5) vale uno en …, −4, 1, 6, … y cero entre esas muestras. P debe ser un entero positivo. Un tren unitario tiene potencia media 1/P. Multiplicar por A cambia la amplitud y la potencia pasa a |A|²/P."
+        ],
+        [
+          "Continuo",
+          "ImpulseTrain(t-1,4) ubica Dirac de área 1 en …, −3, 1, 5, … segundos. Multiplicar por A cambia el área de cada Dirac. Las flechas del gráfico identifican esas áreas. Para estudiar el tren, usá Fourier continua o Laplace unilateral. La herramienta de energía calcula |x|² para señales ordinarias y el cuadrado de una Dirac no está definido."
         ]
       ]
     },

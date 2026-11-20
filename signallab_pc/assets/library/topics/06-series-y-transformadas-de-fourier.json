@@ -115,6 +115,10 @@
           "Los extremos usados para dibujar no cambian los límites de la suma. Una expresión pendiente o con distribuciones no debe interpretarse como una tabla ordinaria de amplitudes finitas."
         ],
         [
+          "Secuencias periódicas",
+          "Para el tren completo ImpulseTrain(n-1,4), seleccioná −oo y oo como índices inicial y final. Graficá el resultado en [−π,π] para mostrar un período de líneas. Se cuenta una sola vez la línea en el borde. Usá DTFT inversa algebraica para reconstruir la secuencia."
+        ],
+        [
           "Sinc y pulso en frecuencia",
           "Para un pasabajos ideal con corte wc entre 0 y pi usá sin(wc*n)/(pi*n), reemplazando wc por su valor, y soporte de -oo a oo. En n=0 se utiliza wc/pi. La DTFT vale 1 dentro de la banda, 0 fuera y 1/2 en los bordes; se repite cada 2*pi. Si wc=pi, la secuencia es un impulso y el espectro vale 1 en todo el período. Un soporte de 0 a oo describe otra señal y produce otra transformada."
         ],
@@ -207,6 +211,10 @@
           }
         ],
         [
+          "Señales periódicas y espectro de líneas",
+          "Ingresá PulseTrain(t-1,4,2). La separación entre líneas es 2π/4 rad/s. El gráfico muestra posiciones y áreas. En Usar espectro en… elegí Fourier continua inversa para recuperar la señal."
+        ],
+        [
           "Qué tener en cuenta",
           {
             "ref": "que-tener-en-cuenta-fbb4b91a"
@@ -239,6 +247,10 @@
           {
             "ref": "como-interpretar-la-salida-1bea62ea"
           }
+        ],
+        [
+          "Recuperar un período desde Resultados",
+          "Cargá un espectro de líneas calculado por Fourier continua de una señal periódica, o usá el espectro ofrecido por Laplace bilateral. La definición del período acompaña al resultado. La inversa toma el promedio de los límites laterales en los saltos."
         ],
         [
           "Qué tener en cuenta",

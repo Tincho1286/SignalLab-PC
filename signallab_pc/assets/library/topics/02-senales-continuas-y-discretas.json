@@ -55,6 +55,18 @@
           "Elegí tiempo discreto para escribir una expresión en n, o tiempo continuo para usar t. Luego indicá el inicio y cuántos valores querés obtener; en continuo, completá el paso. Para una función por tramos, escribí el valor y la condición en cada fila."
         ],
         [
+          "Cómo repetir un período",
+          "Activá Repetir un período en todo el eje. Con Fórmula escribí sólo el tramo base y completá Inicio del período y Período. Con Muestras ingresá los valores de un ciclo. En continuo, el paso Δt separa esos valores y se interpola hasta el primer valor del período siguiente."
+        ],
+        [
+          "Ventana de dibujo y definición",
+          "Inicio de la ventana y cantidad de puntos delimitan el gráfico. El período escrito se repite fuera de esa ventana. En Resultados conservás una definición que podés enviar a herramientas algebraicas y un registro que podés usar para cálculos numéricos."
+        ],
+        [
+          "Trenes de pulsos e impulsos",
+          "En Fórmula probá PulseTrain(n-1,5,2) o ImpulseTrain(t-1,4). Estas funciones ya incluyen la repetición. Desactivá la casilla de repetir para escribirlas directamente. Las páginas enlazadas explican sus argumentos."
+        ],
+        [
           "Cómo interpretar la salida",
           "Al calcular obtenés una señal con gráfico y tabla. Por ejemplo, cos(pi*n/4), con inicio 0 y cantidad 9, genera las muestras n=0,…,8. Esa salida se puede reutilizar sin volver a escribir la fórmula."
         ],
@@ -221,6 +233,10 @@
           {
             "ref": "como-preparar-el-calculo-ef5081c7"
           }
+        ],
+        [
+          "Desplazamiento vertical",
+          "Para sumar 2 a cada muestra, escribí A=1 y B=2. Para invertir la amplitud y luego bajar la señal 1, escribí A=−1 y B=−1. Se aplica y[n]=A·x[n]+B en los mismos índices."
         ],
         [
           "Cómo interpretar la salida",
@@ -432,6 +448,18 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Inicio del período",
+          "Primera coordenada del tramo base. Usá índices enteros en discreto o segundos en continuo."
+        ],
+        [
+          "Período",
+          "Número de muestras o segundos que abarca la fórmula base. Si cargás una lista, se deduce de su cantidad y del paso."
+        ],
+        [
+          "Ventana",
+          "Intervalo finito de la figura y el registro. Podés mostrar varios períodos y empezar antes del origen del período."
         ]
       ],
       "reading": "Los tallos representan muestras independientes. Parte real conserva los signos; módulo muestra valores absolutos."
@@ -582,6 +610,10 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Desplazamiento vertical B",
+          "Constante que se suma después de multiplicar por A. Con A=1 sólo cambia la altura de las muestras."
         ]
       ],
       "reading": {

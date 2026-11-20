@@ -10,13 +10,17 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "La transformación afín combina amplitud, escala temporal, inversión y desplazamiento en y(t)=A·x(a·(t−t₀))."
+          "La transformación afín combina amplitud, escala temporal, inversión y desplazamiento en y(t)=A·x(a·(t−t₀))+B."
         ],
         [
           "Cómo preparar el cálculo",
           {
             "ref": "como-preparar-el-calculo-ef5081c7"
           }
+        ],
+        [
+          "Desplazar la amplitud",
+          "B se suma al final. Para bajar la señal 2 unidades sin cambiar su escala ni sus instantes, escribí A=1, a=1, t₀=0 y B=−2. Si la señal tiene Dirac, el desplazamiento vertical se aplica a la parte ordinaria."
         ],
         [
           "Cómo interpretar la salida",
@@ -160,9 +164,7 @@
       "blocks": [
         [
           "Qué podés hacer",
-          {
-            "ref": "que-podes-hacer-57859a12"
-          }
+          "En Ajustar amplitud, calculás y(t)=A·x(t)+B. Para bajar toda la señal 2 unidades escribí A=1 y B=−2. Los instantes se mantienen. Si hay impulsos de Dirac, B se suma a la parte ordinaria y A multiplica sus áreas."
         ],
         [
           "Cómo preparar el cálculo",
@@ -404,6 +406,10 @@
           {
             "ref": "a-3650a67d"
           }
+        ],
+        [
+          "Desplazamiento vertical B",
+          "Constante que se suma a la parte ordinaria de la señal. Dejá A=1 para conservar la escala."
         ],
         [
           "Levantamiento de indeterminaciones",

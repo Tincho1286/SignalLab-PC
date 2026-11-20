@@ -8,6 +8,7 @@ Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.20](v1.8.20.md) | Energía global, Fourier y Laplace | Preliminar |
 | [1.8.19](v1.8.19.md) | Señales periódicas, potencia y simbología de diagramas | Preliminar |
 | [1.8.18](v1.8.18.md) | Diagramas de realización a H(s) y H(z) · mejoras de interfaz | Estable |
 | [1.8.17](v1.8.17.md) | Informes de Fourier, filtros y sistemas. Guías de trabajo actualizadas. | Preliminar |

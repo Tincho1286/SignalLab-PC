@@ -1,6 +1,22 @@
 {
   "releases": [
     {
+      "tag": "v1.8.20",
+      "title": "Energía global, Fourier y Laplace",
+      "channel": "preview",
+      "summary": "La 1.8.20 amplía el cálculo exacto de energía y potencia con envolventes oscilatorias. Fourier recupera formas periódicas a partir de su espectro de líneas y Laplace integra un período completo.",
+      "changes": [
+        "Energía exacta y potencia media cero para envolventes racionales oscilatorias compatibles.",
+        "Fourier inversa recupera el período al reutilizar un espectro de líneas desde Resultados.",
+        "Laplace unilateral integra un período desde cero y suma las repeticiones.",
+        "Laplace bilateral entrega el espectro de Fourier cuando la señal periódica tiene ROC vacía."
+      ],
+      "limits": [
+        "La reconstrucción exacta de un espectro ponderado usa la definición de origen conservada en Resultados."
+      ],
+      "notes": "docs/releases/v1.8.20.md"
+    },
+    {
       "tag": "v1.8.19",
       "title": "Señales periódicas y diagramas",
       "channel": "preview",

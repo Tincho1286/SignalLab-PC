@@ -38,6 +38,10 @@
       "Un símbolo libre no se supone real ni positivo automáticamente. Por eso sqrt(x^2) no se reemplaza siempre por x. assume(x,real) permite obtener abs(x), mientras que assume(x>0) permite obtener x.\n\nTambién podés declarar assume(n,integer) o usar las propiedades complex, positive, negative, nonnegative, nonpositive, nonzero y zero. En esta lista, nonzero significa real no nulo; la condición x!=0 no exige por sí sola que x sea real."
     ],
     [
+      "Señales periódicas",
+      "Podés usar Repeat(n,n,4), RepeatSamples(n,0,(1,3,2)), PulseTrain(n-1,5,2) e ImpulseTrain(t-1,4). Usá n para índices discretos y t para tiempo continuo. La hoja conserva una Dirac continua como distribución. En los resultados de Fourier o Laplace, Usar espectro en… abre el análisis correspondiente y Enviar a CAS lleva la fórmula a esta hoja."
+    ],
+    [
       "Cómo cambiar o quitar supuestos",
       "Los supuestos se acumulan sólo en la hoja actual y aparecen en Hoja → Variables y supuestos. assume(x>2,x<4) agrega límites reales finitos sobre un símbolo. Para reemplazar esas condiciones, usá primero purge(x).\n\nUna condición contradictoria o un valor que no cumple lo declarado se rechaza sin cambiar el estado. Las soluciones se restringen al dominio declarado; si una condición de una solución paramétrica no puede verificarse, no se presenta como incondicional. No se admiten hipótesis generales entre parámetros, como assume(x>y), ni sobre funciones."
     ],

@@ -7,11 +7,14 @@ def function_sections():
         identifier=row.get('id');title=row.get('title')
         if not isinstance(identifier,str) or not identifier or identifier in seen or not isinstance(title,str) or not title:raise ValueError('Referencia de funciones inválida o duplicada.')
         seen.add(identifier);blocks=block_pairs(row['blocks'])
-        pages.append(dict(article_id=identifier,title=title,category='Funciones de las fórmulas',route=None,purpose=blocks[0][1],usage='',blocks=blocks,reference=True,illustration=row.get('illustration')))
+        pages.append(dict(article_id=identifier,title=title,category='Funciones de las fórmulas',route=None,purpose=blocks[0][1],usage='',blocks=blocks,reference=True,illustration=row.get('illustration'),illustration_caption=row.get('illustration_caption'),tools=row.get('tools',[])))
     return pages
 
 
 def reference_diagram(kind):
+    if kind in ('repeat_period','pulse_train','impulse_train'):
+        from .periodic_help import periodic_function_diagram
+        return periodic_function_diagram(kind)
     if kind=='dirac':
         from .dirac_help import dirac_help_image
         return dirac_help_image()

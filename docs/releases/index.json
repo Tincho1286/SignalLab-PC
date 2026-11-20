@@ -1,115 +1,115 @@
 {
   "repository": "https://github.com/Tincho1286/SignalLab-PC",
   "current": {
-    "tag": "v1.8.19",
-    "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.19",
-    "name": "SignalLab PC 1.8.19 · Preliminar · Señales periódicas y diagramas",
+    "tag": "v1.8.20",
+    "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.20",
+    "name": "SignalLab PC 1.8.20 · Preliminar · Energía global, Fourier y Laplace",
     "channel": "Preliminar",
     "stable": false,
-    "notes": "docs/releases/v1.8.19.md",
-    "published_at": "2026-11-20T17:51:43Z",
-    "source_ref": "https://github.com/Tincho1286/SignalLab-PC/tree/v1.8.19",
+    "notes": "docs/releases/v1.8.20.md",
+    "published_at": "2026-11-20T19:01:38Z",
+    "source_ref": "https://github.com/Tincho1286/SignalLab-PC/tree/v1.8.20",
     "assets": [
       {
-        "id": 772771931,
+        "id": 772989732,
         "name": "LICENSE",
         "size": 34906,
         "digest": "sha256:cde3a5c4c116f8cde7ba83ee7a4a885bc591164195b6123bfcbcdc3a52f9a88c",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/LICENSE"
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/LICENSE"
       },
       {
-        "id": 772890989,
-        "name": "SHA256SUMS-1.8.19.txt",
+        "id": 772989932,
+        "name": "SHA256SUMS-1.8.20.txt",
         "size": 1214,
-        "digest": "sha256:85141e75423544b47f3bc408b77e9083284b4666892812d3590a99d50b6f6cf8",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SHA256SUMS-1.8.19.txt"
+        "digest": "sha256:76bdde2c5d8f20617e0544747e21f6472ec0f73590bba56a43c708f2417497c7",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SHA256SUMS-1.8.20.txt"
       },
       {
-        "id": 772887973,
-        "name": "SignalLab-PC-1.8.19-licenses.zip",
+        "id": 772989047,
+        "name": "SignalLab-PC-1.8.20-licenses.zip",
         "size": 765563,
-        "digest": "sha256:00322aaba0dba2e8c3b8ab570d2728fd168ec31768ef50004aefbb6a1564dab4",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-PC-1.8.19-licenses.zip"
+        "digest": "sha256:7078b1f5002ac08205041aa6802b361d337e4feb70e3a679fdc371fb7eeea1f0",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-licenses.zip"
       },
       {
-        "id": 772887980,
-        "name": "SignalLab-PC-1.8.19-linux-x86_64.run",
-        "size": 166714926,
-        "digest": "sha256:091d42f498c5671be3da5c56b95d223e6c18a712a7bd6db29b6f0d68a01bc407",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-PC-1.8.19-linux-x86_64.run"
+        "id": 772985858,
+        "name": "SignalLab-PC-1.8.20-linux-x86_64.run",
+        "size": 166725482,
+        "digest": "sha256:714da92b923e5b4c16dcdaf308be62ef5fca01d584ca46b005c73844e8708b5b",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-linux-x86_64.run"
       },
       {
-        "id": 772888102,
-        "name": "SignalLab-PC-1.8.19-linux-x86_64.tar.gz",
-        "size": 166765377,
-        "digest": "sha256:424a0389fb13332f0e9ed76e24119ba5597261dd2d71eeebe275a281b514adfc",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-PC-1.8.19-linux-x86_64.tar.gz"
+        "id": 772987602,
+        "name": "SignalLab-PC-1.8.20-linux-x86_64.tar.gz",
+        "size": 166775788,
+        "digest": "sha256:9127b158c7ac9c1bbe5f6eec9c33857358912d2a4765013d4180f41990fb5db6",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-linux-x86_64.tar.gz"
       },
       {
-        "id": 772889309,
-        "name": "SignalLab-PC-1.8.19-setup.exe",
-        "size": 124439069,
-        "digest": "sha256:bcac85daba880e379b4b2703f889464299e765434a3101643703d95eb05f47d5",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-PC-1.8.19-setup.exe"
+        "id": 772984780,
+        "name": "SignalLab-PC-1.8.20-setup.exe",
+        "size": 124453693,
+        "digest": "sha256:aa30a4246f19214c2ffeddf13516d2555d8f62eb7935b98373329b0749ad2c40",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-setup.exe"
       },
       {
-        "id": 772889842,
-        "name": "SignalLab-PC-1.8.19-source-GPL.zip",
-        "size": 2914779,
-        "digest": "sha256:4f3c718d1ebbfc6c93ebdf044eb6895efb08043e4b775e6c25ae879bb8a948c4",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-PC-1.8.19-source-GPL.zip"
+        "id": 772988852,
+        "name": "SignalLab-PC-1.8.20-source-GPL.zip",
+        "size": 2921146,
+        "digest": "sha256:230ce11a65dd771625cdc016ba7cd0cf605f75c331159ec9b82d5e3ebed08bf9",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-source-GPL.zip"
       },
       {
-        "id": 772889997,
-        "name": "SignalLab-PC-1.8.19.exe",
-        "size": 123230721,
-        "digest": "sha256:addd220fd76ec19ab0443b7f14ad956f3e933bedcee8c6ffa613e6efaeb4df3a",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-PC-1.8.19.exe"
+        "id": 772986889,
+        "name": "SignalLab-PC-1.8.20.exe",
+        "size": 123241478,
+        "digest": "sha256:ac2b943bdfdab6426407ba6dd42d7bf0eb10b317b3d33cb38927edee55356bc6",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20.exe"
       },
       {
-        "id": 772891024,
+        "id": 772989575,
         "name": "SignalLab-updates.json",
-        "size": 1246,
-        "digest": "sha256:79c53c5504394fd853967e4fe29fc030cee3fde5f9d553fad7228e4dd5cf8391",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-updates.json"
+        "size": 1210,
+        "digest": "sha256:5c42276d3f903079d952a699e494c11001229b3b6171b689bf7a64b9651cfa32",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-updates.json"
       },
       {
-        "id": 772890730,
+        "id": 772989255,
         "name": "build-provenance-linux.json",
-        "size": 7138,
-        "digest": "sha256:532020caa718c1fda1cbee722ed576395fc75b1cf22bcd335971c240accf4719",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/build-provenance-linux.json"
+        "size": 7139,
+        "digest": "sha256:48e0f79dda98048f31405cb9965b2d20fb1b913033ac163fe9eddb1e9d015823",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/build-provenance-linux.json"
       },
       {
-        "id": 772890827,
+        "id": 772989158,
         "name": "build-provenance-windows.json",
         "size": 6757,
-        "digest": "sha256:34e6c719ba5b1c5b994155d33ca64ac891e11a6fb96c2d0ce7e7dc4a047f83e9",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/build-provenance-windows.json"
+        "digest": "sha256:59f7ee456d31cac7f52b7c9e44d076c5604db6081a64a1414443bb4905bdabc5",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/build-provenance-windows.json"
       },
       {
-        "id": 772890848,
+        "id": 772989466,
         "name": "installer-linux.json",
         "size": 398,
-        "digest": "sha256:e548d35ceba7a3f0d95b214bb1b70e898dc7af66949477214fe978082f941dbd",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/installer-linux.json"
+        "digest": "sha256:7577cb7d172a46a40215e1fd09cb20967958193a4d5d32965ce2cd45e30cb417",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/installer-linux.json"
       },
       {
-        "id": 772890896,
+        "id": 772989352,
         "name": "installer-windows.json",
         "size": 404,
-        "digest": "sha256:a99ad772db0dceefbbafd762c2581f33a0834a8964e09eb08f39abb1a2aa0326",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/installer-windows.json"
+        "digest": "sha256:fd2b02c5148ad40cdfce1de3e073199485d213da0dda3da2bed5f99ff88ab8de",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/installer-windows.json"
       },
       {
-        "id": 772890930,
-        "name": "v1.8.19.md",
-        "size": 2232,
-        "digest": "sha256:4d065075ef3af145ca416352fbcdcd6976f7ccb56842cad9f8a6734e678a1b37",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/v1.8.19.md"
+        "id": 772989818,
+        "name": "v1.8.20.md",
+        "size": 1349,
+        "digest": "sha256:d6c3056bdcc58e0c32f6adc3d07b2018068db0f92e7e46da678528722a920cab",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/v1.8.20.md"
       }
     ],
-    "commit": "6461f0d264d7f63a0936bbd7904057a190b3e242",
+    "commit": "6b564d82ab33d9a27b1826411eae48a791b99af5",
     "platforms": [
       "windows-x86_64",
       "linux-x86_64"
@@ -346,115 +346,115 @@
     ]
   },
   "preview": {
-    "tag": "v1.8.19",
-    "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.19",
-    "name": "SignalLab PC 1.8.19 · Preliminar · Señales periódicas y diagramas",
+    "tag": "v1.8.20",
+    "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.20",
+    "name": "SignalLab PC 1.8.20 · Preliminar · Energía global, Fourier y Laplace",
     "channel": "Preliminar",
     "stable": false,
-    "notes": "docs/releases/v1.8.19.md",
-    "published_at": "2026-11-20T17:51:43Z",
-    "source_ref": "https://github.com/Tincho1286/SignalLab-PC/tree/v1.8.19",
+    "notes": "docs/releases/v1.8.20.md",
+    "published_at": "2026-11-20T19:01:38Z",
+    "source_ref": "https://github.com/Tincho1286/SignalLab-PC/tree/v1.8.20",
     "assets": [
       {
-        "id": 772771931,
+        "id": 772989732,
         "name": "LICENSE",
         "size": 34906,
         "digest": "sha256:cde3a5c4c116f8cde7ba83ee7a4a885bc591164195b6123bfcbcdc3a52f9a88c",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/LICENSE"
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/LICENSE"
       },
       {
-        "id": 772890989,
-        "name": "SHA256SUMS-1.8.19.txt",
+        "id": 772989932,
+        "name": "SHA256SUMS-1.8.20.txt",
         "size": 1214,
-        "digest": "sha256:85141e75423544b47f3bc408b77e9083284b4666892812d3590a99d50b6f6cf8",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SHA256SUMS-1.8.19.txt"
+        "digest": "sha256:76bdde2c5d8f20617e0544747e21f6472ec0f73590bba56a43c708f2417497c7",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SHA256SUMS-1.8.20.txt"
       },
       {
-        "id": 772887973,
-        "name": "SignalLab-PC-1.8.19-licenses.zip",
+        "id": 772989047,
+        "name": "SignalLab-PC-1.8.20-licenses.zip",
         "size": 765563,
-        "digest": "sha256:00322aaba0dba2e8c3b8ab570d2728fd168ec31768ef50004aefbb6a1564dab4",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-PC-1.8.19-licenses.zip"
+        "digest": "sha256:7078b1f5002ac08205041aa6802b361d337e4feb70e3a679fdc371fb7eeea1f0",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-licenses.zip"
       },
       {
-        "id": 772887980,
-        "name": "SignalLab-PC-1.8.19-linux-x86_64.run",
-        "size": 166714926,
-        "digest": "sha256:091d42f498c5671be3da5c56b95d223e6c18a712a7bd6db29b6f0d68a01bc407",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-PC-1.8.19-linux-x86_64.run"
+        "id": 772985858,
+        "name": "SignalLab-PC-1.8.20-linux-x86_64.run",
+        "size": 166725482,
+        "digest": "sha256:714da92b923e5b4c16dcdaf308be62ef5fca01d584ca46b005c73844e8708b5b",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-linux-x86_64.run"
       },
       {
-        "id": 772888102,
-        "name": "SignalLab-PC-1.8.19-linux-x86_64.tar.gz",
-        "size": 166765377,
-        "digest": "sha256:424a0389fb13332f0e9ed76e24119ba5597261dd2d71eeebe275a281b514adfc",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-PC-1.8.19-linux-x86_64.tar.gz"
+        "id": 772987602,
+        "name": "SignalLab-PC-1.8.20-linux-x86_64.tar.gz",
+        "size": 166775788,
+        "digest": "sha256:9127b158c7ac9c1bbe5f6eec9c33857358912d2a4765013d4180f41990fb5db6",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-linux-x86_64.tar.gz"
       },
       {
-        "id": 772889309,
-        "name": "SignalLab-PC-1.8.19-setup.exe",
-        "size": 124439069,
-        "digest": "sha256:bcac85daba880e379b4b2703f889464299e765434a3101643703d95eb05f47d5",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-PC-1.8.19-setup.exe"
+        "id": 772984780,
+        "name": "SignalLab-PC-1.8.20-setup.exe",
+        "size": 124453693,
+        "digest": "sha256:aa30a4246f19214c2ffeddf13516d2555d8f62eb7935b98373329b0749ad2c40",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-setup.exe"
       },
       {
-        "id": 772889842,
-        "name": "SignalLab-PC-1.8.19-source-GPL.zip",
-        "size": 2914779,
-        "digest": "sha256:4f3c718d1ebbfc6c93ebdf044eb6895efb08043e4b775e6c25ae879bb8a948c4",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-PC-1.8.19-source-GPL.zip"
+        "id": 772988852,
+        "name": "SignalLab-PC-1.8.20-source-GPL.zip",
+        "size": 2921146,
+        "digest": "sha256:230ce11a65dd771625cdc016ba7cd0cf605f75c331159ec9b82d5e3ebed08bf9",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-source-GPL.zip"
       },
       {
-        "id": 772889997,
-        "name": "SignalLab-PC-1.8.19.exe",
-        "size": 123230721,
-        "digest": "sha256:addd220fd76ec19ab0443b7f14ad956f3e933bedcee8c6ffa613e6efaeb4df3a",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-PC-1.8.19.exe"
+        "id": 772986889,
+        "name": "SignalLab-PC-1.8.20.exe",
+        "size": 123241478,
+        "digest": "sha256:ac2b943bdfdab6426407ba6dd42d7bf0eb10b317b3d33cb38927edee55356bc6",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20.exe"
       },
       {
-        "id": 772891024,
+        "id": 772989575,
         "name": "SignalLab-updates.json",
-        "size": 1246,
-        "digest": "sha256:79c53c5504394fd853967e4fe29fc030cee3fde5f9d553fad7228e4dd5cf8391",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/SignalLab-updates.json"
+        "size": 1210,
+        "digest": "sha256:5c42276d3f903079d952a699e494c11001229b3b6171b689bf7a64b9651cfa32",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-updates.json"
       },
       {
-        "id": 772890730,
+        "id": 772989255,
         "name": "build-provenance-linux.json",
-        "size": 7138,
-        "digest": "sha256:532020caa718c1fda1cbee722ed576395fc75b1cf22bcd335971c240accf4719",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/build-provenance-linux.json"
+        "size": 7139,
+        "digest": "sha256:48e0f79dda98048f31405cb9965b2d20fb1b913033ac163fe9eddb1e9d015823",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/build-provenance-linux.json"
       },
       {
-        "id": 772890827,
+        "id": 772989158,
         "name": "build-provenance-windows.json",
         "size": 6757,
-        "digest": "sha256:34e6c719ba5b1c5b994155d33ca64ac891e11a6fb96c2d0ce7e7dc4a047f83e9",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/build-provenance-windows.json"
+        "digest": "sha256:59f7ee456d31cac7f52b7c9e44d076c5604db6081a64a1414443bb4905bdabc5",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/build-provenance-windows.json"
       },
       {
-        "id": 772890848,
+        "id": 772989466,
         "name": "installer-linux.json",
         "size": 398,
-        "digest": "sha256:e548d35ceba7a3f0d95b214bb1b70e898dc7af66949477214fe978082f941dbd",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/installer-linux.json"
+        "digest": "sha256:7577cb7d172a46a40215e1fd09cb20967958193a4d5d32965ce2cd45e30cb417",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/installer-linux.json"
       },
       {
-        "id": 772890896,
+        "id": 772989352,
         "name": "installer-windows.json",
         "size": 404,
-        "digest": "sha256:a99ad772db0dceefbbafd762c2581f33a0834a8964e09eb08f39abb1a2aa0326",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/installer-windows.json"
+        "digest": "sha256:fd2b02c5148ad40cdfce1de3e073199485d213da0dda3da2bed5f99ff88ab8de",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/installer-windows.json"
       },
       {
-        "id": 772890930,
-        "name": "v1.8.19.md",
-        "size": 2232,
-        "digest": "sha256:4d065075ef3af145ca416352fbcdcd6976f7ccb56842cad9f8a6734e678a1b37",
-        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.19/v1.8.19.md"
+        "id": 772989818,
+        "name": "v1.8.20.md",
+        "size": 1349,
+        "digest": "sha256:d6c3056bdcc58e0c32f6adc3d07b2018068db0f92e7e46da678528722a920cab",
+        "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/v1.8.20.md"
       }
     ],
-    "commit": "6461f0d264d7f63a0936bbd7904057a190b3e242",
+    "commit": "6b564d82ab33d9a27b1826411eae48a791b99af5",
     "platforms": [
       "windows-x86_64",
       "linux-x86_64"
@@ -606,6 +606,121 @@
     ]
   },
   "releases": [
+    {
+      "tag": "v1.8.20",
+      "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.20",
+      "name": "SignalLab PC 1.8.20 · Preliminar · Energía global, Fourier y Laplace",
+      "channel": "Preliminar",
+      "stable": false,
+      "notes": "docs/releases/v1.8.20.md",
+      "published_at": "2026-11-20T19:01:38Z",
+      "source_ref": "https://github.com/Tincho1286/SignalLab-PC/tree/v1.8.20",
+      "assets": [
+        {
+          "id": 772989732,
+          "name": "LICENSE",
+          "size": 34906,
+          "digest": "sha256:cde3a5c4c116f8cde7ba83ee7a4a885bc591164195b6123bfcbcdc3a52f9a88c",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/LICENSE"
+        },
+        {
+          "id": 772989932,
+          "name": "SHA256SUMS-1.8.20.txt",
+          "size": 1214,
+          "digest": "sha256:76bdde2c5d8f20617e0544747e21f6472ec0f73590bba56a43c708f2417497c7",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SHA256SUMS-1.8.20.txt"
+        },
+        {
+          "id": 772989047,
+          "name": "SignalLab-PC-1.8.20-licenses.zip",
+          "size": 765563,
+          "digest": "sha256:7078b1f5002ac08205041aa6802b361d337e4feb70e3a679fdc371fb7eeea1f0",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-licenses.zip"
+        },
+        {
+          "id": 772985858,
+          "name": "SignalLab-PC-1.8.20-linux-x86_64.run",
+          "size": 166725482,
+          "digest": "sha256:714da92b923e5b4c16dcdaf308be62ef5fca01d584ca46b005c73844e8708b5b",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-linux-x86_64.run"
+        },
+        {
+          "id": 772987602,
+          "name": "SignalLab-PC-1.8.20-linux-x86_64.tar.gz",
+          "size": 166775788,
+          "digest": "sha256:9127b158c7ac9c1bbe5f6eec9c33857358912d2a4765013d4180f41990fb5db6",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-linux-x86_64.tar.gz"
+        },
+        {
+          "id": 772984780,
+          "name": "SignalLab-PC-1.8.20-setup.exe",
+          "size": 124453693,
+          "digest": "sha256:aa30a4246f19214c2ffeddf13516d2555d8f62eb7935b98373329b0749ad2c40",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-setup.exe"
+        },
+        {
+          "id": 772988852,
+          "name": "SignalLab-PC-1.8.20-source-GPL.zip",
+          "size": 2921146,
+          "digest": "sha256:230ce11a65dd771625cdc016ba7cd0cf605f75c331159ec9b82d5e3ebed08bf9",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20-source-GPL.zip"
+        },
+        {
+          "id": 772986889,
+          "name": "SignalLab-PC-1.8.20.exe",
+          "size": 123241478,
+          "digest": "sha256:ac2b943bdfdab6426407ba6dd42d7bf0eb10b317b3d33cb38927edee55356bc6",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-PC-1.8.20.exe"
+        },
+        {
+          "id": 772989575,
+          "name": "SignalLab-updates.json",
+          "size": 1210,
+          "digest": "sha256:5c42276d3f903079d952a699e494c11001229b3b6171b689bf7a64b9651cfa32",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/SignalLab-updates.json"
+        },
+        {
+          "id": 772989255,
+          "name": "build-provenance-linux.json",
+          "size": 7139,
+          "digest": "sha256:48e0f79dda98048f31405cb9965b2d20fb1b913033ac163fe9eddb1e9d015823",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/build-provenance-linux.json"
+        },
+        {
+          "id": 772989158,
+          "name": "build-provenance-windows.json",
+          "size": 6757,
+          "digest": "sha256:59f7ee456d31cac7f52b7c9e44d076c5604db6081a64a1414443bb4905bdabc5",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/build-provenance-windows.json"
+        },
+        {
+          "id": 772989466,
+          "name": "installer-linux.json",
+          "size": 398,
+          "digest": "sha256:7577cb7d172a46a40215e1fd09cb20967958193a4d5d32965ce2cd45e30cb417",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/installer-linux.json"
+        },
+        {
+          "id": 772989352,
+          "name": "installer-windows.json",
+          "size": 404,
+          "digest": "sha256:fd2b02c5148ad40cdfce1de3e073199485d213da0dda3da2bed5f99ff88ab8de",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/installer-windows.json"
+        },
+        {
+          "id": 772989818,
+          "name": "v1.8.20.md",
+          "size": 1349,
+          "digest": "sha256:d6c3056bdcc58e0c32f6adc3d07b2018068db0f92e7e46da678528722a920cab",
+          "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.20/v1.8.20.md"
+        }
+      ],
+      "commit": "6b564d82ab33d9a27b1826411eae48a791b99af5",
+      "platforms": [
+        "windows-x86_64",
+        "linux-x86_64"
+      ]
+    },
     {
       "tag": "v1.8.19",
       "url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.19",

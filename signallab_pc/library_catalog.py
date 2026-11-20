@@ -98,6 +98,14 @@ def sections():
         source=tuple(relation['key']);targets=list(map(tuple,relation['targets']))
         if source in seen or source not in tools_by_key or len(targets)!=len(set(targets)) or any(target not in tools_by_key for target in targets):raise ValueError('Referencia cruzada inválida o duplicada en la biblioteca.')
         seen.add(source);tools_by_key[source].setdefault('related',[]).extend((tools_by_key[target]['article_id'],tools_by_key[target]['title']) for target in targets)
+    for reference in (page for page in values if page.get('tools')):
+        targets = [tuple(key) for key in reference['tools']]
+        if len(targets) != len(set(targets)) or any(key not in tools_by_key for key in targets):
+            raise ValueError('La referencia de funciones enlaza a una herramienta desconocida o repetida.')
+        for key in targets:
+            tool = tools_by_key[key]
+            reference.setdefault('related', []).append((tool['article_id'],tool['title']))
+            tool.setdefault('related', []).append((reference['article_id'],reference['title']))
     order={'concept':0,'tool':1,'example':2,'reference':3}
     values.sort(key=lambda value:(CATEGORIES.index(value['category']),order[value['content_kind']],value['title']))
     return values

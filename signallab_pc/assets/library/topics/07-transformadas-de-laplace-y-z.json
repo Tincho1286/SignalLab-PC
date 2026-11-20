@@ -25,6 +25,10 @@
           "En Inversa, Explorar ROC permite elegir un semiplano o franja entre los polos. Aplicar pasa a interpretación bilateral y conserva la expresión; la región elegida determina el soporte de cada término. Admite una expresión racional numérica con un retardo global exp(-d*s). Un clic en el borde no selecciona una ROC. Para otras expresiones se mantienen los campos habituales."
         ],
         [
+          "Laplace de señales periódicas",
+          "En Directa → Unilateral, PulseTrain(t-1,4,2) se calcula integrando desde t=0 un período y sumando todas sus repeticiones. Para la señal periódica en todo el eje, elegí Bilateral. La región de convergencia queda vacía y se ofrece el espectro de líneas para usarlo en Fourier inversa."
+        ],
+        [
           "Qué tener en cuenta",
           "La fórmula obtenida incluye los coeficientes y los escalones. Un desplazamiento global mueve también los impulsos y sus derivadas. La misma X(s) con otra ROC puede describir otra señal. Una región vacía no constituye una transformada válida; un cálculo sin resolver se identifica como pendiente. Los modos de grado alto muestran los números evaluados dentro de la expresión y conservan la descomposición algebraica exacta. Copiar a la inversa conserva la ROC cuando se pudo determinar; Resultados permite reutilizar la expresión con sus condiciones."
         ],
@@ -61,6 +65,10 @@
         [
           "Qué tener en cuenta",
           "La ROC decide la secuencia. Una lista finita no se prolonga periódicamente ni se convierte en una señal infinita. El soporte completo se refiere al intervalo entre el primer y último coeficiente no nulo; los ceros exteriores no se pueden deducir de X(z)."
+        ],
+        [
+          "Z de secuencias periódicas",
+          "Cargá ImpulseTrain(n-1,5). Con límites 0 y oo, Z suma la secuencia derecha con una región exterior. Con −oo y oo, la secuencia bilateral no tiene una región de convergencia abierta, pero el informe conserva la DTFT como espectro de líneas. Desde Usar expresión en… podés enviarla a la DTFT inversa algebraica."
         ],
         [
           "Continuidad, pares y convergencia",

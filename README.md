@@ -38,7 +38,7 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 La 1.8.18 está disponible con **Sólo versiones estables**. El canal **Estables y preliminares (Pre-releases)** también ofrece la 1.8.18 y permite recibir entregas de prueba cuando haya una preliminar posterior. [Notas de la versión estable](docs/releases/v1.8.18.md).
 
-La 1.8.19 preliminar se ofrece cuando elegís **Estables y preliminares (Pre-releases)**. Si ya tenés una compilación anterior de la 1.8.19, descargá de nuevo el instalador o el portable. [Descargas de la 1.8.19 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.19).
+La 1.8.20 amplía el cálculo de energía, Fourier y Laplace. Elegí **Estables y preliminares (Pre-releases)** para recibirla desde el actualizador. [Descargas de la 1.8.20 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.20).
 
 ### Actualizar una instalación
 
@@ -78,6 +78,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La 1.8.20 amplía el cálculo exacto de energía y potencia con envolventes oscilatorias. Fourier recupera formas periódicas a partir de su espectro de líneas y Laplace integra un período completo. [Notas de la 1.8.20](docs/releases/v1.8.20.md).
 
 La 1.8.19 preliminar crea señales periódicas a partir de fórmulas o muestras, permite desplazarlas verticalmente y muestra sus espectros de líneas. También amplía el cálculo de energía y potencia global, y actualiza los símbolos del editor LTI. [Notas de la 1.8.19](docs/releases/v1.8.19.md).
 
@@ -123,7 +125,7 @@ La [versión 1.8.0](docs/releases/v1.8.0.md) incorpora los instaladores y el can
 
 ## Documentación y desarrollo
 
-El [índice de documentación](docs/README.md) reúne las guías de uso, los criterios matemáticos y la cobertura académica. Para empezar, seguí [Primeros pasos](docs/getting-started.md); para explorar las mejoras pendientes, consultá los [objetivos del proyecto](docs/roadmap.md), que no asignan fechas ni versiones a funciones todavía no publicadas.
+El índice de documentación reúne las guías de uso, los criterios matemáticos y la cobertura académica. **Primeros pasos** recorre un cálculo completo. **Señales periódicas y trenes** reúne la sintaxis de las fórmulas y muestra cómo llevarlas a energía, Fourier, Laplace y Z. [Documentación](docs/README.md) · [Primeros pasos](docs/getting-started.md) · [Señales periódicas y trenes](docs/periodic-signals.md).
 
 La aplicación está desarrollada en Python 3.12 con PySide6, NumPy, SciPy, SymPy y Matplotlib. La [guía de desarrollo](docs/development/README.md) describe la estructura, las dependencias y la construcción. Para informar un problema o proponer una contribución, consultá [CONTRIBUTING.md](CONTRIBUTING.md).
 
