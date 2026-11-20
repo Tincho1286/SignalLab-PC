@@ -6,6 +6,8 @@ La versión estable actual es la [1.8.18](https://github.com/Tincho1286/SignalLa
 
 La 1.8.18 estable permite armar o cargar un diagrama de bloques y obtener H(s) o H(z) en Sistemas LTI. Incluye el nuevo catálogo por áreas, los ajustes de controles y gráficos y la revisión de informes y guías de las versiones 1.8.15 a 1.8.17.
 
+El editor admite bloques de transferencia para conectar sistemas en cascada, paralelo o realimentación. Cada bloque se puede definir mediante una fórmula o cargar desde un sistema guardado.
+
 [Novedades completas](docs/releases/v1.8.18.md)
 
 ## 1.8.17 · Preliminar

@@ -6,7 +6,7 @@ import math
 
 BLOCK_NAMES = {
     'input': 'Entrada', 'output': 'Salida', 'gain': 'Ganancia',
-    'sum': 'Sumador', 'memory': 'Memoria',
+    'sum': 'Sumador', 'memory': 'Memoria', 'transfer': 'Transferencia',
 }
 
 
@@ -17,6 +17,8 @@ class Block:
     x: float
     y: float
     gain: str = '1'
+    formula: str = '1'
+    sample_period_s: float | None = None
 
 
 @dataclass(frozen=True)
@@ -37,16 +39,25 @@ class RealizationGraph:
         return cls(domain, (Block(1, 'input', 0, 0), Block(2, 'output', 580, 0)), ())
 
     def to_document(self):
+        blocks = []
+        has_transfer = False
+        for block in self.blocks:
+            row = asdict(block)
+            if block.kind == 'transfer':
+                has_transfer = True
+            else:
+                del row['formula'], row['sample_period_s']
+            blocks.append(row)
         return {
-            'kind': 'signallab-realization', 'version': 1, 'domain': self.domain,
-            'blocks': [asdict(block) for block in self.blocks],
+            'kind': 'signallab-realization', 'version': 2 if has_transfer else 1, 'domain': self.domain,
+            'blocks': blocks,
             'wires': [asdict(wire) for wire in self.wires],
         }
 
     @classmethod
     def from_document(cls, document):
         try:
-            if document['kind'] != 'signallab-realization' or document['version'] != 1:
+            if document['kind'] != 'signallab-realization' or document['version'] not in (1, 2):
                 raise ValueError('Elegí un diagrama editable de SignalLab (JSON).')
             graph = cls(document['domain'], tuple(Block(**row) for row in document['blocks']),
                         tuple(Wire(**row) for row in document['wires']))
@@ -55,7 +66,15 @@ class RealizationGraph:
             raise ValueError('El archivo no contiene un diagrama de realización válido.') from exc
         return graph
 
+    @property
+    def sample_period_s(self):
+        from .system_clock import common_period
+
+        return common_period(*self.blocks)
+
     def connections(self):
+        from .system_clock import validate_period
+
         if self.domain not in ('analog', 'digital'):
             raise ValueError('Elegí un dominio continuo o discreto.')
         by_id = {}
@@ -65,8 +84,14 @@ class RealizationGraph:
             if type(block.id) is not int or block.id < 1 or block.id in by_id or block.kind not in BLOCK_NAMES:
                 raise ValueError('El diagrama contiene un bloque desconocido o repetido.')
             if any(not isinstance(value, (float, int)) or not math.isfinite(value) or abs(value) > 1e7
-                   for value in (block.x, block.y)) or not isinstance(block.gain, str):
-                raise ValueError('El diagrama contiene una posición o ganancia inválida.')
+                   for value in (block.x, block.y)):
+                raise ValueError('El diagrama contiene una posición inválida.')
+            if not isinstance(block.gain, str) or not isinstance(block.formula, str):
+                raise ValueError(f'La definición del bloque {block.id} debe ser una fórmula.')
+            if block.sample_period_s is not None:
+                if block.kind != 'transfer' or not isinstance(block.sample_period_s, (float, int)):
+                    raise ValueError(f'El reloj del bloque {block.id} no es válido.')
+                validate_period(block.sample_period_s, self.domain)
             if block.kind in ('input', 'output'):
                 ports.append(block.kind)
             by_id[block.id] = block
@@ -99,6 +124,7 @@ class RealizationGraph:
         from .symbolic import S, Z
 
         incoming = self.connections()
+        _ = self.sample_period_s  # Imported discrete blocks must use a common clock.
         input_id = next(block.id for block in self.blocks if block.kind == 'input')
         output_id = next(block.id for block in self.blocks if block.kind == 'output')
         nodes = [block for block in self.blocks if block.id != input_id]
@@ -126,6 +152,7 @@ class RealizationGraph:
         order = len(nodes)
         ensure_working_set(order * order, bytes_per_sample=256, live_arrays=8)
         q = sp.Dummy('q')
+        variable = Z if self.domain == 'digital' else S
         indices = {block.id: row for row, block in enumerate(nodes)}
         entries = {(row, row): sp.S.One for row in range(order)}
         rhs = {}
@@ -136,6 +163,11 @@ class RealizationGraph:
                     gain = exact_constant(block.gain)
                 except (SyntaxError, TypeError, ValueError) as exc:
                     raise ValueError(f'Revisá la ganancia del bloque {block.id}: {exc}') from exc
+            elif block.kind == 'transfer':
+                try:
+                    gain = sp.cancel(_transfer_expression(block.formula, self.domain).subs(variable, 1 / q))
+                except (SyntaxError, TypeError, ValueError) as exc:
+                    raise ValueError(f'Revisá la transferencia del bloque {block.id}: {exc}') from exc
             for wire in incoming[block.id]:
                 term = wire.sign * gain
                 if wire.source == input_id:
@@ -148,8 +180,25 @@ class RealizationGraph:
         if sp.simplify(matrix.subs(q, 0).det()) == 0:
             raise ValueError('El lazo instantáneo no determina una salida única. Revisá los signos y ganancias del lazo o incorporá memoria donde corresponda.')
         solution, = sp.linsolve((matrix, sp.SparseMatrix(order, 1, rhs)))
-        variable = Z if self.domain == 'digital' else S
         return sp.cancel(solution[indices[output_id]].subs(q, 1 / variable))
+
+
+def _transfer_expression(source, domain):
+    import sympy as sp
+    from .symbolic import S, Z, parse
+
+    variable = Z if domain == 'digital' else S
+    raw = parse(source)
+    if not isinstance(raw, sp.Expr) or raw.free_symbols - {variable}:
+        raise ValueError(f'Usá {variable} y coeficientes constantes en la transferencia.')
+    expression = sp.cancel(raw)
+    if expression.has(sp.nan, sp.zoo, sp.oo, -sp.oo) or not expression.is_rational_function(variable):
+        raise ValueError(f'Ingresá una transferencia racional en {variable}, con denominador no nulo.')
+    numerator, denominator = sp.fraction(expression)
+    if sp.degree(numerator, variable) > sp.degree(denominator, variable):
+        reason = 'contiene un avance de muestras' if domain == 'digital' else 'necesita un derivador ideal'
+        raise ValueError(f'El bloque {reason}. Ingresá una transferencia propia en {variable}.')
+    return expression
 
 
 def graph_from_realization(value):

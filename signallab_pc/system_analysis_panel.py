@@ -187,7 +187,7 @@ class SystemAnalysisPanel(QWidget):
         from .realization_graph import RealizationGraph
 
         graph = self.diagram_input.graph or RealizationGraph.empty(self.diagram_input.domain)
-        editor = RealizationEditor(graph, self)
+        editor = RealizationEditor(graph, self, owner=self.window)
         try:
             if not editor.exec():
                 return False
@@ -288,7 +288,7 @@ class SystemAnalysisPanel(QWidget):
                 return start,stop,count
             grid_request,grid_notice=optional('Intervalo de frecuencia',read_grid)
             from .system_clock import editor_period,apply_period
-            period=editor_period(self)
+            period=self.diagram_input.graph.sample_period_s if mode==3 else editor_period(self)
             digital=request['domain']=='digital'
             if mode==3:
                 roc_spec={'mode':'right'}

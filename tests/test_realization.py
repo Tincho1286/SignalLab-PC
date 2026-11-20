@@ -70,6 +70,42 @@ class RealizationGraphTests(unittest.TestCase):
             omega = np.array([.1, .5, 1.3, 3.])
             np.testing.assert_allclose(system.response(omega), original.response(omega), atol=1e-14)
 
+    def test_transfer_blocks_in_series_and_feedback(self):
+        import sympy as sp
+        from signallab_pc.symbolic import S, Z
+
+        ports = (Block(1, 'input', 0, 0), Block(2, 'output', 500, 0))
+        series = (Wire(1, 3), Wire(3, 4), Wire(4, 2))
+        cases = (
+            ('analog', '1/(s+1)', '2/(s+3)', 2 / ((S+1)*(S+3))),
+            ('digital', 'z^(-1)', '1+z^(-1)/3', (1+1/(3*Z))/Z),
+        )
+        for domain, first, second, expected in cases:
+            blocks = ports + (Block(3, 'transfer', 120, 0, formula=first),
+                              Block(4, 'transfer', 250, 0, formula=second))
+            graph = RealizationGraph(domain, blocks, series)
+            document = graph.to_document()
+            self.assertEqual(document['version'], 2)
+            self.assertEqual(sp.cancel(RealizationGraph.from_document(document).transfer() - expected), 0)
+
+        feedback = (Wire(1, 3), Wire(3, 4), Wire(4, 3, -1), Wire(4, 2))
+        summer = ports + (Block(3, 'sum', 120, 0),)
+        graph = RealizationGraph('analog', summer + (Block(4, 'transfer', 250, 0, formula='1/(s+1)'),), feedback)
+        self.assertEqual(graph.transfer(), 1 / (S+2))
+        with self.assertRaisesRegex(ValueError, 'lazo instantáneo'):
+            RealizationGraph('analog', summer + (Block(4, 'transfer', 250, 0, formula='-(s+1)/(s+2)'),), feedback).transfer()
+
+    def test_transfer_blocks_validate_domain_causality_and_clock(self):
+        ports = (Block(1, 'input', 0, 0), Block(2, 'output', 500, 0))
+        for formula, error in (('1/(s+1)', 'Usá z'), ('z', 'avance'), ('exp(z)', 'racional')):
+            blocks = ports + (Block(3, 'transfer', 120, 0, formula=formula),)
+            with self.assertRaisesRegex(ValueError, error):
+                RealizationGraph('digital', blocks, (Wire(1, 3), Wire(3, 2))).transfer()
+        blocks = ports + (Block(3, 'transfer', 120, 0, sample_period_s=.1),
+                          Block(4, 'transfer', 250, 0, sample_period_s=.2))
+        with self.assertRaisesRegex(ValueError, 'períodos de muestreo'):
+            RealizationGraph('digital', blocks, (Wire(1, 3), Wire(3, 4), Wire(4, 2))).transfer()
+
     def test_singular_instantaneous_feedback_and_unconnected_branch(self):
         from sympy import Rational
 

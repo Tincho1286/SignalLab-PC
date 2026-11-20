@@ -25,8 +25,9 @@ class BlockItem(QGraphicsRectItem):
         super().__init__(-60, -23, 120, 46)
         self.block = block
         self.editor = editor
+        self.variable = 'z' if domain == 'digital' else 's'
         self.setPos(block.x, block.y)
-        color = {'memory': 'green', 'gain': 'blue', 'sum': 'amber'}.get(block.kind, 'muted')
+        color = {'memory': 'green', 'gain': 'blue', 'transfer': 'blue', 'sum': 'amber'}.get(block.kind, 'muted')
         self.setPen(QPen(QColor(C[color]), 1.5))
         self.setBrush(QColor(C['panel']))
         self.setZValue(1)
@@ -34,8 +35,8 @@ class BlockItem(QGraphicsRectItem):
         self.setFlags(flags.ItemIsSelectable | flags.ItemIsMovable | flags.ItemSendsGeometryChanges)
         self.label = QGraphicsSimpleTextItem(self)
         self.label.setBrush(QColor(C['text']))
-        if block.kind == 'gain':
-            self.set_gain(block.gain)
+        if block.kind in ('gain', 'transfer'):
+            self.set_definition(block)
         else:
             names = {'input': 'Entrada x', 'output': 'Salida y', 'sum': 'Σ',
                      'memory': 'Retardo z⁻¹' if domain == 'digital' else 'Integrador 1/s'}
@@ -47,10 +48,16 @@ class BlockItem(QGraphicsRectItem):
         self.label.setPos(-bounds.width() / 2, -bounds.height() / 2)
         self.setToolTip(f'Bloque {self.block.id} · {tooltip}')
 
-    def set_gain(self, gain):
-        self.block = replace(self.block, gain=gain)
-        display = self.editor.fontMetrics().elidedText('× ' + gain, Qt.TextElideMode.ElideRight, 108)
-        self.set_label(display, 'Ganancia ' + gain)
+    def set_definition(self, block):
+        self.block = block
+        if block.kind == 'transfer':
+            text = f'H{block.id}({self.variable}) = {block.formula}'
+            tooltip = text
+        else:
+            text = '× ' + block.gain
+            tooltip = 'Ganancia ' + block.gain
+        display = self.editor.fontMetrics().elidedText(text, Qt.TextElideMode.ElideRight, 108)
+        self.set_label(display, tooltip)
 
     def itemChange(self, change, value):
         if change == QGraphicsItem.GraphicsItemChange.ItemPositionHasChanged and self.scene() is not None:
@@ -136,8 +143,8 @@ class EditorView(DiagramView):
 
     def mouseDoubleClickEvent(self, event):
         block = self.block_at(event.position())
-        if block is not None and block.block.kind == 'gain' and self.editor.connection_sign is None:
-            self.editor.edit_gain(block)
+        if block is not None and block.block.kind in ('gain', 'transfer') and self.editor.connection_sign is None:
+            self.editor.edit_block(block)
         else:
             super().mouseDoubleClickEvent(event)
 
@@ -147,8 +154,9 @@ class EditorView(DiagramView):
 
 
 class RealizationEditor(QDialog):
-    def __init__(self, graph, parent=None):
+    def __init__(self, graph, parent=None, *, owner=None):
         super().__init__(parent)
+        self.owner = owner
         self.setWindowTitle('Editor de realización')
         self.resize(940, 570)
         self.setMinimumSize(450, 350)
@@ -167,6 +175,7 @@ class RealizationEditor(QDialog):
         self._button(file_row, 'Ver todo', self.fit_diagram)
         tools = WrappingRow()
         layout.addWidget(tools)
+        self.transfer_button = self._button(tools, '+ Transferencia', lambda: self.add_block('transfer'))
         self._button(tools, '+ Ganancia', lambda: self.add_block('gain'))
         self._button(tools, '+ Sumador', lambda: self.add_block('sum'))
         self.memory = self._button(tools, '', lambda: self.add_block('memory'))
@@ -174,7 +183,7 @@ class RealizationEditor(QDialog):
         self.subtract_button = self._button(tools, 'Restar (−)', lambda: self.start_connection(-1))
         for button in (self.connect_button, self.subtract_button):
             button.setCheckable(True)
-        self.gain_button = self._button(tools, 'Editar ganancia…', self.edit_selected_gain)
+        self.edit_button = self._button(tools, 'Editar bloque…', self.edit_selected_block)
         self.delete_button = self._button(tools, 'Quitar selección', self.delete_selection)
 
         self.hint = QLabel()
@@ -250,6 +259,10 @@ class RealizationEditor(QDialog):
         while (145 + index % 3 * 145, index // 3 * 85) in positions:
             index += 1
         block = Block(ident, kind, 145 + index % 3 * 145, index // 3 * 85)
+        if kind == 'transfer':
+            block = self.edit_transfer(block)
+            if block is None:
+                return
         item = BlockItem(block, self.domain, self)
         self.scene.addItem(item)
         self.blocks[ident] = item
@@ -258,7 +271,7 @@ class RealizationEditor(QDialog):
         self.update_bounds()
         self.view.ensureVisible(item)
         if kind == 'gain':
-            self.edit_gain(item)
+            self.edit_block(item)
 
     def start_connection(self, sign):
         self.connection_sign = None if sign == self.connection_sign else sign
@@ -313,21 +326,36 @@ class RealizationEditor(QDialog):
 
     def update_selection(self):
         selected = self.scene.selectedItems()
-        self.gain_button.setEnabled(any(isinstance(item, BlockItem) and item.block.kind == 'gain' for item in selected))
+        self.edit_button.setEnabled(any(isinstance(item, BlockItem) and item.block.kind in ('gain', 'transfer') for item in selected))
         self.delete_button.setEnabled(any(isinstance(item, WireItem) or
                                           isinstance(item, BlockItem) and item.block.kind not in ('input', 'output')
                                           for item in selected))
 
-    def edit_selected_gain(self):
+    def edit_selected_block(self):
         for item in self.scene.selectedItems():
-            if isinstance(item, BlockItem) and item.block.kind == 'gain':
-                self.edit_gain(item)
+            if isinstance(item, BlockItem) and item.block.kind in ('gain', 'transfer'):
+                self.edit_block(item)
                 break
 
-    def edit_gain(self, item):
-        text, ok = QInputDialog.getText(self, 'Ganancia', 'Valor exacto (por ejemplo, 1/3 o pi):', text=item.block.gain)
-        if ok and text.strip():
-            item.set_gain(text.strip())
+    def edit_block(self, item):
+        block = item.block
+        if block.kind == 'transfer':
+            definition = self.edit_transfer(block)
+            if definition is not None:
+                item.set_definition(definition)
+        else:
+            text, accepted = QInputDialog.getText(self, 'Ganancia', 'Valor exacto (por ejemplo, 1/3 o pi):', text=block.gain)
+            if accepted and text.strip():
+                item.set_definition(replace(block, gain=text.strip()))
+
+    def edit_transfer(self, block):
+        from .realization_transfer_input import TransferBlockDialog
+
+        dialog = TransferBlockDialog(block, self.domain, self.owner, self)
+        try:
+            return dialog.definition() if dialog.exec() else None
+        finally:
+            dialog.deleteLater()
 
     def delete_selection(self):
         selected = self.scene.selectedItems()
@@ -416,5 +444,6 @@ class RealizationInput(QWidget):
     def text(self):
         graph = self.graph
         if graph is not None:
-            return tuple((block.id, block.kind, block.gain) for block in graph.blocks), graph.wires
+            return tuple((block.id, block.kind, block.gain, block.formula, block.sample_period_s)
+                         for block in graph.blocks), graph.wires
         return None

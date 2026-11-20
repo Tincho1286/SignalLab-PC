@@ -111,6 +111,46 @@ class WorkflowContracts(unittest.TestCase):
             panel.result_actions.cas_button.click()
             send.assert_called_once_with(self.host, panel._definition_id)
 
+    def test_realization_cascade_loads_saved_system_and_formula(self):
+        from PySide6.QtCore import Qt
+        from PySide6.QtTest import QTest
+        from signallab_pc.realization_editor import RealizationEditor
+        from signallab_pc.realization_graph import RealizationGraph
+        from signallab_pc.realization_transfer_input import TransferBlockDialog
+        from signallab_pc.symbolic import Z, parse
+        import sympy as sp
+
+        key = self.host.publish(Transfer([0, 1], [1], sample_period_s=.125))
+        self.host.open_tool(ROUTES['system_analysis', 0])
+        panel = self.host.pages[self.host.current_operation].panel
+        editor = RealizationEditor(RealizationGraph.empty('digital'), panel, owner=self.host)
+        self.widgets.append(editor)
+
+        def enter(dialog):
+            if dialog.block.id == 3:
+                dialog.importer.load_result(key)
+            else:
+                dialog.formula.setText('1+z^(-1)/3')
+            return True
+
+        editor.show()
+        self.app.processEvents()
+        with patch.object(TransferBlockDialog, 'exec', new=enter):
+            editor.transfer_button.click()
+            editor.transfer_button.click()
+        self.assertEqual(self.warnings, [])
+        for source, target in ((1, 3), (3, 4), (4, 2)):
+            editor.connect_button.click()
+            for ident in (source, target):
+                position = editor.view.mapFromScene(editor.blocks[ident].pos())
+                QTest.mouseClick(editor.view.viewport(), Qt.MouseButton.LeftButton, pos=position)
+        editor.hide()
+        panel.load_diagram(editor.graph())
+        panel = self.calculated_analysis()
+        self.assertEqual(panel.system.sample_period_s, .125)
+        result = self.host.project.get(panel._definition_id)['result']
+        self.assertEqual(sp.cancel(parse(result['transfer']) - (1+1/(3*Z))/Z), 0)
+
     def test_impulse_alias_transform_to_analysis_and_cas(self):
         from signallab_pc.cas_transfer import payload
         from signallab_pc.cas_import import import_result
