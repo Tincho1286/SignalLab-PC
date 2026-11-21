@@ -180,8 +180,8 @@ def measure_expression(request):
             if domain=='discrete':scope+=' Las frecuencias separadas por un múltiplo de 2π representan la misma secuencia.'
         elif (power:=cycle_power(source_value,variable)) is not None:
             energy=energy_from_mean(power)
-            scope=('Se promedia cada grupo de componentes que comparte un período. '
-                   'Entre grupos con períodos inconmensurables, el término cruzado se calcula con sus valores medios.'
+            scope=('Se promedian los productos de las componentes que comparten frecuencias en su ciclo común. '
+                   'Entre dos grupos de períodos inconmensurables, los productos se promedian usando sus valores medios.'
                    if domain=='continuous' else 'Los tonos se comparan con los armónicos del ciclo. '
                    'Sólo las frecuencias que coinciden salvo múltiplos de 2π aportan términos cruzados.')
         elif (gated:=gated_periodic_measures()) is not None:

@@ -110,6 +110,20 @@ class ExpressionMeasureTests(unittest.TestCase):
                 self.assertEqual(sp.sympify(result['energy']['exact']), energy)
                 self.assertEqual(sp.simplify(sp.sympify(result['mean_square']['exact']) - mean_square), 0)
 
+    def test_product_of_continuous_trains_with_independent_periods(self):
+        import sympy as sp
+
+        first, second = 'PulseTrain(t,1,1/4)', 'PulseTrain(t,sqrt(2),1/2)'
+        product = first + '*' + second
+        power = sp.sqrt(2)/16
+        for expression, expected in ((product,power), (f'Step(t)*({product})',power/2),
+                                     (f'(2+{first})*(1+i*{second})',sp.Rational(21,4)*(1+sp.sqrt(2)/4))):
+            with self.subTest(expression=expression):
+                result=self.measure(expression,mode='global')
+                self.assertEqual(result['mean_square']['status'],'finite')
+                self.assertEqual(sp.simplify(sp.sympify(result['mean_square']['exact'])-expected),0)
+                self.assertEqual(result['energy']['exact'],'oo')
+
     def test_wrapped_discrete_cycle_with_tones_keeps_aliases_and_transients(self):
         cases = (('ImpulseTrain(n,4)+cos(n)', '3/4'),
                  ('PulseTrain(n,4,1)+cos(pi*n/2)', '5/4'),

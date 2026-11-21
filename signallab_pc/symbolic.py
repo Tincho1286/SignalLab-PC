@@ -183,7 +183,10 @@ def _execute(request):
             result=sp.simplify(pair['result'].subs(Z,sp.exp(sp.I*W)))
             return attach({'operation':'dtft_expression','result':str(result),'condition':'True','output_variable':'w','evaluated':not result.has(sp.Sum,sp.oo,sp.zoo,sp.nan),'method':'shared_discrete_pairs','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se usa la misma secuencia de índices enteros que en Z, incluyendo sus valores por continuidad. La evaluación z=exp(i*w) se aplica sólo cuando las condiciones calculadas permiten todo el círculo unitario.'},definition,exact=result)
         if pair is not None:
-            condition=sp.simplify(pair['boundary_condition'].subs(Z,sp.exp(sp.I*W)))
+            # The table already certified the boundary test. Substitution
+            # evaluates radial comparisons without solving the off-resonance
+            # equalities between exact complex exponentials.
+            condition=pair['boundary_condition'].subs(Z,sp.exp(sp.I*W))
             if condition is not sp.false:
                 result=sp.simplify(pair['boundary_result'].subs(Z,sp.exp(sp.I*W)))
                 if not result.has(sp.Sum,sp.oo,sp.zoo,sp.nan):

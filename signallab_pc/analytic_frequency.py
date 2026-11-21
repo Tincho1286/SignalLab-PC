@@ -208,7 +208,12 @@ def analyze_expression(exact,request,omega,*,period=None,logarithmic=False,margi
     if domain=='digital' and source.get('operation')=='z_expression':
         result=execute(dict(operation='dtft_expression',expression=source['expression'],lower=source.get('lower','0'),upper=source.get('upper','oo')))
         if result.get('evaluated'):
-            frequency=parse(result['result']);condition=parse(result.get('condition','True'))
+            from .cas_engine import restore
+
+            encoded=result.get('cas_encoded')
+            condition_encoded=result.get('cas_domain_condition')
+            frequency=restore(encoded) if encoded else parse(result['result'])
+            condition=restore(condition_encoded) if condition_encoded else parse(result.get('condition','True'))
             interpretation='DTFT calculada desde la secuencia de origen y su soporte. La convergencia se comprueba separadamente de la ROC abierta de Z; se excluyen las resonancias indicadas.'
         else:
             exact['frequency_notice']='La definición se conservó, pero no se obtuvo una DTFT ordinaria convergente para el soporte original. No se presenta una continuación algebraica como respuesta física.'

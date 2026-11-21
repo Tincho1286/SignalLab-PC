@@ -66,7 +66,7 @@
         ],
         [
           "Sumar trenes con distintos períodos",
-          "Si dos trenes continuos no comparten un ciclo, el cálculo usa el promedio global. Conserva el producto de sus valores medios en el término cruzado. Probá PulseTrain(t,1,1/4)+PulseTrain(t,sqrt(2),1/2). La potencia media vale 1/4 + 3√2/8. Si hay componentes que comparten frecuencias, se combinan antes de calcular la potencia. Un transitorio que decae puede cambiar la energía de una ventana, y su aporte a la potencia media se hace cero."
+          "Si dos trenes continuos no comparten un ciclo, el cálculo usa el promedio global. Conserva el producto de sus valores medios en el término cruzado. Probá PulseTrain(t,1,1/4)+PulseTrain(t,sqrt(2),1/2). La potencia media vale 1/4 + 3√2/8. Si los multiplicás, la potencia es √2/16. Si hay componentes que comparten frecuencias, se combinan antes de calcular la potencia. Un transitorio que decae puede cambiar la energía de una ventana, y su aporte a la potencia media se hace cero."
         ],
         [
           "Combinar un tren y un tono discreto",

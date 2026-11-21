@@ -5,7 +5,7 @@ import sympy as sp
 from .harmonic_measures import _exponential_terms, harmonic_power
 from .jobs import checkpoint
 from .periodic_fourier import _bounded_cycle, periodic_laplace
-from .periodic_signals import continuous_periodic_components, cycle_weight, discrete_cycle, repeat
+from .periodic_signals import continuous_periodic_components, cycle_weight, discrete_cycle, repeat, wrapped_period
 from .periodic_support import split_periodic_support
 
 
@@ -19,7 +19,7 @@ def cycle_mean_square(value, time, *, tail=0):
                          if term.has(sp.Mod) or harmonic_power(term, time, tail=tail) != 0))
     components = continuous_periodic_components(value, time)
     if components is None:
-        return None
+        return _mixed_wrapped_mean_square(value, time)
 
     groups = []
     mean = sp.S.Zero
@@ -29,15 +29,8 @@ def cycle_mean_square(value, time, *, tail=0):
             continue
         if not expression.has(sp.Mod):
             expression = repeat(expression, time, period)
-        for basis, members in groups:
-            rational = sp.simplify(period / basis).is_rational
-            if rational is None:
-                return None
-            if rational:
-                members.append(expression)
-                break
-        else:
-            groups.append((period, [expression]))
+        if not _add_to_cycle_group(groups, period, expression):
+            return None
 
     variance = sp.S.Zero
     for _, members in groups:
@@ -68,6 +61,54 @@ def cycle_mean_square(value, time, *, tail=0):
     result = sp.simplify(variance + sp.Abs(sp.simplify(mean))**2)
     return result if result.is_nonnegative is True and result.is_finite is True else None
 
+
+def _add_to_cycle_group(groups, period, expression):
+    for basis, members in groups:
+        rational = sp.simplify(period / basis).is_rational
+        if rational is None:
+            return False
+        if rational:
+            members.append(expression)
+            return True
+    groups.append((period, [expression]))
+    return True
+
+
+def _mixed_wrapped_mean_square(value, time):
+    if not value.has(sp.Mod) or value.free_symbols - {time}:
+        return None
+    density = sp.expand_mul(value * sp.conjugate(value))
+    moments = {}
+    total = sp.S.Zero
+    for term in sp.Add.make_args(density):
+        checkpoint()
+        constant, varying = term.as_independent(time, as_Add=False)
+        groups = []
+        for factor in sp.Mul.make_args(varying):
+            if factor == 1:
+                continue
+            cycle = wrapped_period(factor, time)
+            if cycle is None or not _add_to_cycle_group(groups, cycle[0], factor):
+                return None
+        # Irrationality of a period ratio guarantees the product average only
+        # for two groups. Pairwise irrational ratios do not prove independence of three.
+        if len(groups)>2:
+            return None
+        for _, members in groups:
+            waveform = sp.Mul(*members)
+            if waveform not in moments:
+                cycle = _bounded_cycle(waveform, time)
+                if cycle is None:
+                    return None
+                period, _, pieces, _ = cycle
+                mean = sp.Add(*(sp.integrate(branch,(time,lo,hi)) for lo,hi,branch in pieces))/period
+                if mean.is_finite is not True or mean.has(sp.Integral):
+                    return None
+                moments[waveform] = mean
+            constant *= moments[waveform]
+        total += constant
+    result = sp.simplify(total)
+    return result if result.is_nonnegative is True and result.is_finite is True else None
 
 
 def discrete_cycle_mean_square(value, index, *, tail=0):

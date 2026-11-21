@@ -36,6 +36,8 @@ La fase inicial también importa cuando los tonos de frecuencia positiva y negat
 
 Para sumar varios trenes continuos que no comparten un ciclo, elegí **Medir en todo el eje**. Por ejemplo, `PulseTrain(t,1,1/4)+PulseTrain(t,sqrt(2),1/2)` da potencia `1/4 + 3*sqrt(2)/8`. El promedio conserva el producto de los niveles medios de los trenes. Si al tren de período 1 le sumás `cos(2*pi*t)`, ambas componentes comparten frecuencias y se promedian juntas. Una componente transitoria que decae, como `exp(-abs(t))`, puede modificar la energía de una ventana y su potencia media tiende a cero.
 
+Si multiplicás esos dos trenes, la potencia es `sqrt(2)/16`. El cálculo promedia por separado los dos ciclos cuyo cociente es irracional. Cuando los períodos tienen un múltiplo común, calcula el solapamiento en ese ciclo.
+
 En discreto, `ImpulseTrain(n,4)+cos(n)` da potencia 3/4. Con `cos(pi*n/2)`, el coseno sí coincide con un armónico del tren y la potencia vale 5/4. Las frecuencias separadas por un múltiplo de 2π representan el mismo tono discreto.
 
 Si el tren está multiplicado por un decaimiento exponencial, el cálculo acumula las repeticiones de cada semieje con su peso. Por ejemplo, `(1/2)^abs(n)*ImpulseTrain(n,4)` tiene energía `257/255` y potencia cero.
