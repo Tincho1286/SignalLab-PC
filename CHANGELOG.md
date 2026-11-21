@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.18](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.18). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.24 · Preliminar
+
+La 1.8.24 renueva el editor de diagramas LTI. Podés arrastrar cables entre los bloques, usar puertos de suma o resta y leer las fórmulas centradas dentro del diagrama.
+
+[Novedades completas](docs/releases/v1.8.24.md)
+
 ## 1.8.23 · Preliminar
 
 La 1.8.23 calcula Fourier y DTFT generalizadas de trenes unilaterales. Las líneas conservan sus áreas y la curva se interrumpe en los polos del valor principal.

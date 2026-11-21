@@ -1,6 +1,20 @@
 {
   "releases": [
     {
+      "tag": "v1.8.24",
+      "title": "Editor de diagramas de sistemas LTI",
+      "channel": "preview",
+      "summary": "La 1.8.24 renueva el editor de diagramas LTI. Podés arrastrar cables entre los bloques, usar puertos de suma o resta y leer las fórmulas centradas dentro del diagrama.",
+      "changes": [
+        "Los cables se arrastran entre los puertos visibles de los bloques.",
+        "El sumador tiene entradas directas con signos + y −.",
+        "La entrada y la salida se dibujan como bloques y las transferencias muestran la fórmula centrada.",
+        "La barra y la ayuda explican la función de cada bloque."
+      ],
+      "limits": [],
+      "notes": "docs/releases/v1.8.24.md"
+    },
+    {
       "tag": "v1.8.23",
       "title": "Fourier generalizada de trenes unilaterales",
       "channel": "preview",
