@@ -1,6 +1,7 @@
 """A common definition of periodic waveforms in the two temporal domains."""
 
 import sympy as sp
+import re
 
 
 def period_value(period, *, discrete=False):
@@ -98,8 +99,7 @@ SYMBOLIC_FUNCTIONS = {'repeat': repeat, 'pulsetrain': pulse_train, 'impulsetrain
                       'repeatsamples': repeat_samples}
 
 
-def wrapped_period(value, variable):
-    """Recover a full period for commensurate affine wrapped coordinates."""
+def _wrap_geometry(value, variable):
     phases = sorted((phase for phase in value.atoms(sp.Mod) if phase.has(variable)),key=sp.default_sort_key)
     if not phases or value.xreplace({phase:sp.Dummy('phase') for phase in phases}).has(variable):
         return None
@@ -116,18 +116,31 @@ def wrapped_period(value, variable):
         rate=sp.simplify(slope/modulus)
         if discrete and rate.is_Rational is not True:return None
         entries.append((phase,coordinate,modulus,slope,offset,sp.Integer(rate.q) if discrete else modulus/sp.Abs(slope)))
+    return entries
+
+
+def _common_period(periods):
+    from math import lcm
+
+    base=periods[0]
+    ratios=[sp.simplify(period/base) for period in periods]
+    if any(ratio.is_Rational is not True for ratio in ratios):return None
+    return sp.simplify(base*lcm(*(int(ratio.p) for ratio in ratios)))
+
+
+def wrapped_period(value, variable):
+    """Recover a full period for commensurate affine wrapped coordinates."""
+    entries=_wrap_geometry(value,variable)
+    if entries is None:return None
+    discrete=variable.is_integer is True
     if len(entries)==1 and entries[0][3]==1:
         phase,coordinate,modulus,_,offset,period=entries[0]
         if not discrete or modulus==period:
             origin=-offset
             first=sp.ceiling(origin) if discrete else origin
             return period,first,value.xreplace({phase:coordinate})
-    base=entries[0][-1]
-    ratios=[sp.simplify(entry[-1]/base) for entry in entries]
-    if any(ratio.is_Rational is not True for ratio in ratios):return None
-    from math import lcm
-
-    period=sp.simplify(base*lcm(*(int(ratio.p) for ratio in ratios)))
+    period=_common_period([entry[-1] for entry in entries])
+    if period is None:return None
     if discrete:return period,sp.S.Zero,value
     from .jobs import checkpoint
     from .resources import ensure_working_set
@@ -166,6 +179,36 @@ def affine_train_term(term, variable):
     if scale.has(variable) or scale.is_real is not True or scale.is_zero is not False or shift.has(variable) or shift.is_real is not True:
         return None
     return period/sp.Abs(scale), -shift/scale, amplitude/sp.Abs(scale)
+
+
+def has_explicit_period(source, domain):
+    """Certify named periodic formulas without sampling or constructing a cycle."""
+    if not re.search(r'\b(?:repeat|repeatsamples|pulsetrain|impulsetrain|mod)\s*\(|%',source,re.IGNORECASE):
+        return False
+    from .symbolic import N,T,parse
+
+    variable=N if domain=='discrete' else T
+    try:
+        value=parse(source)
+        regular=[]
+        periods=[]
+        for term in sp.Add.make_args(sp.expand_mul(value)):
+            if term.has(ImpulseTrain):
+                train=affine_train_term(term,variable)
+                if train is None or train[0].is_finite is not True or train[2].is_finite is not True:return False
+                periods.append(train[0])
+            else:
+                regular.append(term)
+        ordinary=sp.Add(*regular)
+        if ordinary.has(sp.DiracDelta) or ordinary.free_symbols-{variable}:return False
+        if ordinary.has(variable):
+            entries=_wrap_geometry(ordinary,variable)
+            if entries is None:return False
+            periods.extend(entry[-1] for entry in entries)
+        return not periods or _common_period(periods) is not None
+    except (SyntaxError,ValueError,TypeError,NotImplementedError):
+        # Recognizing the infinite definition is optional for finite sampling.
+        return False
 
 
 def discrete_cycle(value, index):

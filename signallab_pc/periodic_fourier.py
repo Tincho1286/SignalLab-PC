@@ -139,6 +139,46 @@ def periodic_integral(value, time, lower, upper, *, laplace_variable=None):
     return whole*repeat_count+factor**cycles*remainder
 
 
+def windowed_periodic_fourier(value,time,frequency):
+    """Transform a periodic waveform with a finite portion replaced or removed."""
+    if value.has(ImpulseTrain,sp.DiracDelta):return None
+    from .periodic_support import finite_periodic_correction
+    split=finite_periodic_correction(value,time)
+    if split is None:return None
+    exterior,correction=split
+    spectrum=sp.S.Zero
+    if exterior!=0:
+        base=periodic_fourier_pair(exterior,time,frequency)
+        if base is None:return None
+        spectrum=base[0]
+    parameter=sp.Dummy('laplace_frequency')
+    terms=[]
+    for branch,left,right in correction:
+        checkpoint()
+        if branch==0:continue
+        area=(periodic_integral(branch,time,left,right,laplace_variable=parameter) if branch.has(sp.Mod)
+              else finite_laplace_piece(branch,time,parameter,left,right))
+        if area is None or area.has(sp.Integral,sp.nan,sp.oo,sp.zoo):return None
+        terms.append(area)
+    return spectrum+sp.factor_terms(sp.Add(*terms).subs(parameter,sp.I*frequency))
+
+
+def has_nonzero_periodic_tail(value,time):
+    from .periodic_support import split_periodic_support
+    parts=split_periodic_support(value,time)
+    if parts is None:return False
+    for branch,left,right in parts:
+        if left.is_finite and right.is_finite:continue
+        cycle=_bounded_cycle(branch,time)
+        if cycle is None:continue
+        # A nonzero value in the interior of a continuous piece proves this
+        # tail has a nonzero integral on some subinterval of each repetition.
+        for lower,upper,piece in cycle[2]:
+            checkpoint()
+            if piece.subs(time,(lower+upper)/2).is_zero is False:return True
+    return False
+
+
 def gated_periodic_laplace(value, time, output):
     """Laplace from zero with an exact ROC for a gated periodic waveform."""
     if value.has(ImpulseTrain,sp.DiracDelta):

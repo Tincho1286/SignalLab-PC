@@ -159,6 +159,13 @@ def _execute(request):
                     'output_variable':'w','evaluated':not result.has(sp.Sum),'method':'periodic_spectrum',
                     'frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n)',
                     'scope':'Espectro de líneas. Cada peso se obtiene de un período de la secuencia.'},definition,exact=result)
+            from .dtft_pairs import windowed_periodic_spectrum
+            windowed=windowed_periodic_spectrum(value)
+            if windowed is not None:
+                return attach({'operation':'dtft_expression','result':str(windowed),'condition':'True','output_variable':'w',
+                    'evaluated':True,'method':'windowed_periodic_spectrum','frequency_units':'rad/muestra',
+                    'convention':'X(w) = sum x[n] exp(-i*w*n)',
+                    'scope':'Las muestras del tramo afectado dan una suma finita. Si existe una repetición común a ambos lados, sus líneas se suman a la corrección continua.'},definition,exact=windowed)
             from .dtft_pairs import direct as dtft_pairs
             spectrum=dtft_pairs(value)
             if spectrum is not None:
@@ -177,6 +184,12 @@ def _execute(request):
                     return attach({'operation':'dtft_expression','result':str(result),'condition':str(condition),'output_variable':'w','evaluated':True,'method':'certified_boundary_pairs','frequency_units':'rad/muestra',
                         'convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic',
                         'scope':'La convergencia sobre el círculo unitario se comprueba por separado de la ROC abierta de Z. Las potencias recíprocas utilizan convergencia absoluta o el criterio de Dirichlet fuera de las frecuencias resonantes indicadas. No se sustituye z=exp(i*w) sin comprobar la convergencia de la serie ordinaria.'},definition,exact=result,condition=condition)
+            if pair['periodic_tail']:
+                series=sp.Sum(value*sp.exp(-sp.I*W*N),(N,lower,upper))
+                return attach({'operation':'dtft_expression','result':str(series),'condition':'False','evaluated':False,
+                    'output_variable':'w','frequency_units':'rad/muestra',
+                    'convention':'X(w) = sum x[n] exp(-i*w*n)',
+                    'scope':'Al menos una cola periódica no nula sigue repitiéndose. Los sumandos no tienden a cero. La DTFT ordinaria diverge y su versión generalizada requiere además un valor principal.'},definition)
         term=sp.simplify(value*sp.exp(-sp.I*W*N))
         result=sp.simplify(sp.summation(term,(N,lower,upper)))
         if result.has(sp.Sum) and term!=0:
@@ -197,7 +210,7 @@ def _execute(request):
                 'convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic',
                 'scope':'Secuencia indicada entre límites inclusivos; cero fuera si los límites son finitos. Las condiciones y ramas de convergencia permanecen dentro de la expresión.'},definition,exact=result)
     if operation in ('fourier_angular','inverse_fourier_angular'):
-        from .periodic_fourier import periodic_fourier_pair
+        from .periodic_fourier import has_nonzero_periodic_tail,periodic_fourier_pair,windowed_periodic_fourier
         frequency=sp.Dummy('frequency',real=True)
         from .expression_definition import prepare,attach
         inverse=operation=='inverse_fourier_angular'
@@ -231,6 +244,18 @@ def _execute(request):
                     'periodic_fourier_source':expression,
                     'convention':'X(w) = integral x(t) exp(-i*w*t) dt',
                     'scope':'Las líneas están separadas por 2π/T. Cada área se calcula integrando un período y multiplicando por 2π/T.'},definition,exact=exact)
+            windowed=windowed_periodic_fourier(value,T,W)
+            if windowed is not None:
+                return attach({'operation':operation,'result':str(windowed),'condition':'True','evaluated':True,
+                    'output_variable':'w','frequency_units':'rad/s','method':'windowed_periodic_fourier',
+                    'convention':'X(w) = integral x(t) exp(-i*w*t) dt',
+                    'scope':'Se integra exactamente la parte afectada por el recorte. Si queda una repetición común a ambos lados, sus líneas se suman a la corrección continua.'},definition,exact=windowed)
+            if has_nonzero_periodic_tail(value,T):
+                integral=sp.Integral(value*sp.exp(-sp.I*W*T),(T,-sp.oo,sp.oo))
+                return attach({'operation':operation,'result':str(integral),'condition':'False','evaluated':False,
+                    'output_variable':'w','frequency_units':'rad/s',
+                    'convention':'X(w) = integral x(t) exp(-i*w*t) dt',
+                    'scope':'La integral ordinaria no converge porque una cola periódica no nula sigue repitiéndose. La transformada generalizada requiere también un valor principal.'},definition)
         from .impulse_pairs import fourier_pairs
         from .fourier_ordinary_pairs import pairs as ordinary_pairs
         records=[]

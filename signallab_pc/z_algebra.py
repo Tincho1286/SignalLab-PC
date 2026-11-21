@@ -77,9 +77,13 @@ def direct(request):
         if pair['empty']:
             answer['convergence_empty']=True;answer['evaluated']=False;answer['roc']='No existe un anillo abierto de convergencia absoluta. La convergencia de Fourier sobre |z|=1 se comprueba por separado.'
             if lower==-sp.oo and upper==sp.oo:
-                from .dtft_pairs import direct as dtft_pairs
-                boundary=dtft_pairs(expression)
-                if boundary is not None:answer['boundary_dtft']=str(boundary)
+                from .dtft_pairs import direct as dtft_pairs,windowed_periodic_spectrum
+                from .periodic_signals import ImpulseTrain
+                boundary=windowed_periodic_spectrum(expression)
+                if boundary is None:boundary=dtft_pairs(expression)
+                if boundary is not None:
+                    answer['boundary_dtft']=str(boundary)
+                    if boundary.has(ImpulseTrain,sp.DiracDelta):answer['boundary_distribution']=True
             answer['scope']='Las colas izquierda y derecha exigen condiciones incompatibles sobre |z|. Puede existir una DTFT sobre el círculo unitario, pero eso no constituye una ROC abierta para la transformada Z.'
         else:answer['scope']+=' Se separaron los valores definidos por continuidad y se aplicaron linealidad y pares de potencias, exponenciales o series logarítmicas sobre cada tramo.'
     if ((lower.is_finite and upper.is_finite) or (pair is not None and pair.get('finite_support'))) and evaluated and not branches:

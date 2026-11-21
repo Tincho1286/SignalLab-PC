@@ -273,6 +273,28 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(panel.last[1]['method'],'periodic_fourier_pair')
         assert_allclose(panel.output.result.values,[0,0,.5,1,.5,0,0,0,0])
 
+    def test_typed_periodic_formula_survives_exact_amplitude_adjustment_and_dtft(self):
+        import sympy as sp
+        from signallab_pc.result_expressions import send_expression
+        from signallab_pc.signal_transform_panel import SignalTransformPanel
+        from signallab_pc.symbolic import N,parse
+        from signallab_pc.toolbox import LocalInput
+
+        generator=LocalInput('Crear una señal','discrete');self.widgets.append(generator)
+        generator.enable_periodic_definition();generator.expression.setText('PulseTrain(n-1,5,2)')
+        self.assertFalse(generator.repeat_period.isChecked())
+        signal=generator.read();self.assertEqual(signal.metadata['periodic_definition'],generator.expression.text())
+        panel=SignalTransformPanel(self.host,'discrete','scale');self.widgets.append(panel)
+        panel.source.set_source(signal);panel.offset.setText('1/3');panel.amplitude.setText('2/3');panel.calculate()
+        self.assertEqual(self.warnings,[])
+        formula=parse(panel.result.expression)
+        self.assertEqual(sp.simplify(formula.subs(N,11)),1)
+        self.assertEqual(sp.simplify(formula.subs(N,-2)),sp.Rational(1,3))
+        send_expression(self.host,panel.output.expression_key,'fourier_direct')
+        dtft=self.host.pages[self.host.current_operation].panel;dtft.calculate_button.click()
+        self.assertEqual(self.warnings,[])
+        self.assertTrue(dtft.last[1]['evaluated'] and dtft.last[1]['distribution'])
+
     def test_dtft_result_reused_as_frequency_system(self):
         request=dict(operation='dtft_expression',expression='sin(0.3*pi*(n-4))/(pi*(n-4))',lower='-oo',upper='oo')
         from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel

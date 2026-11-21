@@ -72,8 +72,12 @@ class SignalTransformPanel(QWidget):
                 summary.sections.append(Section('Interpretación',paragraphs=[explanation,values[0].metadata.get('scope','Los intervalos no almacenados se consideran cero. La salida conserva sus índices o instantes.')]))
                 self.output.text.set_readable(summary);self.tabs.setCurrentIndex(0);self.result_state.accept(snapshot)
             parameters=dict(amplitude=amplitude,time_scale=scale,delay=delay,offset=offset)
+            fields={}
+            if operation in ('scale','affine'):fields.update(amplitude=self.amplitude.text(),offset=self.offset.text())
+            if operation in ('shift','affine'):fields['delay']=self.delay.text()
+            if operation=='affine':fields['time_scale']=self.scale.text()
             def calculate():
                 result=transform_signal(source,operation,**parameters)
-                return periodic_transform(source,result,operation,**parameters)
+                return periodic_transform(source,result,operation,parameter_sources=fields,**parameters)
             self.window._run_operation('Transformando señal…',calculate,accept)
         except Exception as exc:QMessageBox.warning(self,'Revisá la transformación',str(exc))

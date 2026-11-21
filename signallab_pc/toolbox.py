@@ -284,6 +284,9 @@ class LocalInput(QGroupBox):
                 samples=', '.join('('+value+')' for value in sequence_parts(self.samples.text()))
                 spacing=f', ({self.step.text()})' if variable=='t' else ''
                 expression=f'RepeatSamples({variable}, ({self.period_origin.text()}), ({samples},){spacing})'
+        elif mode==0 and self.kind in ('continuous','discrete'):
+            from .periodic_signals import has_explicit_period
+            periodic=has_explicit_period(expression,self.kind)
         if self.kind in ('continuous','frequency'):
             origin=real_field(self.origin);step=real_field(self.step)
             if step<=0:raise ValueError('El paso del eje debe ser positivo.')

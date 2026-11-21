@@ -83,6 +83,10 @@
         [
           "Pegar datos con columnas",
           "En la entrada Muestras, Pegar datos permite revisar el portapapeles antes de usarlo. Elegí una secuencia, eje y valor, partes real e imaginaria, o eje/real/imaginaria. Podés omitir un encabezado y activar coma decimal; en ese caso las columnas se separan con tabulación o punto y coma. Se admiten constantes como pi, 10^(-3) y complejos. Los ejes deben ser uniformes y crecientes; en discreto avanzan de uno en uno. Los datos no se ordenan ni remuestrean automáticamente."
+        ],
+        [
+          "Reutilizar la fórmula del tren",
+          "Si escribiste Repeat, RepeatSamples, PulseTrain o ImpulseTrain directamente, la app guarda la definición cuando puede verificar un período común. En Usar señal en… elegí Fórmula del resultado y después Fourier continua o DTFT algebraica. El registro visible sigue disponible para herramientas numéricas."
         ]
       ]
     },

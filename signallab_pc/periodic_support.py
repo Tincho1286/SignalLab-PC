@@ -58,3 +58,14 @@ def split_periodic_support(value, variable):
         if upper.is_integer is True:
             result.append((expression.subs(variable,upper),upper,upper))
     return result
+
+
+def finite_periodic_correction(value, variable):
+    """Return the shared exterior expression and finite corrections to it."""
+    parts=split_periodic_support(value,variable)
+    if parts is None:return None
+    left=parts[0][0]
+    right=parts[-1][0]
+    if left!=right and sp.simplify(left-right)!=0:return None
+    return left,[(sp.simplify(branch-left),start,stop) for branch,start,stop in parts
+                 if start.is_finite and stop.is_finite]

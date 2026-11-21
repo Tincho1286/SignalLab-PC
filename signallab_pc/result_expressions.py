@@ -51,6 +51,7 @@ def expression_result(value):
 def expression_destinations(expression):
     v=expression.variable;destinations=[('Copiar expresión','copy'),('Calculadora CAS','cas')]
     if v in ('n','t'):destinations += [('Crear señal '+('discreta' if v=='n' else 'continua'),'signal'),('Transformada '+('Z directa' if v=='n' else 'de Laplace directa'),'direct'),('Energía y potencia','measures')]
+    if v in ('n','t'):destinations.append(('DTFT algebraica' if v=='n' else 'Fourier continua algebraica','fourier_direct'))
     if v in ('n','t'):destinations.append(('Transformar esta señal','transform_signal'))
     if v in ('n','t'):destinations.extend([('Sumar con otra señal','sum'),('Multiplicar por otra señal','product')])
     if v=='tau':destinations.append(('Crear señal continua desde la correlación','signal'))
@@ -175,6 +176,8 @@ def send_expression(window,key,destination):
         prepared=signal_source(expression.numerical_source or text);page.first.mode.setCurrentIndex(0);page.first.expression.setText(prepared);page.first._expression_origin=(page.first.expression.text(),key)
     elif destination=='measures':
         window.open_tool(ROUTES['expression_measures','global']);panel=window.pages[window.current_operation].panel;panel.load_expression(expression,key)
+    elif destination=='fourier_direct':
+        window.open_tool(ROUTES['dtft_symbolic' if v=='n' else 'fourier_symbolic',0]);panel=window.pages[window.current_operation].panel;panel.load_expression(expression,key)
     elif destination=='fourier_inverse':
         window.open_tool(ROUTES['fourier_symbolic',1]);panel=window.pages[window.current_operation].panel;panel.load_expression(expression,key)
     elif destination=='inverse_dtft':

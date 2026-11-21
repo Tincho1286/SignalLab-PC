@@ -47,23 +47,31 @@ def transform_signal(source,operation,*,amplitude=1,delay=0,time_scale=1,offset=
     raise ValueError('La transformación no corresponde al dominio de la entrada.')
 
 
-def periodic_transform(source, result, operation, *, amplitude, delay, time_scale, offset):
+def periodic_transform(source, result, operation, *, amplitude, delay, time_scale, offset, parameter_sources=None):
     """Carry the infinite definition alongside its transformed sample window."""
     definition=source.metadata.get('periodic_definition')
     if not definition or operation=='parity':return result
     import sympy as sp
     from .symbolic import N,T,parse
 
-    def exact(value):
+    def exact(name,value):
+        text=(parameter_sources or {}).get(name)
+        if text:
+            try:
+                candidate=sp.simplify(parse(text))
+                if candidate.is_finite is True and not candidate.free_symbols:return candidate
+            except (ValueError,TypeError,SyntaxError):
+                pass  # The numeric input has already been validated.
         converted=complex(value)
         return sp.Rational(str(converted.real))+sp.I*sp.Rational(str(converted.imag))
 
     variable=N if source.domain=='discrete' else T
-    shift=sp.Integer(delay) if source.domain=='discrete' else exact(delay)
+    shift=sp.Integer(delay) if source.domain=='discrete' else exact('delay',delay)
     coordinate={'shift':variable-shift,'reverse':-variable,'scale':variable,
-                'affine':exact(time_scale)*(variable-shift)}[operation]
+                'affine':exact('time_scale',time_scale)*(variable-shift)}[operation]
     expression=parse(definition).subs(variable,coordinate)
     if operation in ('scale','affine'):
-        expression=exact(amplitude)*expression+exact(offset)
+        expression=exact('amplitude',amplitude)*expression+exact('offset',offset)
     text=str(expression)
-    return result.copy_with(expression=text,metadata={**result.metadata,'periodic_definition':text})
+    scope='La tabla y el gráfico muestran una ventana de la señal. La expresión transformada conserva la repetición fuera de ese intervalo.'
+    return result.copy_with(expression=text,metadata={**result.metadata,'periodic_definition':text,'scope':scope})

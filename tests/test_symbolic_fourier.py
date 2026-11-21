@@ -45,6 +45,31 @@ class SymbolicFourierTests(unittest.TestCase):
         grid=[-sp.Rational(3,4),0,sp.Rational(1,4),sp.Rational(3,8),sp.Rational(1,2),sp.Rational(11,8)]
         self.assertEqual([sp.simplify(waveform.subs(T,point)) for point in grid],
                          [sp.S.Half,0,sp.S.Half,1,sp.S.Half,1])
+    def test_a_finite_periodic_edit_preserves_lines_and_the_ordinary_correction(self):
+        from signallab_pc.impulse_pairs import distribution_parts
+        from signallab_pc.symbolic import N
+        waveform='(1-(Step(t)-Step(t-4)))*PulseTrain(t,4,2)'
+        spectrum=self.transform(waveform)
+        self.assertTrue(spectrum['evaluated'] and spectrum['distribution'])
+        ordinary,lines=distribution_parts(parse(spectrum['result']),W,-sp.pi,sp.pi,right_open=True)
+        self.assertEqual(sp.simplify(ordinary.subs(W,0)),-2)
+        self.assertEqual(sp.simplify(dict(lines)[0]),sp.pi)
+        sequence='(1-(Step(n)-Step(n-5)))*ImpulseTrain(n,5)'
+        req=dict(expression=sequence,lower='-oo',upper='oo')
+        d=execute(dict(operation='dtft_expression',**req));z=execute(dict(operation='z_expression',**req))
+        self.assertTrue(d['distribution'] and z['boundary_distribution'])
+        self.assertEqual(d['result'],z['boundary_dtft'])
+        inverse=execute(dict(operation='inverse_dtft_expression',expression=d['result']))
+        x=parse(inverse['result'])
+        self.assertTrue(inverse['evaluated'])
+        for k in range(-6,7):self.assertEqual(sp.simplify(x.subs(N,k)),int(k%5==0 and k!=0))
+    def test_fourier_of_a_window_and_divergence_of_a_periodic_tail(self):
+        clipped=self.transform('(Step(t-1)-Step(t-6))*PulseTrain(t,3,2)')
+        self.assertTrue(clipped['evaluated']);self.assertEqual(sp.simplify(parse(clipped['result']).subs(W,0)),3)
+        tail=self.transform('Step(t)*PulseTrain(t,4,2)')
+        self.assertFalse(tail['evaluated']);self.assertIn('valor principal',tail['scope'])
+        discrete=execute(dict(operation='dtft_expression',expression='Step(n)*PulseTrain(n,5,2)',lower='0',upper='oo'))
+        self.assertFalse(discrete['evaluated']);self.assertIn('valor principal',discrete['scope'])
     def test_an_excluded_frequency_cannot_drop_an_impulse_train_line(self):
         request=dict(operation='inverse_fourier_angular',expression='2*pi*ImpulseTrain(w,2*pi)',input_frequency_condition='Ne(w,0)')
         with self.assertRaisesRegex(ValueError,'no está definida'):

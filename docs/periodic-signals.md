@@ -6,7 +6,7 @@
 
 En **Señales → Crear una señal**, elegí el dominio y activá **Repetir un período en todo el eje**. En **Fórmula**, escribí el tramo base y completá **Inicio del período** y **Período**. En **Muestras**, cargá un ciclo en orden. En continuo, el paso separa dos puntos consecutivos y la interpolación lineal también une el último con el primero del siguiente ciclo.
 
-La ventana del gráfico indica qué índices o instantes se muestran. Por ejemplo, una secuencia de período 4 se puede dibujar desde n = −8 con 17 muestras. En **Resultados** guardás la definición periódica y el registro visible. Usá la definición para calcular la transformada o la potencia de todo el eje.
+La ventana del gráfico indica qué índices o instantes se muestran. Por ejemplo, una secuencia de período 4 se puede dibujar desde n = −8 con 17 muestras. En **Resultados** guardás la definición periódica y el registro visible, incluso si escribiste el tren directamente en Fórmula. Desde **Usar señal en…**, elegí la definición para calcular Fourier, DTFT o la potencia de todo el eje.
 
 ## Referencia de fórmulas
 
@@ -37,5 +37,7 @@ Para conservar sólo la mitad derecha de un tren, multiplicá su fórmula por `S
 En **DTFT algebraica**, usá `ImpulseTrain(n-1,4)` con límites `-oo` y `oo` para obtener todo el espectro. Abrí **Graficar resultado** para ver las líneas por frecuencia y peso. Para recuperar la secuencia elegí **DTFT inversa algebraica** en **Usar espectro en…**.
 
 En **Fourier continua**, `PulseTrain(t-1,4,2)` da líneas separadas por 2π/4 rad/s. Reutilizá el espectro guardado en **Fourier continua inversa** para reconstruir el período. También podés pegar la fórmula del espectro de un tren rectangular u otro período formado por tramos polinómicos. En un salto, el resultado toma el promedio de los límites laterales.
+
+Si eliminás un período con `(1-(Step(t)-Step(t-4)))*PulseTrain(t,4,2)`, el gráfico conserva las líneas del tren y la corrección continua del recorte. Si el tren se recorta con un solo escalón y sigue repitiéndose hacia un extremo, la transformada ordinaria carece de convergencia. Su forma generalizada requiere un valor principal.
 
 En **Laplace → Directa → Unilateral**, el cálculo integra un período desde t = 0 y suma las repeticiones hacia la derecha. En **Bilateral**, un tren periódico no nulo tiene región de convergencia vacía y su espectro de Fourier se puede reutilizar. En Z ocurre algo equivalente al elegir `-oo` y `oo` para un tren discreto. El informe conserva su DTFT.

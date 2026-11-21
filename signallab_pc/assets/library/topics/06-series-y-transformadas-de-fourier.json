@@ -225,6 +225,10 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Qué ocurre al recortar un tren",
+          "En una fórmula recortada por dos escalones, Fourier integra el soporte finito. Si eliminás sólo un tramo de un tren bilateral, el gráfico conserva las líneas y muestra aparte la corrección continua. Si el tren se repite sólo hacia un lado, la integral ordinaria diverge y la transformada generalizada requiere un valor principal."
         ]
       ]
     },
@@ -475,6 +479,10 @@
           {
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
+        ],
+        [
+          "Peines con desplazamientos enteros",
+          "Un tren de líneas de peso constante o modulado por desplazamientos enteros puede volver como impulsos que se repiten en n. Si el espectro también incluye una corrección ordinaria, la app suma su secuencia inversa a la de los impulsos."
         ]
       ]
     }

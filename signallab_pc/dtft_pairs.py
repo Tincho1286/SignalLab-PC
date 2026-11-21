@@ -4,6 +4,30 @@ from .symbolic import N,W
 from .z_direct_pairs import pieces
 
 
+def windowed_periodic_spectrum(expression):
+    from .periodic_support import finite_periodic_correction
+    from .periodic_signals import cycle_dtft,discrete_cycle
+    from .jobs import checkpoint
+    from .symbolic import Z
+    from .z_direct_pairs import interval
+
+    split=finite_periodic_correction(expression,N)
+    if split is None:return None
+    exterior,corrections=split
+    spectrum=sp.S.Zero
+    if exterior!=0:
+        cycle=discrete_cycle(exterior,N)
+        if cycle is None:return None
+        spectrum=cycle_dtft(cycle,W)
+    terms=[]
+    for branch,lower,upper in corrections:
+        checkpoint()
+        result=interval(branch,lower,upper)
+        if result is None:return None
+        terms.append(result[0])
+    return spectrum+sp.Add(*terms).subs(Z,sp.exp(sp.I*W))
+
+
 def direct(expression):
     parts=pieces(expression,-sp.oo,sp.oo,preserve_structure=True)
     if parts is None:return None
