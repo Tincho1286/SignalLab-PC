@@ -1,6 +1,20 @@
 {
   "releases": [
     {
+      "tag": "v1.8.26",
+      "title": "Potencia de cosenos y fórmulas reutilizables",
+      "channel": "preview",
+      "summary": "La 1.8.26 corrige la potencia de cosenos discretos con fase y calcula la energía de trenes amortiguados. Las fórmulas completas se pueden reutilizar después del ajuste de amplitud o la descomposición par e impar.",
+      "changes": [
+        "Potencia exacta de cosenos en cero, Nyquist y frecuencias cercanas.",
+        "Energía y potencia de trenes multiplicados por un decaimiento exponencial.",
+        "Potencia de trenes discretos sumados a tonos, con sus cruces coherentes.",
+        "Fórmulas reutilizables al generar trenes compuestos y separar partes par e impar."
+      ],
+      "limits": [],
+      "notes": "docs/releases/v1.8.26.md"
+    },
+    {
       "tag": "v1.8.25",
       "title": "Potencia y transformadas de señales con varios períodos",
       "channel": "preview",

@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.18](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.18). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.26 · Preliminar
+
+La 1.8.26 corrige la potencia de cosenos discretos con fase y calcula la energía de trenes amortiguados. Las fórmulas completas se pueden reutilizar después del ajuste de amplitud o la descomposición par e impar.
+
+[Novedades completas](docs/releases/v1.8.26.md)
+
 ## 1.8.25 · Preliminar
 
 La 1.8.25 calcula la potencia exacta de sumas de trenes continuos aunque sus períodos no coincidan. Fourier y Laplace conservan el aporte de cada ciclo y distinguen las colas de los recortes finitos.
