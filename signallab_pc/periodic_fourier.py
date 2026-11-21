@@ -4,7 +4,7 @@ import sympy as sp
 from sympy.calculus.util import continuous_domain
 
 from .jobs import checkpoint
-from .periodic_signals import ImpulseTrain, repeat, wrapped_period
+from .periodic_signals import ImpulseTrain, continuous_periodic_components, repeat, wrapped_interval, wrapped_period
 
 
 def _slice_cycle(pieces, period, start, time, lower, upper):
@@ -66,8 +66,32 @@ def _bounded_cycle(value, time):
 def periodic_fourier_pair(value, time, frequency):
     """Return the exact line spectrum and its canonical inverse at the jumps."""
     cycle = _bounded_cycle(value, time)
-    if cycle is None:
+    if cycle is not None:
+        return _cycle_fourier(cycle, time, frequency)
+    components = continuous_periodic_components(value, time)
+    if components is None or len(components) < 2:
         return None
+    from .impulse_pairs import fourier_pairs
+
+    spectra, waveforms = [], []
+    for _, waveform in components:
+        checkpoint()
+        if waveform.has(sp.Mod):
+            cycle = _bounded_cycle(waveform, time)
+            pair = _cycle_fourier(cycle, time, frequency) if cycle is not None else None
+            if pair is None:
+                return None
+            spectrum, waveform = pair
+        else:
+            spectrum, rest = fourier_pairs(waveform, time, frequency)
+            if rest != 0:
+                return None
+        spectra.append(spectrum)
+        waveforms.append(waveform)
+    return sp.Add(*spectra), sp.Add(*waveforms)
+
+
+def _cycle_fourier(cycle, time, frequency):
     period, start, pieces, limits = cycle
     end = start+period
     weight = sp.S.Zero
@@ -92,8 +116,26 @@ def periodic_fourier_pair(value, time, frequency):
 def periodic_laplace(value, time, output):
     """Use the cycle starting at zero and sum its causal repetitions."""
     cycle = _bounded_cycle(value, time)
-    if cycle is None:
+    if cycle is not None:
+        return _cycle_laplace(cycle, time, output)
+    components = continuous_periodic_components(value, time)
+    if components is None or len(components) < 2:
         return None
+    terms = []
+    for _, waveform in components:
+        checkpoint()
+        if waveform.has(sp.Mod):
+            cycle = _bounded_cycle(waveform, time)
+            term = _cycle_laplace(cycle, time, output) if cycle is not None else None
+        else:
+            term = sp.laplace_transform(waveform, time, output, noconds=True)
+        if term is None or term.has(sp.LaplaceTransform):
+            return None
+        terms.append(term)
+    return sp.Add(*terms)
+
+
+def _cycle_laplace(cycle, time, output):
     period, start, pieces, _ = cycle
     kernel = sp.exp(-output*time)
     terms = []
@@ -119,24 +161,26 @@ def imaginary_axis(value,parameter,frequency):
 
 
 def periodic_integral(value, time, lower, upper, *, laplace_variable=None):
-    """Integrate full cycles once, plus the remaining fraction of a cycle."""
-    cycle = _bounded_cycle(value,time)
-    if cycle is None:
-        return None
-    period,start,pieces,_ = cycle
-    cycles = sp.floor((upper-lower)/period)
-    if not isinstance(cycles,sp.Integer):
-        return None
-    def integrate(start_at, stop_at):
+    """Reuse full cycles where possible, or split a finite span at its wraps."""
+    def integrate(pieces):
         terms=[]
-        for left,right,branch in _slice_cycle(pieces,period,start,time,start_at,stop_at):
+        for left,right,branch in pieces:
             checkpoint()
             area=(sp.integrate(branch,(time,left,right)) if laplace_variable is None
                   else finite_laplace_piece(branch,time,laplace_variable,left,right))
             terms.append(area)
         return sp.Add(*terms)
-    whole = integrate(lower,lower+period) if cycles else sp.S.Zero
-    remainder = integrate(lower,upper-cycles*period)
+
+    cycle = _bounded_cycle(value,time)
+    if cycle is None:
+        pieces = wrapped_interval(value,time,lower,upper)
+        return None if pieces is None else integrate(pieces)
+    period,start,pieces,_ = cycle
+    cycles = sp.floor((upper-lower)/period)
+    if not isinstance(cycles,sp.Integer):
+        return None
+    whole = integrate(_slice_cycle(pieces,period,start,time,lower,lower+period)) if cycles else sp.S.Zero
+    remainder = integrate(_slice_cycle(pieces,period,start,time,lower,upper-cycles*period))
     if laplace_variable is None or not cycles:
         return cycles*whole+remainder
     factor = sp.exp(-laplace_variable*period)
@@ -189,7 +233,7 @@ def gated_periodic_laplace(value, time, output):
     if value.has(ImpulseTrain,sp.DiracDelta):
         return None
     from .periodic_support import split_periodic_support
-    split=split_periodic_support(value,time)
+    split=split_periodic_support(value,time,preserve_addends=True)
     if split is None:
         return None
     finite=[]

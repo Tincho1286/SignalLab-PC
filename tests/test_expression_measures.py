@@ -84,6 +84,22 @@ class ExpressionMeasureTests(unittest.TestCase):
             self.measure('ImpulseTrain(t,1)',mode='global')
         with self.assertRaisesRegex(ValueError,'periodo indicado|período indicado'):
             self.measure('(-1)^n*Repeat(n,n,3)',domain='discrete',mode='periodic',period='3')
+
+    def test_mixed_continuous_cycles_keep_dc_and_coherent_cross_terms(self):
+        import sympy as sp
+
+        trains = 'PulseTrain(t,1,1/4)+PulseTrain(t,sqrt(2),1/2)'
+        power = sp.Rational(1,4) + 3 * sp.sqrt(2) / 8
+        cases = ((trains, sp.oo, power), (f'Step(t)*({trains})', sp.oo, power/2),
+                 (f'(Step(t)-Step(t-2))*({trains})', 2, 0),
+                 ('PulseTrain(t,1,1/4)+cos(t)', sp.oo, sp.Rational(3,4)),
+                 ('PulseTrain(t,1,1/4)+cos(2*pi*t)', sp.oo, sp.Rational(3,4)+1/sp.pi))
+        for expression, energy, mean_square in cases:
+            with self.subTest(expression=expression):
+                result = self.measure(expression, mode='global')
+                self.assertEqual(sp.sympify(result['energy']['exact']), energy)
+                self.assertEqual(sp.simplify(sp.sympify(result['mean_square']['exact']) - mean_square), 0)
+
     def test_parameters_preserve_conditions(self):
         r=self.measure('a*exp(-abs(t))',mode='global')
         self.assertEqual(r['parameters'],['a']);self.assertEqual(r['energy']['status'],'conditional')

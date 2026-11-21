@@ -33,7 +33,7 @@ def direct(request):
         spectrum = periodic[0] if periodic is not None else fourier_pairs(value,T,W)[0]
         return attach({'operation':'Laplace bilateral','output_variable':'s','evaluated':False,
             'result':str(sp.Integral(value*sp.exp(-S*T),(T,-sp.oo,sp.oo))),'condition':'False',
-            'convergence_empty':True,'roc':'Vacía para una señal periódica bilateral no nula',
+            'convergence_empty':True,'roc':'Vacía por persistencia en ambos semiejes',
             'roc_lower':'0','roc_upper':'0','boundary_fourier':str(spectrum),'boundary_distribution':True,
             'periodic_fourier_source':request['expression'] if periodic is not None else None,
             'scope':'La cola derecha requiere Re(s) > 0 y la izquierda requiere Re(s) < 0. En el eje imaginario la transformada de Fourier está definida como espectro de líneas.'},definition)
@@ -51,8 +51,9 @@ def direct(request):
         current=pair if pair is not None else sp.integrate(term * sp.exp(-S*T), (T, -sp.oo, sp.oo))
         impulse+=current
         records.append(step('Aporte de impulso','Integración distribucional sobre toda la recta',term,current,conditions='El peso se incorpora una sola vez, también en t=0.',source='impulse_pairs.impulse_integral'))
-    regular = sp.piecewise_fold(sp.Add(*regular).rewrite(sp.Piecewise))
-    split = split_periodic_support(regular,T)
+    regular = sp.Add(*regular).rewrite(sp.Piecewise)
+    split = split_periodic_support(regular,T,preserve_addends=True)
+    if split is None:regular = sp.piecewise_fold(regular)
     try:
         if split is not None:
             regions=[(branch,sp.Interval(start,stop)) for branch,start,stop in split]

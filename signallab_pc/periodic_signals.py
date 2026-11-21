@@ -105,9 +105,9 @@ SYMBOLIC_FUNCTIONS = {'repeat': repeat, 'pulsetrain': pulse_train, 'impulsetrain
                       'repeatsamples': repeat_samples, 'pvcot': PVCot}
 
 
-def _wrap_geometry(value, variable):
+def _wrap_geometry(value, variable, *, require_periodic=True):
     phases = sorted((phase for phase in value.atoms(sp.Mod) if phase.has(variable)),key=sp.default_sort_key)
-    if not phases or value.xreplace({phase:sp.Dummy('phase') for phase in phases}).has(variable):
+    if not phases or (require_periodic and value.xreplace({phase:sp.Dummy('phase') for phase in phases}).has(variable)):
         return None
     discrete=variable.is_integer is True
     entries=[]
@@ -148,12 +148,59 @@ def wrapped_period(value, variable):
     period=_common_period([entry[-1] for entry in entries])
     if period is None:return None
     if discrete:return period,sp.S.Zero,value
+    segments = _unwrap_segments(value, variable, sp.S.Zero, period, entries)
+    if segments is None:return None
+    pieces = ((branch, variable < high if high != period else True) for _, high, branch in segments)
+    return period, sp.S.Zero, sp.Piecewise(*pieces)
+
+
+def wrapped_interval(value, variable, lower, upper):
+    """Unwrap affine modular coordinates on a bounded continuous interval."""
+    if variable.is_integer or lower.is_finite is not True or upper.is_finite is not True:
+        return None
+    entries = _wrap_geometry(value, variable, require_periodic=False)
+    return _unwrap_segments(value, variable, lower, upper, entries) if entries is not None else None
+
+
+def continuous_periodic_components(value, time):
+    """Split a sum into wrapped waveforms and individual harmonic tones."""
+    from .harmonic_measures import _exponential_terms
+    from .jobs import checkpoint
+
+    if not value.has(sp.Mod) or value.free_symbols - {time}:
+        return None
+    components = []
+    for term in sp.Add.make_args(sp.expand_mul(value)):
+        checkpoint()
+        if not term.has(time):
+            components.append((None, term))
+        elif term.has(sp.Mod):
+            cycle = wrapped_period(term, time)
+            if cycle is None:
+                return None
+            components.append((cycle[0], term))
+        else:
+            tones = _exponential_terms(term, time)
+            if tones is None:
+                return None
+            for slope, weight in tones:
+                frequency = sp.simplify(slope / sp.I)
+                if frequency.is_real is not True or frequency.free_symbols or frequency.is_zero is None:
+                    return None
+                if frequency.is_zero:
+                    components.append((None, weight))
+                else:
+                    components.append((2 * sp.pi / sp.Abs(frequency), weight * sp.exp(slope * time)))
+    return components
+
+
+def _unwrap_segments(value, variable, lower, upper, entries):
     from .jobs import checkpoint
     from .resources import ensure_working_set
 
-    breaks={sp.S.Zero,period}
+    breaks={lower,upper}
     for _,_,modulus,slope,offset,_ in entries:
-        start,end=sorted((offset/modulus,(slope*period+offset)/modulus))
+        start,end=sorted(((slope*lower+offset)/modulus,(slope*upper+offset)/modulus))
         first,last=sp.floor(start)+1,sp.ceiling(end)-1
         if not isinstance(first,sp.Integer) or not isinstance(last,sp.Integer):return None
         ensure_working_set(max(0,int(last-first+1))+len(breaks),bytes_per_sample=4096,live_arrays=8)
@@ -166,8 +213,8 @@ def wrapped_period(value, variable):
         midpoint=(low+high)/2
         substitutions={phase:coordinate-modulus*sp.floor(coordinate.subs(variable,midpoint)/modulus)
                        for phase,coordinate,modulus,_,_,_ in entries}
-        pieces.append((value.xreplace(substitutions),variable<high if high!=period else True))
-    return period,sp.S.Zero,sp.Piecewise(*pieces)
+        pieces.append((low,high,value.xreplace(substitutions)))
+    return pieces
 
 
 def affine_train_term(term, variable):

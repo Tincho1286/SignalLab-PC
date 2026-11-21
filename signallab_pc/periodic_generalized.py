@@ -96,9 +96,10 @@ def discrete_spectrum(value, index, frequency, z, lower, upper):
 def continuous_spectrum(value,time,frequency):
     if value.has(sp.DiracDelta,ImpulseTrain,PVCot):return None
     from .periodic_fourier import _bounded_cycle,finite_laplace_piece,imaginary_axis,periodic_integral
+    from .periodic_signals import continuous_periodic_components
     from .periodic_support import split_periodic_support
 
-    parts=split_periodic_support(value,time)
+    parts=split_periodic_support(value,time,preserve_addends=True)
     if parts is None:return None
     parameter=sp.Dummy('laplace_frequency')
 
@@ -120,13 +121,20 @@ def continuous_spectrum(value,time,frequency):
             continue
         if start==-sp.oo and stop==sp.oo:return None
         cycle=_bounded_cycle(branch,time)
-        period=cycle[0] if cycle is not None else sp.S.One if not branch.has(time) else None
-        if period is None:return None
+        if cycle is not None or not branch.has(time):
+            components=[(cycle[0] if cycle is not None else None,branch)]
+        else:
+            components=continuous_periodic_components(branch,time)
+            if components is None:return None
+            if any(waveform.has(sp.Mod) and _bounded_cycle(waveform,time) is None for _,waveform in components):
+                return None
         direction=1 if start.is_finite else -1
-        left,right=(start,start+period) if direction==1 else (stop-period,stop)
-        weight=integrate(branch,left,right)
-        if weight is None:return None
-        if weight==0:continue
-        terms.append(_half_comb(weight,period,direction,frequency))
-        has_tail=True
+        for period,waveform in components:
+            period=period if period is not None else sp.S.One
+            left,right=(start,start+period) if direction==1 else (stop-period,stop)
+            weight=integrate(waveform,left,right)
+            if weight is None:return None
+            if weight==0:continue
+            terms.append(_half_comb(weight,period,direction,frequency))
+            has_tail=True
     return sp.Add(*terms) if has_tail else None

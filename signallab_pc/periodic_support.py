@@ -6,10 +6,12 @@ from sympy.core.relational import Relational
 from .jobs import checkpoint
 
 
-def split_periodic_support(value, variable):
+def split_periodic_support(value, variable, *, preserve_addends=False):
     if not value.has(sp.Mod):
         return None
-    expression = sp.piecewise_fold(value.rewrite(sp.Piecewise))
+    expression = value.rewrite(sp.Piecewise)
+    if not preserve_addends:
+        expression = sp.piecewise_fold(expression)
     conditions = {}
     points = set()
     for condition in expression.atoms(Relational):
@@ -62,7 +64,7 @@ def split_periodic_support(value, variable):
 
 def finite_periodic_correction(value, variable):
     """Return the shared exterior expression and finite corrections to it."""
-    parts=split_periodic_support(value,variable)
+    parts=split_periodic_support(value,variable,preserve_addends=not variable.is_integer)
     if parts is None:return None
     left=parts[0][0]
     right=parts[-1][0]

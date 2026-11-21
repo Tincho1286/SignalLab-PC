@@ -37,6 +37,26 @@ class SymbolicFourierTests(unittest.TestCase):
         r=execute(dict(operation='z_expression',expression=sequence,lower='-oo',upper='oo'))
         self.assertTrue(r['evaluated'])
         self.assertEqual(sp.cancel(parse(r['branches'][0]['expression'])-(Z**-5+Z**-6)/(1-Z**-5)),0)
+
+    def test_bilateral_laplace_of_multiple_continuous_cycles(self):
+        from signallab_pc.impulse_pairs import distribution_parts
+        from signallab_pc.symbolic import S
+
+        trains = 'PulseTrain(t,1,1/4)+PulseTrain(t,sqrt(2),1/2)'
+        req = dict(operation='laplace', interpretation='bilateral')
+        full = execute(dict(req, expression=trains))
+        self.assertTrue(full['convergence_empty'])
+        spectrum = parse(full['boundary_fourier'])
+        ordinary, lines = distribution_parts(spectrum, W, -2*sp.pi, 2*sp.pi)
+        self.assertEqual(ordinary, 0)
+        self.assertEqual(sp.simplify(dict(lines)[0] - sp.pi*(1 + sp.sqrt(2))/2), 0)
+
+        causal = execute(dict(req, expression=f'Step(t)*({trains})'))
+        self.assertTrue(causal['evaluated'])
+        self.assertEqual((causal['roc_lower'], causal['roc_upper']), ('0', 'oo'))
+        expected = (1-sp.exp(-S/4))/(S*(1-sp.exp(-S))) + (1-sp.exp(-S/2))/(S*(1-sp.exp(-S*sp.sqrt(2))))
+        self.assertEqual(sp.simplify(parse(causal['result']) - expected), 0)
+
     def test_inverse_of_a_copied_periodic_spectrum_has_no_provenance(self):
         forward=self.transform('PulseTrain(t-1/4,1,1/4)')
         inverse=self.transform(forward['result'],True)

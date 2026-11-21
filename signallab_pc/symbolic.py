@@ -237,7 +237,7 @@ def _execute(request):
                     return attach({'operation':operation,'result':str(exact),'condition':'True','evaluated':True,
                         'output_variable':'t','frequency_units':'rad/s','method':'periodic_fourier_pair',
                         'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
-                        'scope':'Se recupera el período que genera estas líneas. En un salto se toma el promedio de ambos límites laterales. El espectro no distingue cambios en instantes aislados.'},definition,exact=exact)
+                        'scope':'Se recupera la señal que genera estas líneas. En un salto se toma el promedio de ambos límites laterales. El espectro no distingue cambios en instantes aislados.'},definition,exact=exact)
                 spectrum=continuous_spectrum(original,T,W) if value.has(PVCot) else windowed_periodic_fourier(original,T,W)
                 if spectrum is not None and (parse(str(spectrum))==parse(expression) or sp.simplify(spectrum-value)==0):
                     recovered=input_signal.expression
@@ -267,7 +267,7 @@ def _execute(request):
                     'output_variable':'w','frequency_units':'rad/s','method':'periodic_fourier_pair',
                     'periodic_fourier_source':expression,
                     'convention':'X(w) = integral x(t) exp(-i*w*t) dt',
-                    'scope':'Las líneas están separadas por 2π/T. Cada área se calcula integrando un período y multiplicando por 2π/T.'},definition,exact=exact)
+                    'scope':'Cada componente con período T aporta líneas separadas por 2π/T. Las líneas que coinciden suman sus áreas.'},definition,exact=exact)
             windowed=windowed_periodic_fourier(value,T,W)
             if windowed is not None:
                 return attach({'operation':operation,'result':str(windowed),'condition':'True','evaluated':True,
