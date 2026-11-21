@@ -26,6 +26,26 @@ from .periodic_signals import SYMBOLIC_FUNCTIONS as periodic_functions
 FUNCTIONS.update(periodic_functions)
 
 
+def _polynomial_argument(value):
+    """Evaluate plain arithmetic before trigonometric assumptions inspect it."""
+    if not isinstance(value, sp.Expr):
+        return None
+    if value.is_Atom:
+        return value
+    if value.func in (sp.Add, sp.Mul):
+        args = [_polynomial_argument(arg) for arg in value.args]
+        return None if None in args else value.func(*args)
+    if value.func == sp.Pow:
+        base, exponent = value.args
+        if exponent == -1 and base.is_Rational and base != 0:
+            return 1/base
+        if base.is_Symbol and exponent.is_Integer and exponent >= 0:
+            return value
+    # Preserve arguments with potential removable singularities for the
+    # callers that inspect their original real or integer domain.
+    return None
+
+
 def parse(expression):
     source = expression.strip().replace("π", "pi").replace("−", "-").replace("^", "**")
     source = re.sub(r"(?<=[0-9.)])\s*[iIjJ]\b", "*i", source)
@@ -72,7 +92,9 @@ def parse(expression):
             fn = FUNCTIONS.get(node.func.id.lower())
             if fn is not None:
                 args=tuple(visit(arg) for arg in node.args)
-                if fn in (sp.sin,sp.cos,sp.tan):return fn(*args,evaluate=False)
+                if fn in (sp.sin,sp.cos,sp.tan) and len(args)==1:
+                    argument = _polynomial_argument(args[0])
+                    return fn(args[0] if argument is None else argument,evaluate=False)
                 return fn(*args)
         raise ValueError("Sintaxis no admitida. Use fórmulas matemáticas; no se admiten atributos, índices ni código Python.")
     result=visit(tree.body)

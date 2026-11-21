@@ -65,6 +65,13 @@ class ScalarContracts(unittest.TestCase):
                 assert_allclose(evaluate_expression(formula,axis),expected)
         finite=sample_continuous('(Step(t-1/2)-Step(t-5/2))*ImpulseTrain(t,1)',-2,.25,25)
         self.assertEqual(list(dirac_terms(finite)),[(1,1),(2,1)])
+
+    def test_trigonometric_arguments_normalize_exact_arithmetic_without_losing_poles(self):
+        angle = -2*sp.pi/11
+        self.assertEqual(parse('Cos(2*pi*0*n/5-2*pi/11)').args,(angle,))
+        self.assertEqual(parse('sin((2*n+4)/2-n)').args,(sp.S(2),))
+        original = parse('sin((n-1)/(n-1))')
+        self.assertTrue(original.subs(N,1).has(sp.nan))
         for text in ('2.5','9007199254740993.1','True'):
             with self.assertRaises(ValueError):integer_value(text)
 

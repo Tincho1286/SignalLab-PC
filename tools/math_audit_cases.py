@@ -26,6 +26,7 @@ def catalog(seed=SEED):
     for size in (5,8):
         for harmonic in (0,1,size//2):
             add('cosine_power',size=size,harmonic=harmonic,phase=rng.choice([-5,-2,1,3,7]),denominator=rng.choice([3,4,7,11]))
+    add('cosine_power',size=5,harmonic=0,phase=-2,denominator=11)
     for start in (-2,3):
         for ratio in ('1/2','-1/4'):add('equation_solution',start=start,ratio=ratio,a0=rng.choice([2,3]),initial=rng.choice([-2,2,3]))
     for mode in ('factor_roots','domains','euler','matrix'):
