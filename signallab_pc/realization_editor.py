@@ -3,30 +3,61 @@
 from dataclasses import replace
 import json
 from pathlib import Path
+from tokenize import TokenError
 
-from PySide6.QtCore import QPointF, QRectF, Qt, Signal
+from PySide6.QtCore import QByteArray, QPoint, QPointF, QRect, QRectF, Qt, Signal
 from PySide6.QtGui import QColor, QPainter, QPainterPath, QPainterPathStroker, QPen
+from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import (
-    QDialog, QDialogButtonBox, QFileDialog, QGraphicsItem, QGraphicsPathItem,
-    QGraphicsRectItem, QGraphicsScene, QGraphicsSimpleTextItem, QGraphicsView,
+    QDialog, QDialogButtonBox, QFileDialog, QGraphicsEllipseItem, QGraphicsItem,
+    QGraphicsPathItem, QGraphicsRectItem, QGraphicsScene, QGraphicsSimpleTextItem, QGraphicsView,
     QInputDialog, QLabel, QMessageBox, QPushButton, QVBoxLayout, QWidget,
 )
 
 from .atomic_file import write_json
+from .math_display import latex
+from .math_source import normalize
 from .realization_diagram import DiagramView
 from .realization_graph import BLOCK_NAMES, Block, RealizationGraph, Wire
 from .resources import ensure_working_set
 from .theme_tokens import COLORS as C
+from .vector_math import render_latex
 from .wrapping_row import WrappingRow
+
+
+class PortItem(QGraphicsEllipseItem):
+    def __init__(self, block, direction, *, output=False, sign=1):
+        super().__init__(-5, -5, 10, 10, block)
+        self.block_id = block.block.id
+        self.direction = direction
+        self.output = output
+        self.sign = sign
+        self.color = QColor(C['blue' if output else 'amber' if sign < 0 else 'green'])
+        self.setAcceptedMouseButtons(Qt.MouseButton.NoButton)
+        self.setCursor(Qt.CursorShape.CrossCursor)
+        self.setZValue(2)
+        self.set_highlight(False)
+        if output:
+            self.setToolTip('Salida · arrastrá desde acá hasta la entrada de otro bloque.')
+        elif block.block.kind == 'sum':
+            self.setToolTip('Entrada de resta (−)' if sign < 0 else 'Entrada de suma (+)')
+        else:
+            self.setToolTip('Entrada · soltá acá el cable.')
+
+    def set_highlight(self, active):
+        self.setPen(QPen(self.color, 2.4 if active else 1.7))
+        self.setBrush(self.color if self.output or active else QColor(C['panel']))
 
 
 class BlockItem(QGraphicsRectItem):
     def __init__(self, block, domain, editor):
-        bounds={'sum':QRectF(-23,-23,46,46), 'input':QRectF(-34,-16,68,32), 'output':QRectF(-34,-16,68,32)}
-        super().__init__(bounds.get(block.kind,QRectF(-60,-23,120,46)))
+        bounds = {'sum': QRectF(-25, -25, 50, 50),
+                  'input': QRectF(-36, -19, 72, 38),
+                  'output': QRectF(-36, -19, 72, 38)}
+        super().__init__(bounds.get(block.kind, QRectF(-65, -24, 130, 48)))
         self.block = block
         self.editor = editor
-        self.variable = 'z' if domain == 'digital' else 's'
+        self.domain = domain
         self.setPos(block.x, block.y)
         color = {'memory': 'green', 'gain': 'blue', 'transfer': 'blue', 'sum': 'amber'}.get(block.kind, 'muted')
         self.setPen(QPen(QColor(C[color]), 1.5))
@@ -34,65 +65,104 @@ class BlockItem(QGraphicsRectItem):
         self.setZValue(1)
         flags = QGraphicsItem.GraphicsItemFlag
         self.setFlags(flags.ItemIsSelectable | flags.ItemIsMovable | flags.ItemSendsGeometryChanges)
-        self.label = QGraphicsSimpleTextItem(self)
-        self.label.setBrush(QColor(C['text']))
-        if block.kind in ('gain', 'transfer'):
-            self.set_definition(block)
-        else:
-            names = {'input': 'x[n]' if domain=='digital' else 'x(t)',
-                     'output': 'y[n]' if domain=='digital' else 'y(t)', 'sum': '',
-                     'memory': 'Retardo z⁻¹' if domain == 'digital' else 'Integrador 1/s'}
-            self.set_label(names[block.kind], BLOCK_NAMES[block.kind])
-
-    def set_label(self, text, tooltip):
-        self.label.setText(text)
-        bounds = self.label.boundingRect()
-        self.label.setPos(-bounds.width() / 2, -bounds.height() / 2)
-        self.setToolTip(f'Bloque {self.block.id} · {tooltip}')
+        self.inputs = {}
+        if block.kind != 'input':
+            self.inputs[1] = PortItem(self, QPointF(-1, 0))
+        if block.kind == 'sum':
+            self.inputs[-1] = PortItem(self, QPointF(0, 1), sign=-1)
+        self.output = PortItem(self, QPointF(1, 0), output=True) if block.kind != 'output' else None
+        self.set_definition(block)
 
     def set_definition(self, block):
         self.block = block
-        if block.kind == 'transfer':
-            text = f'H{block.id}({self.variable}) = {block.formula}'
-            tooltip = text
-        else:
-            text = block.gain
-            tooltip = 'Ganancia ' + block.gain
-        display = self.editor.fontMetrics().elidedText(text, Qt.TextElideMode.ElideRight, 68 if block.kind=='gain' else 108)
-        self.set_label(display, tooltip)
+        kind = block.kind
+        discrete = self.domain == 'digital'
+        text = {
+            'input': 'x[n]' if discrete else 'x(t)',
+            'output': 'y[n]' if discrete else 'y(t)',
+            'sum': '',
+            'memory': 'z^(-1)' if discrete else '1/s',
+            'gain': block.gain,
+            'transfer': block.formula,
+        }[kind]
+        self.formula = None
+        self.formula_size = (0, 0)
+        self.fallback = text
+        if text:
+            try:
+                vector = render_latex(latex(normalize(text)), size=15, color=C['text'])
+            except (ValueError, SyntaxError, KeyError, TypeError, IndexError, TokenError, RecursionError):
+                metrics = self.editor.fontMetrics()
+                self.fallback = metrics.elidedText(text, Qt.TextElideMode.ElideRight, 175)
+                self.formula_size = (metrics.horizontalAdvance(self.fallback), metrics.height())
+            else:
+                self.formula = QSvgRenderer(QByteArray(vector.svg))
+                # Expand for fractions and longer expressions. The tooltip keeps the full input.
+                scale = min(1, 190 / vector.width, 67 / vector.height)
+                self.formula_size = (vector.width * scale, vector.height * scale)
+        if kind in ('transfer', 'gain'):
+            width, height = self.formula_size
+            if kind == 'gain':
+                # At the triangle's centroid there is room on both sides of the label.
+                width, height = max(122, width * 1.55 + 24), max(54, height * 1.8 + 20)
+            else:
+                width, height = max(138, width + 26), max(50, height + 16)
+            self.setRect(-width / 2, -height / 2, width, height)
+        name = ('Retardo de una muestra' if discrete else 'Integrador') if kind == 'memory' else BLOCK_NAMES[kind]
+        self.setToolTip(name + (f' · {text}' if text else ''))
+        self.position_ports()
+        self.update()
 
     def gain_direction(self):
-        for wire,item in self.editor.wires.items():
-            if wire.source==self.block.id and item.target is not self:
-                return -1 if item.target.x()<self.x() else 1
+        for wire, item in self.editor.wires.items():
+            if wire.source == self.block.id and item.target is not self:
+                return -1 if item.target.x() < self.x() else 1
         return 1
 
-    def edge(self, tangent):
-        rect=self.rect()
-        return QPointF(tangent.x()*rect.width()/2,tangent.y()*rect.height()/2)
+    def position_ports(self):
+        direction = self.gain_direction() if self.block.kind == 'gain' else 1
+        if self.output is not None:
+            self.output.direction = QPointF(direction, 0)
+        if 1 in self.inputs:
+            self.inputs[1].direction = QPointF(-direction, 0)
+        bounds = self.rect()
+        ports = list(self.inputs.values())
+        if self.output is not None:
+            ports.append(self.output)
+        for port in ports:
+            port.setPos(port.direction.x() * bounds.width() / 2, port.direction.y() * bounds.height() / 2)
 
-    def paint(self,painter,option,widget=None):
-        kind=self.block.kind
-        if kind not in ('gain','sum','input','output'):
-            super().paint(painter,option,widget)
-            return
-        painter.setPen(self.pen() if not self.isSelected() else QPen(QColor(C['green']),2.5))
+    def paint(self, painter, option, widget=None):
+        kind = self.block.kind
+        painter.setPen(self.pen() if not self.isSelected() else QPen(QColor(C['green']), 2.5))
         painter.setBrush(self.brush())
-        if kind=='gain':
-            direction=self.gain_direction()
-            path=QPainterPath(QPointF(-direction*59,-22))
-            path.lineTo(QPointF(direction*59,0));path.lineTo(QPointF(-direction*59,22));path.closeSubpath()
+        center_x = 0
+        bounds = self.rect()
+        if kind == 'gain':
+            direction = self.gain_direction()
+            half = bounds.width() / 2
+            path = QPainterPath(QPointF(-direction * half, bounds.top()))
+            path.lineTo(QPointF(direction * half, 0))
+            path.lineTo(QPointF(-direction * half, bounds.bottom()))
+            path.closeSubpath()
             painter.drawPath(path)
-        elif kind=='sum':
-            painter.drawEllipse(self.rect())
-            incoming=[item for wire,item in self.editor.wires.items() if wire.target==self.block.id]
+            center_x = -direction * half / 3
+        elif kind == 'sum':
+            painter.drawEllipse(bounds)
             painter.setPen(QColor(C['text']))
-            for item in incoming:
-                position=-item.incoming_direction*12
-                painter.drawText(QRectF(position.x()-7,position.y()-7,14,14),Qt.AlignmentFlag.AlignCenter,
-                                 '+' if item.wire.sign==1 else '−')
-        elif self.isSelected():
-            painter.drawRoundedRect(self.rect(),4,4)
+            for sign, port in self.inputs.items():
+                center = port.pos() - port.direction * 13
+                painter.drawText(QRectF(center.x()-8, center.y()-8, 16, 16), Qt.AlignmentFlag.AlignCenter,
+                                 '+' if sign > 0 else '−')
+            return
+        else:
+            painter.drawRoundedRect(bounds, 5, 5)
+        if self.formula is not None:
+            width, height = self.formula_size
+            self.formula.render(painter, QRectF(center_x - width / 2, -height / 2, width, height))
+        else:
+            painter.setPen(QColor(C['text']))
+            painter.drawText(bounds.translated(center_x, 0), Qt.AlignmentFlag.AlignCenter, self.fallback)
 
     def itemChange(self, change, value):
         if change == QGraphicsItem.GraphicsItemChange.ItemPositionHasChanged and self.scene() is not None:
@@ -101,6 +171,40 @@ class BlockItem(QGraphicsRectItem):
 
     def definition(self):
         return replace(self.block, x=self.x(), y=self.y())
+
+
+def cable_path(start, end, outgoing, incoming, opposite=False):
+    """Leave and approach the ports along their normals."""
+    path = QPainterPath(start)
+    lead = 20
+    advance = QPointF.dotProduct(end - start, outgoing)
+    if outgoing == incoming and advance > 0:
+        lead = min(lead, advance / 3)
+    first, last = start + outgoing * lead, end - incoming * lead
+    path.lineTo(first)
+    if incoming.y():
+        # Face the lower sum port from below, including for loops back to the same sum.
+        lane = max(first.y(), last.y()) + (14 if start.y() <= end.y() else 0)
+        path.lineTo(first.x(), lane)
+        path.lineTo(last.x(), lane)
+    else:
+        same_direction = outgoing == incoming
+        if same_direction and advance >= 0 and not opposite:
+            middle = (first.x() + last.x()) / 2
+            path.lineTo(middle, first.y())
+            path.lineTo(middle, last.y())
+        elif not same_direction and abs(start.y() - end.y()) >= 75:
+            middle = max(first.x(), last.x()) if outgoing.x() > 0 else min(first.x(), last.x())
+            path.lineTo(middle, first.y())
+            path.lineTo(middle, last.y())
+        else:
+            lane = (max(first.y(), last.y()) + 75 if opposite and outgoing.x() > 0
+                    else min(first.y(), last.y()) - 75)
+            path.lineTo(first.x(), lane)
+            path.lineTo(last.x(), lane)
+    path.lineTo(last)
+    path.lineTo(end)
+    return path
 
 
 class WireItem(QGraphicsPathItem):
@@ -113,10 +217,10 @@ class WireItem(QGraphicsPathItem):
         self.setPen(QPen(color, 1.8))
         self.setFlag(QGraphicsItem.GraphicsItemFlag.ItemIsSelectable)
         self.setToolTip(f'{wire.source} → {wire.target}' + (' · resta' if wire.sign < 0 else ''))
-        self.minus = QGraphicsSimpleTextItem('−', self) if wire.sign < 0 else None
-        if self.minus is not None:
+        self.minus = None
+        if wire.sign < 0 and target.block.kind != 'sum':
+            self.minus = QGraphicsSimpleTextItem('−', self)
             self.minus.setBrush(color)
-        self.redraw()
 
     def shape(self):
         stroker = QPainterPathStroker()
@@ -127,97 +231,138 @@ class WireItem(QGraphicsPathItem):
         return super().boundingRect().adjusted(-5, -5, 5, 5)
 
     def redraw(self, opposite=False):
-        source, target = self.source.pos(), self.target.pos()
-        if self.source is self.target:
-            start=source+self.source.edge(QPointF(1,0));end=source+self.target.edge(QPointF(0,-1))
-            path = QPainterPath(start)
-            path.cubicTo(source + QPointF(145, 0), source + QPointF(0, -100), end)
-            tangent = QPointF(0, 1)
-        else:
-            dx, dy = target.x() - source.x(), target.y() - source.y()
-            if abs(dx) >= 100 or abs(dy) < 30:
-                tangent = QPointF(1 if dx >= 0 else -1, 0)
-            else:
-                tangent = QPointF(0, 1 if dy > 0 else -1)
-            outgoing,incoming=tangent,tangent
-            if self.source.block.kind in ('input','transfer','sum'):
-                outgoing=QPointF(1,0)
-            elif self.source.block.kind=='gain':
-                outgoing=QPointF(self.source.gain_direction(),0)
-            if self.target.block.kind in ('output','transfer'):
-                incoming=QPointF(1,0)
-            elif self.target.block.kind=='gain':
-                incoming=QPointF(self.target.gain_direction(),0)
-            elif self.target.block.kind=='sum' and dx<0:
-                incoming=QPointF(0,-1 if dy<0 or (dy==0 and self.wire.sign<0) else 1)
-            start,end=source+self.source.edge(outgoing),target-self.target.edge(incoming)
-            path = QPainterPath(start)
-            lead=18
-            direction=outgoing.x() if outgoing.x() else outgoing.y()
-            space=(end.x()-start.x()) if outgoing.x() else (end.y()-start.y())
-            if outgoing==incoming and direction*space>0:lead=min(lead,direction*space/3)
-            first,last=start+outgoing*lead,end-incoming*lead
-            path.lineTo(first)
-            if outgoing.x() and incoming.x():
-                if outgoing.x()!=incoming.x():
-                    middle=max(first.x(),last.x()) if outgoing.x()>0 else min(first.x(),last.x())
-                else:
-                    middle=(first.x()+last.x())/2
-                lane=(35 if outgoing.x()>0 else -35) if opposite or (last.x()-first.x())*outgoing.x()<0 else 0
-                path.lineTo(first.x(),first.y()+lane)
-                path.lineTo(middle,first.y()+lane);path.lineTo(middle,last.y()+lane)
-                path.lineTo(last.x(),last.y()+lane)
-            elif outgoing.y() and incoming.y():
-                middle=(first.y()+last.y())/2
-                path.lineTo(first.x(),middle);path.lineTo(last.x(),middle)
-            elif outgoing.x():
-                path.lineTo(last.x(),first.y())
-            else:
-                path.lineTo(first.x(),last.y())
-            path.lineTo(last);path.lineTo(end)
-            tangent=incoming
-        self.incoming_direction=tangent
-        self.target.update()
-        if self.minus is not None and self.target.block.kind!='sum':
-            self.minus.setPos(path.pointAtPercent(.68) + QPointF(-6, -18))
-        if self.minus is not None:self.minus.setVisible(self.target.block.kind!='sum')
+        source = self.source.output
+        target = self.target.inputs[self.wire.sign] if self.target.block.kind == 'sum' else self.target.inputs[1]
+        start, end = source.scenePos(), target.scenePos()
+        tangent = -target.direction
+        path = cable_path(start, end, source.direction, tangent, opposite)
+        # Leave a small arrowhead in front of the visible input port.
+        tip = end - tangent * 6
         side = QPointF(-tangent.y(), tangent.x())
-        path.moveTo(end - tangent * 10 + side * 5)
-        path.lineTo(end)
-        path.lineTo(end - tangent * 10 - side * 5)
+        path.moveTo(tip - tangent * 7 + side * 4)
+        path.lineTo(tip)
+        path.lineTo(tip - tangent * 7 - side * 4)
         self.setPath(path)
+        if self.minus is not None:
+            self.minus.setPos(path.pointAtPercent(.60) + QPointF(-6, -18))
 
 
 class EditorView(DiagramView):
     def __init__(self, editor):
         super().__init__(editor)
         self.editor = editor
+        self.cable_source = self.cable_target = self.cable_preview = None
 
     def block_at(self, position):
-        item = self.itemAt(position.toPoint())
+        item = self.itemAt(position)
         while item is not None and not isinstance(item, BlockItem):
             item = item.parentItem()
         return item
 
+    def port_at(self, position, *, output):
+        # Keep the handle easy to hit even when the view is zoomed out.
+        radius = 10
+        area = QRect(position - QPoint(radius, radius), position + QPoint(radius, radius))
+        candidates = (item for item in self.items(area)
+                      if isinstance(item, PortItem) and item.output == output)
+        return min(candidates, key=lambda port: (position - self.mapFromScene(port.scenePos())).manhattanLength(),
+                   default=None)
+
+    def begin_cable(self, port):
+        self.cable_source = port
+        self.cable_preview = self.scene().addPath(QPainterPath())
+        self.cable_preview.setZValue(3)
+        self.cable_preview.setAcceptedMouseButtons(Qt.MouseButton.NoButton)
+        self.viewport().setCursor(Qt.CursorShape.CrossCursor)
+        self.editor.hint.setText('Soltá el cable sobre una entrada. En el sumador, elegí + o −. Esc cancela.')
+
+    def trace_cable(self, position):
+        target = self.port_at(position, output=False)
+        if target is not self.cable_target:
+            if self.cable_target is not None:
+                self.cable_target.set_highlight(False)
+            self.cable_target = target
+            if target is not None:
+                target.set_highlight(True)
+        start = self.cable_source.scenePos()
+        direction = self.cable_source.direction
+        end = target.scenePos() if target is not None else self.mapToScene(position)
+        incoming = -target.direction if target is not None else direction
+        path = cable_path(start, end, direction, incoming)
+        color = QColor(C['amber' if target is not None and target.sign < 0 else 'blue'])
+        style = Qt.PenStyle.SolidLine if target is not None else Qt.PenStyle.DashLine
+        self.cable_preview.setPen(QPen(color, 2, style))
+        self.cable_preview.setPath(path)
+
+    def cancel_cable(self):
+        if self.cable_preview is None:
+            return
+        self.scene().removeItem(self.cable_preview)
+        if self.cable_target is not None:
+            self.cable_target.set_highlight(False)
+        self.cable_source = self.cable_target = self.cable_preview = None
+        self.viewport().unsetCursor()
+        self.editor.start_connection(None)
+
     def mousePressEvent(self, event):
-        if event.button() == Qt.MouseButton.LeftButton and self.editor.connection_sign is not None:
-            item = self.block_at(event.position())
-            if item is not None:
-                self.editor.connect_block(item)
+        if event.button() == Qt.MouseButton.LeftButton:
+            position = event.position().toPoint()
+            if self.editor.connection_sign is not None:
+                item = self.block_at(position)
+                if item is not None:
+                    self.editor.connect_block(item)
+                event.accept()
+                return
+            port = self.port_at(position, output=True)
+            if port is not None:
+                self.setFocus()
+                self.begin_cable(port)
+                self.trace_cable(position)
+                event.accept()
+                return
+        super().mousePressEvent(event)
+
+    def mouseMoveEvent(self, event):
+        if self.cable_source is not None:
+            self.trace_cable(event.position().toPoint())
             event.accept()
-        else:
-            super().mousePressEvent(event)
+            return
+        super().mouseMoveEvent(event)
 
     def mouseDoubleClickEvent(self, event):
-        block = self.block_at(event.position())
+        position = event.position().toPoint()
+        if self.port_at(position, output=True) is not None:
+            self.mousePressEvent(event)
+            return
+        block = self.block_at(position)
         if block is not None and block.block.kind in ('gain', 'transfer') and self.editor.connection_sign is None:
             self.editor.edit_block(block)
         else:
             super().mouseDoubleClickEvent(event)
 
     def mouseReleaseEvent(self, event):
+        if self.cable_source is not None and event.button() == Qt.MouseButton.LeftButton:
+            source = self.cable_source
+            target = self.port_at(event.position().toPoint(), output=False)
+            self.cancel_cable()
+            if target is not None:
+                self.editor.finish_wire(Wire(source.block_id, target.block_id, target.sign))
+            event.accept()
+            return
         super().mouseReleaseEvent(event)
         self.editor.update_bounds()
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key.Key_Escape:
+            if self.cable_source is not None:
+                self.cancel_cable()
+                event.accept()
+                return
+            if self.editor.connection_sign is not None:
+                self.editor.start_connection(None)
+                event.accept()
+                return
+        super().keyPressEvent(event)
 
 
 class RealizationEditor(QDialog):
@@ -240,18 +385,28 @@ class RealizationEditor(QDialog):
         self._button(file_row, 'Abrir JSON…', self.open_file)
         self._button(file_row, 'Guardar JSON…', self.save_file)
         self._button(file_row, 'Ver todo', self.fit_diagram)
+        self.edit_button = self._button(file_row, 'Editar bloque…', self.edit_selected_block)
+        self.delete_button = self._button(file_row, 'Quitar selección', self.delete_selection)
+
         tools = WrappingRow()
         layout.addWidget(tools)
-        self.transfer_button = self._button(tools, '+ Transferencia', lambda: self.add_block('transfer'))
-        self._button(tools, '+ Ganancia', lambda: self.add_block('gain'))
-        self._button(tools, '+ Sumador', lambda: self.add_block('sum'))
+        tools.flow.addWidget(QLabel('Agregar bloque'))
+        self.transfer_button = self._button(tools, 'Transferencia', lambda: self.add_block('transfer'),
+                                            'Multiplica la señal por una función de transferencia. Escribila o cargala de Resultados.')
+        self._button(tools, 'Ganancia · K', lambda: self.add_block('gain'),
+                     'Multiplica la señal por una constante.')
+        self._button(tools, 'Sumador · ±', lambda: self.add_block('sum'),
+                     'Suma las señales de la entrada + y resta las de la entrada −.')
         self.memory = self._button(tools, '', lambda: self.add_block('memory'))
-        self.connect_button = self._button(tools, 'Conectar (+)', lambda: self.start_connection(1))
-        self.subtract_button = self._button(tools, 'Restar (−)', lambda: self.start_connection(-1))
+
+        connections = WrappingRow()
+        layout.addWidget(connections)
+        self.connect_button = self._button(connections, 'Conectar con clics', lambda: self.start_connection(1),
+                                           'Elegí primero el bloque de origen y después el de destino.')
+        self.subtract_button = self._button(connections, 'Restar con clics', lambda: self.start_connection(-1),
+                                            'Elegí primero el origen y después el destino para una conexión con signo negativo.')
         for button in (self.connect_button, self.subtract_button):
             button.setCheckable(True)
-        self.edit_button = self._button(tools, 'Editar bloque…', self.edit_selected_block)
-        self.delete_button = self._button(tools, 'Quitar selección', self.delete_selection)
 
         self.hint = QLabel()
         self.hint.setWordWrap(True)
@@ -277,8 +432,11 @@ class RealizationEditor(QDialog):
         self.set_graph(graph)
 
     @staticmethod
-    def _button(row, text, action):
+    def _button(row, text, action, description=None):
         button = QPushButton(text)
+        if description:
+            button.setToolTip(description)
+            button.setAccessibleDescription(description)
         button.setAutoDefault(False)
         button.clicked.connect(action)
         row.flow.addWidget(button)
@@ -289,6 +447,7 @@ class RealizationEditor(QDialog):
         self.fit_diagram()
 
     def set_graph(self, graph):
+        self.view.cancel_cable()
         self.domain = graph.domain
         self.scene.clear()
         self.blocks.clear()
@@ -299,7 +458,14 @@ class RealizationEditor(QDialog):
             self.blocks[block.id] = item
         for wire in graph.wires:
             self.add_wire(wire)
-        self.memory.setText('+ Retardo' if graph.domain == 'digital' else '+ Integrador')
+        discrete = graph.domain == 'digital'
+        variable = 'z' if discrete else 's'
+        self.transfer_button.setText(f'Transferencia · H({variable})')
+        self.memory.setText('Retardo · z⁻¹' if discrete else 'Integrador · 1/s')
+        description = ('Devuelve la muestra anterior de la señal.' if discrete
+                       else 'Integra la señal en el tiempo con estado inicial nulo.')
+        self.memory.setToolTip(description)
+        self.memory.setAccessibleDescription(description)
         self.start_connection(None)
         self.update_selection()
         self.fit_diagram()
@@ -321,16 +487,21 @@ class RealizationEditor(QDialog):
     def add_block(self, kind):
         self.start_connection(None)
         ident = max(self.blocks) + 1
-        positions = {(round(item.x()), round(item.y())) for item in self.blocks.values()}
-        index = 0
-        while (145 + index % 3 * 145, index // 3 * 85) in positions:
-            index += 1
-        block = Block(ident, kind, 145 + index % 3 * 145, index // 3 * 85)
+        block = Block(ident, kind, 0, 0)
         if kind == 'transfer':
             block = self.edit_transfer(block)
             if block is None:
                 return
         item = BlockItem(block, self.domain, self)
+        occupied = [existing.sceneBoundingRect() for existing in self.blocks.values()]
+        margin = item.boundingRect().adjusted(-25, -20, 25, 20)
+        index = 0
+        while True:
+            x, y = 160 + index % 2 * 245, index // 2 * 120
+            if not any(margin.translated(x, y).intersects(rect) for rect in occupied):
+                item.setPos(x, y)
+                break
+            index += 1
         self.scene.addItem(item)
         self.blocks[ident] = item
         self.scene.clearSelection()
@@ -346,10 +517,11 @@ class RealizationEditor(QDialog):
         self.connect_button.setChecked(self.connection_sign == 1)
         self.subtract_button.setChecked(self.connection_sign == -1)
         if self.connection_sign is not None:
+            self.view.setFocus()
             self.hint.setText('Seleccioná el bloque de origen y luego el de destino.')
         else:
-            domain = 'Discreto · H(z)' if self.domain == 'digital' else 'Continuo · H(s)'
-            self.hint.setText(f'{domain} · Arrastrá los bloques para ubicarlos. Usá Conectar o Restar para unirlos.')
+            self.hint.setText('Arrastrá desde el punto lleno de salida hasta un círculo de entrada. '
+                              'Doble clic para editar una ganancia o transferencia.')
 
     def connect_block(self, item):
         if self.connection_source is None:
@@ -361,7 +533,9 @@ class RealizationEditor(QDialog):
             item.setSelected(True)
             self.hint.setText(f'Origen {item.block.id} seleccionado. Elegí el bloque de destino.')
             return
-        wire = Wire(self.connection_source, item.block.id, self.connection_sign)
+        self.finish_wire(Wire(self.connection_source, item.block.id, self.connection_sign))
+
+    def finish_wire(self, wire):
         graph = self.graph()
         try:
             replace(graph, wires=graph.wires + (wire,)).connections()
@@ -387,10 +561,12 @@ class RealizationEditor(QDialog):
         affected={ident}
         affected.update(wire.source for wire,item in self.wires.items()
                         if wire.target==ident and item.source.block.kind=='gain')
+        for key in affected:
+            self.blocks[key].position_ports()
+            self.blocks[key].update()
         for wire, item in self.wires.items():
             if wire.source in affected or wire.target in affected:
                 item.redraw(self.reverse_wire(wire) is not None)
-        for key in affected:self.blocks[key].update()
 
     def update_selection(self):
         selected = self.scene.selectedItems()
@@ -410,11 +586,16 @@ class RealizationEditor(QDialog):
         if block.kind == 'transfer':
             definition = self.edit_transfer(block)
             if definition is not None:
-                item.set_definition(definition)
+                self.apply_definition(item, definition)
         else:
             text, accepted = QInputDialog.getText(self, 'Ganancia', 'Valor exacto (por ejemplo, 1/3 o pi):', text=block.gain)
             if accepted and text.strip():
-                item.set_definition(replace(block, gain=text.strip()))
+                self.apply_definition(item, replace(block, gain=text.strip()))
+
+    def apply_definition(self, item, definition):
+        item.set_definition(definition)
+        self.redraw_wires(definition.id)
+        self.update_bounds()
 
     def edit_transfer(self, block):
         from .realization_transfer_input import TransferBlockDialog

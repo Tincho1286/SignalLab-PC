@@ -22,6 +22,8 @@ Podés pegar una tabla de muestras y revisar sus columnas antes de incorporarla.
 
 El análisis acepta H(s) y H(z) por fórmula o coeficientes, y respuestas definidas directamente en frecuencia. También podés armar un diagrama con bloques de transferencia y obtener la H equivalente con estado inicial nulo. Los bloques admiten transferencias racionales propias en un dominio común y permiten conectarlas en cascada, paralelo o realimentación. El análisis reúne módulo lineal o en dB, fase, retardo de grupo y, cuando el modelo es racional, polos, ceros y realizaciones.
 
+En el editor de diagramas, arrastrá un cable desde el punto lleno de salida hasta el círculo de entrada del bloque siguiente. Para hacer una rama, sacá un segundo cable del mismo punto. El sumador tiene un puerto + y otro − para que puedas elegir el signo al conectar. Las transferencias se muestran como fórmulas centradas en el bloque. Hacé doble clic para editar la expresión.
+
 La respuesta temporal utiliza la entrada y las condiciones iniciales elegidas. Su interpretación depende de la causalidad y la región de convergencia del sistema. Una fórmula general no se transforma automáticamente en un cociente de polinomios ni en una realización finita; los informes indican qué análisis permite su representación.
 
 H(s) y H(z) también pueden explorarse en el plano complejo mediante mallas de parte real/imaginaria o módulo/ángulo. Esta vista se distingue de la respuesta en frecuencia, evaluada sobre el eje imaginario o el círculo unitario.
