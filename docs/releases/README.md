@@ -2,12 +2,13 @@
 
 [← Documentación](../README.md)
 
-La descarga estable actual es la **1.9.0 Hotfix**. La 1.9.0 Hotfix corrige las operaciones con escalones, pulsos e impulsos y amplía las transformadas de trenes de Dirac recortados o amortiguados. El editor permite cambiar cada signo del sumador. Reúne las mejoras de señales periódicas, energía y potencia, DTFT y diagramas de sistemas LTI de las versiones 1.8.19 a 1.8.27. [Notas de la 1.9.0](v1.9.0.md).
+La descarga estable actual es la **1.9.2**. Incorpora el aviso al iniciar y la detección del período de las señales. [Notas de la 1.9.2](v1.9.2.md).
 
 Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.9.2](v1.9.2.md) | Aviso al iniciar y detección de períodos | Estable |
 | [1.9.1](v1.9.1.md) | Sintaxis y argumentos de las fórmulas | Preliminar |
 | [1.9.0](v1.9.0.md) | Hotfix · expresiones y transformadas de trenes de Dirac | Estable |
 | [1.8.27](v1.8.27.md) | DTFT y potencia de productos periódicos | Preliminar |

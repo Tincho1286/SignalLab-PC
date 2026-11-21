@@ -1,6 +1,20 @@
 {
   "releases": [
     {
+      "tag": "v1.9.2",
+      "title": "Aviso al iniciar y detección de períodos",
+      "channel": "stable",
+      "summary": "La 1.9.2 muestra el aviso al iniciar cuando detecta una actualización compatible. También completa el período de las señales cuando puede determinarlo a partir de la fórmula y conserva el período de los coeficientes de una serie importada.",
+      "changes": [
+        "La edición instalada abre el diálogo al encontrar una versión posterior compatible durante la comprobación inicial.",
+        "Las herramientas completan un período comprobable. Cuando el cálculo lo requiere y falta, señalan el campo.",
+        "Las series y las líneas espectrales recuperan el período guardado en los coeficientes.",
+        "Incluye las fichas de sintaxis y los ejemplos copiables de la 1.9.1 preliminar."
+      ],
+      "limits": [],
+      "notes": "docs/releases/v1.9.2.md"
+    },
+    {
       "tag": "v1.9.1",
       "title": "Argumentos de las fórmulas",
       "channel": "preview",

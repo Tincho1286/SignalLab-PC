@@ -1,8 +1,8 @@
 # Documentación de SignalLab PC
 
-Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e interpretar sus resultados. La 1.9.0 Hotfix ofrece instalador y portable para Windows x64 y Linux x86_64. [Descargas](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.0).
+Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e interpretar sus resultados. La 1.9.2 ofrece instalador y portable para Windows x64 y Linux x86_64. [Descargas](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.2).
 
-Esta versión corrige la evaluación de fórmulas con escalones, pulsos e impulsos, y permite transformar e invertir trenes de Dirac recortados o amortiguados. [Notas de la 1.9.0](releases/v1.9.0.md).
+Esta versión muestra las actualizaciones disponibles al iniciar y detecta períodos al trabajar con señales o series de Fourier. [Notas de la 1.9.2](releases/v1.9.2.md).
 
 ## Instalar y empezar
 
