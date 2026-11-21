@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.18](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.18). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.25 · Preliminar
+
+La 1.8.25 calcula la potencia exacta de sumas de trenes continuos aunque sus períodos no coincidan. Fourier y Laplace conservan el aporte de cada ciclo y distinguen las colas de los recortes finitos.
+
+[Novedades completas](docs/releases/v1.8.25.md)
+
 ## 1.8.24 · Preliminar
 
 La 1.8.24 renueva el editor de diagramas LTI. Podés arrastrar cables entre los bloques, usar puertos de suma o resta y leer las fórmulas centradas dentro del diagrama.

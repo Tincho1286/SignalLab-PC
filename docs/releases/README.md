@@ -8,6 +8,7 @@ Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.25](v1.8.25.md) | Potencia y transformadas de señales con varios períodos | Preliminar |
 | [1.8.24](v1.8.24.md) | Editor de diagramas de sistemas LTI | Preliminar |
 | [1.8.23](v1.8.23.md) | Fourier generalizada de trenes unilaterales | Preliminar |
 | [1.8.22](v1.8.22.md) | Fórmulas periódicas y espectros recortados | Preliminar |

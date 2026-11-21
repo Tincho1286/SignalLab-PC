@@ -1,6 +1,20 @@
 {
   "releases": [
     {
+      "tag": "v1.8.25",
+      "title": "Potencia y transformadas de señales con varios períodos",
+      "channel": "preview",
+      "summary": "La 1.8.25 calcula la potencia exacta de sumas de trenes continuos aunque sus períodos no coincidan. Fourier y Laplace conservan el aporte de cada ciclo y distinguen las colas de los recortes finitos.",
+      "changes": [
+        "La potencia global conserva el término cruzado entre los niveles medios de trenes con períodos inconmensurables.",
+        "La energía de los recortes se integra por tramos, incluso para señales sin período común.",
+        "Fourier conserva las líneas de cada período y el valor principal de las colas unilaterales.",
+        "Laplace bilateral distingue la ROC vacía de los trenes completos y el semiplano del caso unilateral."
+      ],
+      "limits": [],
+      "notes": "docs/releases/v1.8.25.md"
+    },
+    {
       "tag": "v1.8.24",
       "title": "Editor de diagramas de sistemas LTI",
       "channel": "preview",
