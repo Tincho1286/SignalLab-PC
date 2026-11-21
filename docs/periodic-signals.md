@@ -55,3 +55,5 @@ Si eliminás un período con `(1-(Step(t)-Step(t-4)))*PulseTrain(t,4,2)`, el gr�
 En **Laplace → Directa → Unilateral**, el cálculo integra un período desde t = 0 y suma las repeticiones hacia la derecha. En **Bilateral**, un tren periódico no nulo tiene región de convergencia vacía y su espectro de Fourier se puede reutilizar. En Z ocurre algo equivalente al elegir `-oo` y `oo` para un tren discreto. El informe conserva su DTFT.
 
 Cuando sumás trenes continuos con períodos distintos, **Fourier continua** reúne sus familias de líneas y suma las áreas que coinciden. Si la suma se extiende sobre todo el eje, **Laplace bilateral** informa que la región de convergencia queda vacía y conserva el espectro. Si la activás en t = 0 con un escalón, la misma herramienta devuelve la fórmula en s con ROC `Re(s) > 0`.
+
+Para recortar un tren de impulsos continuos, colocá los bordes entre dos impulsos. Por ejemplo, `Step(t-1/2)*ImpulseTrain(t,1)` conserva los impulsos en t = 1, 2, 3, … y su Laplace es `1/(exp(s)-1)` para `Re(s) > 0`. En Fourier aparecen líneas y un valor principal. Si un borde coincide con un impulso, definí su peso como un término Dirac separado.

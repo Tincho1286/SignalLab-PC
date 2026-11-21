@@ -233,6 +233,11 @@ def fourier_pairs(value,variable,output,*,inverse=False):
         argument=output+carrier if inverse else output-carrier
         multiplier=-sp.I if inverse else sp.I;scale=sp.S.One if inverse else 2*sp.pi
         return scale*sp.Add(*(c*multiplier**m[0]*sp.DiracDelta(argument,m[0]) for m,c in polynomial.terms()))
+    if not inverse and value.has(ImpulseTrain):
+        from .gated_impulse_trains import partition_trains,spectrum
+
+        spans,value=partition_trains(value,variable)
+        known.extend(spectrum(span,output) for span in spans)
     for term in sp.Add.make_args(value):
         checkpoint()
         train=affine_train_term(term,variable)
@@ -272,7 +277,7 @@ def fourier_pairs(value,variable,output,*,inverse=False):
 def unilateral_laplace(value,variable,output):
     """Keep 0-minus impulse weights and derivative scaling out of generic tables."""
     from .periodic_fourier import gated_periodic_laplace,periodic_laplace
-    from .periodic_signals import affine_train_term
+    from .periodic_signals import ImpulseTrain
 
     gated=gated_periodic_laplace(value,variable,output)
     if gated is not None:
@@ -280,12 +285,13 @@ def unilateral_laplace(value,variable,output):
         return sp.factor_terms(finite+tail),sp.S.Zero if tail!=0 else -sp.oo,sp.true
 
     known=[];remaining=[];periodic=[]
+    if value.has(ImpulseTrain):
+        from .gated_impulse_trains import laplace_spans,partition_trains
+
+        spans,value=partition_trains(value,variable,require_roc=True)
+        result,lower,_=laplace_spans(spans,output,unilateral=True)
+        (periodic if lower==0 else known).append(result)
     for term in sp.Add.make_args(sp.expand_mul(value)):
-        train=affine_train_term(term,variable)
-        if train is not None:
-            period,origin,area=train
-            periodic.append(area*sp.exp(-output*sp.Mod(origin,period))/(1-sp.exp(-output*period)))
-            continue
         extension=periodic_laplace(term,variable,output) if term.has(sp.Mod) else None
         if extension is not None:
             periodic.append(extension)

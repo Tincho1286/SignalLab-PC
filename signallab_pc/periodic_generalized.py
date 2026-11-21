@@ -94,7 +94,13 @@ def discrete_spectrum(value, index, frequency, z, lower, upper):
 
 
 def continuous_spectrum(value,time,frequency):
-    if value.has(sp.DiracDelta,ImpulseTrain,PVCot):return None
+    if value.has(ImpulseTrain, sp.DiracDelta, PVCot):
+        if value.has(sp.DiracDelta,PVCot):return None
+        from .gated_impulse_trains import partition_trains,spectrum
+
+        spans, remainder=partition_trains(value,time)
+        if remainder!=0:return None
+        return sp.Add(*(spectrum(span,frequency) for span in spans))
     from .periodic_fourier import _bounded_cycle,finite_laplace_piece,imaginary_axis,periodic_integral
     from .periodic_signals import continuous_periodic_components
     from .periodic_support import split_periodic_support

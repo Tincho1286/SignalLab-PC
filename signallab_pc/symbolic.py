@@ -221,7 +221,7 @@ def _execute(request):
     if operation in ('fourier_angular','inverse_fourier_angular'):
         from .periodic_fourier import has_nonzero_periodic_tail,periodic_fourier_pair,windowed_periodic_fourier
         from .periodic_generalized import SCOPE,continuous_spectrum
-        from .periodic_signals import PVCot
+        from .periodic_signals import ImpulseTrain, PVCot
         frequency=sp.Dummy('frequency',real=True)
         from .expression_definition import prepare,attach
         inverse=operation=='inverse_fourier_angular'
@@ -241,7 +241,8 @@ def _execute(request):
                         'output_variable':'t','frequency_units':'rad/s','method':'periodic_fourier_pair',
                         'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
                         'scope':'Se recupera la señal que genera estas líneas. En un salto se toma el promedio de ambos límites laterales. El espectro no distingue cambios en instantes aislados.'},definition,exact=exact)
-                spectrum=continuous_spectrum(original,T,W) if value.has(PVCot) else windowed_periodic_fourier(original,T,W)
+                spectrum=(continuous_spectrum(original,T,W) if value.has(PVCot) or original.has(ImpulseTrain)
+                          else windowed_periodic_fourier(original,T,W))
                 if spectrum is not None and (parse(str(spectrum))==parse(expression) or sp.simplify(spectrum-value)==0):
                     recovered=input_signal.expression
                     return attach({'operation':operation,'result':str(recovered),'condition':'True','evaluated':True,
@@ -280,10 +281,11 @@ def _execute(request):
                     'scope':'Se integra exactamente la parte afectada por el recorte. Si queda una repetición común a ambos lados, sus líneas se suman a la corrección continua.'},definition,exact=windowed)
             generalized=continuous_spectrum(value,T,W)
             if generalized is not None:
+                scope=SCOPE if generalized.has(PVCot) else 'Se conserva el área de cada impulso y se suman los aportes de los intervalos activos del tren.'
                 return attach({'operation':operation,'result':str(generalized),'condition':'True','evaluated':True,
-                    'output_variable':'w','frequency_units':'rad/s','method':'periodic_abel_limit',
-                    'periodic_fourier_source':expression,'convention':'X(w) = integral x(t) exp(-i*w*t) dt, como distribución',
-                    'scope':SCOPE},definition,exact=generalized)
+                    'output_variable':'w','frequency_units':'rad/s','method':'periodic_abel_limit' if generalized.has(PVCot) else 'impulse_train_spectrum',
+                    'periodic_fourier_source':expression,'convention':'X(w) = integral x(t) exp(-i*w*t) dt',
+                    'scope':scope},definition,exact=generalized)
             if has_nonzero_periodic_tail(value,T):
                 integral=sp.Integral(value*sp.exp(-sp.I*W*T),(T,-sp.oo,sp.oo))
                 return attach({'operation':operation,'result':str(integral),'condition':'False','evaluated':False,

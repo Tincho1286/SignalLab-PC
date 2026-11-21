@@ -125,6 +125,21 @@ def _periodize(pieces, time, spacing, origin, area):
     return sp.exp(sp.I*origin*(time-phase))*sp.Piecewise(*formula).subs(time,phase)
 
 
+def _exponential_delays(weight, frequency):
+    from .harmonic_measures import _exponential_terms
+
+    modes=_exponential_terms(weight,frequency)
+    if modes is None:
+        return None
+    delays=[]
+    for rate,coefficient in modes:
+        delay=sp.simplify(sp.I*rate)
+        if delay.is_real is not True or delay.is_finite is not True or coefficient.is_finite is not True:
+            return None
+        delays.append((delay,coefficient))
+    return delays
+
+
 def inverse_weighted_comb(term, frequency, time):
     trains = term.atoms(ImpulseTrain)
     if len(trains) != 1:
@@ -139,6 +154,11 @@ def inverse_weighted_comb(term, frequency, time):
     if (spacing.free_symbols or origin.free_symbols or spacing.is_positive is not True
             or spacing.is_finite is not True or origin.is_finite is not True):
         return None
+    delays=_exponential_delays(weight,frequency)
+    if delays is not None:
+        period=2*sp.pi/spacing
+        return sp.Add(*(coefficient*area/spacing*sp.exp(sp.I*origin*(time-delay))*ImpulseTrain(time-delay,period)
+                        for delay,coefficient in delays))
     zero_is_line = (origin/spacing).is_integer
     if zero_is_line is None:
         return None
@@ -154,6 +174,10 @@ def inverse_weighted_comb(term, frequency, time):
 
 def _half_periodic_shape(weight,period,direction,frequency,time):
     if weight==0:return sp.S.Zero
+    delays=_exponential_delays(weight,frequency)
+    if delays is not None:
+        return sp.Add(*(coefficient*sp.Heaviside(direction*(time-delay)+period/2,1)*ImpulseTrain(time-delay,period)
+                        for delay,coefficient in delays))
     pieces=_compact_pieces(weight,frequency,time,True)
     if pieces is None:return None
     if not pieces:return sp.S.Zero

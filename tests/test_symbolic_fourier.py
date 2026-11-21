@@ -57,6 +57,47 @@ class SymbolicFourierTests(unittest.TestCase):
         expected = (1-sp.exp(-S/4))/(S*(1-sp.exp(-S))) + (1-sp.exp(-S/2))/(S*(1-sp.exp(-S*sp.sqrt(2))))
         self.assertEqual(sp.simplify(parse(causal['result']) - expected), 0)
 
+    def test_gated_impulse_trains_use_impulse_positions_and_their_actual_roc(self):
+        from signallab_pc.continuous_expression import sample_continuous
+        from signallab_pc.distributions import dirac_terms
+        from signallab_pc.periodic_signals import PVCot
+        from signallab_pc.symbolic import S
+
+        right='Step(t-1/2)*ImpulseTrain(t,1)'
+        left='Step(1/2-t)*ImpulseTrain(t,1)'
+        finite='(Step(t-1/2)-Step(t-5/2))*ImpulseTrain(t,1)'
+        canceled='Step(t-1/2)*ImpulseTrain(t,1)-Step(t-5/2)*(ImpulseTrain(t,2)+ImpulseTrain(t-1,2))'
+        cases=((right,'0','oo',1/(sp.exp(S)-1)), (left,'-oo','0',1/(1-sp.exp(S))),
+               (finite,'-oo','oo',sp.exp(-S)+sp.exp(-2*S)), (canceled,'-oo','oo',sp.exp(-S)+sp.exp(-2*S)))
+        for source,lower,upper,expected in cases:
+            with self.subTest(source=source):
+                result=execute(dict(operation='laplace',interpretation='bilateral',expression=source))
+                self.assertTrue(result['evaluated'])
+                self.assertEqual((result['roc_lower'],result['roc_upper']),(lower,upper))
+                actual=parse(result['result'])
+                for point in (sp.Rational(1,2),sp.S(2)) if lower=='0' else (-sp.S.Half,-sp.S(2)) if upper=='0' else (sp.S.Zero,sp.S.Half):
+                    self.assertEqual(sp.simplify((actual-expected).subs(S,point)),0)
+
+        for source in ('ImpulseTrain(t-1/3,2)',right,left):
+            with self.subTest(inverse=source):
+                direct=self.transform(source)
+                self.assertTrue(direct['evaluated'])
+                if source in (right,left):
+                    self.assertTrue(parse(direct['result']).has(PVCot))
+                inverse=self.transform(direct['result'],True)
+                self.assertTrue(inverse['evaluated'])
+                actual=dirac_terms(sample_continuous(inverse['result'],-3,.25,25))
+                expected=dirac_terms(sample_continuous(source,-3,.25,25))
+                np.testing.assert_allclose(actual,expected,atol=2e-14)
+
+        combined='ImpulseTrain(t,1)+ImpulseTrain(t-1/3,2)'
+        result=execute(dict(operation='laplace',interpretation='bilateral',expression=combined))
+        self.assertTrue(result['convergence_empty'])
+        self.assertEqual(parse(result['boundary_fourier']),parse(self.transform(combined)['result']))
+
+        with self.assertRaisesRegex(ValueError,'coincide con un impulso'):
+            self.transform('Step(t)*ImpulseTrain(t,1)')
+
     def test_inverse_of_a_copied_periodic_spectrum_has_no_provenance(self):
         forward=self.transform('PulseTrain(t-1/4,1,1/4)')
         inverse=self.transform(forward['result'],True)

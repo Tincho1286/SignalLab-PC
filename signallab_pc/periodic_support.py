@@ -6,8 +6,8 @@ from sympy.core.relational import Relational
 from .jobs import checkpoint
 
 
-def split_periodic_support(value, variable, *, preserve_addends=False):
-    if not value.has(sp.Mod):
+def split_periodic_support(value, variable, *, preserve_addends=False, require_wrap=True):
+    if require_wrap and not value.has(sp.Mod):
         return None
     expression = value.rewrite(sp.Piecewise)
     if not preserve_addends:

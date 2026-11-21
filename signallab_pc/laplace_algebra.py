@@ -39,8 +39,18 @@ def direct(request):
             'scope':'La cola derecha requiere Re(s) > 0 y la izquierda requiere Re(s) < 0. En el eje imaginario la transformada de Fourier está definida como espectro de líneas.'},definition)
     # Distributions at t=0 belong to the full transform once, not to both
     # unilateral halves. Integrate singular additive terms separately.
-    regular = []; singular = []
-    for term in sp.Add.make_args(sp.expand_mul(value)):
+    from .periodic_signals import ImpulseTrain
+    regular = []; singular = []; trains = []
+    lower_bound,upper_bound=-sp.oo,sp.oo
+    base=value
+    if value.has(ImpulseTrain):
+        from .gated_impulse_trains import laplace_spans,partition_trains
+
+        spans,base=partition_trains(value,T,require_roc=True)
+        if spans:
+            integral,lower_bound,upper_bound=laplace_spans(spans,S)
+            trains.append(integral)
+    for term in sp.Add.make_args(sp.expand_mul(base)):
         (singular if term.has(sp.DiracDelta) else regular).append(term)
     from .procedure import step
     records=[];impulse = sp.S.Zero
@@ -61,7 +71,7 @@ def direct(request):
             regions = regular.as_expr_set_pairs(domain=sp.S.Reals) if isinstance(regular, sp.Piecewise) else [(regular, sp.S.Reals)]
     except (NotImplementedError, ValueError) as exc:
         raise ValueError('No se pudo determinar el soporte real de los tramos. Usá bordes temporales reales y condiciones sobre t.') from exc
-    lower = -sp.oo; upper = sp.oo; conditions = []; pieces = [impulse]
+    lower = lower_bound; upper = upper_bound; conditions = []; pieces = [impulse,*trains]
     u = sp.Dummy('u', positive=True)
     def half(value):
         if value == 0:return sp.S.Zero,-sp.oo,sp.true
@@ -120,7 +130,7 @@ def direct(request):
         'roc_lower': str(lower), 'roc_upper': str(upper), 'inverse_laplace_hint': hint,
         'scope': ('No existe una ROC abierta común. No se presenta la cancelación formal de las dos mitades como una transformada válida.' if condition == sp.false else
                   'Se integra sobre toda la recta temporal. La ROC es la intersección de las convergencias de t≥0 y t≤0; sus bordes están excluidos. Los impulsos se integran una sola vez. Las condiciones adicionales también deben cumplirse.')}
-    if condition is sp.false and split is not None:
+    if condition is sp.false and (split is not None or trains):
         from .periodic_fourier import windowed_periodic_fourier
         from .periodic_generalized import continuous_spectrum
         spectrum=windowed_periodic_fourier(value,T,W)
