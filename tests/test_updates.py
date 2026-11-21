@@ -281,6 +281,66 @@ class UpdateUiContracts(unittest.TestCase):
                 self.assertFalse(controller.dialog.apply.isEnabled())
             controller.dialog.close(); host.close(); host.deleteLater(); self.app.processEvents()
 
+    def test_startup_announces_compatible_release_when_window_is_visible(self):
+        from PySide6.QtCore import QDeadlineTimer, QSettings
+        from PySide6.QtTest import QTest
+        from PySide6.QtWidgets import QMainWindow
+        from signallab_pc import __version__
+        from signallab_pc.update_manifest import Asset, Release
+        from signallab_pc.update_ui import UpdateController
+
+        target = 'windows-x86_64'
+        version = '99.0.0'
+        asset = Asset(target, version, FILENAMES[target].format(version=version), FEED_URL, '0'*64, 1)
+        available = Release(version, 'Cambios de la versión.', FEED_URL, {target:asset}, channel='preview')
+        current = Release(__version__, '', FEED_URL, {})
+        incompatible = Release(version, '', FEED_URL, {})
+
+        def wait_for(condition):
+            deadline = QDeadlineTimer(3000)
+            while not condition() and not deadline.hasExpired():
+                QTest.qWait(20)
+            self.assertTrue(condition())
+
+        with tempfile.TemporaryDirectory() as folder:
+            host = QMainWindow()
+            host.settings = QSettings(str(Path(folder)/'settings.ini'), QSettings.Format.IniFormat)
+            host.settings.setValue('updates/channel','preview')
+            host._workers = []
+            with patch('signallab_pc.update_ui.installed', return_value=object()), \
+                    patch('signallab_pc.update_cache.prune'), \
+                    patch('signallab_pc.update_ui.QTimer.singleShot') as schedule:
+                controller = UpdateController(host)
+            try:
+                schedule.assert_called_once()
+                with patch('signallab_pc.update_ui.platform_tag', return_value=target), \
+                        patch('signallab_pc.update_ui.fetch_release', side_effect=[available,available,current,incompatible]) as check, \
+                        patch('signallab_pc.update_ui.download') as download:
+                    schedule.call_args.args[1]()
+                    wait_for(lambda: not controller.busy)
+                    self.assertFalse(controller.dialog.isVisible())
+                    host.show()
+                    wait_for(controller.dialog.isVisible)
+                    self.assertFalse(controller.dialog.isModal())
+                    self.assertTrue(controller.dialog.apply.isEnabled())
+                    self.assertIn(version,controller.dialog.status.text())
+                    self.assertEqual(check.call_args.kwargs['channel'],'preview')
+                    controller.dialog.close()
+                    for _ in range(3):
+                        controller.background_check()
+                        wait_for(lambda: not controller.busy)
+                        self.assertFalse(controller.dialog.isVisible())
+                    check_count = check.call_count
+                    controller.dialog.automatic.setChecked(False)
+                    controller.background_check()
+                    self.assertEqual(check.call_count,check_count)
+                    download.assert_not_called()
+            finally:
+                if controller.busy:
+                    controller.cancel()
+                    wait_for(lambda: not controller.busy)
+                controller.dialog.close(); host.close(); host.deleteLater(); self.app.processEvents()
+
     def test_help_menu_opens_updates_without_replacing_the_workspace(self):
         from signallab_pc.workbench import WorkbenchWindow
         with tempfile.TemporaryDirectory() as folder, patch('signallab_pc.update_ui.installed', return_value=None):

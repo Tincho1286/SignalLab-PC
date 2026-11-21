@@ -12,7 +12,9 @@ En Linux, la ubicación predeterminada es `~/.local/share/SignalLab-PC/`, con un
 
 ## Buscar una versión nueva
 
-Abrí **Ayuda → Buscar actualizaciones**. En **Versiones que querés recibir** elegí **Sólo versiones estables** o **Estables y preliminares (Pre-releases)**. La elección se conserva para las consultas siguientes; la opción predeterminada sigue siendo estable. En una instalación también podés dejar activada la comprobación al iniciar; esa consulta solo avisa cuando hay una nueva versión. No descarga ni instala automáticamente y se puede desactivar desde el mismo diálogo.
+Abrí **Ayuda → Buscar actualizaciones**. En **Versiones que querés recibir** elegí **Sólo versiones estables** o **Estables y preliminares (Pre-releases)**. La elección se guarda para las consultas siguientes. El canal predeterminado es **Sólo versiones estables**.
+
+Con **Comprobar actualizaciones al iniciar** activado en la edición instalada, el diálogo se abre cuando encuentra una versión posterior compatible. Podés leer las novedades, cerrar el aviso o iniciar la descarga. La descarga y la instalación requieren acciones separadas en el diálogo.
 
 La edición portable permite consultar las versiones y abrir las descargas oficiales. Su archivo no se reemplaza mediante la instalación automática; si elegís otro portable, seguís utilizando el formato independiente.
 
