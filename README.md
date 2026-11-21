@@ -38,7 +38,7 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 La 1.8.18 está disponible con **Sólo versiones estables**. El canal **Estables y preliminares (Pre-releases)** también ofrece la 1.8.18 y permite recibir entregas de prueba cuando haya una preliminar posterior. [Notas de la versión estable](docs/releases/v1.8.18.md).
 
-La 1.8.26 corrige la potencia de cosenos con fase y mantiene disponibles las fórmulas de las señales. Elegí **Estables y preliminares (Pre-releases)** para recibirla desde el actualizador. [Descargas de la 1.8.26 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.26).
+La 1.8.27 agiliza la DTFT unilateral y calcula la potencia exacta de productos de ciclos continuos. Elegí **Estables y preliminares (Pre-releases)** para recibirla desde el actualizador. [Descargas de la 1.8.27 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.27).
 
 ### Actualizar una instalación
 
@@ -78,6 +78,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La 1.8.27 agiliza la DTFT de secuencias con colas recíprocas y conserva sus condiciones al abrir el análisis. También calcula la potencia exacta de productos de señales continuas con dos períodos inconmensurables. [Notas de la 1.8.27](docs/releases/v1.8.27.md).
 
 La 1.8.26 corrige la potencia de cosenos discretos con fase y calcula la energía de trenes amortiguados. Las fórmulas completas se pueden reutilizar después del ajuste de amplitud o la descomposición par e impar. [Notas de la 1.8.26](docs/releases/v1.8.26.md).
 

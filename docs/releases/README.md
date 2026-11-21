@@ -8,6 +8,7 @@ Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.27](v1.8.27.md) | DTFT y potencia de productos periódicos | Preliminar |
 | [1.8.26](v1.8.26.md) | Potencia de cosenos y fórmulas reutilizables | Preliminar |
 | [1.8.25](v1.8.25.md) | Potencia y transformadas de señales con varios períodos | Preliminar |
 | [1.8.24](v1.8.24.md) | Editor de diagramas de sistemas LTI | Preliminar |

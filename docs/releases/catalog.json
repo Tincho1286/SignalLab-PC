@@ -1,6 +1,19 @@
 {
   "releases": [
     {
+      "tag": "v1.8.27",
+      "title": "DTFT y potencia de productos periódicos",
+      "channel": "preview",
+      "summary": "La 1.8.27 agiliza la DTFT de secuencias con colas recíprocas y conserva sus condiciones al abrir el análisis. También calcula la potencia exacta de productos de señales continuas con dos períodos inconmensurables.",
+      "changes": [
+        "Las condiciones de resonancia se reutilizan al calcular la DTFT sobre el círculo unitario.",
+        "El análisis de sistemas recibe la DTFT exacta y sus condiciones de convergencia.",
+        "Los productos de dos ciclos continuos inconmensurables tienen potencia exacta, también con soporte unilateral."
+      ],
+      "limits": [],
+      "notes": "docs/releases/v1.8.27.md"
+    },
+    {
       "tag": "v1.8.26",
       "title": "Potencia de cosenos y fórmulas reutilizables",
       "channel": "preview",

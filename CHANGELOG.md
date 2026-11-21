@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.18](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.18). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.27 · Preliminar
+
+La 1.8.27 agiliza la DTFT de secuencias con colas recíprocas y conserva sus condiciones al abrir el análisis. También calcula la potencia exacta de productos de señales continuas con dos períodos inconmensurables.
+
+[Novedades completas](docs/releases/v1.8.27.md)
+
 ## 1.8.26 · Preliminar
 
 La 1.8.26 corrige la potencia de cosenos discretos con fase y calcula la energía de trenes amortiguados. Las fórmulas completas se pueden reutilizar después del ajuste de amplitud o la descomposición par e impar.
