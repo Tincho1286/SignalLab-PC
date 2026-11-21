@@ -504,6 +504,17 @@ def _execute(request):
     if operation == "inverse_laplace":
         value=parse(expression)
         if value.has(T,N,Z,W):raise ValueError('Laplace inversa: ingresá X(s) usando s. Para una expresión en t elegí Directa.')
+        from .laplace_impulse_inverse import inverse_impulse_laplace
+
+        train=inverse_impulse_laplace(value,S,T,unilateral=True)
+        if train is not None:
+            from .cas_engine import encode
+
+            waveform,lower,_=train
+            return {'operation':'Laplace inversa','result':str(waveform),'cas_encoded':encode(waveform),
+                    'output_variable':'t','evaluated':True,'method':'impulse_geometric_series',
+                    'convergence_abscissa':str(lower),
+                    'scope':'La serie de desplazamientos se desarrolla desde t=0⁻. Cada término aporta un impulso con su área exacta.'}
         from .numeric_modes import laplace_numeric
         numeric_result=laplace_numeric(value,S,T)
         if numeric_result is not None:return numeric_result

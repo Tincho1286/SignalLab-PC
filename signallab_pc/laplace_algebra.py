@@ -180,6 +180,17 @@ def inverse(request):
     sigma = sp.simplify(parse(request.get('sigma', '0'))) if mode == 'line' else sp.S.Zero
     if mode == 'line' and (sigma.free_symbols or sigma.is_real is not True or sigma.is_finite is not True):
         raise ValueError('σ debe ser una constante real finita; admite pi, fracciones y notación científica.')
+    from .laplace_impulse_inverse import inverse_impulse_laplace
+
+    train = inverse_impulse_laplace(expression,S,T,mode=mode,sigma=sigma)
+    if train is not None:
+        from .cas_engine import encode
+
+        waveform,lower,upper=train
+        return {'operation':'Laplace inversa bilateral','result':str(waveform),'cas_encoded':encode(waveform),
+                'output_variable':'t','evaluated':True,'method':'impulse_geometric_series',
+                'roc':roc_text(lower,upper),'roc_lower':str(lower),'roc_upper':str(upper),
+                'scope':'La serie geométrica de desplazamientos se desarrolla hacia el semieje que permite la ROC elegida. Cada término aporta un impulso con su área exacta.'}
     # A global exponential is a time shift; the rational ROC does not change.
     delay = sp.S.Zero; rational = sp.S.One
     for factor in sp.Mul.make_args(expression):
@@ -197,7 +208,7 @@ def inverse(request):
         ensure_working_set(max(1, int(den.degree())**2), bytes_per_sample=1024, live_arrays=8)
         common, polynomial, parts = apart_list(rational, S)
     except (sp.PolynomialError, NotImplementedError) as exc:
-        raise ValueError('La inversa bilateral admite X(s) racional y un desplazamiento global exp(-d*s).') from exc
+        raise ValueError('La inversa bilateral admite X(s) racional con un desplazamiento global exp(-d*s), o sumas geométricas de trenes de impulsos de peso constante.') from exc
     parameters = sorted(map(str, rational.free_symbols-{S}))
     if mode == 'line' and parameters:
         raise ValueError('Asigná los parámetros antes de elegir una línea dentro de la ROC.')

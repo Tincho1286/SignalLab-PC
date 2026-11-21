@@ -98,6 +98,31 @@ class SymbolicFourierTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'coincide con un impulso'):
             self.transform('Step(t)*ImpulseTrain(t,1)')
 
+    def test_laplace_impulse_trains_round_trip_on_the_selected_roc(self):
+        from signallab_pc.continuous_expression import sample_continuous
+        from signallab_pc.distributions import dirac_terms
+
+        finite = '(Step(t-1/2)-Step(t-5/2))*ImpulseTrain(t,1)'
+        direct = execute(dict(operation='laplace',interpretation='bilateral',expression=finite))
+        cases = (
+            ('1/(exp(s)-1)','unilateral','right','0',[(1,1),(2,1),(3,1),(4,1)]),
+            ('1/(exp(s)-1)','bilateral','line','-1/2',[(-2,-1),(-1,-1),(0,-1)]),
+            (direct['result'],'bilateral','line','0',[(1,1),(2,1)]),
+            ('(1-exp(-1000000*s))/(1-exp(-s))','bilateral','left','0',[(0,1),(1,1),(2,1),(3,1),(4,1)]),
+        )
+        for expression,interpretation,roc,sigma,expected in cases:
+            with self.subTest(expression=expression,roc=roc):
+                inverse = execute(dict(operation='inverse_laplace',expression=expression,
+                                       interpretation=interpretation,laplace_roc=roc,sigma=sigma))
+                self.assertTrue(inverse['evaluated'])
+                self.assertEqual(list(dirac_terms(sample_continuous(inverse['result'],-2,.25,25))),expected)
+
+        req = dict(operation='inverse_laplace',interpretation='bilateral',laplace_roc='line',sigma='0')
+        with self.assertRaisesRegex(ValueError,r'Re\(s\) = 0'):
+            execute(dict(req,expression='1/(exp(s)-1)'))
+        with self.assertRaisesRegex(ValueError,'inversa bilateral admite'):
+            execute(dict(req,expression='Piecewise((999,Eq(exp(-s),1)),((1-exp(-2*s))/(1-exp(-s)),True))'))
+
     def test_inverse_of_a_copied_periodic_spectrum_has_no_provenance(self):
         forward=self.transform('PulseTrain(t-1/4,1,1/4)')
         inverse=self.transform(forward['result'],True)

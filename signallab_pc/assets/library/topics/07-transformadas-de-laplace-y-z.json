@@ -14,7 +14,7 @@
         ],
         [
           "Cómo preparar el cálculo",
-          "Elegí la operación y la interpretación. En la directa bilateral, escribí la señal completa con sus escalones o tramos. En la inversa bilateral, ingresá X(s) racional, opcionalmente multiplicada por exp(-d*s), y elegí una región de convergencia."
+          "Elegí la operación y la interpretación. En la directa bilateral, escribí la señal completa con sus escalones o tramos. Para la inversa bilateral podés cargar una transferencia racional con retardo o una suma geométrica de impulsos. Elegí la región de convergencia para recuperar el soporte."
         ],
         [
           "Cómo interpretar la salida",
@@ -41,6 +41,10 @@
         [
           "Trenes con inicio o fin",
           "Step(t-1)*PulseTrain(t,3,2) empieza en t=1 y continúa hacia la derecha. Su región de convergencia es Re(s)>0. Si recortás ambos extremos con (Step(t-1)-Step(t-6)), el soporte queda acotado y la transformada es válida en todo el plano s finito, incluido cero."
+        ],
+        [
+          "Recuperar un tren de impulsos",
+          "Probá Step(t-1/2)*ImpulseTrain(t,1). La directa devuelve 1/(exp(s)-1) con ROC Re(s)>0. Copiá el resultado a la inversa para recuperar los impulsos en los enteros positivos. Con la ROC izquierda, la misma fórmula da impulsos de área −1 en cero y los enteros negativos. Si recortás el tren entre dos bordes, la inversa recupera sólo los impulsos que quedaron."
         ]
       ]
     },
