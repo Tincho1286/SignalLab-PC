@@ -581,11 +581,13 @@ assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
         self.assertTrue(set(v['category'] for v in values)<=set(CATEGORIES))
         self.assertEqual(set(v['topic'] for v in values),set(TOPICS))
         by_id={section['article_id']:section for section in values}
-        periodic_references={'reference:repeat','reference:pulse-train','reference:impulse-train'}
-        self.assertEqual(len(values),125+len(periodic_references))
-        self.assertTrue(periodic_references.issubset(by_id))
+        periodic_references={'reference:repeat','reference:repeat-samples','reference:pulse-train','reference:impulse-train'}
+        extra_references={'reference:mod','reference:funciones-especiales','reference:cas-arguments'}
+        self.assertEqual(len(values),125+len(periodic_references)+len(extra_references))
+        self.assertTrue((periodic_references|extra_references).issubset(by_id))
         generation=by_id['tool:basic:generate']
         self.assertTrue(periodic_references.issubset({key for key,_ in generation['related']}))
+        self.assertIn('reference:cas-arguments',{key for key,_ in by_id['tool:cas:0']['related']})
         for old in old_sections():
             matches=[v for v in values if v['route']==old['route'] and v.get('content_kind')=='tool']
             self.assertEqual(len(matches),1,old['route'])
