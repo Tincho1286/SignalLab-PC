@@ -6,7 +6,7 @@
 
 En **Señales → Crear una señal**, elegí el dominio y activá **Repetir un período en todo el eje**. En **Fórmula**, escribí el tramo base y completá **Inicio del período** y **Período**. En **Muestras**, cargá un ciclo en orden. En continuo, el paso separa dos puntos consecutivos y la interpolación lineal también une el último con el primero del siguiente ciclo.
 
-La ventana del gráfico indica qué índices o instantes se muestran. Por ejemplo, una secuencia de período 4 se puede dibujar desde n = −8 con 17 muestras. En **Resultados** guardás la definición periódica y el registro visible, incluso si escribiste el tren directamente en Fórmula. Desde **Usar señal en…**, elegí la definición para calcular Fourier, DTFT o la potencia de todo el eje.
+La ventana del gráfico indica qué índices o instantes se muestran. Por ejemplo, una secuencia de período 4 se puede dibujar desde n = −8 con 17 muestras. En **Resultados** guardás la fórmula completa y el registro visible. Esto también funciona cuando escribís un tren directamente en Fórmula, lo activás con un escalón o sumás trenes con períodos que no coinciden. Desde **Usar señal en…**, elegí la definición para calcular Fourier, DTFT o la potencia de todo el eje.
 
 ## Referencia de fórmulas
 
@@ -30,7 +30,9 @@ En **Energía y potencia → Medir en todo el eje**, un tren de pulsos unitarios
 
 Probá `cos(n)` y `cos(pi*n)` en discreto. La primera tiene potencia 1/2. En la segunda, cada muestra vale 1 o −1, así que la potencia es 1. Para `cos(pi*t)` en continuo, la potencia es 1/2. Una señal que decae también puede tener energía finita, como `cos(n)/sqrt(1+n^2)`, o infinita, como `cos(n)/sqrt(1+abs(n))`. Ambas tienen potencia cero.
 
-Para sumar varios trenes continuos que no comparten un ciclo, elegí **Medir en todo el eje**. Por ejemplo, `PulseTrain(t,1,1/4)+PulseTrain(t,sqrt(2),1/2)` da potencia `1/4 + 3*sqrt(2)/8`. El promedio conserva el producto de los niveles medios de los trenes. Si al tren de período 1 le sumás `cos(2*pi*t)`, ambas componentes comparten frecuencias y se promedian juntas.
+Para sumar varios trenes continuos que no comparten un ciclo, elegí **Medir en todo el eje**. Por ejemplo, `PulseTrain(t,1,1/4)+PulseTrain(t,sqrt(2),1/2)` da potencia `1/4 + 3*sqrt(2)/8`. El promedio conserva el producto de los niveles medios de los trenes. Si al tren de período 1 le sumás `cos(2*pi*t)`, ambas componentes comparten frecuencias y se promedian juntas. Una componente transitoria que decae, como `exp(-abs(t))`, puede modificar la energía de una ventana y su potencia media tiende a cero.
+
+En discreto, `ImpulseTrain(n,4)+cos(n)` da potencia 3/4. Con `cos(pi*n/2)`, el coseno sí coincide con un armónico del tren y la potencia vale 5/4. Las frecuencias separadas por un múltiplo de 2π representan el mismo tono discreto.
 
 Para conservar sólo la mitad derecha de un tren, multiplicá su fórmula por `Step(t)` o `Step(n)`. Por ejemplo, `Step(t)*PulseTrain(t,1,1/4)` tiene energía infinita y potencia media global 1/8. El tren completo tiene potencia 1/4. Si además lo cortás en t = 2 con `(Step(t)-Step(t-2))`, la energía queda en 1/2 y la potencia global en cero.
 

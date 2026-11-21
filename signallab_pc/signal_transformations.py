@@ -47,9 +47,9 @@ def transform_signal(source,operation,*,amplitude=1,delay=0,time_scale=1,offset=
     raise ValueError('La transformación no corresponde al dominio de la entrada.')
 
 
-def periodic_transform(source, result, operation, *, amplitude, delay, time_scale, offset, parameter_sources=None):
+def transform_definition(source, result, operation, *, amplitude, delay, time_scale, offset, parameter_sources=None):
     """Carry the infinite definition alongside its transformed sample window."""
-    definition=source.metadata.get('periodic_definition')
+    definition=source.full_definition
     if not definition or operation=='parity':return result
     import sympy as sp
     from .symbolic import N,T,parse
@@ -73,5 +73,6 @@ def periodic_transform(source, result, operation, *, amplitude, delay, time_scal
     if operation in ('scale','affine'):
         expression=exact('amplitude',amplitude)*expression+exact('offset',offset)
     text=str(expression)
-    scope='La tabla y el gráfico muestran una ventana de la señal. La expresión transformada conserva la repetición fuera de ese intervalo.'
-    return result.copy_with(expression=text,metadata={**result.metadata,'periodic_definition':text,'scope':scope})
+    key = 'periodic_definition' if source.metadata.get('periodic_definition') else 'full_axis_definition'
+    scope='La tabla y el gráfico muestran una ventana. La fórmula transformada describe la señal en todo el eje.'
+    return result.copy_with(expression=text,metadata={**result.metadata,key:text,'scope':scope})

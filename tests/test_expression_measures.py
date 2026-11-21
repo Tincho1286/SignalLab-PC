@@ -92,6 +92,7 @@ class ExpressionMeasureTests(unittest.TestCase):
         power = sp.Rational(1,4) + 3 * sp.sqrt(2) / 8
         cases = ((trains, sp.oo, power), (f'Step(t)*({trains})', sp.oo, power/2),
                  (f'(Step(t)-Step(t-2))*({trains})', 2, 0),
+                 ('PulseTrain(t,1,1/4)+exp(-abs(t))', sp.oo, sp.Rational(1,4)),
                  ('PulseTrain(t,1,1/4)+cos(t)', sp.oo, sp.Rational(3,4)),
                  ('PulseTrain(t,1,1/4)+cos(2*pi*t)', sp.oo, sp.Rational(3,4)+1/sp.pi))
         for expression, energy, mean_square in cases:
@@ -99,6 +100,17 @@ class ExpressionMeasureTests(unittest.TestCase):
                 result = self.measure(expression, mode='global')
                 self.assertEqual(sp.sympify(result['energy']['exact']), energy)
                 self.assertEqual(sp.simplify(sp.sympify(result['mean_square']['exact']) - mean_square), 0)
+
+    def test_wrapped_discrete_cycle_with_tones_keeps_aliases_and_transients(self):
+        cases = (('ImpulseTrain(n,4)+cos(n)', '3/4'),
+                 ('PulseTrain(n,4,1)+cos(pi*n/2)', '5/4'),
+                 ('PulseTrain(n,4,1)+cos(pi*n)', '7/4'),
+                 ('Step(n-3)*(PulseTrain(n,4,1)+cos(n))', '3/8'),
+                 ('PulseTrain(n,4,1)+exp(-abs(n))', '1/4'))
+        for expression, power in cases:
+            with self.subTest(expression=expression):
+                result = self.measure(expression, mode='global', domain='discrete')
+                self.assertEqual((result['energy']['exact'],result['mean_square']['exact']), ('oo',power))
 
     def test_parameters_preserve_conditions(self):
         r=self.measure('a*exp(-abs(t))',mode='global')

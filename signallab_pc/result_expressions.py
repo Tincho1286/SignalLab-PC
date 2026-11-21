@@ -11,6 +11,15 @@ class ExpressionResult:
     distribution:bool=False
 
 
+def publish_signal_definition(window, signal, *, operation, parents):
+    if not signal.full_definition:
+        return None
+    variable = 'n' if signal.domain == 'discrete' else 't'
+    title = 'Definición periódica' if signal.metadata.get('periodic_definition') else 'Definición de señal'
+    payload = {'result': {'result': signal.full_definition, 'output_variable': variable, 'evaluated': True}}
+    return window.publish(payload, title=title, operation=operation, parents=parents)
+
+
 def distribution_source(source):
     import re
     return bool(re.search(r'\b(?:DiracDelta|Dirac|ImpulseTrain|PVCot)\s*\(',source,re.IGNORECASE))

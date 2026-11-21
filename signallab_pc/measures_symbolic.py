@@ -6,18 +6,18 @@ from .resources import ensure_working_set
 
 def measure_expression(request):
     from .symbolic import parse,T,N,W,S,Z
-    from .cycle_measures import cycle_mean_square
+    from .cycle_measures import cycle_mean_square, discrete_cycle_mean_square
     from .periodic_signals import ImpulseTrain, PVCot, cycle_sum, discrete_cycle, wrapped_period
     from .periodic_support import split_periodic_support
     from .periodic_fourier import periodic_integral
     domain=request.get('domain','continuous');mode=request.get('mode','interval')
     if domain not in ('continuous','discrete') or mode not in ('interval','global','periodic'):raise ValueError('Dominio o alcance no admitido.')
     variable=T if domain=='continuous' else N
-    value = parse(request['expression'])
+    source_value = value = parse(request['expression'])
+    cycle_power = discrete_cycle_mean_square if domain == 'discrete' else cycle_mean_square
     if domain == 'discrete':
         from .expression_definition import fold_discrete_gates
         value = fold_discrete_gates(value)
-    source_value = value
     value = sp.simplify(value)
     if not isinstance(value,sp.Expr) or value.has(sp.DiracDelta,ImpulseTrain,PVCot,sp.oo,-sp.oo,sp.zoo,sp.nan):raise ValueError('La energía requiere una función ordinaria; no se eleva al cuadrado una distribución o un valor no finito.')
     if value.free_symbols.intersection({T,N,W,S,Z}-{variable}):raise ValueError('Usá sólo t para tiempo continuo o n para secuencias; las otras variables de dominio no son parámetros.')
@@ -105,14 +105,13 @@ def measure_expression(request):
                 return sp.Add(*samples)*(cycle/len(samples))
         return accumulated(first,first+cycle-(1 if domain=='discrete' else 0),density)
     def gated_periodic_measures():
-        continuous = domain == 'continuous'
-        parts=split_periodic_support(source_value if continuous else power_density,variable,
-                                     preserve_addends=continuous)
+        parts=split_periodic_support(source_value,variable,preserve_addends=True)
         if parts is None:return None
         tail_means=[]
         finite_areas=[]
+        zero_tail_energy_certified=True
         for branch,lo,hi in parts:
-            density = sp.simplify(branch*sp.conjugate(branch)) if continuous else branch
+            density = sp.simplify(branch*sp.conjugate(branch))
             if lo.is_finite and hi.is_finite:
                 area=accumulated(lo,hi,density)
                 if state(area)!='finite':return None
@@ -125,15 +124,19 @@ def measure_expression(request):
                 if cycle is not None:
                     period,start,base=cycle
                     mean=simplify_measure(cycle_energy(period,start,base)/period)
-                elif continuous:
-                    mean=cycle_mean_square(branch,variable) if branch.has(sp.Mod) else harmonic_power(branch,variable)
                 else:
-                    return None
+                    direction=1 if lo.is_finite else -1
+                    mean=(cycle_power(branch,variable,tail=direction) if branch.has(sp.Mod)
+                          else harmonic_power(branch,variable,tail=direction))
+                    # An exponentially decaying tail can have finite nonzero energy.
+                    zero_tail_energy_certified=False
             if mean is None or state(mean)!='finite':return None
             tail_means.append(mean)
         if len(tail_means)!=2:return None
         power=sp.simplify(sp.Add(*tail_means)/2)
-        return (sp.oo if power.is_positive is True else sp.Add(*finite_areas)),power
+        if power.is_positive is True:return sp.oo,power
+        if power==0 and zero_tail_energy_certified:return sp.Add(*finite_areas),power
+        return None
     wrapping=wrapped_period(value if mode=='periodic' else power_density,variable) if mode!='interval' else None
     interval_energy=None;period_verified=False;energy_converges=False
     if mode=='interval':
@@ -175,9 +178,12 @@ def measure_expression(request):
             energy=energy_from_mean(power)
             scope='Se agrupan las componentes con la misma frecuencia antes de calcular su potencia.'
             if domain=='discrete':scope+=' Las frecuencias separadas por un múltiplo de 2π representan la misma secuencia.'
-        elif domain=='continuous' and (power:=cycle_mean_square(source_value,variable)) is not None:
+        elif (power:=cycle_power(source_value,variable)) is not None:
             energy=energy_from_mean(power)
-            scope='Se promedia cada grupo de componentes que comparte un período. Entre grupos con períodos inconmensurables, el término cruzado se calcula con sus valores medios.'
+            scope=('Se promedia cada grupo de componentes que comparte un período. '
+                   'Entre grupos con períodos inconmensurables, el término cruzado se calcula con sus valores medios.'
+                   if domain=='continuous' else 'Los tonos se comparan con los armónicos del ciclo. '
+                   'Sólo las frecuencias que coinciden salvo múltiplos de 2π aportan términos cruzados.')
         elif (gated:=gated_periodic_measures()) is not None:
             energy,power=gated
             scope='Los cambios de soporte separan las colas del tramo finito. La potencia global promedia las potencias de ambas colas. Si las dos son nulas, la energía se suma en el tramo restante.'

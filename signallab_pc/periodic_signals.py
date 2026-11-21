@@ -234,34 +234,36 @@ def affine_train_term(term, variable):
     return period/sp.Abs(scale), -shift/scale, amplitude/sp.Abs(scale)
 
 
-def has_explicit_period(source, domain):
-    """Certify named periodic formulas without sampling or constructing a cycle."""
+def waveform_definition_key(source, domain):
+    """Identify a complete formula and certify a common period when possible."""
     if not re.search(r'\b(?:repeat|repeatsamples|pulsetrain|impulsetrain|mod)\s*\(|%',source,re.IGNORECASE):
-        return False
+        return None
     from .symbolic import N,T,parse
 
     variable=N if domain=='discrete' else T
     try:
         value=parse(source)
+        if not isinstance(value,sp.Expr) or value.free_symbols-{variable}:
+            return None
         regular=[]
         periods=[]
         for term in sp.Add.make_args(sp.expand_mul(value)):
             if term.has(ImpulseTrain):
                 train=affine_train_term(term,variable)
-                if train is None or train[0].is_finite is not True or train[2].is_finite is not True:return False
+                if train is None or train[0].is_finite is not True or train[2].is_finite is not True:return 'full_axis_definition'
                 periods.append(train[0])
             else:
                 regular.append(term)
         ordinary=sp.Add(*regular)
-        if ordinary.has(sp.DiracDelta) or ordinary.free_symbols-{variable}:return False
+        if ordinary.has(sp.DiracDelta):return 'full_axis_definition'
         if ordinary.has(variable):
             entries=_wrap_geometry(ordinary,variable)
-            if entries is None:return False
+            if entries is None:return 'full_axis_definition'
             periods.extend(entry[-1] for entry in entries)
-        return not periods or _common_period(periods) is not None
+        return 'periodic_definition' if not periods or _common_period(periods) is not None else 'full_axis_definition'
     except (SyntaxError,ValueError,TypeError,NotImplementedError):
         # Recognizing the infinite definition is optional for finite sampling.
-        return False
+        return None
 
 
 def discrete_cycle(value, index):

@@ -19,8 +19,10 @@ class Signal:
 
     def __post_init__(self) -> None:
         if not isinstance(self.metadata,dict):raise ValueError('Los metadatos de la señal deben ser un diccionario.')
-        if 'periodic_definition' in self.metadata and self.metadata['periodic_definition']!=self.expression:
-            self.metadata={key:value for key,value in self.metadata.items() if key!='periodic_definition'}
+        stale = {key for key in ('periodic_definition', 'full_axis_definition')
+                 if key in self.metadata and self.metadata[key] != self.expression}
+        if stale:
+            self.metadata = {key: value for key, value in self.metadata.items() if key not in stale}
         self.values = np.asarray(self.values, dtype=np.complex128).reshape(-1).copy()
         if self.values.size == 0:
             raise ValueError("La señal debe contener al menos una muestra.")
@@ -48,6 +50,10 @@ class Signal:
             if integer_origin < limit.min or last_index > limit.max:
                 raise ValueError("El eje excede el rango de índices enteros de 64 bits.")
             self.origin = integer_origin
+
+    @property
+    def full_definition(self):
+        return self.metadata.get('periodic_definition') or self.metadata.get('full_axis_definition')
 
     @property
     def data_kind(self):

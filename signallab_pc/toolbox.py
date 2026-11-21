@@ -274,6 +274,7 @@ class LocalInput(QGroupBox):
             return self.loaded
         expression=self.expression.text()
         periodic=hasattr(self,'repeat_period') and self.repeat_period.isChecked()
+        definition_key='periodic_definition' if periodic else None
         if periodic:
             variable='n' if self.kind=='discrete' else 't'
             if mode==0:
@@ -285,8 +286,8 @@ class LocalInput(QGroupBox):
                 spacing=f', ({self.step.text()})' if variable=='t' else ''
                 expression=f'RepeatSamples({variable}, ({self.period_origin.text()}), ({samples},){spacing})'
         elif mode==0 and self.kind in ('continuous','discrete'):
-            from .periodic_signals import has_explicit_period
-            periodic=has_explicit_period(expression,self.kind)
+            from .periodic_signals import waveform_definition_key
+            definition_key=waveform_definition_key(expression,self.kind)
         if self.kind in ('continuous','frequency'):
             origin=real_field(self.origin);step=real_field(self.step)
             if step<=0:raise ValueError('El paso del eje debe ser positivo.')
@@ -298,14 +299,14 @@ class LocalInput(QGroupBox):
                 from .continuous_expression import sample_continuous,has_dirac
                 if self.kind=='continuous':
                     result=sample_continuous(expression,origin,step,count)
-                    if periodic:result.metadata['periodic_definition']=expression
+                    if definition_key:result.metadata[definition_key]=expression
                     return result
                 if has_dirac(self.expression.text()):raise ValueError('Un impulso en frecuencia es una distribución. Usá Fourier algebraica o sus series; esta entrada numérica requiere valores ordinarios de X(ω).')
                 values=evaluate_expression(self.expression.text(),origin+step*np.arange(count))
             else:values=sequence_from_values(self.samples.text(),0).values
             return Signal(values,origin,step,self.frequency_units.currentText() if self.kind=='frequency' else 's','X(ω)' if self.kind=='frequency' else 'x(t)',self.kind,self.expression.text() if mode==0 else '')
         result=(sequence_from_expression(expression,integer_field(self.origin),integer_field(self.count)) if mode==0 or periodic else sequence_from_values(self.samples.text(),integer_field(self.origin)))
-        if periodic:result.metadata['periodic_definition']=expression
+        if definition_key:result.metadata[definition_key]=expression
         return result
 
 class ResultView(QWidget):
@@ -1011,10 +1012,10 @@ class ToolPage(QWidget):
                     for part in value if isinstance(value,tuple) else (value,):
                         window.publish(part if isinstance(part,Signal) else asdict(part),title=operation_label(operation) if not isinstance(part,Signal) else None,operation=operation_label(operation),parents=parents)
                     result.show_result(value,source=x,operation=operation);self.result_state.accept(calculated_inputs)
-                    if operation=='generate' and x.metadata.get('periodic_definition'):
-                        variable='n' if x.domain=='discrete' else 't'
-                        periodic=dict(result=dict(result=x.metadata['periodic_definition'],output_variable=variable,evaluated=True))
-                        result.expression_key=window.publish(periodic,title='Definición periódica',operation='Extensión periódica',parents=parents)
+                    if operation=='generate' and x.full_definition:
+                        from .result_expressions import publish_signal_definition
+                        recorded=[key for key in result.result_ids if key is not None]
+                        result.expression_key=publish_signal_definition(window,x,operation='Crear una señal',parents=recorded or parents)
                 calculate_value=functions[operation]
                 if operation=='convolve':
                     from .convolution_steps import calculate as convolution_with_steps

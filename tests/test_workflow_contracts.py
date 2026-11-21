@@ -315,6 +315,46 @@ class WorkflowContracts(unittest.TestCase):
         self.assertEqual(self.warnings,[])
         self.assertTrue(dtft.last[1]['evaluated'] and dtft.last[1]['distribution'])
 
+    def test_generated_multicycle_formula_reaches_global_power_after_offset(self):
+        import sympy as sp
+        from PySide6.QtWidgets import QPushButton
+        from signallab_pc.expression_measures_panel import ExpressionMeasuresPanel
+        from signallab_pc.result_expressions import send_expression
+        from signallab_pc.signal_transform_panel import SignalTransformPanel
+        from signallab_pc.toolbox import ToolPage
+
+        route = ROUTES['expression_measures','global']
+        measures = ExpressionMeasuresPanel(self.host,'global')
+        self.host.pages[route] = SimpleNamespace(panel=measures)
+        generator = ToolPage(self.host, ROUTES['basic','generate'])
+        self.widgets.append(generator)
+        generator.source_domain.setCurrentIndex(1)
+        formula = 'PulseTrain(t,1,1/4)+PulseTrain(t,sqrt(2),1/2)'
+        generator.first.expression.setText(formula)
+        generator.first.count.setText('51')
+        calculate = next(button for button in generator.findChildren(QPushButton) if button.text()=='Calcular')
+        with patch('signallab_pc.expression_measures_panel.run_request',new=execute):
+            calculate.click()
+            key = self.host.project.headers('expression')[0]['id']
+            self.assertEqual(self.host.project.expression(key).source,formula)
+            send_expression(self.host,key,'measures')
+            measures.calculate_button.click()
+            power = sp.Rational(1,4)+3*sp.sqrt(2)/8
+            self.assertEqual(sp.simplify(sp.sympify(measures.last[1]['mean_square']['exact'])-power),0)
+
+            offset = SignalTransformPanel(self.host,'continuous','scale')
+            self.widgets.append(offset)
+            signal = generator.first.read()
+            self.assertIsNone(signal.copy_with(values=signal.values+1).full_definition)
+            offset.source.set_source(signal)
+            offset.offset.setText('2/3')
+            offset.calculate_button.click()
+            send_expression(self.host,offset.output.expression_key,'measures')
+            measures.calculate_button.click()
+            expected = power+sp.Rational(4,9)+sp.Rational(4,3)*(sp.Rational(1,4)+sp.sqrt(2)/4)
+            self.assertEqual(sp.simplify(sp.sympify(measures.last[1]['mean_square']['exact'])-expected),0)
+        self.assertEqual(self.warnings,[])
+
     def test_dtft_result_reused_as_frequency_system(self):
         request=dict(operation='dtft_expression',expression='sin(0.3*pi*(n-4))/(pi*(n-4))',lower='-oo',upper='oo')
         from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
