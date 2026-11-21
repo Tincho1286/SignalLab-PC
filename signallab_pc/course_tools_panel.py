@@ -172,7 +172,17 @@ class CourseToolsPanel(QWidget):
         elif action=='inverse_z':
             choice('roc','Elección de región',[('Exterior a todos los polos','causal'),('Interior a todos los polos','anticausal'),('Incluye círculo unidad (estable)','stable'),('Radio especificado por mí','manual')]);field('radius','Radio del contorno','1');field('start','Índice inicial','-32');field('count','Cantidad de muestras','65');field('points','Puntos del contorno','8192')
             self.fields['roc'].currentIndexChanged.connect(lambda *_:form.setRowVisible(self.fields['radius'],self.fields['roc'].currentData()=='manual'));form.setRowVisible(self.fields['radius'],False)
-        elif action=='lines':field('period','Período T (s); se conserva el del resultado importado','1')
+        elif action=='lines':
+            from .period_input import PeriodInput
+            period=field('period','Período de la serie T (s)','')
+            def recorded_period():
+                source=self.source.loaded if self.source.mode.currentIndex()==2 else None
+                return source.metadata.get('period_s') if source is not None else None
+            self.lines_period=PeriodInput(period,recorded_period,self.source.mode.currentIndexChanged,self.source.sourceChanged,
+                                          source='Período registrado en los coeficientes.')
+            def period_editable(*_):
+                period.setReadOnly(recorded_period() is not None)
+            self.source.mode.currentIndexChanged.connect(period_editable);self.source.sourceChanged.connect(period_editable)
         elif action=='mapping':
             choice('method','Mapeo',[('Bilineal','bilinear'),('Muestreo / invarianza al impulso','impulse')]);choice('direction','Obtener',[('Frecuencia continua Ω','to_analog'),('Frecuencia discreta ω','to_digital'),('Período T','period')])
             field('omega','ω (rad/muestra)','pi/4');field('analog','Ω (rad/s)','10');field('period','T (s)','0.1');field('branch','Rama entera k','0')
@@ -327,7 +337,11 @@ class CourseToolsPanel(QWidget):
             elif action=='inverse_z':
                 args=(system,self.fields['roc'].currentData(),self.scalar('radius') if self.fields['roc'].currentData()=='manual' else 1,self.integer('start'),self.integer('count'),self.integer('points'));job=lambda:calc.inverse_z_contour(*args)
             elif action=='lines':
-                args=(source,self.scalar('period'));job=lambda:calc.periodic_lines(*args)
+                period=source.metadata.get('period_s')
+                self.lines_period.text(required=period is None)
+                if period is None:
+                    period=self.scalar('period')
+                args=(source,period);job=lambda:calc.periodic_lines(*args)
             elif action=='mapping':
                 direction=self.fields['direction'].currentData();method=self.fields['method'].currentData()
                 args=(self.scalar('omega') if direction!='to_digital' else 0,self.scalar('analog') if direction!='to_analog' else 0,self.scalar('period') if direction!='period' else 1,method,direction,self.integer('branch') if method=='impulse' and direction!='to_digital' else 0);job=lambda:calc.frequency_mapping(*args)

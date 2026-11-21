@@ -18,12 +18,12 @@ class ExpressionMeasuresPanel(QWidget):
         controls=QWidget();form=QFormLayout(controls)
         self.domain=QComboBox();self.domain.addItems(['Continua · x(t)','Discreta · x[n]']);form.addRow('Dominio',self.domain)
         self.expression=ExpressionEditor('sin(t)' if mode=='periodic' else 'exp(-abs(t))');self.expression.symbolic=True;form.addRow('Expresión',self.expression)
-        self.lower=QLineEdit('-5');self.upper=QLineEdit('5');self.period=QLineEdit('2*pi')
+        self.lower=QLineEdit('-5');self.upper=QLineEdit('5');self.period=QLineEdit()
         if mode=='interval':form.addRow('Límite inicial',self.lower);form.addRow('Límite final',self.upper)
         if mode=='periodic':form.addRow('Periodo',self.period)
         descriptions={'interval':'Energía y promedio cuadrático del intervalo. No se clasifica toda la señal a partir de esa ventana.',
             'global':'Energía en todo el eje y potencia mediante un límite de ventanas simétricas. Las integrales o sumas no resueltas se muestran como pendientes.',
-            'periodic':'Se comprueba que la expresión se repita con el periodo indicado. La potencia se obtiene promediando un periodo.'}
+            'periodic':'Se detecta el período si la fórmula permite determinarlo. También podés ingresarlo. La potencia se obtiene promediando un período.'}
         note=QLabel(descriptions[mode]);note.setWordWrap(True);form.addRow(note)
         choose=QPushButton('Reutilizar una definición de señal…');choose.clicked.connect(self.choose);form.addRow(choose)
         from .expression_import import install_expression_import
@@ -61,6 +61,15 @@ class ExpressionMeasuresPanel(QWidget):
         for field in (self.expression, self.lower, self.upper, self.period):
             field.textChanged.connect(self.refresh_sample_action)
         self.domain.currentIndexChanged.connect(self.change_domain);self.domain.currentIndexChanged.connect(self.refresh_origin)
+        if mode=='periodic':
+            from .period_input import PeriodInput
+            from .signal_period import formula_period
+            self.period_input=PeriodInput(self.period,lambda:formula_period(self.expression.text(),self.signal_domain()),
+                                          self.expression.textChanged,self.domain.currentIndexChanged)
+            def period_units(*_):
+                form.labelForField(self.period).setText('Período N (muestras)' if self.domain.currentIndex() else 'Período T (s)')
+            self.domain.currentIndexChanged.connect(period_units)
+            period_units()
     def prepare_signal_reuse(self):
         from .toolbox import populate_signal_menu
         self.signal_menu.clear()
@@ -89,11 +98,12 @@ class ExpressionMeasuresPanel(QWidget):
         current=self.expression.text()
         if index and current in defaults:self.expression.setText(defaults[current])
         elif not index and current in defaults.values():self.expression.setText(next(k for k,v in defaults.items() if v==current))
-        if self.mode=='periodic' and self.period.text() in ('2*pi','4'):self.period.setText('4' if index else '2*pi')
         self.refresh_sample_action()
+    def signal_domain(self):
+        return 'discrete' if self.domain.currentIndex() else 'continuous'
     def request(self):
         intact=self._expression_origin and self._expression_origin[0]==self.expression.text() and self._expression_origin[2]==self.domain.currentIndex()
-        return dict(input_conditions=list(self._input_conditions) if intact else [],operation='signal_measures_expression',expression=self.expression.text(),domain='continuous' if self.domain.currentIndex()==0 else 'discrete',mode=self.mode,lower=self.lower.text(),upper=self.upper.text(),period=self.period.text())
+        return dict(input_conditions=list(self._input_conditions) if intact else [],operation='signal_measures_expression',expression=self.expression.text(),domain=self.signal_domain(),mode=self.mode,lower=self.lower.text(),upper=self.upper.text(),period=self.period.text())
     def refresh_origin(self,*_):
         current=self._expression_origin and self._expression_origin[0]==self.expression.text() and self._expression_origin[2]==self.domain.currentIndex()
         self.source_note.setVisible(bool(current));self.source_note.setText('Definición cargada desde Resultados. Sus condiciones acompañan al cálculo.' if current else '')
@@ -108,6 +118,13 @@ class ExpressionMeasuresPanel(QWidget):
         from .reuse_sources import temporal_expression
         self.load_expression(temporal_expression(self.window.project,key),key)
     def calculate(self):
+        if self.mode=='periodic':
+            from .validation import FieldError
+            try:
+                self.period_input.text()
+            except FieldError as exc:
+                QMessageBox.warning(self,'Completá el período',str(exc))
+                return
         request=self.request();intact=self._expression_origin and self._expression_origin[0]==request['expression'] and self._expression_origin[2]==self.domain.currentIndex();parent=self._expression_origin[1] if intact else None;parents=[parent] if parent else []
         def accept(result):
             key=self.window.publish({'request':request,'result':result},title='Energía y potencia · '+request['expression'],operation='Medidas algebraicas de señal',parents=parents)

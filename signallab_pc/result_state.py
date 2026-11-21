@@ -10,6 +10,7 @@ class ResultState(QLabel):
         for source in self.sources:
             self.widgets.extend([source.mode,source.expression,source.samples,source.origin,source.count,source.step])
             if hasattr(source,'frequency_units'):self.widgets.append(source.frequency_units)
+            if hasattr(source,'series_length'):self.widgets.append(source.series_length.field)
             source.sourceChanged.connect(self.refresh)
         for widget in self.widgets:
             if isinstance(widget,QComboBox):widget.currentIndexChanged.connect(self.refresh)

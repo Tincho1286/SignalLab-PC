@@ -300,7 +300,7 @@
         ],
         [
           "Cómo preparar el cálculo",
-          "Para analizar, definí un período de x(t), su duración T, los puntos de evaluación y los armónicos deseados. Para sintetizar, cargá c[k] con sus índices y T, o copiá coeficientes anteriores."
+          "Para analizar, escribí x(t) y elegí los puntos de evaluación y los armónicos deseados. El campo T se completa cuando el período se puede detectar. Si queda vacío, indicá la duración del ciclo en segundos. Para sintetizar, cargá c[k] con sus índices y T, o copiá coeficientes anteriores que ya guardan T."
         ],
         [
           "Cómo interpretar la salida",
@@ -334,7 +334,7 @@
         ],
         [
           "Cómo preparar el cálculo",
-          "Para analizar, cargá un período completo de N muestras. Para sintetizar, cargá c[0],…,c[N−1] desde índice cero, o copiá una serie anterior con su origen registrado."
+          "Para analizar desde una fórmula, se detecta N cuando es posible. Si queda vacío, ingresá el período en muestras. Una lista de muestras representa un ciclo completo. Para sintetizar, cargá c[0],…,c[N−1] desde índice cero, o copiá una serie anterior con su origen registrado."
         ],
         [
           "Cómo interpretar la salida",

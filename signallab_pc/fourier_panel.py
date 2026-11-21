@@ -53,7 +53,16 @@ class FourierPanel(QWidget):
         self._button(form, "Crear registro temporal para CTFT", self.temporal)
         self._button(form, "Inversa del espectro continuo cargado", self.inverse)
         self._section(form, "Series de Fourier")
-        self.period = self._field(form, "Periodo continuo T (s)", "1")
+        self.period = self._field(form, "Período continuo T (s)", "")
+        self.synthesis_period = self._field(form, "Período de los coeficientes T (s)", "")
+        from .period_input import PeriodInput
+        from .signal_period import formula_period
+        self.series_period = PeriodInput(self.period, lambda: formula_period(self.expression.text(),'continuous'),
+                                         self.expression.textChanged)
+        coefficient_source = getattr(owner,'source',None)
+        changes = (coefficient_source.sourceChanged,coefficient_source.mode.currentIndexChanged) if coefficient_source else ()
+        self.coefficient_period = PeriodInput(self.synthesis_period, self._recorded_series_period, *changes,
+                                              source='Período registrado en los coeficientes.')
         self.harmonics = self._field(form, "Armónicos a cada lado (K)", "10")
         self._button(form, "Serie continua de la expresión", self.continuous_series)
         self._button(form, "Reconstruir serie continua cargada", self.continuous_synthesis)
@@ -84,7 +93,7 @@ class FourierPanel(QWidget):
             ("Fourier continua · inversa", "Reconstruí en tiempo a partir del espectro continuo activo.",
              [self.t0,self.t1,self.nt],["Inversa del espectro continuo cargado"]),
             ("Serie continua", "Calculá coeficientes de una expresión periódica o sintetizá los coeficientes activos.",
-             [self.expression,self.t0,self.t1,self.nt,self.period,self.harmonics],["Serie continua de la expresión","Reconstruir serie continua cargada"]),
+             [self.expression,self.t0,self.t1,self.nt,self.period,self.synthesis_period,self.harmonics],["Serie continua de la expresión","Reconstruir serie continua cargada"]),
             ("Serie discreta", "Interpretá el registro de entrada como un periodo de la secuencia.",
              [],["Serie discreta: registro = un periodo","Reconstruir serie discreta cargada"]),
             ("Densidad de energía", "Obtené |X|² del último espectro calculado en este panel.",
@@ -141,15 +150,26 @@ class FourierPanel(QWidget):
         self._job(calculate)
 
     def continuous_series(self):
-        args = self.expression.text(), real_field(self.t0), real_field(self.period), integer_field(self.nt), integer_field(self.harmonics)
+        self.series_period.text()
+        args = self.expression.text(), real_field(self.t0), real_field(self.period,minimum=0,strict=True), integer_field(self.nt), integer_field(self.harmonics)
         self._job(lambda: fourier.continuous_series(*args))
+
+    def _recorded_series_period(self):
+        source = getattr(self.owner,'source',None)
+        if source is not None and source.mode.currentIndex()==2 and source.loaded is not None:
+            return source.loaded.metadata.get('period_s')
+        return None
 
     def continuous_synthesis(self):
         source=self._source()
-        if source.metadata.get('operation')!='continuous_fourier_series':
-            period=real_field(self.period)
-            if period<=0:raise ValueError('El período T debe ser positivo.')
-            source=source.copy_with(metadata={**source.metadata,'operation':'continuous_fourier_series','period_s':period})
+        recorded = source.metadata.get('period_s')
+        entered = self.coefficient_period.text(required=False)
+        if entered or recorded is None:
+            self.coefficient_period.text()
+            period=real_field(self.synthesis_period,minimum=0,strict=True)
+        else:
+            period=recorded
+        source=source.copy_with(metadata={**source.metadata,'operation':'continuous_fourier_series','period_s':period})
         args=source,*self._time_args()
         self._job(lambda: fourier.synthesize_continuous(*args))
 

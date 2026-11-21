@@ -14,9 +14,25 @@ class ConvolutionAlgebraPanel(QWidget):
         form.addRow('x(t)',self.left);form.addRow('y(t)' if correlation else 'h(t)',self.right)
         self.support=QComboBox();self.support.addItems(['Entradas causales: cero para t < 0','Bilateral: soporte incluido en las expresiones']);form.addRow('Soporte',self.support)
         if correlation:form.setRowVisible(self.support,False)
-        self.period=QLineEdit('')
-        if correlation:form.addRow('Periodo (vacío = integral bilateral)',self.period)
-        note=QLabel('R(tau) = ∫ x(t) conjugada(y(t−tau)) dt. Si indicás un periodo, ambas expresiones deben ser periódicas con ese periodo; no se normaliza la integral.' if correlation else 'En modo causal, las fórmulas valen para t ≥ 0. En modo bilateral, incluí los escalones o tramos que definan el soporte.');note.setWordWrap(True);form.addRow(note)
+        self.period=QLineEdit()
+        inputs=[self.left,self.right,self.support,self.period]
+        if correlation:
+            from .period_input import PeriodInput
+            from .signal_period import formula_period
+
+            self.model=QComboBox()
+            self.model.addItems(['Automática','Periódica','Bilateral'])
+            form.addRow('Correlación',self.model)
+            form.addRow('Período común T (s)',self.period)
+            form.labelForField(self.period).setBuddy(self.period)
+            self.period_input=PeriodInput(self.period,lambda:formula_period(self.left.text(),'continuous',self.right.text()),
+                                          self.left.textChanged,self.right.textChanged)
+            def show_period(index):
+                form.setRowVisible(self.period,index!=2)
+                self.period.setProperty('calculationInput',index!=2)
+            self.model.currentIndexChanged.connect(show_period)
+            inputs.append(self.model)
+        note=QLabel('En Automática se usa el período común si está disponible. Con el campo vacío se integra en toda la recta. En Periódica, el período es obligatorio. La integral se entrega sin normalizar.' if correlation else 'En modo causal, las fórmulas valen para t ≥ 0. En modo bilateral, incluí los escalones o tramos que definan el soporte.');note.setWordWrap(True);form.addRow(note)
         self.calculate_button=QPushButton('Calcular correlación algebraica' if correlation else 'Calcular convolución algebraica');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);form.addRow(self.calculate_button)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         from .result_toolbar import ResultActionBar
@@ -29,7 +45,7 @@ class ConvolutionAlgebraPanel(QWidget):
         self.report=ReportView();self.report.setReadOnly(True);right.addWidget(report_panel(self.report),1);self.result_actions.use_report(self.report)
         self.report.setPlainText('El resultado algebraico y sus condiciones quedarán guardados en el proyecto. Si el motor no resuelve la integral, se mostrará como pendiente de evaluación.')
         from .result_state import ResultState
-        self.result_state=ResultState([self.left,self.right,self.support,self.period],self.calculate_button);form.insertRow(0,self.result_state)
+        self.result_state=ResultState(inputs,self.calculate_button);form.insertRow(0,self.result_state)
     def prepare_reuse(self):
         from .result_expressions import populate_reuse_menu
         self.reuse_menu.clear();populate_reuse_menu(self.reuse_menu,self.window,self.result_key)
@@ -41,7 +57,13 @@ class ConvolutionAlgebraPanel(QWidget):
         request=dict(operation='continuous_correlation' if self.correlation else 'continuous_convolution',left=self.left.text(),right=self.right.text(),causal=self.support.currentIndex()==0)
         from .expression_import import expression_context
         parents,conditions=expression_context(self.left,self.right);request['input_conditions']=conditions
-        if self.correlation:request["period"]=self.period.text().strip()
+        if self.correlation and self.model.currentIndex()!=2:
+            from .validation import FieldError
+            try:
+                request['period']=self.period_input.text(required=self.model.currentIndex()==1)
+            except FieldError as exc:
+                QMessageBox.warning(self,'Completá el período',str(exc))
+                return
         calculated_inputs=self.result_state.snapshot()
         def accept(result):
             self.result_key=self.window.publish({'request':request,'result':result},title='Correlación algebraica' if self.correlation else 'Convolución algebraica',operation=request['operation'],parents=parents)

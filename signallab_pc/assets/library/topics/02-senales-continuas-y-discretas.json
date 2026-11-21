@@ -56,7 +56,7 @@
         ],
         [
           "Cómo repetir un período",
-          "Activá Repetir un período en todo el eje. Con Fórmula escribí sólo el tramo base y completá Inicio del período y Período. Con Muestras ingresá los valores de un ciclo. En continuo, el paso Δt separa esos valores y se interpola hasta el primer valor del período siguiente."
+          "Activá Repetir un período en todo el eje. Si la fórmula ya tiene un período detectable, el campo se completa automáticamente. Para repetir un tramo base propio, ingresá su inicio y período. Con Muestras cargá los valores de un ciclo. En continuo, el paso Δt separa los valores y se interpola hasta el primer valor del período siguiente."
         ],
         [
           "Ventana de dibujo y definición",

@@ -64,6 +64,43 @@ class WorkflowContracts(unittest.TestCase):
         request=dict(operation='z_expression',expression=SOURCE,lower='0',upper='oo')
         return dict(request=request,result=execute(request))
 
+    def test_series_period_is_refreshed_and_required_only_when_unknown(self):
+        from PySide6.QtCore import QDeadlineTimer
+        from PySide6.QtTest import QTest
+        from PySide6.QtWidgets import QPushButton
+        from signallab_pc.toolbox import ToolPage
+
+        continuous = ToolPage(self.host,ROUTES['fourier',4])
+        discrete = ToolPage(self.host,ROUTES['fourier',5])
+        self.widgets.extend([continuous,discrete])
+        for page,title,source,expected in (
+            (continuous,'Serie continua de la expresión','ImpulseTrain(t,2)','2'),
+            (discrete,'Serie discreta: registro = un periodo','cos(pi*n/2)','4'),
+        ):
+            with self.subTest(source=source):
+                editor=page.panel.expression if page is continuous else page.context.source.expression
+                field=page.panel.period if page is continuous else page.context.source.series_length.field
+                editor.setText(source)
+                timeout=QDeadlineTimer(1500)
+                while not field.text() and not timeout.hasExpired():
+                    QTest.qWait(25)
+                self.assertEqual(field.text(),expected)
+                button=next(item for item in page.findChildren(QPushButton) if item.property('actionTitle')==title)
+                button.click()
+                if page is continuous:
+                    assert_allclose(page.panel.result.values,.5)
+                else:
+                    assert_allclose(page.panel.result.values,[0,.5,0,.5],atol=1e-14)
+                editor.setText('exp(-t)' if page is continuous else 'cos(n)')
+                button.click()
+                self.assertEqual(field.text(),'')
+                self.assertIn('Ingresá un período',self.warnings.pop())
+                field.setText('3')
+                button.click()
+                key='period_s' if page is continuous else 'period_samples'
+                self.assertEqual(page.panel.result.metadata[key],3)
+        self.assertEqual(self.warnings,[])
+
     def test_function_help_explains_and_copies_repeat_arguments(self):
         from PySide6.QtCore import QUrl
         from signallab_pc.engine import sequence_from_expression

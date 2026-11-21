@@ -4,27 +4,33 @@
 
 ## Escribir un período y repetirlo
 
-En **Señales → Crear una señal**, elegí el dominio y activá **Repetir un período en todo el eje**. En **Fórmula**, escribí el tramo base y completá **Inicio del período** y **Período**. En **Muestras**, cargá un ciclo en orden. En continuo, el paso separa dos puntos consecutivos y la interpolación lineal también une el último con el primero del siguiente ciclo.
+En **Señales → Crear una señal**, elegí el dominio y activá **Repetir un período en todo el eje**. En **Fórmula**, escribí el tramo base y completá **Inicio del período** y **Período** si quedaron sin definir. En **Muestras**, cargá un ciclo en orden. En continuo, el paso separa dos puntos consecutivos y la interpolación lineal también une el último con el primero del siguiente ciclo.
 
 La ventana del gráfico indica qué índices o instantes se muestran. Por ejemplo, una secuencia de período 4 se puede dibujar desde n = −8 con 17 muestras. En **Resultados** guardás la fórmula completa y el registro visible. Esto también funciona cuando escribís un tren directamente en Fórmula, lo activás con un escalón o sumás trenes con períodos que no coinciden. Desde **Usar señal en…**, elegí la definición para calcular Fourier, DTFT o la potencia de todo el eje.
 
 ## Referencia de fórmulas
 
-Podés escribir estas expresiones en los campos de fórmulas y en el CAS. Desactivá la casilla de repetir si usás una función que ya incluye su propio período.
+Podés escribir estas expresiones en los campos de fórmulas y en el CAS. Si dejás el período detectado en **Crear una señal**, se conserva la fórmula periódica original.
 
 | Función | Ejemplo | Resultado |
 | --- | --- | --- |
 | `Repeat(f,n,N,inicio)` o `Repeat(f,t,T,inicio)` | `Repeat(n,n,4)` | Repite 0, 1, 2 y 3 desde n = 0. Si omitís el inicio, vale cero. |
 | `RepeatSamples(n,inicio,(valores,))` | `RepeatSamples(n,-1,(2,0,3))` | Coloca 2, 0 y 3 en n = −1, 0 y 1 y los repite cada tres índices. |
 | `RepeatSamples(t,inicio,(valores,),paso)` | `RepeatSamples(t,0,(0,1),1)` | Señal triangular de período 2 s que sube durante el primer segundo y baja durante el segundo. |
+| `PulseTrain(v,P,D)` | `PulseTrain(n-1,5,2)` | Pulso de altura 1 en n = 1 y 2, repetido cada 5 muestras. D indica la duración dentro de cada período P. |
+| `ImpulseTrain(v,P)` | `ImpulseTrain(t-1,4)` | Impulsos Dirac de área 1 en …, −3, 1, 5, … segundos. Con n, son muestras unitarias. |
 
 En `Repeat`, el primer argumento es la fórmula del tramo base. El segundo es la variable literal `n` o `t`. El tercero fija el período en muestras o segundos. El cuarto, opcional, es el inicio del tramo y vale cero si se omite. Por ejemplo, `Repeat(n+2,n,3,-1)` evalúa `n+2` en −1, 0 y 1 para repetir las muestras 1, 2 y 3.
 
 En **Ayuda → Funciones de las fórmulas**, buscá `Repeat` o `RepeatSamples`. Cada ficha explica los argumentos discretos y continuos e incluye ejemplos que podés copiar.
-| `PulseTrain(v,P,D)` | `PulseTrain(n-1,5,2)` | Pulso de altura 1 en n = 1 y 2, repetido cada 5 muestras. D indica la duración dentro de cada período P. |
-| `ImpulseTrain(v,P)` | `ImpulseTrain(t-1,4)` | Impulsos Dirac de área 1 en …, −3, 1, 5, … segundos. Con n, son muestras unitarias. |
 
 Para cambiar la amplitud, multiplicá la fórmula por un número. En `PulseTrain(t-1,4,2)`, el pulso está alto desde t = 1 s hasta antes de t = 3 s y se repite cada 4 s. En discreto, período y duración son enteros. En continuo se expresan en segundos.
+
+## Detectar el período
+
+**Serie continua**, **Serie discreta**, **Medir señal periódica** y **Crear una señal** completan el período cuando se puede determinar a partir de la fórmula. Una lista o un archivo de muestras ingresados como un ciclo usan la longitud de ese ciclo. Para reconstruir una serie continua o calcular sus líneas espectrales, los coeficientes importados aportan el período guardado.
+
+Si el período requerido queda vacío, el cálculo señala el campo y pide que lo ingreses. Por ejemplo, `ImpulseTrain(t,2)` completa 2 s y `cos(pi*n/4)` completa 8 muestras. En **Correlación algebraica**, el modo **Periódica** requiere un período común a las dos señales.
 
 ## Ajustar amplitud y medir
 

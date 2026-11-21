@@ -4,6 +4,29 @@ from signallab_pc.symbolic import execute
 
 class ExpressionMeasureTests(unittest.TestCase):
     def measure(self,expression,**options):return execute(dict(operation='signal_measures_expression',expression=expression,**options))
+    def test_detected_period_respects_domains_and_commensurability(self):
+        import sympy as sp
+        from signallab_pc.signal_period import formula_period
+
+        cases=(
+            ('ImpulseTrain(3*t-1,2)','continuous',sp.Rational(2,3)),
+            ('RepeatSamples(n,0,(2,))','discrete',1),
+            ('cos(pi*n/4)+sin(pi*n/6)','discrete',24),
+            ('(-1)^n','discrete',2),
+            ('cos(n)','discrete',None),
+            ('sin(t)*Step(t)','continuous',None),
+            ('cos(where(t<0,t,t+1))','continuous',None),
+            ('sin(t)+cos(sqrt(2)*t)','continuous',None),
+        )
+        for expression,domain,expected in cases:
+            with self.subTest(expression=expression):
+                self.assertEqual(formula_period(expression,domain),expected)
+        self.assertEqual(formula_period('sin(t)','continuous','cos(3*t/2)'),4*sp.pi)
+        result=self.measure('PulseTrain(t,2,1)+1',domain='continuous',mode='periodic')
+        self.assertEqual(result['period'],'2')
+        self.assertEqual(result['mean_square']['exact'],'5/2')
+        with self.assertRaisesRegex(ValueError,'No se pudo detectar'):
+            self.measure('cos(n)',domain='discrete',mode='periodic')
     def test_continuous_interval_complex(self):
         r=self.measure('1+i*t',domain='continuous',mode='interval',lower='-1',upper='2')
         self.assertEqual(r['energy']['exact'],'6');self.assertEqual(r['mean_square']['exact'],'2');self.assertEqual(r['rms']['exact'],'sqrt(2)')

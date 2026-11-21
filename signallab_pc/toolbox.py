@@ -110,19 +110,22 @@ class LocalInput(QGroupBox):
             form.setRowVisible(self.expression,index==0);form.setRowVisible(self.samples,index==1);form.setRowVisible(self.paste_button,index==1)
             form.setRowVisible(interval,index!=2);form.setRowVisible(self.range_note,index==0);form.setRowVisible(self.file_note,index==2)
             if hasattr(self,'frequency_units'):form.setRowVisible(self.frequency_units,index!=2)
-            axis_widgets[self.count].setVisible(index==0 or index==1 and hasattr(self,'repeat_period') and self.repeat_period.isChecked());form.setRowVisible(load,index==2 and self.entry_modes.view==2)
+            axis_widgets[self.count].setVisible((index==0 and not getattr(self,'series_analysis',False)) or index==1 and hasattr(self,'repeat_period') and self.repeat_period.isChecked());form.setRowVisible(load,index==2 and self.entry_modes.view==2)
             if hasattr(self,'recent'):form.setRowVisible(self.recent,index==2 and self.entry_modes.view==3);form.setRowVisible(self.browse_results,index==2 and self.entry_modes.view==3)
         self.entry_modes.viewChanged.connect(lambda:update(self.mode.currentIndex()))
         self.mode.currentIndexChanged.connect(update);self.mode.setCurrentIndex(2 if kind=='import' else 0);update(self.mode.currentIndex())
     def enable_periodic_definition(self):
         form=self.layout()
         self.repeat_period=QCheckBox('Repetir un período en todo el eje')
-        self.period=QLineEdit('4' if self.kind=='discrete' else '2*pi')
+        self.period=QLineEdit()
         self.period_origin=QLineEdit('0')
         index,_=form.getWidgetPosition(self.expression)
         form.insertRow(index+1,self.repeat_period)
         form.insertRow(index+2,'Período N (muestras)' if self.kind=='discrete' else 'Período T (s)',self.period)
         form.insertRow(index+3,'Inicio del período',self.period_origin)
+        from .period_input import PeriodInput
+        from .signal_period import formula_period
+        self.repeat_length=PeriodInput(self.period,lambda:formula_period(self.expression.text(),self.kind),self.expression.textChanged)
         self.repeat_period.setToolTip('La fórmula o las muestras describen un período. Inicio y cantidad del gráfico determinan la ventana visible.')
         def refresh(*_):
             formula=self.mode.currentIndex()==0
@@ -130,10 +133,42 @@ class LocalInput(QGroupBox):
             enabled=available and self.repeat_period.isChecked()
             form.setRowVisible(self.repeat_period,available)
             form.setRowVisible(self.period,formula and enabled)
-            form.setRowVisible(self.period_origin,enabled)
+            choose_start=enabled and (not formula or self.repeat_length.suggestion is None)
+            form.setRowVisible(self.period_origin,choose_start)
+            self.period.setProperty('calculationInput',formula and enabled)
+            self.period_origin.setProperty('calculationInput',choose_start)
             self.count.parentWidget().setVisible(formula or enabled)
-        self.repeat_period.toggled.connect(refresh);self.mode.currentIndexChanged.connect(refresh);refresh()
+        self.repeat_period.toggled.connect(refresh);self.mode.currentIndexChanged.connect(refresh);self.period.textChanged.connect(refresh);refresh()
         return [self.repeat_period,self.period,self.period_origin]
+    def enable_discrete_series_period(self):
+        from .period_input import PeriodInput
+        from .signal_period import formula_period
+
+        self.series_analysis=True
+        field=QLineEdit()
+        form=self.layout()
+        row,_=form.getWidgetPosition(self.interval)
+        form.insertRow(row+1,'Período N (muestras)',field)
+        def formula():
+            if self.mode.currentIndex()==0:
+                return self.expression.text()
+            if self.mode.currentIndex()==2 and self.loaded is not None:
+                return self.loaded.full_definition
+            return None
+        def detect():
+            text=formula()
+            return formula_period(text,'discrete') if text else None
+        self.series_length=PeriodInput(field,detect,self.expression.textChanged,self.mode.currentIndexChanged,self.sourceChanged)
+        def refresh(*_):
+            use_period=self.series_analysis and formula() is not None
+            form.setRowVisible(field,use_period)
+            field.setProperty('calculationInput',use_period)
+            self.count.setProperty('calculationInput',not self.series_analysis and self.mode.currentIndex()==0)
+            form.setRowVisible(self.range_note,self.mode.currentIndex()==0 and not self.series_analysis)
+            self.count.parentWidget().setVisible(self.mode.currentIndex()==0 and not self.series_analysis)
+        self.mode.currentIndexChanged.connect(refresh);self.sourceChanged.connect(refresh)
+        self.refresh_series_fields=refresh
+        refresh()
     def remember_external_source(self):
         if self._source_view in (2,3):self._external_sources[self._source_view]=(self.loaded,self.loaded_reference_id,self.reference_id,self.fingerprint)
     def change_source_view(self,view):
@@ -271,6 +306,10 @@ class LocalInput(QGroupBox):
         if mode==2:
             if self.loaded is None:raise ValueError('Elegí una señal compatible en Resultados.' if self.entry_modes.view==3 else 'Elegí un archivo de señal antes de calcular.')
             self.validate_data_kind(self.loaded)
+            if getattr(self,'series_analysis',False) and self.loaded.full_definition:
+                self.series_length.text()
+                count=integer_field(self.series_length.field,minimum=1)
+                return sequence_from_expression(self.loaded.full_definition,self.loaded.origin,count,name=self.loaded.name)
             return self.loaded
         expression=self.expression.text()
         periodic=hasattr(self,'repeat_period') and self.repeat_period.isChecked()
@@ -279,7 +318,9 @@ class LocalInput(QGroupBox):
             variable='n' if self.kind=='discrete' else 't'
             if mode==0:
                 if not expression.strip():raise ValueError('Escribí la fórmula de un período antes de calcular.')
-                expression=f'Repeat(({expression}), {variable}, ({self.period.text()}), ({self.period_origin.text()}))'
+                period=self.repeat_length.text()
+                if self.repeat_length.suggestion is None:
+                    expression=f'Repeat(({expression}), {variable}, ({period}), ({self.period_origin.text()}))'
             else:
                 from .engine import sequence_parts
                 samples=', '.join('('+value+')' for value in sequence_parts(self.samples.text()))
@@ -305,7 +346,11 @@ class LocalInput(QGroupBox):
                 values=evaluate_expression(self.expression.text(),origin+step*np.arange(count))
             else:values=sequence_from_values(self.samples.text(),0).values
             return Signal(values,origin,step,self.frequency_units.currentText() if self.kind=='frequency' else 's','X(ω)' if self.kind=='frequency' else 'x(t)',self.kind,self.expression.text() if mode==0 else '')
-        result=(sequence_from_expression(expression,integer_field(self.origin),integer_field(self.count)) if mode==0 or periodic else sequence_from_values(self.samples.text(),integer_field(self.origin)))
+        count_field=self.count
+        if mode==0 and getattr(self,'series_analysis',False):
+            self.series_length.text()
+            count_field=self.series_length.field
+        result=(sequence_from_expression(expression,integer_field(self.origin),integer_field(count_field,minimum=1)) if mode==0 or periodic else sequence_from_values(self.samples.text(),integer_field(self.origin)))
         if definition_key:result.metadata[definition_key]=expression
         return result
 
@@ -773,12 +818,19 @@ class ToolPage(QWidget):
                     rc_note.setText('Calculá el componente faltante para una etapa RC. fc = 1 / (2πRC). Capacitancia en faradios; 1 µF = 0,000001 F.' if solve else 'Definí resistencia y capacitancia. Varias etapas representan la cascada ideal sin carga entre ellas. Capacitancia en faradios; 1 µF = 0,000001 F.')
                 rc_mode.currentIndexChanged.connect(update_rc_fields);self.panel.known.currentIndexChanged.connect(update_rc_fields);update_rc_fields()
         if kind=='fourier' and index in (4,5):
+            if index==5:source.enable_discrete_series_period()
             operation=QComboBox();self.series_operation=operation;operation.addItems(['Obtener coeficientes de una señal','Reconstruir desde coeficientes']);form.insertRow(0,'Operación',operation)
             series_buttons=self.panel.findChildren(QPushButton)
             def series_mode(mode):
                 synthesis=mode==1
                 if index==4:
                     form.setRowVisible(source,synthesis);form.setRowVisible(self.panel.expression,not synthesis);form.setRowVisible(self.panel.harmonics,not synthesis);form.setRowVisible(self.panel.t1,synthesis)
+                    form.setRowVisible(self.panel.period,not synthesis);form.setRowVisible(self.panel.synthesis_period,synthesis)
+                    self.panel.period.setProperty('calculationInput',not synthesis)
+                    self.panel.synthesis_period.setProperty('calculationInput',synthesis)
+                else:
+                    source.series_analysis=not synthesis
+                    source.refresh_series_fields()
                 source.setTitle('Coeficientes c[k] · manuales o importados' if synthesis else 'Un período de la señal');source.set_role('series_coefficients' if synthesis else 'time')
                 for button in series_buttons:
                     direct='Serie continua de la expresión' if index==4 else 'Serie discreta: registro = un periodo'

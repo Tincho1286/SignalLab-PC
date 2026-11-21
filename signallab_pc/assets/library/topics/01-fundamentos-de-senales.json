@@ -106,9 +106,7 @@
         ],
         [
           "Cómo preparar el cálculo",
-          {
-            "ref": "como-preparar-el-calculo-fe26d10f"
-          }
+          "Elegí el dominio e ingresá la fórmula. Si se detecta el período, el campo se completa. Si queda vacío, ingresalo en segundos para continuo o en muestras para discreto."
         ],
         [
           "Cómo interpretar la salida",

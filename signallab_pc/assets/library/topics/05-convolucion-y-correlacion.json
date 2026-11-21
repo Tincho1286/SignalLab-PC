@@ -176,7 +176,7 @@
         ],
         [
           "Cómo preparar el cálculo",
-          "Ingresá x(t) y h(t) con sus soportes. Dejá Período vacío para integrar en todo el eje, o indicá un período común positivo si ambas señales son periódicas."
+          "Ingresá x(t) e y(t) con sus soportes. Automática detecta el período común cuando puede y, con el campo vacío, integra en todo el eje. Elegí Periódica para exigir un período común o Bilateral para integrar siempre en toda la recta."
         ],
         [
           "Cómo interpretar la salida",
@@ -407,7 +407,7 @@
         ],
         [
           "Período",
-          "Vacío solicita integral bilateral. Un período positivo exige que ambas expresiones sean periódicas con ese período; no se divide por él."
+          "En Periódica se usa el período común detectado o ingresado en segundos. Si falta, se pide al calcular. La integral por período se entrega sin normalizar."
         ],
         [
           "Levantamiento de indeterminaciones",

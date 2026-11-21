@@ -147,7 +147,16 @@ def measure_expression(request):
         scope='Promedio sobre el intervalo indicado; no es la potencia media de toda la señal. Los índices discretos incluyen ambos extremos.'
         classification='Medidas del intervalo; sin clasificación global'
     elif mode=='periodic':
-        period=constant(request.get('period','1'),domain=='discrete')
+        from .signal_period import expression_period
+        detected=expression_period(source_value,variable)
+        raw_period=request.get('period')
+        declared=str(raw_period).strip() if raw_period is not None else ''
+        if not declared and detected == 0:
+            from .signal_period import formula_period
+            detected=formula_period(request['expression'],domain)
+        if not declared and not detected:
+            raise ValueError('No se pudo detectar un período. Ingresá el período de la señal.')
+        period=constant(declared,domain=='discrete') if declared else detected
         if period.is_positive is not True:raise ValueError('El periodo debe ser positivo.')
         if wrapping is not None and (period/wrapping[0]).is_integer is True:
             cycle, lower, one_period=wrapping
@@ -155,8 +164,9 @@ def measure_expression(request):
             upper=lower+period-(1 if domain=='discrete' else 0)
             interval_energy=cycle_energy(cycle,lower,density)*(period/cycle)
         else:
-            residual=sp.trigsimp(sp.simplify(value.subs(variable,variable+period)-value))
-            if residual!=0:raise ValueError('No se pudo demostrar que el período indicado repita la expresión. Revisá el período o usá el análisis global.')
+            if detected is None or (detected != 0 and (period/detected).is_integer is not True):
+                residual=sp.trigsimp(sp.simplify(value.subs(variable,variable+period)-value))
+                if residual!=0:raise ValueError('No se pudo demostrar que el período indicado repita la expresión. Revisá el período o usá el análisis global.')
             lower=sp.Integer(0);upper=period-1 if domain=='discrete' else period
             interval_energy=accumulated(lower,upper)
         period_verified=True;power=simplify_measure(interval_energy/period)
