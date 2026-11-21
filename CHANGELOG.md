@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.18](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.18). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.22 · Preliminar
+
+La 1.8.22 conserva las fórmulas periódicas escritas a mano y las envía a Fourier o DTFT. El análisis de un tren recortado separa las líneas del tren y la contribución del tramo eliminado.
+
+[Novedades completas](docs/releases/v1.8.22.md)
+
 ## 1.8.21 · Preliminar
 
 La 1.8.21 mejora el contraste y el tamaño de las casillas en toda la aplicación. También amplía energía, Z y Laplace para trenes recortados y reconoce espectros periódicos pegados en Fourier inversa.

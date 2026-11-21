@@ -1,6 +1,22 @@
 {
   "releases": [
     {
+      "tag": "v1.8.22",
+      "title": "Fórmulas periódicas y espectros recortados",
+      "channel": "preview",
+      "summary": "La 1.8.22 conserva las fórmulas periódicas escritas a mano y las envía a Fourier o DTFT. El análisis de un tren recortado separa las líneas del tren y la contribución del tramo eliminado.",
+      "changes": [
+        "Crear una señal conserva una definición periódica ingresada directamente como fórmula.",
+        "Ajustar amplitud y desplazamiento conservan los parámetros simbólicos exactos.",
+        "Fourier y DTFT obtienen el espectro de una señal periódica con una edición finita.",
+        "La DTFT inversa simplifica los peines modulados por retrasos enteros a trenes en n."
+      ],
+      "limits": [
+        "El informe identifica los trenes unilaterales que requieren una transformada generalizada con valor principal."
+      ],
+      "notes": "docs/releases/v1.8.22.md"
+    },
+    {
       "tag": "v1.8.21",
       "title": "Controles visibles y señales periódicas",
       "channel": "preview",

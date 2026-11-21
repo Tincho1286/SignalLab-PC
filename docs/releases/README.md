@@ -8,6 +8,7 @@ Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.22](v1.8.22.md) | Fórmulas periódicas y espectros recortados | Preliminar |
 | [1.8.21](v1.8.21.md) | Controles visibles y señales periódicas | Preliminar |
 | [1.8.20](v1.8.20.md) | Energía global, Fourier y Laplace | Preliminar |
 | [1.8.19](v1.8.19.md) | Señales periódicas, potencia y simbología de diagramas | Preliminar |
