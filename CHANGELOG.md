@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.9.0 Hotfix](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.0). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.9.1 · Preliminar
+
+La 1.9.1 explica qué va en cada argumento de las fórmulas. La biblioteca distingue el uso discreto y continuo de Repeat y RepeatSamples y ofrece ejemplos que se pueden copiar.
+
+[Novedades completas](docs/releases/v1.9.1.md)
+
 ## 1.9.0 · Hotfix · Estable
 
 La 1.9.0 Hotfix corrige las operaciones con escalones, pulsos e impulsos y amplía las transformadas de trenes de Dirac recortados o amortiguados. El editor permite cambiar cada signo del sumador. Reúne las mejoras de señales periódicas, energía y potencia, DTFT y diagramas de sistemas LTI de las versiones 1.8.19 a 1.8.27.

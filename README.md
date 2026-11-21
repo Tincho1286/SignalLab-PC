@@ -38,6 +38,8 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 La 1.9.0 Hotfix está disponible en ambos canales. Elegí **Estables y preliminares (Pre-releases)** si además querés recibir futuras versiones de prueba. [Notas de la versión estable](docs/releases/v1.9.0.md).
 
+La 1.9.1 explica qué va en cada argumento de las fórmulas. La biblioteca distingue el uso discreto y continuo de Repeat y RepeatSamples y ofrece ejemplos que se pueden copiar. Para probarla, elegí **Estables y preliminares (Pre-releases)**. [Descargas de la 1.9.1 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.1).
+
 ### Actualizar una instalación
 
 La edición instalada ofrece **Ayuda → Buscar actualizaciones**. Podés consultar las novedades, descargar la versión nueva y elegir cuándo instalar y reiniciar, sin desinstalar antes. Los temas y la configuración se conservan; los resultados de una sesión deben guardarse o exportarse antes del reinicio.
@@ -76,6 +78,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La 1.9.1 explica qué va en cada argumento de las fórmulas. La biblioteca distingue el uso discreto y continuo de Repeat y RepeatSamples y ofrece ejemplos que se pueden copiar. [Notas de la 1.9.1](docs/releases/v1.9.1.md).
 
 La 1.9.0 Hotfix corrige las operaciones con escalones, pulsos e impulsos y amplía las transformadas de trenes de Dirac recortados o amortiguados. El editor permite cambiar cada signo del sumador. Reúne las mejoras de señales periódicas, energía y potencia, DTFT y diagramas de sistemas LTI de las versiones 1.8.19 a 1.8.27. [Notas de la 1.9.0](docs/releases/v1.9.0.md).
 

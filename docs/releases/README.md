@@ -8,6 +8,7 @@ Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.9.1](v1.9.1.md) | Sintaxis y argumentos de las fórmulas | Preliminar |
 | [1.9.0](v1.9.0.md) | Hotfix · expresiones y transformadas de trenes de Dirac | Estable |
 | [1.8.27](v1.8.27.md) | DTFT y potencia de productos periódicos | Preliminar |
 | [1.8.26](v1.8.26.md) | Potencia de cosenos y fórmulas reutilizables | Preliminar |

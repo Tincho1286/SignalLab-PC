@@ -1,6 +1,19 @@
 {
   "releases": [
     {
+      "tag": "v1.9.1",
+      "title": "Argumentos de las fórmulas",
+      "channel": "preview",
+      "summary": "La 1.9.1 explica qué va en cada argumento de las fórmulas. La biblioteca distingue el uso discreto y continuo de Repeat y RepeatSamples y ofrece ejemplos que se pueden copiar.",
+      "changes": [
+        "Las fichas explican el orden y significado de los argumentos, sus unidades y los valores opcionales.",
+        "Repeat y RepeatSamples tienen fichas separadas con ejemplos en continuo y discreto.",
+        "Los ejemplos se pueden copiar desde la biblioteca. El CAS enlaza una ficha de argumentos para sus comandos habituales."
+      ],
+      "limits": [],
+      "notes": "docs/releases/v1.9.1.md"
+    },
+    {
       "tag": "v1.9.0",
       "title": "Hotfix",
       "channel": "stable",
