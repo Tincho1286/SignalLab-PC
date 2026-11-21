@@ -8,6 +8,9 @@ BLOCK_NAMES = {
     'input': 'Entrada', 'output': 'Salida', 'gain': 'Ganancia',
     'sum': 'Sumador', 'memory': 'Memoria', 'transfer': 'Transferencia',
 }
+LEFT_INPUT = 1
+LOWER_INPUT = 2
+DEFAULT_SUM_SIGNS = (1, -1)
 
 
 @dataclass(frozen=True)
@@ -19,6 +22,7 @@ class Block:
     gain: str = '1'
     formula: str = '1'
     sample_period_s: float | None = None
+    input_signs: tuple[int, int] = DEFAULT_SUM_SIGNS
 
 
 @dataclass(frozen=True)
@@ -26,6 +30,16 @@ class Wire:
     source: int
     target: int
     sign: int = 1
+    target_port: int | None = None
+
+    @property
+    def sum_port(self):
+        if self.target_port is not None:
+            return self.target_port
+        return LEFT_INPUT if self.sign > 0 else LOWER_INPUT
+
+    def sign_at(self, target):
+        return target.input_signs[self.sum_port - 1] if target.kind == 'sum' else self.sign
 
 
 @dataclass(frozen=True)
@@ -41,25 +55,42 @@ class RealizationGraph:
     def to_document(self):
         blocks = []
         has_transfer = False
+        custom_signs = False
         for block in self.blocks:
             row = asdict(block)
             if block.kind == 'transfer':
                 has_transfer = True
             else:
                 del row['formula'], row['sample_period_s']
+            if block.input_signs == DEFAULT_SUM_SIGNS:
+                del row['input_signs']
+            else:
+                custom_signs = True
+                row['input_signs'] = list(block.input_signs)
             blocks.append(row)
+        wires = []
+        for wire in self.wires:
+            row = asdict(wire)
+            if wire.target_port is None:
+                del row['target_port']
+            else:
+                custom_signs = True
+            wires.append(row)
         return {
-            'kind': 'signallab-realization', 'version': 2 if has_transfer else 1, 'domain': self.domain,
+            'kind': 'signallab-realization', 'version': 3 if custom_signs else 2 if has_transfer else 1,
+            'domain': self.domain,
             'blocks': blocks,
-            'wires': [asdict(wire) for wire in self.wires],
+            'wires': wires,
         }
 
     @classmethod
     def from_document(cls, document):
         try:
-            if document['kind'] != 'signallab-realization' or document['version'] not in (1, 2):
+            if document['kind'] != 'signallab-realization' or document['version'] not in (1, 2, 3):
                 raise ValueError('Elegí un diagrama editable de SignalLab (JSON).')
-            graph = cls(document['domain'], tuple(Block(**row) for row in document['blocks']),
+            blocks = tuple(Block(**{**row, 'input_signs': tuple(row.get('input_signs', DEFAULT_SUM_SIGNS))})
+                           for row in document['blocks'])
+            graph = cls(document['domain'], blocks,
                         tuple(Wire(**row) for row in document['wires']))
             graph.connections()
         except (KeyError, TypeError, AttributeError, OverflowError) as exc:
@@ -88,6 +119,10 @@ class RealizationGraph:
                 raise ValueError('El diagrama contiene una posición inválida.')
             if not isinstance(block.gain, str) or not isinstance(block.formula, str):
                 raise ValueError(f'La definición del bloque {block.id} debe ser una fórmula.')
+            if (len(block.input_signs) != 2 or any(type(sign) is not int or sign not in (-1, 1)
+                                                   for sign in block.input_signs)
+                    or block.kind != 'sum' and block.input_signs != DEFAULT_SUM_SIGNS):
+                raise ValueError(f'Los signos de entrada del bloque {block.id} no son válidos.')
             if block.sample_period_s is not None:
                 if block.kind != 'transfer' or not isinstance(block.sample_period_s, (float, int)):
                     raise ValueError(f'El reloj del bloque {block.id} no es válido.')
@@ -106,6 +141,9 @@ class RealizationGraph:
                     wire.source not in by_id or wire.target not in by_id):
                 raise ValueError('Hay una conexión inválida entre bloques.')
             source, target = by_id[wire.source], by_id[wire.target]
+            if wire.target_port is not None and (target.kind != 'sum' or type(wire.target_port) is not int
+                                                 or wire.target_port not in (LEFT_INPUT, LOWER_INPUT)):
+                raise ValueError('El puerto de destino del sumador no es válido.')
             if source.kind == 'output' or target.kind == 'input':
                 raise ValueError('La entrada x sólo emite señales y la salida y sólo las recibe.')
             pair = (source.id, target.id)
@@ -169,7 +207,7 @@ class RealizationGraph:
                 except (SyntaxError, TypeError, ValueError) as exc:
                     raise ValueError(f'Revisá la transferencia del bloque {block.id}: {exc}') from exc
             for wire in incoming[block.id]:
-                term = wire.sign * gain
+                term = wire.sign_at(block) * gain
                 if wire.source == input_id:
                     rhs[row, 0] = term
                 else:

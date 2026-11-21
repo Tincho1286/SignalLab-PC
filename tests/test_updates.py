@@ -254,11 +254,12 @@ class UpdateContracts(unittest.TestCase):
     def test_handoff_uses_an_independent_runtime_without_mutating_the_parent_environment(self):
         from signallab_pc.process_handoff import launch_independent
         launch = Mock()
-        with patch.dict(os.environ, {'LD_LIBRARY_PATH': '/old/extraction', 'LD_LIBRARY_PATH_ORIG': '/system/libs'}, clear=False), patch('signallab_pc.process_handoff.sys.platform', 'linux'):
+        parent_env = dict(os.environ, LD_LIBRARY_PATH='/old/extraction', LD_LIBRARY_PATH_ORIG='/system/libs')
+        with patch('signallab_pc.process_handoff.os.environ', parent_env), patch('signallab_pc.process_handoff.sys.platform', 'linux'):
             launch_independent(['/bin/sh', '/verified/installer.run'], launch=launch)
             env = launch.call_args.kwargs['env']
             self.assertEqual(env['PYINSTALLER_RESET_ENVIRONMENT'], '1'); self.assertEqual(env['LD_LIBRARY_PATH'], '/system/libs')
-            self.assertEqual(os.environ['LD_LIBRARY_PATH'], '/old/extraction')
+            self.assertEqual(parent_env['LD_LIBRARY_PATH'], '/old/extraction')
 
 
 class UpdateUiContracts(unittest.TestCase):

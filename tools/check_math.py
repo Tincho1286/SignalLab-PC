@@ -13,6 +13,7 @@ FAMILIES={
     'expression_systems':('test_math_expression_systems.ExpressionSystemContracts',8),
     'scalar_input':('test_math_contracts.ScalarContracts',7),
     'systems_filters':('test_math_contracts.SystemContracts',9),
+    'diagram_realizations':('test_realization',10),
     'equations':('test_math_contracts.EquationContracts',5),
     'fourier_measures':('test_math_contracts.FourierContracts',5),
     'symbolic_fourier':('test_symbolic_fourier.SymbolicFourierTests',22),

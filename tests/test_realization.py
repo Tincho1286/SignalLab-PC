@@ -44,6 +44,24 @@ class RealizationTests(unittest.TestCase):
 
 
 class RealizationGraphTests(unittest.TestCase):
+    def test_sum_ports_keep_their_position_and_apply_independent_signs(self):
+        import json
+        import sympy as sp
+        from signallab_pc.symbolic import S, Z
+
+        wires = (Wire(1, 3), Wire(3, 4), Wire(4, 2), Wire(4, 3, -1))
+        for domain, variable in (('analog', S), ('digital', Z)):
+            for signs in ((1,-1), (1,1), (-1,-1), (-1,1)):
+                with self.subTest(domain=domain, signs=signs):
+                    ports = RealizationGraph.empty(domain).blocks
+                    blocks = ports + (Block(3,'sum',180,0,input_signs=signs), Block(4,'memory',360,0))
+                    graph = RealizationGraph(domain,blocks,wires)
+                    expected = signs[0]/(variable-signs[1])
+                    restored = RealizationGraph.from_document(json.loads(json.dumps(graph.to_document())))
+                    self.assertEqual(restored,graph)
+                    self.assertEqual(sp.cancel(restored.transfer()-expected),0)
+                    self.assertEqual([wire.sum_port for wire in restored.connections()[3]],[1,2])
+
     def test_negative_feedback_uses_domain_and_preserves_exact_gain(self):
         from signallab_pc.symbolic import execute, parse, S, Z
         import sympy as sp

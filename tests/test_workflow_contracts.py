@@ -111,6 +111,57 @@ class WorkflowContracts(unittest.TestCase):
             panel.result_actions.cas_button.click()
             send.assert_called_once_with(self.host, panel._definition_id)
 
+    def test_realization_editor_changes_sum_signs_without_moving_cables(self):
+        import json
+        import sympy as sp
+        from PySide6.QtCore import Qt
+        from PySide6.QtTest import QTest
+        from PySide6.QtWidgets import QComboBox, QDialog
+        from signallab_pc.realization_editor import RealizationEditor
+        from signallab_pc.realization_graph import Block, RealizationGraph
+        from signallab_pc.symbolic import Z, parse
+
+        self.host.open_tool(ROUTES['system_analysis',0])
+        panel = self.host.pages[self.host.current_operation].panel
+        default = RealizationGraph.empty('digital')
+        editor = RealizationEditor(RealizationGraph('digital',default.blocks+
+            (Block(3,'sum',160,0),Block(4,'transfer',370,0,formula='1/(2*z)')),()),panel)
+        self.widgets.append(editor)
+        editor.show()
+        self.app.processEvents()
+        for source, target, entry in ((1,3,1),(3,4,1),(4,2,1),(4,3,2)):
+            start = editor.view.mapFromScene(editor.blocks[source].output.scenePos())
+            end = editor.view.mapFromScene(editor.blocks[target].inputs[entry].scenePos())
+            QTest.mousePress(editor.view.viewport(),Qt.MouseButton.LeftButton,pos=start)
+            QTest.mouseMove(editor.view.viewport(),end)
+            QTest.mouseRelease(editor.view.viewport(),Qt.MouseButton.LeftButton,pos=end)
+        before = editor.graph()
+        self.assertEqual(len(before.wires),4)
+        self.assertEqual(before.transfer(),1/(2*Z+1))
+
+        def edit(dialog):
+            self.assertEqual(dialog.windowTitle(),'Signos del sumador')
+            selectors = dialog.findChildren(QComboBox)
+            self.assertEqual([selector.currentData() for selector in selectors],[1,-1])
+            selectors[1].setCurrentIndex(selectors[1].findData(1))
+            return True
+
+        summer = editor.blocks[3]
+        with patch.object(QDialog,'exec',new=edit):
+            QTest.mouseDClick(editor.view.viewport(),Qt.MouseButton.LeftButton,
+                             pos=editor.view.mapFromScene(summer.pos()))
+        after = editor.graph()
+        self.assertEqual(after.wires,before.wires)
+        self.assertEqual([port.sign for port in summer.inputs.values()],[1,1])
+        self.assertEqual(after.to_document()['version'],3)
+        restored = RealizationGraph.from_document(json.loads(json.dumps(after.to_document())))
+        self.assertEqual(restored,after)
+        editor.hide()
+        panel.load_diagram(restored)
+        panel = self.calculated_analysis()
+        result = self.host.project.get(panel._definition_id)['result']
+        self.assertEqual(sp.cancel(parse(result['transfer'])-1/(2*Z-1)),0)
+
     def test_realization_cascade_loads_saved_system_and_formula(self):
         from PySide6.QtCore import Qt
         from PySide6.QtTest import QTest
