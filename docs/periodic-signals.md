@@ -17,6 +17,10 @@ Podés escribir estas expresiones en los campos de fórmulas y en el CAS. Desact
 | `Repeat(f,n,N,inicio)` o `Repeat(f,t,T,inicio)` | `Repeat(n,n,4)` | Repite 0, 1, 2 y 3 desde n = 0. Si omitís el inicio, vale cero. |
 | `RepeatSamples(n,inicio,(valores,))` | `RepeatSamples(n,-1,(2,0,3))` | Coloca 2, 0 y 3 en n = −1, 0 y 1 y los repite cada tres índices. |
 | `RepeatSamples(t,inicio,(valores,),paso)` | `RepeatSamples(t,0,(0,1),1)` | Señal triangular de período 2 s que sube durante el primer segundo y baja durante el segundo. |
+
+En `Repeat`, el primer argumento es la fórmula del tramo base. El segundo es la variable literal `n` o `t`. El tercero fija el período en muestras o segundos. El cuarto, opcional, es el inicio del tramo y vale cero si se omite. Por ejemplo, `Repeat(n+2,n,3,-1)` evalúa `n+2` en −1, 0 y 1 para repetir las muestras 1, 2 y 3.
+
+En **Ayuda → Funciones de las fórmulas**, buscá `Repeat` o `RepeatSamples`. Cada ficha explica los argumentos discretos y continuos e incluye ejemplos que podés copiar.
 | `PulseTrain(v,P,D)` | `PulseTrain(n-1,5,2)` | Pulso de altura 1 en n = 1 y 2, repetido cada 5 muestras. D indica la duración dentro de cada período P. |
 | `ImpulseTrain(v,P)` | `ImpulseTrain(t-1,4)` | Impulsos Dirac de área 1 en …, −3, 1, 5, … segundos. Con n, son muestras unitarias. |
 

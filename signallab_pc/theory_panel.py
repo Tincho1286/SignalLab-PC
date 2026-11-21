@@ -1,9 +1,9 @@
 """Biblioteca con conceptos, glosario y procedimientos separados."""
 import html,re,unicodedata
 from PySide6.QtCore import QUrl,Qt
-from PySide6.QtGui import QTextDocument
+from PySide6.QtGui import QCursor,QTextDocument
 from .visual_help import diagrams_for
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QLineEdit,QTreeWidget,QTreeWidgetItem,QPushButton,QComboBox,QTabWidget
+from PySide6.QtWidgets import QApplication,QToolTip,QWidget,QHBoxLayout,QVBoxLayout,QLineEdit,QTreeWidget,QTreeWidgetItem,QPushButton,QComboBox,QTabWidget
 from .library_catalog import sections as library_sections
 from .report_view import ReportView,report_panel
 from .responsive_help import ResponsiveHelpView
@@ -85,6 +85,24 @@ class TheoryPanel(QWidget):
         self.text._formula_number=0
         body=['<h1>'+html.escape(section['title'])+'</h1><p>'+html.escape(section.get('category_label',section['category']))+'</p>']
         illustrations=diagrams_for(section)
+        forms = section.get('forms',[])
+        self.function_examples = []
+        form_blocks = []
+        def append_forms():
+            for form in forms:
+                title, syntax = form['title'], form['syntax']
+                body.append(f'<h2>{html.escape(title)}</h2><p><code>{html.escape(syntax)}</code></p>')
+                lines = [syntax]
+                for name, meaning in form['arguments']:
+                    body.append(f'<p><b><code>{html.escape(name)}</code></b> · {html.escape(meaning)}</p>')
+                    lines.append(f'{name} · {meaning}')
+                for source, result in form['examples']:
+                    index = len(self.function_examples)
+                    self.function_examples.append(source)
+                    body.append(f'<p><code>{html.escape(source)}</code> '
+                                f'<a href="library:copy-formula/{index}">Copiar fórmula</a><br>{html.escape(result)}</p>')
+                    lines.append(f'{source}\n{result}')
+                form_blocks.append((title,'\n\n'.join(lines)))
         def append_illustrations():
             for index,(title,picture,caption) in enumerate(illustrations):
                 url=QUrl(f'help-diagram-{index}');self.text.document().addResource(QTextDocument.ResourceType.ImageResource,url,picture)
@@ -96,7 +114,10 @@ class TheoryPanel(QWidget):
                 for line in content.splitlines():body.append(self.text._render_formula(line) or '<p>'+html.escape(line)+'</p>')
             else:
                 for paragraph in content.split('\n\n'):body.append('<p style="line-height:150%">'+html.escape(paragraph).replace('\n','<br>')+'</p>')
-            if index==0:append_illustrations()
+            if index==0:
+                append_forms()
+                append_illustrations()
+        blocks[1:1] = form_blocks
         if section.get('related'):
             body.append('<h2>Temas relacionados</h2>')
             blocks.append(('Temas relacionados','\n'.join(title for _,title in section['related'])))
@@ -120,6 +141,12 @@ class TheoryPanel(QWidget):
         self.text.setHtml('<html><body style="font-family:Segoe UI;color:#dce4ef;font-size:11pt;margin:20px">'+''.join(body)+'</body></html>')
     def follow_reference(self,url):
         if url.scheme()!='library':return
+        if url.path().startswith('copy-formula/'):
+            index = url.path().split('/',1)[1]
+            if index.isascii() and index.isdigit() and int(index) < len(self.function_examples):
+                QApplication.clipboard().setText(self.function_examples[int(index)])
+                QToolTip.showText(QCursor.pos(),'Fórmula copiada',self.text)
+            return
         if url.path().startswith('article/'):
             self.select_article(url.path().split('/',1)[1]);return
         if url.path().startswith('example/'):

@@ -5,7 +5,15 @@ CAS_SEARCH='calculadora cas xcas algebra simbolica ecuaciones resolver derivadas
 
 def cas_sections():
     from .library_cas import BLOCKS
-    return [dict(title='Calculadora CAS',category='Matemática · Hoja CAS',route=CAS_ROUTE,blocks=BLOCKS)]
+    from .function_reference import function_forms
+    from .library_content import read_data
+
+    formula_help = dict(article_id='reference:cas-arguments',title='Argumentos de comandos CAS',
+        category='Matemática · Hoja CAS',route=None,reference=True,tools=[['cas',0]],
+        blocks=[('Dónde escribirlos','Usá estas fórmulas en una celda de la Calculadora CAS. Cada comando indica qué poner en cada posición.')],
+        forms=function_forms(read_data('cas.json','forms')))
+    return [dict(title='Calculadora CAS',category='Matemática · Hoja CAS',route=CAS_ROUTE,blocks=BLOCKS),
+            formula_help]
 
 
 def cas_help_image():

@@ -93,5 +93,151 @@
       "Exportar y cancelar",
       "Hoja permite exportar el documento con formato o su texto completo. Las entradas y variables se conservan al cambiar de pestaña durante la sesión, pero no se incluyen en el guardado general de sesiones.\n\nCancelar cálculo detiene la operación y conserva el último estado válido. Hoja → Nueva hoja vacía entradas y definiciones después de confirmarlo; si querés conservar ese trabajo, exportalo antes."
     ]
+  ],
+  "forms": [
+    {
+      "title": "Sustituir una variable",
+      "syntax": "subst(expresión, variable, valor)",
+      "arguments": [
+        [
+          "expresión",
+          "Fórmula que querés evaluar. Podés usar una referencia rN a un resultado."
+        ],
+        [
+          "variable",
+          "Símbolo que querés reemplazar, como x."
+        ],
+        [
+          "valor",
+          "Número o expresión que se coloca en lugar de ese símbolo."
+        ]
+      ],
+      "examples": [
+        [
+          "subst(x^2+1,x,3)",
+          "Devuelve 10."
+        ]
+      ]
+    },
+    {
+      "title": "Derivar",
+      "syntax": "diff(expresión, variable[, orden])",
+      "arguments": [
+        [
+          "expresión",
+          "Fórmula que querés derivar."
+        ],
+        [
+          "variable",
+          "Símbolo respecto del que se calcula la derivada."
+        ],
+        [
+          "orden",
+          "Cantidad de derivadas. Si lo omitís, calcula la primera."
+        ]
+      ],
+      "examples": [
+        [
+          "diff(x^3,x,2)",
+          "Devuelve 6*x."
+        ]
+      ]
+    },
+    {
+      "title": "Integrar",
+      "syntax": "integrate(expresión, variable[, inferior, superior])",
+      "arguments": [
+        [
+          "expresión",
+          "Integrando."
+        ],
+        [
+          "variable",
+          "Símbolo de integración."
+        ],
+        [
+          "inferior, superior",
+          "Límites de la integral definida. Omití ambos para calcular una primitiva."
+        ]
+      ],
+      "examples": [
+        [
+          "integrate(x^2,x,0,1)",
+          "Devuelve 1/3."
+        ]
+      ]
+    },
+    {
+      "title": "Calcular un límite",
+      "syntax": "limit(expresión, variable, punto[, lado])",
+      "arguments": [
+        [
+          "expresión",
+          "Fórmula cuyo límite querés calcular."
+        ],
+        [
+          "variable",
+          "Símbolo que se acerca al punto."
+        ],
+        [
+          "punto",
+          "Valor al que se acerca la variable."
+        ],
+        [
+          "lado",
+          "Escribí left para la izquierda o right para la derecha. Si lo omitís, se usa la derecha."
+        ]
+      ],
+      "examples": [
+        [
+          "limit(abs(x)/x,x,0,left)",
+          "Devuelve −1."
+        ]
+      ]
+    },
+    {
+      "title": "Resolver una ecuación",
+      "syntax": "solve(ecuación, variable)",
+      "arguments": [
+        [
+          "ecuación",
+          "Igualdad que querés resolver. Una expresión sola se iguala a cero."
+        ],
+        [
+          "variable",
+          "Incógnita. Quitá cualquier valor guardado para ese nombre antes de resolver."
+        ]
+      ],
+      "examples": [
+        [
+          "solve(x^2=4,x)",
+          "Devuelve las soluciones −2 y 2."
+        ]
+      ]
+    },
+    {
+      "title": "Declarar un supuesto",
+      "syntax": "assume(símbolo, propiedad) o assume(condición)",
+      "arguments": [
+        [
+          "símbolo",
+          "Nombre al que se le asigna el supuesto."
+        ],
+        [
+          "propiedad",
+          "Por ejemplo real, positive o integer."
+        ],
+        [
+          "condición",
+          "También podés escribir una comparación, como x>0."
+        ]
+      ],
+      "examples": [
+        [
+          "assume(n,integer)",
+          "Declara n entero en esta hoja."
+        ]
+      ]
+    }
   ]
 }

@@ -9,13 +9,14 @@ def periodic_function_diagram(kind):
     background = QColor('#15202b')
     image.fill(background)
     example = {
-        'repeat_period': 'RepeatSamples(n,0,(1,3,2))',
+        'repeat_period': 'Repeat(n+2,n,3,-1)',
+        'repeat_samples_period': 'RepeatSamples(n,0,(1,3,2))',
         'pulse_train': 'PulseTrain(t-1,4,2)',
         'impulse_train': 'ImpulseTrain(t-1,4)',
     }[kind]
-    discrete = kind == 'repeat_period'
+    discrete = kind in ('repeat_period', 'repeat_samples_period')
     left, right = (-4, 9) if discrete else (-4, 10)
-    start, period = (0, 3) if discrete else (1, 4)
+    start, period = (-1, 3) if kind == 'repeat_period' else (0, 3) if discrete else (1, 4)
     axis = 246
     text = QColor('#e5eef7')
     grid = QColor('#8298ad')
@@ -49,8 +50,9 @@ def periodic_function_diagram(kind):
         painter.setPen(QPen(wave, 3))
         painter.setBrush(wave)
         if discrete:
+            samples = (1, 2, 3) if kind == 'repeat_period' else (1, 3, 2)
             for index in range(left, right+1):
-                height = axis-38*(1, 3, 2)[index % 3]
+                height = axis-38*samples[(index-start) % period]
                 painter.drawLine(QLineF(x(index), axis, x(index), height))
                 painter.drawEllipse(QPointF(x(index), height), 5, 5)
         elif kind == 'pulse_train':

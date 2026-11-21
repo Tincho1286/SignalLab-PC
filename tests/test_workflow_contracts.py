@@ -64,6 +64,36 @@ class WorkflowContracts(unittest.TestCase):
         request=dict(operation='z_expression',expression=SOURCE,lower='0',upper='oo')
         return dict(request=request,result=execute(request))
 
+    def test_function_help_explains_and_copies_repeat_arguments(self):
+        from PySide6.QtCore import QUrl
+        from signallab_pc.engine import sequence_from_expression
+        from signallab_pc.continuous_expression import sample_continuous
+        from signallab_pc.theory_panel import TheoryPanel
+
+        library = TheoryPanel()
+        self.widgets.append(library)
+        library.select_functions()
+        library.select_article('reference:repeat')
+        article = library.text.document().toPlainText()
+        for expected in ('Repeat(fórmula, n, N[, n0])','N · Cantidad de muestras',
+                         'n0 · Primer índice','T · Duración del período','Copiar fórmula'):
+            self.assertIn(expected,article)
+        self.assertIn('n0 · Primer índice',library.text.toPlainText())
+        library.text.anchorClicked.emit(QUrl('library:copy-formula/0'))
+        discrete = self.app.clipboard().text()
+        self.assertEqual(discrete,'Repeat(n+2,n,3,-1)')
+        assert_allclose(sequence_from_expression(discrete,-4,9).values,[1,2,3]*3)
+        library.text.anchorClicked.emit(QUrl('library:copy-formula/1'))
+        continuous = self.app.clipboard().text()
+        self.assertEqual(continuous,'Repeat(t,t,2,1)')
+        assert_allclose(sample_continuous(continuous,0,.5,7).values,[2,2.5,1,1.5,2,2.5,1])
+        library.select_article('reference:repeat-samples')
+        self.assertIn('paso · Tiempo entre valores',library.text.toPlainText())
+        library.text.anchorClicked.emit(QUrl('library:copy-formula/0'))
+        assert_allclose(sequence_from_expression(self.app.clipboard().text(),-1,6).values,[2,0,3]*2)
+        library.select_article('reference:cas-arguments')
+        self.assertIn('inferior, superior · Límites',library.text.toPlainText())
+
     def test_realization_editor_to_transfer_and_frequency(self):
         from PySide6.QtCore import Qt
         from PySide6.QtTest import QTest

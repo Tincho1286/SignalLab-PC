@@ -20,11 +20,11 @@
         ],
         [
           "Señales periódicas",
-          "Buscá Repeat o RepeatSamples para repetir un tramo, PulseTrain para pulsos rectangulares o ImpulseTrain para impulsos. Cada página explica qué recibe la función y muestra un gráfico. Los cuatro nombres sirven en las entradas de señales y en el CAS."
+          "Buscá Repeat para repetir una fórmula, RepeatSamples para repetir una lista, PulseTrain para pulsos rectangulares o ImpulseTrain para impulsos. Sus fichas distinguen los argumentos discretos de los continuos."
         ],
         [
-          "Cómo leer los ejemplos",
-          "Los ejemplos siguientes muestran el significado de cada función y cómo desplazarla o escalarla. Recordá elegir un intervalo que incluya la parte que querés ver: una fórmula puede ser válida y quedar fuera de la ventana dibujada."
+          "Cómo leer las firmas",
+          "Los argumentos se escriben en el orden mostrado y se separan con comas. Cada línea explica qué hay que escribir, qué valores se aceptan y la unidad si corresponde. Los corchetes de la firma marcan un argumento opcional. Omití los corchetes al escribir. Usá Copiar fórmula para llevar un ejemplo completo al campo Fórmula."
         ]
       ],
       "tools": [
@@ -55,6 +55,44 @@
           "Diferencia con Dirac",
           "En una entrada continua, DiracDelta(t), dirac(t) e impulse(t) representan una Dirac por posición y peso. En las entradas discretas, Dirac(n), DiracDelta(n) e impulse(n) son formas equivalentes del impulso de Kronecker: una muestra unitaria en n=0. No se aplica el factor 1/|a| de Dirac continua: impulse(2*n) también vale uno en n=0. En Z su transformada es 1 y en DTFT también es 1. Un desplazamiento a n=m produce z^(-m) o exp(-i*w*m), respectivamente. No se obtiene una Dirac convirtiendo una muestra de altura uno en segundos: cambian el modelo y su interpretación."
         ]
+      ],
+      "forms": [
+        {
+          "title": "Impulso por desplazamiento",
+          "syntax": "Impulse(v), Dirac(v) o DiracDelta(v)",
+          "arguments": [
+            [
+              "v",
+              "Expresión de n. La salida vale uno donde v vale cero. Usá n−n0 para un impulso en el índice entero n0."
+            ]
+          ],
+          "examples": [
+            [
+              "Impulse(n-3)",
+              "Genera una muestra unitaria en n = 3 y cero en los demás índices."
+            ]
+          ]
+        },
+        {
+          "title": "Impulso de Kronecker",
+          "syntax": "KroneckerDelta(n, n0)",
+          "arguments": [
+            [
+              "n",
+              "Índice de evaluación de la secuencia."
+            ],
+            [
+              "n0",
+              "Índice entero que tendrá amplitud 1."
+            ]
+          ],
+          "examples": [
+            [
+              "KroneckerDelta(n,-2)",
+              "Genera un impulso discreto en n = −2."
+            ]
+          ]
+        }
       ]
     },
     {
@@ -86,13 +124,51 @@
           "Por qué se simplifica una secuencia",
           "Un impulso en el borde puede completar un escalón. Por ejemplo, (1/2)^n·u[n−1]+δ[n] es la misma secuencia que (1/2)^n·u[n]. La app combina esos términos sólo cuando sus valores coinciden. Si una condición o una singularidad impide esa equivalencia, conserva los tramos; la región de convergencia sigue siendo parte del resultado de una transformada."
         ]
+      ],
+      "forms": [
+        {
+          "title": "Escalón con el borde incluido",
+          "syntax": "Step(v)",
+          "arguments": [
+            [
+              "v",
+              "Expresión real. Usá n−n0 o t−t0 para activar la señal en el borde elegido. Step vale 1 si v ≥ 0."
+            ]
+          ],
+          "examples": [
+            [
+              "Step(n-2)",
+              "Se activa en n = 2 y vale 1 en ese índice."
+            ]
+          ]
+        },
+        {
+          "title": "Escalón con valor de borde",
+          "syntax": "Heaviside(v[, valor_cero])",
+          "arguments": [
+            [
+              "v",
+              "Expresión real. El escalón vale 0 cuando v < 0 y 1 cuando v > 0."
+            ],
+            [
+              "valor_cero",
+              "Valor asignado cuando v = 0. Si lo omitís, vale 1/2."
+            ]
+          ],
+          "examples": [
+            [
+              "Heaviside(n-2,0)",
+              "Vale 0 en n = 2 y empieza a valer 1 en n = 3."
+            ]
+          ]
+        }
       ]
     },
     {
       "id": "reference:repeat",
-      "title": "Repeat y RepeatSamples",
+      "title": "Repeat · repetir una fórmula",
       "illustration": "repeat_period",
-      "illustration_caption": "La zona azul marca un período. La lista 1, 3, 2 vuelve a aparecer cada tres índices a ambos lados de cero.",
+      "illustration_caption": "La zona azul marca el tramo base: n = −1, 0 y 1. El mismo patrón aparece antes y después, cada tres muestras.",
       "tools": [
         [
           "basic",
@@ -105,25 +181,179 @@
         [
           "fourier_symbolic",
           0
+        ],
+        [
+          "dtft_symbolic",
+          0
+        ],
+        [
+          "transform_lab",
+          "z"
+        ],
+        [
+          "transform_lab",
+          "laplace"
         ]
       ],
       "blocks": [
         [
-          "Cuándo usarlas",
-          "Usá Repeat si conocés una fórmula para un período. Usá RepeatSamples si ya tenés sus valores en orden. Ambas funciones repiten el período hacia los tiempos positivos y negativos."
+          "Qué hace",
+          "Toma una fórmula de un solo período y repite ese tramo en ambos sentidos. La fórmula base se evalúa en los índices o instantes reales de ese tramo."
         ],
         [
-          "Repetir una fórmula",
-          "Repeat(f,n,N,n0) repite la fórmula f escrita entre n0 y n0+N−1. En continuo usá Repeat(f,t,T,t0) para repetir el tramo t0 ≤ t < t0+T. El inicio es cero si lo omitís. Por ejemplo, Repeat(n,n,4) repite 0, 1, 2, 3."
-        ],
-        [
-          "Repetir una lista",
-          "RepeatSamples(n,0,(1,3,2)) empieza con 1 en n=0 y repite la lista cada tres muestras. En RepeatSamples(t,0,(0,1),1), el último argumento fija un paso de un segundo. La señal sube de 0 a 1 y baja a 0 al llegar al período siguiente. El período dura dos segundos. Si escribís un único valor, usá (valor,) para marcar que es una lista."
-        ],
-        [
-          "En Crear una señal",
-          "También podés activar Repetir un período en todo el eje. Poné el inicio del período y su duración en Fórmula o el inicio y los valores en Muestras. El período y la ventana que ves en el gráfico son datos distintos. Para Fourier, Z o potencia global, reutilizá la definición guardada en Resultados."
+          "Repetir desde un formulario",
+          "En Crear una señal podés activar Repetir un período en todo el eje y cargar la fórmula, el inicio y el período por separado. Si ya escribiste Repeat, la fórmula incluye su propia repetición. La ventana que elegís para graficar sólo decide qué parte del resultado ves."
         ]
+      ],
+      "forms": [
+        {
+          "title": "Secuencias discretas",
+          "syntax": "Repeat(fórmula, n, N[, n0])",
+          "arguments": [
+            [
+              "fórmula",
+              "Expresión de un período usando n. Se evalúa desde n0 hasta n0 + N − 1, ambos incluidos."
+            ],
+            [
+              "n",
+              "Escribí la letra n. Identifica el índice que usa la fórmula."
+            ],
+            [
+              "N",
+              "Cantidad de muestras de un período. Debe ser un entero positivo."
+            ],
+            [
+              "n0",
+              "Primer índice del tramo base. Debe ser entero y puede ser negativo. Si lo omitís, vale 0."
+            ]
+          ],
+          "examples": [
+            [
+              "Repeat(n+2,n,3,-1)",
+              "Evalúa n+2 en n = −1, 0 y 1. Las muestras 1, 2 y 3 se repiten cada tres índices."
+            ]
+          ]
+        },
+        {
+          "title": "Señales continuas",
+          "syntax": "Repeat(fórmula, t, T[, t0])",
+          "arguments": [
+            [
+              "fórmula",
+              "Expresión de un período usando t. Su tramo base va de t0 incluido a t0 + T excluido."
+            ],
+            [
+              "t",
+              "Escribí la letra t. Identifica el tiempo en segundos."
+            ],
+            [
+              "T",
+              "Duración del período en segundos. Debe ser real, finita y positiva."
+            ],
+            [
+              "t0",
+              "Tiempo inicial del tramo en segundos. Debe ser real y finito. Si lo omitís, vale 0."
+            ]
+          ],
+          "examples": [
+            [
+              "Repeat(t,t,2,1)",
+              "Repite la rampa definida por x(t) = t desde 1 s hasta justo antes de 3 s. Al llegar a 3 s vuelve al valor 1."
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reference:repeat-samples",
+      "title": "RepeatSamples · repetir muestras",
+      "illustration": "repeat_samples_period",
+      "illustration_caption": "Cada período contiene tres muestras. La zona sombreada comienza en n = 0 y el siguiente período empieza en n = 3.",
+      "tools": [
+        [
+          "basic",
+          "generate"
+        ],
+        [
+          "expression_measures",
+          "global"
+        ],
+        [
+          "fourier_symbolic",
+          0
+        ],
+        [
+          "dtft_symbolic",
+          0
+        ],
+        [
+          "transform_lab",
+          "z"
+        ],
+        [
+          "transform_lab",
+          "laplace"
+        ]
+      ],
+      "blocks": [
+        [
+          "Qué hace",
+          "Repite los valores de un ciclo que ya conocés. En continuo une los valores con rectas, incluida la unión del último con el primero del ciclo siguiente."
+        ]
+      ],
+      "forms": [
+        {
+          "title": "Lista discreta",
+          "syntax": "RepeatSamples(n, n0, (v1, v2, ...))",
+          "arguments": [
+            [
+              "n",
+              "Escribí la letra n para una secuencia discreta. Los valores están separados por un índice."
+            ],
+            [
+              "n0",
+              "Índice entero en el que se ubica el primer valor de la lista."
+            ],
+            [
+              "(v1, v2, ...)",
+              "Valores finitos del ciclo, en orden y separados con comas. La cantidad de valores fija el período. Para un solo valor, escribí (valor,)."
+            ]
+          ],
+          "examples": [
+            [
+              "RepeatSamples(n,-1,(2,0,3))",
+              "Ubica 2, 0 y 3 en n = −1, 0 y 1. El mismo patrón se repite cada tres muestras."
+            ]
+          ]
+        },
+        {
+          "title": "Lista continua",
+          "syntax": "RepeatSamples(t, t0, (v1, v2, ...)[, paso])",
+          "arguments": [
+            [
+              "t",
+              "Escribí la letra t para una señal continua."
+            ],
+            [
+              "t0",
+              "Instante real y finito del primer valor, medido en segundos."
+            ],
+            [
+              "(v1, v2, ...)",
+              "Valores finitos de un ciclo, ordenados en el tiempo. Se interpola entre cada par vecino."
+            ],
+            [
+              "paso",
+              "Tiempo entre valores, en segundos. Debe ser positivo y finito. Si lo omitís, vale 1 s. El período es la cantidad de valores por el paso."
+            ]
+          ],
+          "examples": [
+            [
+              "RepeatSamples(t,0,(0,1),1)",
+              "Sube de 0 a 1 entre 0 y 1 s. Baja a 0 entre 1 y 2 s y vuelve a repetirse."
+            ]
+          ]
+        }
       ]
     },
     {
@@ -156,16 +386,42 @@
       "blocks": [
         [
           "Qué genera",
-          "PulseTrain(v,P,D) genera pulsos rectangulares de altura 1. P es el período y D es cuánto dura el nivel alto. El pulso incluye el comienzo y vuelve a cero al alcanzar el final."
-        ],
-        [
-          "Dominio y desplazamiento",
-          "En discreto, P y D son cantidades enteras de muestras. PulseTrain(n-1,5,2) vale uno en n=1 y n=2 y repite esas posiciones cada cinco muestras. En continuo, P y D se miden en segundos. PulseTrain(t-1,4,2) empieza en t=1 s y vuelve a comenzar cada cuatro segundos."
+          "Genera un tren periódico de pulsos rectangulares de altura 1. Multiplicá la expresión por la amplitud que quieras."
         ],
         [
           "Amplitud y potencia",
           "Multiplicá por la amplitud que quieras. Si la amplitud es A, el tren completo tiene potencia media |A|²·D/P. En Energía y potencia → Medir en todo el eje se usa esa definición periódica. El ancho puede ir de cero a un período completo."
         ]
+      ],
+      "forms": [
+        {
+          "title": "Cargar el tren",
+          "syntax": "PulseTrain(v, P, D)",
+          "arguments": [
+            [
+              "v",
+              "Coordenada que fija el comienzo de un pulso. Usá n−n0 en discreto o t−t0 en continuo. Por ejemplo, t-1 ubica un comienzo en 1 s."
+            ],
+            [
+              "P",
+              "Período. Debe ser un entero positivo en muestras o una duración real, positiva y finita en segundos."
+            ],
+            [
+              "D",
+              "Ancho del nivel alto. Usá las mismas unidades de P, con 0 ≤ D ≤ P. En discreto debe ser entero. El inicio se incluye y el final se excluye."
+            ]
+          ],
+          "examples": [
+            [
+              "PulseTrain(n-1,5,2)",
+              "Las muestras n = 1 y 2 valen 1, y el patrón se repite cada cinco índices."
+            ],
+            [
+              "PulseTrain(t-1,4,2)",
+              "El pulso está activo desde 1 s hasta justo antes de 3 s. Se repite cada 4 s."
+            ]
+          ]
+        }
       ]
     },
     {
@@ -198,7 +454,7 @@
       "blocks": [
         [
           "Qué genera",
-          "ImpulseTrain(v,P) coloca un impulso en cada múltiplo de P, en ambas direcciones. Para desplazar todos los impulsos, restá un desplazamiento en el primer argumento."
+          "Coloca un impulso por período, en ambos sentidos del eje. En discreto cada impulso es una muestra. En continuo se representa por su instante y su área."
         ],
         [
           "Discreto",
@@ -208,6 +464,32 @@
           "Continuo",
           "ImpulseTrain(t-1,4) ubica Dirac de área 1 en …, −3, 1, 5, … segundos. Multiplicar por A cambia el área de cada Dirac. Las flechas del gráfico identifican esas áreas. Para estudiar el tren, usá Fourier continua o Laplace unilateral. La herramienta de energía calcula |x|² para señales ordinarias y el cuadrado de una Dirac no está definido."
         ]
+      ],
+      "forms": [
+        {
+          "title": "Cargar el tren",
+          "syntax": "ImpulseTrain(v, P)",
+          "arguments": [
+            [
+              "v",
+              "Usá n−n0 para ubicar un impulso en el índice n0 o t−t0 para ubicarlo en el instante t0."
+            ],
+            [
+              "P",
+              "Separación entre impulsos. Debe ser un entero positivo en muestras o una duración real, positiva y finita en segundos."
+            ]
+          ],
+          "examples": [
+            [
+              "ImpulseTrain(n-1,5)",
+              "Coloca muestras unitarias en …, −4, 1, 6, … ."
+            ],
+            [
+              "ImpulseTrain(t-1,4)",
+              "Coloca impulsos de área 1 en …, −3, 1, 5, … segundos."
+            ]
+          ]
+        }
       ]
     },
     {
@@ -231,6 +513,24 @@
           "En herramientas simbólicas",
           "sinc(v) también se admite en las herramientas simbólicas y en el CAS, con la misma definición normalizada. También podés escribir sin(pi*t)/(pi*t); el valor removible en cero se completa por límite cuando corresponde."
         ]
+      ],
+      "forms": [
+        {
+          "title": "Sinc normalizada",
+          "syntax": "sinc(v)",
+          "arguments": [
+            [
+              "v",
+              "Argumento de la sinc, sin unidades. Para fijar el centro t0 y la distancia T al primer cero, escribí (t-t0)/T."
+            ]
+          ],
+          "examples": [
+            [
+              "sinc((t-2)/0.5)",
+              "Tiene valor 1 en 2 s y sus primeros ceros están en 1.5 s y 2.5 s."
+            ]
+          ]
+        }
       ]
     },
     {
@@ -254,6 +554,44 @@
           "En herramientas algebraicas",
           "Las mismas funciones hiperbólicas están disponibles en fórmulas, coeficientes, transformadas, sistemas, el CAS y la importación de expresiones MATLAB. También se admiten nombres como arcsinh y arctanh. sech(v)=1/cosh(v), csch(v)=1/sinh(v) y coth(v)=cosh(v)/sinh(v); la inversa asinh no es la recíproca csch. Admitir una función no garantiza que toda transformada exista: se siguen verificando el soporte y la convergencia."
         ]
+      ],
+      "forms": [
+        {
+          "title": "Ángulo en radianes",
+          "syntax": "sin(v), cos(v), tan(v)",
+          "arguments": [
+            [
+              "v",
+              "Ángulo en radianes. En un tono, escribí frecuencia angular × tiempo + fase. Con frecuencia en Hz, usá 2*pi*frecuencia*t."
+            ]
+          ],
+          "examples": [
+            [
+              "cos(pi*n/4+pi/3)",
+              "Es un coseno discreto con frecuencia π/4 rad/muestra y fase π/3 rad."
+            ]
+          ]
+        },
+        {
+          "title": "Inversas e hiperbólicas",
+          "syntax": "asin(v), acos(v), atan(v), sinh(v), cosh(v), tanh(v)",
+          "arguments": [
+            [
+              "v",
+              "Valor de entrada. Las inversas trigonométricas devuelven ángulos en radianes. Las hiperbólicas reciben un argumento sin unidades."
+            ]
+          ],
+          "examples": [
+            [
+              "asin(1/2)",
+              "Devuelve π/6 rad."
+            ],
+            [
+              "cosh(0)",
+              "Devuelve 1."
+            ]
+          ]
+        }
       ]
     },
     {
@@ -273,6 +611,28 @@
           "Complejos y valores no finitos",
           "El evaluador numérico permite raíces y logaritmos complejos, como sqrt(-1)=i. En cambio, log(0) no es un valor finito; una exponencial demasiado grande también puede superar el rango de cálculo."
         ]
+      ],
+      "forms": [
+        {
+          "title": "Exponenciales, logaritmos y raíces",
+          "syntax": "exp(v), log(v), ln(v), sqrt(v)",
+          "arguments": [
+            [
+              "v",
+              "Exponente de e para exp, argumento del logaritmo natural para log o ln, o radicando para sqrt."
+            ]
+          ],
+          "examples": [
+            [
+              "exp(-2*t)",
+              "Exponencial decreciente para t ≥ 0."
+            ],
+            [
+              "sqrt(-4)",
+              "Devuelve 2i con la raíz principal compleja."
+            ]
+          ]
+        }
       ]
     },
     {
@@ -292,6 +652,28 @@
           "Cómo calcular energía",
           "Para un complejo, abs(v)^2 es el módulo al cuadrado y vale 25 en este ejemplo. v^2 da otro número: no debe usarse como reemplazo del módulo al cuadrado en energía o potencia."
         ]
+      ],
+      "forms": [
+        {
+          "title": "Operar con un número complejo",
+          "syntax": "abs(v), re(v), im(v), conj(v)",
+          "arguments": [
+            [
+              "v",
+              "Número o fórmula. Puede ser complejo. Usá i como unidad imaginaria."
+            ]
+          ],
+          "examples": [
+            [
+              "abs(3+4*i)",
+              "Devuelve 5."
+            ],
+            [
+              "conj(3+4*i)",
+              "Devuelve 3−4i."
+            ]
+          ]
+        }
       ]
     },
     {
@@ -311,6 +693,28 @@
           "Dónde se admiten",
           "floor y ceil requieren entradas reales en el evaluador numérico de señales. floor, ceil y ceiling también se admiten en las herramientas algebraicas y el CAS. Su significado no cambia al reutilizar una expresión."
         ]
+      ],
+      "forms": [
+        {
+          "title": "Signo y redondeo",
+          "syntax": "sign(v), floor(v), ceil(v), ceiling(v)",
+          "arguments": [
+            [
+              "v",
+              "Número o fórmula. Para floor, ceil y ceiling, el resultado de v debe ser real en los campos de señales."
+            ]
+          ],
+          "examples": [
+            [
+              "floor(-1.2)",
+              "Devuelve −2."
+            ],
+            [
+              "ceil(-1.2)",
+              "Devuelve −1."
+            ]
+          ]
+        }
       ]
     },
     {
@@ -336,8 +740,54 @@
         ],
         [
           "En cálculo simbólico",
-          "El editor prepara Piecewise para las herramientas algebraicas. Si escribís a mano, usá Piecewise((valor,condición),(otro_valor,True)) o where(condición,valor_si,valor_no). Ambas formas se admiten en fórmulas numéricas, herramientas simbólicas y CAS."
+          "Usá where en fórmulas numéricas, herramientas simbólicas y CAS. Para varios tramos podés usar el editor Por tramos. Piecewise también se puede escribir en los campos algebraicos y en el CAS."
         ]
+      ],
+      "forms": [
+        {
+          "title": "Elegir entre dos ramas",
+          "syntax": "where(condición, si_cumple, si_no_cumple)",
+          "arguments": [
+            [
+              "condición",
+              "Comparación que resulta verdadera o falsa, como abs(w)<=pi/4 o 0<=t<2."
+            ],
+            [
+              "si_cumple",
+              "Fórmula que se evalúa en los puntos donde la condición es verdadera."
+            ],
+            [
+              "si_no_cumple",
+              "Fórmula para el resto del eje."
+            ]
+          ],
+          "examples": [
+            [
+              "where(abs(w)<=pi/4,1,0)",
+              "Pasa bajos ideal con amplitud 1 en |ω| ≤ π/4 y cero fuera."
+            ]
+          ]
+        },
+        {
+          "title": "Varios tramos en un campo algebraico",
+          "syntax": "Piecewise((valor1, condición1), ..., (valor_final, True))",
+          "arguments": [
+            [
+              "(valor, condición)",
+              "Poné la fórmula primero y su condición después. Se usa el primer tramo cuya condición sea verdadera."
+            ],
+            [
+              "(valor_final, True)",
+              "Indica qué vale la función cuando ningún tramo anterior se cumple."
+            ]
+          ],
+          "examples": [
+            [
+              "Piecewise((1,t<0),(2,t<1),(0,True))",
+              "Vale 1 para t < 0, 2 para 0 ≤ t < 1 y 0 a partir de t = 1."
+            ]
+          ]
+        }
       ]
     },
     {
@@ -359,12 +809,54 @@
         ],
         [
           "Qué requiere otro modelo",
-          "No se muestrea una Dirac ideal como un valor puntual finito ni se le asignan energía o RMS finitos. Para esas operaciones, definí un pulso de duración y amplitud finitas. El producto de dos Dirac y los factores discontinuos en su posición se rechazan. La carga por pesos admite argumentos lineales en t y orden cero; para derivadas o argumentos no lineales, conservá la expresión algebraica. erf y erfc se admiten en las herramientas simbólicas y en el CAS, pero no en el evaluador numérico de señales."
+          "No se muestrea una Dirac ideal como un valor puntual finito ni se le asignan energía o RMS finitos. Para esas operaciones, definí un pulso de duración y amplitud finitas. El producto de dos Dirac y los factores discontinuos en su posición se rechazan. La carga por pesos admite argumentos lineales en t y orden cero; para derivadas o argumentos no lineales, conservá la expresión algebraica."
         ],
         [
           "Dónde se usa",
           "La carga continua guarda la parte ordinaria y los impulsos por separado. Fourier continua, series, convolución y respuesta temporal de transferencias propias tienen reglas para esos pesos. La tabla muestra la parte ordinaria y el panel Peso Dirac muestra los pesos; la exportación nativa conserva ambos. La ventana observada va del primer al último punto almacenado. Los impulsos fuera de ella se informan como excluidos. En series se usa un período [inicio,inicio+T), para no contar dos veces el mismo borde."
         ]
+      ],
+      "forms": [
+        {
+          "title": "Posición y área",
+          "syntax": "A*DiracDelta(t-t0)",
+          "arguments": [
+            [
+              "A",
+              "Área del impulso. Se escribe como factor multiplicativo."
+            ],
+            [
+              "t-t0",
+              "Expresión que vale cero en el instante t0. Usá t en segundos."
+            ]
+          ],
+          "examples": [
+            [
+              "2*DiracDelta(t-0.35)",
+              "Impulso de área 2 situado en 0.35 s."
+            ]
+          ]
+        },
+        {
+          "title": "Derivada para cálculo simbólico",
+          "syntax": "DiracDelta(t-t0, orden)",
+          "arguments": [
+            [
+              "t-t0",
+              "Argumento que fija el instante del impulso."
+            ],
+            [
+              "orden",
+              "Entero no negativo. El valor 0 corresponde al impulso sin derivar. Los órdenes positivos se usan en cálculos algebraicos."
+            ]
+          ],
+          "examples": [
+            [
+              "DiracDelta(t-1,1)",
+              "Primera derivada del impulso situado en 1 s."
+            ]
+          ]
+        }
       ]
     },
     {
@@ -388,6 +880,112 @@
           "Cómo conservar complejos y ceros",
           "Se admiten formas como 1+2i, 1+2*i y 1+2j. Conservá los ceros entre potencias, porque omitirlos cambia el polinomio. Una celda vacía no reemplaza un coeficiente cero."
         ]
+      ]
+    },
+    {
+      "id": "reference:mod",
+      "title": "Mod · resto y fase de un período",
+      "illustration": null,
+      "blocks": [
+        [
+          "Qué hace",
+          "Devuelve el resto de la división. Con período positivo, devuelve una fase entre cero incluido y el período excluido."
+        ]
+      ],
+      "forms": [
+        {
+          "title": "Resto con período positivo",
+          "syntax": "Mod(v, P)",
+          "arguments": [
+            [
+              "v",
+              "Valor real que querés reducir al intervalo de un período. Puede ser una fórmula de n, t o w."
+            ],
+            [
+              "P",
+              "Divisor positivo. Usá las mismas unidades que v."
+            ]
+          ],
+          "examples": [
+            [
+              "Mod(n-2,4)",
+              "Devuelve 0 en n = 2 y 6. En n = 1 devuelve 3."
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "reference:funciones-especiales",
+      "title": "Funciones especiales de cálculo algebraico",
+      "illustration": null,
+      "blocks": [
+        [
+          "Dónde se usan",
+          "Estas funciones aparecen en resultados exactos de integrales y transformadas. Podés escribirlas en campos algebraicos compatibles."
+        ]
+      ],
+      "forms": [
+        {
+          "title": "Funciones de error",
+          "syntax": "erf(v), erfc(v)",
+          "arguments": [
+            [
+              "v",
+              "Argumento de la función de error. erfc(v) es 1−erf(v)."
+            ]
+          ],
+          "examples": [
+            [
+              "erfc(0)",
+              "Devuelve 1."
+            ]
+          ]
+        },
+        {
+          "title": "Series especiales",
+          "syntax": "polylog(orden, argumento), lerchphi(argumento, orden, desplazamiento)",
+          "arguments": [
+            [
+              "argumento",
+              "Factor de la potencia repetida. Por ejemplo, en la transformada Z puede ser 1/z."
+            ],
+            [
+              "orden",
+              "Exponente del denominador de cada término de la serie."
+            ],
+            [
+              "desplazamiento",
+              "Constante que se suma al índice en el denominador de Lerch. Sólo la usa lerchphi."
+            ]
+          ],
+          "examples": [
+            [
+              "polylog(2,1/2)",
+              "Representa la suma de (1/2)^k / k^2 desde k = 1."
+            ]
+          ]
+        },
+        {
+          "title": "Valor principal de Fourier",
+          "syntax": "PVCot(w, P)",
+          "arguments": [
+            [
+              "w",
+              "Frecuencia angular o una expresión como w-w0 para trasladar sus singularidades."
+            ],
+            [
+              "P",
+              "Período temporal positivo. PVCot representa el valor principal de cot(P*w/2)."
+            ]
+          ],
+          "examples": [
+            [
+              "PVCot(w,4)",
+              "Los polos espectrales se encuentran en los múltiplos de π/2."
+            ]
+          ]
+        }
       ]
     }
   ]

@@ -749,6 +749,12 @@ assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
         references=function_sections()
         for page in references:
             self.assertTrue(all(title and text for title,text in page['blocks']))
+            if page['illustration'] or page['article_id'] in ('reference:mod','reference:funciones-especiales'):
+                self.assertTrue(page['forms'],page['title'])
+            for form in page['forms']:
+                for expression,_ in form['examples']:
+                    with self.subTest(article=page['title'],example=expression):
+                        self.assertIsInstance(parse(expression),sp.Expr)
         for page in references:
             text=' '.join(body for _,body in page['blocks'])
             if page['title'].startswith('Sign,'):self.assertNotIn('no admite',text)
