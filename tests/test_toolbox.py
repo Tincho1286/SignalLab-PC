@@ -105,7 +105,12 @@ class ToolboxTests(unittest.TestCase):
         panel=self.open('Muestreo','Cambio racional de tasa con antialias').panel
         panel.source.set_source(source,key);panel.read_clock();panel.calculate_button.click();self.finish()
         record=self.window.project.headers('signal')[-1];result=self.window.project.get(record['id'])
-        self.assertEqual(record['parents'],[key]);self.assertEqual(result.metadata['sample_rate_hz'],44100)
+        source_key,filter_key=record['parents']
+        self.assertEqual(source_key,key)
+        filter_record=next(item for item in self.window.project.headers() if item['id']==filter_key)
+        self.assertEqual(filter_record['operation'],'Filtro antialias de conversión')
+        self.assertEqual(filter_record['parents'],[key])
+        self.assertEqual(result.metadata['sample_rate_hz'],44100)
         self.assertEqual(result.metadata['time_start_s'],2)
     def test_algebraic_fourier_samples_feed_numeric_inverse(self):
         panel=self.open('Fourier','Fourier continua algebraica').panel
@@ -168,8 +173,8 @@ class ToolboxTests(unittest.TestCase):
         source=Signal([9,8],origin=-4);key=self.window.publish(source)
         field=self.open('Señales','Generar y graficar').first
         field.set_source(source,key);field.read();self.assertEqual(field.reference_id,key)
-        field.mode.setCurrentIndex(0);field.expression.setText('n');field.read();self.assertNotEqual(field.reference_id,key)
-        field.mode.setCurrentIndex(2);value=field.read()
+        field.entry_modes.buttons[0].click();field.expression.setText('n');field.read();self.assertNotEqual(field.reference_id,key)
+        field.entry_modes.buttons[3].click();value=field.read()
         self.assertEqual(field.reference_id,key);self.assertEqual(value.origin,-4)
 
 if __name__=='__main__':unittest.main()
