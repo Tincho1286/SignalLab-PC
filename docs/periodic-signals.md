@@ -59,3 +59,5 @@ Cuando sumás trenes continuos con períodos distintos, **Fourier continua** re�
 Para recortar un tren de impulsos continuos, colocá los bordes entre dos impulsos. Por ejemplo, `Step(t-1/2)*ImpulseTrain(t,1)` conserva los impulsos en t = 1, 2, 3, … y su Laplace es `1/(exp(s)-1)` para `Re(s) > 0`. En Fourier aparecen líneas y un valor principal. Si un borde coincide con un impulso, definí su peso como un término Dirac separado.
 
 En **Laplace → Inversa**, podés pegar `1/(exp(s)-1)` o usar **Copiar a la inversa** desde el resultado. Con `Re(s) > 0` recuperás el tren derecho. La ROC `Re(s) < 0` de la misma fórmula da impulsos de área −1 en t = 0, −1, −2, … . Para una ventana finita entre dos bordes, cada impulso conserva su área y no hay restricción de ROC.
+
+Si multiplicás el tren derecho por `exp(-t)`, sus áreas pasan a ser e⁻¹, e⁻², … . Laplace da `1/(exp(s+1)-1)` con `Re(s)>-1`. Como el eje imaginario está dentro de esa región, Fourier da `1/(exp(1+i*w)-1)`. Podés pegar cualquiera de las dos fórmulas en su inversa para recuperar los impulsos y sus áreas.

@@ -45,6 +45,10 @@
         [
           "Recuperar un tren de impulsos",
           "Probá Step(t-1/2)*ImpulseTrain(t,1). La directa devuelve 1/(exp(s)-1) con ROC Re(s)>0. Copiá el resultado a la inversa para recuperar los impulsos en los enteros positivos. Con la ROC izquierda, la misma fórmula da impulsos de área −1 en cero y los enteros negativos. Si recortás el tren entre dos bordes, la inversa recupera sólo los impulsos que quedaron."
+        ],
+        [
+          "Tren amortiguado",
+          "Multiplicá el tren derecho por exp(-t). Las áreas de los impulsos son ahora exp(-1), exp(-2), … y Laplace devuelve 1/(exp(s+1)-1) con Re(s)>-1. Para recuperar el tren mediante la inversa bilateral, podés elegir la ROC derecha o una línea dentro de ella, como σ=0."
         ]
       ]
     },

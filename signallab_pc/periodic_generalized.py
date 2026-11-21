@@ -100,7 +100,8 @@ def continuous_spectrum(value,time,frequency):
 
         spans, remainder=partition_trains(value,time)
         if remainder!=0:return None
-        return sp.Add(*(spectrum(span,frequency) for span in spans))
+        terms = [spectrum(span, frequency) for span in spans]
+        return None if None in terms else sp.Add(*terms)
     from .periodic_fourier import _bounded_cycle,finite_laplace_piece,imaginary_axis,periodic_integral
     from .periodic_signals import continuous_periodic_components
     from .periodic_support import split_periodic_support

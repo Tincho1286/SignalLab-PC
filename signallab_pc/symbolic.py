@@ -249,6 +249,19 @@ def _execute(request):
                         'output_variable':'t','frequency_units':'rad/s','method':'periodic_source_inverse',
                         'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
                         'scope':'Se recupera la señal temporal que generó el espectro. En los instantes aislados se conserva el valor de la definición de origen.'},definition,exact=recovered)
+            if value.has(sp.exp) and not value.has(PVCot, ImpulseTrain, sp.DiracDelta):
+                from .laplace_impulse_inverse import ImpulsePoleLine, inverse_impulse_laplace
+
+                try:
+                    train = inverse_impulse_laplace(definition.expression.subs(W, S/sp.I), S, T, mode='line')
+                except ImpulsePoleLine:
+                    train = None
+                if train is not None:
+                    exact = train[0]
+                    return attach({'operation':operation,'result':str(exact),'condition':'True','evaluated':True,
+                        'output_variable':'t','frequency_units':'rad/s','method':'impulse_geometric_series',
+                        'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
+                        'scope':'Se desarrolla el espectro como suma de exponenciales de frecuencia. Cada término determina el instante y el área de un impulso.'},definition,exact=exact)
             if value.has(PVCot):
                 from .periodic_comb_inverse import inverse_principal_spectrum
                 principal=inverse_principal_spectrum(value,W,T)

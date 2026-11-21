@@ -208,7 +208,7 @@ def inverse(request):
         ensure_working_set(max(1, int(den.degree())**2), bytes_per_sample=1024, live_arrays=8)
         common, polynomial, parts = apart_list(rational, S)
     except (sp.PolynomialError, NotImplementedError) as exc:
-        raise ValueError('La inversa bilateral admite X(s) racional con un desplazamiento global exp(-d*s), o sumas geométricas de trenes de impulsos de peso constante.') from exc
+        raise ValueError('La inversa bilateral admite X(s) racional con un desplazamiento global exp(-d*s), o sumas geométricas de trenes de impulsos.') from exc
     parameters = sorted(map(str, rational.free_symbols-{S}))
     if mode == 'line' and parameters:
         raise ValueError('Asigná los parámetros antes de elegir una línea dentro de la ROC.')

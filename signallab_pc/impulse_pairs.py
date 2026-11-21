@@ -237,7 +237,10 @@ def fourier_pairs(value,variable,output,*,inverse=False):
         from .gated_impulse_trains import partition_trains,spectrum
 
         spans,value=partition_trains(value,variable)
-        known.extend(spectrum(span,output) for span in spans)
+        terms = [spectrum(span, output) for span in spans]
+        if None in terms:
+            raise ValueError('Una cola de impulsos crece exponencialmente y no tiene transformada de Fourier. Usá Laplace para revisar su región de convergencia.')
+        known.extend(terms)
     for term in sp.Add.make_args(value):
         checkpoint()
         train=affine_train_term(term,variable)
@@ -285,12 +288,15 @@ def unilateral_laplace(value,variable,output):
         return sp.factor_terms(finite+tail),sp.S.Zero if tail!=0 else -sp.oo,sp.true
 
     known=[];remaining=[];periodic=[]
+    train_plane = -sp.oo
     if value.has(ImpulseTrain):
         from .gated_impulse_trains import laplace_spans,partition_trains
 
         spans,value=partition_trains(value,variable,require_roc=True)
         result,lower,_=laplace_spans(spans,output,unilateral=True)
         (periodic if lower==0 else known).append(result)
+        if lower != 0:
+            train_plane = lower
     for term in sp.Add.make_args(sp.expand_mul(value)):
         extension=periodic_laplace(term,variable,output) if term.has(sp.Mod) else None
         if extension is not None:
@@ -307,4 +313,4 @@ def unilateral_laplace(value,variable,output):
     result,plane,condition=sp.laplace_transform(regular,variable,output) if regular!=0 else (sp.S.Zero,-sp.oo,sp.true)
     periodic=sp.simplify(sp.Add(*periodic))
     if periodic!=0:plane=sp.Max(plane,0)
-    return sp.simplify(sp.Add(*known)+result+periodic),plane,condition
+    return sp.simplify(sp.Add(*known)+result+periodic),sp.Max(plane,train_plane),condition

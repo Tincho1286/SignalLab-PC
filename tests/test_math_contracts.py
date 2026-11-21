@@ -47,6 +47,24 @@ class ScalarContracts(unittest.TestCase):
         for text in ('n','t','k','s','z','w','tau','a','1/0','log(0)','oo','1e400','1e-400','True'):
             with self.subTest(source=text):
                 with self.assertRaises(ValueError):constant_value(text)
+
+    def test_step_pulse_and_impulse_masks_are_numeric_in_formulas(self):
+        from signallab_pc.continuous_expression import sample_continuous
+        from signallab_pc.distributions import dirac_terms
+        from signallab_pc.engine import evaluate_expression
+
+        axis=np.arange(-2,5)
+        for formula,expected in (
+            ('Step(n)+Step(n-2)',[0,0,1,1,2,2,2]),
+            ('Step(n)-Step(n-2)',[0,0,1,1,0,0,0]),
+            ('-ImpulseTrain(n,2)+Impulse(n)',[-1,0,0,0,-1,0,-1]),
+            ('PulseTrain(n,3,2)+PulseTrain(n-1,3,2)',[2,1,1,2,1,1,2]),
+            ('where((n>=0)&(n<2), 3, -Step(n))',[0,0,3,3,-1,-1,-1]),
+        ):
+            with self.subTest(formula=formula):
+                assert_allclose(evaluate_expression(formula,axis),expected)
+        finite=sample_continuous('(Step(t-1/2)-Step(t-5/2))*ImpulseTrain(t,1)',-2,.25,25)
+        self.assertEqual(list(dirac_terms(finite)),[(1,1),(2,1)])
         for text in ('2.5','9007199254740993.1','True'):
             with self.assertRaises(ValueError):integer_value(text)
 

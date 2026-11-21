@@ -30,6 +30,17 @@ def catalog(seed=SEED):
         for ratio in ('1/2','-1/4'):add('equation_solution',start=start,ratio=ratio,a0=rng.choice([2,3]),initial=rng.choice([-2,2,3]))
     for mode in ('factor_roots','domains','euler','matrix'):
         add('cas_algebra',mode=mode,a=rng.randint(2,5),b=rng.randint(1,3),left=rng.randint(-4,0),right=rng.randint(1,5))
+    for length in (3,8,11):
+        add('complex_records',origin=rng.randint(-8,8),block=length,
+            real=[rng.randint(-5,5) for _ in range(length+5)],
+            imag=[rng.randint(-5,5) for _ in range(length+5)])
+    for size in (8,9,13):
+        add('fir_and_conversion',size=size,edge=rng.choice([.05,.1,.2]),period=rng.choice([.2,.3,.5]))
+    for factor in (2,3,5):
+        add('sampling_indices',factor=factor,origin=rng.randint(-15,15),phase=factor-1,
+            real=[rng.randint(-6,6) for _ in range(12)])
+    for period in (.1,.4,1.25):
+        add('state_realization',period=period,pole=rng.choice([.5,1,3]),gain=rng.choice([.25,2,5]))
     return cases
 
 
@@ -143,4 +154,76 @@ def check(case):
         else:
             cas(f'A:=matrix([[{a},{b}],[1,{a+1}]])');assert cas('det(A)')==a*(a+1)-b;assert cas('inv(A)*A')==sp.eye(2)
         return 'CAS algebraic identities, root substitution, domains, exact matrices or Euler conversion'
+    if group=='complex_records':
+        from signallab_pc.dsp_extensions import block_convolution
+        from signallab_pc.operations import linear_correlation
+        from signallab_pc.stft_tools import analyze,density_spectrum,synthesize
+
+        values=np.asarray(p['real'])+1j*np.asarray(p['imag'])
+        x=Signal(values,p['origin'])
+        h=Signal([2-1j,-1j,3],-3)
+        expected=[sum(x.values[n-k]*coefficient for k,coefficient in enumerate(h.values)
+                      if 0<=n-k<len(x.values)) for n in range(len(x.values)+len(h.values)-1)]
+        for method in ('ola','ols'):
+            actual=block_convolution(x,h,p['block'],method)
+            assert actual.origin==x.origin+h.origin
+            assert_allclose(actual.values,expected,atol=1e-12)
+        actual=linear_correlation(x,h)
+        x_by_index=dict(zip(x.axis,x.values))
+        assert_allclose(actual.values,[sum(x_by_index.get(k+lag,0)*coefficient.conjugate()
+                                           for k,coefficient in zip(h.axis,h.values)) for lag in actual.axis],
+                        atol=1e-12)
+        stft=analyze(x,4,2,8,'hann',boundary='centered')
+        recovered=synthesize(stft)
+        assert recovered.origin==x.origin
+        assert_allclose(recovered.values,values,atol=1e-13)
+        frame=density_spectrum(stft,1)
+        weights=(1-np.cos(np.pi*np.arange(4)/2))/2
+        assert_allclose(sum(frame.values)*np.pi/4,sum(abs(values[:4]*weights)**2)/sum(weights**2),atol=1e-12)
+        return 'Complex convolution and correlation from their sums, plus spectral-density normalization and STFT recovery'
+    if group=='fir_and_conversion':
+        from signallab_pc.filters import Transfer,bilinear,fir
+
+        size,edge,period=p['size'],p['edge'],p['period']
+        window=.5-.5*np.cos(2*np.pi*np.arange(size)/(size-1))
+        offsets=np.arange(size)-(size-1)/2
+        ideal=np.asarray([np.sin(2*np.pi*edge*m)/(np.pi*m) if m else 2*edge for m in offsets])
+        frequency=np.asarray([-.9,-.4,0,.3,1.2])
+        designed=fir('lowpass',size,edge,window='hann')
+        assert_allclose(designed.b,ideal*window,atol=1e-14)
+        assert_allclose(designed.response(frequency),np.exp(-1j*np.outer(frequency,np.arange(size)))@(ideal*window),atol=1e-14)
+        converted=bilinear(Transfer([2,1],[1,3,2],'analog'),period)
+        s=2j/period*np.tan(frequency/2)
+        assert_allclose(converted.response(frequency),(2*s+1)/(s*s+3*s+2),atol=1e-13)
+        return 'Even and odd FIR lengths from the ideal sinc and Hann definitions, and analog response under the bilinear frequency map'
+    if group=='sampling_indices':
+        from signallab_pc.sampling import resample
+
+        values=np.asarray(p['real'])
+        factor,phase=p['factor'],p['phase']
+        signal=Signal(values,p['origin'],metadata={'sample_rate_hz':20,'time_start_s':.25})
+        down=resample(signal,factor,'decimate',phase)
+        assert down.origin==0
+        assert_allclose(down.values,values[phase::factor])
+        assert_allclose(down.metadata['sample_rate_hz'],20/factor)
+        assert_allclose(down.metadata['time_start_s'],.25+phase/20)
+        up=resample(signal,factor,'sinc')
+        assert up.origin==factor*signal.origin
+        positions=np.arange((len(values)-1)*factor+1)/factor
+        assert_allclose(up.values,np.sinc(positions[:,None]-np.arange(len(values)))@values,atol=2e-13)
+        return 'Exact sample selection and time mapping for decimation, and finite-record sinc interpolation from its defining sum'
+    if group=='state_realization':
+        from signallab_pc.state_space import StateModel
+
+        period,pole,gain=p['period'],p['pole'],p['gain']
+        state=StateModel([[-pole]],[[gain]],[[2]],[[.5]])
+        frequency=np.asarray([0,.5,2])
+        assert_allclose(state.to_transfer().response(frequency),.5+2*gain/(1j*frequency+pole),atol=1e-14)
+        discrete=state.discretize(period)
+        a=np.exp(-pole*period)
+        b=gain*(1-a)/pole
+        assert_allclose(discrete.A,[[a]],atol=1e-14)
+        assert_allclose(discrete.B,[[b]],atol=1e-14)
+        assert_allclose(discrete.to_transfer().response(frequency),.5+2*b/(np.exp(1j*frequency)-a),atol=2e-14)
+        return 'Continuous and discrete state-to-transfer conversion against a scalar model and its exact zero-order-hold integral'
     raise ValueError('Unknown audit group: '+group)

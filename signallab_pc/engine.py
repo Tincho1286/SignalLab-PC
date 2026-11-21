@@ -14,6 +14,16 @@ _BIN = {ast.Add: operator.add, ast.Sub: operator.sub, ast.Mult: operator.mul,
 _UNARY = {ast.UAdd: operator.pos, ast.USub: operator.neg, ast.Not:np.logical_not, ast.Invert:np.logical_not}
 
 
+def _numeric_indicator(value):
+    # Comparisons and rectangular signals can be masks or 0/1 amplitudes.
+    # NumPy's boolean addition is logical OR, and subtraction is undefined.
+    if isinstance(value, (bool, np.bool_)):
+        return int(value)
+    if isinstance(value, np.ndarray) and value.dtype == np.bool_:
+        return value.astype(np.float64)
+    return value
+
+
 def _real_argument(value):
     value=np.asarray(value)
     if np.iscomplexobj(value):
@@ -137,9 +147,15 @@ def _visit(node, x):
                             product=evaluate_expression(ordinary,np.asarray(x)[active])
                         answer[active]=weight[active]*product
                     return answer
-        return _BIN[type(node.op)](_visit(node.left, x), _visit(node.right, x))
+        left, right = _visit(node.left, x), _visit(node.right, x)
+        if isinstance(node.op, (ast.BitAnd, ast.BitOr)):
+            return _BIN[type(node.op)](left, right)
+        return _BIN[type(node.op)](_numeric_indicator(left), _numeric_indicator(right))
     if isinstance(node, ast.UnaryOp) and type(node.op) in _UNARY:
-        return _UNARY[type(node.op)](_visit(node.operand, x))
+        operand = _visit(node.operand, x)
+        if isinstance(node.op, (ast.UAdd, ast.USub)):
+            operand = _numeric_indicator(operand)
+        return _UNARY[type(node.op)](operand)
     if isinstance(node, ast.Compare):
         comparisons = {ast.Lt: operator.lt, ast.LtE: operator.le, ast.Gt: operator.gt,
                        ast.GtE: operator.ge, ast.Eq: operator.eq, ast.NotEq: operator.ne}
@@ -179,7 +195,7 @@ def _visit(node, x):
         fn = _FUNCS.get(node.func.id.lower())
         if fn is None or len(node.args) != 1:
             raise ExpressionError("Función no permitida; disponibles: " + ", ".join(_FUNCS))
-        return fn(_visit(node.args[0], x))
+        return fn(_numeric_indicator(_visit(node.args[0], x)))
     raise ExpressionError("La expresión contiene sintaxis no admitida.")
 
 

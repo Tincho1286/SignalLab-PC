@@ -123,6 +123,50 @@ class SymbolicFourierTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'inversa bilateral admite'):
             execute(dict(req,expression='Piecewise((999,Eq(exp(-s),1)),((1-exp(-2*s))/(1-exp(-s)),True))'))
 
+    def test_exponentially_weighted_impulse_trains_follow_their_actual_convergence(self):
+        from signallab_pc.continuous_expression import sample_continuous
+        from signallab_pc.distributions import dirac_terms
+        from signallab_pc.symbolic import S
+
+        right = 'exp(-t)*Step(t-1/2)*ImpulseTrain(t,1)'
+        left = 'exp(2*t)*Step(1/2-t)*ImpulseTrain(t,1)'
+        combination = right+'+'+left
+        direct = dict(operation='laplace',interpretation='bilateral')
+        result = execute(dict(direct,expression=combination))
+        self.assertTrue(result['evaluated'])
+        self.assertEqual((result['roc_lower'],result['roc_upper']),('-1','2'))
+        answer = 1/(sp.exp(S+1)-1)+1/(1-sp.exp(S-2))
+        self.assertEqual(sp.simplify(parse(result['result'])-answer),0)
+        spectrum = self.transform(combination)
+        self.assertTrue(spectrum['evaluated'])
+        self.assertFalse(spectrum.get('distribution',False))
+        self.assertEqual(sp.simplify(parse(spectrum['result'])-answer.subs(S,sp.I*W)),0)
+
+        inverse = dict(operation='inverse_laplace',interpretation='bilateral',laplace_roc='line')
+        expected = [(k,float(np.exp(2*k if k<=0 else -k))) for k in range(-2,5)]
+        for result in (execute(dict(inverse,expression=result['result'],sigma='0')),
+                       self.transform(spectrum['result'],True)):
+            self.assertTrue(result['evaluated'])
+            actual = dirac_terms(sample_continuous(result['result'],-2,.25,25))
+            np.testing.assert_allclose(actual,expected,atol=2e-14)
+        for bound in ('-1','2'):
+            with self.assertRaisesRegex(ValueError,'pasa por los polos'):
+                execute(dict(inverse,expression=str(answer),sigma=bound))
+        with self.assertRaisesRegex(ValueError,'crece exponencialmente'):
+            self.transform(right.replace('exp(-t)','exp(t)'))
+
+        edge = 'Step(t-1/2)*ImpulseTrain(t,1)-Step(t-5/2)*(ImpulseTrain(t,2)+ImpulseTrain(t-1,2))'
+        for canceled in (f'exp(t)*({edge})+{right}',
+                         f'(1-exp(2*pi*i*t))*Step(t-1/2)*ImpulseTrain(t,1)+{right}'):
+            with self.subTest(canceled=canceled):
+                transformed = execute(dict(direct,expression=canceled))
+                self.assertTrue(transformed['evaluated'])
+                self.assertEqual(transformed['roc_lower'],'-1')
+                numerical = dirac_terms(sample_continuous(canceled,-2,.25,25))
+                restored = execute(dict(inverse,expression=transformed['result'],sigma='0'))
+                np.testing.assert_allclose(dirac_terms(sample_continuous(restored['result'],-2,.25,25)),
+                                           numerical,atol=2e-14)
+
     def test_inverse_of_a_copied_periodic_spectrum_has_no_provenance(self):
         forward=self.transform('PulseTrain(t-1/4,1,1/4)')
         inverse=self.transform(forward['result'],True)
