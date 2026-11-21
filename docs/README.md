@@ -1,8 +1,8 @@
 # Documentación de SignalLab PC
 
-Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e interpretar sus resultados. La 1.8.18 estable ofrece instalador y portable para Windows x64 y Linux x86_64. [Descargas](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.18).
+Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e interpretar sus resultados. La 1.9.0 Hotfix ofrece instalador y portable para Windows x64 y Linux x86_64. [Descargas](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.0).
 
-En Sistemas LTI podés calcular la transferencia desde un diagrama editable. La versión también incluye el catálogo por áreas, los ajustes de gráficos y controles, y los informes y guías revisados. [Notas de la 1.8.18](releases/v1.8.18.md).
+Esta versión corrige la evaluación de fórmulas con escalones, pulsos e impulsos, y permite transformar e invertir trenes de Dirac recortados o amortiguados. [Notas de la 1.9.0](releases/v1.9.0.md).
 
 ## Instalar y empezar
 

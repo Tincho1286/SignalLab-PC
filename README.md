@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.8.18" src="https://img.shields.io/badge/estable-1.8.18-71d7c4?style=flat-square&amp;labelColor=172632"></a>
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><img alt="Versión estable 1.9.0" src="https://img.shields.io/badge/estable-1.9.0-71d7c4?style=flat-square&amp;labelColor=172632"></a>
   <a href="LICENSE"><img alt="Licencia GPL-3.0-or-later" src="https://img.shields.io/badge/licencia-GPL--3.0--or--later-b4a1d5?style=flat-square&amp;labelColor=172632"></a>
   <img alt="Instaladores y portables para Windows y Linux" src="https://img.shields.io/badge/Windows%20%2B%20Linux-instaladores%20y%20portables-8ab6df?style=flat-square&amp;labelColor=172632">
   <img alt="Python 3.12" src="https://img.shields.io/badge/Python-3.12-b4a1d5?style=flat-square&amp;labelColor=172632">
@@ -25,20 +25,18 @@ Cada herramienta tiene sus propias entradas y puede utilizarse de manera indepen
 
 ## Descargar
 
-La versión estable **1.8.18** está disponible para Windows x64 y Linux x86_64. Los cuatro paquetes incluyen Python y las dependencias de la aplicación; no hace falta instalar Python por separado.
+La versión estable **1.9.0** está disponible para Windows x64 y Linux x86_64. Los cuatro paquetes incluyen Python y las dependencias de la aplicación; no hace falta instalar Python por separado.
 
 | Formato | Cuándo elegirlo | Windows x64 | Linux x86_64 |
 | --- | --- | --- | --- |
-| **Instalable** | Para tener accesos en el sistema y actualizar desde la aplicación. | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.18/SignalLab-PC-1.8.18-setup.exe) | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.18/SignalLab-PC-1.8.18-linux-x86_64.run) |
-| **Portable** | Para ejecutar la aplicación desde una carpeta, sin registrar una instalación. | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.18/SignalLab-PC-1.8.18.exe) | [Paquete .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.8.18/SignalLab-PC-1.8.18-linux-x86_64.tar.gz) |
+| **Instalable** | Para tener accesos en el sistema y actualizar desde la aplicación. | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.9.0/SignalLab-PC-1.9.0-setup.exe) | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.9.0/SignalLab-PC-1.9.0-linux-x86_64.run) |
+| **Portable** | Para ejecutar la aplicación desde una carpeta, sin registrar una instalación. | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.9.0/SignalLab-PC-1.9.0.exe) | [Paquete .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.9.0/SignalLab-PC-1.9.0-linux-x86_64.tar.gz) |
 
-En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh ./SignalLab-PC-1.8.18-linux-x86_64.run`; el portable se descomprime para ejecutar `SignalLab-PC` dentro de su carpeta. La [guía de instalación](docs/installation.md) explica ambos recorridos y enlaza los requisitos y las posibles alertas del sistema.
+En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh ./SignalLab-PC-1.9.0-linux-x86_64.run`; el portable se descomprime para ejecutar `SignalLab-PC` dentro de su carpeta. La [guía de instalación](docs/installation.md) explica ambos recorridos y enlaza los requisitos y las posibles alertas del sistema.
 
 ### Canal estable y preliminares
 
-La 1.8.18 está disponible con **Sólo versiones estables**. El canal **Estables y preliminares (Pre-releases)** también ofrece la 1.8.18 y permite recibir entregas de prueba cuando haya una preliminar posterior. [Notas de la versión estable](docs/releases/v1.8.18.md).
-
-La 1.8.27 agiliza la DTFT unilateral y calcula la potencia exacta de productos de ciclos continuos. Elegí **Estables y preliminares (Pre-releases)** para recibirla desde el actualizador. [Descargas de la 1.8.27 preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.27).
+La 1.9.0 Hotfix está disponible en ambos canales. Elegí **Estables y preliminares (Pre-releases)** si además querés recibir futuras versiones de prueba. [Notas de la versión estable](docs/releases/v1.9.0.md).
 
 ### Actualizar una instalación
 
@@ -78,6 +76,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La 1.9.0 Hotfix corrige las operaciones con escalones, pulsos e impulsos y amplía las transformadas de trenes de Dirac recortados o amortiguados. El editor permite cambiar cada signo del sumador. Reúne las mejoras de señales periódicas, energía y potencia, DTFT y diagramas de sistemas LTI de las versiones 1.8.19 a 1.8.27. [Notas de la 1.9.0](docs/releases/v1.9.0.md).
 
 La 1.8.27 agiliza la DTFT de secuencias con colas recíprocas y conserva sus condiciones al abrir el análisis. También calcula la potencia exacta de productos de señales continuas con dos períodos inconmensurables. [Notas de la 1.8.27](docs/releases/v1.8.27.md).
 

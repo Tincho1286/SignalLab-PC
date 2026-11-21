@@ -2,12 +2,13 @@
 
 [← Documentación](../README.md)
 
-La descarga estable actual es la **1.8.18**. Incorpora la entrada por diagrama en Sistemas LTI y reúne las mejoras de interfaz, informes y ayuda de las versiones 1.8.15 a 1.8.17. [Notas de la 1.8.18](v1.8.18.md).
+La descarga estable actual es la **1.9.0 Hotfix**. La 1.9.0 Hotfix corrige las operaciones con escalones, pulsos e impulsos y amplía las transformadas de trenes de Dirac recortados o amortiguados. El editor permite cambiar cada signo del sumador. Reúne las mejoras de señales periódicas, energía y potencia, DTFT y diagramas de sistemas LTI de las versiones 1.8.19 a 1.8.27. [Notas de la 1.9.0](v1.9.0.md).
 
 Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.9.0](v1.9.0.md) | Hotfix · expresiones y transformadas de trenes de Dirac | Estable |
 | [1.8.27](v1.8.27.md) | DTFT y potencia de productos periódicos | Preliminar |
 | [1.8.26](v1.8.26.md) | Potencia de cosenos y fórmulas reutilizables | Preliminar |
 | [1.8.25](v1.8.25.md) | Potencia y transformadas de señales con varios períodos | Preliminar |

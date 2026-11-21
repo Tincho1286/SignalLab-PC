@@ -1,6 +1,21 @@
 {
   "releases": [
     {
+      "tag": "v1.9.0",
+      "title": "Hotfix",
+      "channel": "stable",
+      "summary": "La 1.9.0 Hotfix corrige las operaciones con escalones, pulsos e impulsos y amplía las transformadas de trenes de Dirac recortados o amortiguados. El editor permite cambiar cada signo del sumador. Reúne las mejoras de señales periódicas, energía y potencia, DTFT y diagramas de sistemas LTI de las versiones 1.8.19 a 1.8.27.",
+      "changes": [
+        "Los escalones, pulsos e impulsos conservan sus amplitudes al sumarlos, restarlos y evaluarlos en fórmulas.",
+        "Cada entrada del sumador del editor de diagramas admite suma o resta y conserva su configuración en JSON.",
+        "Los argumentos trigonométricos con aritmética polinómica se reducen antes del cálculo.",
+        "Fourier y Laplace conservan el soporte y las áreas de trenes de Dirac recortados o amortiguados.",
+        "Incluye las mejoras de señales periódicas, energía y potencia, DTFT y diagramas LTI."
+      ],
+      "limits": [],
+      "notes": "docs/releases/v1.9.0.md"
+    },
+    {
       "tag": "v1.8.27",
       "title": "DTFT y potencia de productos periódicos",
       "channel": "preview",
