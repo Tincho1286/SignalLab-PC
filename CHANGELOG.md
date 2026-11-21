@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.8.18](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.8.18). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.8.23 · Preliminar
+
+La 1.8.23 calcula Fourier y DTFT generalizadas de trenes unilaterales. Las líneas conservan sus áreas y la curva se interrumpe en los polos del valor principal.
+
+[Novedades completas](docs/releases/v1.8.23.md)
+
 ## 1.8.22 · Preliminar
 
 La 1.8.22 conserva las fórmulas periódicas escritas a mano y las envía a Fourier o DTFT. El análisis de un tren recortado separa las líneas del tren y la contribución del tramo eliminado.

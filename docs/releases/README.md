@@ -8,6 +8,7 @@ Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.8.23](v1.8.23.md) | Fourier generalizada de trenes unilaterales | Preliminar |
 | [1.8.22](v1.8.22.md) | Fórmulas periódicas y espectros recortados | Preliminar |
 | [1.8.21](v1.8.21.md) | Controles visibles y señales periódicas | Preliminar |
 | [1.8.20](v1.8.20.md) | Energía global, Fourier y Laplace | Preliminar |

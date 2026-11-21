@@ -1,6 +1,22 @@
 {
   "releases": [
     {
+      "tag": "v1.8.23",
+      "title": "Fourier generalizada de trenes unilaterales",
+      "channel": "preview",
+      "summary": "La 1.8.23 calcula Fourier y DTFT generalizadas de trenes unilaterales. Las líneas conservan sus áreas y la curva se interrumpe en los polos del valor principal.",
+      "changes": [
+        "Los espectros generalizados incluyen líneas y valores principales de Cauchy.",
+        "Los gráficos separan las líneas y cortan la curva ordinaria en sus polos efectivos.",
+        "La DTFT inversa recupera trenes de ambos lados con retrasos enteros.",
+        "Fourier continua inversa recupera tramos polinómicos compatibles pegados como fórmula o una definición verificada de Resultados."
+      ],
+      "limits": [
+        "En continuo, una fórmula de valor principal que se pega sin procedencia requiere pesos compatibles con tramos polinómicos compactos."
+      ],
+      "notes": "docs/releases/v1.8.23.md"
+    },
+    {
       "tag": "v1.8.22",
       "title": "Fórmulas periódicas y espectros recortados",
       "channel": "preview",
