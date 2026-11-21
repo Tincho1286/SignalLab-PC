@@ -355,6 +355,42 @@ class WorkflowContracts(unittest.TestCase):
             self.assertEqual(sp.simplify(sp.sympify(measures.last[1]['mean_square']['exact'])-expected),0)
         self.assertEqual(self.warnings,[])
 
+    def test_parity_samples_and_publishes_both_whole_axis_definitions(self):
+        import sympy as sp
+        from signallab_pc.distributions import dirac_terms
+        from signallab_pc.signal_transform_panel import SignalTransformPanel
+        from signallab_pc.symbolic import N, parse
+        from signallab_pc.toolbox import LocalInput
+
+        for domain, formula, origin, step in (
+            ('discrete', 'PulseTrain(n-1,4,1)', '2', '1'),
+            ('continuous', 'ImpulseTrain(t-1/4,1)', '1', '1/4'),
+        ):
+            with self.subTest(domain=domain):
+                generator = LocalInput('Entrada', domain)
+                generator.enable_periodic_definition()
+                generator.expression.setText(formula)
+                generator.origin.setText(origin)
+                generator.step.setText(step)
+                generator.count.setText('3')
+                panel = SignalTransformPanel(self.host,domain,'parity')
+                self.widgets.extend((generator,panel))
+                panel.source.set_source(generator.read())
+                panel.calculate()
+                self.assertEqual(self.warnings,[])
+                even, odd = panel.result
+                self.assertEqual([label for label, _ in panel.output.formula_keys],
+                                 ['Fórmula de la parte par','Fórmula de la parte impar'])
+                if domain == 'discrete':
+                    for signal, sign, (_, key) in zip((even,odd),(1,-1),panel.output.formula_keys):
+                        expression = parse(self.host.project.expression(key).source)
+                        self.assertEqual(sp.simplify(expression.subs(N,-5)-sign*sp.S.Half),0)
+                        index = list(signal.axis).index(-1)
+                        self.assertEqual(signal.values[index],sign/2)
+                else:
+                    self.assertEqual(dict(dirac_terms(even))[-.25],.5)
+                    self.assertEqual(dict(dirac_terms(odd))[-.25],-.5)
+
     def test_dtft_result_reused_as_frequency_system(self):
         request=dict(operation='dtft_expression',expression='sin(0.3*pi*(n-4))/(pi*(n-4))',lower='-oo',upper='oo')
         from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel

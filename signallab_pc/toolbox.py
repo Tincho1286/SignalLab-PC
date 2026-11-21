@@ -340,6 +340,14 @@ class ResultView(QWidget):
         self.empty=QLabel('Sin resultados\n\nCompletá los datos y pulsá Calcular. El informe, los valores y las opciones para reutilizar el resultado aparecerán aquí.');self.empty.setObjectName('resultEmpty');self.empty.setWordWrap(True);self.empty.setAlignment(Qt.AlignmentFlag.AlignCenter);self.empty.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding);root.insertWidget(2,self.empty,1);self.views.hide();self.actions.setVisible(self.show_action_bar);self.label.hide()
         self.development=ReportView();self.development_index=self.views.addTab(report_panel(self.development),'Desarrollo');self.views.setTabVisible(self.development_index,False)
         if details:self.views.setCurrentIndex(1)
+    @property
+    def expression_key(self):
+        return self.formula_keys[0][1] if self.formula_keys else None
+
+    @expression_key.setter
+    def expression_key(self, key):
+        self.formula_keys = [('Fórmula del resultado', key)] if key is not None else []
+
     def show_content(self):
         self.empty.hide();self.views.show();self.label.show();self.actions.setVisible(self.show_action_bar)
     def bind_action_result(self,result,keys=(),*,exportable=True):
@@ -495,8 +503,8 @@ class ResultView(QWidget):
     def prepare_cas(self):
         self.cas_menu.clear();window=self.window()
         from .cas_transfer import send_to_cas,can_send
-        if self.expression_key:
-            self.cas_menu.addAction('Fórmula del resultado',lambda:send_to_cas(window,self.expression_key))
+        for label, key in self.formula_keys:
+            self.cas_menu.addAction(label,lambda checked=False,k=key:send_to_cas(window,k))
         values=self.result if isinstance(self.result,tuple) else (self.result,)
         for index,value in enumerate(values):
             if not can_send(value):continue
@@ -507,11 +515,12 @@ class ResultView(QWidget):
     def prepare_send(self):
         self.send_menu.clear();self.send_menu_refs=[];self.send_action_refs=[];window=self.window()
         signals=self.result if isinstance(self.result,tuple) else (self.result,)
-        if self.expression_key:
+        if self.formula_keys:
             from .result_expressions import populate_reuse_menu
-            formula=self.send_menu.addMenu('Fórmula del resultado')
-            populate_reuse_menu(formula,window,self.expression_key)
-            self.send_menu_refs.append(formula)
+            for label, key in self.formula_keys:
+                formula=self.send_menu.addMenu(label)
+                populate_reuse_menu(formula,window,key)
+                self.send_menu_refs.append(formula)
         if not all(isinstance(value,Signal) for value in signals):return
         for index,value in enumerate(signals):
             if not isinstance(value,Signal):continue

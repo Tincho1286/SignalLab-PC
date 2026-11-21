@@ -50,7 +50,17 @@ def harmonic_power(value, variable, *, tail=0):
                 break
         else:
             tones.append((frequency, coefficient))
-    return sp.simplify(sp.Add(*(sp.Abs(sp.simplify(weight))**2 for _, weight in tones)))
+    powers = []
+    for _, weight in tones:
+        weight = sp.simplify(weight)
+        if weight.is_number and weight.is_real is not True:
+            # At DC and Nyquist, conjugate tones collapse onto one discrete
+            # frequency. Resolve exact roots of unity before taking the norm.
+            real, imaginary = weight.as_real_imag()
+            powers.append(sp.simplify(real)**2 + sp.simplify(imaginary)**2)
+        else:
+            powers.append(sp.Abs(weight)**2)
+    return sp.simplify(sp.Add(*powers))
 
 
 def _intervals(value,variable):

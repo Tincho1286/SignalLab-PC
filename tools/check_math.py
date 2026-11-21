@@ -15,6 +15,8 @@ FAMILIES={
     'systems_filters':('test_math_contracts.SystemContracts',9),
     'equations':('test_math_contracts.EquationContracts',5),
     'fourier_measures':('test_math_contracts.FourierContracts',5),
+    'symbolic_fourier':('test_symbolic_fourier.SymbolicFourierTests',19),
+    'global_energy_power':('test_expression_measures.ExpressionMeasureTests',22),
     'signals_windows':('test_math_contracts.SignalContracts',5),
     'state_space':('test_math_contracts.StateContracts',2),
     'sampling_precision':('test_math_contracts.SamplingContracts',3),

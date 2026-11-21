@@ -136,22 +136,30 @@ def _half_sum(first,second,sign=1):
     return component(first.real,second.real)+1j*component(first.imag,second.imag)
 
 def even_odd_parts(x: Signal) -> tuple[Signal, Signal]:
-    """Extiende por cero el soporte reflejado y devuelve partes par e impar."""
+    """Recurre a la definición completa o extiende el registro por cero al reflejarlo."""
     _discrete(x)
     start = min(int(x.origin), -(int(x.origin) + x.values.size - 1))
     stop = max(int(x.origin) + x.values.size - 1, -int(x.origin)) + 1
     count = stop - start
     ensure_working_set(count, live_arrays=7)
-    original = np.zeros(count, dtype=np.complex128)
-    reflected = np.zeros(count, dtype=np.complex128)
-    xstart = int(x.origin) - start
-    rstart = -(int(x.origin) + x.values.size - 1) - start
-    original[xstart:xstart + x.values.size] = x.values
-    reflected[rstart:rstart + x.values.size] = x.values[::-1]
+    if x.full_definition:
+        from .engine import evaluate_expression
+
+        original = evaluate_expression(x.full_definition, np.arange(count, dtype=np.int64) + start)
+        reflected = original[::-1]
+        scope = 'Se evalúa la fórmula completa en n y en −n sobre una ventana simétrica.'
+    else:
+        original = np.zeros(count, dtype=np.complex128)
+        reflected = np.zeros(count, dtype=np.complex128)
+        xstart = int(x.origin) - start
+        rstart = -(int(x.origin) + x.values.size - 1) - start
+        original[xstart:xstart + x.values.size] = x.values
+        reflected[rstart:rstart + x.values.size] = x.values[::-1]
+        scope = 'Descomposición sin conjugación alrededor de n=0. Fuera del registro de entrada se usa cero.'
     even = _half_sum(original,reflected)
     odd = _half_sum(original,reflected,-1)
     metadata = _clock_for_index_transform(x,start,"even_odd_decomposition")
-    metadata.update(input=x.name,scope="Descomposición sin conjugación alrededor de n=0. Fuera del registro de entrada se usa cero.")
+    metadata.update(input=x.name,scope=scope)
     return (
         Signal(even, start, 1, x.units, f"{x.name}_par", "discrete", "", dict(metadata)),
         Signal(odd, start, 1, x.units, f"{x.name}_impar", "discrete", "", dict(metadata)),

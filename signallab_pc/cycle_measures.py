@@ -4,8 +4,9 @@ import sympy as sp
 
 from .harmonic_measures import _exponential_terms, harmonic_power
 from .jobs import checkpoint
-from .periodic_fourier import _bounded_cycle
+from .periodic_fourier import _bounded_cycle, periodic_laplace
 from .periodic_signals import continuous_periodic_components, cycle_weight, discrete_cycle, repeat
+from .periodic_support import split_periodic_support
 
 
 def cycle_mean_square(value, time, *, tail=0):
@@ -100,3 +101,61 @@ def discrete_cycle_mean_square(value, index, *, tail=0):
     own_power = sp.Add(*(sp.Abs(sample)**2 for sample in samples))/period
     result = sp.simplify(own_power + tone_power + 2*sp.re(cross)/period)
     return result if result.is_nonnegative is True and result.is_finite is True else None
+
+
+def periodic_decay_energy(value, variable, accumulate):
+    """Sum exponentially weighted cycles on each half-axis with a certified decay rate."""
+    if not value.has(sp.Mod) or value.free_symbols - {variable}:
+        return None
+    parts = split_periodic_support(value, variable, preserve_addends=True)
+    if parts is None:
+        first = -1 if variable.is_integer else 0
+        parts = [(value, -sp.oo, sp.Integer(first)), (value, sp.S.Zero, sp.oo)]
+    areas = []
+    for branch, lower, upper in parts:
+        checkpoint()
+        if branch == 0:
+            continue
+        density = sp.expand_mul(branch * sp.conjugate(branch))
+        if lower.is_finite and upper.is_finite:
+            area = accumulate(lower, upper, density)
+        else:
+            start, direction = (lower, 1) if upper == sp.oo else (upper, -1)
+            area = _decaying_cycle_tail(density, variable, start, direction)
+        if area is None or area.is_finite is not True:
+            return None
+        areas.append(area)
+    energy = sp.simplify(sp.Add(*areas))
+    return energy if energy.is_finite is True and energy.is_nonnegative is True else None
+
+
+def _decaying_cycle_tail(density, variable, start, direction):
+    areas = []
+    discrete = variable.is_integer is True
+    for term in sp.Add.make_args(density):
+        checkpoint()
+        periodic, exponential = [], []
+        for factor in sp.Mul.make_args(term):
+            (periodic if factor.has(sp.Mod) else exponential).append(factor)
+        modes = _exponential_terms(sp.Mul(*exponential), variable)
+        if modes is None:
+            return None
+        waveform = sp.Mul(*periodic).subs(variable, start + direction * variable)
+        cycle = discrete_cycle(waveform, variable) if discrete and periodic else None
+        if discrete and periodic and cycle is None:
+            return None
+        for slope, coefficient in modes:
+            rate = direction * slope
+            if sp.re(rate).is_negative is not True:
+                return None
+            if cycle is not None:
+                first_cycle = cycle_weight(cycle, 0, lambda n: sp.exp(rate * n))
+                weight = first_cycle / (1 - sp.exp(rate * len(cycle[1])))
+            elif periodic:
+                weight = periodic_laplace(waveform, variable, -rate)
+            else:
+                weight = 1 / (1 - sp.exp(rate)) if discrete else -1 / rate
+            if weight is None:
+                return None
+            areas.append(coefficient * sp.exp(slope * start) * weight)
+    return sp.Add(*areas)

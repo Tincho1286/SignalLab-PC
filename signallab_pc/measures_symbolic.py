@@ -6,7 +6,7 @@ from .resources import ensure_working_set
 
 def measure_expression(request):
     from .symbolic import parse,T,N,W,S,Z
-    from .cycle_measures import cycle_mean_square, discrete_cycle_mean_square
+    from .cycle_measures import cycle_mean_square, discrete_cycle_mean_square, periodic_decay_energy
     from .periodic_signals import ImpulseTrain, PVCot, cycle_sum, discrete_cycle, wrapped_period
     from .periodic_support import split_periodic_support
     from .periodic_fourier import periodic_integral
@@ -190,6 +190,9 @@ def measure_expression(request):
         elif (tails:=piecewise_harmonic_power(value,variable,accumulated)) is not None and tails.is_positive is True:
             power=tails;energy=sp.oo
             scope='Se calcula la potencia de cada cola armónica y se promedian las dos mitades del eje.'
+        elif (energy:=periodic_decay_energy(source_value,variable,accumulated)) is not None:
+            power=sp.S.Zero
+            scope='Se integra o suma un ciclo de cada cola y se acumulan las repeticiones con su factor de decaimiento. La energía es finita y la potencia media vale cero.'
         elif (energy:=exponential_energy(power_density,variable,accumulated)) is not None:
             power=sp.S.Zero
             scope='La energía se obtiene sumando los aportes de decaimiento exponencial. Como es finita, la potencia media vale cero.'

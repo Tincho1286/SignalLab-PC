@@ -63,6 +63,15 @@ class ExpressionMeasureTests(unittest.TestCase):
                 result=self.measure(expression,domain=domain,mode='global')
                 self.assertEqual(result['mean_square']['exact'],power)
                 self.assertEqual(result['energy']['status'],'divergent')
+
+    def test_cosine_power_preserves_phase_at_exact_discrete_aliases(self):
+        cases = (('cos(pi*n+pi/3)','1/4','oo'), ('cos(2*pi*n+pi/3)','1/4','oo'),
+                 ('cos(pi*n+pi/2)','0','0'), ('cos((pi-1e-12)*n+pi/3)','1/2','oo'))
+        for expression,power,energy in cases:
+            with self.subTest(expression=expression):
+                result=self.measure(expression,domain='discrete',mode='global')
+                self.assertEqual((result['mean_square']['exact'],result['energy']['exact']),(power,energy))
+                self.assertEqual(result['mean_square']['status'],'finite')
     def test_period_proof_continuous_and_discrete(self):
         r=self.measure('sin(t)',mode='periodic',period='2*pi')
         self.assertTrue(r['period_verified']);self.assertEqual(r['mean_square']['exact'],'1/2');self.assertEqual(r['period_energy']['exact'],'pi')
@@ -111,6 +120,20 @@ class ExpressionMeasureTests(unittest.TestCase):
             with self.subTest(expression=expression):
                 result = self.measure(expression, mode='global', domain='discrete')
                 self.assertEqual((result['energy']['exact'],result['mean_square']['exact']), ('oo',power))
+
+    def test_exponentially_weighted_trains_sum_all_cycles(self):
+        import sympy as sp
+
+        area = (1-sp.exp(-sp.S.Half)+sp.exp(-sp.Rational(3,2))-sp.exp(-2))/(2*(1-sp.exp(-2)))
+        cases = (('continuous', 'exp(-abs(t))*PulseTrain(t,1,1/4)', area),
+                 ('discrete', '(1/2)^abs(n)*ImpulseTrain(n,4)', sp.Rational(257,255)),
+                 ('discrete', '(1/2)^n*Step(n)*ImpulseTrain(n,4)', sp.Rational(256,255)))
+        for domain,expression,energy in cases:
+            with self.subTest(expression=expression):
+                result=self.measure(expression,domain=domain,mode='global')
+                self.assertEqual(result['energy']['status'],'finite')
+                self.assertEqual(sp.simplify(sp.sympify(result['energy']['exact'])-energy),0)
+                self.assertEqual(result['mean_square']['exact'],'0')
 
     def test_parameters_preserve_conditions(self):
         r=self.measure('a*exp(-abs(t))',mode='global')

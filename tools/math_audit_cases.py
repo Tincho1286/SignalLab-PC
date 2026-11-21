@@ -23,6 +23,9 @@ def catalog(seed=SEED):
     for order in (1,2,3):add('filter_limits',domain='analog',sign=0,order=order,base=rng.choice([.5,2.,3.]))
     for origin in (-4,2,7):
         for size in (3,5):add('fourier_definitions',origin=origin,real=[rng.randint(-4,4) for _ in range(size)],imag=[rng.randint(-3,3) for _ in range(size)])
+    for size in (5,8):
+        for harmonic in (0,1,size//2):
+            add('cosine_power',size=size,harmonic=harmonic,phase=rng.choice([-5,-2,1,3,7]),denominator=rng.choice([3,4,7,11]))
     for start in (-2,3):
         for ratio in ('1/2','-1/4'):add('equation_solution',start=start,ratio=ratio,a0=rng.choice([2,3]),initial=rng.choice([-2,2,3]))
     for mode in ('factor_roots','domains','euler','matrix'):
@@ -83,13 +86,29 @@ def check(case):
         return 'Equivalent transfer functions: response and analytic group-delay limits with repeated common factors'
     if group=='fourier_definitions':
         from signallab_pc.fourier import dtft_with_dft
-        from signallab_pc.operations import dft
+        from signallab_pc.operations import dft,idft
         values=np.array(p['real'])+1j*np.array(p['imag']);x=Signal(values,p['origin']);s,(w,bins)=dtft_with_dft(x,-np.pi,np.pi,17)
         indices=np.arange(len(values))+p['origin']
         def direct(f):return np.array([sum(v*np.exp(-1j*omega*n) for n,v in zip(indices,values)) for omega in f])
         assert_allclose(s.values,direct(s.axis),atol=5e-13,rtol=3e-13);assert_allclose(bins,direct(w),atol=5e-13,rtol=3e-13)
-        transformed=dft(x).values;assert_allclose(np.sum(abs(transformed)**2)/len(values),np.sum(abs(values)**2),atol=2e-13)
-        return 'DTFT and DFT overlays against defining sums; Parseval for generated complex records'
+        for centered in (False,True):
+            transformed=dft(x,centered=centered)
+            assert_allclose(np.sum(abs(transformed.values)**2)/len(values),np.sum(abs(values)**2),atol=2e-13)
+            recovered=idft(transformed,restore_origin=True)
+            assert recovered.origin==x.origin
+            assert_allclose(recovered.values,values,atol=2e-13)
+        return 'DTFT and DFT defining sums, Parseval and inverse round trip with the original index'
+    if group=='cosine_power':
+        size,harmonic=p['size'],p['harmonic']
+        phase=sp.pi*sp.Rational(p['phase'],p['denominator'])
+        waveform=f'Cos(2*pi*({harmonic})*n/{size}+({phase}))'
+        result=execute(dict(operation='signal_measures_expression',expression=waveform,mode='global',domain='discrete'))
+        square=result['mean_square']
+        # The second harmonic sums to zero over a complete cycle unless it is DC.
+        expected=sp.cos(phase)**2 if (2*harmonic)%size==0 else sp.S.Half
+        assert square['status']=='finite' and sp.simplify(parse(square['exact'])-expected)==0,(waveform,square,expected)
+        assert result['energy']['exact']==('0' if expected==0 else 'oo')
+        return 'Whole-axis power of phased cosines against their exact discrete cycle average'
     if group=='equation_solution':
         from signallab_pc.difference_equations import solve
         a0=sp.Integer(p['a0']);r=sp.Rational(p['ratio']);initial=sp.Integer(p['initial']);start=p['start']

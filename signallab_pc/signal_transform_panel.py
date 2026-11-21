@@ -42,7 +42,7 @@ class SignalTransformPanel(QWidget):
             if self.operation=='shift':text='Sin desplazamiento.' if delay==0 else 'Desplaza '+number(abs(delay))+' '+unit+' hacia la '+('derecha.' if delay>0 else 'izquierda.')
             elif self.operation=='reverse':text='Refleja el registro alrededor de '+('n=0.' if self.domain_name=='discrete' else 't=0.')+' Los valores conservan su amplitud.'
             elif self.operation=='scale':text='Multiplica los valores por A y suma B. Para desplazar sin escalar, dejá A = 1.'
-            elif self.operation=='parity':text='x = x_par + x_impar. Se refleja alrededor de cero, sin conjugación, y se considera cero fuera del registro.'
+            elif self.operation=='parity':text='x = x_par + x_impar. La reflexión usa la fórmula completa si existe. Un registro de muestras se extiende con ceros.'
             else:text='y(t) = A·x(a·(t−t₀)) + B. El factor a cambia el eje temporal y B desplaza la señal en amplitud.'
             self.explanation.setText(text)
         except ValueError as exc:self.explanation.setText(str(exc))
@@ -59,7 +59,13 @@ class SignalTransformPanel(QWidget):
                 self.output.show_result(result);self.output.result_ids=keys
                 if values[0].full_definition:
                     from .result_expressions import publish_signal_definition
-                    self.output.expression_key=publish_signal_definition(self.window,values[0],operation=TITLES[operation],parents=keys)
+                    if operation=='parity':
+                        self.output.formula_keys = [
+                            (label, publish_signal_definition(self.window,value,operation=TITLES[operation],parents=[key],title=label))
+                            for label,value,key in zip(('Fórmula de la parte par','Fórmula de la parte impar'),values,keys)
+                        ]
+                    else:
+                        self.output.expression_key=publish_signal_definition(self.window,values[0],operation=TITLES[operation],parents=keys)
                 if operation=='parity':relations=['x_e[n] = (x[n]+x[-n])/2','x_o[n] = (x[n]-x[-n])/2'] if discrete else ['x_e(t) = (x(t)+x(-t))/2','x_o(t) = (x(t)-x(-t))/2']
                 elif operation=='shift':relations=['y[n] = x[n-('+str(delay)+')]'] if discrete else ['y(t) = x(t-('+str(delay)+'))']
                 elif operation=='reverse':relations=['y[n] = x[-n]'] if discrete else ['y(t) = x(-t)']

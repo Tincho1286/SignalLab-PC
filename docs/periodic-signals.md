@@ -26,13 +26,19 @@ Para cambiar la amplitud, multiplicá la fórmula por un número. En `PulseTrain
 
 En **Ajustar amplitud**, la salida es `A*x+B`. Para bajar dos unidades, cargá A = 1 y B = −2. Si hay Dirac, A multiplica sus áreas y B desplaza la parte ordinaria.
 
+En **Partes par e impar**, al reutilizar una fórmula completa se evalúa la señal original y su reflejo en una ventana simétrica. Podés guardar y reutilizar cada fórmula por separado. Cuando la entrada es una lista de muestras, cada valor fuera del registro se toma como cero.
+
 En **Energía y potencia → Medir en todo el eje**, un tren de pulsos unitarios de ancho D y período P da potencia D/P. Un tren discreto de un impulso unitario por período da 1/P. Las Dirac continuas se estudian como distribuciones en Fourier o Laplace. Su cuadrado no está definido para el cálculo de energía ordinaria.
 
 Probá `cos(n)` y `cos(pi*n)` en discreto. La primera tiene potencia 1/2. En la segunda, cada muestra vale 1 o −1, así que la potencia es 1. Para `cos(pi*t)` en continuo, la potencia es 1/2. Una señal que decae también puede tener energía finita, como `cos(n)/sqrt(1+n^2)`, o infinita, como `cos(n)/sqrt(1+abs(n))`. Ambas tienen potencia cero.
 
+La fase inicial también importa cuando los tonos de frecuencia positiva y negativa coinciden en discreto. Por ejemplo, `cos(pi*n+pi/3)` alterna entre 1/2 y −1/2, de modo que su potencia es 1/4. Para `cos(pi*n+pi/2)` todas las muestras valen cero.
+
 Para sumar varios trenes continuos que no comparten un ciclo, elegí **Medir en todo el eje**. Por ejemplo, `PulseTrain(t,1,1/4)+PulseTrain(t,sqrt(2),1/2)` da potencia `1/4 + 3*sqrt(2)/8`. El promedio conserva el producto de los niveles medios de los trenes. Si al tren de período 1 le sumás `cos(2*pi*t)`, ambas componentes comparten frecuencias y se promedian juntas. Una componente transitoria que decae, como `exp(-abs(t))`, puede modificar la energía de una ventana y su potencia media tiende a cero.
 
 En discreto, `ImpulseTrain(n,4)+cos(n)` da potencia 3/4. Con `cos(pi*n/2)`, el coseno sí coincide con un armónico del tren y la potencia vale 5/4. Las frecuencias separadas por un múltiplo de 2π representan el mismo tono discreto.
+
+Si el tren está multiplicado por un decaimiento exponencial, el cálculo acumula las repeticiones de cada semieje con su peso. Por ejemplo, `(1/2)^abs(n)*ImpulseTrain(n,4)` tiene energía `257/255` y potencia cero.
 
 Para conservar sólo la mitad derecha de un tren, multiplicá su fórmula por `Step(t)` o `Step(n)`. Por ejemplo, `Step(t)*PulseTrain(t,1,1/4)` tiene energía infinita y potencia media global 1/8. El tren completo tiene potencia 1/4. Si además lo cortás en t = 2 con `(Step(t)-Step(t-2))`, la energía queda en 1/2 y la potencia global en cero.
 
