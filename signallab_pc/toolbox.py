@@ -1063,7 +1063,24 @@ class ToolPage(QWidget):
                 x=self.first.read();h=self.second.read() if self.second else None
                 parameter=constant_value(self.parameter.text()) if operation=='scale' else integer_field(self.parameter) if operation=='shift' else None
                 restore_origin=operation=='idft' and self.restore_dft_origin.isChecked()
-                functions={'continuous_convolve':lambda:continuous.convolution(x,h),'continuous_correlate':lambda:continuous.correlation(x,h),'continuous_normalized':lambda:continuous.correlation(x,h,normalized=True),'continuous_auto':lambda:continuous.correlation(x),'generate':lambda:x,'measures':lambda:ops.finite_measures(x),'shift':lambda:ops.shift(x,parameter),'scale':lambda:ops.scale_amplitude(x,parameter),'reverse':lambda:ops.reverse(x),'parity':lambda:ops.even_odd_parts(x),'convolve':lambda:ops.linear_convolution(x,h),'correlate':lambda:ops.linear_correlation(x,h),'sum':lambda:ops.add_sequences(x,h),'circular':lambda:ops.circular_convolution(x,h),'dft':lambda:ops.dft(x,centered=True),'idft':lambda:ops.idft(x,restore_origin=restore_origin)}
+                functions = {
+                    'generate': lambda: x,
+                    'measures': lambda: ops.finite_measures(x),
+                    'shift': lambda: ops.shift(x, parameter),
+                    'scale': lambda: ops.scale_amplitude(x, parameter),
+                    'reverse': lambda: ops.reverse(x),
+                    'parity': lambda: ops.even_odd_parts(x),
+                    'sum': lambda: ops.add_sequences(x, h),
+                    'convolve': lambda: ops.linear_convolution(x, h),
+                    'correlate': lambda: ops.linear_correlation(x, h),
+                    'circular': lambda: ops.circular_convolution(x, h),
+                    'dft': lambda: ops.dft(x, centered=True),
+                    'idft': lambda: ops.idft(x, restore_origin=restore_origin),
+                    'continuous_convolve': lambda: continuous.convolution(x, h),
+                    'continuous_correlate': lambda: continuous.correlation(x, h),
+                    'continuous_normalized': lambda: continuous.correlation(x, h, normalized=True),
+                    'continuous_auto': lambda: continuous.correlation(x),
+                }
                 parents=[entry.reference_id for entry in (self.first,self.second) if entry and entry.reference_id]
                 calculated_inputs=self.result_state.snapshot()
                 def accept(value):
@@ -1498,22 +1515,25 @@ class ToolboxWindow(SignalLabWindow):
             QMessageBox.warning(self,'No se pudo guardar',str(exc))
             return False
     def import_project(self):
-        path,_=QFileDialog.getOpenFileName(self,'Abrir e incorporar sesión','','Sesión SignalLab (*.json)')
+        path,_=QFileDialog.getOpenFileName(self,'Incorporar resultados a la biblioteca','','Resultados SignalLab (*.json)')
         if path:
             try:
                 count=self.project.merge(path);self.refresh_project();self.statusBar().showMessage(f'{count} elementos incorporados a esta sesión.')
             except Exception as exc:QMessageBox.warning(self,'No se pudo abrir',str(exc))
+    def session_has_changes(self):
+        return self.project.dirty
+
     def closeEvent(self,event):
         from .signal_editor_panel import SignalEditorPanel
         if self._workers:
             QMessageBox.information(self,'Cálculo en curso','Cancelá el cálculo y esperá a que termine antes de cerrar.')
             event.ignore();return
         editors=self.findChildren(SignalEditorPanel)
-        if self.project.dirty or any(editor.pending for editor in editors):
-            answer=QMessageBox.question(self,'Guardar resultados antes de salir','Hay resultados o muestras editadas sin guardar. ¿Querés guardarlos antes de salir?',QMessageBox.StandardButton.Save|QMessageBox.StandardButton.Discard|QMessageBox.StandardButton.Cancel,QMessageBox.StandardButton.Save)
+        if self.session_has_changes() or any(editor.pending for editor in editors):
+            answer=QMessageBox.question(self,'Guardar antes de salir','Hay cambios sin guardar. ¿Querés guardarlos antes de salir?',QMessageBox.StandardButton.Save|QMessageBox.StandardButton.Discard|QMessageBox.StandardButton.Cancel,QMessageBox.StandardButton.Save)
             if answer==QMessageBox.StandardButton.Cancel:
                 event.ignore();return
             if answer==QMessageBox.StandardButton.Save:
-                if not self.save_project() or self.project.dirty or any(editor.pending for editor in editors):
+                if not self.save_project():
                     event.ignore();return
         event.accept()

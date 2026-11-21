@@ -1,9 +1,30 @@
 """Modelo de señal muestreada: datos y metadatos comparten un solo objeto."""
 
 from dataclasses import dataclass, field
+import math
 from typing import Any
 
 import numpy as np
+
+
+def validate_uniform_axis(origin, step, count):
+    """Check the actual float64 grid, with bounded scratch space near collisions."""
+    if count <= 1:
+        return
+    offset = step * (count - 1)
+    end = origin + offset
+    if not math.isfinite(end):
+        raise ValueError("El eje excede el rango numérico finito.")
+    # Two rounding stages: multiplication by the index, then translation.
+    if abs(step) > math.ulp(offset) + max(math.ulp(origin), math.ulp(end)):
+        return
+    previous = origin
+    for i in range(1, count, 8192):
+        coordinates = origin + step * np.arange(i, min(i + 8192, count))
+        increments = np.diff(coordinates, prepend=previous)
+        if not np.all(increments > 0 if step > 0 else increments < 0):
+            raise ValueError("El paso no permite distinguir coordenadas con este origen en doble precisión.")
+        previous = coordinates[-1]
 
 
 @dataclass
@@ -32,12 +53,9 @@ class Signal:
             raise ValueError("El origen debe ser finito y el paso finito y distinto de cero.")
         if self.domain not in {"discrete","continuous","frequency"}:
             raise ValueError("El dominio debe ser discreto, continuo o de frecuencia.")
-        if self.domain != "discrete" and self.values.size>1:
-            first=float(self.origin);spacing=float(self.step);count=int(self.values.size)
-            last=first+spacing*(count-1);previous=first+spacing*(count-2)
-            if not np.isfinite(last):raise ValueError("El eje excede el rango numérico finito.")
-            if first+spacing==first or last==previous:
-                raise ValueError("El paso no permite distinguir coordenadas con este origen en doble precisión.")
+        if self.domain != "discrete":
+            self.origin, self.step = float(self.origin), float(self.step)
+            validate_uniform_axis(self.origin, self.step, self.values.size)
         if self.domain == "discrete":
             try:
                 integer_origin = int(self.origin)

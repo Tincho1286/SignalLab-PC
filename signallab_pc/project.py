@@ -141,22 +141,22 @@ class Project:
         periods=sorted(visit(key))
         return periods[0] if periods and all(math.isclose(period,periods[0],rel_tol=1e-12,abs_tol=0) for period in periods) else None
     def save(self,path):
-        path=Path(path)
-        document=dict(format='signallab-project',schema_version=2,records=self.records())
-        write_json(path,document)
+        write_json(path,self.document())
         self.dirty=False
-    def merge(self,path):
-        from .resources import ensure_working_set
-        ensure_working_set(Path(path).stat().st_size,bytes_per_sample=1,live_arrays=8)
-        document=json.loads(Path(path).read_text(encoding='utf-8-sig'))
+
+    def document(self):
+        return dict(format='signallab-project',schema_version=2,records=self.records())
+
+    @classmethod
+    def from_document(cls, document):
         if not isinstance(document,dict):raise ValueError('El archivo de proyecto debe contener un objeto JSON.')
         if document.get('format')!='signallab-project' or document.get('schema_version') not in (1,2):raise ValueError('Proyecto SignalLab incompatible.')
         records=document.get('records')
         if not isinstance(records,list):raise ValueError('El proyecto no contiene una lista de objetos.')
-        staging={};mapping={}
+        staging={};ids=set()
         for record in records:
-            if not isinstance(record,dict) or not isinstance(record.get('id'),str) or record['id'] in mapping:raise ValueError('Identificadores de proyecto inválidos o repetidos.')
-            mapping[record['id']]=uuid4().hex
+            if not isinstance(record,dict) or not isinstance(record.get('id'),str) or not record['id'] or record['id'] in ids:raise ValueError('Identificadores de proyecto inválidos o repetidos.')
+            ids.add(record['id'])
         for number,record in enumerate(records,1):
             if record.get('kind') not in ('signal','system','state_space','calculation') or not isinstance(record.get('data'),dict):raise ValueError('Registro '+str(number)+': tipo o datos de resultado inválidos.')
             try:decode(record['kind'],record['data'])
@@ -166,6 +166,13 @@ class Project:
             if any(parent not in staging for parent in record['parents']):raise ValueError('Procedencia faltante o circular.')
             staging[record['id']]=deepcopy(record)
         json.dumps(records,allow_nan=False)
+        project=cls()
+        project._records=staging
+        return project
+
+    def merge(self,path):
+        staging=self.from_document(read_document(path))._records
+        mapping={old:uuid4().hex for old in staging}
         imported={}
         for old,record in staging.items():
             record['id']=mapping[old];record['parents']=[mapping[p] for p in record['parents']]
@@ -175,3 +182,10 @@ class Project:
             imported[record['id']]=record
         self._records.update(imported);self.dirty=self.dirty or bool(imported)
         return len(imported)
+
+
+def read_document(path):
+    from .resources import ensure_working_set
+    path=Path(path)
+    ensure_working_set(path.stat().st_size,bytes_per_sample=1,live_arrays=8)
+    return json.loads(path.read_text(encoding='utf-8-sig'))

@@ -1,0 +1,261 @@
+"""Capture named, inert inputs from tool pages without executing a calculation."""
+from PySide6.QtWidgets import (QCheckBox, QComboBox, QLineEdit, QRadioButton, QSpinBox,
+                               QDoubleSpinBox, QStackedWidget)
+
+from .band_edges import BandEdgesEditor, KINDS
+from .coefficient_editor import CoefficientEditor
+from .expression_editor import ExpressionEditor
+from .project import decode, encode
+from .realization_editor import RealizationInput
+from .realization_graph import RealizationGraph
+from .signal_editor_panel import SignalEditorPanel
+from .toolbox import LocalInput
+
+
+TEXT_TYPES = (ExpressionEditor, CoefficientEditor, QLineEdit)
+SELECT_TYPES = (QCheckBox, QRadioButton, QComboBox, QSpinBox, QDoubleSpinBox)
+INPUT_TYPES = TEXT_TYPES + SELECT_TYPES + (BandEdgesEditor, LocalInput, RealizationInput)
+
+
+def controls(owner):
+    named = {}
+    seen = set()
+    permanent = ('discrete_source', 'continuous_source')
+    candidates = [(name, getattr(owner, name)) for name in permanent if hasattr(owner,name)]
+    candidates.extend(vars(owner).items())
+    fields = getattr(owner, 'fields', None)
+    candidates.extend(('fields.' + name, widget)
+                      for name, widget in (fields.items() if isinstance(fields, dict) else ())
+                      if isinstance(name, str))
+    for name, widget in list(candidates):
+        if isinstance(widget, QStackedWidget):
+            candidates.extend((f'{name}.{index}', widget.widget(index))
+                              for index in range(widget.count()) if isinstance(widget.widget(index), LocalInput))
+    inputs = getattr(owner, 'inputs', None)
+    if isinstance(inputs, (tuple, list)):
+        channels = []
+        for index, group in enumerate(inputs):
+            if isinstance(group, (list, tuple)):
+                channels.extend((f'inputs.{index}.{slot}', entry) for slot, entry in enumerate(group)
+                                if isinstance(entry, LocalInput))
+            elif isinstance(group, LocalInput):
+                channels.append((f'inputs.{index}', group))
+        candidates = channels + candidates
+    for name, widget in candidates:
+        if name.startswith('_') or id(widget) in seen or not isinstance(widget, INPUT_TYPES):
+            continue
+        if isinstance(widget, QLineEdit) and (widget.echoMode() != QLineEdit.EchoMode.Normal
+                                             or widget.isReadOnly() or 'path' in name.lower()):
+            continue
+        if isinstance(owner, LocalInput) and name in ('mode', 'recent'):
+            continue
+        named[name] = widget
+        seen.add(id(widget))
+    return named
+
+
+def source_document(value, key, records):
+    if key is not None and key in records:
+        return {'record': key}
+    kind, data = encode(value)
+    return {'kind': kind, 'data': data}
+
+
+def source_value(document, project, kind):
+    if not isinstance(document, dict):
+        raise ValueError('La sesión contiene una referencia de entrada inválida.')
+    if set(document) == {'record'}:
+        key = document['record']
+        if not isinstance(key, str) or project.describe(key)['kind'] != kind:
+            raise ValueError('La entrada no apunta a un objeto del tipo esperado.')
+        return project.get(key), key
+    if set(document) == {'kind', 'data'} and document['kind'] == kind:
+        return decode(kind, document['data']), None
+    raise ValueError('El tipo de entrada de la sesión no coincide con la herramienta.')
+
+
+def snapshot(widget, records):
+    if isinstance(widget, LocalInput):
+        slots = {str(view): source_document(source, key, records)
+                 for view, (source, key, _, _) in widget._external_sources.items()
+                 if source is not None}
+        view = widget.entry_modes.view
+        if view >= 2 and widget.loaded is not None:
+            slots[str(view)] = source_document(widget.loaded, widget.loaded_reference_id, records)
+        origin = getattr(widget, '_expression_origin', None)
+        expression = None
+        if origin and origin[0] == widget.expression.text():
+            expression = {'record': origin[1] if origin[1] in records else None,
+                          'conditions': list(getattr(widget, '_expression_conditions', ())),
+                          'frequency_condition': getattr(widget, '_expression_frequency_condition', 'True')}
+        return dict(view=view, fields=field_values(widget, records), sources=slots,
+                    expression=expression)
+    if isinstance(widget, BandEdgesEditor):
+        return dict(kind=widget.current, values={kind: list(values) for kind, values in widget.saved.items()})
+    if isinstance(widget, RealizationInput):
+        return {domain: graph.to_document() for domain, graph in widget.graphs.items()}
+    if isinstance(widget, TEXT_TYPES):
+        return widget.text()
+    if isinstance(widget, QComboBox):
+        return widget.currentIndex()
+    if isinstance(widget, (QCheckBox, QRadioButton)):
+        return widget.isChecked()
+    return widget.value()
+
+
+def field_values(owner, records):
+    return {name: snapshot(widget, records) for name, widget in controls(owner).items()}
+
+
+def restore_fields(owner, values, project):
+    named = controls(owner)
+    if not isinstance(values, dict) or not values.keys() <= named.keys():
+        raise ValueError('La sesión contiene un campo incompatible con la herramienta.')
+    # Set parent selectors before the texts that their callbacks initialize.
+    for name, widget in named.items():
+        if name in values and isinstance(widget, SELECT_TYPES):
+            restore(widget, values[name], project)
+    for name, widget in controls(owner).items():
+        if name in values and not isinstance(widget, SELECT_TYPES):
+            restore(widget, values[name], project)
+
+
+def restore(widget, value, project):
+    if isinstance(widget, LocalInput):
+        if (not isinstance(value, dict) or set(value) != {'view','fields','sources','expression'}
+                or type(value['view']) is not int or not 0 <= value['view'] <= 3
+                or not isinstance(value['sources'], dict) or not value['sources'].keys() <= {'2','3'}):
+            raise ValueError('La sesión contiene un selector de entrada inválido.')
+        for view, document in value['sources'].items():
+            source, key = source_value(document, project, 'signal')
+            widget.set_source(source, key, view=int(view))
+        widget.entry_modes.select(value['view'])
+        restore_fields(widget, value['fields'], project)
+        context = value['expression']
+        if context is not None:
+            if (not isinstance(context, dict) or set(context) != {'record','conditions','frequency_condition'}
+                    or not isinstance(context['conditions'], list)
+                    or not all(isinstance(condition, str) for condition in context['conditions'])
+                    or not isinstance(context['frequency_condition'], str)):
+                raise ValueError('Las condiciones de la expresión no son válidas.')
+            key = context['record']
+            if key is not None and project.describe(key)['kind'] != 'calculation':
+                raise ValueError('La expresión no apunta a un cálculo de la sesión.')
+            widget._expression_origin = (widget.expression.text(), key)
+            widget._expression_conditions = tuple(context['conditions'])
+            widget._expression_frequency_condition = context['frequency_condition']
+        return
+    if isinstance(widget, BandEdgesEditor):
+        if (not isinstance(value, dict) or set(value) != {'kind','values'}
+                or value['kind'] not in KINDS or not isinstance(value['values'], dict)
+                or value['values'].keys() != KINDS.keys()):
+            raise ValueError('La sesión contiene bordes de filtro inválidos.')
+        for kind, fields in value['values'].items():
+            if not isinstance(fields, list) or len(fields) != len(KINDS[kind][1]) or not all(isinstance(field,str) for field in fields):
+                raise ValueError('La especificación de bordes de la sesión es inválida.')
+        widget.saved = value['values']
+        widget.kind.setCurrentIndex(widget.kind.findData(value['kind']))
+        widget.change_kind()
+        return
+    if isinstance(widget, RealizationInput):
+        if not isinstance(value, dict) or not value.keys() <= {'analog', 'digital'}:
+            raise ValueError('El diagrama guardado tiene un dominio inválido.')
+        graphs = {domain: RealizationGraph.from_document(graph) for domain, graph in value.items()}
+        if any(domain != graph.domain for domain, graph in graphs.items()):
+            raise ValueError('El dominio del diagrama no coincide con la entrada.')
+        widget.graphs = graphs
+        widget.set_domain(widget.domain)
+        return
+    if isinstance(widget, TEXT_TYPES) and isinstance(value, str):
+        widget.setText(value)
+        return
+    if isinstance(widget, QComboBox) and type(value) is int and -1 <= value < widget.count():
+        widget.setCurrentIndex(value)
+        return
+    if isinstance(widget, (QCheckBox, QRadioButton)) and type(value) is bool:
+        widget.setChecked(value)
+        return
+    if (isinstance(widget, (QSpinBox, QDoubleSpinBox)) and type(value) in (int, float)
+            and widget.minimum() <= value <= widget.maximum()):
+        widget.setValue(value)
+        return
+    raise ValueError('Un valor de entrada no coincide con su tipo o intervalo.')
+
+
+def snapshot_page(page, records):
+    panel = getattr(page, 'panel', page)
+    saved = dict(fields=field_values(panel, records))
+    if (page.context is not None and isinstance(page.context.source, LocalInput)
+            and page.context.source not in controls(panel).values()):
+        saved['source'] = snapshot(page.context.source, records)
+    if isinstance(panel, SignalEditorPanel) and panel.current is not None:
+        saved['table'] = {'signal': source_document(panel.current, None, records),
+                          'pending': panel.pending, 'offset': panel.offset}
+    for name in ('input_id', 'parent_id', 'system_id'):
+        key = getattr(panel, name, None)
+        if isinstance(key, str) and key in records:
+            saved[name] = key
+    preserved = getattr(panel, '_preserved_system', None)
+    if preserved is not None:
+        from .system_clock import signature
+        fields = signature(panel)
+        if fields[3] in (None, 0):
+            intact = (fields[1], fields[2], fields[0]) == getattr(panel, '_preserved_definition', None)
+        else:
+            intact = (fields[4], fields[0]) == getattr(panel, '_preserved_formula', None)
+        if intact:
+            saved['system'] = source_document(preserved, None, records)
+    context = getattr(panel, '_formula_context', None)
+    if (context is not None and (panel.transfer_formula.text(), panel.domain.currentIndex())
+            == getattr(panel, '_formula_context_signature', None)):
+        saved['formula_context'] = source_document(context, saved.get('input_id'), records)
+    return saved
+
+
+def restore_page(page, saved, project):
+    known = {'fields','source','input_id','parent_id','system_id','system','formula_context','table'}
+    if not isinstance(saved, dict) or not saved.keys() <= known or 'fields' not in saved:
+        raise ValueError('La herramienta tiene datos de sesión incompatibles.')
+    panel = getattr(page, 'panel', page)
+    if 'table' in saved:
+        table = saved['table']
+        if (not isinstance(panel, SignalEditorPanel) or not isinstance(table, dict)
+                or set(table) != {'signal','pending','offset'} or type(table['pending']) is not bool
+                or type(table['offset']) is not int):
+            raise ValueError('El borrador de la tabla no corresponde a este editor.')
+        current, _ = source_value(table['signal'], project, 'signal')
+        if (current.domain not in ('discrete','continuous') or not 0 <= table['offset'] < current.values.size
+                or table['offset'] % panel.page_size):
+            raise ValueError('El borrador no contiene una página válida de muestras.')
+        panel._prepare_source(current)
+        panel._open_source(current, saved.get('parent_id'))
+        panel.offset = table['offset']
+    restore_fields(panel, saved['fields'], project)
+    if 'table' in saved:
+        panel.pending = table['pending']
+        panel.history.reset()
+        panel.render()
+    if 'source' in saved:
+        if page.context is None or not isinstance(page.context.source, LocalInput):
+            raise ValueError('La entrada de la sesión no existe en esta herramienta.')
+        restore(page.context.source, saved['source'], project)
+    for name in ('input_id', 'parent_id', 'system_id'):
+        if name in saved:
+            if not hasattr(panel, name) or not isinstance(saved[name], str):
+                raise ValueError('La procedencia guardada no corresponde a esta herramienta.')
+            project.describe(saved[name])
+            setattr(panel, name, saved[name])
+    if 'system' in saved:
+        from .system_clock import signature
+        system, _ = source_value(saved['system'], project, 'system')
+        fields = signature(panel)
+        if system.domain != ('digital' if fields[0] == 1 else 'analog'):
+            raise ValueError('El sistema guardado no coincide con el dominio de su editor.')
+        panel._preserved_system = system
+        panel._preserved_definition = (fields[1], fields[2], fields[0])
+        panel._preserved_formula = (fields[4], fields[0]) if fields[3] == 1 else None
+        panel._clock_signature, panel._clock_period = fields, system.sample_period_s
+    if 'formula_context' in saved:
+        record, _ = source_value(saved['formula_context'], project, 'calculation')
+        panel._formula_context = record
+        panel._formula_context_signature = (panel.transfer_formula.text(), panel.domain.currentIndex())

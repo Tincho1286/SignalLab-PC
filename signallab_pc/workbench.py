@@ -32,7 +32,7 @@ def calculation_buttons(page):
 
 class WorkbenchWindow(ToolboxWindow):
     _signallab_wallpaper_host=True
-    def __init__(self):
+    def __init__(self, *, recovery_directory=None):
         QMainWindow.__init__(self);self.setWindowTitle('SignalLab '+__version__+' · Escritorio de señales y sistemas');self.resize(1440,900);self.setMinimumSize(640,420)
         self.project=Project();self._published_signals={};self._workers=[];self._thread_pool=QThreadPool(self);self._thread_pool.setMaxThreadCount(1)
         self.current_operation=None;self.pages={};self.views={};self.category='Inicio';self.active_route=None
@@ -83,6 +83,8 @@ class WorkbenchWindow(ToolboxWindow):
         self.updates=UpdateController(self)
         from .wallpaper import refresh
         refresh(self)
+        from .session_desktop import SessionController
+        self.sessions = SessionController(self, recovery_directory)
     def paintEvent(self,event):
         super().paintEvent(event)
         from .wallpaper import paint_window
@@ -162,7 +164,13 @@ class WorkbenchWindow(ToolboxWindow):
         self.workspace_tree=QTreeWidget();self.workspace_tree.setHeaderLabels(['Nombre','Tipo','Operación']);self.workspace_tree.setRootIsDecorated(False);self.workspace_tree.setAlternatingRowColors(True);self.workspace_tree.itemDoubleClicked.connect(self.open_workspace_record);self.workspace_dock.setWidget(self.workspace_tree);self.addDockWidget(Qt.DockWidgetArea.BottomDockWidgetArea,self.workspace_dock);self.workspace_dock.hide()
     def build_menus(self):
         from .tool_catalog import AREAS,ENTRIES
-        file=self.menuBar().addMenu('Archivo');file.addAction('Importar señal MATLAB…',self.import_matlab);sessions=file.addMenu('Sesiones');sessions.addAction('Guardar sesión…',self.save_project);sessions.addAction('Incorporar sesión…',self.import_project)
+        file = self.menuBar().addMenu('Archivo')
+        file.addAction('Importar señal MATLAB…', self.import_matlab)
+        sessions = file.addMenu('Sesiones')
+        sessions.addAction('Guardar sesión completa…', self.save_project)
+        sessions.addAction('Abrir sesión completa…', lambda: self.sessions.open_dialog())
+        sessions.addAction('Incorporar resultados…', self.import_project)
+        sessions.addAction('Recuperar sesión anterior…', lambda: self.sessions.offer_recovery())
         from .result_comparison import open_comparison
         results=self.menuBar().addMenu('Resultados');results.addAction('Comparar resultados…',lambda:open_comparison(self))
         tools=self.menuBar().addMenu('Herramientas');tools.addAction('Calculadora CAS',self.open_cas,'Ctrl+Shift+C');tools.addSeparator()
@@ -493,10 +501,20 @@ class WorkbenchWindow(ToolboxWindow):
             self.open_tool(item);panel=self.pages[tuple(item)].panel;panel.domain.setCurrentIndex(0 if value.domain=='discrete' else 1)
         if item[1:3]==('fourier',6):self.open_tool(item);self.pages[tuple(item)].panel.receive(value,key);return
         super().send_signal(value,key,item)
+    def save_project(self):
+        return self.sessions.save_dialog()
+
+    def session_has_changes(self):
+        return self.sessions.changed()
+
     def closeEvent(self,event):
         if hasattr(self,'updates') and not self.updates.prepare_close():
             event.ignore();return
-        self.settings.setValue('geometry',self.saveGeometry());self.settings.setValue('studio/panels',self.saveState());super().closeEvent(event)
+        super().closeEvent(event)
+        if event.isAccepted():
+            self.sessions.finish()
+            self.settings.setValue('geometry',self.saveGeometry())
+            self.settings.setValue('studio/panels',self.saveState())
     def _configure_readable_layouts(self):
         from PySide6.QtWidgets import QFormLayout,QScrollArea,QSizePolicy,QTabWidget
         from matplotlib.backends.backend_qtagg import NavigationToolbar2QT

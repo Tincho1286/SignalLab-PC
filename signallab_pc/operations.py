@@ -2,12 +2,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import math
 
 import numpy as np
 from scipy import signal as scipy_signal
 
 from .model import Signal
 from .resources import ensure_working_set
+from .spectral_scaling import bounded, range_status, restore_scalar
 
 
 @dataclass(frozen=True)
@@ -22,6 +24,31 @@ class FiniteMeasures:
     integration: str | None = None
     duration: float | None = None
     axis_units: str = "n"
+    energy_status: str = "ok"
+    power_status: str = "ok"
+    rms_status: str = "ok"
+
+    def text(self, field):
+        status = self.power_status if field == 'average_power' else getattr(self, field+'_status')
+        return measure_text(getattr(self, field), status)
+
+
+def measure_text(value, status):
+    if status == 'underflow':
+        return "Por debajo del rango de float64"
+    return format(value, '.12g')
+
+
+def measure_scaled(total, divisor, exponent, *, measure=1.0):
+    power_normalized = total / divisor
+    energy = restore_scalar(total, 2 * exponent, measure)
+    power = restore_scalar(power_normalized, 2 * exponent)
+    rms = restore_scalar(math.sqrt(power_normalized), exponent)
+    statuses = [range_status(value, total) for value in (energy, power, rms)]
+    if 'overflow' in statuses:
+        raise FloatingPointError("La energía o la potencia excede el rango numérico finito de float64.")
+    return dict(energy=energy, average_power=power, rms=rms,
+                energy_status=statuses[0], power_status=statuses[1], rms_status=statuses[2])
 
 
 def _discrete(signal: Signal, *, temporal=True) -> None:
@@ -45,37 +72,26 @@ def finite_measures(x: Signal) -> FiniteMeasures:
         from .continuous import finite_measures as continuous_measures
         return continuous_measures(x)
     _discrete(x)
-    magnitudes = np.abs(x.values)
-    if not np.all(np.isfinite(magnitudes)):
-        raise FloatingPointError("La magnitud de una muestra excede el rango de float64.")
-    scale = float(np.max(magnitudes, initial=0.0))
-    if scale == 0.0:
-        energy = 0.0
-    else:
-        normalized_sum = float(np.sum((magnitudes / scale) ** 2, dtype=np.float64))
-        if scale > np.sqrt(np.finfo(np.float64).max / max(normalized_sum, 1.0)):
-            raise FloatingPointError("La energía excede el rango numérico finito de float64.")
-        energy = (scale * scale) * normalized_sum
-        if energy == 0.0:
-            raise FloatingPointError("La energía queda por debajo del rango representable de float64.")
-    power = energy / x.values.size
-    if energy and power==0:raise FloatingPointError("La potencia media queda por debajo del rango representable de float64.")
-    rms = float(np.sqrt(power))
-    return FiniteMeasures(float(energy), float(power), rms, int(x.values.size))
+    ensure_working_set(x.values.size, live_arrays=5)
+    normalized, exponent = bounded(x.values, normalize=True)
+    total = float(np.sum(normalized.real**2 + normalized.imag**2))
+    return FiniteMeasures(**measure_scaled(total, x.values.size, exponent),
+                          sample_count=int(x.values.size))
 
 
 def _clock_for_index_transform(x, new_origin, operation):
     metadata=dict(x.metadata,operation=operation,input_origin=int(x.origin),input_expression=x.expression)
-    if 'sample_rate_hz' in metadata:
-        rate=float(metadata['sample_rate_hz']);start=float(metadata.get('time_start_s',0))
-        if not np.isfinite(rate) or rate<=0 or not np.isfinite(start):raise ValueError('El reloj de la señal debe tener Fs positiva y tiempo inicial finito.')
-        # Keep the instant associated with index zero; move the finite support.
-        new_start=start+(int(new_origin)-int(x.origin))/rate
-        end=new_start+(x.values.size-1)/rate
-        if not np.isfinite(new_start) or not np.isfinite(end) or (x.values.size>1 and (new_start+1/rate==new_start or end-1/rate==end)):
-            raise ValueError('El eje temporal transformado excede la resolución numérica del reloj.')
-        metadata.update(time_start_s=new_start,time_mapping='t = time_start_s + (n-origin)/sample_rate_hz',
-                        clock_convention='Se conserva el instante asociado a n=0; inversión discreta alrededor de ese índice.')
+    from .system_clock import CLOCK_MAPPING, common_rate, validate_clock_resolution
+    rate = common_rate(x)
+    start = metadata.get('time_start_s')
+    if start is not None and rate is not None:
+        new_start = float(start) + (int(new_origin)-int(x.origin))/rate
+        validate_clock_resolution(new_start, rate, x.values.size)
+        metadata.update(time_start_s=new_start,time_mapping=CLOCK_MAPPING,
+                        clock_convention='Se conserva el instante asociado a n=0.')
+    elif new_origin != x.origin:
+        metadata.pop('time_start_s', None)
+        metadata.pop('time_mapping', None)
     return metadata
 
 
@@ -113,9 +129,13 @@ def scale_amplitude(x: Signal, factor: complex, *, offset: complex = 0) -> Signa
 def add_sequences(x: Signal, h: Signal) -> Signal:
     """Suma alineando índices; los huecos se consideran cero dentro del soporte."""
     _discrete(x); _discrete(h)
+    if x.units != h.units:
+        raise ValueError("Los ejes de las dos señales deben usar las mismas unidades.")
     start = min(int(x.origin), int(h.origin))
     stop = max(int(x.origin) + x.values.size, int(h.origin) + h.values.size)
     count = stop - start
+    from .system_clock import combined_clock
+    clock = combined_clock(x, h, start, count, mode='sum')
     ensure_working_set(count, live_arrays=5)
     out = np.zeros(count, dtype=np.complex128)
     x0 = int(x.origin) - start
@@ -124,7 +144,9 @@ def add_sequences(x: Signal, h: Signal) -> Signal:
     out[h0:h0 + h.values.size] += h.values
     return Signal(_finite_output(out, "La suma"), start, 1, x.units,
                   f"{x.name}+{h.name}", "discrete", "",
-                  {"operation": "sum", "inputs": [x.name, h.name]})
+                  {**clock, "operation": "sum", "inputs": [x.name, h.name],
+                   "input_x_expression": x.expression, "input_h_expression": h.expression,
+                   "scope": "Suma por índices enteros. Cada entrada vale cero fuera de su intervalo."})
 
 
 def _half_sum(first,second,sign=1):
@@ -168,16 +190,8 @@ def even_odd_parts(x: Signal) -> tuple[Signal, Signal]:
 
 def convolution_clock(x,h):
     """Share the physical output clock across linear-convolution algorithms."""
-    clock = {}
-    from .system_clock import common_rate,validate_clock_resolution
-    rate=common_rate(x,h)
-    if rate is not None:
-        clock['sample_rate_hz']=rate
-        if 'time_start_s' in x.metadata and 'time_start_s' in h.metadata:
-            start_s=float(x.metadata['time_start_s'])+float(h.metadata['time_start_s'])
-            validate_clock_resolution(start_s,rate,x.values.size+h.values.size-1)
-            clock.update(time_start_s=start_s,time_mapping='t = time_start_s + (n-origin)/sample_rate_hz')
-    return clock
+    from .system_clock import combined_clock
+    return combined_clock(x, h, x.origin+h.origin, x.values.size+h.values.size-1, mode='convolution')
 
 
 def linear_convolution(x: Signal, h: Signal) -> Signal:
@@ -205,15 +219,15 @@ def linear_correlation(x: Signal, h: Signal) -> Signal:
     _discrete(x); _discrete(h)
     count = x.values.size + h.values.size - 1
     ensure_working_set(count, live_arrays=7)
-    from .system_clock import common_rate
+    from .system_clock import combined_clock
     from .spectral_scaling import bounded,restore_scale
-    rate=common_rate(x,h)
+    start = int(x.origin) - int(h.origin) - (h.values.size - 1)
+    clock = combined_clock(x, h, start, count, mode='correlation')
     a,ea=bounded(x.values);b,eb=bounded(h.values)
     r=restore_scale(scipy_signal.correlate(a,b,mode="full",method="auto"),ea+eb)
-    start = int(x.origin) - int(h.origin) - (h.values.size - 1)
     return Signal(_finite_output(r, "La correlación"), start, 1, x.units,
                   f"r_{x.name}{h.name}", "discrete", "",
-                  {**({'sample_rate_hz':rate} if rate is not None else {}),
+                  {**clock,
                    "operation": "linear_cross_correlation", "inputs": [x.name, h.name],
                    "convention": "r[l]=sum_n x[n] conjugate(h[n-l]); zero outside support"})
 
@@ -295,14 +309,14 @@ def circular_convolution(x: Signal, h: Signal) -> Signal:
     _discrete(x); _discrete(h)
     n = max(x.values.size, h.values.size)
     ensure_working_set(n, live_arrays=10)
-    from .system_clock import common_rate
+    from .system_clock import combined_clock
     from .spectral_scaling import bounded,restore_scale
-    rate=common_rate(x,h)
+    clock=combined_clock(x,h,0,n,mode='convolution')
     a,ea=bounded(x.values);b,eb=bounded(h.values)
     values=restore_scale(np.fft.ifft(np.fft.fft(a,n)*np.fft.fft(b,n)),ea+eb)
     return Signal(_finite_output(values, "La convolución circular"), 0, 1, x.units,
                   f"{x.name}*c{h.name}", "discrete", "",
-                  {**({'sample_rate_hz':rate} if rate is not None else {}),
+                  {**clock,
                    "operation": "circular_convolution", "period": int(n),
                    "convention": "stored offsets from zero; zero pad to max length",
                    "input_origins": [int(x.origin), int(h.origin)]})
@@ -318,8 +332,7 @@ def correlation(x: Signal, h: Signal | None = None, *, circular: bool = False,
     if h is None:
         h = x
     _discrete(x); _discrete(h)
-    from .system_clock import common_rate
-    rate=common_rate(x,h)
+    from .system_clock import combined_clock
     if normalization not in {"sum", "energy", "mean"}:
         raise ValueError("Escala desconocida: use sum, energy o mean.")
     if normalization == "mean" and not circular:
@@ -331,26 +344,25 @@ def correlation(x: Signal, h: Signal | None = None, *, circular: bool = False,
     if normalization == "energy":
         # Escalar primero evita desbordar Ex*Eh y admite amplitudes muy pequeñas.
         def unit_energy(signal):
-            scale = max(float(np.max(np.abs(signal.values.real))),
-                        float(np.max(np.abs(signal.values.imag))))
-            if scale == 0:
-                raise ValueError("La correlación normalizada no está definida para energía cero.")
-            values = signal.values / scale
+            values, _ = bounded(signal.values, normalize=True)
             norm = np.sqrt(np.sum(np.abs(values) ** 2))
+            if norm == 0:
+                raise ValueError("La correlación normalizada no está definida para energía cero.")
             return signal.copy_with(values=values / norm)
         left, right = unit_energy(x), unit_energy(h)
     if circular:
         n = x.values.size
-        from .spectral_scaling import bounded,restore_scale
+        from .spectral_scaling import restore_scale
+        clock = combined_clock(x,h,0,n,mode='periodic_correlation')
         a,ea=bounded(left.values);b,eb=bounded(right.values)
         factor=1/n if normalization=="mean" else 1.
         values=restore_scale(np.fft.ifft(np.fft.fft(a)*np.conj(np.fft.fft(b))),ea+eb,factor)
         values = np.roll(values, (int(x.origin) - int(h.origin)) % n)
         result = Signal(_finite_output(values, "La correlación circular"), 0, 1, "retardo",
-                        f"r_{x.name}{h.name}", "discrete")
+                        f"r_{x.name}{h.name}", "discrete", metadata=clock)
     else:
         result = linear_correlation(left, right)
-    result.metadata = {**({'sample_rate_hz':rate} if rate is not None else {}), "operation": "correlation", "circular": circular,
+    result.metadata = {**result.metadata, "operation": "correlation", "circular": circular,
         "normalization": normalization, "inputs": [x.name, h.name],
         "convention": "sum x[n] conj(h[n-l]); no mean subtraction; no overlap correction",
         "period": int(x.values.size) if circular else None}

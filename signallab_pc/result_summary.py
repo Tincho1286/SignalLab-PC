@@ -42,6 +42,7 @@ OPERATIONS={
 def operation_label(value):return OPERATIONS.get(str(value),str(value))
 
 def measurement_summary(value,source=None):
+    from .operations import measure_text
     data=asdict(value) if is_dataclass(value) else value
     if not isinstance(data,dict) or not {'energy','average_power','rms','sample_count'}<=data.keys():return None
     count=int(data['sample_count']);continuous=data.get('domain')=='continuous';rows=[('Puntos del registro N' if continuous else 'Muestras N',str(count))]
@@ -54,7 +55,11 @@ def measurement_summary(value,source=None):
         formulas=[Formula('E = Sum(abs(x[n])^2,(n,a,a+N-1))','E = Σ desde n=a hasta a+N−1 de |x[n]|²'),Formula('P = E/N','P = E / N'),Formula('R = sqrt(P)','R = √P')]
         interpretation='La suma incluye las muestras del intervalo indicado.'
     return Summary('Energía, potencia y RMS del registro',[
-        Section('Resultados',rows=[('Energía E',number(data['energy'])),('Potencia media del registro P',number(data['average_power'])),('RMS R',number(data['rms']))]),
+        Section('Resultados',rows=[
+            ('Energía E', measure_text(data['energy'], data.get('energy_status'))),
+            ('Potencia media del registro P', measure_text(data['average_power'], data.get('power_status'))),
+            ('RMS R', measure_text(data['rms'], data.get('rms_status'))),
+        ]),
         Section('Definición',rows=rows,formulas=formulas),
         Section('Alcance',paragraphs=[interpretation+' La potencia media corresponde al registro observado.'])])
 

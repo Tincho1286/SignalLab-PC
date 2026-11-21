@@ -11,7 +11,7 @@ class RationalResamplingPanel(QWidget):
         self.window=window;root=QHBoxLayout(self);controls=QWidget();layout=QVBoxLayout(controls)
         self.source=LocalInput('Señal de entrada');self.source.bind_project(window);layout.addWidget(self.source)
         form=QFormLayout();form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows);layout.addLayout(form)
-        self.start=QLineEdit('0');self.rate=QLineEdit('48000');self.up=QLineEdit('147');self.down=QLineEdit('160');self.width=QLineEdit('10');self.beta=QLineEdit('5')
+        self.start=QLineEdit();self.start.setPlaceholderText('Opcional · sin origen físico');self.rate=QLineEdit('48000');self.up=QLineEdit('147');self.down=QLineEdit('160');self.width=QLineEdit('10');self.beta=QLineEdit('5')
         for label,field in [('Fs de entrada (muestras/s)',self.rate),('Tiempo de la primera muestra (s)',self.start),('Multiplicador L',self.up),('Divisor M',self.down),('Semilongitud FIR por fase',self.width),('Beta de ventana Kaiser',self.beta)]:form.addRow(label,field)
         self.mode=QComboBox();self.mode.addItems(['Relación L/M','Frecuencia de salida']);form.insertRow(2,'Definir conversión',self.mode)
         self.target=QLineEdit('44100');form.insertRow(3,'Fs de salida deseada (muestras/s)',self.target)
@@ -35,7 +35,7 @@ class RationalResamplingPanel(QWidget):
         self.filter_index=self.result.views.addTab(self.filter_page,'Filtro antialias');self.result.views.setTabVisible(self.filter_index,False)
         from .input_clock import bind_clock
         from .result_state import ResultState
-        form.addRow(bind_clock(self.source,self.rate,self.start,self.override))
+        form.addRow(bind_clock(self.source,self.rate,self.start,self.override,optional_start=True))
         self.result_state=ResultState([self.rate,self.start,self.up,self.down,self.width,self.beta,self.boundary,self.override,self.mode,self.target],self.calculate_button,[self.source]);layout.insertWidget(1,self.result_state)
     def read_clock(self):
         try:
@@ -51,7 +51,7 @@ class RationalResamplingPanel(QWidget):
             source=self.source.read();parent=self.source.reference_id
             override=self.override.isChecked()
             rate=real_field(self.rate) if override or source.metadata.get('sample_rate_hz') is None else None
-            start=real_field(self.start) if override or source.metadata.get('time_start_s') is None else None
+            start=real_field(self.start) if self.start.text().strip() and (override or source.metadata.get('time_start_s') is None) else None
             arguments=dict(rate=rate,start=start,override_clock=override,half_width=integer_field(self.width),beta=real_field(self.beta),boundary='zero' if self.boundary.currentIndex()==0 else 'line')
             target=self.target.text() if self.mode.currentIndex()==1 else None
             up,down=(1,1) if target is not None else (integer_field(self.up),integer_field(self.down));calculated_inputs=self.result_state.snapshot()

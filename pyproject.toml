@@ -29,4 +29,4 @@ include = ["signallab_pc*"]
 version = {attr = "signallab_pc.__version__"}
 
 [tool.setuptools.package-data]
-signallab_pc = ["assets/*"]
+signallab_pc = ["assets/*", "assets/library/**/*"]

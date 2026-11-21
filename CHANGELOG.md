@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.9.2](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.2). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.9.3 · Preliminar
+
+Las sesiones guardan los resultados y las entradas compatibles del escritorio y pueden recuperarse tras un cierre inesperado. Se corrigieron pérdidas de precisión en energía, RMS y varianza, ejes repetidos y discrepancias en los relojes de señales reutilizadas.
+
+[Novedades completas](docs/releases/v1.9.3.md)
+
 ## 1.9.2 · Estable
 
 La 1.9.2 muestra el aviso al iniciar cuando detecta una actualización compatible. También completa el período de las señales cuando puede determinarlo a partir de la fórmula y conserva el período de los coeficientes de una serie importada.

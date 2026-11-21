@@ -70,7 +70,7 @@ def compare(a,b,start=0.,stop=np.pi,count=2001,*,alignment='index'):
         if alignment not in ('index','physical') or alignment=='physical' and a.domain!='discrete':
             raise ValueError('La comparación por reloj físico requiere dos secuencias discretas.')
         if a.domain=='discrete' and alignment=='index':
-            from .windowing import validate_discrete_clocks
+            from .system_clock import validate_discrete_clocks
             try:validate_discrete_clocks(a,b)
             except ValueError as exc:clock_note=str(exc)+' Las diferencias calculadas aquí corresponden sólo a los índices n.'
             low=max(a.origin,b.origin);high=min(a.origin+a.values.size-1,b.origin+b.values.size-1)

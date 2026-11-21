@@ -190,21 +190,16 @@ def transform_time(source, amplitude=1, time_scale=1, delay=0, *, offset=0):
 def finite_measures(x):
     """Exact L2 integral of the piecewise-linear model on the stored interval."""
     from .distributions import dirac_terms
-    from .operations import FiniteMeasures
+    from .operations import FiniteMeasures, measure_scaled
+    from .spectral_scaling import bounded
     if x.domain!='continuous' or x.values.size<2:raise ValueError('Usá un registro continuo con al menos dos puntos y un intervalo no nulo.')
     if dirac_terms(x):raise ValueError('No se asignan energía y RMS finitos a impulsos Dirac ideales.')
     ensure_working_set(int(x.values.size),live_arrays=7)
     duration=abs(float(x.step))*(int(x.values.size)-1)
     if not np.isfinite(duration) or duration<=0:raise ValueError('La duración del registro debe ser positiva y finita.')
-    magnitudes=np.abs(x.values)
-    if not np.all(np.isfinite(magnitudes)):raise FloatingPointError('La magnitud excede el rango numérico finito.')
-    scale=float(np.max(magnitudes));energy=power=rms=0.
-    if scale:
-        q=x.values/scale;a=q[:-1];b=q[1:]
-        mean=float(np.sum(abs(a)**2+(a*b.conj()).real+abs(b)**2)/(3*len(a)))
-        rms=scale*np.sqrt(mean);power=float(rms)*float(rms)
-        amplitude=float(rms)*np.sqrt(duration);energy=float(amplitude)*float(amplitude)
-        if not np.isfinite(power) or not np.isfinite(energy):raise FloatingPointError('La energía o la potencia excede el rango de float64; revisá las unidades y la escala.')
-        if not power or not energy:raise FloatingPointError('La energía o la potencia queda por debajo del rango representable de float64.')
+    normalized, exponent = bounded(x.values, normalize=True)
+    a, b = normalized[:-1], normalized[1:]
+    total = float(np.sum(abs(a/2+b/2)**2 + abs(a-b)**2/12))
+    measures = measure_scaled(total, len(a), exponent, measure=abs(x.step))
     first=float(x.origin);last=first+float(x.step)*(len(x.values)-1)
-    return FiniteMeasures(energy=float(energy),average_power=float(power),rms=float(rms),sample_count=len(x.values),interpretation='Integral exacta del modelo interpolado linealmente entre puntos; no determina la señal fuera del intervalo.',domain='continuous',interval=(min(first,last),max(first,last)),integration='piecewise_linear',duration=duration,axis_units=x.units)
+    return FiniteMeasures(**measures,sample_count=len(x.values),interpretation='Integral exacta del modelo interpolado linealmente entre puntos; no determina la señal fuera del intervalo.',domain='continuous',interval=(min(first,last),max(first,last)),integration='piecewise_linear',duration=duration,axis_units=x.units)

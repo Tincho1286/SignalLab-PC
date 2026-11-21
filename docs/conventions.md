@@ -43,6 +43,31 @@ La evaluación sobre frecuencias y bordes forma parte del diseño. Un resultado 
 
 Los informes distinguen expresiones exactas, aproximaciones numéricas, condiciones y cálculos pendientes. El formato visual puede redondear cifras para facilitar la lectura; la exportación conserva los valores almacenados. Un resultado de una ventana finita no demuestra propiedades de una señal infinita.
 
+### Reloj de los registros discretos
+
+`time_start_s` identifica el instante de la muestra almacenada en `origin`.
+Con `sample_rate_hz`, el resto del registro sigue
+`t = time_start_s + (n - origin) / sample_rate_hz`. Puede conocerse la tasa
+sin conocer ese instante. Las unidades del eje (`n`, segundos o frecuencia)
+describen las coordenadas; no especifican unidades de amplitud.
+
+- La suma alinea índices. Si ambas tasas están registradas, deben coincidir.
+  Si también se conocen ambos instantes, deben identificar la misma rejilla.
+  Si falta una tasa se conserva el resultado en índices, sin asignarle un
+  reloj compartido. Dos tasas válidas permiten conservar Fs aunque falte
+  un instante.
+- El producto conserva la rejilla de la primera entrada. Una segunda
+  secuencia definida en índices actúa como máscara sobre esa rejilla. Si
+  ambas entradas traen reloj, se comprueba la misma alineación que en la suma.
+- En convolución lineal se suman los tiempos iniciales. En correlación
+  lineal se restan y se considera el primer retardo publicado
+  (`nₓ − nₕ − (Nₕ − 1)`). Los instantes requieren dos relojes disponibles.
+  La variante circular conserva la convención de índices periódicos de cada
+  operación; su referencia temporal se interpreta módulo el período.
+- Cambiar la tasa transforma Fs y ajusta el primer instante cuando se conoce.
+  El cambio racional permite dejar ese instante sin definir o indicarlo
+  explícitamente.
+
 
 ## Transferencia en el plano complejo
 

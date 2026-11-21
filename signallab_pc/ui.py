@@ -588,8 +588,13 @@ class SignalLabWindow(QMainWindow):
         except Exception as exc: QMessageBox.warning(self, "No se pudo calcular", str(exc))
 
     def _show_measure_result(self, m):
+        energy = m.text('energy')
+        power = m.text('average_power')
+        rms = m.text('rms')
         QMessageBox.information(self, "Medidas del registro finito",
-            f"Energía de ventana  E = {m.energy:.12g}\nPotencia media de ventana  P = {m.average_power:.12g}\nRMS de ventana = {m.rms:.12g}\nMuestras = {m.sample_count}\n\nEsto mide el registro almacenado; no determina por sí solo energía o potencia global de una señal infinita.")
+            f"Energía de ventana E = {energy}\nPotencia media de ventana P = {power}\n"
+            f"RMS de ventana = {rms}\nMuestras = {m.sample_count}\n\n"
+            "Las medidas corresponden al intervalo de muestras almacenadas.")
 
     def _show_dft(self):
         if self.signal is None: return self._need_signal()

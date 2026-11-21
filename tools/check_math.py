@@ -22,6 +22,8 @@ FAMILIES={
     'state_space':('test_math_contracts.StateContracts',2),
     'sampling_precision':('test_math_contracts.SamplingContracts',3),
     'random_signals':('test_math_contracts.RandomContracts',1),
+    'representable_scales':('test_audit_numeric_clocks.CalculationScaleTests',4),
+    'axis_and_sampling_clock':('test_audit_numeric_clocks.AxisAndClockTests',3),
 }
 
 

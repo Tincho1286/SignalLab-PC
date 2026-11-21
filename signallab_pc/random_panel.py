@@ -55,7 +55,16 @@ class RandomPanel(QWidget):
                 def accept(data):
                     self.window.publish(data,title='Estadísticas de '+source.name,operation='Estadísticas de registro',parents=[parent] if parent else [])
                     self.output.show_result(source)
-                    self.report.setPlainText(f"Registro: {source.name}\nMuestras: {data['samples']}\nMedia real: {data['mean_real']}\nMedia imaginaria: {data['mean_imag']}\nVarianza con divisor N: {data['variance_N']}\nVarianza con divisor N−1: {data['variance_N_minus_1'] if data['variance_N_minus_1'] is not None else 'No definida con una muestra'}\nValor cuadrático medio: {data['mean_square']}\nRMS: {data['rms']}\n\n"+data['scope']+'\n\nEl histograma estima una densidad por intervalos, no una distribución exacta. El área total es 1; la altura depende del ancho de cada intervalo.')
+                    labels = {'variance_N': 'Varianza con divisor N', 'variance_N_minus_1': 'Varianza con divisor N−1',
+                              'mean_square': 'Valor cuadrático medio', 'rms': 'RMS'}
+                    states = {'underflow': 'Por debajo del rango de float64',
+                              'overflow': 'Excede el rango de float64', 'undefined': 'No definida con una muestra'}
+                    lines = [f"Registro: {source.name}", f"Muestras: {data['samples']}",
+                             f"Media real: {data['mean_real']}", f"Media imaginaria: {data['mean_imag']}"]
+                    for key, label in labels.items():
+                        lines.append(f"{label}: {states.get(data['range_status'][key], data[key])}")
+                    lines.extend(('', data['scope'], '', 'El histograma estima la densidad por intervalos. El área total es 1.'))
+                    self.report.setPlainText('\n'.join(lines))
                     if data.get('histogram_notice'):self.report.appendPlainText('\n'+data['histogram_notice'])
                     self.figure.clear();axis=self.figure.add_subplot(111);edges=np.asarray(data['histogram_edges']);axis.bar(edges[:-1],data['histogram_density'],width=np.diff(edges),align='edge',alpha=.8);axis.set_xlabel({'real':'Parte real','imag':'Parte imaginaria','magnitude':'Módulo'}[component]);axis.set_ylabel('Densidad estimada');axis.grid(alpha=.2);self.figure.tight_layout();self.canvas.draw_idle();self.tabs.setCurrentIndex(1)
                     if data.get('histogram_notice'):

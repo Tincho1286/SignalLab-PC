@@ -261,11 +261,19 @@ class CourseToolsPanel(QWidget):
         if not key:return
         self.set_system(self.window.project.get(key),key)
     def set_system(self,value,key=None):
-        if self.action=='phase' and self.fields['phase_mode'].currentData()=='reconstruct':self.fields['phase_mode'].setCurrentIndex(0)
-        if self.action in ('phase','inverse_z') and value.domain!='digital':QMessageBox.warning(self,'Dominio incompatible','Esta herramienta requiere un sistema discreto.');return
+        digital = value.domain == 'digital'
+        if self.action in ('phase','inverse_z') and not digital:
+            QMessageBox.warning(self,'Dominio incompatible','Esta herramienta requiere un sistema discreto.')
+            return
+        if self.action=='phase' and self.fields['phase_mode'].currentData()=='reconstruct':
+            self.fields['phase_mode'].setCurrentIndex(0)
         if self.action=='convert':
-            self.fields['definition'].setCurrentIndex(0);self.fields['method'].setCurrentIndex(2 if value.domain=='digital' else 0)
-        self.domain.setCurrentIndex(1 if value.domain=='digital' else 0);self.b.setText(list_text(value.b));self.a.setText(list_text(value.a));self.parent_id=key
+            self.fields['definition'].setCurrentIndex(0)
+            self.fields['method'].setCurrentIndex(2 if digital else 0)
+        self.domain.setCurrentIndex(1 if digital else 0)
+        self.b.setText(list_text(value.b))
+        self.a.setText(list_text(value.a))
+        self.parent_id=key
         from .transfer_input import remember_system
         remember_system(self,value)
     def scalar(self,key):return real_field(self.fields[key])

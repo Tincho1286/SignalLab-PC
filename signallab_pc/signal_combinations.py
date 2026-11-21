@@ -3,7 +3,6 @@ import math
 import numpy as np
 from .model import Signal
 from .operations import add_sequences,_finite_output
-from .windowing import validate_discrete_clocks
 from .continuous import interpolate_record
 from .resources import ensure_working_set
 
@@ -13,17 +12,7 @@ def sum_signals(x,h):
     if x.units!=h.units:raise ValueError('Los ejes de las dos señales deben usar las mismas unidades.')
     metadata={'operation':'sum','inputs':[x.name,h.name],'input_x_expression':x.expression,'input_h_expression':h.expression}
     if x.domain=='discrete':
-        validate_discrete_clocks(x,h);result=add_sequences(x,h)
-        sources=sorted((x,h),key=lambda source:'time_start_s' not in source.metadata)
-        clock=next((source for source in sources if 'sample_rate_hz' in source.metadata),None)
-        if clock is not None:
-            rate=float(clock.metadata['sample_rate_hz']);metadata['sample_rate_hz']=rate
-            if 'time_start_s' in clock.metadata:
-                start=float(clock.metadata['time_start_s'])+(result.origin-clock.origin)/rate
-                if not math.isfinite(start):raise ValueError('El reloj de la suma excede el rango numérico. Revisá los tiempos y la tasa de muestreo registrados.')
-                metadata['time_start_s']=start
-        metadata['scope']='Suma alineada por índices enteros. La salida cubre ambos registros y sus huecos; cada entrada vale cero fuera de su intervalo. No se cambian las tasas de muestreo.'
-        return result.copy_with(metadata=metadata)
+        return add_sequences(x,h)
     if x.step<=0 or h.step<=0:raise ValueError('Los registros continuos necesitan un paso positivo.')
     start=min(x.origin,h.origin);stop=max(float(x.axis[-1]),float(h.axis[-1]));span=stop-start;spacing=min(x.step,h.step)
     ratio=span/spacing

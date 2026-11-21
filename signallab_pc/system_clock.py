@@ -3,6 +3,7 @@ from copy import deepcopy
 import math
 
 UNSET=object()
+CLOCK_MAPPING = 't = time_start_s + (n-origin)/sample_rate_hz'
 
 def validate_period(period,domain='digital'):
     if period is None:return None
@@ -21,9 +22,11 @@ def validate_clock_resolution(start,rate,count):
 def validate_time_step(start,step,count):
     if not math.isfinite(start) or not math.isfinite(step) or step<=0:
         raise ValueError('El reloj requiere un inicio finito y un paso positivo.')
-    end=start+(count-1)*step
-    if not math.isfinite(end) or count>1 and (start+step==start or end-step==end or step<max(math.ulp(start),math.ulp(end))):
-        raise ValueError('El reloj de salida excede la resolución o el rango numérico.')
+    from .model import validate_uniform_axis
+    try:
+        validate_uniform_axis(float(start), float(step), count)
+    except ValueError as exc:
+        raise ValueError('El reloj de salida excede la resolución o el rango numérico.') from exc
 
 
 def common_period(*systems):
@@ -40,6 +43,76 @@ def common_rate(*sources):
     if any(not math.isclose(rate,rates[0],rel_tol=1e-12,abs_tol=0) for rate in rates[1:]):
         raise ValueError('Las secuencias registran distintas tasas de muestreo. Igualá sus relojes antes de combinarlas.')
     return rates[0]
+
+def _start(source):
+    value = source.metadata.get('time_start_s')
+    if value is not None:
+        value = float(value)
+        if not math.isfinite(value):
+            raise ValueError('El inicio del reloj debe ser finito.')
+    return value
+
+
+def validate_discrete_clocks(first, second):
+    """For index alignment, a shared index must map to the same time."""
+    rate = common_rate(first, second)
+    left, right = _start(first), _start(second)
+    if any(source.metadata.get('sample_rate_hz') is None for source in (first, second)):
+        return None
+    if left is not None and right is not None:
+        offset = (int(second.origin) - int(first.origin)) / rate
+        interval = 1 / rate
+        if not math.isfinite(offset) or not math.isfinite(interval):
+            raise ValueError('La alineación del reloj excede el rango numérico.')
+        error = abs(math.fsum((right, -left, -offset)))
+        tolerance = min(interval / 4, max(interval * 1e-9, math.ulp(left)+math.ulp(right)))
+        if error > tolerance:
+            raise ValueError('Los tiempos físicos registrados no corresponden a los mismos índices. Revisá los orígenes de las entradas.')
+    return rate
+
+
+def combined_clock(first, second, origin, count, *, mode):
+    """Propagate sampling context based on how the output is indexed."""
+    if mode in ('sum', 'product'):
+        rate = validate_discrete_clocks(first, second)
+        if mode == 'product':
+            # An index-defined mask applies to the first record's grid.
+            rate = first.metadata.get('sample_rate_hz')
+            start = _start(first)
+        else:
+            start = (_start(first) + (origin-first.origin)/rate
+                     if rate is not None and all(_start(x) is not None for x in (first, second)) else None)
+    else:
+        rate = common_rate(first, second)
+        left, right = _start(first), _start(second)
+        if any(source.metadata.get('sample_rate_hz') is None for source in (first, second)):
+            return {}
+        start = None
+        if left is not None and right is not None:
+            if mode == 'convolution':
+                start = left + right
+            else:
+                shift = origin - (first.origin-second.origin)
+                if mode == 'periodic_correlation':
+                    shift = shift % count
+                start = math.fsum((left, -right, shift/rate))
+    if rate is None:
+        return {}
+    clock = {'sample_rate_hz': float(rate)}
+    if start is not None:
+        validate_clock_resolution(start, rate, count)
+        clock.update(time_start_s=start, time_mapping=CLOCK_MAPPING)
+    return clock
+
+
+def lag_clock(rate, origin, count):
+    """A lag is a time difference with its zero fixed at equal sample indices."""
+    if rate is None:
+        return {}
+    start = origin / rate
+    validate_clock_resolution(start, rate, count)
+    return dict(sample_rate_hz=rate, time_start_s=start, time_mapping=CLOCK_MAPPING)
+
 
 def spectrum_clock(source,metadata=None):
     metadata=source.metadata if metadata is None else metadata

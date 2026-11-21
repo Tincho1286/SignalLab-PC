@@ -10,14 +10,58 @@ def _ldexp(values, exponent):
     return scaled
 
 
-def bounded(values):
+def bounded(values, *, normalize=False):
     peak=max(np.max(abs(values.real),initial=0.),np.max(abs(values.imag),initial=0.))
     _, exponent=math.frexp(peak)
     # Preserve the original samples at ordinary scales. This also avoids
     # a needless rounding step for mixtures of very small and large values.
-    if abs(exponent)<=450:return values,0
+    if not normalize and abs(exponent)<=450:return values,0
     with np.errstate(under='ignore'):
         return _ldexp(values,-exponent),exponent
+
+
+def restore_scalar(value, exponent, *factors):
+    """Restore a real scalar with a single rounding into the subnormal range."""
+    fraction, shift = math.frexp(float(value))
+    exponent += shift
+    for factor in factors:
+        part, shift = math.frexp(factor)
+        fraction *= part
+        exponent += shift
+    try:
+        return math.ldexp(fraction, exponent)
+    except OverflowError:
+        return math.copysign(math.inf, fraction)
+
+
+def range_status(value, normalized):
+    if normalized and value == 0:
+        return 'underflow'
+    if not math.isfinite(value):
+        return 'overflow'
+    return 'ok'
+
+
+def centered_bounded(values):
+    """Keep small fluctuations even when another component has a large DC offset."""
+    parts = []
+    with np.errstate(under='ignore'):
+        for component in (values.real, values.imag):
+            _, exponent = math.frexp(float(np.max(abs(component), initial=0)))
+            scaled = np.ldexp(component, -exponent)
+            shifted = scaled - scaled[0]
+            shifted -= np.mean(shifted)
+            peak = float(np.max(abs(shifted), initial=0))
+            if peak:
+                _, correction = math.frexp(peak)
+                parts.append((np.ldexp(shifted, -correction), exponent + correction))
+            else:
+                parts.append((shifted, None))
+        exponent = max((offset for _, offset in parts if offset is not None), default=0)
+        result = np.empty(values.shape, dtype=complex)
+        for (part, offset), target in zip(parts, (result.real, result.imag)):
+            target[:] = part if offset is None else np.ldexp(part, offset-exponent)
+    return result, exponent
 
 
 def fft_values(values, *, size=None, inverse=False):

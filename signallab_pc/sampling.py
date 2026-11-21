@@ -77,7 +77,7 @@ def resample(x, factor, method, phase=0):
     """
     _discrete(x)
     factor = positive_integer(factor, "Factor")
-    metadata = dict(x.metadata)
+    metadata = {key:x.metadata[key] for key in ('sample_rate_hz','time_start_s') if key in x.metadata}
     metadata.update(operation="resample", method=method, factor=factor,
                     input_origin=int(x.origin), input_length=int(x.values.size))
     rate = metadata.get("sample_rate_hz")
@@ -97,6 +97,8 @@ def resample(x, factor, method, phase=0):
             metadata["sample_rate_hz"] = positive_finite(rate / factor, "Fs de salida")
             if 'time_start_s' in metadata:
                 metadata["time_start_s"] = float(metadata["time_start_s"]) + phase / rate
+        elif phase:
+            metadata.pop("time_start_s", None)
     else:
         if method not in {"expand", "linear", "zoh", "sinc"}:
             raise ValueError("Método de remuestreo desconocido.")
@@ -127,8 +129,9 @@ def resample(x, factor, method, phase=0):
             metadata["sample_rate_hz"] = positive_finite(float(rate)*factor, "Fs de salida")
         metadata["support"] = "Finite input, zero outside; output ends at last original sample"
     if 'sample_rate_hz' in metadata and 'time_start_s' in metadata:
-        from .system_clock import validate_clock_resolution
+        from .system_clock import CLOCK_MAPPING, validate_clock_resolution
         validate_clock_resolution(metadata['time_start_s'],metadata['sample_rate_hz'],count)
+        metadata['time_mapping'] = CLOCK_MAPPING
     from .procedure import step,views
     formulas={'decimate':'y[m] = x[n0+phase+L*m]','expand':'y[L*k] = x[n0+k]; y[L*k+r] = 0, r != 0','linear':'y[L*k+r] = (1-r/L)*x[n0+k] + (r/L)*x[n0+k+1]',
               'zoh':'y[L*k+r] = x[n0+k]','sinc':'y[m] = Sum(x[n0+k]*sinc(m/L-k),(k,0,N-1))'}
@@ -335,27 +338,33 @@ def resample_rational(x, up, down, *, rate=None, start=None, half_width=10, beta
             start=known_start
     rate=positive_finite(rate if rate is not None else known_rate or 0,'Fs de entrada')
     output_rate=positive_finite(rate*(up/down),'Fs de salida')
-    start=float((known_start if known_start is not None else 0) if start is None else start)
-    if not math.isfinite(start):raise ValueError('El tiempo inicial debe ser finito.')
+    if start is not None:
+        start = float(start)
+        if not math.isfinite(start):
+            raise ValueError('El tiempo inicial debe ser finito.')
     count=(int(x.values.size)*up+down-1)//down
     taps=1 if up==down else 2*half_width*max(up,down)+1
     ensure_working_set(count+int(x.values.size)+taps,live_arrays=16)
-    from .system_clock import validate_clock_resolution
-    validate_clock_resolution(start,output_rate,count)
+    from .system_clock import CLOCK_MAPPING, validate_clock_resolution
+    if start is not None:
+        validate_clock_resolution(start,output_rate,count)
     checkpoint()
     if up==down:values=x.values.copy();kernel=np.ones(1)
     else:
+        from .spectral_scaling import bounded, restore_scale
         kernel=firwin(taps,1/max(up,down),window=('kaiser',beta))
-        values=resample_poly(x.values,up,down,window=kernel,padtype='constant' if boundary=='zero' else 'line')
+        normalized, exponent = bounded(x.values)
+        filtered = resample_poly(normalized,up,down,window=kernel,padtype='constant' if boundary=='zero' else 'line')
+        values = restore_scale(filtered, exponent)
     checkpoint()
-    metadata=dict(x.metadata)
-    metadata.update(operation='resample_rational',up=up,down=down,input_rate_hz=rate,sample_rate_hz=output_rate,time_start_s=start,
+    metadata=dict(operation='resample_rational',up=up,down=down,input_rate_hz=rate,sample_rate_hz=output_rate,
         input_origin=int(x.origin),input_length=int(x.values.size),antialias_filter=up!=down,filter_taps=taps,kaiser_beta=beta,
         boundary=boundary,delay='linear-phase FIR delay compensated; offline processing',
-        time_mapping='t = time_start_s + n / sample_rate_hz',
         output_length_rule='ceil(input_length * up / down)',
         scope='Finite FIR transition band; no guarantee of ideal band limitation. Edges depend on the chosen extension.')
-    result=Signal(_finite_output(values,'El cambio de tasa racional'),0,1,'n',f'{x.name}_{up}_{down}','discrete','',metadata)
+    if start is not None:
+        metadata.update(time_start_s=start, time_mapping=CLOCK_MAPPING)
+    result=Signal(_finite_output(values,'El cambio de tasa racional'),0,1,x.units,f'{x.name}_{up}_{down}','discrete','',metadata)
     if not return_filter:return result
     from .filters import Transfer
     try:

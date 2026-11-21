@@ -8,24 +8,8 @@ from .filters import Transfer
 from .resources import ensure_working_set
 from .operations import _finite_output,shift
 
-def validate_discrete_clocks(x,w):
-    rates=[]
-    for source in (x,w):
-        rate=source.metadata.get('sample_rate_hz')
-        if rate is not None:
-            rate=float(rate)
-            if not math.isfinite(rate) or rate<=0:raise ValueError('La tasa de muestreo registrada debe ser positiva y finita.')
-        start=source.metadata.get('time_start_s')
-        if start is not None and not math.isfinite(float(start)):raise ValueError('El inicio del reloj debe ser finito.')
-        rates.append(rate)
-    if all(rate is not None for rate in rates):
-        if not np.isclose(rates[0],rates[1],rtol=1e-12,atol=0):raise ValueError('Las entradas tienen distintas tasas de muestreo. Cambiá la tasa antes de combinarlas.')
-        a=x.metadata.get('time_start_s');b=w.metadata.get('time_start_s')
-        if a is not None and b is not None:
-            expected=float(a)+(int(w.origin)-int(x.origin))/rates[0]
-            if not math.isfinite(expected):raise ValueError('La alineación del reloj excede el rango numérico.')
-            tolerance=max(1e-9/rates[0],8*math.ulp(expected))
-            if not math.isfinite(float(b)) or abs(float(b)-expected)>tolerance:raise ValueError('Los tiempos físicos registrados no corresponden a los mismos índices. Revisá los orígenes de las entradas.')
+from .system_clock import combined_clock, validate_clock_resolution
+from .system_clock import validate_discrete_clocks as validate_discrete_clocks
 
 def multiply_signals(x,w):
     if x.domain!=w.domain or x.domain not in ('discrete','continuous'):raise ValueError('Las dos entradas deben ser discretas o las dos continuas.')
@@ -34,7 +18,7 @@ def multiply_signals(x,w):
     if x.units!=w.units:raise ValueError('Las entradas deben compartir el mismo tipo de eje, por ejemplo dos señales en n o dos registros en segundos.')
     ensure_working_set(len(x.values)+len(w.values),live_arrays=8)
     if x.domain=='discrete':
-        validate_discrete_clocks(x,w)
+        metadata = combined_clock(x, w, x.origin, len(x.values), mode="product")
         start=max(int(x.origin),int(w.origin));stop=min(int(x.origin)+len(x.values),int(w.origin)+len(w.values))
         values=np.zeros(len(x.values),dtype=complex)
         if stop>start:
@@ -42,13 +26,13 @@ def multiply_signals(x,w):
             values[a:a+size]=x.values[a:a+size]*w.values[b:b+size]
         scope='Producto punto a punto, alineado por n. Se conserva el intervalo de la primera señal; la segunda vale cero fuera de su registro. No se conjugan valores ni se realiza convolución.'
     else:
+        metadata = {key: x.metadata[key] for key in ('sample_rate_hz','time_start_s') if key in x.metadata}
         from .distributions import regular_only
         regular_only(x,'El producto de muestras');regular_only(w,'El producto de muestras')
         if x.step<=0 or w.step<=0:raise ValueError('Los registros continuos deben tener un paso positivo.')
         from .continuous import interpolate_record
         values=x.values*interpolate_record(w,x.axis)
         scope='Producto evaluado en los instantes de la primera señal. La segunda se interpola linealmente y vale cero fuera de su intervalo. El registro resultante aproxima el producto continuo entre sus muestras.'
-    metadata={k:x.metadata[k] for k in ('sample_rate_hz','time_start_s') if k in x.metadata}
     metadata.update(operation='signal_product',input_names=[x.name,w.name],input_x_expression=x.expression,input_w_expression=w.expression,scope=scope,second_origin=w.origin,second_step=w.step)
     return Signal(_finite_output(values,'El producto'),x.origin,x.step,x.units,'Producto punto a punto',x.domain,'',metadata)
 
@@ -94,6 +78,8 @@ def window_impulse(h,window='hamming',beta=8.6,retard=True,custom=None,*,length=
     if 'sample_rate_hz' not in raw.metadata and 'sample_rate_hz' in h.metadata:
         rate=float(h.metadata['sample_rate_hz']);raw.metadata['sample_rate_hz']=rate
         if 'time_start_s' in h.metadata:raw.metadata['time_start_s']=float(h.metadata['time_start_s'])+(origin-h.origin)/rate
+        if 'time_start_s' in raw.metadata:
+            validate_clock_resolution(raw.metadata['time_start_s'],rate,size)
     raw.metadata.update(input_names=[h.name,taper.name],input_x_expression=h.expression,input_w_expression=taper.expression,window_start=origin,window_length=size)
     delay=max(0,-int(raw.origin)) if retard else 0
     impulse=shift(raw,delay) if delay else raw

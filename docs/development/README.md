@@ -50,3 +50,51 @@ Las correcciones editoriales revisan enlaces, versiones y coherencia entre guía
 ## Herramientas interactivas en desarrollo
 
 La 1.8.1 incorpora comparación FIR por ventanas, selección visual de ROC, inspectores de recurrencias y convolución y medidas espectrales de ventanas. La [guía de análisis interactivo](../interactive-analysis.md) explica sus controles y límites; estas funciones se distribuyen en los paquetes propios de la 1.8.1.
+
+## Sesiones de escritorio
+
+Los archivos `signallab-project` de esquema 1 o 2 siguen siendo archivos de
+resultados. Se pueden incorporar a la biblioteca actual o abrir en una sesión
+vacía. La incorporación reasigna identificadores para evitar colisiones.
+
+Una sesión completa usa `signallab-session` con esquema 1. Incluye el documento
+de proyecto, las herramientas visitadas, los documentos abiertos, las entradas
+editables compatibles y los identificadores de los objetos utilizados. Conserva
+los identificadores de la sesión y valida referencias y esquemas antes de
+reemplazar el trabajo activo. Las entradas todavía sin calcular se guardan como
+texto y se interpretan recién cuando el usuario calcula. Un lector que solo
+entiende proyectos necesitará una exportación de resultados por separado.
+
+La recuperación automática es local. Revisa los cambios cada 30 segundos y
+guarda cuando la sesión cambió y no hay un cálculo en curso. Solo reemplaza el archivo
+anterior tras escribir y sincronizar el nuevo archivo por completo. Al inicio,
+SignalLab ofrece recuperarlo y comunica qué se restauró. Cerrar normalmente
+después de guardar o descartar elimina ese punto. La recuperación no incluye
+cálculos en curso, ventanas de gráficos, historial del CAS ni preferencias de
+la aplicación. Los resultados previos se consultan en la biblioteca. El esquema
+admite los formularios, señales de entrada, transferencias cargadas, tablas de
+muestras y diagramas aplicados. La recuperación de un editor de diagrama que
+sigue abierto sin aplicar, los bancos avanzados de simulación y el historial
+de deshacer siguen fuera del esquema.
+
+## Distribución y cálculos reproducibles
+
+Python 3.12 y `requirements-lock.txt` definen el entorno de prueba. Al validar
+una distribución, compará la lista de recursos del wheel o el portable con
+`signallab_pc/assets`, incluidos los artículos anidados en `assets/library`.
+Los constructores PyInstaller de Windows y Linux incluyen el directorio de
+recursos de forma recursiva.
+
+El actualizador comprueba la firma del manifiesto con la clave pública
+distribuida. El hash SHA-256 comprueba que el archivo recibido coincide con
+el descrito en ese manifiesto. Authenticode es una firma distinta que Windows
+valida sobre el ejecutable o instalador mediante un certificado de firma de
+código. Su comprobación depende del binario real. Los portables nativos y la
+instalación de cada plataforma se verifican sobre sus propios artefactos.
+
+Una exportación de resultados incluye el objeto y sus dependencias. Algunas
+operaciones también conservan solicitudes y condiciones. Para ofrecer una
+reproducción verificable hace falta un contrato adicional por herramienta con
+todas las entradas, condiciones, unidades, método y versiones de ejecución.
+La exportación existente conserva los datos disponibles y no genera scripts
+que aparenten reconstruir parámetros faltantes.
