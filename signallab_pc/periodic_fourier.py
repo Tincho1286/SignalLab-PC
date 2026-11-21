@@ -113,6 +113,11 @@ def finite_laplace_piece(value,time,output,lower,upper):
     return result.xreplace({output>-sp.oo:sp.true,output<sp.oo:sp.true,-sp.oo<output:sp.true,sp.oo>output:sp.true})
 
 
+def imaginary_axis(value,parameter,frequency):
+    expression=value.subs(parameter,sp.I*frequency)
+    return expression.replace(lambda node:isinstance(node,(sp.Equality,sp.Unequality)),sp.simplify)
+
+
 def periodic_integral(value, time, lower, upper, *, laplace_variable=None):
     """Integrate full cycles once, plus the remaining fraction of a cycle."""
     cycle = _bounded_cycle(value,time)
@@ -160,7 +165,7 @@ def windowed_periodic_fourier(value,time,frequency):
               else finite_laplace_piece(branch,time,parameter,left,right))
         if area is None or area.has(sp.Integral,sp.nan,sp.oo,sp.zoo):return None
         terms.append(area)
-    return spectrum+sp.factor_terms(sp.Add(*terms).subs(parameter,sp.I*frequency))
+    return spectrum+sp.factor_terms(imaginary_axis(sp.Add(*terms),parameter,frequency))
 
 
 def has_nonzero_periodic_tail(value,time):

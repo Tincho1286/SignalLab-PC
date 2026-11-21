@@ -13,7 +13,7 @@ class ExpressionResult:
 
 def distribution_source(source):
     import re
-    return bool(re.search(r'\b(?:DiracDelta|Dirac|ImpulseTrain)\s*\(',source,re.IGNORECASE))
+    return bool(re.search(r'\b(?:DiracDelta|Dirac|ImpulseTrain|PVCot)\s*\(',source,re.IGNORECASE))
 
 def expression_result(value):
     if not isinstance(value,dict):return None

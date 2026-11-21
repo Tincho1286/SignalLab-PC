@@ -150,3 +150,71 @@ def inverse_weighted_comb(term, frequency, time):
             result = _periodize(shifted,time,spacing,sp.S.Zero,area)
             return None if result is None else sp.exp(sp.I*origin*time)*result
     return None if pieces is None else _periodize(pieces,time,spacing,origin,area)
+
+
+def _half_periodic_shape(weight,period,direction,frequency,time):
+    if weight==0:return sp.S.Zero
+    pieces=_compact_pieces(weight,frequency,time,True)
+    if pieces is None:return None
+    if not pieces:return sp.S.Zero
+    start=pieces[0][0]
+    end=pieces[-1][1]
+    if (period-end+start).is_nonnegative is not True:return None
+    spacing=2*sp.pi/period
+    shape=_periodize(pieces,time,spacing,sp.S.Zero,spacing)
+    if shape is None:return None
+    if direction==1:
+        return sp.Piecewise((0,time<start),(pieces[0][2].subs(time,start)/2,sp.Eq(time,start)),(shape,True))
+    return sp.Piecewise((shape,time<end),(pieces[-1][2].subs(time,end)/2,sp.Eq(time,end)),(0,True))
+
+
+def inverse_principal_spectrum(value,frequency,time):
+    """Recover polynomial half-periods from matching line and PV weights."""
+    from .periodic_signals import PVCot
+
+    remaining=[]
+    weights={}
+    line_weights={}
+    for term in sp.Add.make_args(sp.expand_mul(value)):
+        checkpoint()
+        principal=term.atoms(PVCot)
+        if principal:
+            if len(principal)!=1:return None
+            node,=principal
+            weight=term.extract_multiplicatively(node)
+            if weight is None or weight.has(PVCot,ImpulseTrain,sp.DiracDelta):return None
+            argument,period=node.args
+            if argument!=frequency or period.is_positive is not True or period.is_finite is not True or period.free_symbols:
+                return None
+            weights[period]=weights.get(period,sp.S.Zero)+weight
+        else:
+            trains=term.atoms(ImpulseTrain)
+            if len(trains)==1:
+                train,=trains
+                weight=term.extract_multiplicatively(train)
+                if weight is not None and train.args[0]==frequency and not weight.has(sp.DiracDelta,ImpulseTrain):
+                    period=sp.simplify(2*sp.pi/train.args[1])
+                    line_weights[period]=line_weights.get(period,sp.S.Zero)+weight
+                    continue
+            remaining.append(term)
+
+    known=[]
+    for period,principal_weight in weights.items():
+        checkpoint()
+        total=period*line_weights.pop(period,sp.S.Zero)/sp.pi
+        difference=2*sp.I*principal_weight
+        # The sum of cycle weights multiplies the comb. Their difference
+        # sets the sign of the cotangent for the right and left tails.
+        right=_half_periodic_shape(sp.simplify((total+difference)/2),period,1,frequency,time)
+        left=_half_periodic_shape(sp.simplify((total-difference)/2),period,-1,frequency,time)
+        if right is None or left is None:return None
+        known.extend((right,left))
+        remaining.append(-total/2)
+    remaining.extend(weight*ImpulseTrain(frequency,2*sp.pi/period) for period,weight in line_weights.items())
+    leftover=sp.simplify(sp.Add(*remaining))
+    if leftover!=0 and not leftover.has(ImpulseTrain,sp.DiracDelta):
+        compact=_compact_pieces(leftover,frequency,time,False)
+        if compact is not None:
+            known.extend(branch*(sp.Heaviside(time-start)-sp.Heaviside(time-stop)) for start,stop,branch in compact)
+            leftover=sp.S.Zero
+    return sp.Add(*known),leftover

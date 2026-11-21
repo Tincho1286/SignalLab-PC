@@ -170,6 +170,12 @@ def _execute(request):
             spectrum=dtft_pairs(value)
             if spectrum is not None:
                 return attach({'operation':'dtft_expression','result':str(spectrum),'condition':'True','output_variable':'w','evaluated':True,'method':'sinc_rectangle_pair','frequency_units':'rad/muestra','convention':'X(w) = sum x[n] exp(-i*w*n); w is 2*pi-periodic','scope':'Se aplicaron el par sinc/rectángulo, la linealidad, el desplazamiento y la traslación en frecuencia, conservando las muestras definidas por continuidad. Las imágenes espectrales se suman cuando se superponen. El espectro es 2π-periódico; en cada salto toma el promedio de los límites laterales.'},definition,exact=spectrum)
+        from .periodic_generalized import SCOPE,discrete_spectrum
+        generalized=discrete_spectrum(value,N,W,Z,lower,upper)
+        if generalized is not None:
+            return attach({'operation':'dtft_expression','result':str(generalized),'condition':'True','output_variable':'w',
+                'evaluated':True,'method':'periodic_abel_limit','frequency_units':'rad/muestra',
+                'convention':'X(w) = sum x[n] exp(-i*w*n), como distribución','scope':SCOPE},definition,exact=generalized)
         from .z_direct_pairs import direct_pairs
         try:pair=direct_pairs(value,lower,upper)
         except (sp.PolynomialError,NotImplementedError):pair=None
@@ -211,16 +217,20 @@ def _execute(request):
                 'scope':'Secuencia indicada entre límites inclusivos; cero fuera si los límites son finitos. Las condiciones y ramas de convergencia permanecen dentro de la expresión.'},definition,exact=result)
     if operation in ('fourier_angular','inverse_fourier_angular'):
         from .periodic_fourier import has_nonzero_periodic_tail,periodic_fourier_pair,windowed_periodic_fourier
+        from .periodic_generalized import SCOPE,continuous_spectrum
+        from .periodic_signals import PVCot
         frequency=sp.Dummy('frequency',real=True)
         from .expression_definition import prepare,attach
         inverse=operation=='inverse_fourier_angular'
+        principal_inverse=sp.S.Zero
         definition=prepare(expression,W if inverse else T,'frequency' if inverse else 'continuous',(-sp.oo,sp.oo),request.get('input_conditions',()),'integration_interval');value=definition.integral_expression()
         if value.has(T if inverse else W):raise ValueError('La entrada contiene la variable de salida; usá otro nombre para ese parámetro.')
         if inverse:
             from .inverse_frequency_domain import require_inverse_domain
             require_inverse_domain(request,value,sp.S.Reals,W)
             if request.get('periodic_fourier_source'):
-                original=prepare(request['periodic_fourier_source'],T,'continuous').integral_expression()
+                input_signal=prepare(request['periodic_fourier_source'],T,'continuous')
+                original=input_signal.integral_expression()
                 pair=periodic_fourier_pair(original,T,W)
                 if pair is not None and parse(str(pair[0]))==parse(expression):
                     exact=pair[1]
@@ -228,9 +238,23 @@ def _execute(request):
                         'output_variable':'t','frequency_units':'rad/s','method':'periodic_fourier_pair',
                         'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
                         'scope':'Se recupera el período que genera estas líneas. En un salto se toma el promedio de ambos límites laterales. El espectro no distingue cambios en instantes aislados.'},definition,exact=exact)
+                spectrum=continuous_spectrum(original,T,W) if value.has(PVCot) else windowed_periodic_fourier(original,T,W)
+                if spectrum is not None and (parse(str(spectrum))==parse(expression) or sp.simplify(spectrum-value)==0):
+                    recovered=input_signal.expression
+                    return attach({'operation':operation,'result':str(recovered),'condition':'True','evaluated':True,
+                        'output_variable':'t','frequency_units':'rad/s','method':'periodic_source_inverse',
+                        'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
+                        'scope':'Se recupera la señal temporal que generó el espectro. En los instantes aislados se conserva el valor de la definición de origen.'},definition,exact=recovered)
+            if value.has(PVCot):
+                from .periodic_comb_inverse import inverse_principal_spectrum
+                principal=inverse_principal_spectrum(value,W,T)
+                if principal is None:
+                    raise ValueError('Para invertir este valor principal continuo, usá el espectro guardado en Resultados desde Fourier directa.')
+                principal_inverse,value=principal
             from .fourier_bands import inverse_bands
             records=[];exact=inverse_bands(value,W,T,discrete=False,trace=records)
             if exact is not None:
+                exact+=principal_inverse
                 return attach({'procedure':records,'operation':operation,'result':str(exact),'condition':'True','evaluated':True,
                     'output_variable':'t','frequency_units':'rad/s',
                     'convention':'x(t) = integral X(w) exp(i*w*t) dw / (2*pi)',
@@ -248,8 +272,15 @@ def _execute(request):
             if windowed is not None:
                 return attach({'operation':operation,'result':str(windowed),'condition':'True','evaluated':True,
                     'output_variable':'w','frequency_units':'rad/s','method':'windowed_periodic_fourier',
+                    'periodic_fourier_source':expression,
                     'convention':'X(w) = integral x(t) exp(-i*w*t) dt',
                     'scope':'Se integra exactamente la parte afectada por el recorte. Si queda una repetición común a ambos lados, sus líneas se suman a la corrección continua.'},definition,exact=windowed)
+            generalized=continuous_spectrum(value,T,W)
+            if generalized is not None:
+                return attach({'operation':operation,'result':str(generalized),'condition':'True','evaluated':True,
+                    'output_variable':'w','frequency_units':'rad/s','method':'periodic_abel_limit',
+                    'periodic_fourier_source':expression,'convention':'X(w) = integral x(t) exp(-i*w*t) dt, como distribución',
+                    'scope':SCOPE},definition,exact=generalized)
             if has_nonzero_periodic_tail(value,T):
                 integral=sp.Integral(value*sp.exp(-sp.I*W*T),(T,-sp.oo,sp.oo))
                 return attach({'operation':operation,'result':str(integral),'condition':'False','evaluated':False,
@@ -261,7 +292,7 @@ def _execute(request):
         records=[]
         ordinary,regular=ordinary_pairs(value,W if inverse else T,T if inverse else W,inverse=inverse,trace=records)
         known,regular=fourier_pairs(regular,W if inverse else T,T if inverse else W,inverse=inverse)
-        known+=ordinary
+        known+=ordinary+principal_inverse
         if regular==0:answer=(sp.S.Zero,sp.true)
         elif inverse:
             answer=sp.inverse_fourier_transform(regular.subs(W,2*sp.pi*frequency),frequency,T,noconds=False)
@@ -291,12 +322,15 @@ def _execute(request):
             from .cas_engine import restore
             value=restore(request['encoded'])
         else:value=parse(expression)
-        from .periodic_signals import ImpulseTrain
+        from .periodic_signals import ImpulseTrain,PVCot
         if value.has(sp.FourierTransform,sp.InverseFourierTransform,sp.Integral,sp.Sum):
             raise ValueError('Una transformada o integral pendiente no se puede graficar.')
-        distribution=value.has(sp.DiracDelta,ImpulseTrain)
+        principal=value.has(PVCot)
+        distribution=value.has(sp.DiracDelta,ImpulseTrain,PVCot)
         if distribution and not request.get('allow_distribution'):
             raise ValueError('Una distribución no se puede convertir en muestras ordinarias.')
+        if principal and (variable!=W or not request.get('allow_undefined')):
+            raise ValueError('Para graficar un valor principal, usá la vista de frecuencia con posiciones no definidas.')
         condition=parse(request.get('condition','True'))
         parameters=(value.free_symbols|condition.free_symbols)-{variable}
         if parameters:raise ValueError('Asigná valores a los parámetros: '+', '.join(sorted(str(p) for p in parameters)))
@@ -306,6 +340,7 @@ def _execute(request):
         grid=np.linspace(start,stop,count)
         if np.any(np.diff(grid)<=0):raise ValueError('La rejilla no se distingue con la precisión disponible.')
         extra={}
+        poles=[]
         if distribution:
             from .impulse_pairs import distribution_parts
             from .scalar_expression import exact_constant,numerical_value
@@ -316,23 +351,36 @@ def _execute(request):
                 raise ValueError('Los límites de la figura deben coincidir con la ventana numérica.')
             right_open=request.get('periodic_frequency') and sp.simplify(upper-lower-2*sp.pi)==0
             value,lines=distribution_parts(value,variable,lower,upper,right_open=right_open)
+            if principal:
+                from .periodic_generalized import principal_projection
+                value,poles=principal_projection(value,variable,lower,upper)
+                extra['principal_value_poles']=[float(point) for point in poles]
             terms=[]
             for position,weight in lines:
                 valid=sp.simplify(condition.subs(variable,position))
                 if valid is sp.false:continue
                 if valid is not sp.true:raise ValueError('No se pudo verificar la condición en una línea espectral.')
                 terms.append((float(position),numerical_value(weight)))
-            extra=attach_terms({'distribution':True,'lines_only':value==0},terms)
+            extra=attach_terms({**extra,'distribution':True,'lines_only':value==0},terms)
         if request.get('allow_undefined'):
             from .analytic_frequency import _sample,_condition_mask
             eligible=_condition_mask(condition.xreplace({variable:W}),grid)
+            grid_ulp=max(math.ulp(start),math.ulp(stop))
+            max_tolerance=(stop-start)/(4*(count-1))
+            for pole in poles:
+                point=float(pole)
+                index=int(np.searchsorted(grid,point))
+                for neighbor in (index-1,index):
+                    if 0<=neighbor<count:
+                        tolerance=min(max_tolerance,8*max(grid_ulp,math.ulp(point),math.ulp(grid[neighbor])))
+                        if abs(grid[neighbor]-point)<=tolerance:eligible[neighbor]=False
             values=np.full(grid.shape,complex(np.nan,np.nan))
             if eligible.any():values[eligible]=_sample(value.xreplace({variable:W}),grid[eligible],repair=True)
             valid=eligible&np.isfinite(values)
             return dict(format='signallab-expression-grid',schema_version=1,operation='expression_grid',
                 samples=[[float(v.real),float(v.imag)] if good else None for v,good in zip(values,valid)],valid=valid.tolist(),
                 origin=start,step=(stop-start)/(count-1),variable=request['variable'],expression=expression,condition=str(condition),
-                undefined_count=int(np.count_nonzero(~valid)),scope=('Los impulsos se indican por posición y área. ' if distribution else '')+'N/D indica que la parte ordinaria no está definida en ese punto.',**extra)
+                undefined_count=int(np.count_nonzero(~valid)),scope=(('El gráfico se abre en cada polo del valor principal. ' if principal else '')+('Los impulsos se indican por posición y área. ' if distribution else '')+'N/D indica que la parte ordinaria no está definida en ese punto.'),**extra)
         if condition is not sp.true:raise ValueError('Esta expresión tiene condiciones. Usá la vista de valores condicionados para conservar las posiciones N/D.')
         from .singularities import sample_symbolic
         values=sample_symbolic(value,variable,grid)
@@ -370,21 +418,23 @@ def _execute(request):
                 'scope':'Ambas entradas son cero para t<0; las fórmulas indicadas valen para t>=0.' if causal else 'Convolución bilateral; las expresiones deben incluir su soporte y cumplir las condiciones de convergencia.',
                 'convention':'integral x(tau) h(t-tau) d tau'}
     if operation == 'system_frequency_expression':
-        from .periodic_signals import ImpulseTrain
+        from .periodic_signals import ImpulseTrain,PVCot
         domain=request['domain']
         if domain not in ('analog','digital'):raise ValueError('Dominio de sistema inválido.')
         expr=parse(expression)
         if expr.has(T,N,S,Z):raise ValueError('La respuesta en frecuencia usa w, en rad/muestra o rad/s según el dominio.')
-        if expr.has(sp.DiracDelta,ImpulseTrain):raise ValueError('Un espectro de líneas requiere Fourier algebraica. La respuesta de un filtro usa valores ordinarios de H(w).')
+        if expr.has(sp.DiracDelta,ImpulseTrain,PVCot):raise ValueError('Una distribución espectral requiere Fourier algebraica. La respuesta de un filtro usa valores ordinarios de H(w).')
         if expr in (sp.zoo,sp.nan,sp.oo,-sp.oo):raise ValueError('La respuesta no define un valor ordinario finito. Revisá la fórmula y sus condiciones.')
         pending=expr.has(sp.Sum,sp.Integral,sp.Derivative,sp.Limit)
         return dict(operation=operation,domain=domain,model_kind='frequency',transfer=str(expr),factored=str(expr),evaluated=not pending,output_variable='w',frequency_units='rad/muestra' if domain=='digital' else 'rad/s',
             parameters=sorted(map(str,expr.free_symbols-{W})),scope='Respuesta en frecuencia definida directamente en w. No implica una transformada Z o Laplace en una región abierta ni una realización finita con coeficientes b/a.')
     if operation == "system_formula":
+        from .periodic_signals import PVCot
         domain=request['domain']
         if domain not in ('analog','digital'):raise ValueError('Dominio de sistema inválido.')
         variable=S if domain=='analog' else Z
         expr=sp.cancel(parse(expression))
+        if expr.has(PVCot):raise ValueError('El valor principal pertenece a una distribución espectral. Usá Fourier algebraica.')
         if expr.has(T,N,W,Z if domain=='analog' else S,sp.zoo,sp.nan,sp.oo):raise ValueError('Usá s para H(s) o z para H(z), sin variables temporales ni la variable del otro dominio.')
         if not expr.is_rational_function(variable):
             pending=expr.has(sp.Sum,sp.Integral,sp.Derivative,sp.Limit)

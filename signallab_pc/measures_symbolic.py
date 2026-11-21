@@ -6,7 +6,7 @@ from .resources import ensure_working_set
 
 def measure_expression(request):
     from .symbolic import parse,T,N,W,S,Z
-    from .periodic_signals import ImpulseTrain, cycle_sum, discrete_cycle, wrapped_period
+    from .periodic_signals import ImpulseTrain, PVCot, cycle_sum, discrete_cycle, wrapped_period
     from .periodic_support import split_periodic_support
     from .periodic_fourier import periodic_integral
     domain=request.get('domain','continuous');mode=request.get('mode','interval')
@@ -17,7 +17,7 @@ def measure_expression(request):
         from .expression_definition import fold_discrete_gates
         value = fold_discrete_gates(value)
     value = sp.simplify(value)
-    if not isinstance(value,sp.Expr) or value.has(sp.DiracDelta,ImpulseTrain,sp.oo,-sp.oo,sp.zoo,sp.nan):raise ValueError('La energía requiere una función ordinaria; no se eleva al cuadrado una distribución o un valor no finito.')
+    if not isinstance(value,sp.Expr) or value.has(sp.DiracDelta,ImpulseTrain,PVCot,sp.oo,-sp.oo,sp.zoo,sp.nan):raise ValueError('La energía requiere una función ordinaria; no se eleva al cuadrado una distribución o un valor no finito.')
     if value.free_symbols.intersection({T,N,W,S,Z}-{variable}):raise ValueError('Usá sólo t para tiempo continuo o n para secuencias; las otras variables de dominio no son parámetros.')
     power_density=sp.simplify(value*sp.conjugate(value))
     def constant(text,integer=False):
@@ -225,7 +225,7 @@ def sample_measure_expression(request):
     """Ventana numérica explícita, incluso si la definición tiene soporte infinito."""
     import numpy as np
     from .symbolic import parse,T,N
-    from .periodic_signals import ImpulseTrain
+    from .periodic_signals import ImpulseTrain,PVCot
     domain=request.get('domain','continuous')
     if domain not in ('continuous','discrete'):raise ValueError('Dominio no admitido.')
     variable = T if domain == 'continuous' else N
@@ -234,7 +234,7 @@ def sample_measure_expression(request):
         from .expression_definition import fold_discrete_gates
         value = fold_discrete_gates(value)
     value = sp.simplify(value)
-    if value.has(sp.DiracDelta,ImpulseTrain,sp.Integral,sp.Sum,sp.Limit):raise ValueError('La expresión no es una función evaluable en muestras ordinarias.')
+    if value.has(sp.DiracDelta,ImpulseTrain,PVCot,sp.Integral,sp.Sum,sp.Limit):raise ValueError('La expresión no es una función evaluable en muestras ordinarias.')
     if value.free_symbols-{variable}:raise ValueError('Asigná valores numéricos a los parámetros antes de crear muestras.')
     if domain=='discrete':
         lower=sp.simplify(parse(str(request['start'])));upper=sp.simplify(parse(str(request['stop'])))

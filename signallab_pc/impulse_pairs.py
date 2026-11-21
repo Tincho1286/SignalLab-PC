@@ -125,6 +125,17 @@ def impulse_integral(term,variable,kernel,lower=-sp.oo,upper=sp.oo):
     return sp.simplify(answer) if inside is sp.true else sp.Piecewise((sp.simplify(answer),inside),(0,True))
 
 
+def _integer_delay(weight,frequency):
+    coefficient,carrier=sp.powsimp(weight,combine='exp').as_independent(frequency,as_Add=False)
+    if carrier==1:return coefficient,sp.S.Zero
+    if carrier.func!=sp.exp:return None
+    argument=sp.expand(carrier.args[0])
+    delay=sp.simplify(sp.I*argument.coeff(frequency))
+    phase=sp.expand(argument+sp.I*frequency*delay)
+    if delay.is_integer is not True or phase.has(frequency):return None
+    return coefficient*sp.exp(phase),delay
+
+
 def _inverse_delayed_comb(term,frequency,index):
     """Apply the roots-of-unity identity to a comb times an integer delay."""
     from .periodic_signals import ImpulseTrain,affine_train_term
@@ -138,28 +149,46 @@ def _inverse_delayed_comb(term,frequency,index):
     spacing,origin,area=geometry
     period=sp.simplify(2*sp.pi/spacing)
     if not isinstance(period,sp.Integer) or period<=0:return None
-    coefficient,carrier=sp.powsimp(weight,combine='exp').as_independent(frequency,as_Add=False)
-    delay=sp.S.Zero
-    if carrier!=1:
-        if carrier.func!=sp.exp:return None
-        argument=sp.expand(carrier.args[0])
-        delay=sp.simplify(sp.I*argument.coeff(frequency))
-        phase=sp.expand(argument+sp.I*frequency*delay)
-        if delay.is_integer is not True or phase.has(frequency):return None
-        coefficient*=sp.exp(phase)
+    pair=_integer_delay(weight,frequency)
+    if pair is None:return None
+    coefficient,delay=pair
     return area*period*coefficient*sp.exp(sp.I*origin*(index-delay))*sp.KroneckerDelta(sp.Mod(index-delay,period),0)
+
+
+def _inverse_delayed_principal_value(term,frequency,index):
+    from .periodic_signals import ImpulseTrain,PVCot
+    values=term.atoms(PVCot)
+    if len(values)!=1:return None
+    principal,=values
+    weight=term.extract_multiplicatively(principal)
+    if weight is None or weight.has(PVCot,ImpulseTrain,sp.DiracDelta):return None
+    from .periodic_generalized import cotangent_geometry
+    geometry=cotangent_geometry(principal,frequency)
+    pair=_integer_delay(weight,frequency)
+    if geometry is None or pair is None:return None
+    period,origin,orientation=geometry
+    if not isinstance(period,sp.Integer):return None
+    coefficient,delay=pair
+    position=index-delay
+    return (2*sp.pi*sp.I*orientation*coefficient*sp.exp(sp.I*origin*position)
+            *sp.sign(position)*sp.KroneckerDelta(sp.Mod(position,period),0))
 
 
 def inverse_periodic_impulses(value,frequency,index,lower,upper):
     """Count the periodic seam once, with full weight for a single endpoint."""
-    from .periodic_signals import ImpulseTrain, weighted_lines
+    from .periodic_signals import ImpulseTrain, PVCot, weighted_lines
 
-    if not value.has(sp.DiracDelta,ImpulseTrain):return sp.S.Zero,value
+    if not value.has(sp.DiracDelta,ImpulseTrain,PVCot):return sp.S.Zero,value
     known=[];remaining=[];ends={lower:[],upper:[]}
     kernel=sp.exp(sp.I*frequency*index)
     full_cycle=sp.simplify(upper-lower-2*sp.pi)==0
     for term in sp.Add.make_args(sp.expand_mul(value)):
         checkpoint()
+        if term.has(PVCot):
+            recovered=_inverse_delayed_principal_value(term,frequency,index) if full_cycle else None
+            if recovered is None:remaining.append(term)
+            else:known.append(recovered)
+            continue
         if term.has(ImpulseTrain):
             integer_comb=_inverse_delayed_comb(term,frequency,index) if full_cycle else None
             if integer_comb is not None:

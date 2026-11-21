@@ -31,6 +31,10 @@ def pieces(expression,lower,upper,*,preserve_structure=False):
             start,stop=sp.Max(left,lower),sp.Min(right,upper)
             if start<=stop:clipped.append((branch if preserve_structure else sp.simplify(branch),start,stop))
         return clipped
+    if expression.has(sp.Mod):
+        from .periodic_signals import wrapped_period
+        if wrapped_period(expression,N) is not None:
+            return [(expression if preserve_structure else sp.simplify(expression),lower,upper)]
     # Keep the explicitly completed sample separate before integer identities
     # such as sin(pi*n)=0 simplify the regular branch.
     value=expression.replace(lambda v:v.func in (sp.Heaviside,sp.KroneckerDelta),lambda v:v.rewrite(sp.Piecewise))

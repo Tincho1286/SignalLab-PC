@@ -26,7 +26,9 @@ def require_inverse_domain(request,value,domain,variable):
         raise ValueError('No se pudo verificar el dominio de la fórmula importada.') from exc
     if omitted is sp.S.EmptySet:return
     if isinstance(omitted,sp.FiniteSet):
-        from .periodic_signals import ImpulseTrain
+        from .periodic_signals import ImpulseTrain,PVCot
+        if value.has(PVCot):
+            raise ValueError('La inversa con valor principal requiere la definición espectral completa.')
         if not value.has(sp.DiracDelta,ImpulseTrain):return
         from .impulse_pairs import distribution_parts
         try:

@@ -119,6 +119,14 @@ def direct(request):
         'roc_lower': str(lower), 'roc_upper': str(upper), 'inverse_laplace_hint': hint,
         'scope': ('No existe una ROC abierta común. No se presenta la cancelación formal de las dos mitades como una transformada válida.' if condition == sp.false else
                   'Se integra sobre toda la recta temporal. La ROC es la intersección de las convergencias de t≥0 y t≤0; sus bordes están excluidos. Los impulsos se integran una sola vez. Las condiciones adicionales también deben cumplirse.')}
+    if condition is sp.false and split is not None:
+        from .periodic_fourier import windowed_periodic_fourier
+        from .periodic_generalized import continuous_spectrum
+        spectrum=windowed_periodic_fourier(value,T,W)
+        if spectrum is None:spectrum=continuous_spectrum(value,T,W)
+        if spectrum is not None:
+            answer.update(boundary_fourier=str(spectrum),boundary_distribution=True,
+                          periodic_fourier_source=request['expression'])
 
     records.append(step('Franja común','Intersección de las convergencias',after=roc_text(lower,upper) if condition is not sp.false else 'ROC vacía',conditions=condition,source='laplace_algebra.direct'))
     records.append(step('Resultado','Suma de los aportes compatibles' if condition is not sp.false else 'La definición queda sin evaluar por convergencia vacía',value,result,conditions=condition,source='laplace_algebra.direct'))

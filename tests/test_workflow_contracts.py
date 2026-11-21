@@ -258,6 +258,21 @@ class WorkflowContracts(unittest.TestCase):
         assert_allclose([position for position,_ in lines],[-np.pi,-np.pi/2,0,np.pi/2])
         assert_allclose([abs(weight) for _,weight in lines],np.pi/2)
 
+    def test_generalized_fourier_graph_preserves_lines_and_principal_value_breaks(self):
+        from signallab_pc.distributions import dirac_terms
+        from signallab_pc.symbolic_fourier_panel import SymbolicFourierPanel
+
+        panel=SymbolicFourierPanel(self.host);self.widgets.append(panel)
+        panel.expression.setText('Step(t-1)*PulseTrain(t-1,4,2)')
+        panel.start.setText('-pi');panel.stop.setText('pi');panel.count.setText('18')
+        panel.calculate_button.click();panel.sample_button.click();self.app.processEvents()
+        self.assertEqual(self.warnings,[])
+        self.assertEqual(panel.masked.data['undefined_count'],0)
+        assert_allclose(panel.masked.data['principal_value_poles'],[-np.pi/2,0,np.pi/2])
+        self.assertAlmostEqual(dict(dirac_terms(panel.masked.source))[0],np.pi/2)
+        self.assertTrue(np.isnan(panel.masked.figure.axes[0].lines[0].get_ydata()).any())
+        self.widgets.append(panel.masked.canvas._signallab_window)
+
     def test_periodic_laplace_spectrum_reused_by_inverse_fourier(self):
         from signallab_pc.result_expressions import send_expression
         source=TransformLab(self.host,'laplace');self.widgets.append(source)

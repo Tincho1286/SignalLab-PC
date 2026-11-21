@@ -119,6 +119,8 @@ class SymbolicFourierPanel(QWidget):
             if parent and not self.discrete:
                 record=self.window.project.get(parent)
                 source=record.get('result',{}).get('periodic_fourier_source') if isinstance(record,dict) else None
+                if not source and isinstance(record,dict):
+                    source=(record.get('cas_answer',{}).get('provenance') or {}).get('periodic_fourier_source')
                 if source:request['periodic_fourier_source']=source
         if self.discrete and not self.inverse:request.update(lower=self.lower.text(),upper=self.upper.text())
         snapshot=self.result_state.snapshot()
@@ -182,7 +184,7 @@ class SymbolicFourierPanel(QWidget):
         def accept(data):
             if self.last[0] != key or not self.sample_button.isEnabled():
                 return
-            if data.get('undefined_count'):
+            if data.get('undefined_count') or data.get('principal_value_poles'):
                 hide_plot(self.output.canvas)
                 units='s' if data['variable']=='t' else result['frequency_units']
                 self.window.publish({'request':request,'result':{**data,'units':units}},operation='Valores condicionados del resultado algebraico',parents=[key])

@@ -26,8 +26,8 @@ class Definition:
 
     def integral_expression(self):
         """Isolated ordinary point values have zero measure, unlike impulses."""
-        from .periodic_signals import ImpulseTrain
-        if self.expression.has(sp.DiracDelta,ImpulseTrain):return self.expression
+        from .periodic_signals import ImpulseTrain,PVCot
+        if self.expression.has(sp.DiracDelta,ImpulseTrain,PVCot):return self.expression
         def strip(piece):
             if piece.has(sp.DiracDelta) or piece.args[-1].cond is not sp.true or any(condition.free_symbols-{self.variable} for _,condition in piece.args):return piece
             kept=[]
@@ -60,6 +60,9 @@ def prepare(source,variable,domain,support=None,conditions=(),support_kind='sign
     from .singularities import resolve_finite_support
     with capture() as records:
         expression=parse(source)
+        from .periodic_signals import PVCot
+        if expression.has(PVCot) and domain not in ('frequency','periodic_frequency'):
+            raise ValueError('PVCot representa un valor principal en frecuencia. Usalo en una herramienta de Fourier.')
         if domain=='discrete' and expression.has(sp.DiracDelta):
             raise ValueError('Un impulso discreto debe depender de n, como Dirac(n-a) o impulse(n-a). Las derivadas de Dirac pertenecen al dominio continuo.')
         if domain!='discrete' and expression.has(sp.KroneckerDelta):
@@ -88,9 +91,9 @@ def prepare(source,variable,domain,support=None,conditions=(),support_kind='sign
 def attach(result,definition,*,exact=None,condition=None):
     if exact is not None and result.get('evaluated'):
         from .cas_engine import encode
-        from .periodic_signals import ImpulseTrain
+        from .periodic_signals import ImpulseTrain,PVCot
         result['cas_encoded']=encode(exact)
-        if exact.has(sp.DiracDelta,ImpulseTrain):result['distribution']=True
+        if exact.has(sp.DiracDelta,ImpulseTrain,PVCot):result['distribution']=True
         if condition is not None and condition is not sp.true:
             result['cas_domain_condition']=encode(condition)
     result['input_definition']=definition.metadata()

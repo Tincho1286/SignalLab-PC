@@ -61,9 +61,10 @@ def payload(value,window=None,seen=None):
             from .result_expressions import frequency_validity
             from .transform_context import result_roc,result_period
             from .cas_system_context import origin
+            result=value.get('result',{})
             return {'kind':'expression','source':expression.source,'variable':expression.variable,'conditions':list(expression.conditions),'system_roc':result_roc(value),'period':result_period(value),'system_origin':origin(value),
-                    'domain_condition':value.get('result',{}).get('cas_domain_condition'),
-                    'encoded':value.get('result',{}).get('cas_encoded'),'numeric_source':expression.numerical_source,'frequency_units':expression.units,'frequency_condition':frequency_validity(value),'provenance':{name:value.get('result',{}).get(name) for name in ('input_definition','calculation_notes','calculation_status') if name in value.get('result',{})}}
+                    'domain_condition':result.get('cas_domain_condition'),
+                    'encoded':result.get('cas_encoded'),'numeric_source':expression.numerical_source,'frequency_units':expression.units,'frequency_condition':frequency_validity(value),'provenance':{name:result[name] for name in ('input_definition','calculation_notes','calculation_status','periodic_fourier_source') if name in result}}
         if _unavailable_formula(value):return None
         if isinstance(value.get('result'),dict) and value['result'].get('operation')=='signal_measures_expression':
             data={name:{'expression':value['result'][name]['exact']} for name in ('energy','mean_square','rms')}

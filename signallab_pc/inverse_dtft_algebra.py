@@ -28,6 +28,9 @@ def inverse_expression(request):
     require_inverse_domain(request,value,sp.Interval(lower,upper),W)
     from .impulse_pairs import inverse_periodic_impulses
     lines,value=inverse_periodic_impulses(value,W,N,lower,upper)
+    from .periodic_signals import PVCot
+    if value.has(PVCot):
+        raise ValueError('Para invertir este valor principal, usá una cotangente con período entero y pesos de desplazamiento entero.')
     from .fourier_bands import inverse_bands
     records=[]
     exact=inverse_bands(value,W,N,discrete=True,period_origin=lower,trace=records) if value==0 or value.has(sp.Piecewise,sp.Heaviside) else None

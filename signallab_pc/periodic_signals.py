@@ -35,6 +35,12 @@ class ImpulseTrain(sp.Function):
     nargs = 2
 
 
+class PVCot(sp.Function):
+    """Cauchy principal value of cot(period*frequency/2)."""
+
+    nargs = 2
+
+
 def repeat(value, variable, period, start=sp.S.Zero):
     if not isinstance(variable, sp.Symbol) or variable.name not in ('n', 't'):
         raise ValueError('Indicá n o t como segunda entrada de Repeat.')
@@ -96,7 +102,7 @@ def repeat_samples(variable, start, samples, step=sp.S.One):
 
 
 SYMBOLIC_FUNCTIONS = {'repeat': repeat, 'pulsetrain': pulse_train, 'impulsetrain': impulse_train,
-                      'repeatsamples': repeat_samples}
+                      'repeatsamples': repeat_samples, 'pvcot': PVCot}
 
 
 def _wrap_geometry(value, variable):

@@ -33,8 +33,13 @@ class ExpressionGridView(QWidget):
         polar=self.components.currentIndex()==0
         first=abs(values) if polar else values.real
         second=np.where(abs(values)>0,np.angle(values),np.nan) if polar else values.imag
+        poles=np.asarray(self.data.get('principal_value_poles',[]))
+        insertion=np.searchsorted(axis,poles)
+        gaps=(insertion>0)&(insertion<len(axis))
+        positions=insertion[gaps]
+        x=np.insert(axis,positions,poles[gaps])
         for plot,component,label in zip(axes,(first,second),('Módulo' if polar else 'Parte real','Fase (rad)' if polar else 'Parte imaginaria')):
-            line=plot.plot(axis,component)[0];line._signallab_probe_values=(source.origin,source.step,component);plot.set_ylabel(label);plot.grid(alpha=.2)
+            line=plot.plot(x,np.insert(component,positions,np.nan))[0];line._signallab_probe_values=(source.origin,source.step,component);plot.set_ylabel(label);plot.grid(alpha=.2)
         if not np.isfinite(values).any():axes[0].text(.5,.5,'No hay valores definidos en este intervalo',ha='center',transform=axes[0].transAxes)
         if impulses:
             plot_impulse_areas(axes[-1],impulses,source.name);axes[-1].legend()
