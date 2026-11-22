@@ -8,6 +8,7 @@ Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.9.3](v1.9.3.md) | Sesiones recuperables, precisión numérica y relojes | Preliminar |
 | [1.9.2](v1.9.2.md) | Aviso al iniciar y detección de períodos | Estable |
 | [1.9.1](v1.9.1.md) | Sintaxis y argumentos de las fórmulas | Preliminar |
 | [1.9.0](v1.9.0.md) | Hotfix · expresiones y transformadas de trenes de Dirac | Estable |

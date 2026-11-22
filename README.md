@@ -36,7 +36,7 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 ### Canal estable y preliminares
 
-La 1.9.2 está disponible en ambos canales. Elegí **Estables y preliminares (Pre-releases)** si además querés recibir futuras versiones de prueba. [Notas de la versión estable](docs/releases/v1.9.2.md).
+La **1.9.3 preliminar** incorpora sesiones recuperables y corrige cálculos de amplitud muy pequeña y relojes de señales. Para recibirla en una instalación existente, elegí **Estables y preliminares (Pre-releases)** en el actualizador. [Descargas de la preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.3) · [Notas de la 1.9.3](docs/releases/v1.9.3.md).
 
 ### Actualizar una instalación
 
@@ -67,7 +67,7 @@ Las figuras se abren en ventanas independientes y las secuencias discretas se re
 
 Para continuar un análisis, usá **Usar señal en…**, **Usar filtro en…** o la acción de reutilización disponible junto al resultado. La aplicación conserva el tipo de objeto y las condiciones registradas, y ofrece destinos compatibles. Por ejemplo, una ventana generada en Señales puede pasar a Fourier; un filtro diseñado puede analizarse en frecuencia o utilizarse en una respuesta temporal.
 
-La biblioteca **Resultados** conserva las salidas durante el trabajo. Para guardarlas fuera de la sesión, exportá los objetos o informes que necesites. La [guía de formatos](docs/file-formats.md) explica JSON, CSV/TSV y los formatos MATLAB admitidos, así como los datos necesarios para conservar índices, unidades y frecuencia de muestreo.
+La biblioteca **Resultados** conserva las salidas durante el trabajo y permite exportar objetos o informes. En la 1.9.3 preliminar, **Archivo → Sesiones** guarda también las entradas compatibles y las herramientas abiertas. [Guía de formatos y sesiones](docs/file-formats.md).
 
 ## Interpretar los cálculos
 
@@ -76,6 +76,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La 1.9.3 preliminar recupera sesiones tras un cierre inesperado. Las medidas conservan energías y RMS muy pequeños, los ejes rechazan coordenadas repetidas y las operaciones entre señales comprueban que los relojes registrados sean compatibles. [Notas de la 1.9.3](docs/releases/v1.9.3.md).
 
 La 1.9.2 muestra el aviso al iniciar cuando detecta una actualización compatible. También completa el período de las señales cuando puede determinarlo a partir de la fórmula y conserva el período de los coeficientes de una serie importada. [Notas de la 1.9.2](docs/releases/v1.9.2.md).
 

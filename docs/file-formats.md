@@ -17,6 +17,7 @@ La importación está disponible desde el selector de Resultados y los editores 
 | JSON de sistema | Numerador, denominador, dominio, secciones cuando existen, avances, reloj y ROC registrada según versión del formato. |
 | JSON de realización | Bloques, conexiones, signos y posiciones. Se abre desde **Diagrama** en Función de transferencia y análisis. |
 | JSON de Resultados | Selección exportada con sus datos y dependencias. Permite recuperar objetos compatibles y su procedencia. |
+| JSON de sesión completa (1.9.3 preliminar) | Resultado y dependencias de toda la biblioteca, herramientas abiertas y borradores compatibles. |
 | JSON algebraico | Expresión, variable y condiciones de un cálculo compatible. |
 
 ## Ejes y metadatos
@@ -41,4 +42,6 @@ La ausencia de ROC se conserva explícitamente: una expresión racional no fija 
 
 ## Conservar resultados entre sesiones
 
-La biblioteca reúne los resultados durante el trabajo. Exportar una selección permite recuperar los objetos compatibles y su procedencia; no equivale a guardar automáticamente todas las pestañas y el estado completo de una sesión. Exportá los datos e informes que quieras conservar antes de cerrar o de instalar una actualización.
+En la 1.9.3 preliminar, **Archivo → Sesiones → Guardar sesión completa** conserva la biblioteca, los vínculos entre resultados, las herramientas abiertas y sus entradas compatibles. **Abrir sesión completa** valida el archivo y permite cambiar de sesión. Para añadir resultados exportados o proyectos anteriores a la biblioteca abierta, usá **Incorporar resultados**.
+
+Tras un cierre inesperado, SignalLab ofrece recuperar el último punto local. Los informes previos se consultan en **Resultados**. Las ventanas de gráficos, el historial del CAS y algunos borradores de editores especializados quedan fuera de la recuperación. [Detalles del formato y la migración](development/README.md#sesiones-de-escritorio).

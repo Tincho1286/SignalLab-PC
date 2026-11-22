@@ -1,6 +1,22 @@
 {
   "releases": [
     {
+      "tag": "v1.9.3",
+      "title": "Sesiones recuperables y precisión numérica",
+      "channel": "preview",
+      "summary": "La 1.9.3 guarda sesiones y permite recuperar el último punto local. Corrige pérdidas de precisión en medidas, coordenadas repetidas y relojes de señales.",
+      "changes": [
+        "Las sesiones conservan los resultados, sus dependencias, las herramientas abiertas y las entradas compatibles.",
+        "El RMS y la energía se calculan con escalado para conservar magnitudes representables muy pequeñas.",
+        "Las operaciones entre señales verifican relojes compatibles y conservan las referencias físicas disponibles.",
+        "El paquete de Python incorpora los recursos anidados de la biblioteca de ayuda."
+      ],
+      "limits": [
+        "Las ventanas de gráficos, el historial del CAS y algunos editores especializados quedan fuera de la recuperación."
+      ],
+      "notes": "docs/releases/v1.9.3.md"
+    },
+    {
       "tag": "v1.9.2",
       "title": "Aviso al iniciar y detección de períodos",
       "channel": "stable",
