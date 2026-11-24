@@ -124,7 +124,8 @@ class Frontend(unittest.TestCase):
         attach(tabs,bar);install(tabs);parent.show();self.settle()
         selector = tabs.result_selector
         margins=layout.contentsMargins()
-        parent.resize(selector.required_width()+margins.left()+margins.right()+40,500);self.settle()
+        wide=selector.required_width()+margins.left()+margins.right()+40
+        parent.resize(wide,500);self.settle()
         self.assertTrue(tabs.tabBar().isHidden())
         self.assertTrue(selector.row.isVisible())
         self.assertEqual([button.text() for button in selector.buttons.values()], titles)
@@ -142,7 +143,7 @@ class Frontend(unittest.TestCase):
         self.assertEqual(tabs.currentIndex(), 1)
         self.assertEqual(clicked, [2, 1])
         tabs.hide();self.settle();self.assertTrue(selector.container.isHidden())
-        tabs.show();parent.resize(920,500);self.settle();self.assertTrue(selector.row.isVisible())
+        tabs.show();parent.resize(wide,500);self.settle();self.assertTrue(selector.row.isVisible())
         selected=selector.buttons[0];parent.activateWindow();selected.setFocus();QTest.keyClick(selected,Qt.Key.Key_Space);self.settle();self.assertIs(selector.buttons[0],selected);self.assertIs(self.app.focusWidget(),selected)
     def test_action_dock_tracks_the_selected_result_without_losing_commands(self):
         from signallab_pc.result_action_dock import install
