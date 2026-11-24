@@ -1,6 +1,23 @@
 {
   "releases": [
     {
+      "tag": "v1.9.5",
+      "title": "Recuperación de muestras, relojes y Laplace",
+      "channel": "preview",
+      "summary": "La 1.9.5 conserva las muestras editadas y corrige relojes, cálculos numéricos y la transformada de Laplace.",
+      "changes": [
+        "Las sesiones guardan las filas editadas y conservan la fórmula de origen como referencia si ya no describe la tabla.",
+        "La reconstrucción y el cambio de tasa actualizan los valores del reloj al cambiar de señal.",
+        "El recorte, el enventanado y la síntesis conservan los datos de reloj disponibles.",
+        "Se corrigen pérdidas de precisión en operaciones continuas y en la DTFT inversa.",
+        "La transformada de Laplace resuelve polinomios multiplicados por exponenciales con su región de convergencia."
+      ],
+      "limits": [
+        "Las sesiones nuevas usan el esquema 3. Los archivos de esquemas anteriores se pueden abrir en la 1.9.5."
+      ],
+      "notes": "docs/releases/v1.9.5.md"
+    },
+    {
       "tag": "v1.9.4",
       "title": "Recuperación de entradas y remuestreo sinc",
       "channel": "preview",

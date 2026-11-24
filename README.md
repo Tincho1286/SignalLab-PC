@@ -36,7 +36,7 @@ En Windows, abrí el archivo elegido. En Linux, el instalador se inicia con `sh 
 
 ### Canal estable y preliminares
 
-La **1.9.4 preliminar** recupera más entradas al abrir una sesión, conserva las referencias de los resultados exportados y mejora la precisión del remuestreo y el manejo de los relojes de muestreo. Para recibirla en una instalación existente, elegí **Estables y preliminares (Pre-releases)** en el actualizador. [Descargas de la preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.4) · [Notas de la 1.9.4](docs/releases/v1.9.4.md).
+La **1.9.5 preliminar** conserva las muestras editadas al reabrir una sesión, actualiza el reloj al cambiar de señal y corrige casos de precisión numérica y de la transformada de Laplace. Para recibirla desde una instalación existente, elegí **Estables y preliminares (Pre-releases)** en el actualizador. [Descargas de la preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.5) · [Notas de la 1.9.5](docs/releases/v1.9.5.md).
 
 ### Actualizar una instalación
 
@@ -76,6 +76,8 @@ Los informes distinguen expresiones simbólicas, aproximaciones numéricas y ope
 El alcance depende del método elegido y de sus hipótesis. Una evaluación sobre una rejilla no certifica todos los puntos de una función, y el motor simbólico puede dejar una expresión sin resolver. La [guía de fiabilidad](docs/mathematical-reliability.md) describe los criterios y controles utilizados, sin presentar esas comprobaciones como una garantía de resolución universal.
 
 ## Novedades e historial
+
+La 1.9.5 preliminar registra las muestras modificadas de un borrador y conserva su fórmula como referencia cuando deja de representar la tabla. También corrige los relojes de muestreo y el cálculo de Laplace de polinomios multiplicados por exponenciales. [Notas de la 1.9.5](docs/releases/v1.9.5.md).
 
 La 1.9.4 preliminar conserva las condiciones de las expresiones, las matrices y las señales por canal al abrir una sesión. La STFT distingue entre segundos relativos e instantes absolutos según los datos disponibles. El remuestreo sinc conserva resultados representables con amplitudes muy grandes. [Notas de la 1.9.4](docs/releases/v1.9.4.md).
 

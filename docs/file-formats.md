@@ -42,6 +42,6 @@ La ausencia de ROC se conserva explícitamente: una expresión racional no fija 
 
 ## Conservar resultados entre sesiones
 
-**Archivo → Sesiones → Guardar sesión completa** conserva la biblioteca, los vínculos entre resultados, las herramientas abiertas y sus entradas compatibles. Desde la 1.9.4 preliminar también guarda condiciones algebraicas, matrices y señales por canal. **Abrir sesión completa** admite los archivos de la 1.9.3 y valida sus datos antes de cambiar de sesión. Para añadir resultados exportados o proyectos anteriores a la biblioteca abierta, usá **Incorporar resultados**.
+**Archivo → Sesiones → Guardar sesión completa** conserva la biblioteca, los vínculos entre resultados, las herramientas abiertas y sus entradas compatibles. Desde la 1.9.4 preliminar también guarda condiciones algebraicas, matrices y señales por canal. Desde la 1.9.5, también conserva qué muestras se editaron para distinguir la tabla de su fórmula de origen. **Abrir sesión completa** admite archivos desde la 1.9.3 y valida sus datos antes de cambiar de sesión. Para añadir resultados exportados o proyectos anteriores a la biblioteca abierta, usá **Incorporar resultados**.
 
 Tras un cierre inesperado, SignalLab ofrece recuperar el último punto local. Los informes previos se consultan en **Resultados**. Las ventanas de gráficos, el historial del CAS y algunos borradores de editores especializados quedan fuera de la recuperación. [Detalles del formato y la migración](development/README.md#sesiones-de-escritorio).
