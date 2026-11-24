@@ -22,9 +22,9 @@ def intervals(region):
     return [(lo,hi)] if lo<=hi else []
 
 
-def pieces(expression,lower,upper,*,preserve_structure=False):
+def pieces(expression,lower,upper,*,preserve_structure=False,index=N):
     from .periodic_support import split_periodic_support
-    split=split_periodic_support(expression,N)
+    split=split_periodic_support(expression,index)
     if split is not None:
         clipped=[]
         for branch,left,right in split:
@@ -33,7 +33,7 @@ def pieces(expression,lower,upper,*,preserve_structure=False):
         return clipped
     if expression.has(sp.Mod):
         from .periodic_signals import wrapped_period
-        if wrapped_period(expression,N) is not None:
+        if wrapped_period(expression,index) is not None:
             return [(expression if preserve_structure else sp.simplify(expression),lower,upper)]
     # Keep the explicitly completed sample separate before integer identities
     # such as sin(pi*n)=0 simplify the regular branch.
@@ -159,6 +159,19 @@ def interval(value,lower,upper):
     return sp.Add(*[p[0] for p in results]),sp.And(*[p[1] for p in results]),sp.And(*[p[2] for p in results])
 
 
+def exclude_origin_pole(expression, condition):
+    """An annulus advertised for a Laurent expression cannot include its pole."""
+    if condition in (sp.true,sp.false):
+        return condition
+    if expression.is_rational_function(Z) and sp.fraction(sp.cancel(expression))[1].subs(Z,0) == 0:
+        try:
+            if condition.subs(Z,0) is sp.true:
+                return sp.And(sp.Abs(Z)>0,condition)
+        except (TypeError,ValueError):
+            pass  # The condition is already undefined at the origin.
+    return condition
+
+
 def direct_pairs(expression,lower,upper):
     parts=pieces(expression,lower,upper)
     if parts is None:return None
@@ -170,9 +183,9 @@ def direct_pairs(expression,lower,upper):
         periodic_tail|=value.has(sp.Mod) and (lo==-sp.oo or hi==sp.oo) and pair[2] is sp.false
         segments.append(dict(expression=str(value),lower=str(lo),upper=str(hi),transform=str(pair[0]),condition=str(pair[1])))
     from .radial_conditions import simplify_radial
-    condition = simplify_radial(sp.And(*(pair[1] for pair in results)), Z)
     boundary_condition=sp.And(*[pair[2] for pair in results])
     closed=sp.simplify(sp.Add(*[pair[0] for pair in results]))
+    condition = simplify_radial(exclude_origin_pole(closed,sp.And(*(pair[1] for pair in results))), Z)
     boundary={'segments':segments,'boundary_result':closed,'boundary_condition':boundary_condition,'periodic_tail':periodic_tail}
     if condition is sp.false:
         return {'result':sp.Sum(expression*Z**(-N),(N,lower,upper)),'condition':condition,'empty':True,**boundary}

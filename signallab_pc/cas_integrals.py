@@ -2,6 +2,28 @@
 import sympy as sp
 
 
+def sum_on_indices(value, *limits):
+    if isinstance(value,sp.Expr) and len(limits)==1 and isinstance(limits[0],(tuple,list,sp.Tuple)):
+        coordinate,lower,upper = limits[0] if len(limits[0])==3 else (None,None,None)
+        if (isinstance(coordinate,sp.Symbol) and coordinate.is_integer
+                and (lower == -sp.oo or isinstance(lower,sp.Integer))
+                and (upper == sp.oo or isinstance(upper,sp.Integer)) and lower<=upper
+                and value.has(sp.Piecewise,sp.Heaviside,sp.KroneckerDelta)):
+            from .z_direct_pairs import pieces
+            from .jobs import checkpoint
+
+            branches = pieces(value,lower,upper,index=coordinate)
+            if branches is not None:
+                terms = []
+                for branch,start,stop in branches:
+                    checkpoint()
+                    if branch != 0:
+                        terms.append(branch.subs(coordinate,start) if start==stop else
+                                     sp.summation(branch,(coordinate,start,stop)))
+                return sp.Add(*terms)
+    return sp.summation(value,*limits)
+
+
 
 def _dirac_integral(value,coordinate,start,stop,options):
     """Finite real endpoints use symmetric half weight; Laplace keeps 0−."""
@@ -11,10 +33,10 @@ def _dirac_integral(value,coordinate,start,stop,options):
     direction=1 if (stop-start).is_positive is True else -1 if (stop-start).is_negative is True else None
     if direction is None:return None
     lower,upper=(start,stop) if direction==1 else (stop,start)
-    from .impulse_pairs import affine_impulse,impulse_integral
+    from .impulse_pairs import affine_impulse,expand_real_impulses,impulse_integral
     terms=[]
     # expand_diracdelta handles simple non-affine real roots, when certified.
-    expanded=sp.expand_mul(value.expand(diracdelta=True,wrt=coordinate))
+    expanded=expand_real_impulses(value,coordinate)
     for term in sp.Add.make_args(expanded):
         atoms=term.atoms(sp.DiracDelta)
         if not atoms:

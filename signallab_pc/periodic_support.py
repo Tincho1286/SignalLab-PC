@@ -62,9 +62,10 @@ def split_periodic_support(value, variable, *, preserve_addends=False, require_w
     return result
 
 
-def finite_periodic_correction(value, variable):
+def finite_periodic_correction(value, variable, *, require_wrap=True):
     """Return the shared exterior expression and finite corrections to it."""
-    parts=split_periodic_support(value,variable,preserve_addends=not variable.is_integer)
+    parts=split_periodic_support(value,variable,preserve_addends=not variable.is_integer,
+                                 require_wrap=require_wrap)
     if parts is None:return None
     left=parts[0][0]
     right=parts[-1][0]

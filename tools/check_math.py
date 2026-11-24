@@ -27,6 +27,7 @@ FAMILIES={
     'clock_reuse_and_sinc_scale':('test_audit_followup.FollowupClockAndScaleTests',3),
     'sample_coordinates_and_reindexing':('test_sample_coordinates.SampleCoordinateTests',8),
     'independent_algebra_references':('test_algebra_reference.AlgebraReferenceTests',5),
+    'algebra_support_and_boundaries':('test_algebra_support.AlgebraSupportTests',11),
 }
 
 

@@ -43,6 +43,13 @@ def affine_impulse(delta,variable):
     return scale,position
 
 
+def expand_real_impulses(value, variable):
+    """Reduce simple real roots before sampling a temporal weight."""
+    if not value.has(sp.DiracDelta):
+        return value
+    return sp.expand_mul(value.expand(diracdelta=True, wrt=variable))
+
+
 def distribution_parts(value, variable, lower, upper, *, right_open=False):
     """Split a window into its ordinary expression and exact impulse areas."""
     from .periodic_signals import ImpulseTrain, weighted_lines
@@ -102,6 +109,18 @@ def impulse_integral(term,variable,kernel,lower=-sp.oo,upper=sp.oo):
     if not isinstance(order,sp.Integer) or order<0:return None
     from .resources import ensure_working_set
     ensure_working_set(int(order)+1,bytes_per_sample=8192,live_arrays=8)
+    # A polynomial gate whose argument is nonzero at the impulse has a
+    # constant local sign. This also removes irrelevant jump derivatives.
+    local_gates = {}
+    for gate in weight.atoms(sp.Heaviside,sp.sign):
+        argument = gate.args[0]
+        if argument.is_polynomial(variable):
+            center = argument.subs(variable,position)
+            if center.is_positive is True or center.is_negative is True:
+                local_gates[gate] = gate.subs(variable,position)
+    weight = weight.xreplace(local_gates)
+    if weight == 0:
+        return sp.S.Zero
     # Products with a jump at the impulse have no canonical sifting value.
     real=sp.Dummy('coordinate',real=True)
     from .expression_definition import Definition
@@ -277,9 +296,35 @@ def fourier_pairs(value,variable,output,*,inverse=False):
     return sp.Add(*known),sp.Add(*remaining)
 
 
-def ordinary_laplace(value, variable, output):
+def ordinary_laplace(value, variable, output, *, split_support=True):
     """Apply an exponential translation after the base transform is evaluated."""
     from .jobs import checkpoint
+
+    if split_support and value.has(sp.Heaviside, sp.Piecewise, sp.Abs, sp.sign):
+        from .periodic_support import split_periodic_support
+        from .periodic_fourier import finite_laplace_piece, periodic_integral
+
+        spans = split_periodic_support(value, variable, preserve_addends=True, require_wrap=False)
+        if spans is not None:
+            pieces, planes, conditions = [], [], []
+            for branch, lower, upper in spans:
+                checkpoint()
+                lower = sp.Max(sp.S.Zero, lower)
+                if branch == 0 or lower >= upper:
+                    continue
+                if upper.is_finite:
+                    piece = (periodic_integral(branch,variable,lower,upper,laplace_variable=output)
+                             if branch.has(sp.Mod) else finite_laplace_piece(branch,variable,output,lower,upper))
+                    pieces.append(piece if piece is not None else
+                                  sp.Integral(branch*sp.exp(-output*variable),(variable,lower,upper)))
+                else:
+                    local = sp.Dummy('time', positive=True)
+                    piece, plane, condition = ordinary_laplace(
+                        branch.subs(variable,local+lower),local,output,split_support=False)
+                    pieces.append(sp.exp(-output*lower)*piece)
+                    planes.append(plane)
+                    conditions.append(condition)
+            return sp.Add(*pieces), sp.Max(-sp.oo,*planes), sp.And(*conditions)
 
     results, planes, conditions = [], [], []
     for term in sp.Add.make_args(sp.expand_mul(value)):
@@ -328,7 +373,7 @@ def unilateral_laplace(value,variable,output):
         (periodic if lower==0 else known).append(result)
         if lower != 0:
             train_plane = lower
-    for term in sp.Add.make_args(sp.expand_mul(value)):
+    for term in sp.Add.make_args(sp.expand_mul(expand_real_impulses(value,variable))):
         extension=periodic_laplace(term,variable,output) if term.has(sp.Mod) else None
         if extension is not None:
             periodic.append(extension)
@@ -338,9 +383,14 @@ def unilateral_laplace(value,variable,output):
             known.append(gated[0])
             periodic.append(gated[1])
             continue
-        answer=impulse_integral(term,variable,sp.exp(-output*variable),sp.S.Zero,sp.oo) if term.has(sp.DiracDelta) else None
-        (remaining if answer is None else known).append(term if answer is None else answer)
+        if term.has(sp.DiracDelta):
+            answer=impulse_integral(term,variable,sp.exp(-output*variable),sp.S.Zero,sp.oo)
+            known.append(answer if answer is not None else sp.LaplaceTransform(term,variable,output))
+        else:
+            remaining.append(term)
     result, plane, condition = ordinary_laplace(sp.Add(*remaining),variable,output)
     periodic=sp.simplify(sp.Add(*periodic))
     if periodic!=0:plane=sp.Max(plane,0)
-    return sp.simplify(sp.Add(*known)+result+periodic),sp.Max(plane,train_plane),condition
+    combined = sp.Add(*known)+result+periodic
+    combined = sp.factor_terms(combined) if combined.has(sp.Piecewise) else sp.simplify(combined)
+    return combined,sp.Max(plane,train_plane),condition

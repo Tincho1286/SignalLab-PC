@@ -38,6 +38,8 @@ def direct(request):
                 numerator=cycle_weight(cycle,first,lambda index: Z**(-index))
                 result=numerator/(1-Z**(-period if right else period))
                 condition=sp.Abs(Z)>1 if right else sp.Abs(Z)<1
+                from .z_direct_pairs import exclude_origin_pole
+                condition=exclude_origin_pole(result,condition)
                 return attach({'operation':'Transformada Z algebraica','result':str(result),'evaluated':True,
                     'condition':str(condition),'output_variable':'z','roc':str(condition),
                     'branches':[{'expression':str(result),'condition':str(condition)}],

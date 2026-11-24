@@ -46,8 +46,8 @@ def measure_expression(request):
             if lower==-sp.oo and upper==sp.oo:
                 return simplify_measure(sp.summation(density,(N,-sp.oo,-1))+sp.summation(density,(N,0,sp.oo)))
             return simplify_measure(sp.summation(density,(N,lower,upper)))
-        integrand=sp.piecewise_fold(density.rewrite(sp.Piecewise)) if density.has(sp.Heaviside) else density
-        return simplify_measure(sp.integrate(integrand,(T,lower,upper)))
+        from .continuous_algebra import nonnegative_integral
+        return simplify_measure(nonnegative_integral(density,T,lower,upper))
     def bounded_modular_measure(lower,upper,density):
         from .jobs import checkpoint
         parts=split_periodic_support(density,variable) or [(density,lower,upper)]
@@ -137,6 +137,16 @@ def measure_expression(request):
         if power.is_positive is True:return sp.oo,power
         if power==0 and zero_tail_energy_certified:return sp.Add(*finite_areas),power
         return None
+    def sinc_band_energy():
+        if domain!='discrete' or not source_value.has(sp.sin,sp.cos):
+            return None
+        if not any(factor.exp.is_negative is True and factor.base.has(N)
+                   for factor in source_value.atoms(sp.Pow)):
+            return None
+        from .dtft_pairs import direct
+        from .fourier_bands import discrete_band_energy
+        spectrum = direct(source_value)
+        return discrete_band_energy(spectrum,W) if spectrum is not None else None
     wrapping=wrapped_period(value if mode=='periodic' else power_density,variable) if mode!='interval' else None
     interval_energy=None;period_verified=False;energy_converges=False
     if mode=='interval':
@@ -179,6 +189,12 @@ def measure_expression(request):
 
         lower,upper=-sp.oo,sp.oo
         power=harmonic_power(value,variable) if wrapping is None else None
+        discrete_period = None
+        if domain == 'discrete' and wrapping is None and power is None and value.has(sp.Mod,sp.Piecewise):
+            from .signal_period import expression_period
+            period = expression_period(value,variable)
+            if period is not None and period.is_Integer and period>0:
+                discrete_period = period
         if wrapping is not None:
             cycle,first,density=wrapping
             power=simplify_measure(cycle_energy(cycle,first,density)/cycle)
@@ -188,6 +204,16 @@ def measure_expression(request):
             energy=energy_from_mean(power)
             scope='Se agrupan las componentes con la misma frecuencia antes de calcular su potencia.'
             if domain=='discrete':scope+=' Las frecuencias separadas por un múltiplo de 2π representan la misma secuencia.'
+        elif discrete_period is not None:
+            from .jobs import checkpoint
+            ensure_working_set(int(discrete_period),bytes_per_sample=1024,live_arrays=8)
+            total = sp.S.Zero
+            for index in range(int(discrete_period)):
+                checkpoint()
+                total += power_density.subs(variable,index)
+            power = sp.simplify(total/discrete_period)
+            energy = energy_from_mean(power)
+            scope='Se demostraron los períodos de los tramos y se evaluaron todos los índices de un ciclo común.'
         elif (power:=cycle_power(source_value,variable)) is not None:
             energy=energy_from_mean(power)
             scope=('Se promedian los productos de las componentes que comparten frecuencias en su ciclo común. '
@@ -206,6 +232,9 @@ def measure_expression(request):
         elif (energy:=exponential_energy(power_density,variable,accumulated)) is not None:
             power=sp.S.Zero
             scope='La energía se obtiene sumando los aportes de decaimiento exponencial. Como es finita, la potencia media vale cero.'
+        elif (energy:=sinc_band_energy()) is not None:
+            power=sp.S.Zero
+            scope='La identidad de Parseval integra el módulo al cuadrado de la DTFT exacta en un período.'
         elif (asymptotic:=rational_tail_measures(power_density,variable)) is not None:
             energy,power=asymptotic
             scope='La energía diverge. El promedio simétrico se determina por los límites de la densidad o por sus polos no integrables.'

@@ -4,7 +4,7 @@ from sympy.core.relational import Relational
 
 
 def simplify_radial(condition, coordinate):
-    radius = sp.Dummy('radius', positive=True)
+    radius = sp.Dummy('radius', nonnegative=True)
     radial = condition.subs(sp.Abs(coordinate), radius)
 
     def reduce(node):
@@ -20,7 +20,7 @@ def simplify_radial(condition, coordinate):
             # Convert each predicate separately. reduce_inequalities may leave
             # equivalent bounds in different forms (r < 1 and 1/r < 1).
             # Intersecting the real sets detects the contradiction exactly.
-            region = sp.Intersection(sp.Interval.open(0, sp.oo),
+            region = sp.Intersection(sp.Interval(0, sp.oo),
                                      *(part.as_set() for part in radial_parts))
             reduced = region.as_relational(radius)
         except (NotImplementedError, ValueError, TypeError):

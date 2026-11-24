@@ -26,7 +26,7 @@ def direct(request):
     from .periodic_signals import affine_train_term
     from .periodic_fourier import finite_laplace_piece,periodic_fourier_pair,periodic_integral,periodic_laplace
     from .periodic_support import split_periodic_support
-    from .impulse_pairs import fourier_pairs, ordinary_laplace
+    from .impulse_pairs import expand_real_impulses, fourier_pairs, ordinary_laplace
 
     periodic = periodic_fourier_pair(value,T,W) if value.has(sp.Mod) else None
     if (periodic is not None and periodic[0] != 0) or affine_train_term(value,T) is not None:
@@ -50,7 +50,7 @@ def direct(request):
         if spans:
             integral,lower_bound,upper_bound=laplace_spans(spans,S)
             trains.append(integral)
-    for term in sp.Add.make_args(sp.expand_mul(base)):
+    for term in sp.Add.make_args(sp.expand_mul(expand_real_impulses(base,T))):
         (singular if term.has(sp.DiracDelta) else regular).append(term)
     from .procedure import step
     records=[];impulse = sp.S.Zero
@@ -169,7 +169,75 @@ def _right_of(pole, sigma, values):
     raise ValueError('La línea coincide con la parte real de un polo o no puede separarse de ella. Elegí otro valor de σ dentro de la ROC.')
 
 
-def inverse(request):
+def rational_shift(expression):
+    delay, rational = sp.S.Zero, sp.S.One
+    for factor in sp.Mul.make_args(expression):
+        if factor.func == sp.exp and factor.has(S):
+            argument = sp.expand(factor.args[0])
+            slope = argument.coeff(S)
+            rest = sp.simplify(argument-slope*S)
+            if rest.has(S) or slope.is_real is not True or slope.is_finite is not True:
+                return None
+            delay -= slope
+            rational *= sp.exp(rest)
+        else:
+            rational *= factor
+    rational = sp.cancel(rational)
+    return (delay,rational) if rational.is_rational_function(S) else None
+
+
+def inverse_shifted_sum(expression, request, mode, sigma, values):
+    groups = {}
+    for term in sp.Add.make_args(sp.expand_mul(expression)):
+        pair = rational_shift(term)
+        if pair is None:
+            return None
+        delay,rational = pair
+        groups[delay] = groups.get(delay,sp.S.Zero)+rational
+    groups = {d:sp.cancel(r) for d,r in groups.items() if r!=0}
+    if len(groups)<2:
+        return None
+    denominators = [sp.fraction(term)[1] for term in groups.values()]
+    common = sp.Poly(sp.lcm(denominators,S),S)
+    degree = max(0,common.degree())
+    ensure_working_set(max(1,int(degree)**2),bytes_per_sample=1024,live_arrays=8)
+    roots = sp.roots(common)
+    if sum(roots.values())!=degree and not (common.as_expr().free_symbols-{S}):
+        roots = dict(common.all_roots(multiple=False,radicals=False))
+    if sum(roots.values())!=degree:
+        return None
+    if mode=='line' and expression.free_symbols-{S}:
+        raise ValueError('Asigná los parámetros antes de elegir una línea dentro de la ROC.')
+    numerator = sp.Add(*(sp.exp(-delay*S)*sp.cancel(term*common.as_expr())
+                         for delay,term in groups.items()))
+    right,left = [],[]
+    for pole,order in roots.items():
+        checkpoint()
+        if all(sp.simplify(sp.diff(numerator,S,k).subs(S,pole))==0 for k in range(order)):
+            continue
+        side = mode=='right' or (mode=='line' and _right_of(pole,sigma,values))
+        (right if side else left).append(sp.re(pole))
+    lower = sp.Max(*right) if right else -sp.oo
+    upper = sp.Min(*left) if left else sp.oo
+    # A canceled pole can lie on the requested line. Move the component
+    # integrals to a line in the same region before adding them.
+    if mode=='line' and any(sp.simplify(sp.re(pole)-sigma)==0 for pole in roots):
+        distances = [d for pole in roots if (d:=sp.simplify(sp.re(pole)-sigma)).is_positive is True]
+        sigma += sp.Min(*distances)/2 if distances else 1
+    from .cas_engine import encode, restore
+    components = []
+    for delay,term in groups.items():
+        checkpoint()
+        piece = inverse(dict(request,expression=str(sp.exp(-delay*S)*term),sigma=str(sigma)),split_shifts=False)
+        components.append(restore(piece['cas_encoded']))
+    exact = sp.Add(*components)
+    return {'operation':'Laplace inversa bilateral','result':str(exact),'cas_encoded':encode(exact),
+            'output_variable':'t','evaluated':True,'method':'shifted_rational_sum',
+            'roc':roc_text(lower,upper),'roc_lower':str(lower),'roc_upper':str(upper),
+            'scope':'Se invierte cada componente racional con su desplazamiento. La región de convergencia corresponde a los polos que permanecen al sumar las componentes.'}
+
+
+def inverse(request, *, split_shifts=True):
     from .numeric_modes import PoleValues, modal_expression, expression_source
     expression = sp.powsimp(parse(request['expression']))
     if expression.has(T, N, Z, W, sp.zoo, sp.nan, sp.oo):
@@ -191,18 +259,14 @@ def inverse(request):
                 'output_variable':'t','evaluated':True,'method':'impulse_geometric_series',
                 'roc':roc_text(lower,upper),'roc_lower':str(lower),'roc_upper':str(upper),
                 'scope':'La serie geométrica de desplazamientos se desarrolla hacia el semieje que permite la ROC elegida. Cada término aporta un impulso con su área exacta.'}
-    # A global exponential is a time shift; the rational ROC does not change.
-    delay = sp.S.Zero; rational = sp.S.One
-    for factor in sp.Mul.make_args(expression):
-        if factor.func == sp.exp and factor.has(S):
-            argument = sp.expand(factor.args[0]); slope = argument.coeff(S)
-            rest = sp.simplify(argument-slope*S)
-            if rest.has(S) or slope.is_real is not True or slope.is_finite is not True:
-                raise ValueError('El factor exponencial debe representar un desplazamiento real: exp(-d*s).')
-            delay -= slope; rational *= sp.exp(rest)
-        else:
-            rational *= factor
-    rational = sp.cancel(rational)
+    pair = rational_shift(expression)
+    if pair is None:
+        if split_shifts and expression.has(sp.exp):
+            summed = inverse_shifted_sum(expression,request,mode,sigma,PoleValues())
+            if summed is not None:
+                return summed
+        raise ValueError('La inversa bilateral admite términos racionales con desplazamientos reales o trenes geométricos de impulsos.')
+    delay,rational = pair
     try:
         num, den = [sp.Poly(v, S) for v in sp.fraction(rational)]
         ensure_working_set(max(1, int(den.degree())**2), bytes_per_sample=1024, live_arrays=8)

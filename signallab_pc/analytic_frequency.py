@@ -135,7 +135,7 @@ def _condition_mask(condition,omega):
 
 
 def smooth_frequency_derivative(frequency,omega):
-    """Ordinary branch derivatives; a jump has no ordinary group delay."""
+    """Mark points where the ordinary phase derivative has no common limit."""
     from .symbolic import W
     steps=frequency.atoms(sp.Heaviside)
     modules=sorted(frequency.atoms(sp.Mod),key=sp.count_ops,reverse=True)
@@ -156,6 +156,9 @@ def smooth_frequency_derivative(frequency,omega):
         branches=sp.Piecewise(*[(sp.Integer(index),condition) for index,(_,condition) in enumerate(term.args)])
         candidates|=(_sample(branches,left)!=_sample(branches,right))
     for term in steps:candidates|=(_sample(term,left)!=_sample(term,right))
+    for term in frequency.atoms(sp.Abs,sp.sign):
+        a,b = _sample(term.args[0],left),_sample(term.args[0],right)
+        candidates |= (np.sign(a.real)!=np.sign(b.real)) | (np.sign(a.imag)!=np.sign(b.imag))
     for term in modules:
         a,b=_sample(term,left),_sample(term,right)
         period=_sample(term.args[1],omega)
@@ -163,7 +166,13 @@ def smooth_frequency_derivative(frequency,omega):
     jumps=np.zeros(omega.shape,dtype=bool)
     if np.any(candidates):
         a,b=_sample(frequency,left[candidates]),_sample(frequency,right[candidates])
-        jumps[candidates]=~np.isfinite(a)|~np.isfinite(b)|(abs(a-b)>1e-8*np.maximum(abs(a),abs(b)))
+        with np.errstate(all='ignore'):
+            da = (_sample(derivative,left[candidates])/a).imag
+            db = (_sample(derivative,right[candidates])/b).imag
+        jumps[candidates] = (~np.isfinite(a) | ~np.isfinite(b)
+                             | (abs(a-b)>1e-8*np.maximum(abs(a),abs(b)))
+                             | ~np.isfinite(da) | ~np.isfinite(db)
+                             | ~np.isclose(da,db,rtol=1e-7,atol=1e-12))
     return derivative,jumps
 
 

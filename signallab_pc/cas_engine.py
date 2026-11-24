@@ -22,7 +22,7 @@ FUNCTIONS={name:getattr(sp,name) for name in ('sin','cos','tan','asin','acos','a
     'diff','integrate','limit','series','summation','product','dsolve','nsolve','laplace_transform','inverse_laplace_transform',
     'gcd','lcm','div','rem','factorint','floor','ceiling','sign','conjugate')}
 FUNCTIONS.update({'sinc':lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x)/(sp.pi*x),True)),'abs':sp.Abs,'ln':sp.log,'re':sp.re,'im':sp.im,'conj':sp.conjugate,
-    'arg':sp.arg,'mod':sp.Mod,'ceil':sp.ceiling,'and':sp.And,'or':sp.Or,'not':sp.Not,'piecewise':sp.Piecewise,'where':lambda condition,value,otherwise:sp.Piecewise((value,condition),(otherwise,True)),'heaviside':sp.Heaviside,'diracdelta':impulse,'dirac':impulse,'impulse':impulse,
+    'arg':sp.arg,'min':sp.Min,'max':sp.Max,'mod':sp.Mod,'ceil':sp.ceiling,'and':sp.And,'or':sp.Or,'not':sp.Not,'piecewise':sp.Piecewise,'where':lambda condition,value,otherwise:sp.Piecewise((value,condition),(otherwise,True)),'heaviside':sp.Heaviside,'diracdelta':impulse,'dirac':impulse,'impulse':impulse,
     'step':lambda value:sp.Heaviside(value,1),'kroneckerdelta':sp.KroneckerDelta,
     'integral':sp.Integral,'derivative':sp.Derivative,'sum':sp.summation,'prod':sp.product,
     'matrix':sp.Matrix,'vector':lambda value:sp.Matrix(value),'det':lambda a:a.det(),
@@ -221,7 +221,8 @@ class Calculator:
                     if isinstance(limit,(ast.Tuple,ast.List)) and len(limit.elts)==3 and isinstance(limit.elts[0],ast.Name):
                         name=limit.elts[0].id
                         lower,lo_domain=collect(limit.elts[1]);upper,hi_domain=collect(limit.elts[2])
-                        index=sp.Symbol(name);self.locals[name]=index
+                        index=sp.Symbol(name,integer=True) if key in {'sum','summation','prod','product'} else sp.Symbol(name)
+                        self.locals[name]=index
                         prepared.append(((index,lower,upper),sp.And(lo_domain,hi_domain)))
                     else:prepared.append(collect(limit))
                 return [collect(nodes[0]),*reversed(prepared)]
@@ -385,6 +386,12 @@ class Calculator:
                     elif key in ('integrate','int'):
                         from .cas_integrals import integrate
                         result=integrate(*args)
+                    elif key in ('sum','summation'):
+                        from .cas_integrals import sum_on_indices
+                        result=sum_on_indices(*args)
+                    elif key=='laplace_transform' and len(args)==3 and isinstance(args[1],sp.Symbol):
+                        from .impulse_pairs import unilateral_laplace
+                        result=unilateral_laplace(*args)
                     else:result=fn(*args)
                     if key=='nsolve' and len(args)>1:
                         from .cas_assumptions import solution_domain

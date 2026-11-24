@@ -192,7 +192,7 @@ def windowed_periodic_fourier(value,time,frequency):
     """Transform a periodic waveform with a finite portion replaced or removed."""
     if value.has(ImpulseTrain,sp.DiracDelta):return None
     from .periodic_support import finite_periodic_correction
-    split=finite_periodic_correction(value,time)
+    split=finite_periodic_correction(value,time,require_wrap=False)
     if split is None:return None
     exterior,correction=split
     spectrum=sp.S.Zero

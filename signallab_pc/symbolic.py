@@ -16,7 +16,7 @@ SYMBOLS = {"t": T, "x": T, "s": S, "z": Z, "n": N, "w": W, "omega": W, "tau": TA
            "i": sp.I, "j": sp.I, "oo": sp.oo, "infinity": sp.oo, "zoo":sp.zoo,"nan":sp.nan,"true": sp.true, "false": sp.false}
 FUNCTIONS = {"sinc": lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x)/(sp.pi*x),True)), "ceil":sp.ceiling, "ceiling":sp.ceiling, "floor":sp.floor, "sign":sp.sign,"sin": sp.sin, "cos": sp.cos, "tan": sp.tan, "exp": sp.exp, "log": sp.log,
              "asin":sp.asin, "acos":sp.acos, "atan":sp.atan, "tanh":sp.tanh, "ln": sp.log, "polylog":sp.polylog, "lerchphi":sp.lerchphi, "mod":sp.Mod, "eq":sp.Eq, "ne":sp.Ne, "erf": sp.erf, "erfc": sp.erfc, "sqrt": sp.sqrt, "abs": sp.Abs, "sinh": sp.sinh, "cosh": sp.cosh,
-             "heaviside": sp.Heaviside, "diracdelta": impulse, "dirac": impulse,
+             "min":sp.Min, "max":sp.Max, "arg":sp.arg, "heaviside": sp.Heaviside, "diracdelta": impulse, "dirac": impulse,
              "step": lambda x:sp.Heaviside(x,1), "impulse": impulse, "kroneckerdelta":sp.KroneckerDelta, "piecewise": sp.Piecewise, "where":lambda condition,value,otherwise:sp.Piecewise((value,condition),(otherwise,True)), "conj": sp.conjugate, "re": sp.re, "im": sp.im}
 
 
@@ -439,20 +439,20 @@ def _execute(request):
             duration=sp.simplify(parse(period))
             if duration.free_symbols or duration.is_positive!=True or duration.is_finite!=True:raise ValueError('El periodo debe ser una constante positiva finita.')
             limits=(T,0,duration)
-        else:limits=(T,-sp.oo,sp.oo)
-        result=sp.simplify(sp.integrate(integrand,limits))
+            result=sp.simplify(sp.integrate(integrand,limits))
+        else:
+            from .continuous_algebra import convolution
+            result=convolution(left,right,T,correlation=True,lag=TAU)
         from .transform_status import closed
         return {'operation':'continuous_correlation','result':str(result),'evaluated':closed(result),
                 'output_variable':'tau','period':str(duration) if period else None,
                 'scope':'Integral de un periodo, sin normalizar. Las expresiones deben ser periódicas con el periodo indicado.' if period else 'Correlación bilateral sin normalizar. Las expresiones incluyen su soporte y condiciones de convergencia.',
                 'convention':'R(tau) = integral x(t) conjugate(h(t-tau)) dt'}
     if operation == "continuous_convolution":
-        left=parse(request['left']);right=parse(request['right']);tau=sp.Dummy('tau',real=True)
+        left=parse(request['left']);right=parse(request['right'])
         causal=bool(request.get('causal',True))
-        integrand=left.subs(T,tau)*right.subs(T,T-tau)
-        limits=(tau,0,T) if causal else (tau,-sp.oo,sp.oo)
-        integral=sp.simplify(sp.integrate(integrand,limits))
-        result=sp.Piecewise((integral,T>=0),(0,True)) if causal else integral
+        from .continuous_algebra import convolution
+        result=convolution(left,right,T,causal=causal)
         from .transform_status import closed
         return {'operation':'continuous_convolution','result':str(result),'evaluated':closed(result),'output_variable':'t',
                 'scope':'Ambas entradas son cero para t<0; las fórmulas indicadas valen para t>=0.' if causal else 'Convolución bilateral; las expresiones deben incluir su soporte y cumplir las condiciones de convergencia.',

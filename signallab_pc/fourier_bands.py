@@ -100,6 +100,30 @@ def _band_intervals(value,frequency,domain):
     return intervals if coverage==domain else None
 
 
+def discrete_band_energy(value, frequency):
+    """Parseval on one period for a finite sum of delayed frequency bands."""
+    intervals = _band_intervals(value,frequency,sp.Interval(-sp.pi,sp.pi))
+    if not intervals:
+        return None
+    from .jobs import checkpoint
+    from .resources import ensure_working_set
+    terms = []
+    for amplitude,lower,upper in intervals:
+        modes = _gain_and_delay(amplitude,frequency)
+        if modes is None:
+            return None
+        ensure_working_set(len(terms)+len(modes)**2,bytes_per_sample=1024,live_arrays=8)
+        for gain,delay in modes:
+            checkpoint()
+            for other,other_delay in modes:
+                difference = sp.simplify(delay-other_delay)
+                area = (upper-lower if difference==0 else
+                        (sp.exp(-sp.I*difference*upper)-sp.exp(-sp.I*difference*lower))/(-sp.I*difference))
+                terms.append(gain*sp.conjugate(other)*area)
+    energy = sp.simplify(sp.re(sp.Add(*terms))/(2*sp.pi))
+    return energy if energy.is_finite is True and energy.is_nonnegative is True else None
+
+
 def inverse_bands(value, frequency, time, *, discrete, period_origin=-sp.pi,trace=None):
     domain=sp.Interval(period_origin,period_origin+2*sp.pi) if discrete else sp.S.Reals
     intervals=_band_intervals(value,frequency,domain)
