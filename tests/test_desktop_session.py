@@ -168,6 +168,45 @@ class DesktopSessionTests(unittest.TestCase):
         panel.source.set_source(Signal([5,6], metadata={'sample_rate_hz':8}))
         self.assertEqual(panel.start.text(), '3.5')
 
+    def test_sample_edits_invalidate_the_model_after_reopening(self):
+        window = self.window()
+        route = ROUTES['signal_editor',0]
+        window.open_tool(route)
+        editor = window.pages[route].panel
+        original = Signal([0,1,2],expression='n',metadata={'full_axis_definition':'n'})
+        editor.receive(original)
+        editor.history.values([1],[99])
+        draft = editor.staged_signal()
+        self.assertEqual(draft.expression, '')
+        self.assertIsNone(draft.full_definition)
+        path = self.path/'edits.json'
+        session.save(path,window.project,capture(window))
+        document = json.loads(path.read_text(encoding='utf-8'))
+        self.assertEqual(document['schema_version'],3)
+        restored = self.window()
+        self.assertTrue(restored.sessions.open_path(path))
+        editor = restored.pages[route].panel
+        self.assertEqual(editor.changed_rows,{1})
+        np.testing.assert_array_equal(editor.staged_signal().values,[0,99,2])
+        editor.history.values([1],[1])
+        self.assertEqual(editor.staged_signal().full_definition,'n')
+        editor.history.stack.undo()
+        result = editor.commit()
+        self.assertEqual(result.metadata['source_expression'],'n')
+        self.assertEqual(result.metadata['edited_offsets'],[1])
+        self.assertIsNone(result.full_definition)
+
+        # Older drafts contain the modified values but no sample edit history.
+        document['schema_version'] = 2
+        document['workspace']['tools'][0]['inputs']['table'].pop('edits')
+        path.write_text(json.dumps(document),encoding='utf-8')
+        legacy = self.window()
+        self.assertTrue(legacy.sessions.open_path(path))
+        result = legacy.pages[route].panel.commit()
+        np.testing.assert_array_equal(result.values,[0,99,2])
+        self.assertEqual(result.expression,'')
+        self.assertIsNone(result.full_definition)
+
     def test_reused_expression_keeps_conditions_after_reopening(self):
         from signallab_pc.result_expressions import ExpressionResult
         window = self.window()

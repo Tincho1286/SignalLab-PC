@@ -57,12 +57,14 @@ Los archivos `signallab-project` de esquema 1 o 2 siguen siendo archivos de
 resultados. Se pueden incorporar a la biblioteca actual o abrir en una sesión
 vacía. La incorporación reasigna identificadores para evitar colisiones.
 
-Una sesión completa usa `signallab-session`. El esquema 2 conserva también la
-procedencia y las condiciones activas de las expresiones reutilizadas, junto
-con las matrices y las entradas por canal de la simulación de estados. Al abrir
-un archivo del esquema 1 se conservan los datos disponibles; las condiciones
-que el archivo nunca guardó quedan sin definir. Un lector del esquema 1 puede
-recibir un archivo de resultados `signallab-project` por separado.
+Una sesión completa usa `signallab-session`. El esquema 2 incorporó la
+procedencia y las condiciones activas de las expresiones reutilizadas, las
+matrices y las entradas por canal. El esquema 3 guarda las filas editadas y
+sus valores originales para saber si la fórmula sigue representando la señal.
+Al abrir un borrador pendiente de los esquemas 1 o 2 se conservan las muestras.
+Si ese borrador carece del registro de ediciones, la fórmula queda disponible
+como referencia de origen. Para compartir resultados con una versión anterior
+se puede exportar un archivo `signallab-project` por separado.
 
 La sesión incluye el documento
 de proyecto, las herramientas visitadas, los documentos abiertos, las entradas

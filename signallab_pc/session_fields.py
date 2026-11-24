@@ -1,4 +1,6 @@
 """Capture named, inert inputs from tool pages without executing a calculation."""
+import math
+
 from PySide6.QtWidgets import (QCheckBox, QComboBox, QLineEdit, QRadioButton, QSpinBox,
                                QDoubleSpinBox, QStackedWidget)
 
@@ -10,7 +12,7 @@ from .project import decode, encode
 from .realization_editor import RealizationInput
 from .realization_graph import RealizationGraph
 from .resources import ensure_working_set
-from .signal_editor_panel import SignalEditorPanel
+from .signal_editor_panel import SignalEditorPanel, edited_metadata
 from .state_simulation_inputs import StateInputSources
 from .toolbox import LocalInput
 
@@ -263,8 +265,12 @@ def snapshot_page(page, records):
     if page.context is not None and page.context.system_id in records:
         saved['context_system'] = page.context.system_id
     if isinstance(panel, SignalEditorPanel) and panel.current is not None:
+        edits = []
+        for index in sorted(panel.changed_rows):
+            original = panel.history.baseline[index]
+            edits.append([index, float(original.real), float(original.imag)])
         saved['table'] = {'signal': source_document(panel.current, None, records),
-                          'pending': panel.pending, 'offset': panel.offset}
+                          'pending': panel.pending, 'offset': panel.offset, 'edits': edits}
     for name in PARENT_FIELDS:
         key = getattr(panel, name, None)
         if isinstance(key, str) and key in records:
@@ -362,6 +368,40 @@ def restore_expression_context(panel, context, project):
     raise ValueError('Las condiciones de la sesión no corresponden a la herramienta.')
 
 
+def restore_table(panel, table, parent_id, project):
+    base = {'signal','pending','offset'}
+    if (not isinstance(panel, SignalEditorPanel) or not isinstance(table, dict)
+            or not base <= table.keys() <= base | {'edits'}
+            or type(table['pending']) is not bool or type(table['offset']) is not int):
+        raise ValueError('El borrador de la tabla no corresponde a este editor.')
+    current, _ = source_value(table['signal'], project, 'signal')
+    if (current.domain not in ('discrete','continuous') or not 0 <= table['offset'] < current.values.size
+            or table['offset'] % panel.page_size):
+        raise ValueError('El borrador no contiene una página válida de muestras.')
+    if 'edits' not in table and table['pending']:
+        # Legacy drafts did not distinguish sample edits from field edits.
+        current = current.copy_with(expression='', metadata=edited_metadata(current))
+    edits = table.get('edits', [])
+    if not isinstance(edits, list) or (edits and not table['pending']):
+        raise ValueError('El borrador contiene ediciones de muestras inválidas.')
+    originals = {}
+    for row in edits:
+        if (not isinstance(row, list) or len(row) != 3 or type(row[0]) is not int
+                or not 0 <= row[0] < len(current.values) or row[0] in originals
+                or any(type(part) not in (int,float) or not math.isfinite(part) for part in row[1:])):
+            raise ValueError('El borrador contiene una fila editada inválida.')
+        index, real, imag = row
+        originals[index] = complex(real, imag)
+        if originals[index] == current.values[index]:
+            raise ValueError('La fila guardada no difiere de la muestra original.')
+    panel._prepare_source(current)
+    panel._open_source(current, parent_id)
+    panel.offset = table['offset']
+    for index, original in originals.items():
+        panel.history.baseline[index] = original
+    panel.changed_rows = set(originals)
+
+
 def restore_page(page, saved, project):
     known = {'fields','source','system','formula_context','table','expression_context',
              'context_system',*PARENT_FIELDS}
@@ -369,23 +409,17 @@ def restore_page(page, saved, project):
         raise ValueError('La herramienta tiene datos de sesión incompatibles.')
     panel = getattr(page, 'panel', page)
     if 'table' in saved:
-        table = saved['table']
-        if (not isinstance(panel, SignalEditorPanel) or not isinstance(table, dict)
-                or set(table) != {'signal','pending','offset'} or type(table['pending']) is not bool
-                or type(table['offset']) is not int):
-            raise ValueError('El borrador de la tabla no corresponde a este editor.')
-        current, _ = source_value(table['signal'], project, 'signal')
-        if (current.domain not in ('discrete','continuous') or not 0 <= table['offset'] < current.values.size
-                or table['offset'] % panel.page_size):
-            raise ValueError('El borrador no contiene una página válida de muestras.')
-        panel._prepare_source(current)
-        panel._open_source(current, saved.get('parent_id'))
-        panel.offset = table['offset']
-    restore_fields(panel, saved['fields'], project)
-    if 'table' in saved:
-        panel.pending = table['pending']
-        panel.history.reset()
+        restore_table(panel, saved['table'], saved.get('parent_id'), project)
+        panel._setting_fields = True
+        try:
+            restore_fields(panel, saved['fields'], project)
+        finally:
+            panel._setting_fields = False
+        panel.history.last_fields = {key: getattr(panel,key).text() for key in panel.history.fields}
+        panel.pending = saved['table']['pending']
         panel.render()
+    else:
+        restore_fields(panel, saved['fields'], project)
     if 'source' in saved:
         if page.context is None or not isinstance(page.context.source, LocalInput):
             raise ValueError('La entrada de la sesión no existe en esta herramienta.')

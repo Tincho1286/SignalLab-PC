@@ -73,6 +73,16 @@ def fft_values(values, *, size=None, inverse=False):
     return restore_scale(transform(scaled,n=size),exponent)
 
 
+def periodic_inverse_coefficients(values, *, closed):
+    """Average the repeated endpoint before rounding back to the input scale."""
+    if not closed:
+        return fft_values(values, inverse=True)
+    scaled, exponent = bounded(values)
+    period = scaled[:-1].copy()
+    period[0] = (scaled[0] + scaled[-1]) * .5
+    return restore_scale(np.fft.ifft(period), exponent)
+
+
 def restore_scale(values, exponent, *factors):
     mantissa=1.
     for factor in factors:

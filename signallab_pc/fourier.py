@@ -85,6 +85,7 @@ def dtft_with_dft(x,start,stop,count):
 
 def discrete_series(x):
     _discrete(x)
+    from .system_clock import spectrum_clock
     n = x.values.size
     ensure_working_set(int(n), live_arrays=8)
     k = np.arange(n, dtype=float)
@@ -94,7 +95,7 @@ def discrete_series(x):
     coefficients = restore_scale(coefficients,exponent,1/n)
     return Signal(_finite_output(coefficients, "La serie discreta"), 0, 1, "k", f"DFS_{x.name}", "discrete", "",
                   {"operation": "discrete_fourier_series", "period_samples": int(n),
-                   "input_origin": int(x.origin), "convention": "c[k]=(1/N) sum over one period x[n] exp(-j*2*pi*k*n/N)"})
+                   **spectrum_clock(x), "convention": "c[k]=(1/N) sum over one period x[n] exp(-j*2*pi*k*n/N)"})
 
 
 def synthesize_discrete(coefficients):
@@ -106,8 +107,10 @@ def synthesize_discrete(coefficients):
     bins, exponent = bounded(coefficients.values)
     values = np.fft.ifft(bins * np.exp(2j*np.pi*np.arange(n)*((origin%n)/n)))
     values = restore_scale(values,exponent,n)
+    from .system_clock import inverse_spectrum_clock
+    clock = inverse_spectrum_clock(coefficients,origin,n)
     return Signal(_finite_output(values, "La síntesis"), origin, 1, "n", "Síntesis_DFS", "discrete", "",
-                  {"operation": "discrete_series_synthesis", "period_samples": int(n)})
+                  {**clock, "operation": "discrete_series_synthesis", "period_samples": int(n)})
 
 
 def ctft(x, start, stop, count):

@@ -67,6 +67,10 @@ describen las coordenadas; no especifican unidades de amplitud.
 - Cambiar la tasa transforma Fs y ajusta el primer instante cuando se conoce.
   El cambio racional permite dejar ese instante sin definir o indicarlo
   explícitamente.
+- Extraer un tramo conserva el orden y el paso del registro. En discreto, el
+  nuevo instante inicial se obtiene del desplazamiento en muestras si se
+  conocen Fs y el instante original. Si se mueve el inicio y falta alguno de
+  esos datos, el nuevo instante queda sin definir.
 - Un filtro discreto puede aportar la tasa a la entrada sin fijar el instante
   de la primera muestra. Si una STFT solo conoce la tasa, muestra segundos
   relativos a la primera muestra y no asigna tiempos absolutos a sus tramos.

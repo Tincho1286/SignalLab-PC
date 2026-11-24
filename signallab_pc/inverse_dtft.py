@@ -27,11 +27,9 @@ def inverse_dtft(spectrum,start,count):
     opened=math.isclose(size*step,period,rel_tol=1e-10,abs_tol=1e-12)
     if not closed and not opened:raise ValueError('La rejilla debe cubrir un período de 2π: (cantidad−1)·paso=2π con extremo repetido, o cantidad·paso=2π sin repetirlo. Una banda parcial no define la inversa completa.')
     ensure_working_set(size+count,live_arrays=12);checkpoint()
-    values=spectrum.values.copy()
-    if closed:
-        values=values[:-1];values[0]=spectrum.values[0]/2+spectrum.values[-1]/2
-    from .spectral_scaling import fft_values
-    length=len(values);coefficients=fft_values(values,inverse=True)
+    from .spectral_scaling import periodic_inverse_coefficients
+    coefficients = periodic_inverse_coefficients(spectrum.values,closed=closed)
+    length = len(coefficients)
     origin=float(spectrum.origin)
     indices=periodic_indices(start,count,length)
     multiplier=periodic_phase(origin,length,start,count)

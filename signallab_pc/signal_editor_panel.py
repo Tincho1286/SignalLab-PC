@@ -11,6 +11,18 @@ from .distributions import regular_only
 from .active_stack import ActiveTabs,ActiveStack
 
 
+def edited_metadata(source):
+    """Keep provenance and clock fields when edited samples replace a model."""
+    metadata = dict(source.metadata)
+    if source.expression:
+        metadata['source_expression'] = source.expression
+    for key in ('periodic_definition', 'full_axis_definition', 'period_samples',
+                'period_s', 'temporal_formula', 'inverse_model', 'procedure',
+                'derivation', 'derivation_operation'):
+        metadata.pop(key, None)
+    return metadata
+
+
 class SignalEditorPanel(QWidget):
     def __init__(self,window):
         super().__init__();self.window=window;self.current=None;self.parent_id=None
@@ -30,7 +42,7 @@ class SignalEditorPanel(QWidget):
         self.name=QLineEdit();self.origin=QLineEdit();self.step=QLineEdit()
         form.addRow('Nombre de salida',self.name);form.addRow('Origen del eje',self.origin);form.addRow('Paso del eje',self.step)
         self.origin.setToolTip('Primer índice entero en discreto; primer instante en continuo.')
-        self.step.setToolTip('Discreta: 1 índice por fila. Continua: separación positiva en segundos entre filas.')
+        self.step.setToolTip('Discreta: 1 índice por fila. Continua: paso entre filas, con signo según el sentido del eje.')
         for field in (self.name,self.origin,self.step):field.textChanged.connect(self._fields_changed)
         self.commit_button=QPushButton('Aplicar edición');self.commit_button.clicked.connect(self._commit_clicked);left.addWidget(self.commit_button)
         note=QLabel('Editá Real e Imaginaria y aplicá la edición. En Resultado podés ver, exportar o enviar la señal. La entrada original se conserva.');note.setWordWrap(True);left.addWidget(note);left.addStretch()
@@ -106,7 +118,7 @@ class SignalEditorPanel(QWidget):
         start=self.offset;stop=min(start+self.page_size,self.current.values.size)
         try:
             origin=integer_field(self.origin) if self.current.domain=='discrete' else real_field(self.origin);step=1 if self.current.domain=='discrete' else real_field(self.step)
-            if step<=0:raise ValueError('Paso inválido')
+            if step==0:raise ValueError('Paso inválido')
         except ValueError:origin,step=self.current.origin,self.current.step
         self.table.blockSignals(True)
         try:
@@ -148,15 +160,22 @@ class SignalEditorPanel(QWidget):
         from .sample_paste_dialog import PasteSignalDialog
         try:
             source=self.staged_signal();row=max(0,self.table.currentRow());start=self.offset+row;origin=int(source.origin)+start if source.domain=='discrete' else source.origin+start*source.step
-            dialog=PasteSignalDialog(QApplication.clipboard().text(),source.domain,str(origin),str(source.step),source.units,self)
+            dialog=PasteSignalDialog(QApplication.clipboard().text(),source.domain,str(origin),str(source.step),source.units,self,allow_descending=True)
             if dialog.exec():self.paste_values(dialog.result_signal,source)
         except Exception as exc:QMessageBox.warning(self,'No se pudo pegar',str(exc))
 
     def paste_values(self,value,source=None):
         from .signal_segment import extract
         source=source or self.staged_signal()
-        if value.domain!=source.domain or value.step!=source.step:raise ValueError('El pegado debe conservar el dominio y paso del editor.')
-        end=int(value.origin)+len(value.values)-1 if value.domain=='discrete' else value.origin+(len(value.values)-1)*value.step;segment=extract(source,value.origin,end);start=segment.metadata['selected_offsets'][0]
+        count = len(value.values)
+        if value.domain != source.domain or (count > 1 and (value.step > 0) != (source.step > 0)):
+            raise ValueError('El pegado debe conservar el dominio y el sentido del eje del editor.')
+        end = value.origin + count-1 if value.domain == 'discrete' else value.origin+(count-1)*value.step
+        low, high = sorted((value.origin,end))
+        segment = extract(source,low,high)
+        if segment.values.size != count:
+            raise ValueError('El pegado debe conservar el paso del editor.')
+        start = segment.metadata['selected_offsets'][0]
         self.history.values(np.arange(start,start+len(value.values)),value.values)
 
     def extract_dialog(self):
@@ -166,7 +185,8 @@ class SignalEditorPanel(QWidget):
         dialog=QDialog(self);dialog.setWindowTitle('Extraer tramo de la edición actual');form=QFormLayout(dialog);rows=sorted({item.row()+self.offset for item in self.table.selectedItems()})
         first=rows[0] if rows else 0;last=rows[-1] if rows else len(source.values)-1
         def coordinate(i):return int(source.origin)+i if source.domain=='discrete' else source.origin+i*source.step
-        low=QLineEdit(str(coordinate(first)));high=QLineEdit(str(coordinate(last)));form.addRow('Desde · incluido',low);form.addRow('Hasta · incluido',high);note=QLabel('Crea una señal independiente con los valores editados y los límites indicados. No aplica el resto del registro.');note.setWordWrap(True);form.addRow(note);buttons=QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel);buttons.button(QDialogButtonBox.StandardButton.Ok).setText('Extraer');buttons.rejected.connect(dialog.reject)
+        lower, upper = sorted((coordinate(first),coordinate(last)))
+        low=QLineEdit(str(lower));high=QLineEdit(str(upper));form.addRow('Desde · incluido',low);form.addRow('Hasta · incluido',high);note=QLabel('Crea una señal independiente con los valores editados y los límites indicados. No aplica el resto del registro.');note.setWordWrap(True);form.addRow(note);buttons=QDialogButtonBox(QDialogButtonBox.StandardButton.Ok|QDialogButtonBox.StandardButton.Cancel);buttons.button(QDialogButtonBox.StandardButton.Ok).setText('Extraer');buttons.rejected.connect(dialog.reject)
         def accept():
             try:self.extract_segment(low.text(),high.text());dialog.accept()
             except Exception as exc:QMessageBox.warning(dialog,'Revisá los límites',str(exc))
@@ -195,17 +215,17 @@ class SignalEditorPanel(QWidget):
     def _edited_signal(self):
         origin=integer_field(self.origin) if self.current.domain=='discrete' else real_field(self.origin)
         step=1 if self.current.domain=='discrete' else real_field(self.step)
-        if step<=0:raise ValueError('El paso del eje debe ser positivo.')
+        if step==0:raise ValueError('El paso del eje debe ser distinto de cero.')
         ensure_working_set(int(self.current.values.size),live_arrays=5)
-        result=self.current.copy_with(origin=origin,step=step,name=self.name.text().strip() or self.current.name)
-        if self.changed_rows or origin!=self.current.origin or step!=self.current.step:
-            # A manually edited record no longer exactly represents its source formula.
-            if self.current.expression:result.metadata['source_expression']=self.current.expression
-            result.expression=''
-        result.metadata={**result.metadata,'operation':'edit_samples_and_axis','edited_offsets':sorted(self.changed_rows)}
-        if result.domain=='continuous' and result.units=='s' and (origin!=self.current.origin or step!=self.current.step):
-            rate=1/step
+        axis_changed = (origin, step) != (self.current.origin, self.current.step)
+        changed = bool(self.changed_rows) or axis_changed
+        metadata = edited_metadata(self.current) if changed else dict(self.current.metadata)
+        metadata.update(operation='edit_samples_and_axis', edited_offsets=sorted(self.changed_rows))
+        if self.current.domain == 'continuous' and self.current.units == 's' and axis_changed:
+            rate=1/abs(step)
             if not np.isfinite(rate):raise ValueError('La tasa del nuevo eje excede el rango numérico.')
-            result.metadata.update(time_start_s=origin,sample_rate_hz=rate)
-            result.metadata.pop('time_mapping',None)
-        return result
+            metadata.update(time_start_s=origin,sample_rate_hz=rate)
+            metadata.pop('time_mapping',None)
+        return self.current.copy_with(origin=origin, step=step, metadata=metadata,
+                                      name=self.name.text().strip() or self.current.name,
+                                      expression='' if changed else self.current.expression)

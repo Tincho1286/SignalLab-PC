@@ -60,7 +60,7 @@ def rows(text,layout='values',decimal_comma=False,header=False):
     return parsed
 
 
-def parse(text,kind='discrete',*,layout='values',origin='0',step='1',units=None,decimal_comma=False,header=False):
+def parse(text,kind='discrete',*,layout='values',origin='0',step='1',units=None,decimal_comma=False,header=False,allow_descending=False):
     if kind not in ('discrete','continuous','frequency'):raise ValueError('Elegí un dominio numérico admitido.')
     cells=rows(text,layout,decimal_comma,header);has_axis=layout.startswith('axis_');split_complex=layout in ('complex','axis_complex');axis=[];values=[]
     for i,row in enumerate(cells,1):
@@ -80,13 +80,15 @@ def parse(text,kind='discrete',*,layout='values',origin='0',step='1',units=None,
         except Exception as exc:raise ValueError('Fila '+str(i)+': '+str(exc)) from exc
     first=axis[0] if has_axis else integer_value(origin) if kind=='discrete' else real_value(origin)
     spacing=1 if kind=='discrete' else (axis[1]-axis[0] if has_axis and len(axis)>1 else real_value(step))
-    if not math.isfinite(spacing) or spacing<=0:raise ValueError('El eje debe ser creciente y tener paso positivo.')
+    if not math.isfinite(spacing) or spacing == 0 or (spacing < 0 and not allow_descending):
+        raise ValueError('El eje debe tener paso finito y distinto de cero.' if allow_descending
+                         else 'El eje debe ser creciente y tener paso positivo.')
     if has_axis:
         for i,coordinate in enumerate(axis):
             expected=first+i*spacing
             if kind=='discrete':matches=coordinate==first+i
             else:
-                tolerance=min(spacing/16,8*max(math.ulp(float(coordinate)),math.ulp(float(expected)),math.ulp(float(spacing))))
+                tolerance=min(abs(spacing)/16,8*max(math.ulp(float(coordinate)),math.ulp(float(expected)),math.ulp(float(spacing))))
                 matches=math.isfinite(expected) and abs(coordinate-expected)<=tolerance
             if not matches:raise ValueError('El eje no es uniforme en la fila '+str(i+1)+'. No se ordena ni remuestrea el pegado.')
     return Signal(values,first,spacing,units or ('n' if kind=='discrete' else 's' if kind=='continuous' else 'rad/muestra'),'Datos pegados',kind,'',dict(operation='pasted_samples',paste_layout=layout,decimal_comma=bool(decimal_comma),scope='Datos numéricos pegados y validados, sin ejecución de código.'))

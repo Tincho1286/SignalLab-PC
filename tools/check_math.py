@@ -25,6 +25,8 @@ FAMILIES={
     'representable_scales':('test_audit_numeric_clocks.CalculationScaleTests',4),
     'axis_and_sampling_clock':('test_audit_numeric_clocks.AxisAndClockTests',3),
     'clock_reuse_and_sinc_scale':('test_audit_followup.FollowupClockAndScaleTests',3),
+    'sample_coordinates_and_reindexing':('test_sample_coordinates.SampleCoordinateTests',8),
+    'independent_algebra_references':('test_algebra_reference.AlgebraReferenceTests',5),
 }
 
 

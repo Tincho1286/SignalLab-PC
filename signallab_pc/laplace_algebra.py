@@ -26,7 +26,7 @@ def direct(request):
     from .periodic_signals import affine_train_term
     from .periodic_fourier import finite_laplace_piece,periodic_fourier_pair,periodic_integral,periodic_laplace
     from .periodic_support import split_periodic_support
-    from .impulse_pairs import fourier_pairs
+    from .impulse_pairs import fourier_pairs, ordinary_laplace
 
     periodic = periodic_fourier_pair(value,T,W) if value.has(sp.Mod) else None
     if (periodic is not None and periodic[0] != 0) or affine_train_term(value,T) is not None:
@@ -77,7 +77,7 @@ def direct(request):
         if value == 0:return sp.S.Zero,-sp.oo,sp.true
         extension=periodic_laplace(value.xreplace({u:T}),T,S) if value.has(sp.Mod) else None
         if extension is not None:return extension,sp.S.Zero if extension!=0 else -sp.oo,sp.true
-        return sp.laplace_transform(value, u, S)
+        return ordinary_laplace(value, u, S)
     for amplitude, region in regions:
         if amplitude == 0:
             continue

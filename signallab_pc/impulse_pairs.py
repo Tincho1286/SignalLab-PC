@@ -277,6 +277,37 @@ def fourier_pairs(value,variable,output,*,inverse=False):
     return sp.Add(*known),sp.Add(*remaining)
 
 
+def ordinary_laplace(value, variable, output):
+    """Apply an exponential translation after the base transform is evaluated."""
+    from .jobs import checkpoint
+
+    results, planes, conditions = [], [], []
+    for term in sp.Add.make_args(sp.expand_mul(value)):
+        if term == 0:
+            continue
+        checkpoint()
+        shift = sp.S.Zero
+        factors = []
+        for factor in sp.Mul.make_args(term):
+            if factor.func == sp.exp and factor.has(variable):
+                exponent = sp.expand(factor.args[0])
+                rate = exponent.coeff(variable)
+                constant = exponent - rate*variable
+                if not (rate.has(variable) or constant.has(variable)):
+                    shift += rate
+                    factors.append(sp.exp(constant))
+                    continue
+            factors.append(factor)
+        # Keeping the kernel argument symbolic also lets the t**k table
+        # differentiate it before the frequency translation.
+        result, plane, condition = sp.laplace_transform(sp.Mul(*factors),variable,output)
+        at = output-shift
+        results.append(result.subs(output,at))
+        planes.append(plane+sp.re(shift))
+        conditions.append(sp.sympify(condition).subs(output,at))
+    return sp.Add(*results), sp.Max(-sp.oo,*planes), sp.And(*conditions)
+
+
 def unilateral_laplace(value,variable,output):
     """Keep 0-minus impulse weights and derivative scaling out of generic tables."""
     from .periodic_fourier import gated_periodic_laplace,periodic_laplace
@@ -309,8 +340,7 @@ def unilateral_laplace(value,variable,output):
             continue
         answer=impulse_integral(term,variable,sp.exp(-output*variable),sp.S.Zero,sp.oo) if term.has(sp.DiracDelta) else None
         (remaining if answer is None else known).append(term if answer is None else answer)
-    regular=sp.Add(*remaining)
-    result,plane,condition=sp.laplace_transform(regular,variable,output) if regular!=0 else (sp.S.Zero,-sp.oo,sp.true)
+    result, plane, condition = ordinary_laplace(sp.Add(*remaining),variable,output)
     periodic=sp.simplify(sp.Add(*periodic))
     if periodic!=0:plane=sp.Max(plane,0)
     return sp.simplify(sp.Add(*known)+result+periodic),sp.Max(plane,train_plane),condition

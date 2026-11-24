@@ -6,7 +6,7 @@ from .sampling import positive_finite
 
 def bind_clock(source,rate,start=None,override=None,*,optional_start=False):
     note=QLabel();note.setObjectName('muted');note.setWordWrap(True)
-    copied_start = None
+    copied = {}
     def recorded():
         signal=source.loaded if source.mode.currentIndex()==2 else None
         data=signal.metadata if signal is not None else {}
@@ -30,20 +30,23 @@ def bind_clock(source,rate,start=None,override=None,*,optional_start=False):
         if fs is None or start is not None and t0 is None and not optional_start:message+=' Completá el dato faltante en el formulario.'
         note.setText(message)
     def copy(*_):
-        nonlocal copied_start
         try:fs,t0=recorded()
         except (TypeError,ValueError):explain();return
         if override is None or not override.isChecked():
-            if fs is not None:rate.setText(str(fs))
-            if t0 is not None:
-                copied_start = str(t0)
-                start.setText(copied_start)
-            elif optional_start and copied_start is not None:
-                if start.text() == copied_start:
-                    start.clear()
-                copied_start = None
+            for field, value in ((rate,fs),(start,t0)):
+                if field is None:
+                    continue
+                before = copied.pop(field,None)
+                if value is not None:
+                    copied[field] = str(value)
+                    field.setText(copied[field])
+                elif before is not None and field.text() == before:
+                    field.clear()
         explain()
+    for field in (rate,start):
+        if field is not None:
+            field.textEdited.connect(lambda _,field=field:copied.pop(field,None))
     source.sourceChanged.connect(copy)
-    source.mode.currentIndexChanged.connect(copy if optional_start else explain)
+    source.mode.currentIndexChanged.connect(copy)
     if override is not None:override.toggled.connect(copy)
     explain();return note

@@ -8,7 +8,7 @@ from .fourier import ctft_on_grid,_sum
 from .fourier_phase import periodic_indices,periodic_phase
 from .resources import ensure_working_set
 from .operations import _finite_output
-from .spectral_scaling import bounded,restore_scale,fft_values
+from .spectral_scaling import bounded,restore_scale,periodic_inverse_coefficients
 
 
 def analyze(response,domain,start,count,step,source=None,*,allow_periodic=False):
@@ -57,11 +57,7 @@ def analyze(response,domain,start,count,step,source=None,*,allow_periodic=False)
             raise ValueError(f'La rejilla tiene {independent} frecuencias independientes para {source.values.size} muestras. Aumentá la rejilla o activá el plegado periódico de la entrada.')
 
         def inverse(values,first,length):
-            if closed:
-                last=values[-1]
-                values=values[:-1].copy()
-                values[0]=.5*values[0]+.5*last
-            coefficients=_finite_output(fft_values(values,inverse=True),'La inversa de H o de Y')
+            coefficients = _finite_output(periodic_inverse_coefficients(values,closed=closed),'La inversa de H o de Y')
             phase=periodic_phase(response.origin,independent,first,length)
             return coefficients[periodic_indices(first,length,independent)]*phase,coefficients
 

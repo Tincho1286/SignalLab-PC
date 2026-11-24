@@ -148,23 +148,16 @@ def inverse_spectrum_clock(spectrum,start,count):
     clock=spectrum.metadata.get('input_clock',{})
     if not isinstance(clock,dict):raise ValueError('El reloj de origen del espectro no es válido.')
     rate=clock.get('sample_rate_hz')
+    origin=spectrum.metadata.get('input_origin')
     if rate is None:
         period=spectrum.metadata.get('period_s') if spectrum.data_kind=='frequency_response' else None
-        if period is None:return {}
-        period=validate_period(period)
-        rate=1/period
-        clock={'time_start_s':0.}
-        origin=0
-    else:
-        origin=spectrum.metadata.get('input_origin')
-    from .sampling import positive_finite
-    rate=positive_finite(rate,'Fs de origen del espectro')
-    result={'sample_rate_hz':rate}
-    if type(origin) is int and 'time_start_s' in clock:
-        t0=float(clock['time_start_s'])+(start-origin)/rate
-        validate_clock_resolution(t0,rate,count)
-        result['time_start_s']=t0
-    return result
+        if period is not None:
+            rate=1/validate_period(period)
+            clock={'time_start_s':0.}
+            origin=0
+    if type(origin) is int:
+        return reindex_clock({**clock,'sample_rate_hz':rate},start-origin,count)
+    return reindex_clock({'sample_rate_hz':rate},0,count)
 
 
 def input_metadata(system,source):

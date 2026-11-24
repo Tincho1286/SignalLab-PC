@@ -24,7 +24,9 @@ def prepare(source,validation=0):
     if n-validation<2:raise ValueError('La reserva debe dejar al menos dos muestras para ajustar.')
     from .system_clock import common_rate,validate_clock_resolution
     rate=common_rate(source)
-    if rate is not None:validate_clock_resolution(source.metadata.get('time_start_s',source.origin/rate),rate,n)
+    start = source.metadata.get('time_start_s')
+    if rate is not None:
+        validate_clock_resolution(0.0 if start is None else start,rate,n)
     scale=float(np.max(abs(source.values.real[:n-validation]))) or 1.
     with np.errstate(over='ignore',under='ignore'):normalized=source.values.real/scale
     return dict(source=source,x=normalized,scale=scale,train=n-validation,validation=validation)
@@ -124,12 +126,8 @@ def compare(source,maximum,minimum=0,*,validation=0,criterion='bic'):
 
 
 def temporal(source,values,offset,name,operation,**extra):
-    metadata=dict(operation=operation,**extra);rate=source.metadata.get('sample_rate_hz')
-    if rate is not None:
-        from .system_clock import validate_clock_resolution
-        metadata['sample_rate_hz']=float(rate)
-        if 'time_start_s' in source.metadata:
-            start=float(source.metadata['time_start_s'])+offset/float(rate);validate_clock_resolution(start,float(rate),len(values));metadata['time_start_s']=start
+    from .system_clock import reindex_clock
+    metadata = dict(reindex_clock(source.metadata,offset,len(values)),operation=operation,**extra)
     return Signal(values,int(source.origin)+offset,1,'n',name,'discrete',metadata=metadata)
 
 

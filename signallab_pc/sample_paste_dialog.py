@@ -5,8 +5,8 @@ from . import sample_paste
 
 
 class PasteSignalDialog(QDialog):
-    def __init__(self,text,kind='discrete',origin='0',step='1',units=None,parent=None):
-        super().__init__(parent);self.kind=kind;self.units=units;self.result_signal=None;self.setWindowTitle('Pegar muestras');self.resize(700,650)
+    def __init__(self,text,kind='discrete',origin='0',step='1',units=None,parent=None,*,allow_descending=False):
+        super().__init__(parent);self.kind=kind;self.units=units;self.allow_descending=allow_descending;self.result_signal=None;self.setWindowTitle('Pegar muestras');self.resize(700,650)
         root=QVBoxLayout(self);self.text=QPlainTextEdit();self.text.setPlaceholderText('Pegá una fila, una columna o una tabla. Se admiten pi, 10^(-3) y valores complejos.');self.text.setPlainText(text);self.text.setMaximumHeight(150);root.addWidget(self.text,1)
         form=QFormLayout();form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows);root.addLayout(form);self.layout_choice=QComboBox()
         for key,title in sample_paste.LAYOUTS.items():self.layout_choice.addItem(title,key)
@@ -17,7 +17,7 @@ class PasteSignalDialog(QDialog):
         self.timer=QTimer(self);self.timer.setSingleShot(True);self.timer.setInterval(250);self.timer.timeout.connect(self.update_preview)
         for field in (self.text,self.origin,self.step):field.textChanged.connect(lambda:self.timer.start())
         self.layout_choice.currentIndexChanged.connect(lambda:self.timer.start());self.header.toggled.connect(lambda:self.timer.start());self.decimal.toggled.connect(lambda:self.timer.start());self.update_preview()
-    def read(self):return sample_paste.parse(self.text.toPlainText(),self.kind,layout=self.layout_choice.currentData(),origin=self.origin.text(),step=self.step.text(),units=self.units,decimal_comma=self.decimal.isChecked(),header=self.header.isChecked())
+    def read(self):return sample_paste.parse(self.text.toPlainText(),self.kind,layout=self.layout_choice.currentData(),origin=self.origin.text(),step=self.step.text(),units=self.units,decimal_comma=self.decimal.isChecked(),header=self.header.isChecked(),allow_descending=self.allow_descending)
     def update_preview(self):
         self.preview.setRowCount(0);self.result_signal=None
         try:

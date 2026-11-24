@@ -8,7 +8,7 @@ from .filters import Transfer
 from .resources import ensure_working_set
 from .operations import _finite_output,shift
 
-from .system_clock import combined_clock, validate_clock_resolution
+from .system_clock import combined_clock, reindex_clock
 from .system_clock import validate_discrete_clocks as validate_discrete_clocks
 
 def multiply_signals(x,w):
@@ -57,6 +57,7 @@ def window_impulse(h,window='hamming',beta=8.6,retard=True,custom=None,*,length=
     if int(size)!=size or size<1:raise ValueError('La longitud L de la ventana debe ser un entero positivo.')
     if int(origin)!=origin:raise ValueError('El primer índice de la ventana debe ser entero.')
     size=int(size);origin=int(origin);ensure_working_set(size,live_arrays=10)
+    clock = reindex_clock(h.metadata, origin-h.origin, size)
     if custom is None:
         if window not in ('boxcar','hann','hamming','blackman','kaiser','bartlett'):raise ValueError('Elegí una ventana disponible.')
         beta=float(beta)
@@ -66,20 +67,14 @@ def window_impulse(h,window='hamming',beta=8.6,retard=True,custom=None,*,length=
         window_name=window+(' (β='+str(beta)+')' if window=='kaiser' else '')
         metadata={'operation':'fir_window','window':window,'symmetric':True,'length':size,'start':origin,'scope':'Ventana simétrica de longitud L elegida independientemente del registro de h[n].'}
         if window=='kaiser':metadata['beta']=beta
-        rate=h.metadata.get('sample_rate_hz')
-        if rate is not None:
-            rate=float(rate)
-            if not math.isfinite(rate) or rate<=0:raise ValueError('El reloj registrado de h[n] debe tener una tasa positiva y finita.')
-            metadata['sample_rate_hz']=rate
-            if 'time_start_s' in h.metadata:metadata['time_start_s']=float(h.metadata['time_start_s'])+(origin-h.origin)/rate
+        metadata.update(clock)
         taper=Signal(values,origin,1,h.units,'Ventana '+window_name,'discrete','',metadata)
     else:taper=custom;window_name='propia: '+custom.name
     raw=multiply_signals(taper,h).copy_with(name='h[n] enventanada')
-    if 'sample_rate_hz' not in raw.metadata and 'sample_rate_hz' in h.metadata:
-        rate=float(h.metadata['sample_rate_hz']);raw.metadata['sample_rate_hz']=rate
-        if 'time_start_s' in h.metadata:raw.metadata['time_start_s']=float(h.metadata['time_start_s'])+(origin-h.origin)/rate
-        if 'time_start_s' in raw.metadata:
-            validate_clock_resolution(raw.metadata['time_start_s'],rate,size)
+    if 'sample_rate_hz' not in raw.metadata or (
+        'sample_rate_hz' in clock and 'time_start_s' not in raw.metadata
+    ):
+        raw.metadata.update(clock)
     raw.metadata.update(input_names=[h.name,taper.name],input_x_expression=h.expression,input_w_expression=taper.expression,window_start=origin,window_length=size)
     delay=max(0,-int(raw.origin)) if retard else 0
     impulse=shift(raw,delay) if delay else raw

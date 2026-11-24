@@ -7,6 +7,7 @@ from .model import Signal
 from .resources import ensure_working_set
 from .operations import _finite_output
 from .jobs import checkpoint
+from .spectral_scaling import bounded, restore_scale
 
 
 def _validate(x):
@@ -23,6 +24,21 @@ def interpolate_record(source,axis):
     return np.interp(adjusted,points,source.values.real,left=0,right=0)+1j*np.interp(adjusted,points,source.values.imag,left=0,right=0)
 
 
+def _linear_convolution(x, h, step):
+    size = x.size + h.size - 1
+    ensure_working_set(int(size),live_arrays=18)
+    x, exponent_x = bounded(x)
+    h, exponent_h = bounded(h)
+    interior = np.zeros(size-2,dtype=np.complex128)
+    for left, right, weight in ((x[:-1],h[:-1],1), (x[:-1],h[1:],2),
+                                (x[1:],h[:-1],2), (x[1:],h[1:],1)):
+        checkpoint()
+        interior += weight * convolve(left,right,mode='full',method='auto')
+    values = np.zeros(size, dtype=np.complex128)
+    values[1:-1] = restore_scale(interior,exponent_x+exponent_h,step,1/6)
+    return values
+
+
 def convolution(x,h):
     """Integral exacta del producto de interpolantes en la rejilla de salida.
 
@@ -33,15 +49,8 @@ def convolution(x,h):
     _validate(x);_validate(h)
     if not np.isclose(x.step,h.step,rtol=1e-12,atol=0):
         raise ValueError('Los registros deben usar el mismo paso temporal. Remuestreá uno antes de combinarlos.')
-    size=int(x.values.size+h.values.size-1);ensure_working_set(size,live_arrays=18)
-    # Acumular una convolución a la vez para limitar la memoria temporal.
-    interior=np.zeros(size-2,dtype=np.complex128)
-    for left,right,weight in [(x.values[:-1],h.values[:-1],1),
-                              (x.values[:-1],h.values[1:],2),
-                              (x.values[1:],h.values[:-1],2),
-                              (x.values[1:],h.values[1:],1)]:
-        checkpoint();interior+=weight*convolve(left,right,mode='full',method='auto')
-    values=np.zeros(size,dtype=np.complex128);values[1:-1]=interior*(x.step/6)
+    values = _linear_convolution(x.values,h.values,x.step)
+    size = len(values)
     from .distributions import dirac_terms,attach_terms
     tx,th=dirac_terms(x),dirac_terms(h)
     ensure_working_set(len(tx)*len(th),live_arrays=8)
@@ -95,7 +104,7 @@ def correlation(x,h=None,*,normalized=False):
     if not np.isclose(x.step,h.step,rtol=1e-12,atol=0):raise ValueError('Los registros deben usar el mismo paso temporal.')
     from .distributions import dirac_terms,attach_terms,regular_only
     if normalized or not (dirac_terms(x) or dirac_terms(h)):
-        def grid(source):
+        def samples(source):
             values=source.values
             if normalized:
                 regular_only(source,'La correlación normalizada')
@@ -104,11 +113,8 @@ def correlation(x,h=None,*,normalized=False):
                 values=values/scale;a,b=values[:-1],values[1:]
                 energy=float(np.sum(abs(a)**2+abs(b)**2+(a*b.conj()).real)/3)
                 values=values/np.sqrt(energy)
-            return Signal(values,0,1,'s',source.name,'continuous')
-        left,right=grid(x),grid(h)
-        reflected=Signal(right.values[::-1].conj(),-(len(right.values)-1),1,'s',h.name,'continuous')
-        unit=convolution(left,reflected)
-        values=unit.values if normalized else unit.values*x.step
+            return values
+        values = _linear_convolution(samples(x),samples(h)[::-1].conj(),1. if normalized else x.step)
         origin=(x.origin-h.origin)-(len(h.values)-1)*x.step
         result=Signal(_finite_output(values,'La correlación continua'),origin,x.step,'s',f'r({x.name},{h.name})','continuous',metadata={'input_model':'linear interpolation; zero outside finite support','sample_step_s':x.step})
     else:
@@ -139,10 +145,12 @@ def periodic_correlation(x,h=None,*,normalization='sum'):
         if not np.isfinite(energy) or energy<=0:raise ValueError('La energía del periodo no es representable.')
         return values/np.sqrt(energy)
     left,right=(unit_values(x),unit_values(h)) if normalization=='energy' else (x.values,h.values)
+    left, exponent_left = bounded(left)
+    right, exponent_right = bounded(right)
     checkpoint();discrete=np.fft.ifft(np.fft.fft(left)*np.conj(np.fft.fft(right)))
     values=(2/3)*discrete+(1/6)*np.roll(discrete,1)+(1/6)*np.roll(discrete,-1)
-    if normalization=='mean':values/=size
-    elif normalization!='energy':values*=x.step
+    scale = 1/size if normalization == 'mean' else x.step if normalization == 'sum' else 1.
+    values = restore_scale(values,exponent_left+exponent_right,scale)
     checkpoint()
     return Signal(_finite_output(values,'La correlación periódica continua'),x.origin-h.origin,x.step,'s',f'R({x.name},{h.name})','continuous','',
         {'operation':'periodic_continuous_correlation','period_s':period,'normalization':normalization,

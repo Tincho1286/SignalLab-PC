@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.9.2](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.2). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.9.5 · Preliminar
+
+Las sesiones conservan las muestras editadas y registran cuándo dejan de corresponder a la fórmula original. La reconstrucción y el remuestreo actualizan los campos de reloj al cambiar de señal. También se corrigieron el recorte, la reutilización de relojes y la precisión de las integrales y transformadas numéricas.
+
+[Novedades completas](docs/releases/v1.9.5.md)
+
 ## 1.9.4 · Preliminar
 
 Las sesiones conservan las condiciones de las fórmulas y las entradas de cada canal en simulación de estados. Se corrigieron referencias temporales inventadas, un desbordamiento intermedio en el remuestreo sinc y la exportación de resultados con cadenas largas de dependencias.
