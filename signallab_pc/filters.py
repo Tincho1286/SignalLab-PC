@@ -271,7 +271,8 @@ class Transfer:
         require_causal_roc(self)
         from .system_clock import input_metadata
         clock=input_metadata(self,x)
-        clock.pop('excitation',None)
+        for key in ('excitation', 'temporal_formula', 'derivation', 'derivation_operation'):
+            clock.pop(key,None)
         ensure_working_set(int(x.values.size), live_arrays=5)
         has_history = bool(np.any(previous_inputs) or np.any(previous_outputs))
         from .transfer_plane import causal_sections, effective_system

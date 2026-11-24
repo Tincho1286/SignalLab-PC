@@ -67,6 +67,11 @@ describen las coordenadas; no especifican unidades de amplitud.
 - Cambiar la tasa transforma Fs y ajusta el primer instante cuando se conoce.
   El cambio racional permite dejar ese instante sin definir o indicarlo
   explícitamente.
+- Un filtro discreto puede aportar la tasa a la entrada sin fijar el instante
+  de la primera muestra. Si una STFT solo conoce la tasa, muestra segundos
+  relativos a la primera muestra y no asigna tiempos absolutos a sus tramos.
+  Una simulación discreta multicanal exige que coincidan los instantes
+  registrados y conserva un inicio físico cuando todas las entradas lo indican.
 
 
 ## Transferencia en el plano complejo

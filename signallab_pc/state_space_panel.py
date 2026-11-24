@@ -86,7 +86,7 @@ class StateSpacePanel(QWidget):
         plot=QWidget();plot_layout=QVBoxLayout(plot);self.result_tabs.addTab(plot,'Gráfico');self.result_tabs.setTabVisible(1,action not in ('discretize','transfer'))
         self.plot_data=None
         self.plot_mode=QComboBox();self.plot_mode.addItems(['Módulo y fase','Parte real e imaginaria'])
-        self.plot_channel=QComboBox();self.plot_channel.setAccessibleName('Canal que se muestra')
+        self.plot_channel=QComboBox();self.plot_channel.setProperty('sessionTransient',True);self.plot_channel.setAccessibleName('Canal que se muestra')
         self.export_plot=QPushButton('Exportar todos los canales CSV…');self.export_plot.setEnabled(False);self.export_plot.clicked.connect(self.export_channels)
         self.export_plot.setProperty('resultExport',True)
         from .figure_controls import WrappedControls

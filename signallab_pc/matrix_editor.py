@@ -64,7 +64,21 @@ class MatrixEditor(QWidget):
         columns=len(rows[0]) if rows else 0
         if any(len(row)!=columns for row in rows):raise ValueError('Todas las filas deben tener la misma cantidad de columnas.')
         if len(rows)>self.rows.maximum() or columns>self.columns.maximum():raise ValueError('La matriz supera las dimensiones admitidas por el editor.')
-        self._loading=True;self.model.beginResetModel();self.model.cells={(r,c):cell.strip() for r,row in enumerate(rows) for c,cell in enumerate(row)};self.model.rows=len(rows);self.model.columns=columns;self.model.endResetModel();self.rows.setValue(len(rows));self.columns.setValue(columns);self._loading=False
+        cells = {(r,c):cell.strip() for r,row in enumerate(rows) for c,cell in enumerate(row)}
+        self.replace_cells(len(rows),columns,cells)
+
+    def replace_cells(self, rows, columns, cells):
+        self._loading = True
+        self.model.beginResetModel()
+        try:
+            self.model.cells = cells
+            self.model.rows = rows
+            self.model.columns = columns
+            self.rows.setValue(rows)
+            self.columns.setValue(columns)
+        finally:
+            self._loading = False
+            self.model.endResetModel()
     def paste_text(self,value):
         value=value.strip('\r\n')
         if not value.strip():return

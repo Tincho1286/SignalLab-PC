@@ -22,7 +22,16 @@ class ResultsBrowser(QWidget):
         window.export_selection_button=QPushButton('Exportar resultado…');window.export_selection_button.setEnabled(False);window.export_selection_button.clicked.connect(window.export_selected);self.actions.add_action(window.export_selection_button,'export')
         from .result_comparison import open_comparison
         compare=QPushButton('Comparar resultados…');compare.clicked.connect(lambda:open_comparison(window));self.actions.add_action(compare)
-        sessions=QPushButton('Sesión…');session_menu=QMenu(sessions);session_menu.addAction('Guardar sesión…',window.save_project);session_menu.addAction('Abrir sesión…',window.import_project);sessions.setMenu(session_menu);self.actions.add_action(sessions)
+        sessions = QPushButton('Sesión…')
+        self.session_menu = QMenu(sessions)
+        populate = getattr(window, 'populate_session_menu', None)
+        if populate is None:
+            self.session_menu.addAction('Guardar resultados…', window.save_project)
+            self.session_menu.addAction('Incorporar resultados…', window.import_project)
+        else:
+            populate(self.session_menu)
+        sessions.setMenu(self.session_menu)
+        self.actions.add_action(sessions)
         window.result_origin=QLabel();window.result_origin.setWordWrap(True);window.result_origin.setObjectName('muted');right.addWidget(window.result_origin)
         window.project_details=ReportView();window.project_details.setReadOnly(True);window.project_details.setMinimumHeight(180);right.addWidget(window.project_details,1)
         self.workspace=ToolWorkspace(selection,detail,self,titles=('Resultados','Detalle'),captions=('Elegí un cálculo guardado. Los más recientes aparecen primero.','Consultá el resultado y sus condiciones antes de reutilizarlo.'));root.addWidget(self.workspace)

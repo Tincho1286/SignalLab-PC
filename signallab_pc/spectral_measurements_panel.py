@@ -161,7 +161,7 @@ class StftBandPowerView(QWidget):
         self.units=QComboBox();self.units.addItems(['Bandas en rad/muestra','Bandas en rad/s']);layout.addWidget(self.units);self.bands=BandEditor();layout.addWidget(self.bands)
         self.button=QPushButton('Calcular potencia por ventana');self.button.setObjectName('primary');self.button.clicked.connect(self.calculate);layout.addWidget(self.button)
         self.state=ResultState([self.bands,self.units],self.button);layout.addWidget(self.state)
-        self.selector=QComboBox();self.selector.currentIndexChanged.connect(self.display);layout.addWidget(self.selector)
+        self.selector=QComboBox();self.selector.setProperty('sessionTransient',True);self.selector.currentIndexChanged.connect(self.display);layout.addWidget(self.selector)
         from .toolbox import ResultView
         self.view=ResultView();layout.addWidget(self.view,1);self.note=QLabel('Integra la densidad de cada ventana. El relleno en los extremos puede reducir su potencia respecto de las ventanas completas.');self.note.setWordWrap(True);layout.addWidget(self.note)
     def set_data(self,data,parents):

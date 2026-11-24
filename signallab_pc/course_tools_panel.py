@@ -192,7 +192,7 @@ class CourseToolsPanel(QWidget):
         elif action=='band':field('low','Frecuencia inferior','-1');field('high','Frecuencia superior','1')
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);left=QWidget();box=QVBoxLayout(left);box.addWidget(scroll,1)
         button=QPushButton('Calcular');self.calculate_button=button;button.setObjectName('primary');button.clicked.connect(self.calculate);box.addWidget(button);root.addWidget(left,1)
-        right=QWidget();out=QVBoxLayout(right);self.selector=QComboBox();self.selector.hide();self.selector.currentIndexChanged.connect(self.display);result_options=QHBoxLayout();result_options.addWidget(self.selector,1);out.addLayout(result_options)
+        right=QWidget();out=QVBoxLayout(right);self.selector=QComboBox();self.selector.setProperty('sessionTransient',True);self.selector.hide();self.selector.currentIndexChanged.connect(self.display);result_options=QHBoxLayout();result_options.addWidget(self.selector,1);out.addLayout(result_options)
         self.view=ResultView();self.view.layout().setContentsMargins(0,0,0,0);self.tabs=self.view.views;self.report=TransferResultReport() if action=='phase' else ReportView();self.tabs.removeTab(1);self.tabs.insertTab(1,report_panel(self.report),"Informe");out.addWidget(self.view,1)
         self.system_view=QComboBox();self.system_view.addItems(['Módulo, fase y retardo','Módulo (dB)','Retardo de grupo','Módulo |H| · amplitud']);self.system_view.setAccessibleName('Vista de la respuesta del sistema');self.system_view.hide();result_options.addWidget(self.system_view,1);self.system_view.currentIndexChanged.connect(self.display)
         if action=='fir':

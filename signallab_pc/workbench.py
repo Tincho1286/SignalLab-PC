@@ -166,11 +166,7 @@ class WorkbenchWindow(ToolboxWindow):
         from .tool_catalog import AREAS,ENTRIES
         file = self.menuBar().addMenu('Archivo')
         file.addAction('Importar señal MATLAB…', self.import_matlab)
-        sessions = file.addMenu('Sesiones')
-        sessions.addAction('Guardar sesión completa…', self.save_project)
-        sessions.addAction('Abrir sesión completa…', lambda: self.sessions.open_dialog())
-        sessions.addAction('Incorporar resultados…', self.import_project)
-        sessions.addAction('Recuperar sesión anterior…', lambda: self.sessions.offer_recovery())
+        self.populate_session_menu(file.addMenu('Sesiones'))
         from .result_comparison import open_comparison
         results=self.menuBar().addMenu('Resultados');results.addAction('Comparar resultados…',lambda:open_comparison(self))
         tools=self.menuBar().addMenu('Herramientas');tools.addAction('Calculadora CAS',self.open_cas,'Ctrl+Shift+C');tools.addSeparator()
@@ -503,6 +499,12 @@ class WorkbenchWindow(ToolboxWindow):
         super().send_signal(value,key,item)
     def save_project(self):
         return self.sessions.save_dialog()
+
+    def populate_session_menu(self, menu):
+        menu.addAction('Guardar sesión completa…', self.save_project)
+        menu.addAction('Abrir sesión completa…', lambda: self.sessions.open_dialog())
+        menu.addAction('Incorporar resultados…', self.import_project)
+        menu.addAction('Recuperar sesión anterior…', lambda: self.sessions.offer_recovery())
 
     def session_has_changes(self):
         return self.sessions.changed()

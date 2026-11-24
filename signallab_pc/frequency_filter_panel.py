@@ -27,7 +27,7 @@ class FrequencyFilterPanel(QWidget):
         form.addRow(self.periodic)
         self.form=form;self.operation.currentIndexChanged.connect(self.update_inputs);self.domain.currentIndexChanged.connect(self.update_domain)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);left=QVBoxLayout();left.addWidget(scroll);self.calculate_button=QPushButton('Calcular');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);left.addWidget(self.calculate_button);root.addLayout(left,1)
-        right=QVBoxLayout();self.selector=QComboBox();self.selector.currentIndexChanged.connect(self.display)
+        right=QVBoxLayout();self.selector=QComboBox();self.selector.setProperty('sessionTransient',True);self.selector.currentIndexChanged.connect(self.display)
         self.tabs=QTabWidget();self.view=ResultView();self.report=ReportView()
         right.addWidget(self.view.actions)
         right.addWidget(self.selector)

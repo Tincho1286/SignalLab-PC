@@ -114,6 +114,30 @@ def lag_clock(rate, origin, count):
     return dict(sample_rate_hz=rate, time_start_s=start, time_mapping=CLOCK_MAPPING)
 
 
+def reindex_clock(metadata, offset, count, *, stride=1):
+    """Carry the rate and shift a known first instant by an input sample offset."""
+    from .sampling import positive_finite
+    rate = metadata.get('sample_rate_hz')
+    start = metadata.get('time_start_s')
+    clock = {}
+    if start is not None:
+        start = float(start)
+        if not math.isfinite(start):
+            raise ValueError('El inicio del reloj debe ser finito.')
+    if rate is None:
+        if start is not None and offset == 0:
+            clock['time_start_s'] = start
+        return clock
+    rate = positive_finite(rate,'Fs registrada')
+    output_rate = positive_finite(rate/stride,'Fs de salida')
+    clock['sample_rate_hz'] = output_rate
+    if start is not None:
+        shifted = start + offset/rate
+        validate_clock_resolution(shifted, output_rate, count)
+        clock.update(time_start_s=shifted, time_mapping=CLOCK_MAPPING)
+    return clock
+
+
 def spectrum_clock(source,metadata=None):
     metadata=source.metadata if metadata is None else metadata
     return {'input_origin':int(source.origin),'input_clock':{
@@ -160,21 +184,23 @@ def input_period_metadata(period,source):
         rate=1/period
         if not math.isfinite(rate):raise ValueError('La tasa 1/T excede el rango numérico disponible.')
         metadata['sample_rate_hz']=rate
-    if period is not None and 'time_start_s' not in metadata:
-        start=source.origin*period
-        if not math.isfinite(start):raise ValueError('El inicio físico del registro excede el rango numérico.')
-        metadata['time_start_s']=start
-    if 'time_start_s' in metadata and not math.isfinite(float(metadata['time_start_s'])):raise ValueError('El inicio del reloj debe ser finito.')
+    metadata.update(reindex_clock(metadata, 0, source.values.size))
     return metadata
 
 def signature(editor):
     mode=getattr(editor,'definition_mode',None);formula=getattr(editor,'transfer_formula',None)
     return (editor.domain.currentIndex(),editor.b.text(),editor.a.text(),mode.currentIndex() if mode is not None else None,formula.text() if formula is not None else None)
 
-def editor_period(editor):
+def selected_domain(editor, digital_index=None):
+    if digital_index is None:
+        digital_index = getattr(editor,'digital_domain_index',1)
+    return 'digital' if editor.domain.currentIndex() == digital_index else 'analog'
+
+
+def editor_period(editor, *, digital_index=None):
     field=getattr(editor,'sample_period',None)
     if field is not None:
-        if editor.domain.currentIndex()!=1:return UNSET
+        if selected_domain(editor,digital_index)!='digital':return UNSET
         if not field.text().strip():return None
         from .numeric_input import real_field
         return validate_period(real_field(field))

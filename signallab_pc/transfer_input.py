@@ -15,23 +15,25 @@ def remember_system(editor,system):
     from .system_clock import remember_period
     remember_period(editor,system.sample_period_s)
 
-def read_system(editor,digital_index=1,name='Sistema de entrada',allow_advance=False):
+def read_system(editor,digital_index=None,name='Sistema de entrada',allow_advance=False):
     from .system_clock import editor_period,apply_period
-    return apply_period(_read_system(editor,digital_index,name,allow_advance),editor_period(editor))
+    return apply_period(_read_system(editor,digital_index,name,allow_advance),editor_period(editor,digital_index=digital_index))
 
-def _read_system(editor,digital_index=1,name='Sistema de entrada',allow_advance=False):
+def _read_system(editor,digital_index=None,name='Sistema de entrada',allow_advance=False):
+    from .system_clock import selected_domain
+    domain = selected_domain(editor,digital_index)
     if hasattr(editor,'definition_mode') and editor.definition_mode.currentIndex()==1:
         if (editor.transfer_formula.text(),editor.domain.currentIndex())==getattr(editor,'_preserved_formula',None):
             result=editor._preserved_system
             if result.advance and not allow_advance:raise ValueError('Este sistema conserva un avance temporal. Esta herramienta utiliza realizaciones causales; su análisis completo está disponible en Análisis de sistemas y Z inversa con ROC.')
             return result
-        return formula_system(editor.transfer_formula.text(),'digital' if editor.domain.currentIndex()==digital_index else 'analog',name,allow_advance=allow_advance)
+        return formula_system(editor.transfer_formula.text(),domain,name,allow_advance=allow_advance)
     definition=(editor.b.text(),editor.a.text(),editor.domain.currentIndex())
     if definition==getattr(editor,'_preserved_definition',None):
         result=editor._preserved_system
         if result.advance and not allow_advance:raise ValueError('La definición contiene un avance temporal; usá Análisis de sistemas o Z inversa con ROC.')
         return result
-    return Transfer(parse_list(editor.b.text()),parse_list(editor.a.text()),'digital' if editor.domain.currentIndex()==digital_index else 'analog',name)
+    return Transfer(parse_list(editor.b.text()),parse_list(editor.a.text()),domain,name)
 
 
 def formula_system(expression,domain,name='Sistema definido por fórmula',allow_advance=False):
@@ -46,9 +48,10 @@ def formula_system(expression,domain,name='Sistema definido por fórmula',allow_
 def install_formula_editor(editor,form):
     from PySide6.QtWidgets import QComboBox
     from .expression_editor import ExpressionEditor
+    from .system_clock import selected_domain
     if hasattr(editor,'definition_mode'):return
     editor.definition_mode=QComboBox();editor.definition_mode.addItems(['Coeficientes','Fórmula H(s) / H(z)'])
-    editor.transfer_formula=ExpressionEditor('1/(s+1)' if editor.domain.currentIndex()==0 else '1/(1-0.5*z^(-1))',symbolic=True);editor.transfer_formula.method_buttons.hide()
+    editor.transfer_formula=ExpressionEditor('1/(s+1)' if selected_domain(editor)=='analog' else '1/(1-0.5*z^(-1))',symbolic=True);editor.transfer_formula.method_buttons.hide()
     from .choice_buttons import ChoiceButtons
     editor.definition_buttons=ChoiceButtons(editor.definition_mode,['Coeficientes','Fórmula H'])
     form.insertRow(0,editor.definition_buttons);form.insertRow(1,'H(s) o H(z)',editor.transfer_formula)
@@ -56,13 +59,13 @@ def install_formula_editor(editor,form):
         definition=getattr(editor,'fields',{}).get('definition')
         ideal=definition is not None and definition.currentData()=='response'
         formula=editor.definition_mode.currentIndex()==1
-        variable='s' if editor.domain.currentIndex()==0 else 'z';editor.transfer_formula.setProperty('variableHint',variable);editor.transfer_formula.field.setPlaceholderText('Función de transferencia en '+variable);form.labelForField(editor.transfer_formula).setText('H('+variable+')')
+        variable='s' if selected_domain(editor)=='analog' else 'z';editor.transfer_formula.setProperty('variableHint',variable);editor.transfer_formula.field.setPlaceholderText('Función de transferencia en '+variable);form.labelForField(editor.transfer_formula).setText('H('+variable+')')
         form.setRowVisible(editor.definition_buttons,not ideal);form.setRowVisible(editor.transfer_formula,formula and not ideal)
         form.setRowVisible(editor.b,not formula and not ideal);form.setRowVisible(editor.a,not formula and not ideal)
         if hasattr(editor,'preview'):form.setRowVisible(editor.preview,not formula and not ideal)
     def change_default(*_):
         if editor.transfer_formula.text() in ('1/(s+1)','1/(1-0.5*z^(-1))'):
-            editor.transfer_formula.setText('1/(s+1)' if editor.domain.currentIndex()==0 else '1/(1-0.5*z^(-1))')
+            editor.transfer_formula.setText('1/(s+1)' if selected_domain(editor)=='analog' else '1/(1-0.5*z^(-1))')
     editor.domain.currentIndexChanged.connect(change_default)
     editor.domain.currentIndexChanged.connect(update)
     editor.definition_mode.currentIndexChanged.connect(update)

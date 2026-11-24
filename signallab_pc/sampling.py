@@ -112,11 +112,14 @@ def resample(x, factor, method, phase=0):
             values = np.zeros(count, dtype=complex)
             values[::factor] = x.values
             if method == "sinc" and count > 1 and factor > 1:
+                from .spectral_scaling import bounded, restore_scale
                 radius = count - 1
                 lag = np.arange(-radius, radius + 1, dtype=np.int64)
                 kernel = np.sinc(lag / factor)
                 kernel[(lag % factor == 0) & (lag != 0)] = 0
-                values = fftconvolve(values, kernel, mode="full")[radius:radius + count]
+                scaled, exponent = bounded(values)
+                interpolated = fftconvolve(scaled, kernel, mode="full")[radius:radius + count]
+                values = restore_scale(interpolated, exponent)
                 values[::factor] = x.values
         elif method == "zoh":
             values = x.values[np.arange(count, dtype=np.int64) // factor]

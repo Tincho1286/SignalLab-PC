@@ -84,6 +84,7 @@ def signal_summary(value,operation=None):
         elif 'nfft' in meta:rows.append(('Puntos de DFT N',str(meta['nfft'])))
         if 'sample_rate_hz' in meta:rows.append(('Tasa de muestreo Fs',number(meta['sample_rate_hz'])+' muestras/s'))
         if 'time_start_s' in meta:rows.append(('Tiempo de la primera muestra',number(meta['time_start_s'])+' s'))
+        if 'time_reference' in meta:rows.append(('Referencia del eje temporal',meta['time_reference']))
         sections.append(Section(signal.name,rows=rows))
         from .temporal_formula import sections as temporal_sections
         sections.extend(temporal_sections(signal))

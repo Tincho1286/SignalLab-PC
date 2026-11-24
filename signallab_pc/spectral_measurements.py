@@ -251,13 +251,15 @@ def stft_band_series(data,bands,physical=False):
         metadata=dict(operation='stft_band_power',window_length=m['window_length'],hop=m['hop'],nfft=m['nfft'],band=[low,high],frequency_units='rad/s' if physical or m['input_domain']=='continuous' else 'rad/muestra',scope='Window-square-weighted finite-frame power; no detrending')
         if m['input_domain']=='continuous' or physical:
             step=m['hop']*(m['input_step'] if m['input_domain']=='continuous' else 1/rate)
-            outputs.append(Signal(values,float(centers[0]),step,time_unit,'Potencia · '+(name or 'banda'),'continuous',metadata=metadata))
+            if m['input_domain']=='discrete' and m['input_clock'].get('time_start_s') is None:
+                metadata['time_reference'] = time_unit
+            units = 's' if m['input_domain']=='discrete' else time_unit
+            outputs.append(Signal(values,float(centers[0]),step,units,'Potencia · '+(name or 'banda'),'continuous',metadata=metadata))
         else:
             metadata.update(frame_center_start=float(centers[0]),frame_center_step=m['hop'],frame_center_units=m['time_units'])
             clock=m['input_clock']
-            if 'sample_rate_hz' in clock:
-                fs=float(clock['sample_rate_hz']);new_rate=fs/m['hop']
-                if not math.isfinite(new_rate) or new_rate<=0:raise ValueError('El reloj de las ventanas excede el rango numérico.')
-                metadata.update(sample_rate_hz=new_rate,time_start_s=float(clock.get('time_start_s',m['input_origin']/fs))+(float(centers[0])-m['input_origin'])/fs)
+            from .system_clock import reindex_clock
+            center_offset = (m['window_length']-1)/2 - m['left_padding']
+            metadata.update(reindex_clock(clock, center_offset, len(values), stride=m['hop']))
             outputs.append(Signal(values,0,1,'n','Potencia por ventana · '+(name or 'banda'),'discrete',metadata=metadata))
     return outputs

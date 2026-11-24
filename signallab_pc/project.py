@@ -43,20 +43,21 @@ def decode(kind,data):
     raise ValueError('Tipo de registro desconocido.')
 
 
-def _remap_calculated_references(value,mapping):
-    if isinstance(value,dict):
-        if len(value)==1:
-            for field in ('result_id','record'):
-                key=value.get(field)
-                if isinstance(key,str) and key in mapping:
-                    value[field]=mapping[key]
-                    return
-        if ('dtype' in value and 'shape' in value) or set(value)=={'type','data'}:return
-        items=value.values()
-    elif isinstance(value,list):items=value
-    else:return
-    for item in items:
-        if isinstance(item,(dict,list)):_remap_calculated_references(item,mapping)
+def _calculated_references(value):
+    pending = [value]
+    while pending:
+        node = pending.pop()
+        if isinstance(node,dict):
+            if len(node) == 1:
+                field, identifier = next(iter(node.items()))
+                if field in ('result_id','record') and isinstance(identifier,str):
+                    yield node, field, identifier
+                    continue
+            if ('dtype' in node and 'shape' in node) or set(node)=={'type','data'}:
+                continue
+            pending.extend(item for item in node.values() if isinstance(item,(dict,list)))
+        elif isinstance(node,list):
+            pending.extend(item for item in node if isinstance(item,(dict,list)))
 
 
 class Project:
@@ -99,12 +100,17 @@ class Project:
         record=self._records[key]
         return expression_result(record['data']) if record['kind']=='calculation' else None
     def export_record(self,key,path):
-        selected=set()
-        def visit(current):
-            if current in selected:return
-            for parent in self._records[current]['parents']:visit(parent)
-            selected.add(current)
-        visit(key)
+        selected = set()
+        pending = [key]
+        while pending:
+            current = pending.pop()
+            if current not in selected:
+                selected.add(current)
+                record = self._records[current]
+                pending.extend(record['parents'])
+                if record['kind'] == 'calculation':
+                    pending.extend(ref for _, _, ref in _calculated_references(record['data'].get('calculated_data'))
+                                   if ref in self._records)
         document=dict(format='signallab-project',schema_version=2,records=[deepcopy(r) for k,r in self._records.items() if k in selected])
         write_json(path,document)
     def get(self,key):
@@ -114,31 +120,21 @@ class Project:
     def sample_period(self,key):
         """Recover a legacy clock only when explicit ancestor clocks agree."""
         import math
-        cache={}
-        def visit(current):
-            if current in cache:return cache[current]
-            record=self._records[current];kind=record['kind'];data=record['data'];periods=None
-            if kind=='system':
-                if data['domain']!='digital':periods=set()
-                elif 'sample_period_s' in data:periods=set() if data['sample_period_s'] is None else {data['sample_period_s']}
-            elif kind=='state_space':periods=set() if data.get('dt') is None else {data['dt']}
-            elif kind=='signal':
-                periods=set()
-                if data['domain']=='discrete':
-                    try:period=1/float(data.get('metadata',{}).get('sample_rate_hz'))
-                    except (ValueError,TypeError,ZeroDivisionError,OverflowError):period=None
-                    if period is not None and math.isfinite(period) and period>0:periods.add(period)
-            if kind=='calculation' and isinstance(data.get('cas_answer'),dict) and 'system_context' in data['cas_answer']:
-                from .transform_context import result_period
-                clock=result_period(data);periods=set() if clock is None else {clock}
-            elif kind=='calculation' and isinstance(data.get('result'),dict) and 'sample_period_s' in data['result']:
-                from .transform_context import result_period
-                clock=result_period(data);periods=set() if clock is None else {clock}
-            if periods is None:
-                periods=set()
-                for parent in record['parents']:periods.update(visit(parent))
-            cache[current]=periods;return periods
-        periods=sorted(visit(key))
+        seen = set()
+        periods = set()
+        pending = [key]
+        while pending:
+            current = pending.pop()
+            if current in seen:
+                continue
+            seen.add(current)
+            record = self._records[current]
+            declared, period = _record_period(record)
+            if not declared:
+                pending.extend(record['parents'])
+            elif period is not None:
+                periods.add(period)
+        periods = sorted(periods)
         return periods[0] if periods and all(math.isclose(period,periods[0],rel_tol=1e-12,abs_tol=0) for period in periods) else None
     def save(self,path):
         write_json(path,self.document())
@@ -150,7 +146,8 @@ class Project:
     @classmethod
     def from_document(cls, document):
         if not isinstance(document,dict):raise ValueError('El archivo de proyecto debe contener un objeto JSON.')
-        if document.get('format')!='signallab-project' or document.get('schema_version') not in (1,2):raise ValueError('Proyecto SignalLab incompatible.')
+        version = document.get('schema_version')
+        if document.get('format')!='signallab-project' or type(version) is not int or version not in (1,2):raise ValueError('Proyecto SignalLab incompatible.')
         records=document.get('records')
         if not isinstance(records,list):raise ValueError('El proyecto no contiene una lista de objetos.')
         staging={};ids=set()
@@ -159,12 +156,23 @@ class Project:
             ids.add(record['id'])
         for number,record in enumerate(records,1):
             if record.get('kind') not in ('signal','system','state_space','calculation') or not isinstance(record.get('data'),dict):raise ValueError('Registro '+str(number)+': tipo o datos de resultado inválidos.')
-            try:decode(record['kind'],record['data'])
+            try:value=decode(record['kind'],record['data'])
             except (KeyError,TypeError,ValueError,IndexError,OverflowError) as exc:raise ValueError('Registro '+str(number)+' ('+record['id']+'): definición incompleta o inválida. '+str(exc)) from exc
-            if not isinstance(record.get('title'),str) or not isinstance(record.get('parents'),list) or any(not isinstance(parent,str) for parent in record['parents']):raise ValueError('Registro '+str(number)+': título o procedencia incompletos.')
+            if (not isinstance(record.get('title'),str) or not isinstance(record.get('operation',''),str)
+                    or not isinstance(record.get('parents'),list)
+                    or any(not isinstance(parent,str) for parent in record['parents'])):
+                raise ValueError('Registro '+str(number)+': título, operación o procedencia inválidos.')
             # Los padres deben preceder al resultado: también impide ciclos.
             if any(parent not in staging for parent in record['parents']):raise ValueError('Procedencia faltante o circular.')
-            staging[record['id']]=deepcopy(record)
+            stored = deepcopy(record)
+            stored.setdefault('operation','')
+            if isinstance(value, Signal):
+                for name in ('origin','step','units','name','domain','expression'):
+                    stored['data'][name] = getattr(value,name)
+            elif isinstance(value, Transfer):
+                for name in ('domain','name'):
+                    stored['data'][name] = getattr(value,name)
+            staging[record['id']] = stored
         json.dumps(records,allow_nan=False)
         project=cls()
         project._records=staging
@@ -177,11 +185,37 @@ class Project:
         for old,record in staging.items():
             record['id']=mapping[old];record['parents']=[mapping[p] for p in record['parents']]
             if record['kind']=='calculation' and 'calculated_data' in record['data']:
-                data=record['data']
-                _remap_calculated_references(data['calculated_data'],mapping)
+                for node, field, identifier in _calculated_references(record['data']['calculated_data']):
+                    if identifier in mapping:
+                        node[field] = mapping[identifier]
             imported[record['id']]=record
         self._records.update(imported);self.dirty=self.dirty or bool(imported)
         return len(imported)
+
+
+def _record_period(record):
+    """Return whether this record decides the clock, even when its value is absent."""
+    import math
+    kind, data = record['kind'], record['data']
+    if kind == 'system':
+        if data['domain'] != 'digital':
+            return True, None
+        return 'sample_period_s' in data, data.get('sample_period_s')
+    if kind == 'state_space':
+        return True, data.get('dt')
+    if kind == 'signal':
+        rate = data.get('metadata',{}).get('sample_rate_hz') if data['domain']=='discrete' else None
+        try:
+            period = 1/float(rate)
+        except (ValueError,TypeError,ZeroDivisionError,OverflowError):
+            period = None
+        return True, period if period is not None and math.isfinite(period) and period>0 else None
+    for field, clock_key in (('cas_answer','system_context'),('result','sample_period_s')):
+        payload = data.get(field)
+        if isinstance(payload,dict) and clock_key in payload:
+            from .transform_context import result_period
+            return True, result_period(data)
+    return False, None
 
 
 def read_document(path):

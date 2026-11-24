@@ -14,7 +14,7 @@ class SimulationInputs:
     axis:np.ndarray
     step:float
     origin:float
-    time_start:float
+    time_start:float | None
     discrete:bool
 
 
@@ -46,11 +46,17 @@ def prepare_inputs(model,sources):
             regular_only(source,'La simulación de estados')
             if source.units!='s':raise ValueError(f'u{channel}: se requiere un eje temporal en segundos.')
             if not np.isclose(source.step,step,rtol=1e-12,atol=0) or source.origin!=origin:raise ValueError(f'u{channel}: todos los canales deben usar el mismo inicio y paso temporal. No se interpola automáticamente la entrada.')
-    time_start=starts[0] if starts else float(origin)*step if discrete else float(origin)
-    tolerance=max(1e-9*step,8*math.ulp(time_start))
-    if any(abs(start-time_start)>tolerance for start in starts):raise ValueError('Los canales tienen distintos tiempos físicos para su primer índice. Revisá sus relojes antes de simular.')
-    time=time_start+step*np.arange(count)
-    if not np.isfinite(time).all() or (count>1 and np.any(np.diff(time)<=0)):raise ValueError('El reloj no permite distinguir los instantes de la simulación. Revisá su inicio y período.')
+    from .system_clock import validate_time_step
+    if discrete:
+        for start in starts:
+            tolerance = min(step/4, max(1e-9*step, math.ulp(starts[0])+math.ulp(start)))
+            if abs(start-starts[0]) > tolerance:
+                raise ValueError('Los canales tienen distintos tiempos físicos para su primer índice. Revisá sus relojes antes de simular.')
+            validate_time_step(start,step,count)
+        time_start = starts[0] if len(starts) == len(sources) else None
+    else:
+        time_start = float(origin)
+    validate_time_step(time_start if time_start is not None else 0.,step,count)
     return SimulationInputs(sources,np.column_stack([source.values for source in sources]),first.axis,step,origin,time_start,discrete)
 
 
@@ -75,11 +81,12 @@ class StateInputSources(QWidget):
         self.channel.setVisible(count>1)
         self.note.setText('Cada canal admite fórmula, muestras, archivo o un resultado. Todos deben usar el mismo intervalo y cantidad de muestras. En discreto, n es entero; T fija el reloj físico.' if count else 'Completá B y D para definir las entradas del modelo.')
         self.stack.setVisible(count>0);self.show_channel();self.textChanged.emit()
-    def field(self,index):
-        bank=self.banks[self.kind]
+    def field(self,index,*,kind=None):
+        kind = self.kind if kind is None else kind
+        bank=self.banks[kind]
         if index not in bank:
             from .toolbox import LocalInput
-            field=LocalInput('Entrada u'+str(index+1)+('[n]' if self.kind=='discrete' else '(t)'),self.kind);field.bind_project(self.owner)
+            field=LocalInput('Entrada u'+str(index+1)+('[n]' if kind=='discrete' else '(t)'),kind);field.bind_project(self.owner)
             field.expression.setText('1');field.count.setText('501');field.step.setText('0.01');field.layout().setContentsMargins(0,4,0,0)
             if index and 0 in bank:
                 for name in ('origin','count','step'):getattr(field,name).setText(getattr(bank[0],name).text())

@@ -6,6 +6,7 @@ from .model import Signal
 from .spectral_scaling import bounded,restore_scale
 from .resources import ensure_working_set
 from .jobs import checkpoint
+from .system_clock import reindex_clock
 
 
 def capture(source,kernel,result):
@@ -27,9 +28,7 @@ def inspect(trace,index):
     else:
         count=min(length,len(result.values)-start);valid=raw[m-1:m-1+count];valid_start=start
     def make(values,origin,name,reference):
-        clock={k:v for k,v in reference.metadata.items() if k in ('sample_rate_hz','time_start_s')}
-        if 'sample_rate_hz' in clock:
-            rate=float(clock['sample_rate_hz']);clock['time_start_s']=float(clock.get('time_start_s',reference.origin/rate))+(origin-reference.origin)/rate
+        clock = reindex_clock(reference.metadata, origin-reference.origin, len(values))
         return Signal(values,origin,1,'n',name,'discrete',metadata=dict(clock,operation='block_inspection',block=int(index),method=method))
     input_signal=make(chunk,source.origin+offset,'Entrada del bloque con historia' if method=='ols' else 'Entrada del bloque',source)
     raw_signal=make(raw,result.origin+offset,'Convolución circular FFT' if method=='ols' else 'Convolución del bloque',result)

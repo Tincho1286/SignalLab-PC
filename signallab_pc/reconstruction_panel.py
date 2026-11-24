@@ -45,7 +45,7 @@ class ReconstructionPanel(QWidget):
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(250);split.addWidget(scroll)
         results=QWidget();out=QVBoxLayout(results);split.addWidget(results);split.setSizes([350,760]);split.setStretchFactor(1,1)
         self.state=ResultState([self.rate,self.start,self.factor,self.before,self.after,self.override,self.use_reference,self.reference],self.calculate_button,[self.source]);out.addWidget(self.state)
-        self.choice=QComboBox();self.choice.setAccessibleName('Curvas de reconstrucción');self.choice.setEnabled(False);out.addWidget(self.choice)
+        self.choice=QComboBox();self.choice.setProperty('sessionTransient',True);self.choice.setAccessibleName('Curvas de reconstrucción');self.choice.setEnabled(False);out.addWidget(self.choice)
         self.view=ReconstructionView();out.addWidget(self.view,1);self.report=self.view.text
         self.nodes=Rows([('label','Método'),('maximum','Máximo desvío nodal'),('rms','RMS nodal'),('error','Observación')]);self.node_index=self.add_table('Nudos originales',self.nodes,self.export_nodes)
         page=QWidget();layout=QVBoxLayout(page);self.inspect_index=self.view.views.addTab(page,'Aportes por muestra');self.view.views.setTabVisible(self.inspect_index,False)

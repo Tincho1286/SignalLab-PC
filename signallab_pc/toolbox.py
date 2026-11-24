@@ -764,7 +764,7 @@ class ToolPage(QWidget):
                 form.insertRow(0,label,field)
             def prepare_system(panel):
                 from .transfer_input import read_system
-                system=read_system(panel,digital_index=0)
+                system=read_system(panel)
                 old=self.context.system_id
                 if old is None or encode(window.project.get(old))!=encode(system):
                     self.context.system_id=window.publish(system,operation='Entrada: '+title,parents=[old] if old else [])
@@ -1490,11 +1490,20 @@ class ToolboxWindow(SignalLabWindow):
         records=self.visible_records;index=self.project_list.currentRow()
         if not 0<=index<len(records):return
         record=records[index];value=self.project.get(record['id'])
-        path,selected=QFileDialog.getSaveFileName(self,'Exportar resultado seleccionado','resultado','SignalLab JSON (*.json);;Tabla CSV (*.csv)' if isinstance(value,Signal) else 'SignalLab JSON (*.json)')
+        bundle = 'Resultado con dependencias (*.json)'
+        if isinstance(value,Signal):
+            formats = 'Señal SignalLab (*.json);;Tabla CSV (*.csv);;' + bundle
+        elif isinstance(value,Transfer):
+            formats = 'Sistema SignalLab (*.json);;' + bundle
+        else:
+            formats = bundle
+        path,selected=QFileDialog.getSaveFileName(self,'Exportar resultado seleccionado','resultado',formats)
         if not path:return
         if not Path(path).suffix:path+=('.csv' if 'CSV' in selected else '.json')
         try:
-            if isinstance(value,Signal):(save_csv if Path(path).suffix.lower()=='.csv' else save_json)(value,path)
+            if selected == bundle:
+                self.project.export_record(record['id'],path)
+            elif isinstance(value,Signal):(save_csv if Path(path).suffix.lower()=='.csv' else save_json)(value,path)
             elif isinstance(value,Transfer):
                 write_json(path,value.to_document())
             else:
@@ -1521,15 +1530,14 @@ class ToolboxWindow(SignalLabWindow):
                 count=self.project.merge(path);self.refresh_project();self.statusBar().showMessage(f'{count} elementos incorporados a esta sesión.')
             except Exception as exc:QMessageBox.warning(self,'No se pudo abrir',str(exc))
     def session_has_changes(self):
-        return self.project.dirty
+        from .signal_editor_panel import SignalEditorPanel
+        return self.project.dirty or any(editor.pending for editor in self.findChildren(SignalEditorPanel))
 
     def closeEvent(self,event):
-        from .signal_editor_panel import SignalEditorPanel
         if self._workers:
             QMessageBox.information(self,'Cálculo en curso','Cancelá el cálculo y esperá a que termine antes de cerrar.')
             event.ignore();return
-        editors=self.findChildren(SignalEditorPanel)
-        if self.session_has_changes() or any(editor.pending for editor in editors):
+        if self.session_has_changes():
             answer=QMessageBox.question(self,'Guardar antes de salir','Hay cambios sin guardar. ¿Querés guardarlos antes de salir?',QMessageBox.StandardButton.Save|QMessageBox.StandardButton.Discard|QMessageBox.StandardButton.Cancel,QMessageBox.StandardButton.Save)
             if answer==QMessageBox.StandardButton.Cancel:
                 event.ignore();return

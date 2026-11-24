@@ -57,7 +57,14 @@ Los archivos `signallab-project` de esquema 1 o 2 siguen siendo archivos de
 resultados. Se pueden incorporar a la biblioteca actual o abrir en una sesión
 vacía. La incorporación reasigna identificadores para evitar colisiones.
 
-Una sesión completa usa `signallab-session` con esquema 1. Incluye el documento
+Una sesión completa usa `signallab-session`. El esquema 2 conserva también la
+procedencia y las condiciones activas de las expresiones reutilizadas, junto
+con las matrices y las entradas por canal de la simulación de estados. Al abrir
+un archivo del esquema 1 se conservan los datos disponibles; las condiciones
+que el archivo nunca guardó quedan sin definir. Un lector del esquema 1 puede
+recibir un archivo de resultados `signallab-project` por separado.
+
+La sesión incluye el documento
 de proyecto, las herramientas visitadas, los documentos abiertos, las entradas
 editables compatibles y los identificadores de los objetos utilizados. Conserva
 los identificadores de la sesión y valida referencias y esquemas antes de
@@ -73,9 +80,9 @@ después de guardar o descartar elimina ese punto. La recuperación no incluye
 cálculos en curso, ventanas de gráficos, historial del CAS ni preferencias de
 la aplicación. Los resultados previos se consultan en la biblioteca. El esquema
 admite los formularios, señales de entrada, transferencias cargadas, tablas de
-muestras y diagramas aplicados. La recuperación de un editor de diagrama que
-sigue abierto sin aplicar, los bancos avanzados de simulación y el historial
-de deshacer siguen fuera del esquema.
+muestras y diagramas aplicados. Los selectores asociados a resultados se
+habilitan cuando volvés a calcular. El historial de deshacer y los cambios de
+un editor de diagramas que sigue abierto sin aplicar quedan fuera del esquema.
 
 ## Distribución y cálculos reproducibles
 
@@ -98,3 +105,8 @@ reproducción verificable hace falta un contrato adicional por herramienta con
 todas las entradas, condiciones, unidades, método y versiones de ejecución.
 La exportación existente conserva los datos disponibles y no genera scripts
 que aparenten reconstruir parámetros faltantes.
+
+En Resultados, **Resultado con dependencias** guarda la selección y toda su
+procedencia registrada, también cuando elegís una señal o una transferencia.
+El JSON individual de estos objetos sigue disponible para importarlos
+directamente en una herramienta.

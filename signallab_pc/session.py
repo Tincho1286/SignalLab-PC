@@ -6,7 +6,7 @@ from .project import Project, read_document
 
 
 def save(path, project, workspace):
-    document = dict(format='signallab-session', schema_version=1,
+    document = dict(format='signallab-session', schema_version=2,
                     project=project.document(), workspace=workspace)
     write_json(Path(path), document)
 
@@ -16,7 +16,7 @@ def load(path):
     if isinstance(document, dict) and document.get('format') == 'signallab-project':
         return Project.from_document(document), empty_workspace()
     if (not isinstance(document, dict) or document.get('format') != 'signallab-session'
-            or type(document.get('schema_version')) is not int or document['schema_version'] != 1):
+            or type(document.get('schema_version')) is not int or document['schema_version'] not in (1,2)):
         raise ValueError('Formato o versión de sesión SignalLab incompatible.')
     project = Project.from_document(document.get('project'))
     workspace = document.get('workspace')

@@ -5,16 +5,21 @@ from PySide6.QtWidgets import (QCheckBox, QComboBox, QLineEdit, QRadioButton, QS
 from .band_edges import BandEdgesEditor, KINDS
 from .coefficient_editor import CoefficientEditor
 from .expression_editor import ExpressionEditor
+from .matrix_editor import MatrixEditor
 from .project import decode, encode
 from .realization_editor import RealizationInput
 from .realization_graph import RealizationGraph
+from .resources import ensure_working_set
 from .signal_editor_panel import SignalEditorPanel
+from .state_simulation_inputs import StateInputSources
 from .toolbox import LocalInput
 
 
 TEXT_TYPES = (ExpressionEditor, CoefficientEditor, QLineEdit)
 SELECT_TYPES = (QCheckBox, QRadioButton, QComboBox, QSpinBox, QDoubleSpinBox)
-INPUT_TYPES = TEXT_TYPES + SELECT_TYPES + (BandEdgesEditor, LocalInput, RealizationInput)
+INPUT_TYPES = TEXT_TYPES + SELECT_TYPES + (
+    BandEdgesEditor, LocalInput, RealizationInput, MatrixEditor, StateInputSources,
+)
 
 
 def controls(owner):
@@ -94,6 +99,13 @@ def snapshot(widget, records):
         return dict(kind=widget.current, values={kind: list(values) for kind, values in widget.saved.items()})
     if isinstance(widget, RealizationInput):
         return {domain: graph.to_document() for domain, graph in widget.graphs.items()}
+    if isinstance(widget, MatrixEditor):
+        return {'shape': [widget.model.rows, widget.model.columns],
+                'cells': [[row, col, value] for (row,col),value in sorted(widget.model.cells.items())]}
+    if isinstance(widget, StateInputSources):
+        return {'channel':widget.channel.currentIndex(),
+                'banks': {kind: [[index, snapshot(field, records)] for index, field in sorted(bank.items())]
+                          for kind, bank in widget.banks.items()}}
     if isinstance(widget, TEXT_TYPES):
         return widget.text()
     if isinstance(widget, QComboBox):
@@ -104,7 +116,8 @@ def snapshot(widget, records):
 
 
 def field_values(owner, records):
-    return {name: snapshot(widget, records) for name, widget in controls(owner).items()}
+    return {name: snapshot(widget, records) for name, widget in controls(owner).items()
+            if not widget.property('sessionTransient')}
 
 
 def restore_fields(owner, values, project):
@@ -113,11 +126,18 @@ def restore_fields(owner, values, project):
         raise ValueError('La sesión contiene un campo incompatible con la herramienta.')
     # Set parent selectors before the texts that their callbacks initialize.
     for name, widget in named.items():
-        if name in values and isinstance(widget, SELECT_TYPES):
+        if name in values and isinstance(widget, SELECT_TYPES) and not widget.property('sessionTransient'):
             restore(widget, values[name], project)
+    banks = []
     for name, widget in controls(owner).items():
-        if name in values and not isinstance(widget, SELECT_TYPES):
+        if name not in values or isinstance(widget, SELECT_TYPES) or widget.property('sessionTransient'):
+            continue
+        if isinstance(widget, StateInputSources):
+            banks.append((widget, values[name]))
+        else:
             restore(widget, values[name], project)
+    for widget, state in banks:
+        restore(widget, state, project)
 
 
 def restore(widget, value, project):
@@ -166,6 +186,12 @@ def restore(widget, value, project):
         widget.graphs = graphs
         widget.set_domain(widget.domain)
         return
+    if isinstance(widget, MatrixEditor):
+        restore_matrix(widget, value)
+        return
+    if isinstance(widget, StateInputSources):
+        restore_banks(widget, value, project)
+        return
     if isinstance(widget, TEXT_TYPES) and isinstance(value, str):
         widget.setText(value)
         return
@@ -182,16 +208,64 @@ def restore(widget, value, project):
     raise ValueError('Un valor de entrada no coincide con su tipo o intervalo.')
 
 
+def restore_matrix(widget, value):
+    if (not isinstance(value,dict) or set(value) != {'shape','cells'}
+            or not isinstance(value['shape'],list) or len(value['shape']) != 2
+            or not isinstance(value['cells'],list)):
+        raise ValueError('La sesión contiene una matriz inválida.')
+    rows, columns = value['shape']
+    if (type(rows) is not int or type(columns) is not int or not 0 <= rows <= widget.rows.maximum()
+            or not 0 <= columns <= widget.columns.maximum()):
+        raise ValueError('Las dimensiones de la matriz son inválidas.')
+    ensure_working_set(rows+columns+len(value['cells']),bytes_per_sample=128,live_arrays=3)
+    cells = {}
+    for entry in value['cells']:
+        if not isinstance(entry,list) or len(entry) != 3:
+            raise ValueError('Hay una celda de matriz inválida.')
+        row, column, text = entry
+        if (type(row) is not int or type(column) is not int or not 0 <= row < widget.rows.maximum()
+                or not 0 <= column < widget.columns.maximum() or not isinstance(text,str)
+                or (row,column) in cells):
+            raise ValueError('Hay una celda de matriz inválida o repetida.')
+        cells[row,column] = text
+    widget.replace_cells(rows, columns, cells)
+
+
+def restore_banks(widget, value, project):
+    if (not isinstance(value,dict) or set(value) != {'channel','banks'}
+            or not isinstance(value['banks'],dict) or value['banks'].keys() != widget.banks.keys()
+            or type(value['channel']) is not int or not -1 <= value['channel'] < widget.count):
+        raise ValueError('La sesión contiene bancos de entradas inválidos.')
+    for kind, drafts in value['banks'].items():
+        if not isinstance(drafts,list):
+            raise ValueError('El banco de entradas no contiene borradores válidos.')
+        ensure_working_set(len(drafts),bytes_per_sample=2**20,live_arrays=1)
+        seen = set()
+        for entry in drafts:
+            if (not isinstance(entry,list) or len(entry)!=2 or type(entry[0]) is not int
+                    or not 0<=entry[0]<2**31-1 or entry[0] in seen):
+                raise ValueError('La sesión contiene un canal inválido o repetido.')
+            index, draft = entry
+            seen.add(index)
+            restore(widget.field(index,kind=kind),draft,project)
+    widget.channel.setCurrentIndex(value['channel'])
+
+
+PARENT_FIELDS = ('input_id', 'parent_id', 'system_id', 'model_parent')
+
+
 def snapshot_page(page, records):
     panel = getattr(page, 'panel', page)
     saved = dict(fields=field_values(panel, records))
     if (page.context is not None and isinstance(page.context.source, LocalInput)
             and page.context.source not in controls(panel).values()):
         saved['source'] = snapshot(page.context.source, records)
+    if page.context is not None and page.context.system_id in records:
+        saved['context_system'] = page.context.system_id
     if isinstance(panel, SignalEditorPanel) and panel.current is not None:
         saved['table'] = {'signal': source_document(panel.current, None, records),
                           'pending': panel.pending, 'offset': panel.offset}
-    for name in ('input_id', 'parent_id', 'system_id'):
+    for name in PARENT_FIELDS:
         key = getattr(panel, name, None)
         if isinstance(key, str) and key in records:
             saved[name] = key
@@ -209,11 +283,88 @@ def snapshot_page(page, records):
     if (context is not None and (panel.transfer_formula.text(), panel.domain.currentIndex())
             == getattr(panel, '_formula_context_signature', None)):
         saved['formula_context'] = source_document(context, saved.get('input_id'), records)
+    context = snapshot_expression_context(panel, records)
+    if context is not None:
+        saved['expression_context'] = context
     return saved
 
 
+TRANSFORM_SOURCES = ('_library_source', '_inverse_source', '_system_source')
+
+
+def snapshot_expression_context(panel, records):
+    from .expression_measures_panel import ExpressionMeasuresPanel
+    from .symbolic_fourier_panel import SymbolicFourierPanel
+    from .transform_lab import TransformLab
+
+    if isinstance(panel, TransformLab):
+        references = {}
+        for name in TRANSFORM_SOURCES:
+            source = getattr(panel, name, None)
+            if source and source[0] == panel.expression.text():
+                references[name] = source[1] if source[1] in records else None
+        if references:
+            return {'references': references, 'conditions': list(getattr(panel, '_library_conditions', ()))
+                    if '_library_source' in references else []}
+    if isinstance(panel, (ExpressionMeasuresPanel, SymbolicFourierPanel)):
+        source = panel._expression_origin
+        if not source or source[0] != panel.expression.text():
+            return None
+        if isinstance(panel, ExpressionMeasuresPanel) and source[2] != panel.domain.currentIndex():
+            return None
+        return {'record': source[1] if source[1] in records else None,
+                'conditions': list(panel._input_conditions),
+                'frequency_condition': getattr(panel, '_frequency_condition', 'True'),
+                'frequency_origin': getattr(panel, '_frequency_origin', None)}
+    return None
+
+
+def restore_expression_context(panel, context, project):
+    from .expression_measures_panel import ExpressionMeasuresPanel
+    from .symbolic_fourier_panel import SymbolicFourierPanel
+    from .transform_lab import TransformLab
+
+    if not isinstance(context, dict) or not isinstance(context.get('conditions'), list):
+        raise ValueError('La sesión contiene condiciones de expresión inválidas.')
+    conditions = tuple(context['conditions'])
+    if not all(isinstance(item,str) for item in conditions):
+        raise ValueError('Las condiciones guardadas deben ser expresiones de texto.')
+
+    def checked_key(key):
+        if key is not None:
+            if not isinstance(key,str):
+                raise ValueError('La procedencia de la expresión es inválida.')
+            project.describe(key)
+        return key
+
+    if isinstance(panel, TransformLab) and set(context) == {'references','conditions'}:
+        refs = context['references']
+        if not isinstance(refs,dict) or not refs.keys() <= set(TRANSFORM_SOURCES):
+            raise ValueError('Las referencias de la transformada son inválidas.')
+        for name, key in refs.items():
+            setattr(panel, name, (panel.expression.text(), checked_key(key)))
+        panel._library_conditions = conditions
+        return
+    if (isinstance(panel, (ExpressionMeasuresPanel, SymbolicFourierPanel))
+            and set(context) == {'record','conditions','frequency_condition','frequency_origin'}
+            and isinstance(context['frequency_condition'], str)
+            and (context['frequency_origin'] is None or isinstance(context['frequency_origin'],str))):
+        source = (panel.expression.text(), checked_key(context['record']))
+        if isinstance(panel, ExpressionMeasuresPanel):
+            source += (panel.domain.currentIndex(),)
+        else:
+            panel._frequency_condition = context['frequency_condition']
+            panel._frequency_origin = context['frequency_origin']
+        panel._expression_origin = source
+        panel._input_conditions = conditions
+        panel.refresh_origin()
+        return
+    raise ValueError('Las condiciones de la sesión no corresponden a la herramienta.')
+
+
 def restore_page(page, saved, project):
-    known = {'fields','source','input_id','parent_id','system_id','system','formula_context','table'}
+    known = {'fields','source','system','formula_context','table','expression_context',
+             'context_system',*PARENT_FIELDS}
     if not isinstance(saved, dict) or not saved.keys() <= known or 'fields' not in saved:
         raise ValueError('La herramienta tiene datos de sesión incompatibles.')
     panel = getattr(page, 'panel', page)
@@ -239,23 +390,33 @@ def restore_page(page, saved, project):
         if page.context is None or not isinstance(page.context.source, LocalInput):
             raise ValueError('La entrada de la sesión no existe en esta herramienta.')
         restore(page.context.source, saved['source'], project)
-    for name in ('input_id', 'parent_id', 'system_id'):
+    if 'context_system' in saved:
+        key = saved['context_system']
+        if page.context is None or not isinstance(key,str) or project.describe(key)['kind'] != 'system':
+            raise ValueError('La transferencia referenciada no existe en esta herramienta.')
+        page.context.system_id = key
+    for name in PARENT_FIELDS:
         if name in saved:
             if not hasattr(panel, name) or not isinstance(saved[name], str):
                 raise ValueError('La procedencia guardada no corresponde a esta herramienta.')
             project.describe(saved[name])
             setattr(panel, name, saved[name])
     if 'system' in saved:
-        from .system_clock import signature
+        from .system_clock import selected_domain, signature
+        from .systems_panel import SystemsPanel
         system, _ = source_value(saved['system'], project, 'system')
         fields = signature(panel)
-        if system.domain != ('digital' if fields[0] == 1 else 'analog'):
+        if system.domain != selected_domain(panel):
             raise ValueError('El sistema guardado no coincide con el dominio de su editor.')
         panel._preserved_system = system
         panel._preserved_definition = (fields[1], fields[2], fields[0])
         panel._preserved_formula = (fields[4], fields[0]) if fields[3] == 1 else None
         panel._clock_signature, panel._clock_period = fields, system.sample_period_s
+        if isinstance(panel, SystemsPanel):
+            panel.system = system
     if 'formula_context' in saved:
         record, _ = source_value(saved['formula_context'], project, 'calculation')
         panel._formula_context = record
         panel._formula_context_signature = (panel.transfer_formula.text(), panel.domain.currentIndex())
+    if 'expression_context' in saved:
+        restore_expression_context(panel, saved['expression_context'], project)

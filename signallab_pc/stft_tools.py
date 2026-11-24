@@ -68,14 +68,17 @@ def axes(result,physical=False):
     clock=m.get('input_clock',{});rate=clock.get('sample_rate_hz')
     if rate is None:raise ValueError('Para ver segundos y rad/s, la secuencia debe tener Fs registrada.')
     from .sampling import positive_finite
-    rate=positive_finite(rate,'Fs registrada');start=float(clock.get('time_start_s',m['input_origin']/rate))
+    rate=positive_finite(rate,'Fs registrada')
+    recorded_start = clock.get('time_start_s')
+    start = float(recorded_start) if recorded_start is not None else 0.
+    time_units = 's' if recorded_start is not None else 's relativos a la primera muestra'
     validate_clock_resolution(start,rate,m['input_length'])
     offsets=np.arange(m['frames'])*m['hop']-m['left_padding']+(m['window_length']-1)/2
     with np.errstate(over='ignore',invalid='ignore'):
         centers=start+offsets/rate;frequency=frequency*rate
     if not np.all(np.isfinite(centers)) or not np.all(np.isfinite(frequency)) or len(centers)>1 and np.any(np.diff(centers)<=0):
         raise ValueError('El reloj no permite distinguir los ejes físicos de esta STFT.')
-    return frequency,centers,'rad/s','s',rate
+    return frequency,centers,'rad/s',time_units,rate
 
 
 def logarithmic_magnitude(values):
@@ -114,8 +117,9 @@ def frame_signals(result,index):
     chunk=np.zeros(length,complex)
     if hi>lo:chunk[lo-offset:hi-offset]=source.values[lo:hi]
     origin=m['input_origin']+offset if m['input_domain']=='discrete' else m['input_origin']+offset*m['input_step'];clock=deepcopy(m['input_clock'])
-    if m['input_domain']=='discrete' and 'sample_rate_hz' in clock:
-        rate=float(clock['sample_rate_hz']);start=float(clock.get('time_start_s',m['input_origin']/rate));clock['time_start_s']=start+offset/rate
+    if m['input_domain']=='discrete':
+        from .system_clock import reindex_clock
+        clock = reindex_clock(clock, offset, length)
     common=dict(clock,operation='stft_frame',frame=index,zero_padding_left=max(0,-offset),zero_padding_right=max(0,offset+length-m['input_length']),phase_reference='original temporal coordinates')
     return [Signal(values,origin,m['input_step'],m['input_units'],title,m['input_domain'],metadata=deepcopy(common))
             for values,title in ((chunk,'Tramo de entrada'),(result['weights'],'Ventana aplicada'),(chunk*result['weights'],'Tramo enventanado'))]
@@ -138,12 +142,14 @@ def spectrum(result,index,*,physical=False,phase='local'):
         offset=index*m['hop']-m['left_padding']
         if physical and m['input_domain']=='discrete':
             clock=m['input_clock'];rate=Fraction(str(clock['sample_rate_hz']));start=clock.get('time_start_s')
-            base=Fraction(str(start))*rate if start is not None else Fraction(m['input_origin'])
+            base=Fraction(str(start))*rate if start is not None else Fraction(0)
         elif m['input_domain']=='continuous':base=Fraction(str(m['input_origin']))/Fraction(str(m['input_step']))
         else:base=Fraction(m['input_origin'])
         reduced=float((base+offset)%m['nfft']);bins=np.rint(fftshift(fftfreq(m['nfft']))*m['nfft'])
         values*=np.exp(-1j*math.tau*(bins*reduced/m['nfft']))
-        meta['phase_reference']='original temporal coordinates'
+        meta['phase_reference']=('time relative to first input sample'
+                                 if physical and m['input_domain']=='discrete' and m['input_clock'].get('time_start_s') is None
+                                 else 'original temporal coordinates')
     return Signal(values,float(frequency[0]),float(frequency[1]-frequency[0]),unit,f'Espectro de ventana {index+1}','frequency',metadata=meta)
 
 

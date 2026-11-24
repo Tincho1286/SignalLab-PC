@@ -48,7 +48,7 @@ class RandomModelPanel(QWidget):
         right=QWidget();box=QVBoxLayout(right);box.setContentsMargins(0,0,0,0);root.addWidget(right,2)
         self.tabs=QTabWidget();box.addWidget(self.tabs,1)
         self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Informe')
-        self.output=ResultView();self.selector=QComboBox();result=QWidget();results=QVBoxLayout(result);results.setContentsMargins(0,0,0,0);results.addWidget(self.selector);results.addWidget(self.output,1);self.tabs.addTab(result,'Curvas y realizaciones')
+        self.output=ResultView();self.selector=QComboBox();self.selector.setProperty('sessionTransient',True);result=QWidget();results=QVBoxLayout(result);results.setContentsMargins(0,0,0,0);results.addWidget(self.selector);results.addWidget(self.output,1);self.tabs.addTab(result,'Curvas y realizaciones')
         self.actions=SystemResultActions(window);self.actions.reuse.setText('Usar modelo en…');self.actions.export_button.setText('Exportar modelo…');box.addWidget(self.actions);self.actions.hide()
         self.selector.currentIndexChanged.connect(self.show_signal);self.tabs.currentChanged.connect(self.show_signal)
 

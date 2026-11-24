@@ -45,7 +45,7 @@ class FirWindowPanel(QWidget):
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();out=QVBoxLayout(right);out.setContentsMargins(0,0,0,0);root.addWidget(right,2)
         self.tabs=QTabWidget();out.addWidget(self.tabs,1);self.frequency=DesignFrequency(window);self.tabs.addTab(self.frequency,'Respuesta en frecuencia')
-        time=QWidget();time_layout=QVBoxLayout(time);self.selector=QComboBox();time_layout.addWidget(self.selector);self.series=ResultView();time_layout.addWidget(self.series);self.tabs.addTab(time,'h[n] y ventana')
+        time=QWidget();time_layout=QVBoxLayout(time);self.selector=QComboBox();self.selector.setProperty('sessionTransient',True);time_layout.addWidget(self.selector);self.series=ResultView();time_layout.addWidget(self.series);self.tabs.addTab(time,'h[n] y ventana')
         self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Informe')
         self.actions=SystemResultActions(window);out.addWidget(self.actions)
         self.selector.currentIndexChanged.connect(self.show_series);self.tabs.currentChanged.connect(self.show_series)

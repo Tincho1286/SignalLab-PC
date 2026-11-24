@@ -19,6 +19,9 @@ class StateSimulationResults:
         if index==self.steps_index and self.steps.trace is None and self.run is not None:self.steps.build()
     def accept(self,run,model_id,parents,source_keys=()):
         panel=self.panel;window=panel.window;grid=run['grid'];model=run['model'];self.run=run;self.signals={};self.ids={};panel.last_simulation=(grid,run['components'][0]['output'],run['components'][0]['states'])
+        clock = {'sample_rate_hz': 1/grid.step}
+        if grid.time_start is not None:
+            clock['time_start_s'] = grid.time_start
         original_ids=[source_keys[i] if i<len(source_keys) and source_keys[i] else window.publish(source,operation='Entrada cargada de estados',parents=parents) for i,source in enumerate(grid.sources)]
         transition_key=window.publish(run['transition'],operation='Propagación ZOH de estados',parents=[model_id]) if model.dt is None else model_id
         record=window.publish(dict(step_s=grid.step,count=len(grid.axis),first_coordinate=grid.origin,time_start_s=grid.time_start,initial_state=[[float(v.real),float(v.imag)] for v in run['initial']],domain=model.domain,input_hold='samplewise' if grid.discrete else 'ZOH',transition_model=transition_key,components=[c['name'] for c in run['components']]),title='Simulación de estados',operation='Simulación MIMO',parents=parents+original_ids+[transition_key])
@@ -27,7 +30,7 @@ class StateSimulationResults:
                 signals=[];ids=[]
                 for channel in range(values.shape[1]):
                     name=prefix+str(channel+1)+(' · '+component['name'] if len(run['components'])>1 else '')
-                    signal=Signal(values[:,channel],grid.origin,1 if grid.discrete else grid.step,'n' if grid.discrete else 's',name,'discrete' if grid.discrete else 'continuous','',dict(operation='state_simulation_'+family,component=component['name'],sample_rate_hz=1/grid.step,time_start_s=grid.time_start,input_hold='samplewise' if grid.discrete else 'ZOH'))
+                    signal=Signal(values[:,channel],grid.origin,1 if grid.discrete else grid.step,'n' if grid.discrete else 's',name,'discrete' if grid.discrete else 'continuous','',dict(clock,operation='state_simulation_'+family,component=component['name'],input_hold='samplewise' if grid.discrete else 'ZOH'))
                     if family=='inputs' and not grid.discrete:signal.metadata.update(operation='response_input',input_interpolation='hold')
                     ids.append(window.publish(signal,operation='Simulación: '+component['name']+' · '+family,parents=[record]));signals.append(signal)
                 self.signals[index,family]=signals;self.ids[index,family]=ids

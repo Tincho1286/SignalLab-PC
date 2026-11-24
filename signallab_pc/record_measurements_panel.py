@@ -33,7 +33,7 @@ class RecordMeasurePanel(QWidget):
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(250);split.addWidget(scroll)
         results=QWidget();out=QVBoxLayout(results);split.addWidget(results);split.setStretchFactor(1,1);split.setSizes([350,760])
         self.state=ResultState([self.domain,self.low,self.high,self.fraction,self.level,self.component],self.calculate_button,[self.discrete_source,self.continuous_source]);out.addWidget(self.state)
-        self.choice=QComboBox();self.choice.setAccessibleName('Resultado del estudio de registro');self.choice.setEnabled(False);out.addWidget(self.choice)
+        self.choice=QComboBox();self.choice.setProperty('sessionTransient',True);self.choice.setAccessibleName('Resultado del estudio de registro');self.choice.setEnabled(False);out.addWidget(self.choice)
         self.view=ResultView();out.addWidget(self.view,1);self.report=self.view.text
         page=QWidget();layout=QVBoxLayout(page);self.events=Rows([('kind','Evento'),('start','Desde'),('end','Hasta'),('span','Separación')]);self.table=QTableView();self.table.setModel(self.events);self.table.horizontalHeader().setSectionResizeMode(QHeaderView.ResizeMode.ResizeToContents);self.table.horizontalHeader().setStretchLastSection(True);layout.addWidget(self.table,1)
         self.export_events=QPushButton('Exportar cruces y contactos (CSV)…');self.export_events.setEnabled(False);self.export_events.clicked.connect(self.export_table);layout.addWidget(self.export_events);self.events_index=self.view.views.addTab(page,'Cruces y contactos');self.view.views.setTabVisible(self.events_index,False)

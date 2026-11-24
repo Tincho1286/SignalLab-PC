@@ -42,7 +42,7 @@ class DspExtensionsPanel(QWidget):
             self.explorer=StftExplorer(window);out.addWidget(self.explorer,1);self.explorer.hide();self.empty_output=QLabel('El espectrograma aparecerá después de calcular.');out.addWidget(self.empty_output)
             self.view=self.explorer.frame_view;self.report=self.explorer.report;self.tabs=self.explorer.tabs;self.frame=self.explorer.frame;self.figure=self.explorer.figure;self.canvas=self.explorer.canvas
         else:
-            self.selector=QComboBox();self.selector.currentIndexChanged.connect(self.display);out.addWidget(self.selector);self.selector.hide()
+            self.selector=QComboBox();self.selector.setProperty('sessionTransient',True);self.selector.currentIndexChanged.connect(self.display);out.addWidget(self.selector);self.selector.hide()
             self.view=ResultView();self.report=self.view.text;out.addWidget(self.view,1)
             if action=='blocks':
                 from .block_inspection_view import BlockInspector

@@ -25,7 +25,8 @@ def extend_input(source,extra=0):
             input_definition=source.expression,scope='Se agregan muestras cero. En continuo se conserva la interpolación elegida hacia el primer cero; no se impone una desconexión instantánea entre puntos.')
         if result.domain=='discrete' and 'sample_rate_hz' in result.metadata:
             from .system_clock import validate_clock_resolution
-            rate=float(result.metadata['sample_rate_hz']);validate_clock_resolution(float(result.metadata.get('time_start_s',source.origin/rate)),rate,len(result.values))
+            rate=float(result.metadata['sample_rate_hz'])
+            validate_clock_resolution(float(result.metadata.get('time_start_s',0.)),rate,len(result.values))
     return result
 
 
@@ -37,6 +38,8 @@ def unit_input(system,count,kind,duration=None):
     if digital:
         values[0]=1;source=Signal(values,name='Entrada escalón' if kind=='step' else 'Entrada impulso',expression='Heaviside(n,1)' if kind=='step' else 'KroneckerDelta(n,0)',metadata={'input_kind':kind})
         from .system_clock import input_metadata
+        if system.sample_period_s is not None:
+            source.metadata['time_start_s'] = 0.0
         source.metadata=input_metadata(system,source)
         return source
     if duration is None or not math.isfinite(float(duration)) or duration<=0:raise ValueError('La duración debe ser positiva y finita.')

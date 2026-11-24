@@ -37,6 +37,8 @@ def list_text(values):
 
 
 class SystemsPanel(QWidget):
+    digital_domain_index = 0
+
     def __init__(self, owner):
         super().__init__()
         self.owner = owner

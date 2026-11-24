@@ -343,6 +343,10 @@ class HealthExchangeContracts(unittest.TestCase):
         values,_=analyze(response,'discrete',-2,5,1,source)
         self.assertEqual(values[1].metadata['sample_rate_hz'],10)
         self.assertAlmostEqual(values[1].metadata['time_start_s'],-.2)
+        self.assertEqual(values[-1].metadata['sample_rate_hz'],10)
+        self.assertNotIn('time_start_s',values[-1].metadata)
+        anchored=source.copy_with(metadata={'sample_rate_hz':10,'time_start_s':.3})
+        values,_=analyze(response,'discrete',-2,5,1,anchored)
         self.assertAlmostEqual(values[-1].metadata['time_start_s'],.3)
         with self.assertRaisesRegex(ValueError,'no coincide'):
             analyze(response,'discrete',0,3,1,source.copy_with(metadata={'sample_rate_hz':20}))

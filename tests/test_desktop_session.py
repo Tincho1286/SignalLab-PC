@@ -167,3 +167,129 @@ class DesktopSessionTests(unittest.TestCase):
         panel.start.setText('3.5')
         panel.source.set_source(Signal([5,6], metadata={'sample_rate_hz':8}))
         self.assertEqual(panel.start.text(), '3.5')
+
+    def test_reused_expression_keeps_conditions_after_reopening(self):
+        from signallab_pc.result_expressions import ExpressionResult
+        window = self.window()
+        key = window.project.add({'report': 'Señal con condición'})
+        route = ROUTES['expression_measures','global']
+        window.open_tool(route)
+        editor = window.pages[route].panel
+        editor.load_expression(ExpressionResult('exp(-abs(t))','t',conditions=('a > 0',)),key)
+        path = self.path/'conditions.json'
+        session.save(path,window.project,capture(window))
+        restored = self.window()
+        self.assertTrue(restored.sessions.open_path(path))
+        panel = restored.pages[route].panel
+        self.assertEqual(panel.request()['input_conditions'], ['a > 0'])
+        self.assertEqual(panel._expression_origin[1], key)
+        panel.expression.setText('0')
+        self.assertEqual(panel.request()['input_conditions'], [])
+
+    def test_malformed_project_cannot_replace_active_session(self):
+        window = self.window()
+        window.show_menu('Proyecto')
+        active = window.project
+        active.add(Signal([4]))
+        path = self.path/'invalid-header.json'
+        session.save(path,active,capture(window))
+        malformed = json.loads(path.read_text(encoding='utf-8'))
+        malformed['project']['records'][0]['operation'] = []
+        path.write_text(json.dumps(malformed),encoding='utf-8')
+        self.assertFalse(window.sessions.open_path(path))
+        self.assertIs(window.project, active)
+        self.warning.assert_called_once()
+
+    def test_mimo_matrix_and_both_channel_banks_survive_the_session(self):
+        from signallab_pc.state_simulation_inputs import prepare_inputs
+        window = self.window()
+        route = ROUTES['state_space','simulation']
+        window.open_tool(route)
+        panel = window.pages[route].panel
+        for label, text in {'A':'0', 'B':'1, 2', 'C':'1', 'D':'0, 0'}.items():
+            panel.fields[label].setText(text)
+        panel.inputs.field(1).expression.setText('t+7')
+        panel.domain.setCurrentIndex(1)
+        panel.step.setText('1/8')
+        first = panel.inputs.field(0)
+        first.entry_modes.select(1)
+        first.samples.setText('1, 2')
+        key = window.project.add(Signal([4,5],metadata={'sample_rate_hz':8,'time_start_s':12}))
+        panel.inputs.field(1).set_source(window.project.get(key),key)
+        panel.inputs.channel.setCurrentIndex(1)
+        path = self.path/'mimo.json'
+        session.save(path,window.project,capture(window))
+        restored = self.window()
+        self.assertTrue(restored.sessions.open_path(path))
+        panel = restored.pages[route].panel
+        self.assertEqual(panel.inputs.channel.currentIndex(),1)
+        self.assertEqual(panel.inputs.field(1,kind='continuous').expression.text(),'t+7')
+        self.assertEqual(panel.inputs.field(1).loaded_reference_id,key)
+        model = panel.read_model()
+        grid = prepare_inputs(model,panel.inputs.read())
+        self.assertIsNone(grid.time_start)
+        time, y, _ = model.simulate(grid.values)
+        np.testing.assert_array_equal(time,[0,1/8])
+        np.testing.assert_array_equal(y[:,0],[0,9])
+
+    def test_schema_one_ignores_a_result_selector_from_an_old_calculation(self):
+        window = self.window()
+        route = ROUTES['course_tools','fir']
+        window.open_tool(route)
+        selector = window.pages[route].panel.selector
+        self.assertEqual(selector.count(),0)
+        path = self.path/'schema1.json'
+        session.save(path,window.project,capture(window))
+        old = json.loads(path.read_text(encoding='utf-8'))
+        old['schema_version'] = 1
+        old['workspace']['tools'][0]['inputs']['fields']['selector'] = 1
+        path.write_text(json.dumps(old),encoding='utf-8')
+        self.assertTrue(window.sessions.open_path(path))
+        self.assertEqual(window.pages[route].panel.selector.currentIndex(),-1)
+        self.warning.assert_not_called()
+
+    def test_result_export_can_include_dependencies_of_a_signal(self):
+        window = self.window()
+        source = window.project.add(Signal([1,2]))
+        window.project.add(Signal([2,4]),parents=[source])
+        window.show_menu('Proyecto')
+        window.project_list.setCurrentRow(0)
+        destination = self.path/'signal-with-inputs.json'
+        with patch('PySide6.QtWidgets.QFileDialog.getSaveFileName',
+                   return_value=(str(destination),'Resultado con dependencias (*.json)')):
+            window.export_selected()
+        result, state = session.load(destination)
+        self.assertEqual(state,session.empty_workspace())
+        records = result.headers()
+        self.assertEqual(len(records),2)
+        self.assertEqual(records[1]['parents'],[source])
+        np.testing.assert_array_equal(result.get(records[1]['id']).values,[2,4])
+
+    def test_transfer_editors_restore_both_orders_of_the_domain_selector(self):
+        from signallab_pc.filters import Transfer
+        from signallab_pc.session_fields import restore_page, snapshot_page
+        from signallab_pc.toolbox import ToolPage
+        from signallab_pc.transfer_input import read_system
+        window = self.window()
+        for operation, system in (
+            (0, Transfer([2], [1], sample_period_s=.25)),
+            (2, Transfer([1], [1,3], domain='analog')),
+        ):
+            with self.subTest(domain=system.domain):
+                route = ROUTES['systems',operation]
+                original = ToolPage(window,route)
+                key = window.project.add(system)
+                original.context.ready = False
+                original.panel._accept_system(system)
+                original.context.system_id = key
+                saved = snapshot_page(original,{key})
+                restored = ToolPage(window,route)
+                restore_page(restored,saved,window.project)
+                self.assertEqual(restored.context.system_id,key)
+                self.assertIs(restored.panel.system,restored.panel._preserved_system)
+                reread = read_system(restored.panel)
+                self.assertEqual(reread.domain,system.domain)
+                self.assertEqual(reread.sample_period_s,system.sample_period_s)
+                np.testing.assert_array_equal(reread.a,system.a)
+                original.deleteLater()
+                restored.deleteLater()
