@@ -8,6 +8,7 @@ Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.9.9](v1.9.9.md) | Rediseño del escritorio científico | Preliminar |
 | [1.9.6](v1.9.6.md) | Motor algebraico, sesiones y relojes de muestreo | Estable |
 | [1.9.5](v1.9.5.md) | Recuperación de muestras, relojes y transformada de Laplace | Preliminar |
 | [1.9.4](v1.9.4.md) | Recuperación de entradas, exportación con dependencias y remuestreo sinc | Preliminar |

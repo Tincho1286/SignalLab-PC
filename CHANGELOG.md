@@ -2,6 +2,12 @@
 
 La versión estable actual es la [1.9.6](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.6). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 1.9.9 · Preliminar
+
+El escritorio organiza las herramientas por área e incorpora búsqueda de variantes, documentos y resultados. Las figuras reúnen controles de escala, cursores y medidas. La Biblioteca, el CAS y los editores de fórmulas facilitan consultar la sintaxis y reutilizar cálculos. También se revisaron los flujos de diseño por bandas, Laplace, Z y muestreo.
+
+[Novedades completas](docs/releases/v1.9.9.md)
+
 ## 1.9.6 · Estable
 
 El motor algebraico conserva el soporte y las condiciones de convergencia al transformar señales desplazadas, por tramos o con impulsos. También se corrigieron medidas de señales continuas y discretas. Esta versión incorpora las sesiones recuperables y las mejoras de precisión y relojes de las preliminares 1.9.3 a 1.9.5.

@@ -1,6 +1,23 @@
 {
   "releases": [
     {
+      "tag": "v1.9.9",
+      "title": "Rediseño del escritorio científico",
+      "channel": "preview",
+      "summary": "La 1.9.9 preliminar incorpora el rediseño del escritorio de SignalLab PC.",
+      "changes": [
+        "Acceso rápido busca herramientas, variantes, documentos y resultados.",
+        "Los gráficos incluyen un inspector de curvas y medidas, además de controles de escala y cursores.",
+        "Los editores, la Biblioteca y el CAS facilitan consultar la sintaxis y volver al cálculo.",
+        "La reutilización identifica el dato cargado y permite volver a su origen.",
+        "Los diseños por bandas y los estudios de aliasing incorporan nuevas vistas."
+      ],
+      "limits": [
+        "La 1.9.6 sigue siendo la descarga estable."
+      ],
+      "notes": "docs/releases/v1.9.9.md"
+    },
+    {
       "tag": "v1.9.6",
       "title": "Motor algebraico, sesiones y relojes de muestreo",
       "channel": "stable",

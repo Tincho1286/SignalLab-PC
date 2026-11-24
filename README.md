@@ -23,6 +23,8 @@ SignalLab PC es un laboratorio de escritorio para **Sistemas y Señales I/II y p
 
 Los cuatro paquetes incluyen Python y las dependencias. Si querés actualizar desde la aplicación, elegí el instalable y abrí **Ayuda → Buscar actualizaciones**. Para ejecutar SignalLab desde una carpeta, elegí el portable. [Requisitos e instrucciones](docs/installation.md) · [Canales de actualización](docs/installed-updates.md).
 
+**1.9.9 preliminar** · Probá el rediseño del escritorio, las figuras y los flujos de reutilización. [Descargas para Windows y Linux](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.9) · [Notas de la versión](docs/releases/v1.9.9.md).
+
 <p align="center">
   <img src="docs/assets/workbench-196.png" alt="Análisis LTI en SignalLab PC con entradas, informe algebraico y acciones de resultados" width="1080">
   <br><sub>Análisis de un sistema continuo a partir de sus coeficientes.</sub>
