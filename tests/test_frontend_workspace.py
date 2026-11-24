@@ -28,7 +28,17 @@ class Frontend(unittest.TestCase):
         labels = ('Abrir gráfico', 'Usar señal en otra herramienta…', 'Enviar a CAS', 'Exportar resultado…')
         for role, label in zip(ORDER, labels):
             button=QPushButton(label);button.clicked.connect(lambda checked=False,r=role:clicked.append(r));bar.add_action(button,role)
-        bar.resize(350,100);bar.show();self.settle();positions=[bar.grid.getItemPosition(bar.grid.indexOf(bar.slots[role]))[:2] for role in ORDER];self.assertEqual(positions,[(0,0),(0,1),(1,0),(1,1)]);bar.slots['cas'].click();self.assertEqual(clicked,['cas'])
+        bar.show();self.settle()
+        for button in bar.slots.values():button.ensurePolished()
+        graph,reuse,cas,export=(bar.slots[role].sizeHint().width() for role in ORDER)
+        # Use the actual font and Qt style from this host, including its menu/icon widths.
+        fit_two=max(graph,cas)+max(reuse,export)+bar.grid.spacing()
+        bar.resize(fit_two,160);self.settle()
+        positions=lambda:[bar.grid.getItemPosition(bar.grid.indexOf(bar.slots[role]))[:2] for role in ORDER]
+        self.assertEqual(positions(),[(0,0),(0,1),(1,0),(1,1)])
+        bar.resize(fit_two-1,240);self.settle()
+        self.assertEqual(positions(),[(0,0),(1,0),(2,0),(3,0)])
+        bar.slots['cas'].click();self.assertEqual(clicked,['cas'])
     def test_workspace_keeps_controls_and_result_when_changing_size(self):
         inputs=QWidget();form=QVBoxLayout(inputs);button=QPushButton('dato');form.addWidget(button);result=QWidget();space=ToolWorkspace(inputs,result);self.widgets.append(space);space.resize(1200,700);space.show();self.settle();self.assertFalse(space.compact);space.resize(700,600);self.settle();self.assertTrue(space.compact);space.show_results();self.assertEqual(space.tabs.currentIndex(),1);space.tabs.setCurrentIndex(0);self.assertTrue(button.isVisible());space.resize(1200,700);self.settle();self.assertFalse(space.compact);self.assertTrue(space.inputs.content.widget().isAncestorOf(inputs));self.assertIs(space.results.content,result)
     def test_wrapping_document_header_does_not_force_the_preferred_workspace_height(self):
@@ -111,8 +121,10 @@ class Frontend(unittest.TestCase):
         titles = ['Resumen', 'Respuesta en frecuencia', 'Una función de transferencia con título largo']
         for title in titles:
             tabs.addTab(QWidget(), title)
-        attach(tabs,bar);install(tabs);parent.resize(920,500);parent.show();self.settle()
+        attach(tabs,bar);install(tabs);parent.show();self.settle()
         selector = tabs.result_selector
+        margins=layout.contentsMargins()
+        parent.resize(selector.required_width()+margins.left()+margins.right()+40,500);self.settle()
         self.assertTrue(tabs.tabBar().isHidden())
         self.assertTrue(selector.row.isVisible())
         self.assertEqual([button.text() for button in selector.buttons.values()], titles)

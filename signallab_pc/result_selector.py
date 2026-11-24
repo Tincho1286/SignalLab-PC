@@ -54,7 +54,9 @@ class ResultSelector(QObject):
     def refresh(self,*_):
         self.pending=False;tabs=self.tabs;tabs.tabBar().hide();snapshot=tuple((tabs.tabText(i),tabs.isTabVisible(i),tabs.isTabEnabled(i),i==tabs.currentIndex()) for i in range(tabs.count()))
         signature=(not tabs.isHidden(),snapshot)
-        if signature==self.signature:return
+        if signature==self.signature:
+            self.adapt()
+            return
         self.signature=signature;flow=self.row.flow;structure=tuple((title,shown) for title,shown,_,_ in snapshot)
         if structure!=self.structure:
             focused=QApplication.focusWidget();restore_focus=focused is not None and self.row.isAncestorOf(focused);self.structure=structure
@@ -81,8 +83,16 @@ class ResultSelector(QObject):
         self.container.setVisible(not tabs.isHidden() and self.picker.count() > 1)
         self.adapt()
 
+    def required_width(self):
+        widths=[]
+        for button in self.buttons.values():
+            button.ensurePolished()
+            label=button.fontMetrics().horizontalAdvance(button.text().replace('&',''))
+            widths.append(max(button.sizeHint().width(),label+self.row.flow.text_padding))
+        return sum(widths)+max(0,len(widths)-1)*self.row.flow.spacing()
+
     def adapt(self):
-        compact = self.container.width() < self.row.flow.sizeHint().width()
+        compact = self.container.width() < self.required_width()
         if self.menu_row.isHidden() != compact:
             return
         focused = QApplication.focusWidget()
