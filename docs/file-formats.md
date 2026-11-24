@@ -17,7 +17,7 @@ La importación está disponible desde el selector de Resultados y los editores 
 | JSON de sistema | Numerador, denominador, dominio, secciones cuando existen, avances, reloj y ROC registrada según versión del formato. |
 | JSON de realización | Bloques, conexiones, signos y posiciones. Se abre desde **Diagrama** en Función de transferencia y análisis. |
 | JSON de Resultados | Selección exportada con sus datos y dependencias. Permite recuperar objetos compatibles y su procedencia. |
-| JSON de sesión completa (1.9.3 preliminar) | Resultado y dependencias de toda la biblioteca, herramientas abiertas y borradores compatibles. |
+| JSON de sesión completa | Resultados y dependencias de toda la biblioteca, herramientas abiertas y borradores compatibles. Disponible desde la 1.9.3 preliminar. |
 | JSON algebraico | Expresión, variable y condiciones de un cálculo compatible. |
 
 ## Ejes y metadatos
@@ -32,7 +32,7 @@ Una tabla finita no define por sí sola una fórmula infinita, un período o una
 
 ## Exportación
 
-Las señales pueden exportarse a JSON y CSV. Los sistemas usan su JSON de transferencia y, cuando corresponde, tablas de respuesta en frecuencia. Los informes se pueden copiar o guardar desde su vista. **Resultados** reúne las opciones disponibles para cada objeto.
+Las señales pueden exportarse a JSON y CSV. Los sistemas usan su JSON de transferencia y, cuando corresponde, tablas de respuesta en frecuencia. Los informes se pueden copiar o guardar desde su vista. En la 1.9.4 preliminar, **Resultados → Resultado con dependencias** guarda el objeto seleccionado y las entradas y referencias registradas para su cálculo.
 
 ## ROC de transferencias
 
@@ -42,6 +42,6 @@ La ausencia de ROC se conserva explícitamente: una expresión racional no fija 
 
 ## Conservar resultados entre sesiones
 
-En la 1.9.3 preliminar, **Archivo → Sesiones → Guardar sesión completa** conserva la biblioteca, los vínculos entre resultados, las herramientas abiertas y sus entradas compatibles. **Abrir sesión completa** valida el archivo y permite cambiar de sesión. Para añadir resultados exportados o proyectos anteriores a la biblioteca abierta, usá **Incorporar resultados**.
+**Archivo → Sesiones → Guardar sesión completa** conserva la biblioteca, los vínculos entre resultados, las herramientas abiertas y sus entradas compatibles. Desde la 1.9.4 preliminar también guarda condiciones algebraicas, matrices y señales por canal. **Abrir sesión completa** admite los archivos de la 1.9.3 y valida sus datos antes de cambiar de sesión. Para añadir resultados exportados o proyectos anteriores a la biblioteca abierta, usá **Incorporar resultados**.
 
 Tras un cierre inesperado, SignalLab ofrece recuperar el último punto local. Los informes previos se consultan en **Resultados**. Las ventanas de gráficos, el historial del CAS y algunos borradores de editores especializados quedan fuera de la recuperación. [Detalles del formato y la migración](development/README.md#sesiones-de-escritorio).

@@ -1,6 +1,22 @@
 {
   "releases": [
     {
+      "tag": "v1.9.4",
+      "title": "Recuperación de entradas y remuestreo sinc",
+      "channel": "preview",
+      "summary": "La 1.9.4 amplía el guardado de sesiones, conserva las dependencias al exportar y revisa el remuestreo sinc y el reloj de muestreo.",
+      "changes": [
+        "Las sesiones recuperan condiciones algebraicas, matrices y señales por canal.",
+        "Resultado con dependencias exporta también las entradas y referencias registradas del cálculo.",
+        "La STFT distingue entre segundos relativos y tiempo absoluto. Los filtros discretos conservan el instante inicial cuando la entrada lo determina.",
+        "El remuestreo sinc conserva resultados representables con amplitudes muy grandes."
+      ],
+      "limits": [
+        "Las ventanas de gráficos, el historial del CAS y algunos borradores de editores especializados quedan fuera de la recuperación."
+      ],
+      "notes": "docs/releases/v1.9.4.md"
+    },
+    {
       "tag": "v1.9.3",
       "title": "Sesiones recuperables y precisión numérica",
       "channel": "preview",

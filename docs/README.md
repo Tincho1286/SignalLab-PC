@@ -4,7 +4,7 @@ Estas guías explican cómo instalar SignalLab PC, elegir una herramienta e inte
 
 Esta versión muestra las actualizaciones disponibles al iniciar y detecta períodos al trabajar con señales o series de Fourier. [Notas de la 1.9.2](releases/v1.9.2.md).
 
-La **1.9.3 preliminar** incorpora el guardado y la recuperación de sesiones. También corrige medidas de amplitud muy pequeña y la reutilización de relojes de muestreo. [Descarga de la preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.3) · [Notas de la 1.9.3](releases/v1.9.3.md).
+La **1.9.4 preliminar** amplía la recuperación de sesiones a las condiciones de las fórmulas y a las entradas por canal. También permite exportar un resultado con sus dependencias y corrige el manejo de los relojes de muestreo. [Descarga de la preliminar](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.4) · [Notas de la 1.9.4](releases/v1.9.4.md).
 
 ## Instalar y empezar
 
