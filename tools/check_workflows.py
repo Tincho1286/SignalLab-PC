@@ -8,7 +8,8 @@ os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 def worker(destination):
     sys.path[:0]=[str(ROOT),str(ROOT/'tests')]
     contracts=[('system_expression','test_workflow_contracts.WorkflowContracts',30),('interactive_analysis','test_interactive_analysis',14),('window_convolution_analysis','test_window_convolution_analysis',8),('measurement_views','test_measurement_views',14),('channels_and_tools','test_update_channels_tools',12),('time_frequency_library','test_time_frequency_library',13),('spectral_measurements','test_spectral_measurements',16),('ar_estimation','test_ar_estimation',14),('plot_inspection','test_plot_inspection',19),('curve_reading','test_curve_reading',13),('temporal_tools','test_temporal_tools',17),('frequency_measurements','test_frequency_measurements',12),('state_studies','test_state_studies',15),('state_provenance','test_toolbox.ToolboxTests.test_state_simulation_channels_and_provenance',1),('record_measurements','test_record_measurements',12),('reconstruction_studies','test_reconstruction_studies',12),('basic_usability','test_basic_usability',12),('frontend_workspace','test_frontend_workspace',30),
-               ('desktop_sessions','test_desktop_session',12)]
+               ('desktop_sessions','test_desktop_session',13),
+               ('sample_clock_ui','test_sample_coordinates.ClockFieldTests',2)]
     groups=[(key,unittest.defaultTestLoader.loadTestsFromName(name),minimum) for key,name,minimum in contracts]
     counts={key:group.countTestCases() for key,group,_ in groups}
     loaded=all(counts[key]>=minimum for key,_,minimum in groups)
@@ -23,9 +24,11 @@ def worker(destination):
 def main():
     if len(sys.argv)==3 and sys.argv[1]=='--worker':return worker(sys.argv[2])
     folder=ROOT/'work';folder.mkdir(exist_ok=True);destination=folder/'workflow-checks.json';temporary=folder/'workflow-checks.pending.json';temporary.unlink(missing_ok=True)
-    begin=time.monotonic();budget=300
+    # Bound the complete Qt suite without cutting off the final groups on slower runners.
+    begin=time.monotonic();budget=420
     command=[sys.executable,'-B','-X','utf8',str(Path(__file__).resolve()),'--worker',str(temporary)]
-    options=dict(cwd=ROOT,stdin=subprocess.DEVNULL)
+    env = dict(os.environ, OPENBLAS_NUM_THREADS='1', OMP_NUM_THREADS='1')
+    options=dict(cwd=ROOT,stdin=subprocess.DEVNULL,env=env)
     if sys.platform=='win32':options['creationflags']=subprocess.CREATE_NO_WINDOW|subprocess.CREATE_NEW_PROCESS_GROUP
     else:options['start_new_session']=True
     process=subprocess.Popen(command,**options);timed_out=False

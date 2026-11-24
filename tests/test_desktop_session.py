@@ -183,9 +183,8 @@ class DesktopSessionTests(unittest.TestCase):
         session.save(path,window.project,capture(window))
         document = json.loads(path.read_text(encoding='utf-8'))
         self.assertEqual(document['schema_version'],3)
-        restored = self.window()
-        self.assertTrue(restored.sessions.open_path(path))
-        editor = restored.pages[route].panel
+        self.assertTrue(window.sessions.open_path(path))
+        editor = window.pages[route].panel
         self.assertEqual(editor.changed_rows,{1})
         np.testing.assert_array_equal(editor.staged_signal().values,[0,99,2])
         editor.history.values([1],[1])
@@ -200,9 +199,8 @@ class DesktopSessionTests(unittest.TestCase):
         document['schema_version'] = 2
         document['workspace']['tools'][0]['inputs']['table'].pop('edits')
         path.write_text(json.dumps(document),encoding='utf-8')
-        legacy = self.window()
-        self.assertTrue(legacy.sessions.open_path(path))
-        result = legacy.pages[route].panel.commit()
+        self.assertTrue(window.sessions.open_path(path))
+        result = window.pages[route].panel.commit()
         np.testing.assert_array_equal(result.values,[0,99,2])
         self.assertEqual(result.expression,'')
         self.assertIsNone(result.full_definition)
