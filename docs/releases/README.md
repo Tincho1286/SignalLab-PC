@@ -2,12 +2,13 @@
 
 [← Documentación](../README.md)
 
-La descarga estable actual es la **1.9.2**. Incorpora el aviso al iniciar y la detección del período de las señales. [Notas de la 1.9.2](v1.9.2.md).
+La **1.9.6** es la estable actual. Reúne correcciones algebraicas, sesiones recuperables y mejoras de precisión y muestreo. [Descargas](https://github.com/Tincho1286/SignalLab-PC/releases/latest) · [Notas de la 1.9.6](v1.9.6.md).
 
 Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [1.9.6](v1.9.6.md) | Motor algebraico, sesiones y relojes de muestreo | Estable |
 | [1.9.5](v1.9.5.md) | Recuperación de muestras, relojes y transformada de Laplace | Preliminar |
 | [1.9.4](v1.9.4.md) | Recuperación de entradas, exportación con dependencias y remuestreo sinc | Preliminar |
 | [1.9.3](v1.9.3.md) | Sesiones recuperables, precisión numérica y relojes | Preliminar |

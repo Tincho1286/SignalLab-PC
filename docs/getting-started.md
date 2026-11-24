@@ -17,7 +17,7 @@ Abrí **Herramientas** para elegir una operación por área. Si ya sabés qué q
 
 Cada variante conserva sus parámetros. Podés volver a su área desde el enlace sobre el título. Cuando hay poco ancho, **Datos de entrada** y **Resultado** se muestran en pestañas. **Ctrl+Mayús+R** amplía el informe.
 
-## Ejemplo: generar y estudiar una ventana
+## Ejemplo con una ventana Hann
 
 En **Señales → Crear una señal**, elegí **Ventana**, seleccioná Hann y fijá una longitud **L=17**. Al centrarla alrededor de cero, los índices van de −8 a 8. Calculá para obtener las 17 muestras, el informe y el gráfico discreto de tallos.
 
@@ -47,4 +47,6 @@ Presioná **F1** para consultar los parámetros, el método de cálculo y sus l�
 
 ## Guardar el trabajo y actualizar
 
-Exportá los resultados o informes que quieras conservar antes de cerrar o actualizar. La configuración persiste, pero la sesión completa de resultados no se recupera automáticamente al reiniciar. La edición instalada incorpora **Ayuda → Buscar actualizaciones**; las [notas de versiones](releases/README.md) explican qué cambia en cada entrega.
+Usá **Archivo → Sesiones → Guardar sesión completa** antes de cerrar o actualizar cuando quieras conservar los resultados, las entradas compatibles y las herramientas abiertas. Para compartir una salida individual, exportala desde el resultado. [Sesiones y formatos](file-formats.md).
+
+En la edición instalada, **Ayuda → Buscar actualizaciones** permite consultar y descargar una versión compatible. Las [notas de versiones](releases/README.md) explican qué cambia en cada entrega.

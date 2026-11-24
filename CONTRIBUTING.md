@@ -1,37 +1,23 @@
 # Contribuir a SignalLab PC
 
-Las mejoras pueden proponerse mediante [Issues](https://github.com/Tincho1286/SignalLab-PC/issues) o un pull request. Antes de abrir una propuesta, revisá las [herramientas disponibles](docs/tools.md) y el [alcance](docs/scope/sys-i-ii.md).
+El [catálogo de herramientas](docs/tools.md) y el [alcance académico](docs/scope/sys-i-ii.md) ayudan a ubicar cada cambio dentro del laboratorio.
 
 ## Informar un problema
 
-Indicá la versión, la herramienta y los datos mínimos para reproducirlo. Para un cálculo, incluí la expresión o coeficientes, origen, unidades, método y resultado esperado. Para una interfaz, indicá resolución y escala de pantalla, y adjuntá una captura si ayuda a entender el problema.
+Abrí un [informe de error](https://github.com/Tincho1286/SignalLab-PC/issues/new?template=bug_report.yml) con la versión de SignalLab, el sistema operativo y los pasos para reproducirlo.
 
-Especificá las convenciones que utiliza el caso. La ROC, la normalización de Fourier y el origen de las muestras cambian la interpretación del cálculo y son necesarios para comparar el resultado obtenido con el esperado.
+- Para un cálculo, pegá la fórmula o los coeficientes y describí el resultado obtenido y el esperado. Incluí las condiciones que cambien el significado del ejercicio, como el índice inicial, las unidades, el soporte o la región de convergencia.
+- Para un problema visual, indicá qué acción hiciste, la resolución y la escala de pantalla. Una captura ayuda si muestra la parte afectada.
 
 ## Proponer una mejora
 
-Explicá qué problema de señales o sistemas permitiría resolver y cómo encaja en las herramientas existentes. Un ejemplo pequeño y su resultado matemático ayudan a definir el alcance.
+Enviá una [propuesta](https://github.com/Tincho1286/SignalLab-PC/issues/new?template=feature_request.yml) con el problema que querés resolver y un ejemplo de entrada y salida. Si el flujo ya existe en otra herramienta, explicá cómo lo usás y qué paso querés mejorar.
 
-## Trabajar con el código
+## Preparar un cambio de código
 
-1. Prepará el entorno según la [guía de desarrollo](docs/development/README.md).
-2. Hacé los cambios en una rama con un objetivo concreto.
-3. Conservá los modelos de datos y las convenciones matemáticas compartidas.
-4. Actualizá las ayudas y la documentación si cambia la entrada o la interpretación de una salida.
-5. Describí en el pull request el comportamiento resultante, las comprobaciones realizadas y los límites pendientes.
+1. Configurá el entorno con la [guía de desarrollo](docs/development/README.md) y trabajá en una rama.
+2. Respetá las [convenciones matemáticas](docs/conventions.md) y conservá las condiciones junto con el resultado. Para una corrección de cálculo, incluí un caso que reproduzca el error y cubra la regla que se modificó.
+3. Si cambia el uso o el significado de un resultado, actualizá la ayuda y la guía correspondiente.
+4. En el pull request, describí el efecto en la aplicación y las comprobaciones que ejecutaste.
 
-Las correcciones de cálculo deben conservar condiciones, unidades, índices y casos no definidos. Las variantes nuevas deben reutilizar componentes comunes cuando resuelven el mismo problema.
-
-## Documentación y versiones
-
-La portada presenta el software, sus herramientas, las descargas disponibles y los objetivos generales. Cada párrafo desarrolla una idea central; sus oraciones deben explicar o completar esa idea. Los cambios de tema se separan en párrafos o apartados propios.
-
-Las mejoras pendientes se describen como objetivos en `docs/roadmap.md`. Las notas de versiones registran funciones publicadas, correcciones y compatibilidad. Una preliminar que ya puede descargarse pertenece a la sección de descargas, no a un anuncio de una versión futura.
-
-El estado de trámites, certificados y servicios de firma se documenta en las páginas técnicas correspondientes. No se añade al final del README ni se mezcla con la presentación del producto.
-
-Los portables se adjuntan a Releases, fuera del historial Git. El historial técnico anterior se conserva en `docs/history/`.
-
-## Licencia de las contribuciones
-
-Las contribuciones originales al proyecto se incorporan bajo GPL-3.0-or-later. Conservá los avisos existentes y acreditá cualquier material de terceros con su licencia compatible y procedencia. Proponé únicamente contenido que tengas derecho a aportar bajo esos términos.
+Las contribuciones originales se incorporan bajo [GPL-3.0-or-later](LICENSE). Conservá los avisos existentes y acreditá el material de terceros con su procedencia y licencia.

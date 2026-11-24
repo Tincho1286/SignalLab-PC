@@ -1,6 +1,23 @@
 {
   "releases": [
     {
+      "tag": "v1.9.6",
+      "title": "Motor algebraico, sesiones y relojes de muestreo",
+      "channel": "stable",
+      "summary": "La 1.9.6 reúne correcciones algebraicas y mejoras de sesiones, precisión y muestreo.",
+      "changes": [
+        "Fourier, Laplace y Z consideran soporte y convergencia al resolver señales por tramos, desplazadas o con impulsos.",
+        "El CAS comparte las reglas de transformadas y respeta los índices enteros en las sumas por tramos.",
+        "Se corrigieron medidas de energía y potencia, correlación y pérdidas numéricas en operaciones con muestras.",
+        "Las sesiones conservan fórmulas, resultados, muestras editadas y entradas compatibles.",
+        "Reconstrucción y cambio de tasa actualizan los campos inferidos al cambiar la señal."
+      ],
+      "limits": [
+        "Los archivos de sesión desde la 1.9.3 se pueden abrir en esta versión."
+      ],
+      "notes": "docs/releases/v1.9.6.md"
+    },
+    {
       "tag": "v1.9.5",
       "title": "Recuperación de muestras, relojes y Laplace",
       "channel": "preview",

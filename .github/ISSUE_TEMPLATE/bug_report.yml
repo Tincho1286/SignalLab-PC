@@ -7,7 +7,7 @@ body:
     attributes:
       label: Versión de SignalLab PC
       description: Aparece en el título o en Ayuda → Acerca de SignalLab.
-      placeholder: 1.8.0
+      placeholder: 1.9.6
     validations:
       required: true
   - type: input
@@ -39,7 +39,7 @@ body:
     validations:
       required: true
   - type: input
-    id: screen
+    id: environment
     attributes:
-      label: Sistema operativo y pantalla
-      description: Indicá Windows o distribución Linux y su versión. Para la interfaz, añadí resolución y escala de pantalla.
+      label: Entorno de uso
+      description: Indicá el sistema y su versión, y si usás instalador o portable. Para la interfaz, añadí resolución y escala de pantalla.
