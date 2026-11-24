@@ -2,19 +2,21 @@
 
 from dataclasses import replace
 import json
+import math
 from pathlib import Path
 from tokenize import TokenError
 
-from PySide6.QtCore import QByteArray, QPoint, QPointF, QRect, QRectF, Qt, Signal
+from PySide6.QtCore import QByteArray, QLineF, QPoint, QPointF, QRect, QRectF, QSize, QTimer, Qt, Signal
 from PySide6.QtGui import QColor, QPainter, QPainterPath, QPainterPathStroker, QPen
 from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import (
-    QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout, QGraphicsEllipseItem, QGraphicsItem,
+    QBoxLayout, QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout, QFrame, QGraphicsEllipseItem, QGraphicsItem,
     QGraphicsPathItem, QGraphicsRectItem, QGraphicsScene, QGraphicsSimpleTextItem, QGraphicsView,
-    QInputDialog, QLabel, QMessageBox, QPushButton, QVBoxLayout, QWidget,
+    QGridLayout, QHBoxLayout, QInputDialog, QLabel, QMenu, QMessageBox, QPushButton, QToolButton, QVBoxLayout, QWidget,
 )
 
 from .atomic_file import write_json
+from .design import icon
 from .math_display import latex
 from .math_source import normalize
 from .realization_diagram import DiagramView
@@ -263,6 +265,29 @@ class EditorView(DiagramView):
         self.editor = editor
         self.cable_source = self.cable_target = self.cable_preview = None
 
+    def drawBackground(self, painter, rect):
+        super().drawBackground(painter, rect)
+        step = 24
+        scale = max(abs(self.transform().m11()), .01)
+        while scale * step < 16:
+            step *= 2
+        color = QColor(C['grid'])
+        color.setAlpha(105)
+        pen = QPen(color)
+        pen.setCosmetic(True)
+        painter.setPen(pen)
+        vertical = (QLineF(x, rect.top(), x, rect.bottom()) for x in
+                    range(math.ceil(rect.left()/step)*step, math.floor(rect.right()/step)*step + 1, step))
+        horizontal = (QLineF(rect.left(), y, rect.right(), y) for y in
+                      range(math.ceil(rect.top()/step)*step, math.floor(rect.bottom()/step)*step + 1, step))
+        painter.drawLines([*vertical, *horizontal])
+
+    def wheelEvent(self, event):
+        scale = self.transform().m11()
+        super().wheelEvent(event)
+        if self.transform().m11() != scale:
+            self.editor.fit_mode = False
+
     def block_at(self, position):
         item = self.itemAt(position)
         while item is not None and not isinstance(item, BlockItem):
@@ -389,70 +414,177 @@ class RealizationEditor(QDialog):
         self.blocks = {}
         self.wires = {}
         self.saved_graph = graph
-        layout = QVBoxLayout(self)
+        self.fit_mode = True
+        self.fit_timer = QTimer(self)
+        self.fit_timer.setSingleShot(True)
+        self.fit_timer.timeout.connect(self.fit_diagram)
+        self.setObjectName('realizationEditor')
+        root = QVBoxLayout(self)
+        root.setContentsMargins(14, 11, 14, 11)
+        root.setSpacing(9)
 
-        file_row = WrappingRow()
-        layout.addWidget(file_row)
-        self._button(file_row, 'Nuevo', self.new_diagram)
-        self._button(file_row, 'Abrir JSON…', self.open_file)
-        self._button(file_row, 'Guardar JSON…', self.save_file)
-        self._button(file_row, 'Ver todo', self.fit_diagram)
-        self.edit_button = self._button(file_row, 'Editar bloque…', self.edit_selected_block)
-        self.delete_button = self._button(file_row, 'Quitar selección', self.delete_selection)
+        header = QHBoxLayout()
+        title = QLabel('Editor de realización')
+        title.setObjectName('diagramTitle')
+        header.addWidget(title, 1)
+        self.domain_label = QLabel()
+        self.domain_label.setObjectName('diagramDomain')
+        header.addWidget(self.domain_label)
+        root.addLayout(header)
 
-        tools = WrappingRow()
-        layout.addWidget(tools)
-        tools.flow.addWidget(QLabel('Agregar bloque'))
-        self.transfer_button = self._button(tools, 'Transferencia', lambda: self.add_block('transfer'),
-                                            'Multiplica la señal por una función de transferencia. Escribila o cargala de Resultados.')
-        self._button(tools, 'Ganancia · K', lambda: self.add_block('gain'),
-                     'Multiplica la señal por una constante.')
-        self._button(tools, 'Sumador · ±', lambda: self.add_block('sum'),
-                     'Combina dos entradas. Editá el bloque para elegir suma o resta en cada una.')
-        self.memory = self._button(tools, '', lambda: self.add_block('memory'))
+        commands = WrappingRow()
+        commands.setObjectName('diagramCommands')
+        root.addWidget(commands)
+        file_button = self.menu_button('Archivo', 'folder', commands)
+        file_button.setObjectName('diagramFileMenu')
+        file_menu = QMenu(file_button)
+        file_button.setMenu(file_menu)
+        file_button.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+        file_menu.addAction('Nuevo diagrama', self.new_diagram)
+        file_menu.addAction('Abrir JSON…', self.open_file)
+        file_menu.addAction('Guardar JSON…', self.save_file)
+        fit = self.button('Ajustar vista', 'expand', self.fit_diagram, commands)
+        fit.setToolTip('Encuadrar todos los bloques y cables')
+        closer = self.button('Acercar', 'search', lambda: self.change_zoom(1.15), commands)
+        closer.setToolTip('Acercar el diagrama')
+        farther = self.button('Alejar', 'restore', lambda: self.change_zoom(1 / 1.15), commands)
+        farther.setToolTip('Alejar el diagrama')
+        self.connect_button = self.menu_button('Conectar', 'convert', commands)
+        self.connect_button.setObjectName('diagramConnect')
+        self.connect_button.setCheckable(True)
+        self.connect_button.setToolTip('Conectar por clics. Elegí el origen y después el destino.')
+        self.connect_button.clicked.connect(lambda: self.start_connection(1))
+        links = QMenu(self.connect_button)
+        self.connect_button.setMenu(links)
+        self.connect_button.setPopupMode(QToolButton.ToolButtonPopupMode.MenuButtonPopup)
+        self.subtract_button = links.addAction('Conectar restando')
+        self.subtract_button.setCheckable(True)
+        self.subtract_button.triggered.connect(lambda: self.start_connection(-1))
 
-        connections = WrappingRow()
-        layout.addWidget(connections)
-        self.connect_button = self._button(connections, 'Conectar con clics', lambda: self.start_connection(1),
-                                           'Elegí primero el bloque de origen y después el de destino.')
-        self.subtract_button = self._button(connections, 'Restar con clics', lambda: self.start_connection(-1),
-                                            'Elegí primero el origen y después el destino para una conexión con signo negativo.')
-        for button in (self.connect_button, self.subtract_button):
-            button.setCheckable(True)
+        self.workspace_layout = QBoxLayout(QBoxLayout.Direction.LeftToRight)
+        self.workspace_layout.setSpacing(10)
+        root.addLayout(self.workspace_layout, 1)
+        self.palette = QFrame()
+        self.palette.setObjectName('diagramPalette')
+        palette_box = QVBoxLayout(self.palette)
+        palette_box.setContentsMargins(9, 9, 9, 9)
+        palette_box.setSpacing(7)
+        block_title = QLabel('Bloques')
+        block_title.setObjectName('diagramSectionTitle')
+        palette_box.addWidget(block_title)
+        self.palette_grid = QGridLayout()
+        self.palette_grid.setSpacing(5)
+        palette_box.addLayout(self.palette_grid)
+        palette_box.addStretch()
+        self.workspace_layout.addWidget(self.palette)
+
+        self.transfer_button = self.block_button(
+            'Transferencia', 'blocks', 'transfer',
+            'Multiplica la señal por una función de transferencia. Escribila o cargala de Resultados.')
+        gain = self.block_button('Ganancia · K', 'chart', 'gain', 'Multiplica la señal por una constante.')
+        sum_button = self.block_button('Sumador · ±', 'math', 'sum',
+                                       'Combina dos entradas. Editá el bloque para elegir sus signos.')
+        self.memory = self.block_button('', 'sample', 'memory', '')
+        self.palette_buttons = (self.transfer_button, gain, sum_button, self.memory)
 
         self.hint = QLabel()
+        self.hint.setObjectName('diagramHint')
         self.hint.setWordWrap(True)
-        layout.addWidget(self.hint)
         self.scene = QGraphicsScene(self)
         self.scene.setBackgroundBrush(QColor(C['report']))
-        self.scene.selectionChanged.connect(self.update_selection)
         self.view = EditorView(self)
+        self.view.setObjectName('diagramCanvas')
         self.view.setScene(self.scene)
         self.view.setRenderHint(QPainter.RenderHint.Antialiasing)
         self.view.setDragMode(QGraphicsView.DragMode.ScrollHandDrag)
         self.view.setAccessibleName('Diagrama de bloques de la realización')
         self.view.setToolTip('Ctrl + rueda cambia el zoom. Arrastrá un espacio vacío para recorrer el diagrama.')
-        layout.addWidget(self.view, 1)
+        self.view.setMinimumSize(0, 90)
+        self.workspace_layout.addWidget(self.view, 1)
+        root.addWidget(self.hint)
 
+        selection = WrappingRow()
+        self.selection_label = QLabel()
+        self.selection_label.setObjectName('muted')
+        selection.flow.addWidget(self.selection_label)
+        self.edit_button = self.button('Editar bloque…', 'filter', self.edit_selected_block, selection)
+        self.delete_button = self.button('Quitar selección', 'remove', self.delete_selection, selection)
+        root.addWidget(selection)
+        self.scene.selectionChanged.connect(self.update_selection)
+
+        footer = QHBoxLayout()
+        self.connection_state = QLabel()
+        self.connection_state.setObjectName('diagramConnectionState')
+        self.connection_state.setWordWrap(True)
+        footer.addWidget(self.connection_state, 1)
         buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Cancel)
         buttons.button(QDialogButtonBox.StandardButton.Cancel).setText('Cancelar')
         accept = buttons.addButton('Usar diagrama', QDialogButtonBox.ButtonRole.AcceptRole)
         accept.setObjectName('primary')
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
-        layout.addWidget(buttons)
+        footer.addWidget(buttons)
+        root.addLayout(footer)
+        self.adapt_palette()
         self.set_graph(graph)
 
     @staticmethod
-    def _button(row, text, action, description=None):
-        button = QPushButton(text)
-        if description:
-            button.setToolTip(description)
-            button.setAccessibleDescription(description)
-        button.setAutoDefault(False)
-        button.clicked.connect(action)
+    def menu_button(title, symbol, row):
+        button = QToolButton()
+        button.setObjectName('diagramTool')
+        button.setText(title)
+        button.setIcon(icon(symbol))
+        button.setIconSize(QSize(17, 17))
+        button.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
         row.flow.addWidget(button)
         return button
+
+    @classmethod
+    def button(cls, title, symbol, action, row):
+        button = cls.menu_button(title, symbol, row)
+        button.clicked.connect(action)
+        return button
+
+    def block_button(self, title, symbol, kind, description):
+        button = QPushButton(icon(symbol, C['accent']), title)
+        button.setObjectName('diagramBlockButton')
+        button.setIconSize(QSize(20, 20))
+        button.setAutoDefault(False)
+        button.setCursor(Qt.CursorShape.PointingHandCursor)
+        button.setToolTip(description)
+        button.setAccessibleDescription(description)
+        button.clicked.connect(lambda: self.add_block(kind))
+        return button
+
+    def adapt_palette(self):
+        side = self.width() >= 850 or self.height() < 475 and self.width() >= 650
+        self.palette.setMaximumWidth(214 if side else self.width())
+        if getattr(self, '_side_palette', None) == side:
+            return
+        self._side_palette = side
+        direction = QBoxLayout.Direction.LeftToRight if side else QBoxLayout.Direction.TopToBottom
+        self.workspace_layout.setDirection(direction)
+        self.palette.setMinimumWidth(190 if side else 0)
+        columns = 1 if side else 2
+        for index, button in enumerate(self.palette_buttons):
+            self.palette_grid.removeWidget(button)
+            row, column = divmod(index, columns)
+            self.palette_grid.addWidget(button, row, column)
+        for column in range(2):
+            self.palette_grid.setColumnStretch(column, int(column < columns))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if hasattr(self, 'palette_buttons'):
+            self.adapt_palette()
+            if self.fit_mode:
+                self.fit_timer.start(0)
+
+    def change_zoom(self, factor):
+        view = self.view
+        if .25 <= view.transform().m11() * factor <= 4:
+            view.scale(factor, factor)
+            self.fit_mode = False
 
     def showEvent(self, event):
         super().showEvent(event)
@@ -472,6 +604,7 @@ class RealizationEditor(QDialog):
             self.add_wire(wire)
         discrete = graph.domain == 'digital'
         variable = 'z' if discrete else 's'
+        self.domain_label.setText('Discreto · H(z)' if discrete else 'Continuo · H(s)')
         self.transfer_button.setText(f'Transferencia · H({variable})')
         self.memory.setText('Retardo · z⁻¹' if discrete else 'Integrador · 1/s')
         description = ('Devuelve la muestra anterior de la señal.' if discrete
@@ -480,6 +613,7 @@ class RealizationEditor(QDialog):
         self.memory.setAccessibleDescription(description)
         self.start_connection(None)
         self.update_selection()
+        self.update_connection_state()
         self.fit_diagram()
 
     def graph(self):
@@ -491,10 +625,13 @@ class RealizationEditor(QDialog):
         self.scene.setSceneRect(rect.united(QRectF(-95, -170, 800, 385)))
 
     def fit_diagram(self):
+        self.fit_mode = True
         self.update_bounds()
-        self.view.fitInView(self.scene.sceneRect(), Qt.AspectRatioMode.KeepAspectRatio)
+        bounds = self.scene.itemsBoundingRect().adjusted(-42, -42, 42, 42)
+        self.view.fitInView(bounds, Qt.AspectRatioMode.KeepAspectRatio)
         if self.view.transform().m11() > 1:
             self.view.resetTransform()
+            self.view.centerOn(bounds.center())
 
     def add_block(self, kind):
         self.start_connection(None)
@@ -520,20 +657,21 @@ class RealizationEditor(QDialog):
         item.setSelected(True)
         self.update_bounds()
         self.view.ensureVisible(item)
+        self.update_connection_state()
         if kind == 'gain':
             self.edit_block(item)
 
     def start_connection(self, sign):
         self.connection_sign = None if sign == self.connection_sign else sign
         self.connection_source = None
-        self.connect_button.setChecked(self.connection_sign == 1)
+        self.connect_button.setChecked(self.connection_sign is not None)
+        self.connect_button.setText('Conectar −' if self.connection_sign == -1 else 'Conectar')
         self.subtract_button.setChecked(self.connection_sign == -1)
         if self.connection_sign is not None:
             self.view.setFocus()
             self.hint.setText('Seleccioná el bloque de origen y luego el de destino.')
         else:
-            self.hint.setText('Arrastrá desde el punto lleno de salida hasta un círculo de entrada. '
-                              'Hacé doble clic en un sumador para editar los signos.')
+            self.hint.setText('Arrastrá desde una salida ● hasta una entrada ○. Hacé doble clic en un bloque para editarlo.')
 
     def connect_block(self, item, port=None):
         if self.connection_source is None:
@@ -567,6 +705,7 @@ class RealizationEditor(QDialog):
         self.add_wire(wire)
         self.start_connection(None)
         self.update_bounds()
+        self.update_connection_state()
 
     def add_wire(self, wire):
         item = WireItem(wire, self.blocks[wire.source], self.blocks[wire.target])
@@ -598,6 +737,30 @@ class RealizationEditor(QDialog):
         self.delete_button.setEnabled(any(isinstance(item, WireItem) or
                                           isinstance(item, BlockItem) and item.block.kind not in ('input', 'output')
                                           for item in selected))
+        if len(selected) == 1 and isinstance(selected[0], BlockItem):
+            block = selected[0].block
+            label = f'{BLOCK_NAMES[block.kind]} {block.id}'
+        elif len(selected) == 1 and isinstance(selected[0], WireItem):
+            wire = selected[0].wire
+            label = f'Conexión {wire.source} → {wire.target}'
+        else:
+            label = f'{len(selected)} elementos seleccionados' if selected else 'Seleccioná un bloque o un cable.'
+        self.selection_label.setText(label)
+
+    def update_connection_state(self):
+        try:
+            self.graph().connections_for_transfer()
+            complete = True
+            text = 'Conexiones listas para analizar.'
+        except ValueError as error:
+            complete = False
+            text = str(error)
+        label = self.connection_state
+        if label.property('complete') != complete:
+            label.setProperty('complete', complete)
+            label.style().unpolish(label)
+            label.style().polish(label)
+        label.setText(text)
 
     def edit_selected_block(self):
         for item in self.scene.selectedItems():
@@ -672,6 +835,7 @@ class RealizationEditor(QDialog):
             self.scene.removeItem(self.blocks.pop(ident))
         self.start_connection(None)
         self.update_bounds()
+        self.update_connection_state()
 
     def can_replace(self):
         return self.graph() == self.saved_graph or QMessageBox.question(

@@ -3,35 +3,43 @@ from .numeric_input import real_field,integer_field
 from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QCheckBox,QPushButton,QLabel,QScrollArea,QTabWidget,QMessageBox
 from .report_view import ReportView,report_panel
 from .frequency_filter import analyze
+from .choice_buttons import ChoiceButtons
+from .field_section import FieldSection
 
 class FrequencyFilterPanel(QWidget):
     def __init__(self,window):
         super().__init__();self.window=window;self.results=[];self.result_keys=[];self.impulse_key=None
         from .toolbox import LocalInput,ResultView
         root=QHBoxLayout(self);controls=QWidget();form=QFormLayout(controls)
-        self.domain=QComboBox();self.domain.addItems(['Discreto · ω en rad/muestra','Continuo · Ω en rad/s']);form.addRow('Dominio',self.domain)
-        note=QLabel('En cada tramo, indicá la ganancia y las frecuencias donde se aplica.');note.setWordWrap(True);form.addRow(note)
-        self.h=LocalInput('Respuesta del filtro H(ω)','frequency');self.h.set_role('frequency_response');self.h.bind_project(window)
-        for label in self.h.findChildren(QLabel):
-            if label.text()=='Paso (rad/s)':label.setText('Paso angular')
-            if label.text().startswith('X(ω)'):label.setText('H(ω), usar w como frecuencia')
+        self.domain=QComboBox();self.domain.addItems(['Discreto','Continuo']);form.addRow('Dominio',ChoiceButtons(self.domain))
+        self.operation=QComboBox();self.operation.addItems(['Analizar','Aplicar a una señal']);form.addRow('Operación',ChoiceButtons(self.operation))
+        self.h=LocalInput('Respuesta en frecuencia','frequency');self.h.set_role('frequency_response');self.h.bind_project(window)
+        self.h.frequency_units.setProperty('fromDomain', True)
+        self.h.layout().setRowVisible(self.h.frequency_units,False)
         self.h.expression.setProperty('variableHint','w');self.h.expression.setText('')
         self.h.expression.field.setPlaceholderText('Ingresá H en función de w')
         self.h.samples.clear();form.addRow(self.h)
-        self.operation=QComboBox();self.operation.addItems(['Ver H y respuesta al impulso','Aplicar a una señal']);form.addRow('Operación',self.operation)
-        self.start=QLineEdit('-32');self.count=QLineEdit('65');self.step=QLineEdit('1');form.addRow('Inicio de h',self.start);form.addRow('Puntos de h',self.count);form.addRow('Paso temporal de h',self.step)
         self.xd=LocalInput('Entrada x[n]','discrete');self.xc=LocalInput('Entrada x(t)','continuous')
         for source in (self.xd,self.xc):source.bind_project(window);form.addRow(source)
+        self.impulse_settings=FieldSection('Ventana de la respuesta al impulso')
+        impulse_form=self.impulse_settings.form
+        self.start=QLineEdit();self.count=QLineEdit();self.step=QLineEdit()
+        impulse_form.addRow('Primer punto',self.start);impulse_form.addRow('Cantidad de puntos',self.count);impulse_form.addRow('Paso temporal (s)',self.step)
+        form.addRow(self.impulse_settings)
         self.periodic=QCheckBox('Permitir plegado periódico si la rejilla es corta')
         self.periodic.setToolTip('Las muestras separadas por el período de la rejilla se suman en el mismo índice de la salida.')
         form.addRow(self.periodic)
+        self._ranges = {0:('-32','65','1','-pi','2049','pi/1024'),1:('-2','401','0.01','-10','2049','20/2048')}
+        self._active_domain = None
         self.form=form;self.operation.currentIndexChanged.connect(self.update_inputs);self.domain.currentIndexChanged.connect(self.update_domain)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);left=QVBoxLayout();left.addWidget(scroll);self.calculate_button=QPushButton('Calcular');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);left.addWidget(self.calculate_button);root.addLayout(left,1)
         right=QVBoxLayout();self.selector=QComboBox();self.selector.setProperty('sessionTransient',True);self.selector.currentIndexChanged.connect(self.display)
+        self.selector.setAccessibleName('Datos para el gráfico, la tabla y la reutilización')
+        self.selector.setToolTip('Elegí la respuesta que querés ver en el gráfico y la tabla, o reutilizar como muestras.')
         self.tabs=QTabWidget();self.view=ResultView();self.report=ReportView()
         right.addWidget(self.view.actions)
         right.addWidget(self.selector)
-        self.tabs.addTab(self.view,'Gráfico y valores');self.tabs.addTab(report_panel(self.report),'Fórmula e informe')
+        self.tabs.addTab(self.view,'Valores');self.tabs.addTab(report_panel(self.report),'Informe')
         right.addWidget(self.tabs);root.addLayout(right,2)
         self.algebraic_key=None
         self.reuse_button=self.view.send
@@ -52,12 +60,23 @@ class FrequencyFilterPanel(QWidget):
         self.form.setRowVisible(self.periodic,apply and digital)
         self.periodic.setProperty('calculationInput',apply and digital)
     def update_domain(self,*_):
-        self.h.frequency_units.setCurrentText('rad/muestra' if self.domain.currentIndex()==0 else 'rad/s');self.h.frequency_units.setEnabled(False)
-        digital=self.domain.currentIndex()==0
-        self.step.setText('1' if digital else '0.01');self.step.setEnabled(not digital)
-        self.start.setText('-32' if digital else '-2');self.count.setText('65' if digital else '401')
-        self.h.origin.setText('-pi' if digital else '-10')
-        self.h.step.setText('pi/1024' if digital else '20/2048');self.h.count.setText('2049')
+        domain = self.domain.currentIndex()
+        digital = domain == 0
+        units = 'rad/muestra' if digital else 'rad/s'
+        self.h.frequency_units.setCurrentText(units)
+        self.h.layout().labelForField(self.h.expression).setText(f'H(ω) en función de w ({units})' if digital else f'H(Ω) en función de w ({units})')
+        self.h.range_note.setText(f'Inicio y paso en {units}. El último punto es el inicio más (N−1) pasos.')
+        interval = (self.start,self.count,self.step,self.h.origin,self.h.count,self.h.step)
+        if self._active_domain != domain:
+            if self._active_domain is not None:
+                self._ranges[self._active_domain] = tuple(field.text() for field in interval)
+            for field, value in zip(interval,self._ranges[domain]):
+                field.setText(value)
+            self._active_domain = domain
+        form = self.impulse_settings.form
+        form.labelForField(self.start).setText('Primer índice n' if digital else 'Tiempo inicial (s)')
+        form.labelForField(self.count).setText('Cantidad de muestras' if digital else 'Cantidad de puntos')
+        form.setRowVisible(self.step,not digital)
         self.update_inputs()
     def calculate(self):
         try:
@@ -74,7 +93,7 @@ class FrequencyFilterPanel(QWidget):
             allow_periodic=digital and self.periodic.isChecked()
             snapshot=self.state.snapshot()
             from .inverse_fourier_report import from_signal,exact_section,numeric_section
-            from .result_summary import Summary,Section
+            from .result_summary import Formula,Summary,Section
             def compute():
                 algebra=from_signal(response)
                 def numerical():
@@ -99,8 +118,13 @@ class FrequencyFilterPanel(QWidget):
                     self.selector.addItem(value.name)
                 self.result_keys=keys;self.algebraic_key=None;self.impulse_key=None;sections=[]
                 if algebra:
-                    self.algebraic_key=self.window.publish({'result':algebra['definition']},title='Definición algebraica H(w)',
+                    definition = algebra['definition']
+                    self.algebraic_key=self.window.publish({'result':definition},title='Definición algebraica H(w)',
                         operation='Filtro por respuesta en frecuencia',parents=[keys[0]])
+                    frequency = 'H(ω)' if digital else 'H(Ω)'
+                    source=definition.get('display_result',definition['result'])
+                    sections.append(Section('Respuesta en frecuencia '+frequency,paragraphs=[f'Frecuencia angular en {unit}.'],
+                                            formulas=[Formula(source,frequency+' = '+source)]))
                     if algebra['inverse']:
                         inverse=algebra['inverse']
                         self.impulse_key=self.window.publish({'result':inverse},title='Expresión algebraica de la respuesta al impulso',

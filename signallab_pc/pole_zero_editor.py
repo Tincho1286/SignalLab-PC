@@ -28,20 +28,22 @@ class PoleZeroEditor(QWidget):
         self.connections.extend([panel.canvas.mpl_connect(name,self.cursor_event) for name in ('axes_enter_event','axes_leave_event','figure_leave_event')])
         self.redraw()
         window=getattr(panel.canvas,'_signallab_window',None)
-        if window is not None:self.install_plot_controls(window,window.layout())
+        if window is not None:self.install_plot_controls(window, getattr(window, 'options_layout', window.layout()))
     def install_plot_controls(self,window,layout):
         if hasattr(self,'plot_controls'):return
         self.plot_controls=QWidget(window);box=QVBoxLayout(self.plot_controls);box.setContentsMargins(4,0,4,2);box.setSpacing(3)
-        row=QHBoxLayout();mode=QComboBox();mode.addItems([self.mode.itemText(i) for i in range(self.mode.count())]);mode.setCurrentIndex(self.mode.currentIndex());mode.setAccessibleName('Acción del mouse en el plano');row.addWidget(mode,1)
+        from .wrapping_row import WrappingRow
+        controls=WrappingRow();row=controls.layout()
+        mode=QComboBox();mode.addItems([self.mode.itemText(i) for i in range(self.mode.count())]);mode.setCurrentIndex(self.mode.currentIndex());mode.setAccessibleName('Acción del mouse en el plano');row.addWidget(mode)
         mode.currentIndexChanged.connect(self.mode.setCurrentIndex);self.mode.currentIndexChanged.connect(mode.setCurrentIndex);mode.activated.connect(self.choose_mode)
-        pairs=QCheckBox('Conjugados');pairs.setChecked(self.pairs.isChecked());pairs.toggled.connect(self.pairs.setChecked);self.pairs.toggled.connect(pairs.setChecked);row.addWidget(pairs);box.addLayout(row)
-        row=QHBoxLayout();coordinates=QComboBox();coordinates.addItems(['Plano binómico','Plano polar']);coordinates.setCurrentIndex(self.coordinates.currentIndex());row.addWidget(coordinates)
+        pairs=QCheckBox('Conjugados');pairs.setChecked(self.pairs.isChecked());pairs.toggled.connect(self.pairs.setChecked);self.pairs.toggled.connect(pairs.setChecked);row.addWidget(pairs)
+        coordinates=QComboBox();coordinates.addItems(['Plano binómico','Plano polar']);coordinates.setCurrentIndex(self.coordinates.currentIndex());row.addWidget(coordinates)
         coordinates.currentIndexChanged.connect(self.coordinates.setCurrentIndex);self.coordinates.currentIndexChanged.connect(coordinates.setCurrentIndex)
         for text,factor in [('Acercar +',.8),('Alejar −',1.25)]:
             button=QPushButton(text);button.setProperty('calculationInput',False);button.clicked.connect(lambda checked=False,scale=factor:self.zoom(scale));row.addWidget(button)
-        fit=QPushButton('Ajustar a raíces');fit.clicked.connect(lambda:self.redraw(preserve=False));row.addWidget(fit);row.addStretch();box.addLayout(row)
+        fit=QPushButton('Ajustar a raíces');fit.clicked.connect(lambda:self.redraw(preserve=False));row.addWidget(fit);box.addWidget(controls)
         hint=QLabel('Rueda: zoom en la posición del mouse. Alejar amplía el plano para insertar raíces fuera de la vista actual.');hint.setWordWrap(True);hint.setObjectName('muted');box.addWidget(hint)
-        layout.insertWidget(1,self.plot_controls)
+        layout.insertWidget(0,self.plot_controls)
     def choose_mode(self,*_):
         toolbar=getattr(self.panel.canvas,'toolbar',None)
         if toolbar and toolbar.mode:

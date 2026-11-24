@@ -52,7 +52,8 @@ def controls(owner):
         if name.startswith('_') or id(widget) in seen or not isinstance(widget, INPUT_TYPES):
             continue
         if isinstance(widget, QLineEdit) and (widget.echoMode() != QLineEdit.EchoMode.Normal
-                                             or widget.isReadOnly() or 'path' in name.lower()):
+                                             or (widget.isReadOnly() and not widget.property('clockInput'))
+                                             or 'path' in name.lower()):
             continue
         if isinstance(owner, LocalInput) and name in ('mode', 'recent'):
             continue

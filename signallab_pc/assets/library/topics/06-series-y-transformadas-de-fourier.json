@@ -236,7 +236,7 @@
         ],
         [
           "Cómo leer el valor principal",
-          "PVCot(w,P) representa el valor principal de Cauchy de cot(P·w/2). Graficar resultado muestra la parte ordinaria fuera de sus polos y las áreas de las líneas en otro eje. Si un punto de la rejilla cae en un polo, figura como N/D."
+          "PVCot(w,P) representa el valor principal de Cauchy de cot(P·w/2). Abrir gráfico muestra la parte ordinaria fuera de sus polos y las áreas de las líneas en otro eje. Si un punto de la rejilla cae en un polo, figura como N/D."
         ]
       ]
     },
@@ -996,8 +996,8 @@
           "Una función racional de exp(iw) se convierte a Z y se elige la ROC que contiene el círculo unidad. No se presupone una secuencia derecha."
         ],
         [
-          "Graficar resultado",
-          "Opcional. Primer índice y cantidad eligen muestras enteras de la fórmula ya calculada."
+          "Abrir gráfico",
+          "En la flecha de Abrir gráfico, elegí Intervalo del gráfico para indicar el primer índice y cuántas muestras enteras de la fórmula querés ver."
         ],
         [
           "Resultados",

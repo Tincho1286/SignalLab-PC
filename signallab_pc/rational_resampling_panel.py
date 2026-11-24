@@ -3,6 +3,7 @@ from .report_view import ReportView
 """Cambio racional de tasa con filtro antialias y reloj físico explícitos."""
 from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QLineEdit,QComboBox,QPushButton,QLabel,QScrollArea,QMessageBox,QCheckBox
 from .sampling import resample_rational
+from .field_section import FieldSection
 
 class RationalResamplingPanel(QWidget):
     def __init__(self,window):
@@ -12,7 +13,7 @@ class RationalResamplingPanel(QWidget):
         self.source=LocalInput('Señal de entrada');self.source.bind_project(window);layout.addWidget(self.source)
         form=QFormLayout();form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows);layout.addLayout(form)
         self.start=QLineEdit();self.start.setPlaceholderText('Opcional · sin origen físico');self.rate=QLineEdit('48000');self.up=QLineEdit('147');self.down=QLineEdit('160');self.width=QLineEdit('10');self.beta=QLineEdit('5')
-        for label,field in [('Fs de entrada (muestras/s)',self.rate),('Tiempo de la primera muestra (s)',self.start),('Multiplicador L',self.up),('Divisor M',self.down),('Semilongitud FIR por fase',self.width),('Beta de ventana Kaiser',self.beta)]:form.addRow(label,field)
+        for label,field in [('Fs de entrada (muestras/s)',self.rate),('Tiempo de la primera muestra (s)',self.start),('Multiplicador L',self.up),('Divisor M',self.down)]:form.addRow(label,field)
         self.mode=QComboBox();self.mode.addItems(['Relación L/M','Frecuencia de salida']);form.insertRow(2,'Definir conversión',self.mode)
         self.target=QLineEdit('44100');form.insertRow(3,'Fs de salida deseada (muestras/s)',self.target)
         def mode_changed(*_):
@@ -20,10 +21,16 @@ class RationalResamplingPanel(QWidget):
             form.setRowVisible(self.target,target);self.target.setProperty('calculationInput',target)
             for field in (self.up,self.down):form.setRowVisible(field,not target);field.setProperty('calculationInput',not target)
         self.mode.currentIndexChanged.connect(mode_changed);mode_changed()
-        self.boundary=QComboBox();self.boundary.addItems(['Cero fuera del registro','Continuación lineal de los extremos']);form.addRow('Bordes',self.boundary)
+        self.boundary=QComboBox();self.boundary.addItems(['Cero fuera del registro','Continuación lineal de los extremos'])
         self.override=QCheckBox('Reinterpretar el reloj con estos valores');form.addRow(self.override)
         clock=QPushButton('Restaurar reloj registrado');clock.clicked.connect(self.read_clock);form.addRow(clock)
-        note=QLabel('Fs de salida = Fs de entrada × L/M. El filtro atenúa imágenes y aliasing; su transición y los bordes son finitos. El retardo se compensa para análisis fuera de tiempo real.');note.setWordWrap(True);form.addRow(note)
+        note=QLabel('Fs de salida = Fs de entrada × L/M.');note.setWordWrap(True);form.addRow(note)
+        self.filter_settings=FieldSection('Filtro antialias y tratamiento de los extremos')
+        settings=self.filter_settings.form
+        settings.addRow('Semilongitud FIR por fase',self.width)
+        settings.addRow('β de la ventana Kaiser',self.beta)
+        settings.addRow('Fuera del registro',self.boundary)
+        form.addRow(self.filter_settings)
         self.calculate_button=QPushButton('Convertir tasa con filtro');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);layout.insertWidget(0,self.calculate_button)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         self.result=ResultView();root.addWidget(self.result,2)

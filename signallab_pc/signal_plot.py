@@ -1,6 +1,11 @@
 """Convención común de muestras, curvas y discontinuidades de fase."""
 import numpy as np
 
+def vertical_axis_name(axis):
+    text = axis.get_ylabel()
+    original, rendered = getattr(axis.yaxis.label, '_signallab_axis_text', (text, text))
+    return original if text == rendered else text
+
 def plot_samples(axis,x,y,*,discrete=False,label=None,color=None,phase=False,source=None,component=None):
     x=np.asarray(x);y=np.asarray(y)
     if not discrete or len(x)==0:

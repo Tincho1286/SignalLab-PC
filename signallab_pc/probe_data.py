@@ -3,6 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 from matplotlib.container import StemContainer
 from matplotlib.collections import PathCollection
+from .signal_plot import vertical_axis_name
 
 
 def attach_signal(artists, source, component):
@@ -103,7 +104,7 @@ def collect(figure):
                 else:continue
                 if np.ndim(x)!=1 or len(x)!=len(y) or not len(x):continue
                 label=(stems[id(artist)].get_label() if id(artist) in stems else artist.get_label()) or ''
-                if label.startswith('_'):label=axis.get_ylabel() or 'Traza '+str(len(traces)+1)
+                if label.startswith('_'):label=vertical_axis_name(axis) or 'Traza '+str(len(traces)+1)
                 traces.append(Trace(axis,artist,label,x,y,spatial))
             except (ValueError,TypeError,IndexError):continue
     return traces

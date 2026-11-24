@@ -1,6 +1,6 @@
 """Keep scientific controls visible instead of overflowing the navigation toolbar."""
 from PySide6.QtCore import Qt,QRect,QPoint,QSize
-from PySide6.QtWidgets import QWidget,QLayout,QToolButton,QWidgetAction,QSizePolicy
+from PySide6.QtWidgets import QWidget,QLayout,QMenu,QToolButton,QWidgetAction,QSizePolicy
 from .design import icon
 
 
@@ -35,6 +35,22 @@ def style_navigation(toolbar):
     location = getattr(toolbar, 'locLabel', None)
     if location is not None:
         location.setSizePolicy(QSizePolicy.Policy.Ignored, QSizePolicy.Policy.Preferred)
+        location.hide()
+
+    view = QToolButton()
+    view.setObjectName('figureViewMenu')
+    view.setText('Vista')
+    view.setAccessibleName('Opciones de vista de la figura')
+    view.setToolTip('Historial del zoom y ajustes de los paneles')
+    view.setPopupMode(QToolButton.ToolButtonPopupMode.InstantPopup)
+    menu = QMenu(view)
+    view.setMenu(menu)
+    for key in ('back', 'forward', 'configure_subplots', 'edit_parameters'):
+        action = toolbar._actions.get(key)
+        if action is not None:
+            toolbar.removeAction(action)
+            menu.addAction(action)
+    toolbar.addWidget(view)
 
 
 class WrappedControls(QLayout):
@@ -66,7 +82,7 @@ class WrappedControls(QLayout):
 
 class ScientificControls(QWidget):
     def __init__(self,toolbar,parent):
-        super().__init__(parent);self.setObjectName('figureOptions');self.setAccessibleName('Representación y medidas de la figura');self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum);policy=self.sizePolicy();policy.setHeightForWidth(True);self.setSizePolicy(policy);self.flow=WrappedControls(self);self.projected=[]
+        super().__init__(parent);self.setObjectName('figureMeasureTools');self.setAccessibleName('Representación y medidas de la figura');self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum);policy=self.sizePolicy();policy.setHeightForWidth(True);self.setSizePolicy(policy);self.flow=WrappedControls(self);self.projected=[]
         navigation=set(getattr(toolbar,'_actions',{}).values());coordinates=getattr(toolbar,'locLabel',None)
         for action in list(toolbar.actions()):
             widget=action.defaultWidget() if isinstance(action,QWidgetAction) else None

@@ -9,7 +9,8 @@ SMALL_VARIATION=1e-10
 
 
 def _text(axis):
-    return ''.join(c for c in unicodedata.normalize('NFKD',axis.get_ylabel()+' '+axis.get_title()).casefold() if not unicodedata.combining(c))
+    from .signal_plot import vertical_axis_name
+    return ''.join(c for c in unicodedata.normalize('NFKD',vertical_axis_name(axis)+' '+axis.get_title()).casefold() if not unicodedata.combining(c))
 
 
 def _eligible(axis):

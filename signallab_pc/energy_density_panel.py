@@ -33,6 +33,7 @@ class EnergyDensityPanel(QWidget):
         self.note.setText('Se calcula la transformada y luego |X|² en una sola operación. No necesitás un espectro previo.' if index!=2 else 'Definí el espectro complejo y su eje. No cargues una PSD ni una densidad ya elevada al cuadrado.')
     def receive(self,value,key=None):
         index={'discrete':0,'continuous':1,'frequency':2}[value.domain];self.input_kind.setCurrentIndex(index);self.inputs[index].set_source(value,key)
+        return self.inputs[index]
     def calculate(self):
         try:
             index=self.input_kind.currentIndex();source=self.inputs[index].read();parents=[self.inputs[index].reference_id] if self.inputs[index].reference_id else []

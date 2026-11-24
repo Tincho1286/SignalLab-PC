@@ -308,7 +308,7 @@
           }
         ]
       ],
-      "reading": "El dibujo usa un coseno de fase cero y 17 muestras. No demuestra el contenido de banda de una señal arbitraria."
+      "reading": "Coincidencia temporal dibuja un coseno de fase cero y 17 muestras en segundos. Banda de Nyquist muestra cómo se ubica el alias firmado dentro de [−πFs, πFs). Las dos figuras se eligen desde la flecha de Abrir gráfico. El análisis se aplica al tono ingresado."
     },
     {
       "key": [

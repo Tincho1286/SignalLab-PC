@@ -183,6 +183,8 @@ def alias_summary(value):
     reading='El tono cumple |Ω| < π·Fs.' if value['strict_nyquist'] else 'El tono no cumple la condición estricta |Ω| < π·Fs.'
     if value.get('alias_at_nyquist',abs(alias)==nyquist):reading+=' En el borde de Nyquist, la fase puede hacer desaparecer las muestras de un seno.'
     sections.append(Section('Condición de Nyquist',paragraphs=[reading]))
+    sections.append(Section('Cómo se obtiene el alias',paragraphs=['Sumá o restá múltiplos de 2πFs hasta ubicar el tono en la banda principal [−πFs, πFs).'],
+                            formulas=[Formula('Omega_a = Mod(Omega+pi*Fs,2*pi*Fs)-pi*Fs','Ωa = (Ω + πFs) módulo (2πFs) − πFs')]))
     return Summary('Nyquist y aliasing',sections)
 
 

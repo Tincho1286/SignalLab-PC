@@ -116,15 +116,19 @@ def check_cas_destination(answer,destination):
     raise ValueError('Este destino no aplica las condiciones de validez del CAS. Revisá la condición en el informe y definí allí el dominio antes de reutilizar la fórmula.')
 
 
-def populate_reuse_menu(menu,window,key,*,before=None):
+def populate_reuse_menu(menu,window,key,*,before=None,handlers=None):
     if key is None:return
     expression=window.project.expression(key)
     if expression is None:return
     from PySide6.QtGui import QAction
     for label,destination in expression_destinations(expression):
         if destination=='cas':continue
-        action=QAction(label,menu)
-        action.triggered.connect(lambda checked=False,target=destination:reuse_expression(window,key,target))
+        title, callback = (handlers or {}).get(destination, (label, None))
+        action=QAction(title,menu)
+        if callback is None:
+            action.triggered.connect(lambda checked=False,target=destination:reuse_expression(window,key,target))
+        else:
+            action.triggered.connect(callback)
         if before is None:menu.addAction(action)
         else:menu.insertAction(before,action)
 
@@ -151,12 +155,15 @@ def send_expression(window,key,destination):
     if destination=='cas':
         from .cas_transfer import send_to_cas
         send_to_cas(window,key);return
-    elif destination in ('direct','inverse'):
+    origin=window.capture_handoff() if hasattr(window,'capture_handoff') else None
+    field=None
+    if destination in ('direct','inverse'):
         if destination=='direct' and expression.numerical_source:text=expression.numerical_source
         route=ROUTES['transform_lab','z' if v in ('n','z') else 'laplace'];window.open_tool(route);panel=window.pages[window.current_operation].panel
         panel.mode.setCurrentIndex(1 if destination=='inverse' else 0)
         if destination=='direct' and v=='n':panel.direct_input.setCurrentIndex(0)
         panel.expression.setText(text)
+        field=panel.expression
         if v=='n':panel.lower.setText('-oo');panel.upper.setText('oo')
         if v in ('s','t'):
             stored=window.project.get(key);request=stored.get('request',{}) if isinstance(stored,dict) else {};result=stored.get('result',{}) if isinstance(stored,dict) else {}
@@ -183,7 +190,7 @@ def send_expression(window,key,destination):
             import re
             text=re.sub(r'\btau\b','t',text)
         window.open_tool(ROUTES['basic','generate']);page=window.pages[window.current_operation];page.source_domain.setCurrentIndex(0 if v=='n' else 1)
-        prepared=signal_source(expression.numerical_source or text);page.first.mode.setCurrentIndex(0);page.first.expression.setText(prepared);page.first._expression_origin=(page.first.expression.text(),key)
+        field=page.first;prepared=signal_source(expression.numerical_source or text);field.mode.setCurrentIndex(0);field.expression.setText(prepared);field._expression_origin=(field.expression.text(),key)
     elif destination=='measures':
         window.open_tool(ROUTES['expression_measures','global']);panel=window.pages[window.current_operation].panel;panel.load_expression(expression,key)
     elif destination=='fourier_direct':
@@ -197,5 +204,9 @@ def send_expression(window,key,destination):
         prepared=signal_source(expression.numerical_source or text);panel.source.mode.setCurrentIndex(0);panel.source.frequency_units.setCurrentIndex(1);panel.source.expression.setText(prepared);panel.source._expression_origin=(panel.source.expression.text(),key)
         panel.source._expression_frequency_condition=frequency_validity(record)
         panel.source._expression_conditions=expression.conditions
+        field=panel.source
     else:raise ValueError('Destino de expresión no disponible.')
-    window.statusBar().showMessage('Expresión cargada desde Resultados. Revisá sus condiciones y calculá en el destino.')
+    if hasattr(window,'finish_handoff'):
+        window.finish_handoff(origin,'Expresión cargada con sus condiciones',key,field)
+    else:
+        window.statusBar().showMessage('Expresión cargada desde Resultados. Revisá sus condiciones y calculá en el destino.')

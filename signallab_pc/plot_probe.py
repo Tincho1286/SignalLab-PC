@@ -6,6 +6,7 @@ from PySide6.QtWidgets import QWidget,QVBoxLayout,QLabel,QPushButton,QToolButton
 from matplotlib.lines import Line2D
 from matplotlib.artist import Artist
 from .probe_data import collect,readings
+from .signal_plot import vertical_axis_name
 from .theme_tokens import COLORS as C
 
 
@@ -29,7 +30,7 @@ class ProbeArtist(Artist):
 class PlotProbe:
     def __init__(self,canvas,toolbar,layout):
         self.canvas=canvas;self.toolbar=toolbar;self.traces=[];self.signature=None;self.background=None
-        self.a=None;self.b=None;self.live={};self.active_axis=None;self.artists=[];self.last_motion=0.;self.enabled=True;self.exporting=False;self._dragging=None;self.inspector=None
+        self.a=None;self.b=None;self.live={};self.active_axis=None;self.artists=[];self.last_motion=0.;self.enabled=True;self.exporting=False;self._dragging=None;self.inspector=None;self.readings_dock=None
         self.widget=QWidget();self.widget.setObjectName('cursorPanel');box=QVBoxLayout(self.widget);box.setContentsMargins(8,4,8,6);box.setSpacing(4)
         from .figure_controls import WrappedControls
         strip=QWidget();policy=QSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Minimum);policy.setHeightForWidth(True);strip.setSizePolicy(policy);row=WrappedControls(strip);row.setContentsMargins(0,0,0,0)
@@ -48,11 +49,11 @@ class PlotProbe:
         self.table.setToolTip('A y B leen puntos de las trazas, sin interpolar. Los valores completos están en la descripción de cada celda. Δy usa la representación dibujada; una fase principal puede saltar 2π. Seguir libera ambos cursores.');box.addWidget(self.table);layout.addWidget(self.widget)
         from PySide6.QtGui import QAction
         self.action=QAction('Cursores',toolbar);self.action.setCheckable(True);self.action.setChecked(True);self.action.setToolTip('Leer puntos y medir diferencias con cursores A/B. Clic fija A; otro clic o Mayús+clic fija B. Esc libera los cursores.');toolbar.addAction(self.action)
-        self.inspect_action=QAction('Curvas y medidas…',toolbar);self.inspect_action.setToolTip('Ver la definición almacenada, buscar máximos/mínimos y colocar cursores por coordenada.');self.inspect_action.triggered.connect(self.open_inspector);toolbar.addAction(self.inspect_action)
+        self.inspect_action=QAction('Curvas y medidas',toolbar);self.inspect_action.setCheckable(True);self.inspect_action.setToolTip('Ver la definición de una curva, medir sus extremos y ubicar un punto.');self.inspect_action.toggled.connect(self.set_inspector_visible);toolbar.addAction(self.inspect_action)
         from .design import icon
         self.action.setIcon(icon('cursor'));self.inspect_action.setIcon(icon('measure'))
         self.action.toggled.connect(self.toggle);self.pin_a.clicked.connect(lambda:self.pin('a'));self.pin_b.clicked.connect(lambda:self.pin('b'));self.reset.clicked.connect(self.clear)
-        self.table_toggle.toggled.connect(self.refresh_reading_panel);self.refresh_reading_panel()
+        self.table_toggle.toggled.connect(self.refresh_reading_panel);self.table_toggle.clicked.connect(self.open_readings_tab);self.refresh_reading_panel()
         for event,handler in [('draw_event',self.drawn),('resize_event',self.resized),('motion_notify_event',self.motion),('button_press_event',self.press),('button_release_event',self.release),('key_press_event',self.key)]:canvas.mpl_connect(event,handler)
         canvas._signallab_probe=self
 
@@ -74,8 +75,11 @@ class PlotProbe:
 
     def refresh_reading_panel(self):
         rows = self.table.rowCount()
-        self.table.setVisible(bool(rows) and self.table_toggle.isChecked())
-        if rows and self.table_toggle.isChecked():
+        dock = self.readings_dock
+        self.table.setVisible(bool(rows) and (dock is not None or self.table_toggle.isChecked()))
+        if dock is not None:
+            dock.readings_hint.setVisible(not rows)
+        elif rows and self.table_toggle.isChecked():
             height = self.table.horizontalHeader().sizeHint().height()
             height += sum(self.table.rowHeight(row) for row in range(min(rows, 3)))
             # Keep a complete row visible if the numbers need a horizontal scrollbar.
@@ -99,16 +103,59 @@ class PlotProbe:
         axis = trace.axis
         point = self.live[trace.key]
         label = axis.get_xlabel() or next((sibling.get_xlabel() for sibling in axis.get_shared_x_axes().get_siblings(axis) if sibling.get_xlabel()), 'x')
-        reading = f'{status}  ·  {label} = {number(point[0])}  ·  {axis.get_ylabel() or "y"} = {number(point[1])}'
+        reading = f'{status}  ·  {label} = {number(point[0])}  ·  {vertical_axis_name(axis) or "y"} = {number(point[1])}'
         if getattr(trace,'cell_values',False):
             reading += '  ·  Valor = '+number(point[2])
         self.hint.setText(reading)
 
+    def dock_readings(self, inspector):
+        if inspector is self.readings_dock:
+            return
+        self.readings_dock = inspector
+        if inspector is None:
+            self.widget.layout().addWidget(self.table)
+            self.table_toggle.setToolTip('Mostrar las lecturas debajo del gráfico.')
+        else:
+            self.table.setMinimumHeight(0)
+            self.table.setMaximumHeight(inspector.maximumHeight())
+            inspector.readings_layout.addWidget(self.table, 1)
+            self.table_toggle.setToolTip('Abrir las lecturas A/B en Curvas y medidas.')
+        self.refresh_reading_panel()
+
+    def open_readings_tab(self):
+        if self.readings_dock is not None:
+            self.readings_dock.tabs.setCurrentWidget(self.readings_dock.readings_page)
+            self.table_toggle.setChecked(True)
+
     def open_inspector(self):
-        if self.inspector is None:
+        if self.inspect_action.isChecked():
+            self.set_inspector_visible(True)
+        else:
+            self.inspect_action.setChecked(True)
+
+    def set_inspector_visible(self, visible):
+        window = self.canvas._signallab_window
+        embedded = hasattr(window, 'attach_inspector')
+        if visible and self.inspector is None:
             from .plot_inspector_dialog import PlotInspector
-            self.inspector=PlotInspector(self)
-        self.inspector.show();self.inspector.raise_();self.inspector.activateWindow()
+            self.inspector = PlotInspector(self, window, embedded=embedded)
+            self.inspector.dismissed.connect(lambda: self.inspect_action.setChecked(False))
+            if embedded:
+                window.attach_inspector(self.inspector)
+        if self.inspector is None:
+            return
+        if embedded:
+            if visible:
+                window.focus_action.setChecked(False)
+                if not window.isVisible():
+                    from .plot_view import enlarge_plot
+                    enlarge_plot(self.canvas, window)
+            window.show_inspector(visible)
+        else:
+            self.inspector.setVisible(visible)
+            if visible:
+                self.inspector.raise_()
+                self.inspector.activateWindow()
 
     def focus(self,trace,coordinate,target='live'):
         from .plot_inspection import nearest
@@ -235,9 +282,10 @@ class PlotProbe:
         lookup={t.key:t for t in self.traces};rows=[]
         for key in keys:
             trace=lookup[key];first=a.get(key);second=b.get(key)
-            name=(trace.axis.get_ylabel()+' · ' if trace.axis.get_ylabel() and trace.axis.get_ylabel()!=trace.label else '')+trace.label
+            axis_name = vertical_axis_name(trace.axis)
+            name = (axis_name + ' · ' if axis_name and axis_name != trace.label else '') + trace.label
             if cell_values:
-                labels=[trace.axis.get_xlabel() or 'x',trace.axis.get_ylabel() or 'y']
+                labels=[trace.axis.get_xlabel() or 'x',axis_name or 'y']
                 if getattr(trace,'cell_values',False):labels.append('Valor · '+trace.label)
                 for component,label in enumerate(labels):
                     va=first[component] if first else None;vb=second[component] if second else None

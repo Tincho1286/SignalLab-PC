@@ -18,9 +18,10 @@ def analyze_roots(system,advance=0):
 class PoleZeroAnalysis(QWidget):
     def __init__(self):
         super().__init__();self.result=None;root=QVBoxLayout(self)
-        row=QHBoxLayout();row.addWidget(QLabel('Coordenadas del plano'));self.coordinates=QComboBox();self.coordinates.addItems(['Binómicas: real e imaginaria','Polares: ángulo y módulo']);row.addWidget(self.coordinates,1);root.addLayout(row)
-        self.figure=Figure(figsize=(6,5));self.canvas=FigureCanvasQTAgg(self.figure);root.addWidget(NavigationToolbar2QT(self.canvas,self));root.addWidget(self.canvas,1)
-        self.report=ReportView();root.addWidget(report_panel(self.report),1);self.report.setPlainText('Analizá H y seleccioná la pestaña Polos y ceros. Esta vista sólo consulta el sistema calculado.')
+        controls=QWidget();row=QHBoxLayout(controls);row.setContentsMargins(0,0,0,0)
+        row.addWidget(QLabel('Coordenadas del plano'));self.coordinates=QComboBox();self.coordinates.setAccessibleName('Coordenadas del plano');self.coordinates.addItems(['Binómicas · real e imaginaria','Polares · ángulo y módulo']);row.addWidget(self.coordinates,1);root.addWidget(controls)
+        self.figure=Figure(figsize=(6,5));self.canvas=FigureCanvasQTAgg(self.figure);self.canvas._signallab_plot_controls=controls;root.addWidget(NavigationToolbar2QT(self.canvas,self));root.addWidget(self.canvas,1)
+        self.report=ReportView();root.addWidget(report_panel(self.report),1);self.report.setPlainText('Analizá H y elegí Polos y ceros en Abrir gráfico o en las vistas del resultado.')
         self.coordinates.currentIndexChanged.connect(self.redraw)
     def set_result(self,system,zeros,poles,advance=0):
         self.result=(system,np.asarray(zeros),np.asarray(poles),advance)
@@ -66,4 +67,6 @@ class PoleZeroAnalysis(QWidget):
             frame_root_plane(ax,zeros,poles,digital=system.domain=='digital')
         ax.grid(alpha=.25)
         if ax.get_legend_handles_labels()[0]:ax.legend()
-        self.figure.tight_layout();self.canvas.draw_idle()
+        if not getattr(self.canvas, '_signallab_layout', False):
+            self.figure.tight_layout()
+        self.canvas.draw_idle()

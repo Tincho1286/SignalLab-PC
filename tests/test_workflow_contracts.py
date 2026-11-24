@@ -64,6 +64,14 @@ class WorkflowContracts(unittest.TestCase):
         request=dict(operation='z_expression',expression=SOURCE,lower='0',upper='oo')
         return dict(request=request,result=execute(request))
 
+    def transform_analysis_action(self, panel):
+        if panel.mode.currentIndex()==1:
+            menu = panel.input_reuse_button.menu()
+        else:
+            panel.prepare_reuse()
+            menu = panel.reuse_button.menu()
+        return next(action for action in menu.actions() if action.text().startswith('Analizar'))
+
     def test_series_period_is_refreshed_and_required_only_when_unknown(self):
         from PySide6.QtCore import QDeadlineTimer
         from PySide6.QtTest import QTest
@@ -281,18 +289,20 @@ class WorkflowContracts(unittest.TestCase):
         panel=TransformLab(self.host,'z');self.widgets.append(panel)
         for expression,delay,gain in [('Dirac(n)',0,1),('2*Dirac(n-3)',3,2),('Dirac(n+2)',-2,1)]:
             panel.expression.setText(expression);panel.lower.setText('-oo');panel.upper.setText('oo');panel.calculate_button.click()
-            self.assertEqual(self.warnings,[]);self.assertTrue(panel.last['evaluated']);self.assertTrue(panel.analyze_system.isEnabled())
+            self.assertEqual(self.warnings,[]);self.assertTrue(panel.last['evaluated'])
+            analysis_action = self.transform_analysis_action(panel)
+            self.assertTrue(analysis_action.isEnabled())
             imported=import_result(dict(state=empty_state(),cell='1',payload=payload(dict(request=dict(operation='z_expression',expression=expression,lower='-oo',upper='oo'),result=panel.last))))
             value=restore(imported['state']['results']['1'])
             from signallab_pc.symbolic import Z
             self.assertEqual((value-gain*Z**(-delay)).simplify(),0)
-            panel.analyze_system.click();analysis=self.calculated_analysis()
+            analysis_action.trigger();analysis=self.calculated_analysis()
             data=analysis.frequency_data
             assert_allclose(data.response,gain*np.exp(-1j*data.omega*delay),atol=2e-12)
             self.assertTrue(np.isfinite(data.response).all())
 
     def test_transform_button_to_general_system_analysis(self):
-        source=self.transform();before=self.host.project.records();source.analyze_system.click();panel=self.calculated_analysis()
+        source=self.transform();before=self.host.project.records();self.transform_analysis_action(source).trigger();panel=self.calculated_analysis()
         self.assertIsNone(panel.system);self.assertIsNone(panel.analyzed_system)
         self.assertFalse(panel.result_tabs.isTabVisible(2));self.assertFalse(panel.result_tabs.isTabVisible(3))
         self.assertFalse(panel.expression_actions.isHidden());self.assertEqual(len(self.host.project.headers('system')),0)
@@ -337,7 +347,8 @@ class WorkflowContracts(unittest.TestCase):
         source=TransformLab(self.host,'z');self.widgets.append(source)
         source.expression.setText('sin(0.5*pi*(n-4))/(pi*(n-4))');source.lower.setText('-oo');source.upper.setText('oo');source.calculate_button.click()
         self.assertEqual(self.warnings,[]);self.assertFalse(source.last['evaluated']);self.assertTrue(source.last['convergence_empty'])
-        self.assertTrue(source.analyze_system.isEnabled());self.assertIn('exp(iw)',source.analyze_system.text());source.analyze_system.click()
+        action = self.transform_analysis_action(source)
+        self.assertTrue(action.isEnabled());self.assertIn('exp(iw)',action.text());action.trigger()
         panel=self.calculated_analysis();self.assertEqual(panel.definition_mode.currentIndex(),2)
         data=panel.frequency_data;assert_allclose(data.magnitude[:50],1,atol=1e-13);assert_allclose(data.magnitude[51:],0,atol=1e-13)
         assert_allclose(data.magnitude[50],.5,atol=1e-13);assert_allclose(data.delay[:50],4,atol=1e-13);self.assertTrue(np.isnan(data.delay[50:]).all())
@@ -596,7 +607,7 @@ class WorkflowContracts(unittest.TestCase):
             else:
                 self.assertEqual(panel.interpretation.currentIndex(),1);self.assertEqual(panel.laplace_roc.currentIndex(),1 if roc['mode']=='left' else 2)
                 if roc['mode']=='line':self.assertEqual(float(panel.sigma.text()),-1)
-            panel.analyze_system.click();self.assertEqual(self.warnings,[])
+            self.transform_analysis_action(panel).trigger();self.assertEqual(self.warnings,[])
             analysis=self.host.pages[self.host.current_operation].panel;self.assertEqual(analysis.roc_choice.currentIndex(),1 if roc['mode']=='left' else 2)
             self.host.open_tool(ROUTES['transform_lab','z' if domain=='digital' else 'laplace'])
             panel.calculate_button.click();self.assertEqual(self.warnings,[]);self.assertTrue(panel.last['evaluated'])
@@ -803,11 +814,14 @@ class WorkflowContracts(unittest.TestCase):
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg,NavigationToolbar2QT
         from signallab_pc.plot_view import install_enlarge
-        tabs=QTabWidget();self.widgets.append(tabs);canvases=[]
+        tabs=QTabWidget();self.widgets.append(tabs);canvases=[];toolbars=[]
         for label in ('Frecuencia','Polos y ceros'):
             page=QWidget();box=QVBoxLayout(page);tabs.addTab(page,label)
             canvas=FigureCanvasQTAgg(Figure());bar=NavigationToolbar2QT(canvas,page);box.addWidget(bar);box.addWidget(canvas)
-            install_enlarge(bar);canvases.append(canvas);self.widgets.append(canvas._signallab_window)
+            canvases.append(canvas);toolbars.append(bar)
+        # Figure order follows the result tabs, even when components bind in a different order.
+        for bar in reversed(toolbars):
+            install_enlarge(bar);self.widgets.append(bar.canvas._signallab_window)
         report=QWidget();tabs.addTab(report,'Informe');tabs.resize(820,480);tabs.show();self.app.processEvents()
         launcher=tabs.cornerWidget(Qt.Corner.TopRightCorner);self.assertIsNotNone(launcher);self.assertFalse(launcher.isEnabled())
         for canvas in canvases:canvas.figure.add_subplot(111).plot([0,1],[0,1]);canvas.draw()
@@ -1044,7 +1058,7 @@ class WorkflowContracts(unittest.TestCase):
     def test_bilateral_absolute_exponential_reuses_as_system_with_matching_frequency(self):
         panel=TransformLab(self.host,'z');self.widgets.append(panel)
         panel.expression.setText('2^(-abs(n))');panel.lower.setText('-oo');panel.upper.setText('oo');panel.calculate()
-        self.assertEqual(self.warnings,[]);self.assertTrue(panel.last['evaluated']);panel.analyze_system.click()
+        self.assertEqual(self.warnings,[]);self.assertTrue(panel.last['evaluated']);self.transform_analysis_action(panel).trigger()
         analysis=self.calculated_analysis();data=analysis.frequency_data
         assert_allclose(data.response,3/(5-4*np.cos(data.omega)),rtol=3e-12,atol=3e-12)
 

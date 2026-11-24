@@ -109,7 +109,8 @@ class LocalInput(QGroupBox):
             self.change_source_view(self.entry_modes.view)
             form.setRowVisible(self.expression,index==0);form.setRowVisible(self.samples,index==1);form.setRowVisible(self.paste_button,index==1)
             form.setRowVisible(interval,index!=2);form.setRowVisible(self.range_note,index==0);form.setRowVisible(self.file_note,index==2)
-            if hasattr(self,'frequency_units'):form.setRowVisible(self.frequency_units,index!=2)
+            if hasattr(self,'frequency_units'):
+                form.setRowVisible(self.frequency_units,index!=2 and not self.frequency_units.property('fromDomain'))
             axis_widgets[self.count].setVisible((index==0 and not getattr(self,'series_analysis',False)) or index==1 and hasattr(self,'repeat_period') and self.repeat_period.isChecked());form.setRowVisible(load,index==2 and self.entry_modes.view==2)
             if hasattr(self,'recent'):form.setRowVisible(self.recent,index==2 and self.entry_modes.view==3);form.setRowVisible(self.browse_results,index==2 and self.entry_modes.view==3)
         self.entry_modes.viewChanged.connect(lambda:update(self.mode.currentIndex()))
@@ -382,7 +383,7 @@ class ResultView(QWidget):
         self.details_view=ReportView();self.details_index=self.views.addTab(report_panel(self.details_view),'Datos del cálculo');self.views.setTabVisible(self.details_index,False)
         if not details:self.views.tabBar().hide()
         from PySide6.QtWidgets import QSizePolicy
-        self.empty=QLabel('Sin resultados\n\nCompletá los datos y pulsá Calcular. El informe, los valores y las opciones para reutilizar el resultado aparecerán aquí.');self.empty.setObjectName('resultEmpty');self.empty.setWordWrap(True);self.empty.setAlignment(Qt.AlignmentFlag.AlignCenter);self.empty.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding);root.insertWidget(2,self.empty,1);self.views.hide();self.actions.setVisible(self.show_action_bar);self.label.hide()
+        self.empty=QLabel('Los resultados aparecen al calcular.');self.empty.setObjectName('resultEmpty');self.empty.setWordWrap(True);self.empty.setAlignment(Qt.AlignmentFlag.AlignCenter);self.empty.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding);root.insertWidget(2,self.empty,1);self.views.hide();self.actions.setVisible(self.show_action_bar);self.label.hide()
         self.development=ReportView();self.development_index=self.views.addTab(report_panel(self.development),'Desarrollo');self.views.setTabVisible(self.development_index,False)
         if details:self.views.setCurrentIndex(1)
     @property
@@ -868,8 +869,15 @@ class ToolPage(QWidget):
         self.context.on_result=reveal
         if kind=='sampling' and index==1:
             from .alias_view import AliasView
-            alias_view=AliasView();self.result_tabs.removeTab(0);self.result_tabs.insertTab(0,alias_view,'Comparación visual')
-            def show_alias(value):alias_view.show_alias(value);self.result_tabs.setCurrentIndex(0)
+            alias_view=AliasView();self.result_tabs.removeTab(0)
+            time_index=self.result_tabs.insertTab(0,alias_view,'Coincidencia temporal')
+            spectrum_index=self.result_tabs.insertTab(1,alias_view.spectrum,'Banda de Nyquist')
+            self.result_tabs.setTabVisible(time_index,False)
+            self.result_tabs.setTabVisible(spectrum_index,False)
+            def show_alias(value):
+                self.result_tabs.setTabVisible(time_index,True)
+                self.result_tabs.setTabVisible(spectrum_index,True)
+                alias_view.show_alias(value)
             self.context.on_alias=show_alias
         if kind=='systems' and index in (0,1,2,3,6,7,8,10):
             for legacy_button in form.parentWidget().findChildren(QPushButton):
@@ -963,6 +971,18 @@ class ToolPage(QWidget):
                     except (ValueError,OverflowError):timing.setText('Ingresá Fs positiva, un inicio finito y una cantidad entera de muestras mayor que cero.')
                 for field in (self.panel.rate,self.panel.count,self.panel.start):field.textChanged.connect(update_timing)
                 update_timing()
+            elif index==1:
+                form.labelForField(self.panel.rate).setText('Frecuencia de muestreo Fs (muestras/s)')
+                limit=QLabel();limit.setObjectName('muted');limit.setWordWrap(True);form.addRow(limit)
+                @passive_fields()
+                def update_nyquist(*_):
+                    try:
+                        rate=real_field(self.panel.rate,minimum=0,strict=True)
+                        bound=np.pi*rate
+                        limit.setText(f'Banda principal desde −{bound:.6g} hasta {bound:.6g} rad/s.' if np.isfinite(bound) else 'Ajustá Fs para que el límite de Nyquist sea finito.')
+                    except ValueError:
+                        limit.setText('Ingresá una frecuencia de muestreo positiva.')
+                self.panel.rate.textChanged.connect(update_nyquist);update_nyquist()
             elif index==2:
                 rate_note=QLabel();rate_note.setWordWrap(True);form.addRow(rate_note)
                 def update_rate_method(*_):
@@ -1261,35 +1281,35 @@ class ToolboxWindow(SignalLabWindow):
         self.open_tool(item)
         if value.data_kind=='harmonics' and item[1:3] in (('fourier',4),('fourier',5)):
             page=self.stack.currentWidget();page.series_operation.setCurrentIndex(1)
-            page.context.source.set_source(value,key);return
+            page.context.source.set_source(value,key);return page.context.source
         if item[1:3] in (('transform_lab','z'),('symbolic',2)):
             if value.domain!='discrete':raise ValueError('La Z finita requiere una secuencia discreta.')
             panel=self.stack.currentWidget().panel;panel.use_finite_input()
             if key is None:key=self.publish(value,operation='Secuencia enviada a Z finita')
             panel.source.set_source(self.project.get(key),key)
-            self.statusBar().showMessage('Secuencia cargada en Z directa, conservando todos sus índices.');return
+            self.statusBar().showMessage('Secuencia cargada en Z directa, conservando todos sus índices.');return panel.source
         if item[1:3]==('fourier',6):
             if key is None:key=self.publish(value,operation='Resultado enviado a densidad de energía')
-            self.stack.currentWidget().panel.receive(self.project.get(key),key)
+            target=self.stack.currentWidget().panel.receive(self.project.get(key),key)
             self.statusBar().showMessage('Entrada cargada en Densidad de energía.')
-            return
+            return target
         if item[1]=='dsp_extensions' and item[2] in ('hilbert','stft'):
             panel=self.stack.currentWidget().panel
             if key is None:key=self.publish(value,operation='Resultado enviado a '+item[0])
-            panel.receive(self.project.get(key),key)
+            target=panel.receive(self.project.get(key),key)
             self.statusBar().showMessage('Entrada cargada en '+item[0]+'.')
-            return
+            return target
         if item[1]=='signal_editor':
             if key is None:key=self.publish(value,operation='Resultado enviado al editor de muestras')
             self.stack.currentWidget().panel.receive(self.project.get(key),key)
-            return
+            return self.stack.currentWidget().panel
         if item[1]=='frequency_filter':
             panel=self.stack.currentWidget().panel
-            if value.domain=='frequency':panel.receive_response(value,key)
+            if value.domain=='frequency':panel.receive_response(value,key);return panel.h
             else:
                 panel.domain.setCurrentIndex(0 if value.domain=='discrete' else 1);panel.operation.setCurrentIndex(1)
-                (panel.xd if value.domain=='discrete' else panel.xc).set_source(value,key)
-            return
+                target=panel.xd if value.domain=='discrete' else panel.xc
+                target.set_source(value,key);return target
         if item[1:3]==('sampling',5):self.stack.currentWidget().panel.study.setCurrentIndex(2)
         if item[1]=='systems' and item[2]==9:
             panel=self.stack.currentWidget().panel
@@ -1308,6 +1328,7 @@ class ToolboxWindow(SignalLabWindow):
         if key is None:key=self.publish(value,operation='Resultado enviado a otra herramienta')
         target.set_source(self.project.get(key),key)
         self.statusBar().showMessage('Señal cargada en '+target.title()+'. Revisá los parámetros y calculá.')
+        return target
     def export_transfer(self,value):
         from pathlib import Path
         path,_=QFileDialog.getSaveFileName(self,'Exportar sistema calculado','sistema.json','Sistema SignalLab (*.json)')
@@ -1325,18 +1346,20 @@ class ToolboxWindow(SignalLabWindow):
         if key is None:key=self.publish(value,operation='Modelo enviado a otro estudio')
         panel.set_model(self.project.get(key),key)
         self.statusBar().showMessage('Modelo cargado con su dominio y período. Revisá los datos y calculá en el destino.')
+        return panel
     def send_system(self,value,key,item):
         from .systems_panel import list_text
         self.open_tool(item);page=self.stack.currentWidget();panel=page.panel
         if item[1] in ('course_tools','random_model') or item[1:3]==('sampling',5):
             panel.set_system(value,key)
-            self.statusBar().showMessage('Sistema copiado. Revisá los parámetros y calculá.');return
+            self.statusBar().showMessage('Sistema copiado. Revisá los parámetros y calculá.');return panel
         if item[1]=='interconnection':
             options=['H₁ · Primer bloque / camino directo','H₂ · Segundo bloque / retorno']
             choice,accepted=QInputDialog.getItem(self,'Conectar sistemas','Usar el sistema como',options,0,False)
             if not accepted:return
             if panel.receive(value,key,options.index(choice)):
                 self.statusBar().showMessage('Sistema copiado. Completá la conexión y calculá.')
+                return panel
             return
         if item[1:3]==('sampling',5):self.stack.currentWidget().panel.study.setCurrentIndex(2)
         if item[1]=='systems' and item[2]==9:
@@ -1347,6 +1370,7 @@ class ToolboxWindow(SignalLabWindow):
             finally:page.context.ready=True
             page.context.system_id=key
         self.statusBar().showMessage('Filtro copiado a '+item[0]+'. Revisá las entradas y calculá.')
+        return panel
 
     def choose_record(self,kind,domains=None,**constraints):
         from .project_picker import ProjectPicker
@@ -1369,9 +1393,8 @@ class ToolboxWindow(SignalLabWindow):
             and (kind is None or r['kind']==kind or kind=='expression' and self.project.expression(r['id']) is not None)
             and all(word in normalized(r['title']+' '+r['operation']) for word in query)]
         for r in self.visible_records:
-            label={'signal':'Señal','system':'Sistema','calculation':'Cálculo','state_space':'Espacio de estados'}[r['kind']]
-            if self.project.expression(r['id']) is not None:label='Expresión'
-            self.project_list.addItem(f"{label} · {r['title']}  —  {operation_label(r['operation'])}")
+            kind = 'expression' if self.project.expression(r['id']) is not None else r['kind']
+            self.project_list.add_record(r, kind)
         index=next((i for i,r in enumerate(self.visible_records) if r['id']==selected),0) if self.visible_records else -1
         self.project_list.setCurrentRow(index);self.project_list.blockSignals(False)
         self.result_count.setText(f'{len(self.visible_records)} resultados · más recientes primero')
@@ -1383,11 +1406,11 @@ class ToolboxWindow(SignalLabWindow):
         self.view_selection.setEnabled(available)
         self.reuse_selection.setEnabled(available and (records[index]['kind'] in ('signal','system','state_space') or self.project.expression(records[index]['id']) is not None))
         if not available:
+            self.result_browser.set_record(None, {})
             self.result_origin.clear()
             self.project_details.setPlainText('No hay resultados que coincidan. Cambiá la búsqueda o el tipo seleccionado.' if self.project.headers() else 'Todavía no hay resultados. Abrí una herramienta, ingresá sus datos y calculá; el resultado aparecerá aquí automáticamente.');return
         record=records[index];parents={r['id']:r['title'] for r in self.project.headers()}
-        origin=(record.get('tool') or {}).get('title',record['operation'])
-        self.result_origin.setText('Origen: '+origin+' · '+str(len(record['parents']))+' resultados vinculados')
+        self.result_browser.set_record(record, parents)
         details={'Nombre':record['title'],'Operación':record['operation'],'Herramienta':(record.get('tool') or {}).get('title','No registrada')}
         details['entradas']=[parents[p] for p in record['parents']]
         value=self.project.get(record['id'])

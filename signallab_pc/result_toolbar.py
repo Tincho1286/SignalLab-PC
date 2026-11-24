@@ -1,6 +1,6 @@
 """Stable result action slots, shared by numeric and algebraic tools."""
 from PySide6.QtCore import Qt,QEvent,QSize,QTimer
-from PySide6.QtWidgets import QWidget,QGridLayout,QPushButton,QSizePolicy,QMenu,QToolButton
+from PySide6.QtWidgets import QWidget,QGridLayout,QLayout,QPushButton,QSizePolicy,QMenu,QToolButton
 from .design import icon
 
 ORDER=('graph','reuse','cas','export')
@@ -22,6 +22,7 @@ class ResultActionBar(QWidget):
     def __init__(self,parent=None):
         super().__init__(parent);self.setObjectName('resultActionBar');self.setProperty('fixedActionRow',True);self.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed);self.slots={};self.extras=[];self.placeholders={};self._columns=0;self._pending=False
         self.grid=ActionLayout(self);self.grid.setContentsMargins(0,0,0,0);self.grid.setSpacing(7)
+        self.grid.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
         for role in ORDER:
             button=QPushButton(LABELS[role],self);button.setEnabled(False);button.setProperty('resultAction',role);button.setToolTip('Esta acción estará disponible cuando el resultado de la herramienta la admita.');self.placeholders[role]=button
         self.reflow()
@@ -89,15 +90,24 @@ class ResultActionBar(QWidget):
         return False
     def reflow(self):
         self._pending=False
-        active = [self.slots.get(role) or self.placeholders[role] for role in ORDER]
-        single_row_min = sum(button.sizeHint().width() for button in active) + 3*self.grid.spacing()
-        columns=4 if self.width()>=max(600,single_row_min) else 2 if self.width()>=330 else 1
+        active = []
+        for role in ORDER:
+            button = self.slots.get(role)
+            active.append(button if button is not None and not button.isHidden() else self.placeholders[role])
+        extras = [button for button in self.extras if not button.isHidden()]
+        widths = [button.sizeHint().width() for button in active + extras]
+        columns = 1
+        for candidate in (4, 2):
+            required = sum(max(widths[index::candidate]) for index in range(candidate))
+            if self.width() >= required + (candidate-1)*self.grid.spacing():
+                columns = candidate
+                break
         for i,role in enumerate(ORDER):
             button=self.slots.get(role);placeholder=self.placeholders[role];visible=button is not None and not button.isHidden();placeholder.setVisible(not visible)
             QGridLayout.addWidget(self.grid,placeholder,i//columns,i%columns)
             if button is not None:QGridLayout.addWidget(self.grid,button,i//columns,i%columns)
         row=(len(ORDER)+columns-1)//columns
-        for i,button in enumerate(self.extras):QGridLayout.addWidget(self.grid,button,row+i//columns,i%columns)
+        for i,button in enumerate(extras):QGridLayout.addWidget(self.grid,button,row+i//columns,i%columns)
         for i in range(4):self.grid.setColumnStretch(i,1 if i<columns else 0)
         sequence=[self.slots.get(role) for role in ORDER]+self.extras;sequence=[button for button in sequence if button is not None and not button.isHidden()]
         for first,second in zip(sequence,sequence[1:]):QWidget.setTabOrder(first,second)

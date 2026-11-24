@@ -10,6 +10,7 @@ from .result_state import ResultState
 from .numeric_input import real_field,integer_field
 from .atomic_file import atomic_text_file
 from .spectral_measurements_panel import Rows
+from .field_section import FieldSection
 
 
 class ReconstructionView(ResultView):
@@ -34,14 +35,20 @@ class ReconstructionPanel(QWidget):
         self.source.interval.layout().setDirection(QBoxLayout.Direction.TopToBottom)
         form=QFormLayout();form.setProperty('stackFields',True);form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows);left.addLayout(form)
         self.rate=QLineEdit('100');self.start=QLineEdit('0');self.factor=QLineEdit('16');self.before=QLineEdit('0');self.after=QLineEdit('0')
-        for label,field in [('Fs de entrada (muestras/s)',self.rate),('Tiempo de la primera muestra (s)',self.start),('Subdivisiones por período',self.factor),('Períodos antes del registro',self.before),('Períodos después del registro',self.after)]:form.addRow(label,field)
+        for label,field in [('Fs de entrada (muestras/s)',self.rate),('Tiempo de la primera muestra (s)',self.start)]:form.addRow(label,field)
         self.override=QCheckBox('Cambiar el reloj registrado');self.override.setToolTip('Usar Fs y el primer instante del formulario en lugar de los del registro. Las muestras no cambian.');form.addRow(self.override)
         from .input_clock import bind_clock
         form.addRow(bind_clock(self.source,self.rate,self.start,self.override))
-        self.use_reference=QCheckBox('Comparar con una referencia r(t)');form.addRow(self.use_reference);self.reference=ExpressionEditor('');form.addRow('Referencia r(t)',self.reference)
+        self.use_reference=QCheckBox('Comparar con una referencia r(t)');form.addRow(self.use_reference);self.reference=ExpressionEditor('');self.reference.setProperty('variableHint','t');form.addRow('Referencia r(t)',self.reference)
         def reference_enabled(enabled):form.setRowVisible(self.reference,enabled);self.reference.setProperty('calculationInput',enabled)
         self.use_reference.toggled.connect(reference_enabled);reference_enabled(False)
-        note=QLabel('La extensión nula se aplica a la secuencia. ZOH retiene cada muestra un período; lineal usa triángulos y SINC tiene colas infinitas. La ventana elige qué parte se dibuja.');note.setWordWrap(True);left.addWidget(note);left.addStretch()
+        self.window_settings=FieldSection('Ventana y resolución')
+        fields=self.window_settings.form
+        fields.addRow('Puntos por intervalo',self.factor)
+        fields.addRow('Períodos antes del registro',self.before)
+        fields.addRow('Períodos después del registro',self.after)
+        self.factor.setToolTip('Define cuántas subdivisiones se calculan entre dos muestras originales de la reconstrucción.')
+        left.addWidget(self.window_settings);left.addStretch()
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(250);split.addWidget(scroll)
         results=QWidget();out=QVBoxLayout(results);split.addWidget(results);split.setSizes([350,760]);split.setStretchFactor(1,1)
         self.state=ResultState([self.rate,self.start,self.factor,self.before,self.after,self.override,self.use_reference,self.reference],self.calculate_button,[self.source]);out.addWidget(self.state)

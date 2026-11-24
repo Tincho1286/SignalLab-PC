@@ -8,6 +8,7 @@ from .report_view import ReportView,report_panel
 from .expression_editor import ExpressionEditor
 from .symbolic_process import run_request
 from .model import Signal
+from .plot_actions import FormulaPlotButton, install_result_button
 
 STATES={'finite':'Finito','divergent':'Divergente (+∞)','conditional':'Sujeto a parámetros o condiciones','unevaluated':'Pendiente de evaluación','undetermined':'No determinado','undefined':'No definido'}
 class ExpressionMeasuresPanel(QWidget):
@@ -18,6 +19,7 @@ class ExpressionMeasuresPanel(QWidget):
         controls=QWidget();form=QFormLayout(controls)
         self.domain=QComboBox();self.domain.addItems(['Continua · x(t)','Discreta · x[n]']);form.addRow('Dominio',self.domain)
         self.expression=ExpressionEditor('sin(t)' if mode=='periodic' else 'exp(-abs(t))');self.expression.symbolic=True;form.addRow('Expresión',self.expression)
+        self.expression.setProperty('variableHint', 't')
         self.lower=QLineEdit('-5');self.upper=QLineEdit('5');self.period=QLineEdit()
         if mode=='interval':form.addRow('Límite inicial',self.lower);form.addRow('Límite final',self.upper)
         if mode=='periodic':form.addRow('Periodo',self.period)
@@ -31,11 +33,11 @@ class ExpressionMeasuresPanel(QWidget):
         self._expression_origin=None;self._input_conditions=()
         self.source_note=QLabel();self.source_note.setWordWrap(True);self.source_note.setObjectName('muted');form.addRow(self.source_note);self.source_note.hide();self.expression.textChanged.connect(self.refresh_origin)
         self.calculate_button=QPushButton('Calcular energía y potencia');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);form.addRow(self.calculate_button)
-        heading=QLabel('Ventana numérica');heading.setObjectName('cardTitle');form.addRow(heading)
+        self.sample_button = FormulaPlotButton(self, 'La ventana genera una señal reutilizable. Las medidas de esa ventana describen solo el tramo de la señal que estás graficando.')
+        interval = self.sample_button.form
         self.start=QLineEdit('-5');self.stop=QLineEdit('5');self.count=QLineEdit('501')
-        form.addRow('Inicio de la ventana',self.start);form.addRow('Final de la ventana',self.stop);form.addRow('Puntos en continuo',self.count)
-        self.sample_button=QPushButton('Graficar y guardar muestras');self.sample_button.setEnabled(False);self.sample_button.clicked.connect(self.sample);self.sample_button.setToolTip('Crear la ventana numérica indicada, guardar sus muestras y abrir la figura.')
-        note=QLabel('La ventana genera una señal reutilizable. Su energía y promedio son locales: no reemplazan el análisis de todo el eje. En discreto se incluyen todos los índices de inicio a final.');note.setWordWrap(True);form.addRow(note)
+        interval.addRow('Inicio (s)',self.start);interval.addRow('Final (s)',self.stop);interval.addRow('Puntos',self.count)
+        self.sample_button.clicked.connect(self.sample)
         self.save_report=QPushButton('Guardar informe…');self.save_report.clicked.connect(self.save)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(300);split.addWidget(scroll)
         results=QWidget();result_layout=QVBoxLayout(results);result_layout.setContentsMargins(0,0,0,0)
@@ -50,7 +52,6 @@ class ExpressionMeasuresPanel(QWidget):
         self.cas_menu.aboutToShow.connect(self.prepare_cas);self.cas_button.setEnabled(False);actions.addWidget(self.cas_button)
         self.save_report.setProperty('actionRole','export');actions.addWidget(self.save_report);actions.addStretch()
         self.tabs=QTabWidget();result_layout.addWidget(self.tabs,1);attach(self.tabs,self.result_actions);split.addWidget(results);split.setSizes([350,740]);split.setStretchFactor(1,1)
-        from .plot_actions import install_result_button
         install_result_button(self.tabs,self.sample_button)
         self.report=ReportView();self.numeric_report=ReportView();self.output=ResultView(details=False);self.tabs.addTab(report_panel(self.report),'Algebraico');self.tabs.addTab(report_panel(self.numeric_report),'Ventana numérica');self.tabs.addTab(self.output,'Gráfico')
         self.report.setPlainText('Ingresá una expresión con t o n. Se conservan los valores exactos, sus condiciones y las aproximaciones disponibles. Los parámetros sin asignar permanecen simbólicos.')
@@ -93,7 +94,11 @@ class ExpressionMeasuresPanel(QWidget):
             hide_plot(self.output.canvas)
 
     def change_domain(self,index):
-        self.count.setEnabled(index==0)
+        self.expression.setProperty('variableHint', 'n' if index else 't')
+        interval = self.sample_button.form
+        interval.setRowVisible(self.count,index==0)
+        interval.labelForField(self.start).setText('Primer índice n' if index else 'Inicio (s)')
+        interval.labelForField(self.stop).setText('Último índice n' if index else 'Final (s)')
         defaults={'exp(-abs(t))':'(1/2)^abs(n)','sin(t)':'sin(pi*n/2)'}
         current=self.expression.text()
         if index and current in defaults:self.expression.setText(defaults[current])
@@ -144,9 +149,16 @@ class ExpressionMeasuresPanel(QWidget):
         if not self.last or self.last[0] != self.request():
             return
         from .plot_view import enlarge_plot, open_result_plot
+        from .validation import FieldError, ordered_interval, invalid
         definition,_,parent=self.last
         try:
-            request=dict(operation='signal_measures_window',expression=definition['expression'],domain=definition['domain'],start=self.start.text(),stop=self.stop.text(),count=integer_field(self.count) if definition['domain']=='continuous' else None)
+            continuous = definition['domain']=='continuous'
+            if continuous:
+                ordered_interval(self.start, self.stop, real_field(self.start), real_field(self.stop))
+            elif integer_field(self.stop) < integer_field(self.start):
+                invalid(self.stop,'debe ser mayor o igual al primer índice.')
+            request=dict(operation='signal_measures_window',expression=definition['expression'],domain=definition['domain'],start=self.start.text(),stop=self.stop.text(),count=integer_field(self.count, minimum=2) if continuous else None)
+            self.sample_button.settings.hide()
             if self._sampled_plot == (parent, request):
                 enlarge_plot(self.output.canvas, self)
                 return
@@ -167,6 +179,7 @@ class ExpressionMeasuresPanel(QWidget):
                 open_result_plot(self.output, self)
                 self._sampled_plot = (parent, request)
             self.window._run_operation('Evaluando ventana numérica…',lambda:run_request(request),accept)
+        except FieldError as exc:self.sample_button.invalid_interval(exc)
         except Exception as exc:QMessageBox.warning(self,'Revisá la ventana',str(exc))
     def save(self):
         path,_=QFileDialog.getSaveFileName(self,'Guardar informe','energia-potencia.txt','Texto (*.txt)')

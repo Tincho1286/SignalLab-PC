@@ -60,31 +60,51 @@ class CourseToolsPanel(QWidget):
             self.fields['window'].currentIndexChanged.connect(lambda *_:form.setRowVisible(self.fields['beta'],self.fields['window'].currentData()=='kaiser'));form.setRowVisible(self.fields['beta'],False)
         elif action in ('fir','iir','analog'):
             self.band_edges=BandEdgesEditor(analog=action=="analog");self.fields['band_edges']=self.band_edges;form.addRow(self.band_edges)
-            def hint(text):
-                self._last_field.setToolTip(text)
+            from .amplitude_design import limits
+            from .validation import passive_fields
             field('amplitude_low','Amplitud deseada en paso','1')
             field('amplitude_high','Amplitud de paso superior','1')
-            choice('tolerance_units','Tolerancias',[('Absolutas · amplitud','absolute'),('Relativas · fracción de referencia','relative'),('Decibelios · ±rizado / atenuación','db')])
-            self.amplitude_note=QLabel();self.amplitude_note.setObjectName('muted');self.amplitude_note.setWordWrap(True);form.addRow(self.amplitude_note)
+            units_box=choice('tolerance_units','Unidad de las tolerancias',[('Amplitud','absolute'),('Fracción relativa','relative'),('Decibelios','db')])
+            units_box.setToolTip('Cada unidad conserva sus propios valores de paso y rechazo.')
             field('dp','Variación permitida en paso δp','0.05')
-            hint('Ingresá un valor entre 0 y 1. Ejemplo: 0.05 permite un módulo entre 0.95 y '+('1.05.' if action=='fir' else '1.')+' No se ingresa en dB ni como porcentaje.')
             field('ds','Máximo permitido en rechazo δs','0.01')
-            hint('Ingresá un valor entre 0 y 1. Ejemplo: 0.01 permite como máximo el 1 % de amplitud (−40 dB). Un valor menor exige más rechazo.')
+            self.amplitude_note=QLabel();self.amplitude_note.setObjectName('bandStatus');self.amplitude_note.setWordWrap(True);form.addRow(self.amplitude_note)
             self._tolerance_mode='absolute'
+            drafts={'absolute':('0.05','0.01'),'relative':('0.05','0.01'),'db':('0.45','40')}
+
+            @passive_fields()
+            def show_tolerance_limits(*_):
+                kind=self.band_edges.kind.currentData()
+                try:
+                    amps=[self.scalar('amplitude_low')]
+                    if kind=='bandstop':amps.append(self.scalar('amplitude_high'))
+                    _,lower,upper,stop=limits(kind,amps,self.scalar('dp'),self.scalar('ds'),self._tolerance_mode)
+                    if action!='fir' and len(amps)==2 and amps[0]!=amps[1]:
+                        self.amplitude_note.setText('Las familias IIR requieren la misma amplitud en ambas bandas de paso.')
+                        return
+                    labels=['Paso'] if len(amps)==1 else ['Paso inferior','Paso superior']
+                    rows=[f'{label} de {lo:.5g} a {hi:.5g}' for label,lo,hi in zip(labels,lower,upper)]
+                    self.amplitude_note.setText('\n'.join([*rows,f'Rechazo hasta {stop:.5g}']))
+                except (ValueError, OverflowError):
+                    self.amplitude_note.setText('Completá valores válidos para ver los límites de amplitud.')
+
             def update_amplitudes(*_):
                 bandstop=self.band_edges.kind.currentData()=='bandstop'
                 form.setRowVisible(self.fields['amplitude_high'],bandstop);self.fields['amplitude_high'].setProperty('calculationInput',bandstop)
                 form.labelForField(self.fields['amplitude_low']).setText('Amplitud de paso inferior' if bandstop else 'Amplitud deseada en paso')
                 unit=self.fields['tolerance_units'].currentData()
-                self.amplitude_note.setText({'absolute':'Paso: A−δp ≤ |H| ≤ A+δp en cada banda. Rechazo: |H| ≤ δs.', 'relative':'Paso: A(1−δp) ≤ |H| ≤ A(1+δp). Rechazo: |H| ≤ Aref·δs; Aref es la mayor amplitud de paso.', 'db':'Paso: A·10^(−rp/20) ≤ |H| ≤ A·10^(rp/20). Rechazo: |H| ≤ Aref·10^(−As/20); Aref es la mayor amplitud de paso.'}[unit]+(' Las amplitudes inferior y superior son independientes en FIR. Las familias IIR clásicas requieren que sean iguales.' if bandstop else ''))
                 form.labelForField(self.fields['dp']).setText('Rizado respecto de A (±dB)' if unit=='db' else 'Variación de paso (fracción de A)' if unit=='relative' else 'Variación absoluta de paso δp')
-                form.labelForField(self.fields['ds']).setText('Atenuación de rechazo As (dB)' if unit=='db' else 'Máximo en rechazo (fracción de Aref)' if unit=='relative' else 'Máximo absoluto en rechazo δs')
+                form.labelForField(self.fields['ds']).setText('Atenuación de rechazo As (dB)' if unit=='db' else 'Máximo relativo en rechazo' if unit=='relative' else 'Máximo absoluto en rechazo δs')
                 if unit!=self._tolerance_mode:
+                    drafts[self._tolerance_mode]=(self.fields['dp'].text(),self.fields['ds'].text())
                     self._tolerance_mode=unit
-                    if self.fields['dp'].text() in ('0.05','0.45'):self.fields['dp'].setText('0.45' if unit=='db' else '0.05')
-                    if self.fields['ds'].text() in ('0.01','40'):self.fields['ds'].setText('40' if unit=='db' else '0.01')
-                self.fields['dp'].setToolTip(self.amplitude_note.text());self.fields['ds'].setToolTip(self.amplitude_note.text())
+                    for key, value in zip(('dp','ds'),drafts[unit]):self.fields[key].setText(value)
+                self.fields['dp'].setToolTip('Desvío permitido a ambos lados de la amplitud deseada en paso.')
+                self.fields['ds'].setToolTip('Para dB y fracción relativa, la referencia es la mayor amplitud de paso.')
+                show_tolerance_limits()
             self.band_edges.kind.currentIndexChanged.connect(update_amplitudes);self.fields['tolerance_units'].currentIndexChanged.connect(update_amplitudes);update_amplitudes()
+            for key in ('amplitude_low','amplitude_high','dp','ds'):
+                self.fields[key].textChanged.connect(show_tolerance_limits)
             if action=='fir':
                 choice('comparison_mode','Cálculo',[('Diseñar una ventana','single'),('Comparar con las mismas tolerancias','tolerances'),('Comparar con igual longitud','length')])
                 choice('window','Ventana',[(name,name) for name in ('kaiser','boxcar','hann','hamming','blackman','bartlett')]);field('taps','Longitud L (0 = mínima automática)','0')
@@ -134,6 +154,7 @@ class CourseToolsPanel(QWidget):
             taken=form.takeRow(self.fields['definition']);form.insertRow(0,taken.labelItem.widget(),self.fields['definition'])
             from .expression_editor import ExpressionEditor
             self.ideal_expression=ExpressionEditor('where(abs(w)<=1,1,0)');self.ideal_expression.mode.setCurrentIndex(1)
+            self.ideal_expression.setProperty('variableHint', 'w')
             from .expression_import import install_expression_import
             install_expression_import(self.ideal_expression,window,['w'],['rad/s'])
             self.fields['ideal_expression']=self.ideal_expression;form.addRow('Ha(jΩ): w representa Ω en rad/s',self.ideal_expression)
@@ -194,6 +215,12 @@ class CourseToolsPanel(QWidget):
         button=QPushButton('Calcular');self.calculate_button=button;button.setObjectName('primary');button.clicked.connect(self.calculate);box.addWidget(button);root.addWidget(left,1)
         right=QWidget();out=QVBoxLayout(right);self.selector=QComboBox();self.selector.setProperty('sessionTransient',True);self.selector.hide();self.selector.currentIndexChanged.connect(self.display);result_options=QHBoxLayout();result_options.addWidget(self.selector,1);out.addLayout(result_options)
         self.view=ResultView();self.view.layout().setContentsMargins(0,0,0,0);self.tabs=self.view.views;self.report=TransferResultReport() if action=='phase' else ReportView();self.tabs.removeTab(1);self.tabs.insertTab(1,report_panel(self.report),"Informe");out.addWidget(self.view,1)
+        if action in ('fir','iir','analog'):
+            self.view.send.setText('Usar filtro en…')
+            self.band_preview=QWidget()
+            self.band_preview_layout=QVBoxLayout(self.band_preview);self.band_preview_layout.setContentsMargins(0,0,0,0)
+            title=QLabel('Bandas solicitadas');title.setObjectName('cardTitle');self.band_preview_layout.addWidget(title)
+            out.insertWidget(0,self.band_preview);self.band_preview.hide();self._band_preview_external=False
         self.system_view=QComboBox();self.system_view.addItems(['Módulo, fase y retardo','Módulo (dB)','Retardo de grupo','Módulo |H| · amplitud']);self.system_view.setAccessibleName('Vista de la respuesta del sistema');self.system_view.hide();result_options.addWidget(self.system_view,1);self.system_view.currentIndexChanged.connect(self.display)
         if action=='fir':
             from .fir_comparison_view import FirComparisonView
@@ -285,6 +312,15 @@ class CourseToolsPanel(QWidget):
             if value.imag:raise ValueError('Los bordes deben ser reales.')
             result.append(value.real)
         return result
+    def resizeEvent(self,event):
+        super().resizeEvent(event)
+        if hasattr(self,'band_preview'):
+            external=self.width()>=870
+            if external!=self._band_preview_external:
+                self._band_preview_external=external
+                self.band_edges.place_diagram(self.band_preview_layout if external else None)
+                self.band_preview.setVisible(external)
+
     def calculate(self):
         try:
             parents=[];action=self.action

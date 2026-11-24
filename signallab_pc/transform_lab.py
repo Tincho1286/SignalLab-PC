@@ -8,26 +8,42 @@ from .model import Signal
 from .choice_buttons import ChoiceButtons
 from .result_state import ResultState
 from .result_summary import transform_summary
+from .wrapping_row import WrappingRow
+from .field_section import FieldSection
 
 class TransformLab(QWidget):
     def __init__(self,window,kind):
         super().__init__();self.window=window;self.kind=kind;self.last=None;self.records={};self._mode_index=0
+        self._sample_ids = {}
         from .toolbox import ResultView,LocalInput
         root=QHBoxLayout(self);left=QWidget();form=QFormLayout(left);self.form=form;form.setProperty("stackFields",True)
         self.mode=QComboBox();self.mode.addItems(['Directa','Inversa']);form.addRow('Operación',ChoiceButtons(self.mode))
         self.direct_input=QComboBox();self.direct_input.addItems(['Expresión x[n]','Secuencia finita']);self.direct_buttons=ChoiceButtons(self.direct_input);form.addRow('Definición de la secuencia',self.direct_buttons)
-        self.sample_scope=QComboBox();self.sample_scope.addItems(['Intervalo elegido','Automático según el soporte']);self.sample_scope.setToolTip('Si el soporte es finito se muestra completo. Si es infinito se usa el intervalo de visualización indicado. La fórmula siempre describe la secuencia completa.');form.addRow('Muestras de la inversa',self.sample_scope)
-        self.load_expression_button=QPushButton('Cargar expresión…');self.load_expression_button.clicked.connect(self.choose_expression);form.addRow(self.load_expression_button)
         self.interpretation=QComboBox();self.interpretation.addItems(['Unilateral / causal','Bilateral · con ROC']);form.addRow('Interpretación',self.interpretation)
         self.laplace_roc=QComboBox();self.laplace_roc.addItems(['A la derecha de todos los polos','A la izquierda de todos los polos','Franja que contiene una línea elegida']);form.addRow('Región de convergencia (ROC)',self.laplace_roc)
         self.sigma=QLineEdit('0');form.addRow('Parte real σ dentro de la ROC',self.sigma)
         self.definitions={0:'(1/2)^n' if kind=='z' else 'exp(-t)',1:'z/(z-1/2)' if kind=='z' else '1/(s+1)'}
         self.expression=ExpressionEditor(self.definitions[0],symbolic=True);form.addRow('Expresión',self.expression)
+        self.expression_actions = WrappingRow()
+        self.load_expression_button=QPushButton('Cargar expresión…');self.load_expression_button.clicked.connect(self.choose_expression)
+        self.expression_actions.flow.addWidget(self.load_expression_button)
+        self.input_reuse_button = QPushButton('Usar entrada en…')
+        input_reuse = QMenu(self.input_reuse_button)
+        variable = 'z' if kind == 'z' else 's'
+        input_reuse.addAction(f'Analizar como H({variable})', self.to_system)
+        self.input_reuse_button.setMenu(input_reuse)
+        self.expression_actions.flow.addWidget(self.input_reuse_button)
+        form.addRow(self.expression_actions)
         self.lower=QLineEdit('0');self.upper=QLineEdit('oo');form.addRow('Primer índice del soporte',self.lower);form.addRow('Último índice del soporte',self.upper)
         self.roc=QComboBox();self.roc.addItems(['Exterior a los polos · secuencia derecha','Interior a los polos · secuencia izquierda','Anillo que contiene un radio elegido']);form.addRow('Región de convergencia (ROC)',self.roc)
         self.radius=QLineEdit('1');form.addRow('Radio dentro de la ROC',self.radius)
-        self.include_samples=QCheckBox('Graficar un intervalo de la secuencia');self.include_samples.setChecked(True);form.addRow(self.include_samples)
-        self.start=QLineEdit('-16');self.count=QLineEdit('65');form.addRow('Primer índice a visualizar',self.start);form.addRow('Cantidad de muestras',self.count)
+        self.roc_button=QPushButton('Explorar ROC…');self.roc_button.setToolTip('Elegir una región abierta en el plano de polos y aplicarla a la inversa.');self.roc_button.clicked.connect(self.explore_roc);form.addRow(self.roc_button)
+        self.sample_settings=FieldSection('Muestras de la inversa')
+        samples_form = self.sample_settings.form
+        self.include_samples=QCheckBox('Generar un registro numérico');self.include_samples.setChecked(True);samples_form.addRow(self.include_samples)
+        self.sample_scope=QComboBox();self.sample_scope.addItems(['Intervalo indicado','Automático según el soporte']);self.sample_scope.setToolTip('Con soporte finito se muestra toda la secuencia. Con soporte infinito se usa el intervalo indicado.');samples_form.addRow('Intervalo',self.sample_scope)
+        self.start=QLineEdit('-16');self.count=QLineEdit('65');samples_form.addRow('Primer índice a visualizar',self.start);samples_form.addRow('Cantidad de muestras',self.count)
+        form.addRow(self.sample_settings)
         self.source=LocalInput('Secuencia finita','discrete');self.source.bind_project(window);form.addRow(self.source)
         self.note=QLabel();self.note.setObjectName('muted');self.note.setWordWrap(True);form.addRow(self.note)
         self.copy_note=QLabel();self.copy_note.setObjectName('muted');self.copy_note.setWordWrap(True);form.addRow(self.copy_note);self.copy_note.hide()
@@ -43,30 +59,31 @@ class TransformLab(QWidget):
         self.reuse_button.setProperty('actionRole','reuse');self.reuse_button.setEnabled(False)
         menu=QMenu(self.reuse_button);self.reuse_button.setMenu(menu);menu.aboutToShow.connect(self.prepare_reuse)
         result_actions.addWidget(self.reuse_button)
-        self.copy_inverse=QPushButton('Copiar resultado a la inversa');self.copy_inverse.clicked.connect(self.to_inverse);self.copy_inverse.hide();result_actions.addWidget(self.copy_inverse)
         self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setProperty('actionRole','cas');self.to_cas_button.setToolTip('Abrir la expresión del último resultado calculado como una celda de la hoja CAS.');self.to_cas_button.clicked.connect(self.to_cas);self.to_cas_button.hide();result_actions.addWidget(self.to_cas_button)
-        self.analyze_system=QPushButton();self.analyze_system.clicked.connect(self.to_system);result_actions.addWidget(self.analyze_system);result_actions.addStretch()
-        self.roc_button=QPushButton('Explorar ROC…');self.roc_button.setToolTip('Elegir una región abierta en el plano de polos y aplicarla a la inversa.');self.roc_button.clicked.connect(self.explore_roc);result_actions.insertWidget(1,self.roc_button)
+        self.cas_menu = QMenu(self.to_cas_button)
+        self.cas_menu.aboutToShow.connect(self.prepare_cas)
         self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Expresión y condiciones');attach(self.tabs,self.result_actions);self.result_actions.use_report(self.report)
-        self.output=ResultView();self.tabs.addTab(self.output,'Muestras de la inversa');self.tabs.setTabVisible(1,False)
+        self.output=ResultView();self.output.show_action_bar=False;self.tabs.addTab(self.output,'Muestras de la inversa');self.tabs.setTabVisible(1,False)
         self.steps=ReportView();self.steps_index=self.tabs.addTab(report_panel(self.steps),'Desarrollo');self.tabs.setTabVisible(self.steps_index,False)
         def update(*_):
             index=self.mode.currentIndex();changed=index!=self._mode_index
             if changed:
                 self.definitions[self._mode_index]=self.expression.text();self._mode_index=index;self.expression.setText(self.definitions[index])
-            self.roc_button.setEnabled(index==1);self.roc_button.setVisible(index==1)
             inverse=index==1;z=kind=='z';finite=z and not inverse and self.direct_input.currentIndex()==1;samples=z and inverse and self.include_samples.isChecked();bilateral=not z and self.interpretation.currentIndex()==1
-            form.setRowVisible(self.direct_buttons,z and not inverse);form.setRowVisible(self.sample_scope,samples);form.setRowVisible(self.load_expression_button,not finite)
+            self.expression.setProperty('variableHint', ('z' if z else 's') if inverse else ('n' if z else 't'))
+            form.setRowVisible(self.direct_buttons,z and not inverse);form.setRowVisible(self.expression_actions,not finite)
+            self.input_reuse_button.setVisible(inverse)
+            form.setRowVisible(self.roc_button,inverse)
             form.setRowVisible(self.interpretation,not z);form.setRowVisible(self.laplace_roc,bilateral and inverse);form.setRowVisible(self.sigma,bilateral and inverse and self.laplace_roc.currentIndex()==2)
             form.labelForField(self.expression).setText(('X(z)' if z else 'X(s)') if inverse else ('x[n]' if z else 'x(t)'))
             form.setRowVisible(self.expression,not finite);form.setRowVisible(self.source,finite)
             for field in (self.lower,self.upper):form.setRowVisible(field,z and not inverse and not finite)
             form.setRowVisible(self.roc,z and inverse);form.setRowVisible(self.radius,z and inverse and self.roc.currentIndex()==2)
-            form.setRowVisible(self.include_samples,z and inverse)
-            for field in (self.start,self.count):form.setRowVisible(field,samples)
-            form.setRowVisible(self.copy_note,inverse and bool(self.copy_note.text()))
+            form.setRowVisible(self.sample_settings,z and inverse)
+            for field in (self.sample_scope,self.start,self.count):samples_form.setRowVisible(field,samples)
+            form.setRowVisible(self.copy_note,not finite and bool(self.copy_note.text()))
             if z and inverse:
-                note='El intervalo de muestras solo se usa para el gráfico y la tabla.'
+                note='La expresión describe toda la secuencia. El gráfico y la tabla muestran el intervalo de muestras.'
             elif z:
                 note='La secuencia vale cero fuera del registro.' if finite else 'Podés usar -oo y oo para un soporte infinito. Se incluyen los extremos finitos.'
             elif bilateral:
@@ -92,7 +109,6 @@ class TransformLab(QWidget):
                 if samples:tracked += [self.start,self.count]
             self.result_state.widgets=tracked;self.result_state.sources=[self.source] if finite else []
             if changed:self.display_record(self.records.get(self.record_key()))
-            self.update_system_action()
             self.result_state.refresh()
         self._update_form=update
         self.interpretation.currentIndexChanged.connect(update);self.laplace_roc.currentIndexChanged.connect(update)
@@ -120,6 +136,9 @@ class TransformLab(QWidget):
         value=self.window.project.expression(key)
         self.expression.setText(value.source);self._library_source=(self.expression.text(),key)
         self._library_conditions=tuple(value.conditions)
+        if self.mode.currentIndex()==1:
+            self.load_transform_context(self.window.project.get(key))
+        self.set_copy_note('Expresión cargada desde Resultados.'+(' Condiciones: '+'; '.join(value.conditions) if value.conditions else ''))
     def use_finite_input(self):
         self.mode.setCurrentIndex(0);self.direct_input.setCurrentIndex(1)
     def load_laplace_context(self,request,result=None,inverse=False):
@@ -159,37 +178,61 @@ class TransformLab(QWidget):
         self.copy_note.setText(text)
         # QFormLayout owns row visibility. Showing only its hidden child leaves
         # an unmanaged widget over the controls, with its default 640x480 size.
-        self.form.setRowVisible(self.copy_note,self.mode.currentIndex()==1 and bool(text))
-    def update_system_action(self):
-        inverse=self.mode.currentIndex()==1;variable='z' if self.kind=='z' else 's'
-        self.analyze_system.setText('Analizar X('+variable+') '+('ingresada' if inverse else 'calculada')+' como H('+variable+')…')
-        boundary=not inverse and self.last is not None and bool(self.last.get('boundary_dtft'))
-        if boundary:self.analyze_system.setText('Analizar respuesta H(exp(iw))…')
-        lines=boundary and self.last.get('boundary_distribution')
-        self.analyze_system.setVisible(not lines);self.analyze_system.setEnabled(not lines and (inverse or boundary or (self.last is not None and self.last.get('evaluated',True) and len(self.last.get('branches',[]))<=1)))
-        self.analyze_system.setToolTip('Abre el análisis con la expresión y sus condiciones. Una DTFT permite consultar módulo, fase y retardo aunque no exista un anillo abierto de convergencia de Z. Polos/ceros y realizaciones finitas requieren una transferencia racional.')
+        finite = self.kind=='z' and self.mode.currentIndex()==0 and self.direct_input.currentIndex()==1
+        self.form.setRowVisible(self.copy_note,not finite and bool(text))
     def display_record(self,record):
-        self.to_cas_button.setText('Enviar a CAS');self.to_cas_button.show();self.to_cas_button.setEnabled(False);self.copy_inverse.hide();self.tabs.setTabVisible(1,False);self.tabs.setTabVisible(self.steps_index,False);self.tabs.setCurrentIndex(0)
+        self.to_cas_button.setText('Enviar a CAS');self.to_cas_button.setMenu(None);self.to_cas_button.show();self.to_cas_button.setEnabled(False);self.tabs.setTabVisible(1,False);self.tabs.setTabVisible(self.steps_index,False);self.tabs.setCurrentIndex(0)
+        self.reuse_button.setText('Usar señal en…' if self.mode.currentIndex()==1 else 'Usar espectro en…')
         if record is None:
             self.reuse_button.setEnabled(False)
-            self.last=None;self.result_state.completed=None;self.report.setPlainText('Completá la entrada y calculá. Aquí aparecerán la expresión y sus condiciones.');self.update_system_action();return
+            self.last=None;self.result_state.completed=None;self.report.setPlainText('Completá la entrada y calculá. Aquí aparecerán la expresión y sus condiciones.');return
         request,result,key,snapshot,signal=record;self.last=result;self.report.set_readable(transform_summary(request,result));self.result_state.accept(snapshot)
         from .transform_steps import summary as steps_summary
         self.steps.set_readable(steps_summary(result.get('derivation',[])));self.tabs.setTabVisible(self.steps_index,bool(result.get('derivation')))
         if result.get('boundary_dtft'):self.to_cas_button.setText('Enviar DTFT al CAS')
         elif result.get('boundary_fourier'):self.to_cas_button.setText('Enviar espectro de Fourier al CAS')
-        self.to_cas_button.setEnabled(bool(result.get('boundary_dtft') or result.get('boundary_fourier')) or result.get('evaluated',True) and len(result.get('branches',[]))<=1)
-        direct=request['operation'] not in ('inverse_laplace','z_inverse_expression')
-        self.reuse_button.setText('Usar expresión en…' if direct else 'Usar señal en…')
-        self.reuse_button.setEnabled(self.to_cas_button.isEnabled())
-        self.copy_inverse.setVisible(direct and result.get('evaluated',True) and len(result.get('branches',[]))<=1)
-        if signal is not None:self.output.show_result(signal);self.tabs.setTabVisible(1,True)
-        self.update_system_action()
+        expression = self.window.project.expression(key)
+        sample_id = self._sample_ids.get(key)
+        self.to_cas_button.setEnabled(expression is not None or sample_id is not None)
+        if sample_id is not None:self.to_cas_button.setMenu(self.cas_menu)
+        self.reuse_button.setEnabled(expression is not None or sample_id is not None)
+        if expression is not None and expression.variable in ('z', 's'):
+            self.reuse_button.setText('Usar expresión en…')
+        if signal is not None:
+            self.output.show_result(signal)
+            self.output.result_ids = [sample_id]
+            self.tabs.setTabVisible(1,True)
     def prepare_reuse(self):
         from .result_expressions import populate_reuse_menu
         menu=self.reuse_button.menu();menu.clear()
         record=self.records.get(self.record_key())
-        if record is not None:populate_reuse_menu(menu,self.window,record[2])
+        if record is None:return
+        handlers = None
+        if self.mode.currentIndex()==0:
+            result = record[1]
+            variable = 'z' if self.kind=='z' else 's'
+            inverse = 'Z inversa' if self.kind=='z' else 'Laplace inversa'
+            analysis = 'Analizar respuesta H(exp(iw))' if result.get('boundary_dtft') else f'Analizar como H({variable})'
+            handlers = {'inverse': (inverse, self.to_inverse), 'system': (analysis, self.to_system)}
+            if result.get('boundary_fourier'):
+                # The frequency destination must receive the angular spectrum and its units.
+                handlers.pop('system')
+        populate_reuse_menu(menu,self.window,record[2],handlers=handlers)
+        sample_id = self._sample_ids.get(record[2])
+        if sample_id is not None:
+            from .toolbox import populate_signal_menu
+            self._sample_routes = populate_signal_menu(menu.addMenu('Muestras de la inversa'),self.window,record[4],sample_id)
+    def prepare_cas(self):
+        self.cas_menu.clear()
+        record = self.records.get(self.record_key())
+        if record is None:return
+        key = record[2]
+        if self.window.project.expression(key) is not None:
+            self.cas_menu.addAction('Fórmula de la secuencia',self.to_cas)
+        sample_id = self._sample_ids.get(key)
+        if sample_id is not None:
+            from .cas_transfer import send_to_cas
+            self.cas_menu.addAction('Muestras de la inversa',lambda:send_to_cas(self.window,sample_id))
     def to_cas(self):
         record=self.records.get(self.record_key())
         if record is not None:
@@ -211,6 +254,7 @@ class TransformLab(QWidget):
         self._inverse_source=(expression,record[2])
     def to_system(self):
         try:
+            origin_location=self.window.capture_handoff() if hasattr(self.window,'capture_handoff') else None
             inverse=self.mode.currentIndex()==1;record=self.records.get(self.record_key());parents=[]
             if inverse:
                 expression=self.expression.text()
@@ -233,7 +277,10 @@ class TransformLab(QWidget):
             self.window.open_tool(ROUTES['system_analysis',0]);panel=self.window.pages[self.window.current_operation].panel
             boundary=isinstance(origin,dict) and bool(origin.get('result',{}).get('boundary_dtft'))
             panel.load_expression(ExpressionResult(expression,'w' if boundary else 'z' if domain=='digital' else 's',units='rad/muestra' if boundary else ''),parents[0] if parents else None,origin,roc_spec)
-            self.window.statusBar().showMessage('Fórmula copiada como H('+('exp(iw)' if boundary else 'z' if domain=='digital' else 's')+'). Calculá el análisis con sus condiciones originales.')
+            label='Fórmula cargada como H('+('exp(iw)' if boundary else 'z' if domain=='digital' else 's')+')'
+            if hasattr(self.window,'finish_handoff'):
+                self.window.finish_handoff(origin_location,label,parents[0] if parents else None,panel.transfer_formula)
+            else:self.window.statusBar().showMessage(label+'. Revisá las condiciones y calculá el análisis.')
         except Exception as exc:QMessageBox.warning(self,'No se pudo analizar como sistema',str(exc))
     def validate_fields(self):
         from .validation import invalid
@@ -273,11 +320,13 @@ class TransformLab(QWidget):
             def accept(result):
                 key=self.window.publish({'request':request,'result':result},title=('Z' if self.kind=='z' else 'Laplace')+(' inversa' if index==1 else ' directa')+' · '+request.get('expression','registro finito')[:120],operation=result['operation'],parents=parents)
                 signal=None;values=result.get('numeric_samples')
+                previous = self.records.get(record_key)
+                if previous is not None:self._sample_ids.pop(previous[2],None)
                 if values:
                     signal=Signal([complex(*v) for v in values],result['origin'],1,'n','Z inversa','discrete',metadata={'operation':'z_inverse_expression','roc':result['roc'],'expression':result['result']})
                     from .temporal_formula import attach_temporal_formula
                     attach_temporal_formula(signal,result)
-                    self.window.publish(signal,operation='Muestras de Z inversa',parents=[key])
+                    self._sample_ids[key] = self.window.publish(signal,operation='Muestras de Z inversa',parents=[key])
                 record=(request,result,key,snapshot,signal);self.records[record_key]=record
                 if self.record_key()==record_key:self.display_record(record)
             self.window._run_operation('Calculando transformada…',lambda:run_request(request),accept)

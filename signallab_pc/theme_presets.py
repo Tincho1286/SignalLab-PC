@@ -4,7 +4,17 @@ from .theme_tokens import COLORS,AREA_COLORS
 
 DEFAULT=dict(COLORS)
 PRESETS={
-    'navy':('Oscuro · Studio',dict(DEFAULT)),
+    'navy':('Oscuro · Azul noche',dict(DEFAULT)),
+    'petrol':('Petróleo', {
+        'window':'#0e1417', 'chrome':'#131c20', 'panel':'#182429',
+        'input':'#101a1e', 'report':'#141f23', 'hover':'#223438',
+        'border':'#3c555a', 'rule':'#2a3d42', 'grid':'#30464b',
+        'text':'#eaf3f2', 'muted':'#aabfc0', 'disabled':'#7d9295',
+        'accent':'#79e5c7', 'selected':'#1d3b36', 'primary':'#8defd4',
+        'primary_hover':'#b3f6e5', 'on_primary':'#102b27',
+        'green':'#84dec2', 'amber':'#ffbd82', 'blue':'#97c3f6',
+        'purple':'#c6b5ef', 'red':'#f3a7ac', 'cyan':'#92d8ed',
+    }),
     'graphite':('Grafito',{**DEFAULT,'window':'#17191d','chrome':'#1c1f24','panel':'#252a31','input':'#191d22','report':'#20242b','hover':'#343c46','border':'#495461','rule':'#343b45','grid':'#414b57','text':'#edf0f4','muted':'#b9c1cc','disabled':'#8995a4','accent':'#97c8ee','selected':'#354859','primary':'#9cccef','primary_hover':'#badff7','on_primary':'#142430','green':'#93d5bc','amber':'#e5c291','blue':'#9cbef1','purple':'#c9b6e7','red':'#e5a6af','cyan':'#9bd7de'}),
     'forest':('Bosque',{**DEFAULT,'window':'#101d1a','chrome':'#142721','panel':'#1c352d','input':'#11231d','report':'#172b25','hover':'#2a4b3e','border':'#3f6655','rule':'#29483c','grid':'#365947','text':'#e4f2e9','muted':'#acc8b8','disabled':'#789d8a','accent':'#b0d99b','selected':'#31513c','primary':'#a5d99c','primary_hover':'#c0ebae','on_primary':'#152516','green':'#83d5b2','amber':'#e8ca8c','blue':'#9fc4e2','purple':'#c4b3df','red':'#e3aba1','cyan':'#8ed4ce'}),
     'aubergine':('Berenjena',{**DEFAULT,'window':'#1b1423','chrome':'#241c30','panel':'#30263f','input':'#20192b','report':'#282033','hover':'#443653','border':'#645076','rule':'#43354f','grid':'#51415e','text':'#f0e9f7','muted':'#c5b5d4','disabled':'#9987ab','accent':'#d4b2f2','selected':'#503b62','primary':'#c9a8ef','primary_hover':'#e0c6fa','on_primary':'#25152f','green':'#96d6bc','amber':'#ebc294','blue':'#a9bff0','purple':'#c3a2e2','red':'#e9a8c2','cyan':'#a2d5e5'}),

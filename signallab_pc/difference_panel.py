@@ -19,6 +19,7 @@ class DifferencePanel(QWidget):
         self.coefficients=QLineEdit('1, -0.5');form.addRow('Coeficientes a₀, a₁, …, aₚ',self.coefficients)
         self.coefficients.setToolTip('Orden por retardos: a₀ multiplica y[n], a₁ multiplica y[n−1]. Se admiten pi, fracciones y 10^(-3). a₀ debe ser distinto de cero.')
         self.expression=ExpressionEditor('1');self.expression.symbolic=True;form.addRow('Entrada f[n]',self.expression)
+        self.expression.setProperty('variableHint', 'n')
         from .expression_import import install_expression_import
         install_expression_import(self.expression,window,['n'])
         self.start=QLineEdit('0');form.addRow('Resolver desde n₀',self.start)

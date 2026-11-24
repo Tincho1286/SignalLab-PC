@@ -25,11 +25,12 @@ class Frontend(unittest.TestCase):
         bar.slots['reuse'].hide();self.settle();self.assertTrue(bar.placeholders['reuse'].isVisible());self.assertEqual(bar.grid.getItemPosition(bar.grid.indexOf(bar.slots['cas']))[:2],(0,2))
     def test_compact_action_grid_preserves_order_and_connections(self):
         bar=ResultActionBar();self.widgets.append(bar);clicked=[]
-        for role in ORDER:
-            button=QPushButton(role);button.clicked.connect(lambda checked=False,r=role:clicked.append(r));bar.add_action(button,role)
-        bar.resize(430,100);bar.show();self.settle();positions=[bar.grid.getItemPosition(bar.grid.indexOf(bar.slots[role]))[:2] for role in ORDER];self.assertEqual(positions,[(0,0),(0,1),(1,0),(1,1)]);bar.slots['cas'].click();self.assertEqual(clicked,['cas'])
+        labels = ('Abrir gráfico', 'Usar señal en otra herramienta…', 'Enviar a CAS', 'Exportar resultado…')
+        for role, label in zip(ORDER, labels):
+            button=QPushButton(label);button.clicked.connect(lambda checked=False,r=role:clicked.append(r));bar.add_action(button,role)
+        bar.resize(350,100);bar.show();self.settle();positions=[bar.grid.getItemPosition(bar.grid.indexOf(bar.slots[role]))[:2] for role in ORDER];self.assertEqual(positions,[(0,0),(0,1),(1,0),(1,1)]);bar.slots['cas'].click();self.assertEqual(clicked,['cas'])
     def test_workspace_keeps_controls_and_result_when_changing_size(self):
-        inputs=QWidget();form=QVBoxLayout(inputs);button=QPushButton('dato');form.addWidget(button);result=QWidget();space=ToolWorkspace(inputs,result);self.widgets.append(space);space.resize(1200,700);space.show();self.settle();self.assertFalse(space.compact);space.resize(700,600);self.settle();self.assertTrue(space.compact);space.show_results();self.assertEqual(space.tabs.currentIndex(),1);space.tabs.setCurrentIndex(0);self.assertTrue(button.isVisible());space.resize(1200,700);self.settle();self.assertFalse(space.compact);self.assertIs(space.inputs.content.widget(),inputs);self.assertIs(space.results.content,result)
+        inputs=QWidget();form=QVBoxLayout(inputs);button=QPushButton('dato');form.addWidget(button);result=QWidget();space=ToolWorkspace(inputs,result);self.widgets.append(space);space.resize(1200,700);space.show();self.settle();self.assertFalse(space.compact);space.resize(700,600);self.settle();self.assertTrue(space.compact);space.show_results();self.assertEqual(space.tabs.currentIndex(),1);space.tabs.setCurrentIndex(0);self.assertTrue(button.isVisible());space.resize(1200,700);self.settle();self.assertFalse(space.compact);self.assertTrue(space.inputs.content.widget().isAncestorOf(inputs));self.assertIs(space.results.content,result)
     def test_wrapping_document_header_does_not_force_the_preferred_workspace_height(self):
         from PySide6.QtWidgets import QLabel
         from signallab_pc.problem_document import ProblemDocument
@@ -107,12 +108,30 @@ class Frontend(unittest.TestCase):
     def test_result_choices_expose_complete_labels_and_keep_existing_callbacks(self):
         from signallab_pc.result_selector import install
         parent=QWidget();layout=QVBoxLayout(parent);bar=ResultActionBar();layout.addWidget(bar);tabs=ActiveTabs();layout.addWidget(tabs);self.widgets.append(parent);clicked=[];tabs.tabBar().tabBarClicked.connect(clicked.append)
-        for title in ('Resumen','Respuesta en frecuencia','Una función de transferencia con título largo'):tabs.addTab(QWidget(),title)
-        attach(tabs,bar);install(tabs);parent.resize(440,500);parent.show();self.settle();self.assertTrue(tabs.tabBar().isHidden());buttons=tabs.result_selector.row.findChildren(QPushButton)
-        from PySide6.QtWidgets import QToolButton
-        buttons=tabs.result_selector.row.findChildren(QToolButton);self.assertEqual([button.text() for button in buttons],['Resumen','Respuesta en frecuencia','Una función de transferencia con título largo']);buttons[-1].click();self.settle();self.assertEqual(tabs.currentIndex(),2);self.assertEqual(clicked,[2]);tabs.setTabVisible(1,False);self.settle();self.assertEqual([button.text() for button in tabs.result_selector.row.findChildren(QToolButton)],['Resumen','Una función de transferencia con título largo']);tabs.setTabVisible(1,True);self.settle();self.assertEqual(len(tabs.result_selector.row.findChildren(QToolButton)),3)
-        tabs.hide();self.settle();self.assertTrue(tabs.result_selector.row.isHidden());tabs.show();self.settle();self.assertTrue(tabs.result_selector.row.isVisible())
-        selected=tabs.result_selector.buttons[0];parent.activateWindow();selected.setFocus();QTest.keyClick(selected,Qt.Key.Key_Space);self.settle();self.assertIs(tabs.result_selector.buttons[0],selected);self.assertIs(self.app.focusWidget(),selected)
+        titles = ['Resumen', 'Respuesta en frecuencia', 'Una función de transferencia con título largo']
+        for title in titles:
+            tabs.addTab(QWidget(), title)
+        attach(tabs,bar);install(tabs);parent.resize(920,500);parent.show();self.settle()
+        selector = tabs.result_selector
+        self.assertTrue(tabs.tabBar().isHidden())
+        self.assertTrue(selector.row.isVisible())
+        self.assertEqual([button.text() for button in selector.buttons.values()], titles)
+        selector.buttons[2].click()
+        self.assertEqual(tabs.currentIndex(), 2)
+        self.assertEqual(clicked, [2])
+        tabs.setTabVisible(1, False)
+        self.assertEqual([button.text() for button in selector.buttons.values()], [titles[0], titles[2]])
+        tabs.setTabVisible(1, True)
+        parent.resize(340, 500)
+        self.settle()
+        self.assertTrue(selector.picker.isVisible())
+        self.assertEqual([selector.picker.itemText(i) for i in range(selector.picker.count())], titles)
+        selector.picker.activated.emit(selector.picker.findData(1))
+        self.assertEqual(tabs.currentIndex(), 1)
+        self.assertEqual(clicked, [2, 1])
+        tabs.hide();self.settle();self.assertTrue(selector.container.isHidden())
+        tabs.show();parent.resize(920,500);self.settle();self.assertTrue(selector.row.isVisible())
+        selected=selector.buttons[0];parent.activateWindow();selected.setFocus();QTest.keyClick(selected,Qt.Key.Key_Space);self.settle();self.assertIs(selector.buttons[0],selected);self.assertIs(self.app.focusWidget(),selected)
     def test_action_dock_tracks_the_selected_result_without_losing_commands(self):
         from signallab_pc.result_action_dock import install
         tabs=ActiveTabs();bars=[];clicked=[]
@@ -123,9 +142,26 @@ class Frontend(unittest.TestCase):
         from signallab_pc.result_action_dock import install
         result=QWidget();layout=QVBoxLayout(result);bar=ResultActionBar();layout.addWidget(bar);space=ToolWorkspace(QWidget(),result);self.widgets.append(space);space.resize(1200,700);dock=install(space.results);graph=QPushButton('graph');clicked=[];graph.clicked.connect(lambda:clicked.append(True));dock.set_graph(graph);space.show();self.settle();self.assertIs(graph.parentWidget(),bar);bar.setEnabled(False);self.settle();self.assertIs(graph.parentWidget(),dock.fallback);self.assertTrue(graph.isEnabled());graph.click();self.assertEqual(clicked,[True]);bar.setEnabled(True);self.settle();self.assertIs(graph.parentWidget(),bar)
     def test_task_search_accepts_keyboard_selection_and_filters_the_cas(self):
-        from signallab_pc.studio_shell import TaskSearch
+        from signallab_pc.command_palette import TaskSearch, TARGET
+        from signallab_pc.project import Project
+        from PySide6.QtWidgets import QTabBar
         from PySide6.QtCore import Qt
-        parent=QWidget();dialog=TaskSearch(parent);self.widgets.extend([parent,dialog]);dialog.show();self.settle();QTest.keyClick(dialog.query,Qt.Key.Key_Down);self.assertEqual(dialog.list.currentRow(),1);dialog.query.setText('CAS');self.settle();self.assertEqual(dialog.list.item(0).data(Qt.ItemDataRole.UserRole),'cas');QTest.keyClick(dialog.query,Qt.Key.Key_Return);self.assertEqual(dialog.selection,'cas')
+        parent = QWidget()
+        parent.documents = QTabBar(parent)
+        parent.favorite_tools = parent.recent_tools = []
+        parent.project = Project()
+        dialog = TaskSearch(parent)
+        self.widgets.extend([parent, dialog])
+        dialog.show()
+        self.settle()
+        first = dialog.list.currentRow()
+        QTest.keyClick(dialog.query, Qt.Key.Key_Down)
+        self.assertGreater(dialog.list.currentRow(), first)
+        self.assertIsNotNone(dialog.list.currentItem().data(TARGET))
+        dialog.query.setText('CAS')
+        self.assertEqual(dialog.list.currentItem().data(TARGET), ('command', 'cas'))
+        QTest.keyClick(dialog.query, Qt.Key.Key_Return)
+        self.assertEqual(dialog.selection, ('command', 'cas'))
     def test_multiple_outputs_share_one_toolbar_with_an_explicit_target(self):
         from signallab_pc.result_action_dock import install
         result=QWidget();layout=QVBoxLayout(result);bars=[];clicked=[]

@@ -18,6 +18,18 @@ class Surface(QFrame):
             area=QScrollArea();area.setWidgetResizable(True);area.setFrameShape(QFrame.Shape.NoFrame);area.setWidget(content);content=area
         content.setMinimumWidth(0)
         if isinstance(content,QScrollArea):content.setFrameShape(QFrame.Shape.NoFrame);content.setMinimumHeight(0);content.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
+        if scroll and isinstance(content, QScrollArea) and content.widget() is not None:
+            fields = content.takeWidget()
+            form_page = QWidget()
+            form_page.setObjectName('workspaceInputForm')
+            form_box = QVBoxLayout(form_page)
+            form_box.setContentsMargins(0, 0, 0, 0)
+            form_box.setSpacing(0)
+            self.commands = QVBoxLayout()
+            self.commands.setSpacing(0)
+            form_box.addLayout(self.commands)
+            form_box.addWidget(fields, 1)
+            content.setWidget(form_page)
         root.addWidget(content,1);self.content=content
         if scroll:
             for form in content.findChildren(QFormLayout):form.setProperty('stackFields',True)
@@ -28,11 +40,12 @@ class ToolWorkspace(QWidget):
     expansionChanged = Signal(bool)
 
     def __init__(self,inputs,results,parent=None,*,titles=('Datos de entrada','Resultado'),captions=('', '')):
-        super().__init__(parent);self.setObjectName('toolWorkspace');self.setProperty('workspaceLayout',True);self.compact=None;self.result_preferred=False;self.titles=titles;self.wide_sizes=[400,760]
+        super().__init__(parent);self.setObjectName('toolWorkspace');self.setProperty('workspaceLayout',True);self.compact=None;self.result_preferred=False;self.titles=titles;self.wide_sizes=[380,790]
         self.output_expanded = False
         self._compact_index_before_expansion = None
-        root=QVBoxLayout(self);root.setContentsMargins(14,0,14,12);self.modes=ActiveStack();root.addWidget(self.modes)
-        self.split=QSplitter(Qt.Orientation.Horizontal);self.split.setChildrenCollapsible(False);self.split.setHandleWidth(10);self.modes.addWidget(self.split)
+        self.handoff = None
+        root=QVBoxLayout(self);root.setContentsMargins(16,0,16,12);self.modes=ActiveStack();root.addWidget(self.modes)
+        self.split=QSplitter(Qt.Orientation.Horizontal);self.split.setObjectName('toolSplit');self.split.setChildrenCollapsible(False);self.split.setHandleWidth(12);self.modes.addWidget(self.split)
         self.tabs=ActiveTabs();self.tabs.setObjectName('workspaceModes');self.modes.addWidget(self.tabs)
         self.inputs=Surface(titles[0],captions[0],inputs,True);self.results=Surface(titles[1],captions[1],results)
         self.inputs.setObjectName('inputSurface');self.results.setObjectName('resultSurface');self.switch_mode(False)
@@ -51,6 +64,9 @@ class ToolWorkspace(QWidget):
         for surface in (self.inputs,self.results):
             surface.title.setVisible(not compact)
             surface.caption.setVisible(not compact and bool(surface.caption.text()))
+            margins = (11, 8, 11, 8) if compact else (16, 12, 16, 12)
+            surface.layout().setContentsMargins(*margins)
+            surface.layout().setSpacing(7 if compact else 9)
         if compact:
             for surface,title in zip((self.inputs,self.results),self.titles):self.tabs.addTab(surface,title)
             self.modes.setCurrentWidget(self.tabs)
@@ -87,6 +103,15 @@ class ToolWorkspace(QWidget):
         self.set_output_expanded(False)
         if self.compact:
             self.tabs.setCurrentIndex(0)
+
+    def show_handoff(self, card):
+        if self.handoff is not None:
+            self.layout().removeWidget(self.handoff)
+            self.handoff.hide()
+            self.handoff.deleteLater()
+        self.handoff=card
+        self.layout().insertWidget(0,card)
+        card.show()
 
     def show_results(self):
         self.result_preferred=True

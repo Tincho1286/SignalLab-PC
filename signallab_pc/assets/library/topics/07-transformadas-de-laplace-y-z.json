@@ -223,7 +223,7 @@
         ],
         [
           "Inversa",
-          "Ingresá X(z) y elegí la ROC. Para una secuencia infinita pedí un intervalo; para un polinomio de Laurent elegí Soporte finito completo: se recuperan todos los índices no nulos, incluidos negativos."
+          "Ingresá X(z) y elegí la ROC. En Muestras de la inversa podés ver un intervalo o elegir Automático según el soporte. Esta última opción recupera todos los índices de una secuencia finita, incluidos los negativos, y usa el intervalo indicado para las secuencias infinitas."
         ],
         [
           "ROC",
@@ -231,15 +231,15 @@
         ],
         [
           "Enviar a CAS",
-          "Envía el resultado matemático del flujo activo, con sus condiciones. En la directa es X(z); en la inversa es x[n]."
+          "Envía el resultado matemático con sus condiciones. Si la inversa incluye muestras, el menú permite elegir entre la fórmula y el registro numérico."
         ],
         [
           "Analizar X(z) como H(z)",
-          "En la directa usa X(z) calculada; en la inversa usa la X(z) ingresada. Conserva el reloj disponible y una ROC compatible cuando se puede inferir. El análisis separa H(z) en el plano y H(e^{jω})."
+          "Para usar X(z) calculada, abrí el menú de reutilización junto al resultado. Para usar X(z) ingresada en la inversa, elegí Usar entrada en… junto a la fórmula. La ROC y el reloj viajan con la expresión cuando están disponibles."
         ],
         [
           "Archivos",
-          "Cargar expresión importa un resultado algebraico JSON compatible. Secuencia finita permite CSV, MATLAB y JSON. No se interpreta una lista finita como una fórmula de soporte infinito."
+          "Cargar expresión abre el selector de Resultados. Secuencia finita admite registros en CSV, MATLAB y JSON. La transformada del registro toma las muestras cargadas y conserva su índice inicial."
         ],
         [
           "Levantamiento de indeterminaciones",
@@ -287,7 +287,7 @@
         ],
         [
           "Copiar y reutilizar",
-          "Copiar resultado a la inversa prepara la expresión y conserva una ROC compatible cuando se pudo determinar. Revisá las condiciones y calculá en el destino. Resultados conserva expresión, modo y condiciones; enviar una señal temporal desde allí a Laplace usa el modo bilateral para conservar ambos lados del tiempo."
+          "En la directa, elegí Usar expresión en… → Laplace inversa para cargar el resultado con su ROC, cuando se pudo determinar. Revisá la región antes de calcular. En la inversa, Usar entrada en… permite analizar como H(s) la fórmula que estás escribiendo."
         ],
         [
           "Levantamiento de indeterminaciones",

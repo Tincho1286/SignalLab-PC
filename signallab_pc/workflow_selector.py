@@ -8,7 +8,12 @@ import html
 class WorkflowSelector(QWidget):
     def __init__(self,window):
         super().__init__();self.window=window;self.entry=None;self.current_key=None;self.memory={};self.branch_memory={};self.rows=[]
-        self.form=QFormLayout(self);self.form.setContentsMargins(10,3,10,7);self.form.setVerticalSpacing(5);self.form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows);self.hide()
+        self.setObjectName('workflowSelector')
+        self.form=QFormLayout(self);self.form.setVerticalSpacing(6);self.form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows);self.hide()
+    def set_embedded(self, embedded):
+        margins = (10, 8, 10, 10) if embedded else (18, 2, 18, 10)
+        self.form.setContentsMargins(*margins)
+        self.form.setProperty('stackFields', embedded)
     def set_entry(self,entry,item):
         key=normalized_key(item);self.memory[entry['key']]=key;remember_variant(self.branch_memory,entry,key)
         if self.entry is entry and self.current_key==key:
@@ -26,7 +31,7 @@ class WorkflowSelector(QWidget):
             label=dimension_label(entry,index,selected)
             if len(values)<=3 and max(map(len,values))<=26:
                 from .wrapping_row import WrappingRow
-                row=WrappingRow();row.setAccessibleName(label);layout=row.layout();layout.text_padding=60;group=QButtonGroup(row)
+                row=WrappingRow();row.setAccessibleName(label);layout=row.layout();group=QButtonGroup(row)
                 for value in values:
                     button=QToolButton();button.setSizePolicy(QSizePolicy.Policy.Preferred,QSizePolicy.Policy.Fixed);button.setText(value);button.setCheckable(True);button.setChecked(value==current);button.setProperty('segment',True);button.setToolTip(choice_hint(entry,value));group.addButton(button);layout.addWidget(button)
                     button.clicked.connect(lambda checked=False,i=index,v=value:self.select(i,v))

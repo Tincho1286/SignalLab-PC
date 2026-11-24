@@ -7,11 +7,11 @@
     ],
     [
       "Tu primer cálculo",
-      "Escribí una expresión y presioná Enter o Evaluar. Por ejemplo, factor(x^2-4) devuelve (x-2)*(x+2). La entrada queda numerada y su salida recibe una referencia, como r1. Para editar una entrada, hacé clic en [N]; al evaluarla se agrega un cálculo nuevo, sin borrar el anterior.\n\nShift+Enter continúa la expresión en otra línea. Ctrl+↑/↓ recupera entradas del historial, de modo que podés corregirlas o usarlas como punto de partida."
+      "Escribí una expresión y presioná Enter o Evaluar. Por ejemplo, factor(x^2-4) devuelve (x-2)*(x+2). La entrada queda numerada y su salida recibe una referencia, como r1. Para editar una entrada, hacé clic en su número. Al evaluarla se agrega un cálculo nuevo.\n\nMayús+Enter agrega una línea. Ctrl+↑/↓ recupera entradas para editarlas. Ir a un cálculo lleva a una celda de la hoja y permite seleccionar su resultado mientras conservás el borrador."
     ],
     [
       "Operar sobre un resultado",
-      "Seleccioná una salida de la hoja y abrí Resultado. Simplificar, Desarrollar, Factorizar, Fracciones parciales y Aproximar crean una entrada nueva usando su referencia rN; lo que estés escribiendo se conserva. Si la descomposición tiene varias variables, se consulta cuál querés usar.\n\nCifras significativas controla la precisión de Aproximar resultado, no la cantidad de decimales después de la coma. Su valor se recuerda entre usos. Las operaciones conservan las condiciones y el contexto de la referencia original. Con la entrada vacía, las plantillas de los otros menús también pueden partir del resultado seleccionado."
+      "Elegí una celda en Ir a un cálculo y abrí Operar resultado. Simplificar, Desarrollar, Factorizar, Fracciones parciales y Aproximar agregan una entrada usando su referencia rN. Si la descomposición tiene varias variables, el CAS te pide cuál usar.\n\nCifras significativas controla cuántos dígitos usa Aproximar resultado y conserva tu preferencia. Las operaciones mantienen las condiciones y el contexto de la referencia original. Si la entrada está vacía, las plantillas de Comandos también pueden partir de ese resultado."
     ],
     [
       "Cómo escribir números y expresiones",
@@ -23,7 +23,7 @@
     ],
     [
       "Cómo guardar variables y funciones",
-      "a:=2 guarda un valor. Después, f(x):=sin(a*x) define una función usando el valor actual de a; f(pi/4) la evalúa. Los parámetros de la función son locales.\n\nHoja → Variables y supuestos muestra las definiciones guardadas. Para liberar un nombre usá purge(a), o purge(a,f) para varios. Si querés derivar o resolver respecto de x, primero asegurate de que x no tenga un valor asignado."
+      "a:=2 guarda un valor y f(x):=sin(a*x) define una función usando el valor actual de a. Evaluá f(pi/4) para obtener su valor. Los parámetros de la función son locales.\n\nOpciones de hoja → Variables y supuestos muestra las definiciones guardadas. Para liberar un nombre usá purge(a), o purge(a,f) para varios. Si querés derivar o resolver respecto de x, comprobá que x esté libre."
     ],
     [
       "Cómo reutilizar resultados",
@@ -31,7 +31,7 @@
     ],
     [
       "Simplificar, desarrollar y sustituir",
-      "simplify(expr) busca una forma más sencilla; expand(expr) desarrolla productos y factor(expr) busca factores. Para reunir fracciones usá together(expr), y para separarlas en fracciones parciales, apart(expr,x). Los menús de Álgebra insertan esas formas para que las completes.\n\nsubst(expr,x,valor) reemplaza una variable. Para varios reemplazos simultáneos, usá subst(expr,{x:valor,y:valor}); también se admite subst(expr,x=valor)."
+      "simplify(expr) busca una forma más sencilla, expand(expr) desarrolla productos y factor(expr) busca factores. Para reunir fracciones usá together(expr). Con apart(expr,x) podés separarlas en fracciones parciales. Buscá cualquiera de estas opciones en Comandos para insertar su plantilla.\n\nsubst(expr,x,valor) reemplaza una variable. Para varios reemplazos simultáneos usá subst(expr,{x:valor,y:valor}). También se admite subst(expr,x=valor)."
     ],
     [
       "Qué significa declarar un supuesto",
@@ -43,7 +43,7 @@
     ],
     [
       "Cómo cambiar o quitar supuestos",
-      "Los supuestos se acumulan sólo en la hoja actual y aparecen en Hoja → Variables y supuestos. assume(x>2,x<4) agrega límites reales finitos sobre un símbolo. Para reemplazar esas condiciones, usá primero purge(x).\n\nUna condición contradictoria o un valor que no cumple lo declarado se rechaza sin cambiar el estado. Las soluciones se restringen al dominio declarado; si una condición de una solución paramétrica no puede verificarse, no se presenta como incondicional. No se admiten hipótesis generales entre parámetros, como assume(x>y), ni sobre funciones."
+      "Los supuestos se acumulan en la hoja actual. Para consultarlos, abrí Opciones de hoja → Variables y supuestos. assume(x>2,x<4) agrega límites reales finitos sobre x. Para reemplazar esas condiciones, usá primero purge(x).\n\nSi un supuesto nuevo contradice uno existente, el CAS conserva las condiciones anteriores. Las soluciones se restringen al dominio declarado y el resultado indica las condiciones pendientes. Las hipótesis se aplican a cada símbolo por separado, como en assume(x>2)."
     ],
     [
       "Funciones hiperbólicas",
@@ -51,7 +51,7 @@
     ],
     [
       "Pasar entre exponenciales y trigonometría",
-      "exp2trig(expr) aplica la identidad de Euler. Por ejemplo, exp2trig(exp(i*x)) produce cos(x)+i*sin(x). Para exponentes reales pueden aparecer funciones hiperbólicas como sinh y cosh.\n\ntrig2exp(expr) hace la conversión hacia exponenciales; sin(x), por ejemplo, se expresa como (exp(i*x)-exp(-i*x))/(2*i). Ambas opciones están en Álgebra y conservan el uso de radianes."
+      "exp2trig(expr) aplica la identidad de Euler. Por ejemplo, exp2trig(exp(i*x)) produce cos(x)+i*sin(x). Para exponentes reales pueden aparecer funciones hiperbólicas como sinh y cosh.\n\ntrig2exp(expr) hace la conversión hacia exponenciales. Por ejemplo, sin(x) se expresa como (exp(i*x)-exp(-i*x))/(2*i). Ambos comandos usan radianes y están en el grupo Álgebra de Comandos."
     ],
     [
       "Derivar, integrar y estudiar límites",
@@ -67,7 +67,7 @@
     ],
     [
       "Trabajar con matrices",
-      "A:=matrix([[1,2],[3,4]]) guarda una matriz. A+B suma matrices compatibles, A*B las multiplica y A^(-1) busca la inversa. Una lista [1,2] no se usa como vector de álgebra lineal; para eso escribí vector([1,2]).\n\nLos índices comienzan en cero: A[0,1] selecciona la primera fila y segunda columna. El menú Matrices reúne det, inv, transpose, rank, eigenvalues y rref; también están disponibles trace y nullspace para el estudio del modelo."
+      "A:=matrix([[1,2],[3,4]]) guarda una matriz. A+B suma matrices compatibles, A*B las multiplica y A^(-1) busca la inversa. Para crear un vector usá vector([1,2]).\n\nLos índices comienzan en cero. A[0,1] selecciona la primera fila y segunda columna. El grupo Matrices de Comandos reúne det, inv, transpose, rank, eigenvalues y rref. También podés escribir trace o nullspace en la entrada."
     ],
     [
       "Cómo leer una operación pendiente",
@@ -79,7 +79,7 @@
     ],
     [
       "Cómo leer fórmulas extensas",
-      "Las fórmulas conservan un tamaño legible en una ventana angosta. Si una expresión es ancha, usá la barra horizontal o Ampliar resultado para verla aparte. Hoja permite aumentar o reducir el tamaño.\n\nAlgunas matrices y listas largas tienen una vista parcial señalada. Copiar resultado y exportar texto conservan la salida completa, aunque la vista de la hoja muestre sólo una parte."
+      "Para recorrer una fórmula ancha, usá la barra horizontal o elegí Ampliar fórmula. En Opciones de hoja podés ajustar el tamaño de la notación.\n\nLa hoja indica cuándo muestra una vista parcial de una matriz o lista extensa. Copiar expresión y Exportar conservan la salida completa."
     ],
     [
       "Traer resultados de otras herramientas",
@@ -91,7 +91,7 @@
     ],
     [
       "Exportar y cancelar",
-      "Hoja permite exportar el documento con formato o su texto completo. Las entradas y variables se conservan al cambiar de pestaña durante la sesión, pero no se incluyen en el guardado general de sesiones.\n\nCancelar cálculo detiene la operación y conserva el último estado válido. Hoja → Nueva hoja vacía entradas y definiciones después de confirmarlo; si querés conservar ese trabajo, exportalo antes."
+      "En Exportar podés guardar la hoja en HTML o como texto. Las entradas y variables se conservan al cambiar de pestaña durante la sesión, y para guardarlas fuera de la hoja se usa la exportación.\n\nCancelar cálculo detiene la operación y conserva el último estado válido. Para empezar de cero, elegí Opciones de hoja → Nueva hoja. Si querés conservar el trabajo actual, exportalo antes de confirmar."
     ]
   ],
   "forms": [

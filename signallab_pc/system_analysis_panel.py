@@ -115,8 +115,11 @@ class SystemAnalysisPanel(QWidget):
             self.set_definition_capabilities(getattr(self,'_definition_rational',True))
         self.domain.currentIndexChanged.connect(update_roc);update_roc()
         self.result_tabs.currentChanged.connect(self._result_tab_changed);self.result_tabs.tabBar().tabBarClicked.connect(self._result_tab_changed)
+        self.roots_view.canvas._signallab_prepare_plot = self.prepare_root_figure
+        self.transfer_view.canvas._signallab_prepare_plot = self.prepare_transfer_figure
         self.empty=QLabel('El análisis aparecerá después de calcular.');self.empty.setObjectName('muted');layout.addWidget(self.empty);self.result_tabs.hide()
     def inspect_system_roots(self,system,key=None):
+        self.hide_previous_figures(hide_frequency=True)
         self.frequency_data=None;self.frequency_export.setEnabled(False);self.reuse_note.hide()
         self.measurements.set_source(None);self.result_tabs.setTabVisible(self.measurements_index,False)
         self.set_system(system,key);self.analyzed_system=system;self.analysis_advance=0;self.system=system
@@ -134,10 +137,21 @@ class SystemAnalysisPanel(QWidget):
             enlarge_plot(self.canvas,self)
         elif index==2:self.show_poles_zeros()
         elif index==3:self.show_realization()
-        elif index==self.transfer_index and self.analyzed_system is not None:
-            self.transfer_view.set_system(self.analyzed_system)
+        elif index==self.transfer_index:
             from .plot_view import enlarge_plot
-            enlarge_plot(self.transfer_view.canvas,self.transfer_view)
+            self.prepare_transfer_figure(lambda: enlarge_plot(self.transfer_view.canvas, self.transfer_view))
+
+    def prepare_transfer_figure(self, present):
+        if self.analyzed_system is not None:
+            self.transfer_view.set_system(self.analyzed_system)
+            present()
+
+    def hide_previous_figures(self, *, hide_frequency):
+        from .plot_view import hide_plot
+        for view in (self.roots_view, self.transfer_view):
+            hide_plot(view.canvas)
+        if hide_frequency:
+            hide_plot(self.canvas)
     def show_realization(self):
         if self.analyzed_system is None:return
         self.realization_view.set_system(self.analyzed_system,self.analysis_advance,self.input_id if not self.analysis_advance else None)
@@ -146,20 +160,37 @@ class SystemAnalysisPanel(QWidget):
         if self.analyzed_system is None:return
         if self.result_tabs.currentWidget() is not self.roots_view:
             self.result_tabs.setCurrentWidget(self.roots_view);return
-        system=self.analyzed_system;advance=self.analysis_advance;cached=self._roots_cache
+
+        def present():
+            if self.result_tabs.currentWidget() is self.roots_view:
+                from .plot_view import enlarge_plot
+                enlarge_plot(self.roots_view.canvas, self.roots_view)
+
+        if not getattr(self.window, '_workers', ()):
+            self.prepare_root_figure(present)
+
+    def prepare_root_figure(self, present):
+        system, advance = self.analyzed_system, self.analysis_advance
+        if system is None:
+            return
+
+        def accept(roots):
+            if self.analyzed_system is not system or self.analysis_advance != advance:
+                return
+            self._roots_cache = (system, advance, roots)
+            shown = self.roots_view.result
+            if shown is None or shown[0] is not system or shown[3] != advance:
+                self.roots_view.set_result(system, *roots, advance)
+            present()
+
+        cached = self._roots_cache
         if cached is not None and cached[0] is system and cached[1]==advance:
-            shown=self.roots_view.result
-            if shown is None or shown[0] is not system or shown[3]!=advance:self.roots_view.set_result(system,*cached[2],advance)
-            from .plot_view import enlarge_plot
-            enlarge_plot(self.roots_view.canvas,self.roots_view);return
-        if getattr(self.window,'_workers',[]):return
+            accept(cached[2])
+            return
         from .pole_zero_analysis import analyze_roots
         self.roots_view.report.setPlainText('Calculando polos y ceros del sistema analizado…')
-        def accept(result):
-            if self.analyzed_system is not system or self.analysis_advance!=advance:return
-            self._roots_cache=(system,advance,result)
-            if self.result_tabs.currentWidget() is self.roots_view:self.show_poles_zeros()
-        self.window._run_operation('Calculando polos y ceros del sistema analizado…',lambda:analyze_roots(system,advance),accept)
+        run = getattr(self.window, '_run_view_operation', self.window._run_operation)
+        run('Calculando polos y ceros del sistema analizado…', lambda: analyze_roots(system, advance), accept)
     def update_note(self,*_):
         digital=self.domain.currentIndex()==1;changed=digital!=getattr(self,'_noted_domain',None)
         self._noted_domain=digital
@@ -339,6 +370,7 @@ class SystemAnalysisPanel(QWidget):
                 return exact,system,data
             def accept(result):
                 exact,system,data=result
+                self.hide_previous_figures(hide_frequency=data is None)
                 definition=self.window.publish({'request':request,'result':exact},title='Definición algebraica del sistema',operation='Análisis numérico y algebraico',parents=[parent] if parent else [])
                 self._definition_id=definition;analytic=exact.get('model_kind') in ('expression','frequency')
                 self.set_definition_capabilities(not analytic)

@@ -1,13 +1,13 @@
-from .numeric_input import real_field
-from .validation import passive_fields
-"""Bordes ordenados, con significado visible y el mismo esquema en la biblioteca."""
-import json,re
-import numpy as np
-from PySide6.QtCore import Qt,Signal,QRectF,QLineF
+"""Frequency bands and their exact, ordered inputs."""
+import json
+import math
+from PySide6.QtCore import QEvent, Qt,Signal,QRectF,QLineF
 from PySide6.QtGui import QPainter,QColor,QPen,QFont,QImage
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QLabel,QToolButton
-from .engine import evaluate_expression
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QComboBox,QLineEdit,QLabel,QScrollArea
+from .choice_buttons import ChoiceButtons
+from .numeric_input import real_field
 from .theme_tokens import COLORS as C
+from .validation import FieldError, invalid, passive_fields
 
 KINDS={
 'lowpass':('Pasa bajos',['Hasta dónde dejar pasar','Desde dónde rechazar'],['0.3*pi','0.4*pi']),
@@ -20,38 +20,75 @@ EXPLAIN={
 'bandpass':['Fin del rechazo de frecuencias bajas.','Inicio de la banda que querés conservar.','Fin de la banda que querés conservar.','Inicio del rechazo de frecuencias altas.'],
 'bandstop':['Fin de la banda de frecuencias bajas que querés conservar.','Inicio de la banda que querés eliminar.','Fin de la banda que querés eliminar.','Inicio de la banda de frecuencias altas que querés conservar.']}
 EDGE_NAMES={'lowpass':['Fin del paso','Inicio del rechazo'],'highpass':['Fin del rechazo','Inicio del paso'],'bandpass':['Fin del rechazo inferior','Inicio del paso','Fin del paso','Inicio del rechazo superior'],'bandstop':['Fin del paso inferior','Inicio del rechazo','Fin del rechazo','Inicio del paso superior']}
+REGIONS={'lowpass':('pass','transition','stop'),'highpass':('stop','transition','pass'),
+         'bandpass':('stop','transition','pass','transition','stop'),'bandstop':('pass','transition','stop','transition','pass')}
+PASS_EDGES={'lowpass':(0,), 'highpass':(1,), 'bandpass':(1,2), 'bandstop':(0,3)}
 
-def draw_bands(p,rect,kind,edges=None,analog=False):
-    p.fillRect(rect,QColor(C['input']));p.setRenderHint(QPainter.RenderHint.Antialiasing)
-    x0=rect.left()+45;x1=rect.right()-25;y0=rect.top()+62;y1=rect.bottom()-65
+def draw_bands(p,rect,kind,edges=None,analog=False,*,active=-1,pending=False):
+    p.setRenderHint(QPainter.RenderHint.Antialiasing)
+    p.setPen(QColor(C['rule']));p.setBrush(QColor(C['input']));p.drawRoundedRect(rect.adjusted(.5,.5,-.5,-.5),9,9)
+    x0=rect.left()+14;x1=rect.right()-14;y0=rect.top()+34;y1=rect.bottom()-66
     values=edges if edges is not None else ([.3,.4] if kind in ('lowpass','highpass') else [.2,.3,.6,.7])
     positions=[x0]+[x0+v*(x1-x0) for v in values]+[x1]
-    modes={'lowpass':['pass','transition','stop'],'highpass':['stop','transition','pass'],'bandpass':['stop','transition','pass','transition','stop'],'bandstop':['pass','transition','stop','transition','pass']}[kind]
     colors={'pass':C['green'],'stop':C['amber'],'transition':C['muted']}
-    p.setFont(QFont('Segoe UI',10));p.setPen(QColor(C['text']));p.drawText(QRectF(x0,rect.top()+5,x1-x0,24),'Bandas del filtro')
-    for i,(label,mode) in enumerate([('Paso','pass'),('Transición','transition'),('Rechazo','stop')]):
-        x=x0+i*(x1-x0)/3;p.fillRect(QRectF(x,rect.top()+35,9,9),QColor(colors[mode]));p.setPen(QColor(C['text']));p.drawText(QRectF(x+14,rect.top()+28,(x1-x0)/3-14,23),label)
-    for i,mode in enumerate(modes):
-        color=QColor(colors[mode]);color.setAlpha(38);p.fillRect(QRectF(positions[i],y0,positions[i+1]-positions[i],y1-y0),color)
+    p.setFont(QFont('Segoe UI',9));font=p.fontMetrics()
+    legend=[('Paso','pass'),('Transición','transition'),('Rechazo','stop')]
+    width=sum(font.horizontalAdvance(label)+14 for label,_ in legend)
+    gap=max(4,min(15,(x1-x0-width)/2))
+    x=max(x0,rect.center().x()-(width+2*gap)/2)
+    for label,mode in legend:
+        p.fillRect(QRectF(x,rect.top()+14,8,8),QColor(colors[mode]))
+        p.setPen(QColor(C['text']));p.drawText(QRectF(x+13,rect.top()+6,font.horizontalAdvance(label)+1,24),Qt.AlignmentFlag.AlignVCenter,label)
+        x+=font.horizontalAdvance(label)+14+gap
+    for i,mode in enumerate(REGIONS[kind]):
+        color=QColor(colors[mode]);color.setAlpha(30 if pending else 56)
+        p.fillRect(QRectF(positions[i],y0,positions[i+1]-positions[i],y1-y0),color)
+        edge=y0+3 if mode=='pass' else y1-3
         if mode!='transition':
-            y=y0+12 if mode=='pass' else y1-10;p.setPen(QPen(QColor(colors[mode]),2));p.drawLine(QLineF(positions[i],y,positions[i+1],y))
-    p.setPen(QPen(QColor(C['disabled']),1));p.drawLine(QLineF(x0,y1,x1,y1))
-    p.setFont(QFont('Segoe UI',9))
+            p.setPen(QPen(QColor(colors[mode]),2));p.drawLine(QLineF(positions[i],edge,positions[i+1],edge))
+    p.setPen(QPen(QColor(C['border']),1));p.drawLine(QLineF(x0,y1,x1,y1))
+    markers=[]
+    previous=x0-12
     for i,x in enumerate(positions[1:-1]):
-        p.setPen(QPen(QColor(C['disabled']),1,Qt.PenStyle.DashLine));p.drawLine(QLineF(x,y0,x,y1))
-        cy=y1+15+(i%2)*17;p.setBrush(QColor(C['panel']));p.setPen(QColor(C['blue']));p.drawEllipse(QRectF(x-9,cy-9,18,18));p.drawText(QRectF(x-9,cy-9,18,18),Qt.AlignmentFlag.AlignCenter,str(i+1))
-    p.setPen(QColor(C['text']));p.drawText(QRectF(x0-25,y0,22,24),Qt.AlignmentFlag.AlignCenter,'A');p.drawText(QRectF(x0-25,y1-22,22,24),Qt.AlignmentFlag.AlignCenter,'0')
-    p.drawText(QRectF(x0-10,y1+4,20,20),Qt.AlignmentFlag.AlignCenter,'0');p.drawText(QRectF(x1-10,y1+4,20,20),Qt.AlignmentFlag.AlignCenter,'→' if analog else 'π')
-    p.drawText(QRectF(x0,rect.bottom()-23,x1-x0,20),Qt.AlignmentFlag.AlignCenter,'Ω (rad/s) · esquema' if analog else 'ω (rad/muestra) · esquema')
+        # Let the marker use its own horizontal space while its leader stays on the exact edge.
+        center=max(previous+20,min(x,x1-8-20*(len(values)-i-1)))
+        previous=center
+        cy=y1+25+(i%2)*15
+        dot=QRectF(center-8,cy-8,16,16)
+        role='accent' if i==active else 'green' if i in PASS_EDGES[kind] else 'amber'
+        p.setPen(QPen(QColor(C[role]),1,Qt.PenStyle.DashLine if pending else Qt.PenStyle.SolidLine))
+        p.drawLine(QLineF(x,y0,x,y1+4));p.drawLine(QLineF(x,y1+4,center,cy-8))
+        p.setBrush(QColor(C['selected'] if i==active else C['panel']));p.drawEllipse(dot)
+        p.setPen(QColor(C['text']));p.drawText(dot,Qt.AlignmentFlag.AlignCenter,str(i+1));markers.append(dot)
+    p.setPen(QColor(C['muted']));p.drawText(QRectF(x0-5,y1+2,20,16),Qt.AlignmentFlag.AlignLeft,'0')
+    p.drawText(QRectF(x1-12,y1+2,16,16),Qt.AlignmentFlag.AlignRight,'→' if analog else 'π')
+    p.drawText(QRectF(x0,rect.bottom()-21,x1-x0,18),Qt.AlignmentFlag.AlignCenter,'Ω (rad/s)' if analog else 'ω (rad/muestra)')
+    return markers
 
 def bands_image(kind,analog=False):
-    image=QImage(860,270,QImage.Format.Format_ARGB32);p=QPainter(image);draw_bands(p,QRectF(0,0,860,270),kind,analog=analog);p.end();return image
+    image=QImage(490,155,QImage.Format.Format_ARGB32);image.fill(QColor(C['report']));p=QPainter(image);draw_bands(p,QRectF(0,0,490,155),kind,analog=analog);p.end();return image
 
 class BandDiagram(QWidget):
+    edgeSelected=Signal(int)
+
     def __init__(self):
-        super().__init__();self.kind='lowpass';self.edges=None;self.analog=False;self.setMinimumHeight(200);self.setMinimumWidth(285)
+        super().__init__();self.kind='lowpass';self.edges=None;self.analog=False;self.active=-1;self.markers=[]
+        self.setFixedHeight(134)
+        self.setMinimumWidth(220)
+        self.setAccessibleName('Bandas de paso, transición y rechazo')
+        self.setToolTip('Seleccioná un número para editar ese borde.')
+
     def paintEvent(self,event):
-        p=QPainter(self);draw_bands(p,QRectF(self.rect()),self.kind,self.edges,self.analog);p.end()
+        p=QPainter(self);self.markers=draw_bands(p,QRectF(self.rect()),self.kind,self.edges,self.analog,active=self.active,pending=self.edges is None);p.end()
+
+    def mousePressEvent(self,event):
+        if event.button()==Qt.MouseButton.LeftButton:
+            for index,marker in enumerate(self.markers):
+                if marker.contains(event.position()):
+                    self.edgeSelected.emit(index)
+                    event.accept()
+                    return
+        super().mousePressEvent(event)
 
 class BandEdgesEditor(QWidget):
     textChanged=Signal(str)
@@ -60,37 +97,69 @@ class BandEdgesEditor(QWidget):
         if analog:self.saved={key:(['100','200'] if len(values[1])==2 else ['50','100','200','300']) for key,values in KINDS.items()}
         box=QVBoxLayout(self);box.setContentsMargins(0,0,0,0);self.kind=QComboBox()
         for key,(title,_,_) in KINDS.items():self.kind.addItem(title,key)
-        box.addWidget(QLabel('Tipo de filtro'));box.addWidget(self.kind)
-        self.diagram=BandDiagram();self.diagram.analog=analog;box.addWidget(self.diagram);self.diagram.hide()
-        self.diagram_toggle=QToolButton();self.diagram_toggle.setText('Esquema de bandas');self.diagram_toggle.setCheckable(True);self.diagram_toggle.setToolTip('Mostrar los bordes en colores. F1 abre la explicación completa.');self.diagram_toggle.toggled.connect(self.diagram.setVisible);box.insertWidget(2,self.diagram_toggle)
-        self.order_note=QLabel('Frecuencias angulares en '+self.unit+'. Ingresalas de menor a mayor: '+('todas positivas.' if analog else 'entre 0 y π, sin incluir los extremos.'));self.order_note.setObjectName('muted');self.order_note.setWordWrap(True);box.addWidget(self.order_note)
-        self.form=QFormLayout();self.form.setProperty("stackFields",True);self.form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows);box.addLayout(self.form);self.edits=[];self.labels=[];self.hints=[]
+        box.addWidget(QLabel('Tipo de filtro'));box.addWidget(ChoiceButtons(self.kind))
+        self.diagram=BandDiagram();self.diagram.analog=analog;box.addWidget(self.diagram)
+        self.diagram.edgeSelected.connect(self.focus_edge)
+        self.order_note=QLabel('Bordes crecientes en '+self.unit+'. '+('Usá valores positivos.' if analog else 'Usá valores entre 0 y π.'));self.order_note.setObjectName('muted');self.order_note.setWordWrap(True);box.addWidget(self.order_note)
+        self.edits=[];self.labels=[];self.badges=[];self.rows=[]
         for i in range(4):
-            label=QLabel();label.setWordWrap(True);container=QWidget();column=QVBoxLayout(container);column.setContentsMargins(0,0,0,0)
-            edit=QLineEdit();edit.setPlaceholderText('Ω > 0 (rad/s)' if analog else '0 < ω < pi (rad/muestra)');hint=QLabel();hint.setWordWrap(True);hint.setObjectName('muted');column.addWidget(edit);column.addWidget(hint);hint.hide()
-            self.form.addRow(label,container);self.edits.append(edit);self.labels.append(label);self.hints.append(hint);edit.textChanged.connect(self.changed)
-        self.status=QLabel();self.status.setWordWrap(True);box.addWidget(self.status)
+            container=QWidget();row=QHBoxLayout(container);row.setContentsMargins(0,0,0,0);row.setSpacing(7)
+            badge=QLabel(str(i+1));badge.setObjectName('bandEdgeBadge');badge.setFixedSize(21,21);badge.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            label=QLabel();label.setWordWrap(True)
+            edit=QLineEdit();edit.setPlaceholderText('Ω' if analog else 'ω');edit.setMaximumWidth(116);edit.installEventFilter(self)
+            row.addWidget(badge);row.addWidget(label,1);row.addWidget(edit)
+            box.addWidget(container);self.rows.append(container);self.edits.append(edit);self.labels.append(label);self.badges.append(badge)
+            edit.textChanged.connect(self.changed)
+        self.status=QLabel();self.status.setObjectName('bandStatus');self.status.setWordWrap(True);box.addWidget(self.status)
         self.kind.currentIndexChanged.connect(self.change_kind);self.change_kind()
+
+    def focus_edge(self,index):
+        edit=self.edits[index]
+        parent=self.parentWidget()
+        area=None
+        while parent is not None:
+            if isinstance(parent,QScrollArea) and area is None:area=parent
+            if parent.objectName()=='toolWorkspace':
+                parent.show_inputs()
+                break
+            parent=parent.parentWidget()
+        if area is not None:area.ensureWidgetVisible(edit,8,12)
+        edit.setFocus(Qt.FocusReason.MouseFocusReason)
+        edit.selectAll()
+
+    def place_diagram(self, destination=None):
+        if destination is None:
+            self.layout().insertWidget(2,self.diagram)
+        else:
+            destination.addWidget(self.diagram)
+        self.diagram.show()
+
+    def eventFilter(self,watched,event):
+        if event.type() in (QEvent.Type.FocusIn,QEvent.Type.FocusOut):
+            self.diagram.active=self.edits.index(watched) if event.type()==QEvent.Type.FocusIn else -1
+            self.diagram.update()
+        return super().eventFilter(watched,event)
     def text(self):return json.dumps([self.kind.currentData(),[edit.text() for edit in self.edits[:len(KINDS[self.kind.currentData()][1])]]])
     def change_kind(self,*_):
         self.loading=True;self.current=self.kind.currentData();_,labels,_=KINDS[self.current]
         for i,edit in enumerate(self.edits):
-            self.form.setRowVisible(i,i<len(labels))
+            self.rows[i].setVisible(i<len(labels))
             if i<len(labels):
-                self.labels[i].setText(f'{i+1}. '+EDGE_NAMES[self.current][i]);edit.setAccessibleName(f'Frecuencia {i+1}: '+EDGE_NAMES[self.current][i]+' ('+self.unit+')')
-                passing={'lowpass':[True,False],'highpass':[False,True],'bandpass':[False,True,True,False],'bandstop':[True,False,False,True]}[self.current][i]
-                self.labels[i].setStyleSheet('color:'+(C['green'] if passing else C['amber'])+';');self.hints[i].setText(EXPLAIN[self.current][i]);edit.setToolTip(EXPLAIN[self.current][i]+' Unidad: '+self.unit+'. Se admiten pi, fracciones y expresiones reales.');edit.setText(self.saved[self.current][i])
+                name=EDGE_NAMES[self.current][i]
+                self.labels[i].setText(name);edit.setAccessibleName(f'{i+1}. {name} ({self.unit})')
+                badge=self.badges[i];badge.setProperty('bandRole','pass' if i in PASS_EDGES[self.current] else 'stop')
+                badge.style().unpolish(badge);badge.style().polish(badge)
+                edit.setText(self.saved[self.current][i]);edit.setToolTip(EXPLAIN[self.current][i]+' Podés usar pi y fracciones.')
         self.loading=False;self.changed()
     def frequencies(self):
         result=[];labels=KINDS[self.current][1]
         for i,edit in enumerate(self.edits[:len(labels)]):
-            text=edit.text().strip()
-            if re.fullmatch(r'[+-]?\d+,\d+',text):text=text.replace(',','.')
-            try:value=complex(real_field(edit))
-            except Exception as exc:raise ValueError(f'Frecuencia {i+1}: ingresá un solo número o expresión, por ejemplo 0.8 o pi/4. No ingreses listas.') from exc
-            if value.imag or not np.isfinite(value) or value.real<=0 or (not self.analog and value.real>=np.pi):raise ValueError(f'Frecuencia {i+1}: debe ser positiva y finita en rad/s.' if self.analog else f'Frecuencia {i+1}: debe estar entre 0 y pi, sin incluir los extremos.')
-            result.append(value.real)
-        if any(a>=b for a,b in zip(result,result[1:])):raise ValueError('Las frecuencias deben aumentar de izquierda a derecha: 1 < 2'+(' < 3 < 4' if len(result)==4 else '')+'. Dejá un ancho de transición mayor que cero.')
+            value=real_field(edit,minimum=0,strict=True)
+            if not self.analog and value>=math.pi:
+                invalid(edit,'debe ser menor que π.')
+            if result and value<=result[-1]:
+                invalid(edit,f'debe ser mayor que el borde {i}.')
+            result.append(value)
         return result
     def bands(self):
         f=self.frequencies()
@@ -103,6 +172,10 @@ class BandEdgesEditor(QWidget):
         if self.loading:return
         self.saved[self.current]=[edit.text() for edit in self.edits[:len(KINDS[self.current][1])]];self.diagram.kind=self.current
         try:
-            f=self.frequencies();self.diagram.edges=[v/(f[-1]*1.25 if self.analog else np.pi) for v in f];self.status.setText('Transición especificada: '+f'{f[1]-f[0]:.6g} {self.unit}'+(f' (izquierda) y {f[3]-f[2]:.6g} {self.unit} (derecha).' if len(f)==4 else '.'))
-        except ValueError as exc:self.diagram.edges=None;self.status.setText(str(exc)+' El esquema es una referencia hasta completar valores válidos.')
+            f=self.frequencies();self.diagram.edges=[v/(f[-1]*1.25 if self.analog else math.pi) for v in f]
+            width=f'{f[1]-f[0]:.6g} {self.unit}'
+            self.status.setText(f'Transición de {width}' if len(f)==2 else f'Transición izquierda de {width}\nTransición derecha de {f[3]-f[2]:.6g} {self.unit}')
+        except FieldError as exc:
+            self.diagram.edges=None
+            self.status.setText(str(exc).split(' Detalle:',1)[0]+' Esquema de referencia.')
         self.diagram.update();self.textChanged.emit(self.text())

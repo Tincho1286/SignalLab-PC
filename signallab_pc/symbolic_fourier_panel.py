@@ -5,6 +5,7 @@ from .expression_editor import ExpressionEditor
 from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineEdit,QPushButton,QLabel,QPlainTextEdit,QScrollArea,QMessageBox,QTabWidget,QMenu
 from .symbolic_process import run_request
 from .model import Signal
+from .plot_actions import FormulaPlotButton, install_result_button
 
 class SymbolicFourierPanel(QWidget):
     def __init__(self,window,inverse=False,discrete=False):
@@ -12,6 +13,7 @@ class SymbolicFourierPanel(QWidget):
         from .toolbox import ResultView
         root=QHBoxLayout(self);controls=QWidget();form=QFormLayout(controls);form.setProperty("stackFields",True);form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows)
         self.expression=ExpressionEditor('1/(1-0.5*exp(-i*w))' if discrete and inverse else '(1/2)^n' if discrete else 'sqrt(pi)*exp(-w^2/4)' if inverse else 'exp(-t^2)')
+        self.expression.setProperty('variableHint', 'w' if inverse else 'n' if discrete else 't')
         form.addRow('X(w), con w en rad/muestra' if discrete and inverse else 'x[n]' if discrete else 'X(w), con w en rad/s' if inverse else 'x(t), con t en segundos',self.expression)
         self.expression.symbolic=True
         self.lower=QLineEdit('0');self.upper=QLineEdit('oo')
@@ -24,13 +26,14 @@ class SymbolicFourierPanel(QWidget):
         self.calculate_button=QPushButton('Calcular transformada algebraica');self.calculate_button.setObjectName('primary');self.calculate_button.clicked.connect(self.calculate);form.addRow(self.calculate_button)
         from .result_state import ResultState
         self.result_state=ResultState([self.expression]+([self.lower,self.upper] if discrete and not inverse else []),self.calculate_button);form.insertRow(0,self.result_state)
-        self.numeric_controls=QWidget();numeric_form=QFormLayout(self.numeric_controls);form.addRow(self.numeric_controls);self.numeric_controls.hide()
-        label=QLabel('Registro numérico del último resultado');label.setObjectName('cardTitle');numeric_form.addRow(label)
+        scope = ('Los índices del gráfico son consecutivos a partir del primero. La fórmula describe la secuencia completa.'
+                 if discrete and inverse else 'El intervalo solo afecta los valores del gráfico. Los impulsos se dibujan aparte, por posición y área.')
+        self.sample_button = FormulaPlotButton(self, scope)
+        numeric_form = self.sample_button.form
         self.start=QLineEdit('-16' if discrete and inverse else '-pi' if discrete else '-5');self.stop=QLineEdit('pi' if discrete else '5');self.count=QLineEdit('33' if discrete and inverse else '501')
         for title,field in [('Primer índice n' if discrete and inverse else 'Inicio (rad/muestra)' if discrete else 'Inicio (s)' if inverse else 'Inicio (rad/s)',self.start),('Final (rad/muestra)' if discrete else 'Final (s)' if inverse else 'Final (rad/s)',self.stop),('Cantidad de muestras' if discrete and inverse else 'Cantidad de puntos',self.count)]:
             if not (discrete and inverse and field is self.stop):numeric_form.addRow(title,field)
-        self.sample_button=QPushButton('Graficar resultado');self.sample_button.setEnabled(False);self.sample_button.clicked.connect(self.sample);self.sample_button.setToolTip('Evaluar el último resultado en el intervalo indicado y abrir su figura.')
-        scope=QLabel('La ventana permite ver los valores de la expresión. Los impulsos se dibujan aparte, por posición y área.');scope.setWordWrap(True);numeric_form.addRow(scope)
+        self.sample_button.clicked.connect(self.sample)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);root.addWidget(scroll,1)
         right=QWidget();layout=QVBoxLayout(right);layout.setContentsMargins(0,0,0,0);root.addWidget(right,2)
         from .result_toolbar import ResultActionBar,attach
@@ -41,9 +44,8 @@ class SymbolicFourierPanel(QWidget):
         menu.aboutToShow.connect(self.prepare_reuse);actions.addWidget(self.reuse_button)
         self.to_cas_button=QPushButton('Enviar a CAS');self.to_cas_button.setProperty('actionRole','cas');self.to_cas_button.setToolTip('Envía la última expresión calculada y sus condiciones. El menú también permite enviar las muestras si generaste un registro.');self.to_cas_button.setEnabled(False);self.to_cas_button.setMenu(QMenu(self.to_cas_button));self.to_cas_button.menu().aboutToShow.connect(self.prepare_cas);actions.addWidget(self.to_cas_button);layout.addWidget(self.result_actions)
         self.tabs=QTabWidget();layout.addWidget(self.tabs,1);self.report=ReportView();self.report.setReadOnly(True);self.tabs.addTab(report_panel(self.report),'Expresión y condiciones');attach(self.tabs,self.result_actions);self.result_actions.use_report(self.report)
-        from .plot_actions import install_result_button
         install_result_button(self.tabs,self.sample_button)
-        self.report.setPlainText('Ingresá la expresión y calculá. Si el resultado admite valores numéricos, aparecerán los campos para graficarlo.')
+        self.report.setPlainText('Ingresá la expresión y calculá. Si el resultado admite valores numéricos, podés abrir el gráfico y ajustar su intervalo desde la flecha.')
         self.output=ResultView();self.output.show_action_bar=False;self.tabs.addTab(self.output,'Registro numérico');self.tabs.setTabVisible(1,False)
         from .expression_grid_view import ExpressionGridView
         self.masked=ExpressionGridView();self.masked_index=self.tabs.addTab(self.masked,'Valores condicionados');self.tabs.setTabVisible(self.masked_index,False)
@@ -56,7 +58,6 @@ class SymbolicFourierPanel(QWidget):
         current = (self.last is not None and self.last[1]['evaluated'] and
                    self.result_state.completed == self.result_state.snapshot())
         self.sample_button.setEnabled(current)
-        self.numeric_controls.setVisible(current)
         if not current:
             from .plot_view import hide_plot
             hide_plot(self.output.canvas)
@@ -163,8 +164,9 @@ class SymbolicFourierPanel(QWidget):
         key,result=self.last
         if not result['evaluated']:return
         if self.discrete and self.inverse:
-            try:request=dict(operation='inverse_dtft_samples',expression=result['input_expression'],solved=result,start=integer_field(self.start),count=integer_field(self.count))
-            except ValueError as exc:QMessageBox.warning(self,'Revisá los índices',str(exc));return
+            try:request=dict(operation='inverse_dtft_samples',expression=result['input_expression'],solved=result,start=integer_field(self.start),count=integer_field(self.count, minimum=1))
+            except ValueError as exc:self.sample_button.invalid_interval(exc);return
+            self.sample_button.settings.hide()
             if self.reopen_plot(key, request):
                 return
             def accept(data):
@@ -177,8 +179,13 @@ class SymbolicFourierPanel(QWidget):
                 open_result_plot(self.output, self)
                 self._sampled_plot = (key, request, self.output.canvas)
             self.window._run_operation('Evaluando DTFT inversa…',lambda:run_request(request),accept);return
-        try:request=dict(operation='expression_grid',expression=result['result'],variable=result['output_variable'],condition=result['condition'],encoded=result.get('cas_encoded'),allow_undefined=True,allow_distribution=True,periodic_frequency=self.discrete,start=real_field(self.start),stop=real_field(self.stop),start_exact=self.start.text(),stop_exact=self.stop.text(),count=integer_field(self.count))
-        except ValueError as exc:QMessageBox.warning(self,'Revisá la rejilla',str(exc));return
+        try:
+            from .validation import ordered_interval
+            start, stop = real_field(self.start), real_field(self.stop)
+            ordered_interval(self.start, self.stop, start, stop)
+            request=dict(operation='expression_grid',expression=result['result'],variable=result['output_variable'],condition=result['condition'],encoded=result.get('cas_encoded'),allow_undefined=True,allow_distribution=True,periodic_frequency=self.discrete,start=start,stop=stop,start_exact=self.start.text(),stop_exact=self.stop.text(),count=integer_field(self.count, minimum=2))
+        except ValueError as exc:self.sample_button.invalid_interval(exc);return
+        self.sample_button.settings.hide()
         if self.reopen_plot(key, request):
             return
         def accept(data):

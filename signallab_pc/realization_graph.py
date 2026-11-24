@@ -155,12 +155,7 @@ class RealizationGraph:
             incoming[target.id].append(wire)
         return incoming
 
-    def transfer(self):
-        import sympy as sp
-        from .resources import ensure_working_set
-        from .scalar_expression import exact_constant
-        from .symbolic import S, Z
-
+    def connections_for_transfer(self):
         incoming = self.connections()
         _ = self.sample_period_s  # Imported discrete blocks must use a common clock.
         input_id = next(block.id for block in self.blocks if block.kind == 'input')
@@ -183,6 +178,15 @@ class RealizationGraph:
         if len(visited) < len(self.blocks):
             loose = next(block.id for block in self.blocks if block.id not in visited)
             raise ValueError(f'El bloque {loose} no tiene camino hacia la salida y.')
+        return incoming, input_id, output_id, nodes
+
+    def transfer(self):
+        import sympy as sp
+        from .resources import ensure_working_set
+        from .scalar_expression import exact_constant
+        from .symbolic import S, Z
+
+        incoming, input_id, output_id, nodes = self.connections_for_transfer()
 
         # q is one unit delay (discrete) or one integration (continuous).
         # With q=0 only direct paths remain. They must uniquely define the

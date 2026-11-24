@@ -128,5 +128,12 @@ def send_to_cas(window,key=None,*,value=None,label=None):
         if key is not None and data.get('kind')=='expression' and data.get('variable')=='z' and data.get('period') is None:data['period']=window.project.sample_period(key)
         if label is None:
             label=next((r['title'] for r in window.project.headers() if r['id']==key),getattr(value,'name','Resultado calculado'))
-        window.open_cas();page=window.pages[window.current_operation];page.import_result(data,label,key)
+        origin=window.capture_handoff() if hasattr(window,'capture_handoff') else None
+        window.open_cas();page=window.pages[window.current_operation]
+        if origin is None:
+            page.import_result(data,label,key)
+        else:
+            def loaded(cell):
+                window.finish_handoff(origin,f'{label} disponible en CAS como r{cell}',key,worksheet=page.workspace)
+            page.import_result(data,label,key,on_loaded=loaded)
     except (ValueError,TypeError,KeyError,MemoryError,OverflowError) as exc:QMessageBox.warning(window,'No se pudo enviar al CAS',str(exc))

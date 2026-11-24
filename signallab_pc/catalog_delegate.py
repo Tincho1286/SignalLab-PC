@@ -1,6 +1,12 @@
 """Wrap operation names to keep navigation readable on narrow screens."""
 from PySide6.QtCore import Qt,QSize,QRect,QTimer,QEvent
+from PySide6.QtGui import QColor,QFont,QPen
 from PySide6.QtWidgets import QStyledItemDelegate,QStyleOptionViewItem,QStyle,QTreeWidgetItemIterator
+from .theme_tokens import COLORS
+
+TARGET = Qt.ItemDataRole.UserRole
+DETAIL = Qt.ItemDataRole.UserRole + 1
+
 class CatalogDelegate(QStyledItemDelegate):
     def __init__(self,parent):
         super().__init__(parent);parent.viewport().installEventFilter(self);self.pending=False
@@ -34,3 +40,47 @@ class CatalogDelegate(QStyledItemDelegate):
         if not opt.icon.isNull():
             opt.icon.paint(painter,QRect(rect.left(),rect.center().y()-9,18,18));rect.adjust(25,0,0,0)
         painter.setFont(option.font);painter.setPen(QColor(C['text'] if selected else C['muted']));painter.drawText(rect,Qt.TextFlag.TextWordWrap|Qt.AlignmentFlag.AlignVCenter,opt.text);painter.restore()
+
+
+class DetailListDelegate(QStyledItemDelegate):
+    def sizeHint(self, option, index):
+        line = option.fontMetrics.lineSpacing()
+        return QSize(0, line + 14 if index.data(TARGET) is None else 2 * line + 20)
+
+    def paint(self, painter, option, index):
+        painter.save()
+        title = index.data(Qt.ItemDataRole.DisplayRole)
+        if index.data(TARGET) is None:
+            font = QFont(option.font)
+            font.setWeight(QFont.Weight.DemiBold)
+            painter.setFont(font)
+            painter.setPen(QColor(COLORS['muted']))
+            painter.drawText(option.rect.adjusted(12, 5, -10, 0), Qt.AlignmentFlag.AlignVCenter, title)
+            painter.restore()
+            return
+
+        rect = option.rect.adjusted(2, 2, -2, -2)
+        selected = option.state & QStyle.StateFlag.State_Selected
+        hovered = option.state & QStyle.StateFlag.State_MouseOver
+        if selected or hovered:
+            painter.setPen(QPen(QColor(COLORS['accent' if selected else 'rule'])))
+            painter.setBrush(QColor(COLORS['selected' if selected else 'hover']))
+            painter.drawRoundedRect(rect, 9, 9)
+        image = QRect(rect.left() + 12, rect.center().y() - 14, 28, 28)
+        decoration = index.data(Qt.ItemDataRole.DecorationRole)
+        if decoration is not None:
+            decoration.paint(painter, image)
+        font = QFont(option.font)
+        font.setWeight(QFont.Weight.DemiBold)
+        painter.setFont(font)
+        painter.setPen(QColor(COLORS['text']))
+        line = option.fontMetrics.lineSpacing()
+        x, y = rect.left() + 51, rect.center().y() - line
+        text_width = max(1, rect.width() - 76)
+        first = painter.fontMetrics().elidedText(title, Qt.TextElideMode.ElideRight, text_width)
+        painter.drawText(QRect(x, y, text_width, line), Qt.AlignmentFlag.AlignVCenter, first)
+        painter.setFont(option.font)
+        painter.setPen(QColor(COLORS['muted']))
+        detail = option.fontMetrics.elidedText(index.data(DETAIL), Qt.TextElideMode.ElideRight, text_width)
+        painter.drawText(QRect(x, y + line, text_width, line), Qt.AlignmentFlag.AlignVCenter, detail)
+        painter.restore()

@@ -35,6 +35,8 @@ def icon(kind, color=None):
         'search':'M17 10a7 7 0 1 1-14 0 7 7 0 0 1 14 0 M15 15l6 6',
         'calculator':'M5 2h14v20H5z M8 5h8v4H8z M8 13h1 M12 13h1 M16 13h1 M8 17h1 M12 17h1 M16 17h1',
         'home':'M3 11l9-8 9 8 M6 10v11h12V10 M10 21v-7h4v7',
+        'star':'M12 2l3.1 6.3 7 .9-5.1 5 1.2 7-6.2-3.2-6.2 3.2 1.2-7-5.1-5 7-.9z',
+        'remove':'M5 6h14m-12 0 1 14h8l1-14M9 6V3h6v3m-5 4v6m4-6v6',
         'wave':'M2 12h3l3-8 5 16 3-8h6',
         'chart':'M3 3v18h18 M6 15l4-6 4 3 6-8',
         'table':'M3 4h18v16H3z M3 9h18 M9 4v16 M15 4v16',

@@ -13,15 +13,18 @@ class TransferFunctionView(QWidget):
     def __init__(self):
         super().__init__();self.system=None;self._grid=None;layout=QVBoxLayout(self)
         self.formula=ReportView();self.formula.setMaximumHeight(155);layout.addWidget(self.formula)
-        controls=QFormLayout();layout.addLayout(controls);self.ranges={};self.axis_labels={}
+        options=QWidget();options_box=QVBoxLayout(options);options_box.setContentsMargins(0,0,0,0);options_box.setSpacing(4)
+        controls=QFormLayout();controls.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapLongRows)
+        options_box.addLayout(controls);self.ranges={};self.axis_labels={}
         for coordinate in ('real','imag'):
             container=QWidget();row=QHBoxLayout(container);row.setContentsMargins(0,0,0,0)
             for suffix,label,value in [('low','Desde','-1.5'),('high','Hasta','1.5')]:
                 row.addWidget(QLabel(label));field=QLineEdit(value);row.addWidget(field,1);self.ranges[coordinate+'_'+suffix]=field
             axis_label=QLabel();self.axis_labels[coordinate]=axis_label;controls.addRow(axis_label,container)
-        draw=QPushButton('Actualizar gráficas');draw.clicked.connect(self.draw);layout.addWidget(draw)
+        draw=QPushButton('Actualizar intervalo del plano');draw.clicked.connect(self.draw);options_box.addWidget(draw)
+        layout.addWidget(options)
         self.note=QLabel('La figura permite elegir módulo/ángulo o parte real/imaginaria. Cada altura corresponde a una componente de H sobre el plano complejo.');self.note.setWordWrap(True);layout.addWidget(self.note)
-        self.figure=Figure(figsize=(11,5.5));self.canvas=FigureCanvasQTAgg(self.figure);self.toolbar=NavigationToolbar2QT(self.canvas,self)
+        self.figure=Figure(figsize=(11,5.5));self.canvas=FigureCanvasQTAgg(self.figure);self.canvas._signallab_plot_controls=options;self.toolbar=NavigationToolbar2QT(self.canvas,self)
         self.components=QComboBox();self.components.addItems(['Módulo y ángulo','Parte real e imaginaria']);self.components.setAccessibleName('Componentes de la transferencia');self.components.setToolTip('Cambia la representación del resultado; no modifica el sistema ni su región de convergencia.')
         self.toolbar.addSeparator();self.toolbar.addWidget(self.components);self.components.currentIndexChanged.connect(self.draw)
         layout.addWidget(self.toolbar);layout.addWidget(self.canvas,1)

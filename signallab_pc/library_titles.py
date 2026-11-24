@@ -70,11 +70,16 @@ def topic(category):
 
 
 def apply(sections):
+    aliases = {
+        'tool:course_tools:band': ['Energía en una banda', 'Energía espectral por banda'],
+        'tool:transform_lab:laplace': ['Laplace directa', 'Laplace inversa', 'Transformada inversa de Laplace'],
+        'tool:transform_lab:z': ['Z directa', 'Z inversa', 'Transformada Z inversa', 'Antitransformada Z'],
+    }
     for section in sections:
         section['original_title']=section['title']
         section['title']=SHORT.get(section['article_id'],section['title'].removeprefix('Ejemplo: '))
         section['topic']=topic(section['category'])
-        if section['article_id']=='tool:course_tools:band':section['search_aliases']=['Energía en una banda','Energía espectral por banda']
+        if section['article_id'] in aliases:section['search_aliases']=aliases[section['article_id']]
     by_id={s['article_id']:s for s in sections}
     for section in sections:
         if section.get('examples'):section['examples']=[(identifier,by_id['example:'+identifier]['title']) for identifier,_ in section['examples']]

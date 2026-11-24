@@ -2,9 +2,13 @@
 
 **Abrir gráfico** aparece junto a las pestañas del resultado y del informe, con fondo y borde visibles. Al tener varias figuras, la flecha ocupa una zona propia a la derecha: pulsá el texto para abrir la figura actual o la flecha para elegir otra. Con una sola figura se muestra un botón sin menú.
 
-En las ventanas de gráficos 2D, activá **Cursores** en la barra. La lectura aparece debajo de la figura, sin tapar los datos.
+La ventana muestra el nombre de la figura y la herramienta de origen. Cuando hay otras figuras disponibles, **Cambiar figura** permite pasar de una a otra desde la misma cabecera. Cada figura conserva su zoom. Con **Solo figura** o **F11** podés ganar espacio y recuperar después los controles y las lecturas. Las referencias se ubican fuera de los ejes y se acomodan debajo cuando el ancho y la altura lo permiten.
 
-Usá la barra de iconos para ampliar, desplazar o guardar la figura. Los controles de escala y componentes permiten cambiar la lectura de la figura. En **Escala vertical**, **Detalle vertical** muestra variaciones pequeñas y **Ajustar rango** permite elegir los límites de un panel.
+En análisis LTI, después de calcular, podés abrir la respuesta en frecuencia, el plano de polos y ceros o la transferencia desde el mismo menú de gráficos. El plano de polos y ceros permite cambiar entre coordenadas binómicas y polares. La figura de transferencia incluye su intervalo de evaluación.
+
+En los gráficos 2D, **Cursores** muestra la lectura debajo de la figura. **Tabla A/B** muestra los valores y sus diferencias. Cuando **Curvas y medidas** está abierto, la tabla pasa a su propia pestaña para dejar espacio al gráfico.
+
+Usá la barra de iconos para ampliar, desplazar o guardar la figura. **Vista** reúne el historial del zoom y los ajustes de los paneles. En **Escala vertical**, **Detalle vertical** muestra variaciones pequeñas y **Ajustar rango** permite elegir los límites de un panel.
 
 1. Mové el mouse sobre una traza: A sigue el punto más cercano en su eje horizontal. En n se eligen muestras enteras. Los planos de polos y ceros utilizan coordenadas libres del mouse; las otras nubes de puntos seleccionan el punto más cercano en pantalla.
 2. Hacé clic para fijar A. Al mover el mouse, B sigue la nueva posición.
@@ -18,23 +22,23 @@ Podés **arrastrar A o B** sin mover el otro cursor. En secuencias se siguen eli
 
 ## Curvas, fórmulas y posición exacta
 
-**Curvas y medidas…** abre un inspector junto a la figura. Elegí la traza y consultá **Definición**. Cuando existe una expresión guardada, se muestra con su intervalo y sus condiciones. En sistemas se distingue H(s) o H(z), su evaluación en frecuencia y la representación dibujada: módulo, dB, real, imaginaria, fase o retardo.
+**Curvas y medidas** muestra un inspector dentro de la ventana. Aparece al lado del gráfico cuando hay ancho y debajo en ventanas angostas. Podés arrastrar el separador. Si la barra se pliega para dar más espacio al gráfico, **Controles** vuelve a mostrarla. Elegí la traza y consultá **Definición** para ver su expresión e intervalo cuando estén guardados.
 
 Las fórmulas temporales almacenadas sólo se utilizan si todavía corresponden a las muestras y al eje. Modificar valores o coordenadas invalida una definición anterior que no fue reemplazada explícitamente. Las ventanas nuevas conservan su fórmula con esa comprobación. En señales muestreadas se distingue la función continua del mapeo de índices a tiempo. Una curva de datos sin expresión algebraica lo informa; el inspector no inventa una fórmula por interpolación.
 
-En **Coordenada x para leer** se admiten expresiones como `pi/2` o `1e-3`; los índices requieren un entero. **Ir** lee el punto disponible más cercano. Las flechas recorren el anterior o siguiente. **Lectura libre** libera los cursores; **Mover A** o **Mover B** conserva el otro. B requiere colocar A primero. Si el punto queda fuera de la vista, el eje se desplaza conservando el alcance cuando la escala lo permite.
+En **Leer punto**, ingresá una coordenada como `pi/2`, `1e-3` o un índice entero, según el eje. **Ir a x** lee el punto disponible más cercano. **Anterior** y **Siguiente** recorren los puntos de la traza. **Lectura libre** libera los cursores. **Mover A** o **Mover B** conserva el otro cursor. B requiere colocar A primero. Si el punto queda fuera de la vista, el eje se desplaza conservando el alcance cuando la escala lo permite.
 
 ## Máximos y mínimos
 
-La pestaña **Máximos y mínimos** mide la curva al abrirse. Elegí el tramo visible, toda la curva o el intervalo entre A y B. La cabecera indica los límites usados, la cantidad de puntos y los dos extremos. Si cambiás el intervalo, pulsá **Actualizar máximos y mínimos** para repetir la medición.
+La pestaña **Extremos** mide la curva al abrirse. Elegí el tramo visible, toda la curva o el intervalo entre A y B. La cabecera indica los límites usados, la cantidad de puntos y los dos extremos. **Medir extremos** actualiza la tabla tras cambiar el zoom o mover los cursores.
 
-Por defecto se muestran todas las apariciones del máximo y del mínimo del intervalo. Si varios puntos consecutivos tienen exactamente el mismo valor, una fila los agrupa como meseta: **Desde x**, **Hasta x** y **Puntos iguales** indican su extensión. Los picos separados siguen teniendo filas distintas. **Incluir también los picos y valles interiores** agrega extremos locales; no se unen huecos ni saltos de fase.
+Por defecto se muestran todas las apariciones del máximo y del mínimo del intervalo. Si varios puntos consecutivos tienen exactamente el mismo valor, una fila los agrupa como meseta. **Desde x**, **Hasta x** y **Puntos** indican su extensión. Los picos separados siguen teniendo filas distintas. **Incluir extremos locales** agrega picos y valles respetando los huecos y saltos de fase.
 
 La búsqueda utiliza los datos completos asociados a la traza cuando están disponibles. Si la figura sólo conserva su selección dibujada, se indica ese alcance. Las coordenadas y valores corresponden a puntos evaluados: no certifican extremos de una función entre muestras ni permiten interpretar un polo como una altura finita.
 
-Los triángulos marcan las posiciones encontradas: ▼ máximo y ▲ mínimo. Elegir una fila destaca su primera posición con un círculo; **Mostrar punto en gráfico** lleva la lectura allí y los botones A/B permiten fijarla. **Marcar en el gráfico** oculta o muestra esas marcas sin cambiar las muestras ni las escalas. Los marcadores de extremos se incluyen en la imagen mientras estén activados; los cursores A/B conservan su tratamiento aparte.
+Los símbolos ▼ y ▲ marcan el máximo y el mínimo. Elegir una fila destaca su primera posición con un círculo. **Ir al punto** lleva la lectura allí y **Fijar A** o **Fijar B** lo convierte en cursor. **Marcar en el gráfico** cambia la visibilidad de esas marcas, que se incluyen en la imagen mientras están activadas.
 
-**Exportar tabla** guarda coordenadas, valores, mesetas y alcance en CSV. Al cambiar de curva o resultado se prepara una búsqueda nueva. Cambiar el zoom o mover los cursores no altera silenciosamente una tabla ya obtenida: se indica que el intervalo cambió y se mantiene el calculado hasta pulsar **Actualizar máximos y mínimos**. Los planos de raíces, mapas y superficies no se tratan como curvas de una variable.
+**CSV…** guarda coordenadas, valores, mesetas y alcance. Al cambiar de curva o resultado se prepara una búsqueda nueva. Si el zoom o los cursores cambian el intervalo, el inspector avisa y espera a que pulses **Medir extremos**. Los planos de raíces, mapas y superficies tienen su propia interpretación.
 
 ## Módulo y fase desarrollados
 

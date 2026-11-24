@@ -3,12 +3,12 @@ import unicodedata
 from .workspaces import ROUTES
 AREAS=[
  ('signals','Señales','Crear, editar, transformar y medir señales.','signal'),
- ('systems','Sistemas LTI','Analizar H, obtener respuestas y conectar sistemas.','blocks'),
+ ('systems','Sistemas LTI','Transferencia, respuestas, diagramas, polos y ceros.','blocks'),
  ('filters','Diseño de filtros','Diseñar, ajustar y convertir filtros.','design'),
  ('spectra','Fourier y espectros','Transformadas, series, densidades y espectrogramas.','spectrum'),
  ('sampling','Muestreo y A/D','Muestrear, reconstruir, cambiar tasa y cuantizar.','sampling'),
  ('transforms','Laplace y Z','Expresiones, inversas y ecuaciones diferenciales.','zplane'),
- ('random','Señales aleatorias','Realizaciones, correlación, modelos AR/MA/ARMA y estimación de parámetros.','random'),
+ ('random','Señales aleatorias','Estadística, correlación y modelos AR/MA/ARMA.','random'),
 ]
 ENTRIES=[]
 def add(area,section,key,title,summary,tags=''):
@@ -151,14 +151,17 @@ def matches(entry,query):
     text=normalize(' '.join((entry['title'],entry['section'],entry['summary'],entry['tags'],AREA_BY_ID[entry['area']][1])))
     return all(word in text for word in normalize(query).split())
 
+def matching_variants(entry, query):
+    return ((key, values) for key, values in entry['variants']
+            if matches(_variant_search_record(entry, key, values), query))
+
 
 def search_variant(entry,query,current_key=None):
     import re
     words=set(re.findall(r'\w+',normalize(query)))
     desired=next((model for token,model in entry.get('search_models',{}).items() if token in words),None)
     candidates=[]
-    for key,values in entry['variants']:
-        if not matches(_variant_search_record(entry,key,values),query):continue
+    for key,values in matching_variants(entry, query):
         title_words=set(re.findall(r'\w+',normalize(DETAILS_BY_KEY[key]['title'])))
         score=(words==title_words,bool(desired and values and values[0]==desired),key==current_key,len(words & title_words))
         candidates.append((score,key))

@@ -398,8 +398,8 @@
           "Discreto usa rad/muestra y un período [−π,π]; continuo usa rad/s y una banda finita."
         ],
         [
-          "Intervalo de h",
-          "Define el tramo temporal aproximado, no los cortes de H."
+          "Ventana de la respuesta al impulso",
+          "Abrí esta sección para elegir qué tramo de h querés ver en la tabla y el gráfico. Los cortes y las ganancias se ingresan en la definición de H."
         ],
         [
           "Levantamiento de indeterminaciones",
@@ -408,7 +408,7 @@
           }
         ]
       ],
-      "reading": "Un filtro ideal puede ser no causal y de duración infinita. La respuesta temporal mostrada es una aproximación, no un FIR/IIR exacto."
+      "reading": "Un filtro ideal puede ser no causal y de duración infinita. El informe muestra las expresiones exactas de H y de h cuando están disponibles. La tabla y el gráfico de h usan las muestras de la aproximación numérica."
     },
     {
       "key": [

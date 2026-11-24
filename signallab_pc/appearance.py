@@ -71,6 +71,9 @@ def apply(window,key,*,persist=True):
         if widget.__class__.__module__.endswith('pole_zero_editor') and hasattr(widget,'refresh_cursor'):widget.refresh_cursor()
     from .design import refresh_icons
     refresh_icons(app)
+    history = getattr(window, 'project_list', None)
+    if history is not None:
+        history.refresh_icons()
     for widget in app.allWidgets():
         if widget.__class__.__module__.endswith('tool_browser') and hasattr(widget,'refresh_theme'):widget.refresh_theme()
         if widget.__class__.__module__.endswith('wallpaper'):widget.update()

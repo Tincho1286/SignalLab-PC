@@ -50,6 +50,7 @@ class DspExtensionsPanel(QWidget):
 
     def receive(self,source,key=None):
         index={'discrete':0,'continuous':1}[source.domain];self.domain.setCurrentIndex(index);self.sources[index].set_source(source,key)
+        return self.sources[index]
 
     def calculate(self):
         try:
