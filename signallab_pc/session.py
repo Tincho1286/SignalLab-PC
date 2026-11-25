@@ -5,10 +5,12 @@ from .atomic_file import write_json
 from .project import Project, read_document
 
 
-def save(path, project, workspace, *, before_commit=None):
+def save(path, project, workspace, *, before_commit=None, checkpoint=None):
+    if checkpoint is not None:
+        checkpoint()
     document = dict(format='signallab-session', schema_version=3,
                     project=project.document(), workspace=workspace)
-    write_json(Path(path), document, before_commit=before_commit)
+    write_json(Path(path), document, before_commit=before_commit, checkpoint=checkpoint)
 
 
 def load(path):

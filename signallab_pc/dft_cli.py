@@ -14,7 +14,7 @@ def execute(args, execution):
     source_id, result_id = store_dft(
         project, result, source_id=args.record, source=source if args.record is None else None,
         execution=execution)
-    session.save(args.output, project, workspace, before_commit=execution.checkpoint)
+    session.save(args.output, project, workspace, checkpoint=execution.checkpoint)
     return {'source_id': source_id, 'result_id': result_id,
             'length': result.provenance.length, 'estimated_work_bytes': result.estimated_work_bytes}
 

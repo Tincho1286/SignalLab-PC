@@ -18,7 +18,7 @@ def execute(args, execution):
                                  psd_segment=args.segment, psd_overlap=args.overlap, psd_window=args.window)
     result = run_pipeline(request, execution)
     ids = store_pipeline(project, request, result, source_id=args.record, execution=execution)
-    session.save(args.output, project, workspace, before_commit=execution.checkpoint)
+    session.save(args.output, project, workspace, checkpoint=execution.checkpoint)
     return asdict(ids)
 
 

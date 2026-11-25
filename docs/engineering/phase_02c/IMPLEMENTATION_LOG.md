@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02C.04 · C04 · C-05
+
+**Estado inicial.** `8b1c63e`. El CLI honraba la cancelación al terminar la escritura JSON, aunque podía completar el archivo temporal después de que se cancelara. Se inspeccionaron `execution`, `jobs`, `resources`, `atomic_file`, `session` y el banco heredado.
+
+**Decisión y evidencia.** Se preservó `before_commit` y se agregó un checkpoint optativo de codificación. `python -m unittest test_math_core_robustness` pasó 6/6 y comprobó que el destino y el directorio se mantienen. Se agregó un banco aislado para cálculo, pico de memoria y cancelación.
+
+**Estado.** Validación funcional aprobada. Medir la envolvente en WP07 y mantener el alcance cooperativo de las operaciones nativas.
+
 ## 25 de noviembre de 2026 · WP-02C.03 · C03 · C-03
 
 La publicación verifica el contenido materializado y los padres antes de la entrega atómica. Pasaron 23 pruebas de cálculo, CLI y transacciones y 5 regresiones específicas de procedencia.

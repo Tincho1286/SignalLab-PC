@@ -108,3 +108,23 @@ class CoreRobustnessTests(unittest.TestCase):
                     session.save(path,project,session.empty_workspace())
             self.assertEqual(path.read_bytes(),previous)
             self.assertEqual(list(Path(folder).iterdir()),[path])
+
+    def test_session_checkpoint_interrupts_json_encoding_before_replace(self):
+        project = Project()
+        project.add(Signal([1.125] * 16384))
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / 'session.json'
+            path.write_bytes(b'previous')
+            calls = 0
+
+            def checkpoint():
+                nonlocal calls
+                calls += 1
+                if calls == 3:
+                    raise OperationCancelled('Prueba de cancelación durante la escritura.')
+
+            with patch('signallab_pc.atomic_file.os.fsync') as sync, self.assertRaises(OperationCancelled):
+                session.save(path, project, session.empty_workspace(), checkpoint=checkpoint)
+            sync.assert_not_called()
+            self.assertEqual(path.read_bytes(), b'previous')
+            self.assertEqual(list(Path(folder).iterdir()), [path])

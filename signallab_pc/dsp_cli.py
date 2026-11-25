@@ -16,7 +16,7 @@ def _design(args, context):
     project = Project()
     design = design_fir(FIRDesignRequest(args.kind,args.taps,args.f1,args.f2,args.window,args.beta),context)
     model, specification = store_fir_design(project,design,execution=context)
-    session.save(args.output,project,session.empty_workspace(),before_commit=context.checkpoint)
+    session.save(args.output,project,session.empty_workspace(),checkpoint=context.checkpoint)
     return {'result_id':model, 'specification_id':specification}
 
 
@@ -46,7 +46,7 @@ def _execute(args, context):
                                parents=(parent,) if args.operation=='resample' else ())
     parents = (parent,) if model_id is None else (parent,model_id)
     result_id = store_signal(project,result,parents=parents,execution=context)
-    session.save(args.output,project,workspace,before_commit=context.checkpoint)
+    session.save(args.output,project,workspace,checkpoint=context.checkpoint)
     return {'source_id':parent, 'result_id':result_id, 'filter_id':model_id}
 
 

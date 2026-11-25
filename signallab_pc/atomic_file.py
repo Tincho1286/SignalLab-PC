@@ -29,9 +29,23 @@ def atomic_text_file(path,*,encoding='utf-8',newline=None,before_commit=None):
 def atomic_binary_file(path,*,before_commit=None):
     return _atomic_stream(path,'wb',before_commit=before_commit)
 
-def write_json(path,document,*,before_commit=None):
-    with atomic_text_file(path,before_commit=before_commit) as stream:
-        json.dump(document,stream,ensure_ascii=False,allow_nan=False,indent=2)
+def write_json(path, document, *, before_commit=None, checkpoint=None):
+    def commit_check():
+        if checkpoint is not None:
+            checkpoint()
+        if before_commit is not None:
+            before_commit()
+
+    with atomic_text_file(path, before_commit=commit_check) as stream:
+        if checkpoint is None:
+            json.dump(document, stream, ensure_ascii=False, allow_nan=False, indent=2)
+            return
+        encoder = json.JSONEncoder(ensure_ascii=False, allow_nan=False, indent=2)
+        for index, chunk in enumerate(encoder.iterencode(document)):
+            if index % 4096 == 0:
+                checkpoint()
+            stream.write(chunk)
+        checkpoint()
 
 def write_text(path,text):
     with atomic_text_file(path) as stream:stream.write(text)
