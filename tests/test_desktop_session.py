@@ -501,6 +501,233 @@ class DesktopSessionTests(unittest.TestCase):
         self.assertEqual(worksheet.input.toPlainText(), 'sqrt(')
         self.warning.assert_called_once()
 
+    def test_recover_legacy_checkpoint_respects_exclusive_lock_and_refusal(self):
+        legacy = self.path/'recovery.signallab.json'
+        project = Project()
+        record = project.add(Signal([3-2j], origin=-4))
+        session.save(legacy, project, session.empty_workspace())
+        before = legacy.read_bytes()
+        owner, other = self.window(), self.window()
+        self.question.return_value = QMessageBox.StandardButton.No
+        owner.sessions.offer_recovery()
+        self.assertTrue(owner.sessions.protected)
+        self.assertEqual(legacy.read_bytes(), before)
+        self.assertFalse(owner.project.headers())
+        other.sessions.offer_recovery()
+        self.assertIn('Otra instancia', other.statusBar().currentMessage())
+        self.assertFalse(other.project.headers())
+        self.question.return_value = QMessageBox.StandardButton.Yes
+        owner.sessions.offer_recovery()
+        self.assertTrue(owner.sessions.recovered_legacy)
+        self.assertEqual(owner.project.get(record).values[0], 3-2j)
+        self.assertEqual(owner.project.get(record).origin, -4)
+        self.assertFalse(owner.sessions.protected)
+        self.info.assert_called_once()
+        self.question.return_value = QMessageBox.StandardButton.Discard
+
+    def test_cancelled_close_keeps_last_checkpoint_of_session_being_edited(self):
+        from threading import Event
+        from PySide6.QtTest import QTest
+
+        window = self.window()
+        window.show()
+        window.publish(Signal([3]), operation='Primer punto')
+        window.sessions.autosave()
+        self.wait_for_recovery(window)
+        path = window.sessions.path
+        before = path.read_bytes()
+        save, entered, release = session.save, Event(), Event()
+
+        def delayed(*args, **kwargs):
+            entered.set()
+            if not release.wait(5):
+                raise TimeoutError()
+            return save(*args, **kwargs)
+
+        window.publish(Signal([4]), operation='Edición posterior')
+        self.question.return_value = QMessageBox.StandardButton.Cancel
+        with patch('signallab_pc.session_desktop.session.save', side_effect=delayed):
+            try:
+                window.sessions.autosave()
+                self.assertTrue(entered.wait(2))
+                self.assertFalse(window.close())
+                self.assertTrue(window.isVisible())
+                self.assertTrue(window.sessions.writing[2].is_set())
+            finally:
+                release.set()
+                self.wait_for_recovery(window)
+        QTest.qWait(25)
+        self.assertTrue(window.isVisible())
+        self.assertEqual(path.read_bytes(), before)
+        self.assertTrue(window.sessions.lock.isLocked())
+        self.question.return_value = QMessageBox.StandardButton.Discard
+
+    def test_invalid_session_navigation_leaves_current_inputs_and_published_records(self):
+        window = self.window()
+        route = ROUTES['basic', 'generate']
+        window.open_tool(route)
+        original = window.pages[route]
+        original.first.expression.setText('n+2')
+        record = window.publish(Signal([2]), operation='Actual')
+        good = capture(window)
+        original_tool = good['tools'][0]
+        invalid = [
+            ({**good, 'tools': [{'route': ['basic','missing'], 'inputs': {}}]}, 'desconocida'),
+            ({**good, 'tools': [{'route': ['basic','generate']}]}, 'incompleta'),
+            ({**good, 'tools': [original_tool, original_tool]}, 'repetida'),
+            ({**good, 'tools': []}, 'ausente'),
+            ({**good, 'tabs': [[], good['tabs'][-1]]}, 'inválida'),
+            ({**good, 'tabs': [['browser','absent'], good['tabs'][-1]]}, 'desconocida'),
+            ({**good, 'tabs': [good['tabs'][-1]]*2}, 'repetidas'),
+        ]
+        path = self.path/'invalid.json'
+        for state, message in invalid:
+            with self.subTest(message=message):
+                session.save(path, Project(), state)
+                self.assertFalse(window.sessions.open_path(path))
+                self.assertIn(message, self.warning.call_args.args[-1])
+                self.assertEqual(window.project.headers()[0]['id'], record)
+                self.assertIs(window.pages[route], original)
+                self.assertEqual(original.first.expression.text(), 'n+2')
+
+    def test_hidden_cas_draft_can_be_reopened_and_does_not_leak_to_other_session(self):
+        from signallab_pc.cas_reference import CAS_ROUTE
+
+        window = self.window()
+        window.open_cas()
+        window.pages[CAS_ROUTE].input.setPlainText('factor(x^2-4)')
+        window.close_document(window.documents.currentIndex())
+        path = self.path/'with-draft.json'
+        session.save(path, window.project, capture(window))
+        new = self.window()
+        self.assertTrue(new.sessions.open_path(path))
+        self.assertNotEqual(new.current_operation, CAS_ROUTE)
+        new.open_cas()
+        self.assertEqual(new.pages[CAS_ROUTE].input.toPlainText(), 'factor(x^2-4)')
+        empty = self.path/'ordinary.json'
+        session.save(empty, Project(), session.empty_workspace())
+        self.assertTrue(new.sessions.open_path(empty))
+        new.open_cas()
+        self.assertEqual(new.pages[CAS_ROUTE].input.toPlainText(), '')
+
+    def test_root_editor_commits_exact_origin_and_polar_roots_to_filter(self):
+        from signallab_pc.coefficient_editor import split_coefficients
+
+        window = self.window()
+        route = ROUTES['systems', 6]
+        window.open_tool(route)
+        page = window.pages[route]
+        panel, editor = page.panel, page.root_entry
+        panel.fields['zeros'].clear()
+        panel.fields['poles'].clear()
+        editor.representation.setCurrentIndex(1)
+        editor.radius.setText('1/2')
+        editor.angle.setText('pi/2')
+        editor.add_button.click()
+        self.assertEqual(editor.table.rowCount(), 2)
+        first = editor.table.item(0, 1).text()
+        self.assertIn('1/2', first)
+        editor.table.item(0, 1).setText('n')
+        self.assertEqual(editor.table.item(0, 1).text(), first)
+        self.assertIn('valor anterior', editor.note.text())
+        editor.kind.setCurrentIndex(1)
+        editor.radius.setText('0')
+        editor.add_button.click()
+        self.assertEqual(split_coefficients(panel.fields['zeros'].text()), ['0'])
+        self.assertIn('no definido', editor.table.item(2, 1).toolTip())
+        panel.design_roots()
+        self.wait_for_calculation(window)
+        self.warning.assert_not_called()
+        record = window.project.headers('system')[-1]
+        system = window.project.get(record['id'])
+        zero, pole = system.poles_zeros()
+        np.testing.assert_allclose(zero, [0], atol=1e-14)
+        np.testing.assert_allclose(sorted(pole, key=lambda value: value.imag), [-.5j, .5j], atol=1e-14)
+        angles = np.array([0, .3, 1.2])
+        z = np.exp(1j*angles)
+        np.testing.assert_allclose(system.response(angles), z/(z*z+.25), atol=1e-14)
+        self.assertTrue(page.system_actions.reuse.isEnabled())
+
+    def test_returning_dragged_real_root_to_axis_keeps_original_order(self):
+        from types import SimpleNamespace
+
+        window = self.window()
+        route = ROUTES['systems', 6]
+        window.open_tool(route)
+        page = window.pages[route]
+        editor = page.pole_editor
+        page.panel.fields['zeros'].clear()
+        page.panel.fields['poles'].setText('1/2')
+        editor.manual()
+        editor.mode.setCurrentIndex(2)
+
+        def pointer(x, y, name):
+            axis = page.panel.figure.axes[0]
+            px, py = axis.transData.transform((x,y))
+            return SimpleNamespace(button=1, inaxes=axis, xdata=x, ydata=y, x=px, y=py, name=name)
+
+        press = pointer(.5, 0., 'button_press_event')
+        editor.press(press)
+        editor.move(pointer(.25, .4, 'motion_notify_event'))
+        np.testing.assert_allclose(editor.data()[1], [.25+.4j, .25-.4j])
+        editor.move(pointer(.3, 0., 'motion_notify_event'))
+        editor.release(pointer(.3, 0., 'button_release_event'))
+        self.wait_for_calculation(window)
+        record = window.project.headers('system')[-1]
+        system = window.project.get(record['id'])
+        np.testing.assert_allclose(system.a, [1, -.3])
+        np.testing.assert_allclose(editor.data()[1], [.3])
+
+    def test_convolution_projects_the_same_complex_values_in_inspector_table_and_csv(self):
+        import csv
+        from PySide6.QtWidgets import QFileDialog
+
+        window = self.window()
+        window.show()
+        route = ROUTES['basic','convolve']
+        window.open_tool(route)
+        page = window.pages[route]
+        x, h = Signal([1+1j, 2], -2), Signal([3, -1j], 1)
+        source = window.publish(x, operation='x[n]')
+        impulse = window.publish(h, operation='h[n]')
+        page.first.set_source(x, source)
+        page.second.set_source(h, impulse)
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        self.warning.assert_not_called()
+        result = window.project.headers('signal')[-1]
+        self.assertEqual(result['parents'], [source, impulse])
+        expected = [3+3j, 7-1j, -2j]
+        signal = window.project.get(result['id'])
+        self.assertEqual(signal.origin, -1)
+        np.testing.assert_allclose(signal.values, expected, atol=1e-14)
+
+        inspector = page.convolution_inspector
+        self.assertTrue(page.basic_result.views.isTabVisible(page.convolution_step_index))
+        inspector.next.click()
+        self.assertEqual(inspector.data['index'], 0)
+        self.assertEqual(inspector.table.rowCount(), 2)
+        self.assertEqual([row['k'] for row in inspector.data['rows']], [-2, -1])
+        self.assertAlmostEqual(sum(row['product'] for row in inspector.data['rows']), 7-1j)
+        inspector.index.setText('4')
+        inspector.index.returnPressed.emit()
+        self.assertEqual(inspector.table.rowCount(), 0)
+        self.assertIsNone(inspector.data)
+        inspector.index.setText('0')
+        inspector.index.returnPressed.emit()
+        self.assertEqual(inspector.table.rowCount(), 2)
+
+        destination = self.path/'convolution.csv'
+        with patch.object(QFileDialog, 'getSaveFileName', return_value=(str(destination), 'CSV')):
+            page.basic_result.export()
+        with destination.open(encoding='utf-8-sig', newline='') as stream:
+            rows = list(csv.reader(stream))
+        self.assertIn('origin=-1', rows[0])
+        self.assertEqual(rows[1], ['axis', 'real', 'imag'])
+        self.assertEqual([int(row[0]) for row in rows[2:]], [-1, 0, 1])
+        np.testing.assert_allclose([complex(float(row[1]), float(row[2])) for row in rows[2:]],
+                                   expected, atol=1e-14)
+
     def test_change_rate_clears_the_previously_copied_unrelated_start(self):
         window = self.window()
         route = ROUTES['rational_resampling',0]

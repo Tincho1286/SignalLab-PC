@@ -3,17 +3,15 @@
 from hashlib import sha256
 from hmac import compare_digest
 import json
-import os
 from pathlib import Path
 from shutil import disk_usage
-import stat
 import struct
 
 import numpy as np
 
 from .atomic_file import atomic_binary_file
 from .execution import ExecutionContext
-from .input_files import decode_json
+from .input_files import decode_finite_json, regular_binary_file
 from .jobs import checkpoint as check_job
 from .project import Project, _record_without_samples
 from .resources import ResourceLimitError, ensure_working_set
@@ -76,7 +74,7 @@ def _read_manifest(file, size):
     header = file.read(length)
     if len(header) != length:
         raise ValueError('El manifiesto del proyecto científico está incompleto.')
-    manifest = decode_json(header.decode('utf-8'))
+    manifest = decode_finite_json(header.decode('utf-8'))
     if not isinstance(manifest, dict) or set(manifest) != {'project', 'workspace', 'counts'}:
         raise ValueError('Manifiesto de proyecto científico inválido.')
     document, workspace, counts = (manifest[key] for key in ('project', 'workspace', 'counts'))
@@ -119,14 +117,7 @@ def _read_samples(file, document, counts, digest, check):
 def load(path, *, checkpoint=None):
     check = checkpoint or check_job
     check()
-    path = Path(path)
-    if not path.is_file():
-        raise ValueError('El proyecto científico requiere un archivo regular.')
-    flags = os.O_RDONLY | getattr(os, 'O_BINARY', 0) | getattr(os, 'O_NONBLOCK', 0)
-    with open(path, 'rb', opener=lambda name, _: os.open(name, flags)) as file:
-        info = os.fstat(file.fileno())
-        if not stat.S_ISREG(info.st_mode):
-            raise ValueError('El proyecto científico requiere un archivo regular.')
+    with regular_binary_file(path, 'El proyecto científico requiere un archivo regular.') as (file, info):
         document, workspace, counts, digest, footprint = _read_manifest(file, info.st_size)
         with ExecutionContext().reserve(footprint):
             _read_samples(file, document, counts, digest, check)

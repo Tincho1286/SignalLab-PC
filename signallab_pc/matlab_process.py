@@ -13,6 +13,7 @@ from threading import BoundedSemaphore
 from time import monotonic
 
 from .jobs import checkpoint
+from .execution import ExecutionContext
 from .resources import ResourceLimitError, available_physical_memory, ensure_working_set
 
 
@@ -86,7 +87,7 @@ def _run_reader(path, stamp, name, shape):
     budget = min(MAT_WORKER_BYTES, int(.35 * available_physical_memory()))
     if budget < 256 * _MIB:
         raise ResourceLimitError('Se requieren 256 MiB de presupuesto disponible para iniciar el lector MAT.')
-    with TemporaryDirectory(prefix='signallab-mat-') as directory:
+    with ExecutionContext().reserve(budget), TemporaryDirectory(prefix='signallab-mat-') as directory:
         folder = Path(directory)
         request = folder/'request.json'
         request.write_text(json.dumps({'path': str(path), 'stamp': stamp, 'name': name, 'shape': shape, 'budget': budget}),

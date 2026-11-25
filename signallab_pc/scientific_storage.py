@@ -3,17 +3,13 @@
 import hashlib
 import hmac
 import json
-import math
-import os
-from pathlib import Path
-import stat
 import struct
 
 import numpy as np
 
 from .atomic_file import atomic_binary_file
 from .execution import ExecutionContext
-from .input_files import decode_json
+from .input_files import decode_finite_json, regular_binary_file
 from .model import Signal
 from .resources import ensure_working_set
 
@@ -35,9 +31,9 @@ def save_binary_signal(signal: Signal, path, execution: ExecutionContext | None 
     if not 0 < len(encoded) <= _MAX_HEADER:
         raise ValueError('Los metadatos del archivo científico superan 1 MiB.')
     prefix = _MAGIC + struct.pack('<I',len(encoded))
-    payload = memoryview(np.asarray(signal.values,dtype=_DTYPE,order='C')).cast('B')
     digest = hashlib.sha256(prefix + encoded)
     with ctx.reserve(32 * count), atomic_binary_file(path,before_commit=ctx.checkpoint) as stream:
+        payload = memoryview(np.asarray(signal.values,dtype=_DTYPE,order='C')).cast('B')
         stream.write(prefix)
         stream.write(encoded)
         for offset in range(0, len(payload), _CHUNK):
@@ -48,27 +44,10 @@ def save_binary_signal(signal: Signal, path, execution: ExecutionContext | None 
         stream.write(digest.digest())
 
 
-def _reject_constant(value):
-    raise ValueError(f'Constante JSON no admitida: {value}.')
-
-
-def _finite_number(value):
-    parsed = float(value)
-    if not math.isfinite(parsed):
-        raise ValueError('Los metadatos requieren números finitos.')
-    return parsed
-
-
 def load_binary_signal(path, execution: ExecutionContext | None = None) -> Signal:
     ctx = execution or ExecutionContext()
     ctx.checkpoint()
-    path = Path(path)
-    if not path.is_file():
-        raise ValueError('Se requiere un archivo científico regular.')
-    with path.open('rb') as stream:
-        info = os.fstat(stream.fileno())
-        if not stat.S_ISREG(info.st_mode):
-            raise ValueError('Se requiere un archivo científico regular.')
+    with regular_binary_file(path, 'Se requiere un archivo científico regular.') as (stream, info):
         prefix = stream.read(len(_MAGIC)+4)
         if len(prefix) != len(_MAGIC)+4 or not prefix.startswith(_MAGIC):
             raise ValueError('Formato científico desconocido.')
@@ -78,7 +57,7 @@ def load_binary_signal(path, execution: ExecutionContext | None = None) -> Signa
         header = stream.read(header_size)
         if len(header) != header_size:
             raise ValueError('Cabecera científica incompleta.')
-        fields = decode_json(header.decode('utf-8'), parse_constant=_reject_constant, parse_float=_finite_number)
+        fields = decode_finite_json(header.decode('utf-8'))
         if not isinstance(fields,dict) or fields.keys() != {'count', *_FIELDS}:
             raise ValueError('Esquema de metadatos científico inválido.')
         count = fields.pop('count')

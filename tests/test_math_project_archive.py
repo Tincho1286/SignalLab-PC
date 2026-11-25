@@ -102,6 +102,8 @@ class ProjectArchiveTests(unittest.TestCase):
             read_cases = [
                 (b'SLPROJ\x00\x02' + b'\0'*40, 'Formato'),
                 (self.archive(b'{"project":{},"project":{},"workspace":null,"counts":[]}'), 'claves repetidas'),
+                (self.archive(b'{"project":{},"workspace":{"a":NaN},"counts":[]}'), 'Constante JSON'),
+                (self.archive(b'{"project":{},"workspace":{"a":1e99999},"counts":[]}'), 'números finitos'),
                 (self.archive({'project': catalog, 'counts': [1]}), 'Manifiesto'),
                 (self.archive({'project': catalog, 'workspace': None, 'counts': []}), 'catálogo'),
                 (self.archive({'project': catalog, 'workspace': None, 'counts': [True]}), 'Referencia'),

@@ -141,13 +141,15 @@ class PoleZeroEditor(QWidget):
         if mode==3:
             for i in sorted([index]+([pair] if pair is not None else []),reverse=True):data[kind].pop(i)
             self.write(data);self.redraw();self.submit()
-        else:self.drag=(data,kind,index,pair)
+        else:self.drag=(data,kind,index,pair,False)
     def move(self,event):
         self.cursor_event(event)
         if self.drag is None or not self.active(event):return
-        data,kind,index,pair=self.drag;value=self.point(event);data[kind][index]=value
+        data,kind,index,pair,inserted=self.drag;value=self.point(event);data[kind][index]=value
         if pair is None and self.pairs.isChecked() and value.imag:
-            pair=len(data[kind]);data[kind].append(value.conjugate());self.drag=(data,kind,index,pair)
+            pair=len(data[kind]);data[kind].append(value.conjugate());self.drag=(data,kind,index,pair,True)
+        elif inserted and not value.imag:
+            data[kind].pop(pair);pair=None;self.drag=(data,kind,index,pair,False)
         if pair is not None:data[kind][pair]=value.conjugate()
         self.write(data);self.redraw(preserve=True)
     def release(self,event):
