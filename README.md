@@ -3,7 +3,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><strong>Descargar</strong></a> ·
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><strong>Descargar estable</strong></a> ·
+  <a href="#engineering-core-en-develop">Engineering Core</a> ·
   <a href="docs/getting-started.md">Primeros pasos</a> ·
   <a href="docs/tools.md">Herramientas</a> ·
   <a href="docs/README.md">Documentación</a> ·
@@ -12,9 +13,26 @@
 
 SignalLab PC es un laboratorio de escritorio para **Sistemas y Señales I/II y procesamiento digital de señales**. Podés calcular una transformada, diseñar un filtro o estudiar un sistema LTI con cálculo simbólico, simulación numérica e informes. Podés reutilizar los resultados en otras herramientas compatibles. La aplicación está disponible en español para Windows y Linux.
 
-## Descargar SignalLab PC
+## Engineering Core en develop
 
-**2.0.0 estable** · [Notas de la versión](docs/releases/v2.0.0.md) · [Código fuente y sumas SHA‑256](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.0.0)
+La rama `develop` incorpora el trabajo de **Fase 02B**. El escritorio y la API de Python comparten los servicios de DFT, IDFT, diseño y aplicación FIR, cambio racional de tasa y estimación de densidad espectral de potencia (PSD). Estos cálculos también se pueden ejecutar por consola sin cargar Qt.
+
+El flujo **cambio de tasa → FIR → DFT y PSD** guarda los resultados intermedios en una sesión que podés abrir en el escritorio. La sesión conserva las unidades, el reloj de las señales y las relaciones entre entradas y resultados. La cancelación es cooperativa y el flujo publica sus resultados juntos cuando termina. Los proyectos y sesiones usan JSON. Para intercambiar señales individuales hay un formato binario experimental `.slbin` con verificación de integridad. [Contratos de la API](docs/engineering/phase_02b/ENGINEERING_CORE_API.md) · [Formatos y mediciones](docs/engineering/phase_02b/storage/STORAGE_BENCHMARK_REPORT.md)
+
+### Probar el flujo desde el código fuente
+
+Prepará el entorno de desarrollo y ejecutá estos comandos desde la raíz del repositorio. El primero genera una señal de ejemplo y el segundo guarda el flujo en `flujo.json`. [Preparar el entorno](docs/development/README.md)
+
+```sh
+python -B tools/example_engineering_core.py work/ejemplos-core
+python -m signallab_pc dsp-pipeline --signal work/ejemplos-core/entrada.json --output work/ejemplos-core/flujo.json --up 2 --down 3 --fir .25 .5 .25 --psd-method periodogram --window boxcar
+```
+
+La validación de Fase 02B aprobó **850 pruebas integrales y 150 casos preventivos por plataforma** en Windows y Ubuntu. El informe de cierre reúne las pruebas, las mediciones y los límites de ejecución. [Ejemplos de Python y CLI](docs/engineering/phase_02b/ENGINEERING_CORE_EXAMPLES.md) · [Informe de Fase 02B](docs/engineering/phase_02b/closeout/PHASE_02B_CLOSEOUT.md)
+
+## Descargar la versión estable
+
+**2.0.0** corresponde a la distribución estable de la rama `main`. [Notas de la versión](docs/releases/v2.0.0.md) · [Código fuente y sumas SHA‑256](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.0.0)
 
 | Plataforma | Instalable | Portable |
 | --- | --- | --- |
