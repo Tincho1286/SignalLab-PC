@@ -102,23 +102,28 @@ def load_csv(path,*,domain='discrete',delimiter=',',skip_rows=1,axis_column=0,re
             parsed=Decimal(str(value).strip().replace(',','.') if decimal_comma else str(value).strip())
             if not parsed.is_finite() or parsed!=parsed.to_integral_value():raise ValueError('Una secuencia requiere índices enteros. Para tiempos medidos usá una entrada continua.')
             return int(parsed)
-        generated_origin=coordinate(origin)
-        descending=own and domain!='discrete' and float(step)<0
-        if not math.isfinite(float(step)) or float(step)==0 or not descending and float(step)<0 or domain=='discrete' and float(step)!=1:raise ValueError('El paso debe ser positivo; en secuencias discretas debe ser 1. Un CSV propio conserva también su eje descendente.')
+        def supplied_step():
+            value=number(str(step))
+            if value==0 or (value<0 and not own) or (domain=='discrete' and value!=1):
+                raise ValueError('El paso debe ser positivo; en secuencias discretas debe ser 1. Un CSV propio conserva también su eje descendente.')
+            return value
+        generated_origin=coordinate(origin) if own or axis_column is None else None
+        declared_step=supplied_step() if own or axis_column is None else None
+        descending=own and declared_step<0
         for row in reader:
             if not row or all(not cell.strip() for cell in row):continue
             try:
                 if len(values)%4096==0:ensure_working_set(len(values)+4096,bytes_per_sample=128,live_arrays=4)
                 value=complex(number(row[real_column]),number(row[imag_column]) if imag_column is not None else 0)
-                axis=coordinate(row[axis_column]) if axis_column is not None else generated_origin+len(values)*(1 if domain=='discrete' else step)
+                axis=coordinate(row[axis_column]) if axis_column is not None else generated_origin+len(values)*(1 if domain=='discrete' else declared_step)
                 if domain!='discrete' and not math.isfinite(axis):raise ValueError('El eje excede el rango numérico finito.')
                 if first is None:first=axis
                 else:
                     delta=axis-previous
                     if delta==0 or (delta>0 if descending else delta<0):raise ValueError('El eje no conserva la dirección indicada; no se reordenan las muestras.')
                     if own and domain!='discrete':
-                        expected=first+len(values)*step
-                        tolerance=min(abs(step)/4,max(abs(step)*1e-7,math.ulp(expected)))
+                        expected=first+len(values)*declared_step
+                        tolerance=min(abs(declared_step)/4,max(abs(declared_step)*1e-7,math.ulp(expected)))
                         if abs(axis-expected)>tolerance:raise ValueError('El eje no coincide con el paso declarado.')
                     if domain=='discrete' and delta!=1:raise ValueError('El eje discreto requiere índices consecutivos.')
                 if not own and domain!='discrete' and axis_column is not None:coordinates.append(axis)
@@ -128,8 +133,10 @@ def load_csv(path,*,domain='discrete',delimiter=',',skip_rows=1,axis_column=0,re
     if len(coordinates)>1:
         from .uniform_axis import uniform_step
         spacing=uniform_step(coordinates)
-    actual_step=1 if domain=='discrete' else spacing if spacing is not None else float(step)
-    if own and (first!=generated_origin or not math.isclose(actual_step,float(step),rel_tol=1e-7,abs_tol=0)):
+    if domain=='discrete':actual_step=1
+    elif spacing is not None:actual_step=spacing
+    else:actual_step=declared_step if declared_step is not None else supplied_step()
+    if own and (first!=generated_origin or not math.isclose(actual_step,declared_step,rel_tol=1e-7,abs_tol=0)):
         raise ValueError('El eje del CSV no coincide con su encabezado SignalLab.')
     if not own and domain!='discrete':
         first*=axis_scale;actual_step*=axis_scale

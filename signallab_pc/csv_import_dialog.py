@@ -43,6 +43,6 @@ class CsvImportDialog(QDialog):
 
     def load(self):
         try:
-            self.result_signal=load_csv(self.path,domain=self.domain.currentData(),delimiter=self.delimiter.currentData(),skip_rows=self.skip.value(),axis_column=self.axis.value()-1 if self.axis.value() else None,real_column=self.real.value()-1,imag_column=self.imag.value()-1 if self.imag.value() else None,decimal_comma=self.decimal.isChecked(),origin=self.origin.text(),step=float(self.step.text().replace(',','.') if self.decimal.isChecked() else self.step.text()),axis_units=self.units.currentData())
+            self.result_signal=load_csv(self.path,domain=self.domain.currentData(),delimiter=self.delimiter.currentData(),skip_rows=self.skip.value(),axis_column=self.axis.value()-1 if self.axis.value() else None,real_column=self.real.value()-1,imag_column=self.imag.value()-1 if self.imag.value() else None,decimal_comma=self.decimal.isChecked(),origin=self.origin.text(),step=self.step.text(),axis_units=self.units.currentData())
             self.accept()
         except Exception as exc:QMessageBox.warning(self,'No se pudo importar',str(exc))

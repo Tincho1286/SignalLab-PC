@@ -1,10 +1,16 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-06 y C-07 · Importación de tablas y biblioteca
+
+**Causa y corrección.** El importador CSV validaba inicio y paso incluso con un eje completo en el archivo. Un borrador de rejilla incompleto impedía cargar una medición con todas sus coordenadas. El lector determina qué datos necesita según el origen del eje y el número de filas. El diálogo delega esa validación al lector, incluido el paso de un espectro de un único punto.
+
+**Evidencia focal.** Pasaron 57 pruebas de importación, reloj y ayuda. Incluyen CSV con coma decimal y eje en milisegundos, selección de un canal MATLAB complejo, rechazo y recuperación con ejes incompatibles y cancelación del selector de archivos con varios resultados. Se comprobaron también las figuras de las guías de herramientas y los enlaces de retorno. Las pruebas de Qt se hicieron en modo offscreen.
+
 ## 25 de noviembre de 2026 · C-04 y C-07 · Fourier algebraica y ventanas con impulsos
 
 **Causa y corrección.** Al copiar una ventana continua con varias Dirac, el analizador conservaba las sumas entre paréntesis. El reconocimiento de Fourier examinaba sólo el nivel superior y confundía una suma interna con un producto indefinido de distribuciones. Se recorren los sumandos anidados antes de aplicar los pares de transformadas, conservando el peso y el soporte de cada impulso.
 
-**Evidencia focal.** Pasaron 27 pruebas con `python -m unittest test_workbench_fourier_variants test_math_study_workflows`. Se comparó la contribución ordinaria con cuadratura independiente y el aporte de las dos Dirac de borde con su fórmula cerrada. Se ejercitaron también los índices de la DTFT, el rechazo de unidades o períodos incompatibles y la copia de las condiciones de la Fourier inversa continua.
+**Evidencia focal.** Pasaron 27 pruebas con `python -m unittest test_workbench_fourier_variants test_math_study_workflows` y otras 305 de transformadas, álgebra, LTI y flujos relacionados. Se comparó la contribución ordinaria con cuadratura independiente y el aporte de las dos Dirac de borde con su fórmula cerrada. Se ejercitaron también los índices de la DTFT, el rechazo de unidades o períodos incompatibles y la copia de las condiciones de la Fourier inversa continua.
 
 ## 25 de noviembre de 2026 · C-06 y C-07 · Hoja CAS y valores tipados
 
