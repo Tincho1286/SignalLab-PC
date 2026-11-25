@@ -24,3 +24,16 @@
 | C-09 · E-04 | Salto 2.0.0 → 2.0.1 probado con instaladores reales y firma descartable. | Autoría y confianza del binario Windows y decisión de canal siguen en manos de distribución. |
 
 [Envolvente](../resources/OPERATIONAL_ENVELOPE.md) · [Evidencia de escritorio](../gui/DESKTOP_CONTINUATION.md) · [Cobertura](../testing/FINAL_COVERAGE_REPORT.md)
+
+## Riesgo residual de la continuación autónoma
+
+| Riesgo | Cambio verificado | Condición residual |
+| --- | --- | --- |
+| C-01 y C-02 | NumPy y SciPy actualizados. Cuota, plazo y lectura local de MAT activos. | Revisar Qt, OpenJPEG y HDF5 cuando exista una actualización corregida y reproducible. |
+| C-05 | Admisión compartida y medición de cancelación ampliadas. | El motor numérico tiene control cooperativo sobre llamadas nativas. MAT tiene terminación y cuota de proceso. |
+| C-06 | CAS persistente, proyecto binario y recuperación asíncrona. Campaña completa verificada. | La envolvente de campañas usa proyectos por corrida y catálogo verificado. El formato manual predeterminado sigue siendo JSON. |
+| C-07 | Avance global de cobertura y SLPROJ dentro de objetivo. | Cumplir cobertura global y cualquier brecha de componentes críticos que subsista en el candidato. |
+| C-08 | Acta Windows real a 96 DPI ampliada. | Validar DPI real y Linux donde estén disponibles. |
+| C-09 | Instaladores y salto aislado verificados en `54adaa0`. | Validar el nuevo presupuesto de CI. Firma e infraestructura conservan evaluación particular. |
+
+[Matriz de evidencia](FINAL_VALIDATION_MATRIX.md) · [Registro de excepciones](EXCEPTION_APPROVAL_REGISTER.md)

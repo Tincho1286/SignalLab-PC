@@ -1,5 +1,13 @@
 # Cambios de Fase 02C
 
+## Continuación autónoma
+
+- Recuperación en segundo plano mediante proyectos binarios y control de concurrencia por instancia. La recuperación conserva los puntos JSON históricos y evita ofrecer una generación descartada.
+- Hoja CAS versionada con variables, historial, relaciones y borrador. La reapertura conserva el foco en el escritorio nativo.
+- Admisión de memoria compartida para servicios numéricos, archivo binario y lector MAT. Se ampliaron las mediciones a una campaña de 48 corridas y al tiempo de cancelación de los importadores.
+- Corrección del editor de raíces al volver a situar un polo en el eje real. Normalización e interconexión mantienen la biblioteca intacta cuando se rechaza o cancela el cálculo.
+- NumPy 2.5.5 y SciPy 1.18.1 con ruedas y avisos de licencia específicos por plataforma. El Quality Gate identifica la procedencia por SHA y las brechas de cobertura restantes. [Registro](IMPLEMENTATION_LOG.md)
+
 - WP11. Mantener separados los dictámenes del Core, de arquitectura y de distribución y solicitar la aceptación de cada excepción.
 
 - WP10. Mantener motores y fronteras actuales sin introducir una reorganización transversal.

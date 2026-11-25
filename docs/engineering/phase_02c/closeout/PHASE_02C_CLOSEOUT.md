@@ -13,3 +13,7 @@ El registro inicial contiene un P0, cinco P1 y cuatro P2. La corrección de proc
 La [puerta de calidad](../validation/QUALITY_GATE_REPORT.md), la [evidencia por plataforma](../validation/FINAL_VALIDATION_MATRIX.md) y la [cobertura](../testing/FINAL_COVERAGE_REPORT.md) separan observaciones medidas, limitaciones y aprobaciones. Las [excepciones](../validation/EXCEPTION_APPROVAL_REGISTER.md) esperan resolución o aceptación individual. Para validar Linux en escritorio real está disponible el [protocolo reproducible](../gui/MANUAL_DESKTOP_ACCEPTANCE_PROTOCOL.md).
 
 El cambio se mantiene en `develop`. La referencia estable comprobada es `v2.0.0`, con `main` en `acb9e38`.
+
+## Continuación autónoma
+
+**NO-GO de cierre** por cobertura global pendiente y validación incompleta del candidato vigente. Se verificaron mejoras en recuperación, persistencia CAS y binaria, procedencia, escala por lotes, actualización aislada y empaquetado. Las actas de escritorio y la condición de distribución se registran por separado. [Expediente vigente](../validation/QUALITY_GATE_REPORT.md#continuación-autónoma-de-fase-02c)

@@ -37,3 +37,7 @@
 La validación de Engineering Core se registra en la [matriz de Fase 02B](phase_02b/PHASE_02B_TRACEABILITY_MATRIX.md) y conserva por separado la evidencia histórica de estabilización.
 
 La [matriz del candidato 02C](phase_02c/validation/FINAL_VALIDATION_MATRIX.md) incorpora pruebas de procedencia y escala, cancelación de persistencia, instaladores, SBOM, recursos y evidencia visual por entorno.
+
+### Continuación autónoma de 02C
+
+La matriz por SHA conserva la línea base de 890 pruebas por sistema, la corrida de 907 con portables y actualización y los candidatos siguientes. La cobertura, los benchmarks, el SBOM y los perfiles de escritorio se evalúan en sus alcances respectivos. [Matriz vigente](phase_02c/validation/FINAL_VALIDATION_MATRIX.md#continuación-autónoma)

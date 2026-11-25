@@ -45,3 +45,25 @@ En Windows se cubrieron 33 370 de 42 420 líneas y 10 550 de 16 332 ramas. En Ub
 `project_archive.py` es código nuevo incluido en el denominador global. Por separado mide 86,11 % de líneas y 64,00 % de ramas en ambos sistemas. Quedan rutas de error del manifiesto y de admisión por cubrir antes de ampliar el uso a proyectos grandes. Las verificaciones actuales incluyen persistencia y reapertura, procedencia, JSON histórico, truncamiento, digest incorrecto y cancelación antes del reemplazo.
 
 [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45673548563) · [Resultados estructurados](../validation/evidence/ci-faef335.json)
+
+## Continuación autónoma sobre 54adaa0
+
+La corrida 45683218209 aplicó la misma instrumentación y alcanzó 907 pruebas integrales y 150 casos preventivos por sistema. SLPROJ alcanzó 101/106 líneas y 41/46 ramas en ambos sistemas. La hoja CAS headless cubrió su contrato. El controlador de sesiones siguió como componente crítico bajo objetivo en ese candidato.
+
+| Alcance | Windows | Linux | Objetivo |
+| --- | ---: | ---: | ---: |
+| Líneas de aplicación | 34 006/42 600 (79,83 %) | 33 981/42 600 (79,77 %) | 85 % |
+| Ramas de aplicación | 10 771/16 398 (65,68 %) | 10 768/16 398 (65,67 %) | 75 % |
+| Líneas adicionales necesarias | 2 204 | 2 229 | — |
+| Ramas adicionales necesarias | 1 528 | 1 531 | — |
+| SLPROJ | 95,28 % / 89,13 % | 95,28 % / 89,13 % | 90 % / 85 % |
+
+La matriz de `54adaa0` es evidencia histórica para la continuación. Las pruebas posteriores cubren reapertura de CAS con foco, cambios de generación, permisos, normalización, interconexión, cuantización, fase y navegación en tablas. El ensayo local de 39 pruebas sobre `3a68618` midió 318/348 líneas y 128/154 ramas del controlador de sesiones. Se agregaron después regresiones sobre descarte explícito y limpieza con archivos bloqueados. La mejora global sigue siendo deuda de verificación y se mide en el [candidato vigente](../validation/FINAL_VALIDATION_MATRIX.md#continuación-autónoma).
+
+[Informe automático con métricas por archivo y prioridad](../validation/evidence/ci-54adaa0.json) · [Comando y pruebas](../IMPLEMENTATION_LOG.md)
+
+## Medición integral de 3a68618
+
+Las suites de ambos sistemas finalizaron con 917 pruebas integrales y 150 casos preventivos. El trabajo de empaquetado Windows tuvo un timeout separado. La cobertura de líneas subió a 81,09 % (34 587/42 651) en Windows y 81,03 % (34 562/42 651) en Linux. La de ramas llegó a 66,61 % (10 934/16 416) y 66,59 % (10 931/16 416). Para alcanzar los objetivos faltaron 1 667 líneas y 1 378 ramas en Windows y 1 692 líneas y 1 381 ramas en Linux.
+
+El controlador de sesión alcanzó 318/348 líneas y 128/154 ramas en ambos sistemas. Las pruebas de recuperación posteriores alcanzaron localmente 328/348 líneas y 133/154 ramas en Windows. Ésta es una medición focal. Debe confirmarse en la matriz de aplicación. [Corrida 45685956523](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45685956523) · [Matriz vigente](../validation/FINAL_VALIDATION_MATRIX.md#continuación-autónoma)

@@ -26,3 +26,7 @@ El [registro de riesgos](RESIDUAL_RISK_REGISTER.md) identifica responsables y co
 | C-07 | E-06c–j alcanzaron el objetivo. | E-06a y E-06b siguen activos. Se priorizan despacho Qt, paneles y escritorio. |
 | C-08 | Validación Windows real con gráfico, informe y proyecto científico. | E-05 para Linux real y otros DPI. |
 | C-09 | Actualización aislada 2.0.0 → 2.0.1 aprobada. | Firma Windows y canal de distribución siguen como condición independiente E-04. |
+
+## Saldo de la continuación autónoma
+
+SLPROJ superó su objetivo en `54adaa0` y el almacenamiento por lotes verificó 48 corridas. El contrato CAS y el escritor asíncrono completan la persistencia de sesión dentro de su alcance. Se corrigieron la reapertura con foco, los checkpoints obsoletos y la publicación prematura de entradas LTI. La prioridad técnica sigue en la cobertura global, con pruebas de traspaso de datos, diseño, tablas, recuperación y errores. [Registro maestro](../audit/MASTER_TECHNICAL_DEBT_REGISTER.md) · [Matriz por candidato](FINAL_VALIDATION_MATRIX.md#continuación-autónoma)

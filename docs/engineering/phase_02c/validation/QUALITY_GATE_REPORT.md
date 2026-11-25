@@ -1,6 +1,6 @@
 # Puerta de calidad de Engineering Core
 
-Dictamen vigente en la [continuidad de Fase 02C del 25/11/2026](#continuidad-de-fase-02c--25112026). El apartado inicial conserva el dictamen del candidato histórico `459b9fc`.
+Dictamen vigente en la [continuación autónoma de Fase 02C](#continuación-autónoma-de-fase-02c). Los apartados anteriores conservan los dictámenes históricos de `459b9fc` y `faef335`.
 
 **NO-GO de cierre definitivo.** El candidato supera la matriz técnica en Windows y Linux. El criterio de cobertura global y varios objetivos de ramas del Core siguen pendientes. Los riesgos P1 que permanecen requieren resolución o aceptación individual, junto con la evidencia manual pendiente.
 
@@ -42,3 +42,33 @@ Candidato **`faef335bb7892cda92edc50a7c4f417a89b0415c`**, versión de auditoría
 5. **E-05, escritorio.** Aportar las actas del protocolo en un entorno real disponible o definir expresamente el alcance de resolución y DPI aceptado.
 
 E-06a y E-06b siguen como deuda de pruebas. El saldo medido y las rutas prioritarias están detallados para su continuación en 02C. Ninguna excepción quedó aceptada por este informe. [Registro de excepciones](EXCEPTION_APPROVAL_REGISTER.md) · [Riesgos](RESIDUAL_RISK_REGISTER.md)
+
+## Continuación autónoma de Fase 02C
+
+Referencia de partida `faef335bb7892cda92edc50a7c4f417a89b0415c`, expediente `7973a526dc202a7934adf5d3724c34f0c7d1d61c`. El candidato nuevo conserva la versión de auditoría 2.0.1. La [matriz por SHA](FINAL_VALIDATION_MATRIX.md#continuación-autónoma) registra los candidatos intermedios, el timeout de la auditoría Linux y la corrida a la que corresponde cada verificación.
+
+| Dictamen | Resultado vigente | Condición |
+| --- | --- | --- |
+| Cierre de Engineering Core | **NO-GO** | El objetivo global de líneas y ramas sigue pendiente. Se requiere la medición integral del candidato vigente y completar la evidencia de escritorio real. |
+| Preparación técnica para Fase 03 | **NO-GO** | La escala sintética está verificada por lotes. Antes de iniciar cualquier fase posterior corresponde cerrar el Core y obtener autorización específica. |
+| Distribución pública | **NO-GO** | El salto aislado desde 2.0.0 funcionó en ambos sistemas en la matriz anterior. La validación del candidato vigente, la firma Windows, el canal público y la resolución de exposición nativa conservan sus propios criterios. |
+
+### Cambios verificados y mediciones
+
+- La matriz completa de `54adaa0` validó 907 pruebas integrales y 150 casos preventivos por sistema. SLPROJ subió de 86,11 % de líneas y 64,00 % de ramas en la referencia a 95,28 % y 89,13 %. La medición de aplicación de `3a68618` completó 917 pruebas y 150 casos preventivos en cada sistema, con 81,09 % / 66,61 % en Windows y 81,03 % / 66,59 % en Linux. El empaquetado Windows de esa corrida agotó el tiempo del verificador UI. [Cobertura](../testing/FINAL_COVERAGE_REPORT.md) · [Evidencia por control](evidence/quality-gate-3a68618.json)
+- Se verificaron 48 corridas, 288 registros, 75 497 472 muestras complejas y 1 208 085 276 bytes en `54adaa0`. El banco alcanzó 170,0 MiB de RSS en Windows y 176,9 MiB en Linux. Volvió a verificar siete corridas antes de reanudar la octava, que se había cancelado. La campaña usa proyectos completos independientes y un catálogo con hashes. [Dimensionamiento y campaña](../persistence/COMMUNICATIONS_STORAGE_SIZING.md)
+- El mayor intervalo medido del temporizador de Qt pasó de 1 785,5 a 10,6 ms en Windows CI y de 1 788,2 a 10,7 ms en Linux CI al escribir SLPROJ en segundo plano. La medición usa dos registros de 262 144 muestras y tres repeticiones por modo. El mayor valor exploratorio en el equipo Windows local fue 29,3 ms para el escritor en segundo plano. [Recuperación](../resources/OPERATIONAL_ENVELOPE.md#recuperación-y-concurrencia-en-la-continuación-autónoma)
+- CAS guarda su hoja, variables complejas y borrador en ambos formatos. Windows real confirmó la reapertura con la hoja enfocada tras corregir un conflicto con el método QWidget.window. Se agregaron regresiones de checkpoint obsoleto, permiso denegado, edición de polos y cálculo LTI fallido o cancelado. [Contrato CAS](../persistence/CAS_PERSISTENCE_VALIDATION.md) · [Acta Windows](../gui/DESKTOP_CONTINUATION.md) · [Causas y pruebas](../IMPLEMENTATION_LOG.md)
+- NumPy 2.5.5 y SciPy 1.18.1 se verificaron con los portables e inventarios de ambos sistemas en `54adaa0`. El inventario Linux confirmó OpenSSL de Ubuntu `3.0.2-0ubuntu1.30`. El importador MAT conserva su cuota de SO y la admisión compartida. Permanecen los riesgos de proveedor y la cancelación cooperativa fuera de las fronteras medidas. [SBOM y avisos](../security/DEPENDENCY_CONTINUATION.md)
+
+### Condiciones pendientes
+
+E-06a y E-06b son tareas internas de pruebas. El verificador publica el déficit por archivo y por rama y exige los objetivos originales. E-01, E-02, E-04 y E-05 quedan delimitadas por dependencia, distribución o entorno de escritorio. E-03 se evalúa sobre su envolvente de perfiles y presupuestos, con cuotas efectivas sólo en el lector MAT. Ninguna condición residual se ha aceptado en nombre del mantenedor. [Registros](EXCEPTION_APPROVAL_REGISTER.md) · [Reanudación](#punto-de-reanudación)
+
+### Punto de reanudación
+
+1. Obtener los artefactos de la corrida vigente de [la matriz por SHA](FINAL_VALIDATION_MATRIX.md#continuación-autónoma). Verificar que ambos informes `baseline.json`, los benchmarks y los inventarios coinciden con el SHA de esa corrida. Registrar toda auditoría fallida antes de seleccionar otro candidato.
+2. Ejecutar `python tools/check_quality_gate_02c.py --candidate <SHA> --input work/quality-input --output work/quality-gate --require-automated` con los cuatro artefactos descomprimidos por runner. El código de salida 1 identifica controles pendientes y el JSON los detalla.
+3. En `coverage_priority` y el `coverage.json` de Linux, priorizar el traspaso de señales y sistemas en `toolbox.py` y `workbench.py`, el diseño y la comparación de filtros en `course_tools_panel.py` y las acciones de tabla y sonda. Verificar datos que recibe y guarda cada herramienta, cancelar al iniciar o durante el trabajo y comprobar reapertura. Medir el resultado con `python -B -X utf8 tools/check_engineering_baseline.py --output work/engineering-baseline` en un checkout limpio. Mantener la cobertura total de líneas y ramas como criterio de cierre.
+
+La evidencia histórica permanece versionada. Los recibos, SBOM, campaña y benchmark de cada matriz se vinculan desde el índice con SHA-256 de origen y de la copia normalizada. [Índice de 54adaa0](evidence/ci-54adaa0.json)

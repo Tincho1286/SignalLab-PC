@@ -57,3 +57,7 @@ La [Fase 02B](phase_02b/README.md) consolida la frontera de aplicación después
 La primera validación de AWGN se necesita en Fase 03 para el demostrador. La Fase 04 amplía el mismo contrato y su implementación. Las dependencias recomendadas para pruebas de concepto y sus condicionantes están en [DEPENDENCY_AUDIT](DEPENDENCY_AUDIT.md).
 
 La [Fase 02C](phase_02c/README.md) evalúa la solidez del Core antes de ese cambio de alcance. Sus condiciones de salida incluyen procedencia demostrada, recursos medidos, auditoría científica y de dependencias, compatibilidad, cobertura y excepciones explícitas.
+
+## Estado de la continuidad 02C
+
+La cobertura y la validación pendiente se resuelven dentro de 02C. La prueba sintética confirma una ruta de almacenamiento por corridas para el volumen previsto. La Fase 03 requiere cerrar el Core y una autorización específica. La distribución tiene su propia validación de canal y firma. [Criterios y avance](phase_02c/validation/QUALITY_GATE_REPORT.md#continuación-autónoma-de-fase-02c)

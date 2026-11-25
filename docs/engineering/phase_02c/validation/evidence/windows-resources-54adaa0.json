@@ -1,0 +1,77 @@
+{
+  "platform": "Windows-2022Server-10.0.20348-SP0",
+  "python": "3.14.10",
+  "commit": "54adaa088ee03430ba53f1068da8086756d3bc25",
+  "budget": {
+    "available_bytes": 102400,
+    "fraction": 0.35,
+    "bytes_per_sample": 16,
+    "live_arrays": 4,
+    "accepted_samples": 560,
+    "accepted_bytes": 35840,
+    "rejected_samples": 561
+  },
+  "cancellation": {
+    "dtft_seconds_after_signal": 3.000000000952241e-05,
+    "symbolic_seconds_after_signal": 0.06390759999999318,
+    "worker_exit": 1,
+    "symbolic_temporary_removed": true,
+    "symbolic_cancel_from_launch_seconds": 0.15
+  },
+  "numeric": [
+    {
+      "operation": "dft",
+      "samples": 16384,
+      "output_values": 16384,
+      "seconds": 0.0021594000000106917,
+      "peak_before_bytes": 101736448,
+      "peak_after_bytes": 101838848,
+      "available_before_bytes": 13997596672
+    },
+    {
+      "operation": "dft",
+      "samples": 262144,
+      "output_values": 262144,
+      "seconds": 0.007703999999989719,
+      "peak_before_bytes": 112021504,
+      "peak_after_bytes": 118415360,
+      "available_before_bytes": 14000635904
+    },
+    {
+      "operation": "dtft",
+      "samples": 1024,
+      "output_values": 1025,
+      "seconds": 0.04547900000000027,
+      "peak_before_bytes": 102645760,
+      "peak_after_bytes": 107970560,
+      "available_before_bytes": 14058098688
+    },
+    {
+      "operation": "dtft",
+      "samples": 8192,
+      "output_values": 1025,
+      "seconds": 0.3360396999999864,
+      "peak_before_bytes": 101761024,
+      "peak_after_bytes": 112340992,
+      "available_before_bytes": 14038835200
+    },
+    {
+      "operation": "resample",
+      "samples": 16384,
+      "output_values": 10923,
+      "seconds": 0.0030633000000079846,
+      "peak_before_bytes": 102379520,
+      "peak_after_bytes": 102494208,
+      "available_before_bytes": 14086774784
+    },
+    {
+      "operation": "resample",
+      "samples": 262144,
+      "output_values": 174763,
+      "seconds": 0.008873300000004747,
+      "peak_before_bytes": 112418816,
+      "peak_after_bytes": 112418816,
+      "available_before_bytes": 14107901952
+    }
+  ]
+}

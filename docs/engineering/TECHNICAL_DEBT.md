@@ -18,3 +18,7 @@ La auditoría separa evidencia observada de cambios propuestos. Los identificado
 La complejidad es una métrica estructural y las coincidencias de nombres son hipótesis de duplicación. Convolución algebraica y numérica, reconstrucción ideal y muestral, o distintas políticas de ROC pueden requerir implementaciones separadas. Se debe compartir un algoritmo sólo cuando coincidan el dominio, la convención y las garantías.
 
 El [registro de deuda de Fase 02C](phase_02c/validation/FINAL_TECHNICAL_DEBT_REGISTER.md) conserva la prioridad y la evidencia actual de los hallazgos vinculados con Engineering Core. Los hallazgos históricos anteriores quedan como referencia de auditoría.
+
+## Saldo de la continuación autónoma
+
+El registro maestro 02C incorpora mejoras de CAS, recuperación, almacenamiento, concurrencia, edición de polos y publicación de resultados. La brecha global de cobertura conserva prioridad. Revisar por separado las condiciones externas y los objetivos aplicables a componentes críticos nuevos. [Deuda trazable](phase_02c/audit/MASTER_TECHNICAL_DEBT_REGISTER.md#avance-verificable-por-candidato)

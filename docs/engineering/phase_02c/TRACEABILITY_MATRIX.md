@@ -34,3 +34,15 @@
 | C-06d | Reapertura exacta por proyecto y retomado desde índice tras cancelar | `tools/measure_scientific_campaign.py` |
 | C-08 | Flujo de edición de polos conserva multiplicidad. Convolución coincide en señal, inspector y CSV. | `test_desktop_session` |
 | C-11 | Evaluación de integridad, cobertura y requisitos externos sin mezclar SHAs. | `tools/check_quality_gate_02c.py` y `test_engineering_quality_gate` |
+
+| Hallazgo | Cadena de verificación de la continuación |
+| --- | --- |
+| C-03 · LTI | `99f7ce2` desplaza la publicación de entradas al resultado aceptado. `test_desktop_session` prueba cero de ganancia, realimentación singular y cancelación antes de reintentar. |
+| C-05 · Cancelación | `3a68618` comprueba bloques de lectura JSON. `99f7ce2` extiende los perfiles a lecturas y MAT y comprueba integridad del destino. |
+| C-06 · Recuperación | `0fc6d5a` preserva el foco CAS en escritorio y `3a68618` invalida checkpoints propios de otra generación. Las regresiones verifican datos reabiertos, permisos y exclusión. |
+| C-07 · Cobertura | Casos de fase y reloj, cuantización, compensación, polos, tablas y sesión. El gate informa denominadores y pendientes por archivo. |
+| C-09 · CI | Corrida 45684469040, timeout en verificador de interfaz Linux. `4f0f32d` mantiene las pruebas y renueva el presupuesto de supervisión. |
+| C-02, C-03 y C-05 · Selección importada | `7f1babd` conserva referencias y reloj al incorporar, evita reabrir el archivo y hace participar a los lectores de metadatos del pool. Regresiones de selector real, proyecto histórico y admisión. |
+| C-11 · Supervisor de pruebas | `eb50895` detecta progreso por prueba y conserva el tiempo total acotado. Un proceso real de ensayo termina correctamente al completar y se interrumpe si queda detenido. |
+
+[Registro de causas y pruebas](IMPLEMENTATION_LOG.md) · [Evidencia y SHA](validation/FINAL_VALIDATION_MATRIX.md)

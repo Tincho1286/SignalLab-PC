@@ -27,3 +27,7 @@ El candidato `8ad3066` consolidó el contexto común, las cinco operaciones DSP,
 ## Fase 02C · Integridad y validación del Core
 
 El trabajo en `develop` verifica la procedencia de los cálculos y sus entradas, corrige el eje de PSD a escalas extremas y amplía los controles de entradas, cancelación y persistencia. La puerta de calidad mantiene revisiones separadas para el Core, la preparación de Fase 03 y la distribución. [Expediente y estado de cierre](phase_02c/README.md)
+
+### Continuación autónoma de 02C
+
+El escritorio guarda el estado de CAS con la sesión y escribe el respaldo local en segundo plano. El Core admite proyectos binarios y comparte reservas con el lector MATLAB. La campaña sintética de 48 corridas y la actualización aislada desde 2.0.0 tienen evidencia por sistema. El cierre sigue en NO-GO por los objetivos de cobertura y las condiciones registradas. [Quality Gate vigente](phase_02c/validation/QUALITY_GATE_REPORT.md#continuación-autónoma-de-fase-02c)

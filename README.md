@@ -17,7 +17,7 @@ SignalLab PC es un laboratorio de escritorio para **Sistemas y Señales I/II y p
 
 La rama `develop` incorpora **Fase 02C**, dedicada a verificar la integridad científica, la compatibilidad de sesiones y los límites de ejecución. La DFT usa la misma frontera desde el escritorio, Python y la consola. Python y la consola también dan acceso a IDFT, diseño y aplicación FIR, conversión racional de tasa y densidad espectral de potencia (PSD), sin cargar Qt.
 
-El flujo **cambio de tasa → FIR → DFT y PSD** guarda los resultados intermedios en una sesión que podés abrir en el escritorio. El Core comprueba que cada resultado corresponde a la señal y al filtro utilizados, conserva las unidades y el reloj y publica el flujo completo en una sola transacción. La cancelación es cooperativa. Los proyectos usan JSON y, para intercambiar señales individuales, está disponible el formato binario experimental `.slbin`. [Contratos de la API](docs/engineering/phase_02b/ENGINEERING_CORE_API.md) · [Auditoría y validación de Fase 02C](docs/engineering/phase_02c/README.md)
+El flujo **cambio de tasa → FIR → DFT y PSD** guarda los resultados intermedios en una sesión que podés abrir en el escritorio. El Core verifica la procedencia, conserva unidades y reloj y publica el flujo completo en una transacción. Podés guardar sesiones en JSON o en `.slproj`, que almacena las muestras en binario. Ambos formatos guardan variables, historial y borrador del CAS, y la recuperación local escribe en segundo plano. La cancelación de los motores numéricos se verifica en puntos cooperativos. [Contratos de la API](docs/engineering/phase_02b/ENGINEERING_CORE_API.md) · [Auditoría y validación de Fase 02C](docs/engineering/phase_02c/README.md)
 
 ### Probar el flujo desde el código fuente
 

@@ -37,3 +37,22 @@ La clave usada para el ensayo fue efímera. El verificador de producción rechaz
 El resumen conserva por separado los SHA-256 de los JSON originales de CI y los de los archivos versionados. Git normaliza los finales de línea en los JSON Windows.
 
 [Corrida 45673548563](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45673548563) · [Datos y SHA de archivos](evidence/ci-faef335.json) · [Recibo Windows](evidence/windows-installer-faef335.json) · [Recibo Linux](evidence/linux-installer-faef335.json)
+
+## Continuación autónoma
+
+La corrida 45683218209 completó las dos suites y las dos auditorías de distribución sobre `54adaa088ee03430ba53f1068da8086756d3bc25`. Conserva 907 pruebas integrales, 150 preventivas, 71 perfiles de rendimiento y 8 perfiles de interfaz por plataforma. Pasaron la verificación congelada y la actualización aislada 2.0.0 → 2.0.1. La cobertura global siguió bajo el objetivo. En `0fc6d5a` ambas suites integrales se completaron, pero la distribución Linux agotó el plazo del verificador UI antes de construir y auditar su instalador.
+
+| SHA | Corrida y objeto de validación |
+| --- | --- |
+| `faef335` | Referencia de la instrucción. 890 pruebas y 150 casos preventivos por plataforma. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45673548563) |
+| `54adaa0` | Coinciden SHA, cobertura y artefactos por sistema. El informe identifica 32/36 controles automáticos aprobados y detalla cuatro brechas. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45683218209) · [Índice](evidence/ci-54adaa0.json) |
+| `0fc6d5a` | Regresión de foco CAS y diagnóstico congelado. Linux interrumpió el verificador UI a 420,115 s. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45684469040) |
+| `3a68618` | Cancelación de JSON y aislamiento entre generaciones de recuperación. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45685956523) |
+| `99f7ce2` | Publicación LTI sólo después de cálculo aceptado. Perfiles adicionales de cancelación de lectura. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45686815857) |
+| `4f0f32d7e4d64e97b734fd5d30680efd3b4f553a` | Renueva el presupuesto CI de interfaz a 540 s. En el perfil Windows local se agotó mientras la suite seguía avanzando. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45687451296) |
+| `7f1babd` | Importación transaccional con referencias preservadas y admisión compartida de lectura. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45689038376) |
+| `eb50895250b124ec0554a4c52d894d5ac790e7a5` | Candidato vigente. Supervisor de CI con progreso por prueba y plazo máximo de 960 s. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45689459348) |
+
+La evidencia de cada corrida corresponde a su SHA. El portátil descartable del trabajo de línea base y el binario inventariado para distribución se construyen independientemente desde el mismo candidato. Las actas de Windows 96 DPI proceden de un escritorio real. Los perfiles Linux corresponden a Xvfb con escalas simuladas.
+
+Cada evento de corrección generó su propia corrida porque cambió el SHA. «Re-run failed jobs» reutiliza el commit de origen y se reserva para un fallo transitorio. Durante el desarrollo de la corrección se deben ejecutar primero los casos afectados. Para entregar el Quality Gate final se ejecuta la matriz existente una vez por candidato estable de auditoría y se coteja un único SHA en los dos sistemas. [Mecanismo de GitHub](https://docs.github.com/es/actions/how-tos/manage-workflow-runs/re-run-workflows-and-jobs)

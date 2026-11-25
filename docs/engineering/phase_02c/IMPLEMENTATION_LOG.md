@@ -1,5 +1,23 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-02, C-03, C-05 y C-11 · Importación y supervisión de CI
+
+**Entrada y procedencia.** El selector volvía a abrir el JSON después de inspeccionarlo, convertía a listas todas las muestras del proyecto y volvía a publicar cada objeto elegido. Los identificadores del contenido calculado quedaban apuntando a la biblioteca de origen. `7f1babd` reutiliza el documento validado, incorpora el subgrafo necesario con un único cambio de proyecto y vuelve a enlazar tanto padres como referencias calculadas. La copia conserva el origen, reloj y datos compactos. Lecturas de texto, análisis de JSON y preparación de manifiestos SLPROJ participan del mismo pool estimado que el Core.
+
+**Validación focal.** Pasaron 38 pruebas de importación, sesión, proyecto, integridad y procedencia con CPython 3.14.10. El selector real importa una expresión con referencia de resultado, vuelve a cargar la señal compleja y verifica que una importación cancelada no cambia el proyecto. La contención del pool rechaza una lectura antes de decodificar y permite reintentar tras liberar la reserva o corregir un JSON inválido.
+
+**CI.** En `3a68618` Windows cayó por el mismo plazo de 420 s que Linux en `0fc6d5a`. En `99f7ce2` se repitió en ambos sistemas. El ensayo local con el nuevo presupuesto fijo de 540 s también seguía avanzando al terminar. `eb50895` separa 120 s sin progreso de un límite global de 960 s y registra la última prueba iniciada. La suite y sus criterios se conservan y el supervisor local comprobó finalización y terminación de un proceso detenido. Las corridas previas conservan sus resultados y la matriz actual usa un único SHA. [Matriz](validation/FINAL_VALIDATION_MATRIX.md#continuación-autónoma)
+
+## 25 de noviembre de 2026 · C-03, C-05, C-06 y C-07 · Fallos de cálculo y cancelación medida
+
+**Causa y decisión.** Normalización, ajuste de fase, conversiones con transferencia, Z por contorno e interconexión registraban la definición del sistema antes de que se completara el cálculo. Un fallo matemático, una cancelación o una tarea ya en curso dejaban esos registros locales en la biblioteca. Las definiciones y sus vínculos se capturan al pulsar Calcular. El callback de éxito publica entonces la entrada usada y conserva sus relaciones con los resultados. Se reutilizó el contrato de entrega del escritorio.
+
+**Verificación.** La normalización sobre un cero y la realimentación unitaria positiva rechazan el cálculo y dejan el proyecto vacío. El caso de interconexión también cancela con el motor ya iniciado y reintenta hasta obtener H = 1/2. Se verificaron bilineal, fase, reloj y ganancia. Dos casos adicionales de recuperación prueban que un respaldo ajeno sólo se descarta por confirmación expresa y que una denegación de permisos al limpiar libera el lock y conserva los datos.
+
+**Rendimiento.** El banco incorpora cancelación de lectura JSON, SLBIN, SLPROJ y MAT clásico/HDF5. Compara hashes de los archivos antes y después y distingue un cálculo que termina antes del acuse. En Windows local JSON y SLPROJ confirmaron la cancelación, y MAT clásico y HDF5 devolvieron el control con archivos intactos. El perfil rápido de SLBIN terminó antes del acuse. La matriz exige los 22 intentos por sistema y el ensayo del trabajador simbólico. `99f7ce2`.
+
+**Distribución.** En `0fc6d5a`, el verificador nocturno de Linux interrumpió la suite Qt a los 420,115 s. La salida registró las pruebas que seguían ejecutándose y el informe declaró `timed_out`. `4f0f32d` ajusta el presupuesto a 540 s con terminación del árbol de procesos y mensaje explícito. Se conservan el conjunto de pruebas, la instrumentación y los criterios de aprobación. [Matriz](validation/FINAL_VALIDATION_MATRIX.md) · [Trabajo fallido de CI](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45684469040/job/139453298590)
+
 ## 25 de noviembre de 2026 · C-06 y C-11 · Recuperación cuando cambia la sesión
 
 **Causas.** En Windows nativo, resolver el widget activo por método de instancia fallaba si una hoja CAS guardaba una referencia a la ventana con el mismo nombre. Además, al cambiar de documento mientras el escritor terminaba, un checkpoint de la sesión anterior podía quedar como oferta de recuperación incluso después de descartar esa sesión. La lectura JSON tenía un único bloque sin comprobaciones intermedias.

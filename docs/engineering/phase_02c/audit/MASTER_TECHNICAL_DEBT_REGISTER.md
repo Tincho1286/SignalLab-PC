@@ -36,3 +36,7 @@ Referencias de arranque `7973a52` y `faef335`. Se cotejaron el historial de Fase
 | C-11 | Gate automático incorporado | Acreditar que faltantes, SHA cruzados y porcentajes insuficientes figuran como tales. Ejecutar sobre la matriz final. | QA |
 
 Los nuevos resultados locales son exploratorios hasta que se validen en un mismo SHA limpio en Windows y Linux. [Evidencia histórica](../validation/evidence/ci-faef335.json)
+
+## Avance verificable por candidato
+
+C-06a y C-06d alcanzaron sus criterios técnicos en la matriz `54adaa0`, con cobertura binaria dentro del objetivo y reapertura de cada dato de los 48 proyectos. C-06b agrega evidencia nativa Windows sobre `0fc6d5a`. C-06c agrega pruebas de cambio de generación y recuperación ante errores. C-03 incorpora controles sobre dos rutas LTI que publicaban antes de validar el resultado. C-11 informa evidencia faltante, fallo y cobertura insuficiente por separado. C-07 sigue pendiente hasta llegar a 85/75 y sostener los mínimos específicos. Los controles externos de C-01, C-02, C-08 y C-09 mantienen los responsables y criterios registrados. [Matriz](../validation/FINAL_VALIDATION_MATRIX.md#continuación-autónoma) · [Pruebas y causas](../IMPLEMENTATION_LOG.md)

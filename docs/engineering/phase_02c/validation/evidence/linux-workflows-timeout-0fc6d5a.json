@@ -1,0 +1,12 @@
+{
+  "contract": "system-expression-workflows-v1",
+  "passed": false,
+  "tests": 0,
+  "error": "Workflow worker did not complete.",
+  "timed_out": true,
+  "deadline_seconds": 420,
+  "seconds": 420.115,
+  "platform": "linux",
+  "python": "3.14.10",
+  "source_fingerprint": "1557ca68c638a95ad8bdeda9bb435494d58f53a862111333297fcd4fc51e8f9a"
+}

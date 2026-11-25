@@ -1,5 +1,9 @@
 # Decisiones
 
+## 25 de noviembre de 2026 · Publicación y recuperación por sesión
+
+La entrada capturada para una operación LTI se publica al aceptar su resultado. Publicarla al validar el formulario dejaba objetos huérfanos si el motor rechazaba el sistema o si el usuario cancelaba. El checkpoint automático pertenece a la generación de la sesión en que se tomó la instantánea. Un cambio confirmado invalida una escritura propia anterior cuando termina. Se preservan los respaldos de otras instancias y los que el usuario decide conservar. Se reutilizan la entrega de resultados del escritorio y la escritura atómica existente. [Regresiones y comandos](IMPLEMENTATION_LOG.md)
+
 ## Continuidad de 02C · 25/11/2026
 
 - E-01 y E-02. Mantener ruedas fijadas mientras el proveedor no entregue una corrección utilizable y reproducible. Aislar el lector nativo MATLAB antes de importar SciPy o h5py y delimitar su uso a archivos seleccionados localmente.

@@ -35,3 +35,7 @@ El criterio para empezar Fase 02 es la salida de estabilización de [ROADMAP](RO
 ### Seguimiento de Fase 02C
 
 Los hallazgos y acciones pendientes de 02C se gestionan con su prioridad, condición de salida y evidencia. La procedencia verificada y el error de escala de PSD tienen regresiones dedicadas. La cobertura, el escritorio real y la distribución tienen criterios de revisión propios. [Deuda de Fase 02C](phase_02c/validation/FINAL_TECHNICAL_DEBT_REGISTER.md)
+
+## Pendientes vigentes de 02C
+
+Priorizar pruebas de integración de traspaso de señales y sistemas, diseño y comparación de filtros, tabla y sonda, recuperación y errores. El informe automático indica la brecha por archivo y por rama. El registro maestro mantiene estados, requisitos y responsables de los asuntos externos y de compatibilidad. [Cobertura](phase_02c/testing/FINAL_COVERAGE_REPORT.md) · [Registro maestro](phase_02c/audit/MASTER_TECHNICAL_DEBT_REGISTER.md)

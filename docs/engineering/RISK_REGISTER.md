@@ -62,3 +62,7 @@ La [línea base de seguridad](SECURITY_BASELINE.md), la [matriz](VALIDATION_MATR
 ## Seguimiento de Fase 02C
 
 La Fase 02C verifica el contenido publicado y preserva asociaciones de origen al reabrir. Se mantienen en seguimiento las ruedas Qt, los componentes nativos MAT, el límite cooperativo, el uso intensivo de JSON, la cobertura y las condiciones de escritorio y distribución. [Riesgos y responsables](phase_02c/validation/RESIDUAL_RISK_REGISTER.md) · [Aprobaciones](phase_02c/validation/EXCEPTION_APPROVAL_REGISTER.md)
+
+### Continuación autónoma
+
+La hoja CAS activa se guarda como contrato versionado y el escritor de recuperación usa un lock por instancia. El almacenamiento binario tiene evidencia de integridad y reapertura por lotes. Los riesgos que siguen abiertos corresponden a cobertura, latencias fuera de la envolvente, ruedas nativas, escritorios reales adicionales y distribución. [Riesgos actuales](phase_02c/validation/RESIDUAL_RISK_REGISTER.md#riesgo-residual-de-la-continuación-autónoma)
