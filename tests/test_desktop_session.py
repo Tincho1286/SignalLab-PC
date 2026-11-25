@@ -610,6 +610,36 @@ class DesktopSessionTests(unittest.TestCase):
         new.open_cas()
         self.assertEqual(new.pages[CAS_ROUTE].input.toPlainText(), '')
 
+    def test_compact_workbench_recovers_while_cas_has_focus(self):
+        from signallab_pc.cas_reference import CAS_ROUTE
+
+        window = self.window()
+        window.resize(800, 600)
+        window.show()
+        window.activateWindow()
+        window.open_cas()
+        previous = window.pages[CAS_ROUTE]
+        previous.input.setPlainText('2+3*i')
+        previous.calculate()
+        self.wait_for_calculation(window)
+        previous.input.setPlainText('a+')
+        window.sessions.autosave()
+        self.wait_for_recovery(window)
+        self.app.processEvents()
+        # Qt can focus the page itself temporarily when replacing its child editor.
+        previous.setFocus()
+        self.assertIs(self.app.focusWidget(), previous)
+        self.question.return_value = QMessageBox.StandardButton.Yes
+        with patch.object(window.sessions, 'can_replace', return_value=True):
+            window.sessions.offer_recovery()
+        reopened = window.pages[CAS_ROUTE]
+        self.assertIsNot(reopened, previous)
+        self.assertEqual(reopened.input.toPlainText(), 'a+')
+        self.assertEqual(reopened.selected_entry()['answer']['text'], '2 + 3*I')
+        self.assertTrue(window.project.dirty)
+        self.warning.assert_not_called()
+        self.question.return_value = QMessageBox.StandardButton.Discard
+
     def test_root_editor_commits_exact_origin_and_polar_roots_to_filter(self):
         from signallab_pc.coefficient_editor import split_coefficients
 

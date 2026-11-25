@@ -37,7 +37,7 @@ class DesktopKeys(QObject):
 
     def remember_focus(self,old,current):
         space=self.workspace()
-        if current is None or space is None or current.window() is not self.owner:return
+        if current is None or space is None or QWidget.window(current) is not self.owner:return
         for surface in (space.inputs,space.results):
             if surface.isAncestorOf(current):self.last_focus[surface]=weakref.ref(current);return
 
@@ -62,7 +62,7 @@ class DesktopKeys(QObject):
             space.tabs.setCurrentIndex(1)
         surface=space.results if result else space.inputs;reference=self.last_focus.get(surface);widget=reference() if reference is not None else None
         if widget is None or not isValid(widget) or not widget.isVisibleTo(surface) or not widget.isEnabled():
-            candidates=[child for child in surface.findChildren(QWidget) if child.window() is self.owner and child.isVisibleTo(surface) and child.isEnabled() and child.focusPolicy() & Qt.FocusPolicy.TabFocus]
+            candidates=[child for child in surface.findChildren(QWidget) if QWidget.window(child) is self.owner and child.isVisibleTo(surface) and child.isEnabled() and child.focusPolicy() & Qt.FocusPolicy.TabFocus]
             candidates.sort(key=lambda child:(child.mapTo(surface,QPoint()).y(),child.mapTo(surface,QPoint()).x()));widget=next(iter(candidates),surface)
         self.reveal(widget)
 

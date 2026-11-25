@@ -79,7 +79,24 @@ def run(destination):
             session.save(archive, project, session.empty_workspace())
             copy, _ = session.load(archive)
             np.testing.assert_array_equal(copy.get(record).values, x.values)
+            from .cas_worksheet import prepare as prepare_worksheet
+            from .symbolic_process import run_request
+            entry = 'a := 2+3*i'
+            answer = run_request({'operation': 'cas_worksheet', 'source': entry, 'cell': 1})
+            state = answer.pop('state')
+            answer['encoded_value'] = state['results']['1']
+            result_id = project.add({'source': entry, 'cas_answer': answer}, operation='Resultado CAS')
+            sheet = dict(version=1, state=state, entries=[
+                dict(cell=1, status='done', imported=False, source=entry, result_id=result_id)],
+                input='a+', commands=[entry], draft='', command_position=1,
+                selected=1, math_size=17, digits='15', bindings=[['a', '2+3*i']])
+            session.save(archive, project, {**session.empty_workspace(), 'cas': sheet})
+            copy, saved = session.load(archive)
+            restored = prepare_worksheet(saved['cas'], copy)
+            assert restored['state'] == state and restored['input'] == 'a+'
+            assert restored['entries'][0]['result_id'] == result_id
         report['checks']['bounded_mat_worker_and_scientific_project'] = True
+        report['checks']['packaged_cas_session'] = True
         from .sampling import sample_expression
         from .project_picker import ProjectPicker
         from .report_view import ReportView
@@ -99,7 +116,6 @@ def run(destination):
         report['checks']['sampling_plot_and_report_layout'] = True
         report['checks']['project_picker_search_and_selection'] = True
         report['checks']['formatted_report_preserves_text'] = True
-        from .symbolic_process import run_request
         measure=run_request({'operation':'signal_measures_expression','expression':'exp(-abs(t))','domain':'continuous','mode':'global'})
         assert measure['energy']['exact']=='1' and measure['mean_square']['exact']=='0'
         sampled=run_request({'operation':'signal_measures_window','expression':'1+i*n','domain':'discrete','start':'-1','stop':'2'})

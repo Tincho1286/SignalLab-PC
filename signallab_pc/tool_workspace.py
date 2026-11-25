@@ -77,7 +77,7 @@ class ToolWorkspace(QWidget):
     def switch_mode(self,compact):
         if compact==self.compact:return
         focused=QApplication.focusWidget()
-        if focused is not None and focused.window() is not self.window():focused=None
+        if focused is not None and QWidget.window(focused) is not self.window():focused=None
         focused_surface=0 if focused is not None and self.inputs.isAncestorOf(focused) else 1 if focused is not None and self.results.isAncestorOf(focused) else None
         if self.compact is False and compact:
             sizes=self.split.sizes()

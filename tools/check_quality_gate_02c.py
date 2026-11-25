@@ -69,6 +69,7 @@ def evidence(folder, revision, platform):
     native = {(row['path'], row['sha256']) for row in inventory.get('native_files', [])}
     declared = {(row['name'], row['hashes'][0]['content']) for row in sbom.get('components', [])}
     stages = baseline.get('stages', {})
+    executable = portable.get('executable_check', {})
     gaps = [
         dict(file=path.replace('\\', '/'), lines=row['summary']['missing_lines'],
              branches=row['summary']['num_branches']-row['summary']['covered_branches'])
@@ -98,8 +99,8 @@ def evidence(folder, revision, platform):
             'recovery_responsiveness_measured': verdict(recovery, recovery.get('commit') == revision
                                                        and recovery.get('clean_checkout') is True
                                                        and len(recovery.get('trials', [])) == 6),
-            'portable': verdict(portable, portable.get('ok') is True
-                                or portable.get('executable_check', {}).get('ok') is True),
+            'portable': verdict(portable, executable.get('ok') is True and executable.get('frozen') is True
+                                and executable.get('checks', {}).get('packaged_cas_session') is True),
             'sbom': verdict(inventory, inventory.get('source_commit') == revision and bool(native)
                             and declared == native and all(row.get('sources') for row in inventory['native_files'])),
             'isolated_upgrade': verdict(installer, installer.get('temporary_signature_verified') is True

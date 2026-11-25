@@ -129,7 +129,8 @@ def restore(window, project, state, pages, worksheet):
     window.pages = {('browser',): window.pages[('browser',)], **auxiliary, **pages}
     window.project = project
     if worksheet is not None:
-        window.ensure_cas().restore_session(worksheet)
+        window.pages[CAS_ROUTE] = worksheet
+        window._add_auxiliary_view(CAS_ROUTE, worksheet, scroll=False)
     window._published_signals.clear()
     getattr(window, '_published_values', {}).clear()
     for page in pages.values():
@@ -244,19 +245,30 @@ class SessionController(QObject):
     def open_path(self, path, *, recovery=False):
         if self.busy():
             return False
+        worksheet = None
+        pages = {}
+        restored = False
         try:
             project, workspace = session.load(path)
-            from .cas_worksheet import prepare as prepare_cas
-            worksheet = prepare_cas(workspace['cas'], project) if 'cas' in workspace else None
             pages = prepare(self.window, project, workspace)
+            if 'cas' in workspace:
+                from .cas_panel import CasWorksheet
+                from .cas_worksheet import prepare as prepare_cas
+                state = prepare_cas(workspace['cas'], project)
+                worksheet = CasWorksheet(self.window)
+                worksheet.restore_session(state)
             if not self.can_replace():
-                for page in pages.values():
-                    page.deleteLater()
                 return False
             restore(self.window, project, workspace, pages, worksheet)
+            restored = True
         except (OSError, ValueError, TypeError, MemoryError, RecursionError) as exc:
             QMessageBox.warning(self.window, 'No se pudo abrir la sesión', str(exc))
             return False
+        finally:
+            if not restored:
+                for widget in (*pages.values(), worksheet):
+                    if widget is not None and widget.parentWidget() is None:
+                        widget.deleteLater()
         self.saved = capture(self.window)
         project.dirty = recovery
         self.generation += 1

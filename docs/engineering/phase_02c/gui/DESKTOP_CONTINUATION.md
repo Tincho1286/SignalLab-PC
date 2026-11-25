@@ -17,3 +17,9 @@ En una sesión Linux real y en Windows con otros escalados, registrá SHA, siste
 3. Guardá el proyecto como `.slproj` y abrilo de nuevo. Confirmá los dos objetos, la pestaña y su entrada. Registrá resultado por paso y adjuntá una captura de cualquier corte, bloqueo o desplazamiento incorrecto.
 
 La captura Xvfb y los factores de escala automatizados son evidencia complementaria. La comprobación Linux real y la transición entre monitores con diferente DPI siguen pendientes.
+
+## Recuperación CAS en escritorio real
+
+En el escritorio Windows de 1366 × 768, con ventana de 800 × 600 a 96 DPI, se evaluó `a := 2+3*i` y se dejó `a+` como borrador. El escritor produjo un checkpoint válido con la variable, el resultado publicado y el borrador. La recuperación desde la misma ventana llegó a un error al construir el nuevo panel cuando Qt enfocaba el anterior. Varios paneles usan `window` como atributo de Python y la detección de foco invocaba ese atributo como método.
+
+Se consulta ahora el método de QWidget y se prepara la nueva hoja fuera del árbol activo antes de reemplazar la sesión. La regresión offscreen fija el foco en el propio panel anterior. La repetición en Qt para Windows real conservó `a+` y `2 + 3*i` en la ventana de 800 × 600. El diagnóstico del portable comprueba también la reapertura de la hoja CAS en SLPROJ.
