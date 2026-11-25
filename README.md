@@ -15,9 +15,9 @@ SignalLab PC es un laboratorio de escritorio para **Sistemas y Señales I/II y p
 
 ## Engineering Core en develop
 
-La rama `develop` incorpora el trabajo de **Fase 02B**. El escritorio y la API de Python comparten los servicios de DFT, IDFT, diseño y aplicación FIR, cambio racional de tasa y estimación de densidad espectral de potencia (PSD). Estos cálculos también se pueden ejecutar por consola sin cargar Qt.
+La rama `develop` incorpora **Fase 02C**, dedicada a verificar la integridad científica, la compatibilidad de sesiones y los límites de ejecución. La DFT usa la misma frontera desde el escritorio, Python y la consola. Python y la consola también dan acceso a IDFT, diseño y aplicación FIR, conversión racional de tasa y densidad espectral de potencia (PSD), sin cargar Qt.
 
-El flujo **cambio de tasa → FIR → DFT y PSD** guarda los resultados intermedios en una sesión que podés abrir en el escritorio. La sesión conserva las unidades, el reloj de las señales y las relaciones entre entradas y resultados. La cancelación es cooperativa y el flujo publica sus resultados juntos cuando termina. Los proyectos y sesiones usan JSON. Para intercambiar señales individuales hay un formato binario experimental `.slbin` con verificación de integridad. [Contratos de la API](docs/engineering/phase_02b/ENGINEERING_CORE_API.md) · [Formatos y mediciones](docs/engineering/phase_02b/storage/STORAGE_BENCHMARK_REPORT.md)
+El flujo **cambio de tasa → FIR → DFT y PSD** guarda los resultados intermedios en una sesión que podés abrir en el escritorio. El Core comprueba que cada resultado corresponde a la señal y al filtro utilizados, conserva las unidades y el reloj y publica el flujo completo en una sola transacción. La cancelación es cooperativa. Los proyectos usan JSON y, para intercambiar señales individuales, está disponible el formato binario experimental `.slbin`. [Contratos de la API](docs/engineering/phase_02b/ENGINEERING_CORE_API.md) · [Auditoría y validación de Fase 02C](docs/engineering/phase_02c/README.md)
 
 ### Probar el flujo desde el código fuente
 
@@ -28,7 +28,7 @@ python -B tools/example_engineering_core.py work/ejemplos-core
 python -m signallab_pc dsp-pipeline --signal work/ejemplos-core/entrada.json --output work/ejemplos-core/flujo.json --up 2 --down 3 --fir .25 .5 .25 --psd-method periodogram --window boxcar
 ```
 
-La validación de Fase 02B aprobó **850 pruebas integrales y 150 casos preventivos por plataforma** en Windows y Ubuntu. El informe de cierre reúne las pruebas, las mediciones y los límites de ejecución. [Ejemplos de Python y CLI](docs/engineering/phase_02b/ENGINEERING_CORE_EXAMPLES.md) · [Informe de Fase 02B](docs/engineering/phase_02b/closeout/PHASE_02B_CLOSEOUT.md)
+Los ejemplos reproducibles cubren DFT, IDFT y el flujo DSP. El informe de Fase 02B conserva la línea base de **850 pruebas integrales y 150 casos preventivos por plataforma** en Windows y Ubuntu. [Ejemplos de Python y CLI](docs/engineering/phase_02b/ENGINEERING_CORE_EXAMPLES.md) · [Informe de Fase 02B](docs/engineering/phase_02b/closeout/PHASE_02B_CLOSEOUT.md)
 
 ## Descargar la versión estable
 

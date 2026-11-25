@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02C.10 · C10 · C-10
+
+**Estado inicial.** `37ac1d4`. Se inspeccionaron las interfaces, el proyecto, la sesión y el costo de persistencia, con foco en las dependencias importadas del Core.
+
+**Evidencia.** El grafo de AST abarcó 26 módulos transitivos y 11 entradas sin ciclos directos. Una sonda dinámica bloqueó importaciones Qt y publicó un pipeline de seis registros. Se revisaron I/Q, reloj, filtros y reproducibilidad sin implementar laboratorios.
+
+**Estado.** Contratos y preparación documentados. La autorización para ampliar el Core sigue separada.
+
 ## 25 de noviembre de 2026 · WP-02C.09 · C09 · C-09
 
 **Estado inicial.** `b036fd9`. La estable y el candidato declaran 2.0.0. El instalador nativo y el verificador de transporte se auditaron junto con la prueba que rechaza una actualización a igual número.
