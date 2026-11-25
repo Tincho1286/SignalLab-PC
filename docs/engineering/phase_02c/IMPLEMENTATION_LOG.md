@@ -1,5 +1,9 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02C.02 · C02 · C-04
+
+Se corrigió el origen de los bins para Fs subnormal y se agregó un oráculo analítico de Nyquist. Pasaron 7 casos locales de adaptadores DSP.
+
 ## 25 de noviembre de 2026 · WP-02C.01 · C01 · C-01 y C-02
 
 **Estado inicial.** Auditoría `21b720d`. Se revisaron las rutas MAT, JSON, CSV, importación, imágenes, CAS, sesiones y SLBIN. JSON leía tras un `stat` de ruta. HDF5 recuperaba variables por nombre con resolución implícita. El selector de fondos delegaba la detección a Qt.

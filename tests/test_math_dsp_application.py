@@ -79,6 +79,16 @@ class DSPApplicationTests(unittest.TestCase):
         x=Signal([1e150,1e150],metadata={'sample_rate_hz':4})
         assert_allclose(estimate_psd(PSDRequest(x,method='periodogram',window='boxcar')).values.real,[0,5e299])
 
+    def test_psd_small_finite_rate_preserves_centered_bins(self):
+        rate = 1e-309
+        source = Signal([1e-160, -1e-160, 1e-160, -1e-160])
+        out = estimate_psd(PSDRequest(source, rate, method='periodogram', window='boxcar'))
+        assert_allclose(out.axis, [-rate/2, -rate/4, 0, rate/4], rtol=0, atol=1e-323)
+        # Only Nyquist is nonzero. Compute 4*a²/Fs without underflow in a².
+        assert_allclose(out.values, [4e-11, 0, 0, 0], rtol=2e-14, atol=0)
+        with self.assertRaisesRegex(ValueError, 'separación entre bins'):
+            estimate_psd(PSDRequest(source, 5e-324, method='periodogram', window='boxcar'))
+
     def test_invalid_constraints_and_budgets(self):
         x = Signal([1j, 1], metadata={'sample_rate_hz':8})
         with self.assertRaisesRegex(ValueError,'unilateral'):

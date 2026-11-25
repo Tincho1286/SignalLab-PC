@@ -219,6 +219,9 @@ def spectral_density(x, rate, *, method="welch", segment=256, overlap=128,
     segment = positive_integer(segment, "Longitud de segmento")
     if segment > x.values.size or isinstance(overlap, bool) or not isinstance(overlap, int) or not 0 <= overlap < segment:
         raise ValueError("Se requiere segmento ≤ N y solape entero entre 0 y segmento−1.")
+    step = rate / segment
+    if step == 0:
+        raise ValueError('La separación entre bins de la PSD queda fuera del rango representable.')
     if window not in {"boxcar", "hann", "hamming", "blackman", "kaiser"}:
         raise ValueError("Ventana desconocida.")
     if not math.isfinite(beta) or beta < 0:
@@ -251,10 +254,8 @@ def spectral_density(x, rate, *, method="welch", segment=256, overlap=128,
             raise FloatingPointError("La potencia espectral excede float64.")
         power += (estimate-power)/(block+1)
     checkpoint(1)
-    frequencies = np.fft.fftshift(np.fft.fftfreq(segment, d=1/rate))
-    if segment == 1:
-        origin, step = 0, rate
-    else: origin, step = float(frequencies[0]), rate/segment
+    # Work from Fs directly. Its reciprocal can overflow even with resolvable bins.
+    origin = -(segment // 2) / segment * rate
     return Signal(np.fft.fftshift(power), origin, step, "Hz", f"PSD_{method}_{x.name}", "frequency", "",
                   {"operation": "spectral_density", "estimator": method, "density_units": "amplitude²/Hz" if method != "legacy" else "amplitude²",
                    "sample_rate_hz": rate, "window": window, "segment": segment, "overlap": overlap,

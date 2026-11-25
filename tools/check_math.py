@@ -27,7 +27,7 @@ FAMILIES={
     'scientific_paths':('test_math_historical_project.ScientificPaths',2),
     'dft_application_boundary':('test_math_dft_pilot.DFTPilotTests',6),
     'execution_context':('test_math_execution_context.ExecutionContractTests',2),
-    'dsp_application':('test_math_dsp_application.DSPApplicationTests',6),
+    'dsp_application':('test_math_dsp_application.DSPApplicationTests',7),
     'dsp_pipeline':('test_math_dsp_pipeline.DSPPipelineTests',3),
     'scientific_storage':('test_math_scientific_storage.ScientificStorageTests',3),
     'core_robustness':('test_math_core_robustness.CoreRobustnessTests',5),
