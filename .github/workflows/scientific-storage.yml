@@ -1,0 +1,36 @@
+name: Scientific storage benchmark
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'tools/benchmark_scientific_storage.py'
+      - '.github/workflows/scientific-storage.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  storage:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
+        with:
+          python-version-file: '.python-version'
+      - run: python -m pip install --only-binary=:all: -c requirements-lock.txt numpy scipy sympy mpmath h5py
+      - run: python -B -X utf8 tools/benchmark_scientific_storage.py --output work/storage.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: scientific-storage-${{ matrix.os }}-${{ github.run_id }}
+          path: work/storage.json
+          if-no-files-found: error
+          retention-days: 14
