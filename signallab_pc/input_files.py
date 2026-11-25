@@ -8,6 +8,9 @@ from pathlib import Path
 import stat
 
 from .resources import ensure_working_set
+from .jobs import checkpoint as check_job
+
+_READ_BLOCK = 1024**2
 
 
 @contextmanager
@@ -23,12 +26,21 @@ def regular_binary_file(path, description):
         yield stream, info
 
 
-def read_text(path, *, live_arrays=8):
+def read_text(path, *, live_arrays=8, checkpoint=None):
+    check = checkpoint or check_job
     with regular_binary_file(path, 'La entrada debe ser un archivo regular.') as (stream, info):
         ensure_working_set(info.st_size,bytes_per_sample=1,live_arrays=live_arrays)
-        content = stream.read(info.st_size + 1)
-        if len(content) != info.st_size:
+        content = bytearray()
+        for start in range(0, info.st_size, _READ_BLOCK):
+            check()
+            count = min(_READ_BLOCK, info.st_size - start)
+            block = stream.read(count)
+            if len(block) != count:
+                raise ValueError('El archivo cambió de tamaño durante la lectura.')
+            content.extend(block)
+        if stream.read(1):
             raise ValueError('El archivo cambió de tamaño durante la lectura.')
+    check()
     return content.decode('utf-8-sig')
 
 
@@ -41,8 +53,11 @@ def _unique_object(pairs):
     return content
 
 
-def read_json(path, *, live_arrays=8):
-    return decode_json(read_text(path, live_arrays=live_arrays))
+def read_json(path, *, live_arrays=8, checkpoint=None):
+    check = checkpoint or check_job
+    document = decode_json(read_text(path, live_arrays=live_arrays, checkpoint=check))
+    check()
+    return document
 
 
 def decode_json(text, **options):

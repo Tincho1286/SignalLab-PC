@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-06 y C-11 · Recuperación cuando cambia la sesión
+
+**Causas.** En Windows nativo, resolver el widget activo por método de instancia fallaba si una hoja CAS guardaba una referencia a la ventana con el mismo nombre. Además, al cambiar de documento mientras el escritor terminaba, un checkpoint de la sesión anterior podía quedar como oferta de recuperación incluso después de descartar esa sesión. La lectura JSON tenía un único bloque sin comprobaciones intermedias.
+
+**Cambios.** `0fc6d5a` resuelve el widget activo por el método de Qt y prepara la hoja CAS antes de cambiar de sesión. El escritor identifica el documento por generación. Si el usuario confirma el cambio, se retira exclusivamente el checkpoint propio y obsoleto después de que termine el escritor. Rechazar el cambio o encontrar un checkpoint de origen ajeno conserva el archivo. Los archivos JSON grandes se leen en bloques de 1 MiB y verifican la cancelación antes y después de analizar JSON. El análisis nativo continúa teniendo límites cooperativos.
+
+**Pruebas.** Se confirmó en Windows real la reapertura con foco en la hoja, resultado complejo preservado y borrador pendiente. La regresión automatizada compara los mismos valores. También se verificaron cambio de sesión con escritura ya publicada y notificación pendiente, fallo de permisos y reintento, rechazo de sustitución, reapertura de un JSON histórico y contrato CAS sin importar Qt o el motor CAS. Las integraciones de escritorio agregan oráculos de fase, ganancia, cuantización exacta, tablas y compensación FIR. [Acta de escritorio](gui/DESKTOP_CONTINUATION.md)
+
 ## 25 de noviembre de 2026 · C-05, C-06 y C-11 · Continuidad autónoma
 
 **Causas.** La admisión por solicitud dejaba el pool como opción. La recuperación automática serializaba JSON en el hilo de Qt. Las hojas CAS sólo conservaban resultados publicados. El cierre anterior agregaba evidencia de CI manualmente.

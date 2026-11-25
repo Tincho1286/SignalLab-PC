@@ -1,4 +1,9 @@
 from copy import deepcopy
+from pathlib import Path
+import subprocess
+import sys
+from tempfile import TemporaryDirectory
+from textwrap import dedent
 import unittest
 from unittest.mock import patch
 
@@ -59,3 +64,32 @@ class CasSessionContractTests(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, message):
                     prepare(document, project)
         self.assertEqual(len(project.headers()), 1)
+
+    def test_headless_archive_reads_cas_contract_without_qt_or_symbolic_evaluation(self):
+        from signallab_pc import session
+
+        worksheet, project = self.make_sheet()
+        with TemporaryDirectory() as folder:
+            path = Path(folder)/'headless.slproj'
+            session.save(path, project, {**session.empty_workspace(), 'cas': worksheet})
+            script = dedent('''
+                import importlib.abc
+                import sys
+
+                class NoGuiOrCasEngine(importlib.abc.MetaPathFinder):
+                    def find_spec(self, name, path=None, target=None):
+                        if name.startswith(('PySide6', 'shiboken6', 'signallab_pc.cas_engine')):
+                            raise AssertionError(name)
+
+                sys.meta_path.insert(0, NoGuiOrCasEngine())
+                from signallab_pc import session
+                from signallab_pc.cas_worksheet import prepare
+
+                project, workspace = session.load(sys.argv[1])
+                sheet = prepare(workspace['cas'], project)
+                assert sheet['input'] == 'factor('
+                assert sheet['entries'][0]['answer']['text'] == '2 + 3*i'
+            ''')
+            child = subprocess.run([sys.executable,'-B','-c',script,str(path)],
+                                   check=False, text=True, capture_output=True, timeout=30)
+            self.assertEqual(child.returncode, 0, child.stderr)

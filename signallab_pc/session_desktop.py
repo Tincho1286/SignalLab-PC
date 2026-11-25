@@ -274,6 +274,8 @@ class SessionController(QObject):
         self.generation += 1
         if self.writing is not None:
             self.writing[2].set()
+        elif not recovery:
+            self.remove_owned_checkpoint()
         self.checkpoint = None
         if recovery:
             self.protected = False
@@ -357,8 +359,11 @@ class SessionController(QObject):
             self.report_recovery_error(exc)
         else:
             self.owns_checkpoint = True
-            self.checkpoint = key
+            if key[0] == self.generation:
+                self.checkpoint = key
             self.recovery_error = None
+        if key[0] != self.generation:
+            self.remove_owned_checkpoint()
         if self.closing:
             self.closing = False
             QTimer.singleShot(0, self.window, self.window.close)
@@ -377,11 +382,21 @@ class SessionController(QObject):
         self.writer.shutdown(wait=False)
         if self.lock is not None and self.lock.isLocked():
             try:
-                if not self.protected and self.owns_checkpoint:
-                    self.path.unlink(missing_ok=True)
-                    if self.recovered_legacy:
-                        self.legacy_path.unlink(missing_ok=True)
-            except OSError as exc:
-                QMessageBox.warning(self.window, 'Recuperación local', 'El punto anterior sigue disponible. '+str(exc))
+                self.remove_owned_checkpoint(warn_on_error=True)
             finally:
                 self.lock.unlock()
+
+    def remove_owned_checkpoint(self, *, warn_on_error=False):
+        if self.protected or not self.owns_checkpoint or not self.lock.isLocked():
+            return
+        try:
+            self.path.unlink(missing_ok=True)
+            if self.recovered_legacy:
+                self.legacy_path.unlink(missing_ok=True)
+        except OSError as exc:
+            self.report_recovery_error(exc)
+            if warn_on_error:
+                QMessageBox.warning(self.window, 'Recuperación local', 'El punto anterior sigue disponible. '+str(exc))
+        else:
+            self.owns_checkpoint = False
+            self.recovered_legacy = False

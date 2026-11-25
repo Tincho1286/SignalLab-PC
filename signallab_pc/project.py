@@ -327,6 +327,6 @@ def _record_period(record):
     return False, None
 
 
-def read_document(path):
+def read_document(path, *, checkpoint=None):
     from .input_files import read_json
-    return read_json(path)
+    return read_json(path, checkpoint=checkpoint)

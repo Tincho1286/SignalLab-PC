@@ -22,9 +22,9 @@ def load(path, *, checkpoint=None):
         from .project_archive import load as load_archive
         project, workspace = load_archive(path, checkpoint=checkpoint)
         return project, _validate_workspace(workspace) if workspace is not None else empty_workspace()
-    document = read_document(path)
+    document = read_document(path, checkpoint=checkpoint)
     if isinstance(document, dict) and document.get('format') == 'signallab-project':
-        return Project.from_document(document), empty_workspace()
+        return Project.from_document(document, checkpoint=checkpoint), empty_workspace()
     if (not isinstance(document, dict) or document.get('format') != 'signallab-session'
             or type(document.get('schema_version')) is not int or document['schema_version'] not in (1, 2, 3, 4)):
         raise ValueError('Formato o versión de sesión SignalLab incompatible.')

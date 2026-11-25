@@ -20,6 +20,29 @@ from signallab_pc.workspaces import ROUTES
 
 
 class SessionFileTests(unittest.TestCase):
+    def test_large_legacy_session_can_cancel_during_read_and_retry(self):
+        from signallab_pc.jobs import OperationCancelled
+
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder)/'legacy.json'
+            project = Project()
+            record = project.add({'report': 'Texto sin fórmula. ' * 120_000})
+            session.save(path, project, session.empty_workspace())
+            original = path.read_bytes()
+            checks = 0
+
+            def cancel_at_boundary():
+                nonlocal checks
+                checks += 1
+                if checks == 2:
+                    raise OperationCancelled()
+
+            with self.assertRaises(OperationCancelled):
+                session.load(path, checkpoint=cancel_at_boundary)
+            self.assertEqual(path.read_bytes(), original)
+            opened, _ = session.load(path)
+            self.assertEqual(opened.get(record), project.get(record))
+
     def test_legacy_files_remain_usable_and_incorporation_allocates_new_ids(self):
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder)/'project.json'
@@ -453,6 +476,89 @@ class DesktopSessionTests(unittest.TestCase):
         self.assertEqual([row['id'] for row in snapshot.headers()], [original, second])
         self.assertIn(b'n^4', path.read_bytes())
 
+    def test_opening_other_session_clears_only_a_checkpoint_owned_by_this_session(self):
+        window = self.window()
+        window.show()
+        previous = self.path/'prior.json'
+        old = window.publish(Signal([5]), operation='Original')
+        window.sessions.autosave()
+        self.wait_for_recovery(window)
+        path = window.sessions.path
+        self.assertEqual(session.load(path)[0].get(old).values[0], 5)
+        replacement = Project()
+        new = replacement.add(Signal([9]))
+        session.save(previous, replacement, session.empty_workspace())
+
+        self.question.return_value = QMessageBox.StandardButton.Save
+        with patch('signallab_pc.session_desktop.QFileDialog.getSaveFileName', return_value=('', '')):
+            self.assertFalse(window.sessions.open_path(previous))
+        self.assertEqual(window.project.get(old).values[0], 5)
+        self.assertTrue(path.exists())
+
+        self.question.return_value = QMessageBox.StandardButton.Discard
+        self.assertTrue(window.sessions.open_path(previous))
+        self.assertEqual(window.project.get(new).values[0], 9)
+        self.assertFalse(path.exists())
+
+        session.save(path, Project(), session.empty_workspace())
+        self.assertTrue(window.sessions.open_path(previous))
+        self.assertTrue(path.exists())
+
+    def test_switching_session_during_recovery_write_drops_published_old_generation(self):
+        from threading import Event
+
+        window = self.window()
+        window.show()
+        window.publish(Signal([5]), operation='Original')
+        replacement = Project()
+        new = replacement.add(Signal([9]))
+        manual_path = self.path/'manual.json'
+        session.save(manual_path, replacement, session.empty_workspace())
+        path = window.sessions.path
+        committed, release = Event(), Event()
+        real_save = session.save
+
+        def save_waiting_for_notification(*args, **kwargs):
+            real_save(*args, **kwargs)
+            committed.set()
+            if not release.wait(5):
+                raise TimeoutError('El test no liberó el escritor.')
+
+        with patch('signallab_pc.session_desktop.session.save', side_effect=save_waiting_for_notification):
+            try:
+                window.sessions.autosave()
+                self.assertTrue(committed.wait(2))
+                self.assertTrue(path.exists())
+                window.sessions.offer_recovery()
+                self.assertIn('Esperá', window.statusBar().currentMessage())
+                self.assertTrue(window.sessions.open_path(manual_path))
+                self.assertEqual(window.project.get(new).values[0], 9)
+            finally:
+                release.set()
+                self.wait_for_recovery(window)
+        self.assertFalse(path.exists())
+        window.publish(Signal([10]), parents=[new], operation='Siguiente sesión')
+        window.sessions.autosave()
+        self.wait_for_recovery(window)
+        self.assertEqual([row['parents'] for row in session.load(path)[0].headers()], [[], [new]])
+
+    def test_failed_manual_save_preserves_active_project_and_previous_file(self):
+        window = self.window()
+        path = self.path/'manual.json'
+        session.save(path, Project(), session.empty_workspace())
+        original = path.read_bytes()
+        record = window.publish(Signal([3]), operation='Edición')
+        with patch('signallab_pc.session_desktop.QFileDialog.getSaveFileName', return_value=(str(path), '')):
+            with patch('signallab_pc.atomic_file.os.replace', side_effect=PermissionError('Bloqueado')):
+                self.assertFalse(window.sessions.save_dialog())
+            self.assertEqual(path.read_bytes(), original)
+            self.assertTrue(window.project.dirty)
+            self.assertEqual(window.project.get(record).values[0], 3)
+            self.warning.assert_called_once()
+            self.assertTrue(window.sessions.save_dialog())
+        self.assertFalse(window.project.dirty)
+        self.assertEqual(session.load(path)[0].get(record).values[0], 3)
+
     def test_cas_session_reopens_exact_bindings_published_parents_and_draft_without_evaluation(self):
         from signallab_pc.cas_reference import CAS_ROUTE
         from signallab_pc.cas_engine import restore as decode
@@ -757,6 +863,172 @@ class DesktopSessionTests(unittest.TestCase):
         self.assertEqual([int(row[0]) for row in rows[2:]], [-1, 0, 1])
         np.testing.assert_allclose([complex(float(row[1]), float(row[2])) for row in rows[2:]],
                                    expected, atol=1e-14)
+
+    def test_fixed_point_workbench_represents_ties_and_executes_reusable_filter(self):
+        import csv
+        from PySide6.QtWidgets import QFileDialog
+        from signallab_pc.filters import Transfer
+
+        window = self.window()
+        route = ROUTES['sampling', 5]
+        window.open_tool(route)
+        panel = window.pages[route].panel
+        panel.integer_bits.setText('2')
+        panel.fractional_bits.setText('2')
+        panel.value.setText('7/8')
+        panel.calculate()
+        self.wait_for_calculation(window)
+        self.assertEqual(panel.result['represented_exact'], '1')
+        self.assertEqual(panel.result['error_exact'], '1/8')
+        numeric = self.path/'fixed'
+        with patch.object(QFileDialog, 'getSaveFileName', return_value=(str(numeric), 'JSON')):
+            panel.export.click()
+        self.assertEqual(json.loads(numeric.with_suffix('.json').read_text(encoding='utf-8'))['represented_exact'], '1')
+
+        model = Transfer([.5], [1], sample_period_s=.25)
+        original = window.publish(model, operation='Filtro inicial')
+        with patch.object(window, 'choose_record', return_value=original):
+            panel.choose()
+        panel.calculate()
+        self.wait_for_calculation(window)
+        self.assertEqual(panel.table_model.rows[0]['stored'], .5)
+        panel.study.setCurrentIndex(2)
+        x = Signal([1, 1.5, -1], -3, metadata={'sample_rate_hz': 4, 'time_start_s': -.75})
+        input_id = window.publish(x, operation='Entrada')
+        panel.input.set_source(x, input_id)
+        panel.tail.setText('1')
+        panel.calculate()
+        self.wait_for_calculation(window)
+        self.warning.assert_not_called()
+        out = panel.result['output']
+        np.testing.assert_array_equal(out.values, [.5, .75, -.5, 0])
+        self.assertEqual((out.origin, out.metadata['sample_rate_hz']), (-3, 4))
+        published = window.project.headers('signal')[-1]
+        by_id = {row['id']: row for row in window.project.headers()}
+        self.assertTrue(any(input_id in by_id[parent]['parents'] for parent in published['parents']))
+        export = self.path/'executed.csv'
+        with patch.object(QFileDialog, 'getSaveFileName', return_value=(str(export), 'CSV')):
+            panel.export.click()
+        with export.open(encoding='utf-8', newline='') as stream:
+            rows = list(csv.DictReader(stream))
+        self.assertEqual([int(row['n']) for row in rows], [-3, -2, -1, 0])
+        self.assertEqual([float(row['salida_real']) for row in rows], [.5, .75, -.5, 0.])
+
+    def test_phase_and_gain_preserve_clock_and_match_complex_response_oracles(self):
+        from signallab_pc.filters import Transfer
+
+        window = self.window()
+        h = Transfer([1., -2.], [1.], sample_period_s=.125)
+        identifier = window.publish(h, operation='Filtro de fase no mínima')
+        omega = np.array([0., .25, .75, np.pi])
+        phase_route = ROUTES['course_tools', 'phase']
+        window.open_tool(phase_route)
+        phase = window.pages[phase_route].panel
+        phase.set_system(h, identifier)
+        phase.calculate()
+        self.wait_for_calculation(window)
+        systems = [item for item in phase.items if isinstance(item, Transfer)]
+        minimum, allpass, complement = systems
+        oracle = 1 - 2*np.exp(-1j*omega)
+        np.testing.assert_allclose(minimum.response(omega)*allpass.response(omega), oracle, atol=2e-14)
+        np.testing.assert_allclose(abs(allpass.response(omega)), 1, atol=2e-14)
+        np.testing.assert_allclose(allpass.response(omega)*complement.response(omega), 1, atol=2e-14)
+        self.assertEqual(minimum.sample_period_s, .125)
+        self.assertLess(max(abs(minimum.poles_zeros()[0])), 1)
+        mode = phase.fields['phase_mode']
+        mode.setCurrentIndex(mode.findData('linear'))
+        phase.calculate()
+        self.wait_for_calculation(window)
+        adjusted, complement = phase.items
+        expected = abs(oracle)**2*np.exp(-1j*omega)
+        np.testing.assert_allclose(adjusted.response(omega), expected, atol=2e-14)
+        np.testing.assert_allclose(h.response(omega)*complement.response(omega), expected, atol=2e-14)
+        phase.selector.setCurrentIndex(1)
+        self.assertIn('Complemento', phase.report.toPlainText())
+        gain_route = ROUTES['course_tools','gain']
+        window.open_tool(gain_route)
+        gain = window.pages[gain_route].panel
+        gain.set_system(h, identifier)
+        gain.fields['omega'].setText('pi')
+        gain.fields['target'].setText('6')
+        gain.calculate()
+        self.wait_for_calculation(window)
+        self.warning.assert_not_called()
+        normalized = next(item for item in gain.items if isinstance(item, Transfer))
+        np.testing.assert_allclose(normalized.response(omega), 2*oracle, atol=1e-14)
+        self.assertEqual(normalized.sample_period_s, .125)
+
+    def test_table_navigation_preserves_exact_integer_coordinates_and_copies_full_values(self):
+        from unittest.mock import Mock
+        from PySide6.QtCore import QItemSelectionModel, Qt
+        from signallab_pc.result_table import ResultTable
+
+        initial = 2**53 + 3
+        left = Signal(np.arange(1002)+1j, origin=initial, name='x')
+        right = Signal([0, 3-4j], origin=-5, name='x')
+        table = ResultTable()
+        self.addCleanup(table.deleteLater)
+        table.set_signals([left, right])
+        self.assertEqual(table.selector.itemText(1), 'x · 2')
+        table.position.setText(str(initial+501))
+        table.position.returnPressed.emit()
+        self.assertEqual(table.model.offset, 500)
+        self.assertEqual(table.model.value(1, 0), str(initial+501))
+        self.assertTrue(table.show_plot_sample(left, 999, 'real'))
+        self.assertEqual(table.model.offset, 500)
+        self.assertIn('Desde el gráfico', table.coordinate_note.text())
+        table.selector.setCurrentIndex(1)
+        table.position.setText('-100')
+        table.jump()
+        self.assertTrue(table.coordinate_note.text())
+        self.assertEqual(table.model.data(table.model.index(0,4), Qt.ItemDataRole.ToolTipRole),
+                         'Fase indefinida para módulo cero.')
+        table.selector.setCurrentIndex(0)
+        self.assertEqual(table.model.offset + table.table.currentIndex().row(), 999)
+        table.table.selectionModel().select(table.model.index(499, 0), QItemSelectionModel.SelectionFlag.Select)
+        clipboard = Mock()
+        with patch.object(QApplication, 'clipboard', return_value=clipboard):
+            table.copy_rows()
+        row = clipboard.setText.call_args.args[0].splitlines()[-1].split('\t')
+        self.assertEqual(row[:3], [str(initial+999), '999', '1'])
+        positions = Signal([5, 7, 11, 13], origin=.2, step=.2, units='s', domain='continuous')
+        table.set_signals([positions])
+        table.position.setText('0.49')
+        table.jump()
+        self.assertEqual(table.table.currentIndex().row(), 1)
+        self.assertIn('más cercano', table.coordinate_note.text())
+        self.assertEqual(table.model.value(1, 1), '7')
+
+    def test_phase_compensator_reports_and_exports_the_selected_cascade(self):
+        import csv
+        from PySide6.QtWidgets import QFileDialog
+        from signallab_pc.filters import Transfer
+
+        window = self.window()
+        route = ROUTES['course_tools','phase']
+        window.open_tool(route)
+        panel = window.pages[route].panel
+        panel.set_system(Transfer([2], [1], sample_period_s=.5))
+        mode = panel.fields['phase_mode']
+        mode.setCurrentIndex(mode.findData('compensate'))
+        for key, value in {'eq_taps':'5', 'eq_delay':'2', 'eq_reg':'0'}.items():
+            panel.fields[key].setText(value)
+        panel.calculate()
+        self.wait_for_calculation(window)
+        self.warning.assert_not_called()
+        self.assertTrue(panel.compensation_export.isEnabled())
+        omega = np.array([.1, .67, 2.9])
+        compensator = next(system for system in panel.items if len(system.b) == 5)
+        np.testing.assert_allclose(compensator.b, [0, 0, .5, 0, 0], atol=1e-12)
+        np.testing.assert_allclose(2*compensator.response(omega), np.exp(-2j*omega), atol=1e-12)
+        self.assertEqual(compensator.sample_period_s, .5)
+        path = self.path/'compensation'
+        with patch.object(QFileDialog, 'getSaveFileName', return_value=(str(path), 'CSV')):
+            panel.compensation_export.click()
+        with path.with_suffix('.csv').open(encoding='utf-8-sig', newline='') as stream:
+            rows = list(csv.reader(stream))
+        self.assertGreater(len(rows), 32)
+        self.assertIn('omega', rows[0][0].lower())
 
     def test_change_rate_clears_the_previously_copied_unrelated_start(self):
         window = self.window()
