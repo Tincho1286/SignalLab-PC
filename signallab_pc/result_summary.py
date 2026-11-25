@@ -106,15 +106,30 @@ def signal_summary(value,operation=None):
         if signal.expression and signal.expression!='lista ingresada':
             sections.append(Section('Expresión de origen',formulas=[Formula(signal.expression,signal.expression)]))
         op=meta.get('operation','');reading=[];formulas=[]
-        if op=='DFT' and meta.get('dft_order')=='centered':
-            formulas=[Formula('X[k] = Sum(v[m]*exp(-2*pi*i*k*m/N),(m,0,N-1))','X[k] = Σ desde m=0 hasta N−1 de v[m]·exp(−j2πkm/N)')]
-            reading=['La DFT está centrada. Las frecuencias se ordenan entre −π y π, con ω = 2πk/N.']
-        elif op=='DFT' and signal.domain=='discrete':
-            formulas=[Formula('X[k] = Sum(v[m]*exp(-2*pi*i*k*m/N),(m,0,N-1))','X[k] = Σ desde m=0 hasta N−1 de v[m]·exp(−j2πkm/N)')]
-            reading=['La DFT usa k desde cero y toma la primera muestra como m=0.']
-        elif op=='DFT' and signal.domain=='frequency':reading=['Cada tallo corresponde a un coeficiente DFT en una frecuencia angular.']
+        if op=='DFT':
+            from .fourier_phase import dft_reference
+
+            reference = dft_reference(signal)
+            if reference == 'sample_indices':
+                formulas=[Formula('X[k] = Sum(v[m]*exp(-2*pi*i*k*(n0+m)/N),(m,0,N-1))','X[k] = Σ desde m=0 hasta N−1 de v[m]·exp(−j2πk(n₀+m)/N)')]
+                reading=['La fase sigue los índices n de la señal. La primera muestra tiene índice n₀.']
+            elif reference == 'record_offset':
+                formulas=[Formula('X[k] = Sum(v[m]*exp(-2*pi*i*k*m/N),(m,0,N-1))','X[k] = Σ desde m=0 hasta N−1 de v[m]·exp(−j2πkm/N)')]
+                reading=['La fase toma la primera muestra como m=0.']
+            else:
+                reading=['La referencia de fase guardada no es válida.']
+            if 'input_origin' in meta or 'source_origin' in meta:
+                reading.append(f"Índice inicial de la entrada n₀ = {meta.get('input_origin', meta.get('source_origin'))}.")
+            if meta.get('dft_order')=='centered':
+                reading.append('Los bins se ordenan en el intervalo −π ≤ ω < π, con ω = 2πk/N.')
         elif op=='IDFT':
-            formulas=[Formula('x[n0+m] = Sum(X[k]*exp(2*pi*i*k*m/N),(k,0,N-1))/N','x[n₀+m] = (1/N)·Σ desde k=0 hasta N−1 de X[k]·exp(j2πkm/N)')]
+            if meta.get('input_dft_phase_reference')=='sample_indices':
+                formulas=[Formula('x[n_s+m] = Sum(X[k]*exp(2*pi*i*k*(n0+m)/N),(k,0,N-1))/N','x[nₛ+m] = (1/N)·Σ desde k=0 hasta N−1 de X[k]·exp(j2πk(n₀+m)/N)')]
+                reading=[f"El eje de salida empieza en nₛ = {signal.origin}."]
+                if 'original_origin' in meta:
+                    reading.insert(0, f"La inversa corrige la fase de entrada con n₀ = {meta['original_origin']}.")
+            else:
+                formulas=[Formula('x[n0+m] = Sum(X[k]*exp(2*pi*i*k*m/N),(k,0,N-1))/N','x[n₀+m] = (1/N)·Σ desde k=0 hasta N−1 de X[k]·exp(j2πkm/N)')]
         elif op=='linear_convolution':
             formulas=[Formula('y[n] = Sum(x[m]*h[n-m],(m,-oo,oo))','y[n] = Σ sobre m de x[m]·h[n−m]')]
             reading=['Las entradas se extienden con ceros antes y después de sus registros.']

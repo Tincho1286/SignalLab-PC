@@ -232,26 +232,30 @@ def linear_correlation(x: Signal, h: Signal) -> Signal:
                    "convention": "r[l]=sum_n x[n] conjugate(h[n-l]); zero outside support"})
 
 
-def dft(x: Signal, length: int | None = None, *, centered: bool = False) -> Signal:
-    """DFT sin normalizar sobre el orden almacenado; ignora el origen global del eje."""
+def dft(x: Signal, length: int | None = None, *, centered: bool = False,
+        phase_reference: str = 'record_offset') -> Signal:
+    """DFT sin normalizar, con fase según los índices o las posiciones del registro."""
+    from .fourier_phase import DFT_REFERENCES, bin_frequency, dft_values
+
     _discrete(x)
+    if not isinstance(phase_reference, str) or phase_reference not in DFT_REFERENCES:
+        raise ValueError('Elegí una referencia de fase válida para la DFT.')
     n = x.values.size if length is None else length
     if isinstance(n, bool) or not isinstance(n, (int, np.integer)) or int(n) < 1:
         raise ValueError("N debe ser un entero positivo.")
     n = int(n)
     ensure_working_set(n, bytes_per_sample=16, live_arrays=8)
-    # La convención NumPy es sum x[n] exp(-2*pi*i*k*n/N), sin normalizar hacia delante.
-    from .spectral_scaling import fft_values
-    values = fft_values(x.values, size=n)
+    use_indices = phase_reference == 'sample_indices'
+    values = dft_values(x.values, n, x.origin if use_indices else 0)
     values = _finite_output(values, "La DFT")
     action = "unchanged" if n == x.values.size else ("zero padded" if n > x.values.size else "truncated at N")
     metadata = {"operation": "DFT", "input_length": int(x.values.size), "N": n,
                 "input_action": action,"input_origin":int(x.origin),
                 "input_clock":{key:x.metadata[key] for key in ('sample_rate_hz','time_start_s') if key in x.metadata},
-                "convention": "sum x[m] exp(-2*pi*i*k*m/N), m is stored offset from 0; no forward normalization"}
+                "dft_phase_reference": phase_reference,
+                "convention": ("sum x[n] exp(-2*pi*i*k*n/N), n starts at input_origin; no forward normalization"
+                               if use_indices else "sum x[m] exp(-2*pi*i*k*m/N), m is stored offset from 0; no forward normalization")}
     if centered:
-        from .fourier_phase import bin_frequency
-
         metadata["dft_order"] = "centered"
         origin = bin_frequency(-(n//2), n)
         return Signal(np.fft.fftshift(values), origin, 2*np.pi/n, "rad/muestra",
@@ -265,6 +269,8 @@ def is_centered_dft(X: Signal) -> bool:
 
 def idft(X: Signal, *, restore_origin=False) -> Signal:
     """IDFT con división por N y restauración opcional de los índices de origen."""
+    from .fourier_phase import dft_reference
+
     n = X.values.size
     centered = is_centered_dft(X)
     if centered:
@@ -276,19 +282,31 @@ def idft(X: Signal, *, restore_origin=False) -> Signal:
         _discrete(X,temporal=False)
         if X.data_kind=='harmonics':raise ValueError('Para coeficientes de serie usá la síntesis de Fourier, que emplea otra normalización.')
     ensure_working_set(n, bytes_per_sample=16, live_arrays=8)
+    source_meta = X.metadata
+    reference = dft_reference(X) if source_meta.get('operation') == 'DFT' else 'record_offset'
+    if reference is None:
+        raise ValueError('La referencia de fase de la DFT no es válida.')
+    initial = source_meta.get('input_origin', source_meta.get('source_origin')) if source_meta.get('operation') == 'DFT' else None
+    if initial is not None and type(initial) is not int:
+        raise ValueError('El índice original de la DFT debe ser entero.')
+    if reference == 'sample_indices' and (initial is None or (not centered and (source_meta.get('N') != n or X.origin != 0))):
+        raise ValueError('La DFT con fase en n requiere el origen y sus N bins completos en la rejilla original.')
     coefficients = np.fft.ifftshift(X.values) if centered else X.values
     from .spectral_scaling import fft_values
     values = _finite_output(fft_values(coefficients,inverse=True), "La IDFT")
+    if reference == 'sample_indices' and initial % n:
+        # The cyclic shift is undone even when only the output axis is relabeled at zero.
+        values = np.roll(values, -(initial % n))
     metadata={"operation":"IDFT","N":n,
-              "convention":"(1/N) sum X[k] exp(+2*pi*i*k*m/N), m is stored output offset from 0"}
+              "input_dft_phase_reference": reference,
+              "convention":("(1/N) sum X[k] exp(+2*pi*i*k*(input_origin+m)/N)"
+                            if reference == 'sample_indices' else "(1/N) sum X[k] exp(+2*pi*i*k*m/N), m is stored output offset from 0")}
     origin=0
     if X.metadata.get('operation')=='DFT':
-        initial=X.metadata.get('input_origin',X.metadata.get('source_origin'))
         if initial is not None:
-            if type(initial) is not int:raise ValueError('El índice original de la DFT debe ser entero.')
             metadata['original_origin']=initial
             if restore_origin:origin=initial
-        clock=X.metadata.get('input_clock',{})
+        clock=source_meta.get('input_clock',{})
         if not isinstance(clock,dict):raise ValueError('El reloj de origen de la DFT no es válido.')
         from .sampling import positive_finite
         if 'sample_rate_hz' in clock:

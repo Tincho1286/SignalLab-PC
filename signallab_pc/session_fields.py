@@ -421,6 +421,9 @@ def restore_page(page, saved, project):
         panel.render()
     else:
         restore_fields(panel, saved['fields'], project)
+    if page.tool_item[1:3] == ('basic', 'dft') and 'dft_phase_reference' not in saved['fields']:
+        phase = page.dft_phase_reference
+        phase.setCurrentIndex(phase.findData('record_offset'))
     if 'source' in saved:
         if page.context is None or not isinstance(page.context.source, LocalInput):
             raise ValueError('La entrada de la sesión no existe en esta herramienta.')

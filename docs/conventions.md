@@ -15,7 +15,11 @@ Las señales continuas numéricas se describen mediante un registro de tiempo y 
 - Fourier continua en rad/s; la inversa angular usa el factor 1/(2π).
 - Agregar ceros a una FFT densifica el muestreo de frecuencia, sin ampliar la duración observada.
 
-Las muestras DFT y la curva DTFT se comparan usando las mismas coordenadas y el origen de la secuencia. Las ventanas y cuadraturas finitas conservan su alcance de aproximación.
+En **DFT → Transformada directa**, **Referencia de fase** permite elegir los índices de la señal o las posiciones del registro. Por defecto se usan los índices `n=n₀+m`, lo que hace coincidir la DFT con la DTFT en los bins. **Primera muestra del registro** toma `m=0` como referencia y reproduce la convención anterior. El factor que convierte esa DFT a fase en `n` es `exp(−j2πkn₀/N)`.
+
+Los resultados JSON y CSV de SignalLab guardan la referencia de fase y el índice inicial. Al cargar una DFT, la inversa recupera el orden de las muestras según esa referencia. **Restaurar el índice inicial** decide si el eje comienza en el índice guardado o en cero. Las DFT directas guardadas antes de esta distinción y las listas manuales conservan la convención con fase referida a la primera muestra.
+
+En **Ventanas y resolución**, el espectro centrado respeta los índices `n`. El resultado con `k` desde cero conserva la referencia a la primera muestra. Las ventanas y cuadraturas finitas conservan su alcance de aproximación.
 
 ## Transferencias y ROC
 

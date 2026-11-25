@@ -33,12 +33,12 @@ def window_fft(x,length,nfft,window,beta,points):
     indices = np.arange(nfft, dtype=np.int64)-nfft//2
     omega = bin_frequency(indices, nfft)
     spectrum = raw[indices % nfft]*dft_origin_phase(indices, nfft, int(x.origin))
-    fft=Signal(spectrum,float(omega[0]),2*np.pi/nfft,'rad/muestra','DFT de la señal enventanada','frequency','',{'operation':'DFT','nfft':nfft,'window_length':length,'window':window,'kaiser_beta':beta if window=='kaiser' else None,'input_origin':x.origin})
+    fft=Signal(spectrum,float(omega[0]),2*np.pi/nfft,'rad/muestra','DFT de la señal enventanada','frequency','',{'operation':'DFT','N':nfft,'nfft':nfft,'dft_order':'centered','dft_phase_reference':'sample_indices','window_length':length,'window':window,'kaiser_beta':beta if window=='kaiser' else None,'input_origin':x.origin,'input_clock':clock})
     dense=dtft(v,-np.pi,np.pi,points)
     window_spectrum=dtft(w,-np.pi,np.pi,points)
-    coeff=Signal(raw,0,1,'k','Índices k de la DFT (0 a N−1)','discrete','',{'operation':'DFT','source_origin':x.origin,'nfft':nfft,'input_clock':clock})
+    coeff=Signal(raw,0,1,'k','Índices k de la DFT (0 a N−1)','discrete','',{'operation':'DFT','N':nfft,'dft_phase_reference':'record_offset','source_origin':x.origin,'nfft':nfft,'input_clock':clock})
     energy=energy_description(v.values);spectral=energy_description(raw,nfft)
-    return bundle(f'Ventanas y resolución espectral\n\nLongitud observada: {length}\nNFFT: {nfft}\nCeros agregados: {nfft-length}\nSeparación entre bins: {2*np.pi/nfft:.9g} rad/muestra\nVentana: {window}, simétrica\nGanancia coherente: {np.mean(weights):.9g}\n\nEnergía temporal: {energy}\nSuma |X[k]|²/NFFT: {spectral}\n\nLa FFT no se normaliza hacia adelante. Su fase en rad/muestra respeta el origen de la entrada. La DFT invertible conserva el origen y el reloj de la entrada para la inversa. Se puede elegir un eje local desde cero. La DTFT usa los índices originales.\n\nAgregar ceros densifica la rejilla, pero no mejora la resolución física. Aumentar la duración y cambiar la ventana modifica el ancho del lóbulo y la fuga. Se usan las primeras L muestras; no se supone que aumentar NFFT agrega información.',[fft,dense,v,w,window_spectrum,coeff])
+    return bundle(f'Ventanas y resolución espectral\n\nLongitud observada: {length}\nNFFT: {nfft}\nCeros agregados: {nfft-length}\nSeparación entre bins: {2*np.pi/nfft:.9g} rad/muestra\nVentana: {window}, simétrica\nGanancia coherente: {np.mean(weights):.9g}\n\nEnergía temporal: {energy}\nSuma |X[k]|²/NFFT: {spectral}\n\nLa DFT centrada y la DTFT calculan la fase con los índices n de la señal. La DFT con k desde cero toma la primera muestra como m=0. Ambas DFT conservan su referencia de fase y el reloj de la entrada para la inversa.\n\nAgregar ceros densifica la rejilla, pero no mejora la resolución física. Aumentar la duración y cambiar la ventana modifica el ancho del lóbulo y la fuga. Se usan las primeras L muestras; no se supone que aumentar NFFT agrega información.',[fft,dense,v,w,window_spectrum,coeff])
 
 def bands(wp,ws):
     wp=np.asarray(wp,float);ws=np.asarray(ws,float)

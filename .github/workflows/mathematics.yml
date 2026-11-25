@@ -2,7 +2,7 @@ name: Mathematical reliability
 
 on:
   push:
-    branches: [main]
+    branches: [main, codex/engineering-stabilization]
     paths:
       - 'signallab_pc/**.py'
       - 'tests/test_math_*.py'
@@ -65,12 +65,18 @@ on:
       - 'tools/check_static.py'
       - '.github/workflows/mathematics.yml'
   workflow_dispatch:
+    inputs:
+      engineering_baseline:
+        description: Run the complete engineering baseline with line and branch coverage
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 jobs:
   core-mathematics:
+    if: ${{ !inputs.engineering_baseline && github.ref != 'refs/heads/codex/engineering-stabilization' }}
     strategy:
       fail-fast: false
       matrix:
@@ -100,6 +106,7 @@ jobs:
           retention-days: 7
 
   workflow-integration:
+    if: ${{ !inputs.engineering_baseline && github.ref != 'refs/heads/codex/engineering-stabilization' }}
     strategy:
       fail-fast: false
       matrix:
@@ -133,6 +140,7 @@ jobs:
           retention-days: 7
 
   static-actions:
+    if: ${{ !inputs.engineering_baseline && github.ref != 'refs/heads/codex/engineering-stabilization' }}
     runs-on: ubuntu-22.04
     timeout-minutes: 3
     steps:
@@ -151,3 +159,35 @@ jobs:
           path: work/static-checks.json
           if-no-files-found: error
           retention-days: 7
+
+  engineering-baseline:
+    if: ${{ inputs.engineering_baseline || github.ref == 'refs/heads/codex/engineering-stabilization' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12.10'
+      - name: Install offscreen runtime libraries
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0
+      - name: Install the locked baseline environment
+        run: python -m pip install --disable-pip-version-check -r requirements-lock.txt -r requirements-quality.txt -r requirements-engineering.txt
+      - name: Verify the clean revision and measure coverage
+        run: python -B -X utf8 tools/check_engineering_baseline.py --output work/engineering-baseline
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: engineering-baseline-${{ matrix.os }}-${{ github.run_id }}
+          path: |
+            work/engineering-baseline/*.json
+            work/engineering-baseline/*.log
+          if-no-files-found: error
+          retention-days: 14

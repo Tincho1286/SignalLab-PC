@@ -7,6 +7,40 @@ import numpy as np
 from .jobs import checkpoint
 
 
+DFT_REFERENCES = {
+    'sample_indices': 'Índices de la señal (n)',
+    'record_offset': 'Primera muestra del registro (m=0)',
+}
+
+
+def dft_reference(signal):
+    metadata = signal.metadata
+    if 'dft_phase_reference' in metadata:
+        reference = metadata['dft_phase_reference']
+        return reference if isinstance(reference, str) and reference in DFT_REFERENCES else None
+    # Old window studies stored the phase-adjusted spectrum separately.
+    if signal.domain == 'frequency' and 'window_length' in metadata:
+        return 'sample_indices'
+    return 'record_offset'
+
+
+def dft_values(values, length, origin=0):
+    """Evaluate the DFT after placing the finite record at its integer indices."""
+    from .spectral_scaling import fft_values
+
+    offset = origin % length
+    if not offset:
+        return fft_values(values, size=length)
+    samples = values[:length]
+    if len(samples) == length:
+        return fft_values(np.roll(samples, offset))
+    placed = np.zeros(length, dtype=values.dtype)
+    head = min(len(samples), length - offset)
+    placed[offset:offset + head] = samples[:head]
+    placed[:len(samples) - head] = samples[head:]
+    return fft_values(placed)
+
+
 def bin_frequency(index, length):
     return (index/length)*math.tau
 

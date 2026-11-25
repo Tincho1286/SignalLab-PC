@@ -197,6 +197,61 @@ class FourierContracts(unittest.TestCase):
         assert_allclose(bins,expected(omega),atol=1e-14)
         assert_allclose(dtft(x,0,2*np.pi,25).values,dtft(x,2*np.pi,4*np.pi,25).values,atol=2e-14)
 
+    def test_dft_phase_reference_agrees_with_analytic_bins_and_keeps_inverse_order(self):
+        from cmath import exp
+        from math import tau
+        from signallab_pc.fourier import dtft_with_dft
+        from signallab_pc.operations import dft, idft
+
+        cases = ((3, [1, 2, 0, 0]), (-3, [1+2j, -3, .5j, 2]),
+                 (2, [1j, 2, -1]), (-2**60+3, [2, .5j, -3, 1j, 2j]))
+        for origin, samples in cases:
+            x = Signal(samples, origin)
+            size = len(samples)
+            indices = range(-(size//2), size-size//2)
+            angular = [tau*k/size for k in indices]
+            expected = [sum(value*exp(-1j*tau*((k*(origin+m)) % size)/size)
+                            for m, value in enumerate(samples)) for k in indices]
+            with self.subTest(origin=origin, size=size):
+                physical = dft(x, centered=True, phase_reference='sample_indices')
+                local = dft(x, centered=True, phase_reference='record_offset')
+                phase = [exp(-1j*tau*((k*origin) % size)/size) for k in indices]
+                assert_allclose(physical.values, expected, atol=2e-14)
+                assert_allclose(physical.values, local.values*phase, atol=2e-14)
+                _, (omega, bins) = dtft_with_dft(x, angular[0], angular[-1], size)
+                assert_allclose(omega, angular, atol=2e-15)
+                assert_allclose(physical.values, bins, atol=2e-14)
+                for restore in (False, True):
+                    inverse = idft(physical, restore_origin=restore)
+                    assert_allclose(inverse.values, samples, atol=2e-14)
+                    self.assertEqual(inverse.origin, origin if restore else 0)
+
+    def test_referenced_dft_preserves_padding_truncation_and_legacy_exports(self):
+        from pathlib import Path
+        from tempfile import TemporaryDirectory
+        from signallab_pc.operations import dft, idft
+        from signallab_pc.storage import load_csv, load_json, save_csv, save_json
+
+        x = Signal([1+1j, 2, -3j], -1)
+        for size, expected in ((2, [1+1j, 2]), (5, [1+1j, 2, -3j, 0, 0])):
+            with self.subTest(size=size):
+                spectrum = dft(x, size, phase_reference='sample_indices')
+                assert_allclose(idft(spectrum).values, expected, atol=2e-14)
+        legacy = dft(x, centered=True)
+        legacy.metadata.pop('dft_phase_reference')
+        modern = dft(x, centered=True, phase_reference='sample_indices')
+        with TemporaryDirectory() as folder:
+            for suffix, save, load in (('csv', save_csv, load_csv), ('json', save_json, load_json)):
+                for name, source in (('legacy', legacy), ('modern', modern)):
+                    with self.subTest(suffix=suffix, name=name):
+                        path = Path(folder)/f'{name}.{suffix}'
+                        save(source, path)
+                        imported = load(path)
+                        inverse = idft(imported, restore_origin=True)
+                        assert_allclose(inverse.values, x.values, atol=2e-14)
+                        self.assertEqual(inverse.origin, x.origin)
+
+
     def test_continuous_fourier_quadrature_scaling_and_inverse(self):
         from signallab_pc.fourier import ctft,ictft
         x=Signal([1,2,3],-.25,.25,'s','x','continuous');s=ctft(x,-2,2,5)

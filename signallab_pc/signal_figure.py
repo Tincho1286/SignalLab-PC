@@ -84,6 +84,16 @@ def draw_signal_figure(figure, signals, *, polar, select_indices):
         axes[0].set_title('Vista reducida · Valores contiene todas las muestras', fontsize=9)
     elif any(impulses):
         axes[0].set_title('Parte ordinaria de la señal', fontsize=9)
+    if all(source.metadata.get('operation') == 'DFT' for source in signals):
+        from .fourier_phase import dft_reference
+
+        references = {dft_reference(source) for source in signals}
+        phase_title = ('Referencia de fase no disponible' if None in references else
+                       'Fase según los índices n' if references == {'sample_indices'} else
+                       'Fase desde la primera muestra (m=0)' if references == {'record_offset'} else
+                       'Las trazas tienen referencias de fase distintas')
+        existing = axes[0].get_title()
+        axes[0].set_title(f'{phase_title}\n{existing}' if existing else phase_title, fontsize=9)
     axes[0].set_ylabel('Densidad' if polar and density else 'Módulo' if polar else 'Parte real')
     axes[1].set_ylabel('Densidad (dB)' if polar and density else 'Fase (rad)' if polar else 'Parte imaginaria')
     configure_signal_axis(axes[-1], signals[0])

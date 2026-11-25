@@ -1000,6 +1000,18 @@ class ToolPage(QWidget):
         self.second=None
         if input_kind in ('pair','continuous_pair'):
             self.second=LocalInput('Entrada h(t)' if continuous_input else 'Entrada h[n]','continuous' if continuous_input else 'discrete');self.second.mode.setCurrentIndex(1);box.addWidget(self.second)
+        if operation == 'dft':
+            from .fourier_phase import DFT_REFERENCES
+
+            self.dft_phase_reference = QComboBox()
+            for key, title in DFT_REFERENCES.items():
+                self.dft_phase_reference.addItem(title, key)
+            label = QLabel('Referencia de fase')
+            label.setBuddy(self.dft_phase_reference)
+            self.dft_phase_reference.setAccessibleName(label.text())
+            self.dft_phase_reference.setToolTip('Índices de la señal coincide con los bins de la DTFT. Primera muestra calcula la fase con el registro desplazado a m=0.')
+            box.addWidget(label)
+            box.addWidget(self.dft_phase_reference)
         if operation=='idft':
             self.first.dft_input=True
             self.first.setTitle('Coeficientes del espectro X[k]')
@@ -1010,7 +1022,7 @@ class ToolPage(QWidget):
             self.first.origin.setText('0');self.first.origin.parentWidget().hide()
             self.restore_dft_origin=QCheckBox('Restaurar el índice inicial de la señal original')
             self.restore_dft_origin.setChecked(True);box.addWidget(self.restore_dft_origin)
-            guidance=QLabel('Ingresá X[k] desde k=0 o cargá una DFT calculada. La inversa usa 1/N. El reloj disponible se conserva; sin índice de origen, la salida empieza en n=0.');guidance.setWordWrap(True);box.addWidget(guidance)
+            guidance=QLabel('Cargá una DFT calculada para recuperar su referencia de fase y su reloj. Para listas, ingresá X[k] desde k=0 con fase referida a la primera muestra. La inversa usa 1/N.');guidance.setWordWrap(True);box.addWidget(guidance)
         self.first.bind_project(window)
         if operation in ('generate','measures'):
             from .choice_buttons import ChoiceButtons
@@ -1035,6 +1047,7 @@ class ToolPage(QWidget):
         if operation=='generate':
             for field in sources:tracked.extend(field.enable_periodic_definition())
         if hasattr(self,'source_domain'):tracked.append(self.source_domain)
+        if operation=='dft':tracked.append(self.dft_phase_reference)
         if operation=='idft':tracked.append(self.restore_dft_origin)
         self.result_state=ResultState(tracked,button,sources);box.insertWidget(1,self.result_state)
         def calculate():
@@ -1042,6 +1055,7 @@ class ToolPage(QWidget):
                 x=self.first.read();h=self.second.read() if self.second else None
                 parameter=constant_value(self.parameter.text()) if operation=='scale' else integer_field(self.parameter) if operation=='shift' else None
                 restore_origin=operation=='idft' and self.restore_dft_origin.isChecked()
+                phase_reference = self.dft_phase_reference.currentData() if operation == 'dft' else None
                 functions = {
                     'generate': lambda: x,
                     'measures': lambda: ops.finite_measures(x),
@@ -1053,7 +1067,7 @@ class ToolPage(QWidget):
                     'convolve': lambda: ops.linear_convolution(x, h),
                     'correlate': lambda: ops.linear_correlation(x, h),
                     'circular': lambda: ops.circular_convolution(x, h),
-                    'dft': lambda: ops.dft(x, centered=True),
+                    'dft': lambda: ops.dft(x, centered=True, phase_reference=phase_reference),
                     'idft': lambda: ops.idft(x, restore_origin=restore_origin),
                     'continuous_convolve': lambda: continuous.convolution(x, h),
                     'continuous_correlate': lambda: continuous.correlation(x, h),

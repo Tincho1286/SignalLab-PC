@@ -83,6 +83,34 @@ class DesktopSessionTests(unittest.TestCase):
             window.deleteLater()
         self.app.processEvents()
 
+    def test_released_dft_session_reopens_with_its_original_phase_reference(self):
+        from signallab_pc.operations import idft
+
+        fixture = Path(__file__).parent/'fixtures'/'session-v3-dft-2.0.0.json'
+        window = self.window()
+        self.assertTrue(window.sessions.open_path(fixture))
+        route = ROUTES['basic','dft']
+        self.assertEqual(window.current_operation, route)
+        page = window.pages[route]
+        self.assertEqual(page.dft_phase_reference.currentData(), 'record_offset')
+        source, spectrum = window.project.headers()
+        self.assertEqual(spectrum['parents'], [source['id']])
+        stored = window.project.get(spectrum['id'])
+        self.assertNotIn('dft_phase_reference', stored.metadata)
+        restored = idft(stored, restore_origin=True)
+        np.testing.assert_allclose(restored.values, [1, 2, 0, 0], atol=1e-14)
+        self.assertEqual(restored.origin, 3)
+        self.assertEqual(restored.metadata['sample_rate_hz'], 8)
+        self.assertEqual(restored.metadata['time_start_s'], .375)
+
+        phase = page.dft_phase_reference
+        phase.setCurrentIndex(phase.findData('sample_indices'))
+        saved = self.path/'phase-reference.json'
+        session.save(saved, window.project, capture(window))
+        self.assertTrue(window.sessions.open_path(saved))
+        self.assertEqual(window.pages[route].dft_phase_reference.currentData(), 'sample_indices')
+        np.testing.assert_array_equal(window.project.get(spectrum['id']).values, stored.values)
+
     def test_real_workspace_restores_reference_clock_tool_order_and_inactive_input(self):
         window = self.window()
         root = window.project.add(Signal([1,2], -1, metadata={'sample_rate_hz':8,'time_start_s':.25}))

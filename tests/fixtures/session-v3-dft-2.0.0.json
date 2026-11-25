@@ -1,0 +1,147 @@
+{
+  "format": "signallab-session",
+  "schema_version": 3,
+  "project": {
+    "format": "signallab-project",
+    "schema_version": 2,
+    "records": [
+      {
+        "id": "787143bedbbd431ea09a0d8c39937cb1",
+        "kind": "signal",
+        "title": "Registro de cuatro muestras",
+        "operation": "",
+        "parents": [],
+        "created": "2026-11-25T03:35:36.284071+00:00",
+        "data": {
+          "values": [
+            [
+              1.0,
+              0.0
+            ],
+            [
+              2.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0
+            ]
+          ],
+          "origin": 3,
+          "step": 1.0,
+          "units": "n",
+          "name": "Registro de cuatro muestras",
+          "domain": "discrete",
+          "expression": "",
+          "metadata": {
+            "sample_rate_hz": 8,
+            "time_start_s": 0.375
+          }
+        },
+        "tool": null
+      },
+      {
+        "id": "d52a4dd229c34cccb6249c9676d135ae",
+        "kind": "signal",
+        "title": "DFT X[k]",
+        "operation": "DFT del registro",
+        "parents": [
+          "787143bedbbd431ea09a0d8c39937cb1"
+        ],
+        "created": "2026-11-25T03:35:36.298066+00:00",
+        "data": {
+          "values": [
+            [
+              -1.0,
+              0.0
+            ],
+            [
+              1.0,
+              2.0
+            ],
+            [
+              3.0,
+              0.0
+            ],
+            [
+              1.0,
+              -2.0
+            ]
+          ],
+          "origin": -3.141592653589793,
+          "step": 1.5707963267948966,
+          "units": "rad/muestra",
+          "name": "DFT X[k]",
+          "domain": "frequency",
+          "expression": "",
+          "metadata": {
+            "operation": "DFT",
+            "input_length": 4,
+            "N": 4,
+            "input_action": "unchanged",
+            "input_origin": 3,
+            "input_clock": {
+              "sample_rate_hz": 8,
+              "time_start_s": 0.375
+            },
+            "convention": "sum x[m] exp(-2*pi*i*k*m/N), m is stored offset from 0; no forward normalization",
+            "dft_order": "centered"
+          }
+        },
+        "tool": [
+          "DFT",
+          "basic",
+          "dft",
+          "discrete"
+        ]
+      }
+    ]
+  },
+  "workspace": {
+    "tools": [
+      {
+        "route": [
+          "basic",
+          "dft"
+        ],
+        "inputs": {
+          "fields": {
+            "first": {
+              "view": 3,
+              "fields": {
+                "expression": "cos(pi*n/4)",
+                "samples": "1, 2, 1",
+                "origin": "0",
+                "count": "64",
+                "step": "0.01"
+              },
+              "sources": {
+                "3": {
+                  "record": "787143bedbbd431ea09a0d8c39937cb1"
+                }
+              },
+              "expression": null
+            },
+            "parameter": "1"
+          }
+        }
+      }
+    ],
+    "tabs": [
+      [
+        "browser",
+        null
+      ],
+      [
+        "tool",
+        "basic",
+        "dft"
+      ]
+    ],
+    "active": 1
+  }
+}

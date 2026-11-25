@@ -235,6 +235,7 @@ class FourierPanel(QWidget):
                 parts=(np.abs(bins),np.angle(bins)) if polar else (bins.real,bins.imag)
                 if polar:parts[1][parts[0]==0]=np.nan
                 self.draw_dft_bins(result, zip(axes, parts))
+                axes[0].set_title('DTFT y bins DFT · fase según los índices n', fontsize=9)
             configure_signal_axis(axes[1],result)
             if polar:axes[1].set_title('Ceros: dB = −∞, no trazado' if power else 'Fase no definida donde el módulo es cero',fontsize=9)
             if not getattr(self.canvas,'_signallab_layout',False):self.figure.tight_layout()

@@ -9,7 +9,7 @@ from .operations import _discrete, _finite_output
 from .resources import ensure_working_set
 from .sampling import positive_integer, positive_finite
 from .jobs import checkpoint
-from .spectral_scaling import bounded, restore_scale, fft_values
+from .spectral_scaling import bounded, restore_scale
 
 
 def grid(start, stop, count):
@@ -68,7 +68,7 @@ def dtft(x, start=-math.pi, stop=math.pi, count=1025):
 def dtft_with_dft(x,start,stop,count):
     """Misma DTFT independiente; DFT sobre sus propias frecuencias, sin interpolar."""
     spectrum=dtft(x,start,stop,count)
-    from .fourier_phase import bin_frequency, bin_range, dft_origin_phase
+    from .fourier_phase import bin_frequency, bin_range, dft_values
     n = x.values.size
     first, last = bin_range(float(start), float(stop), n)
     size = max(0, last-first+1)
@@ -77,8 +77,7 @@ def dtft_with_dft(x,start,stop,count):
     omega = bin_frequency(indices, n)
     if np.any(np.diff(omega) <= 0):
         raise ValueError('La precisión numérica no distingue todos los bins solicitados.')
-    with np.errstate(over='ignore',invalid='ignore'):
-        values = fft_values(x.values)[indices % n] * dft_origin_phase(indices, n, int(x.origin))
+    values = dft_values(x.values, n, int(x.origin))[indices % n]
     values = _finite_output(values,'Los bins de la DFT')
     return spectrum,(omega,values)
 
