@@ -33,7 +33,11 @@ def _unique_object(pairs):
 
 
 def read_json(path, *, live_arrays=8):
+    return decode_json(read_text(path, live_arrays=live_arrays))
+
+
+def decode_json(text, **options):
     try:
-        return json.loads(read_text(path,live_arrays=live_arrays),object_pairs_hook=_unique_object)
+        return json.loads(text, object_pairs_hook=_unique_object, **options)
     except RecursionError as error:
         raise ValueError('El documento JSON tiene demasiados niveles.') from error

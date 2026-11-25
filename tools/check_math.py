@@ -29,7 +29,7 @@ FAMILIES={
     'execution_context':('test_math_execution_context.ExecutionContractTests',2),
     'dsp_application':('test_math_dsp_application.DSPApplicationTests',7),
     'dsp_pipeline':('test_math_dsp_pipeline.DSPPipelineTests',3),
-    'scientific_storage':('test_math_scientific_storage.ScientificStorageTests',3),
+    'scientific_storage':('test_math_scientific_storage.ScientificStorageTests',4),
     'core_robustness':('test_math_core_robustness.CoreRobustnessTests',6),
     'core_cli':('test_math_core_cli.CoreCLITests',2),
     'input_integrity':('test_math_input_integrity.InputIntegrityTests',3),

@@ -13,6 +13,7 @@ import numpy as np
 
 from .atomic_file import atomic_binary_file
 from .execution import ExecutionContext
+from .input_files import decode_json
 from .model import Signal
 from .resources import ensure_working_set
 
@@ -61,7 +62,10 @@ def _finite_number(value):
 def load_binary_signal(path, execution: ExecutionContext | None = None) -> Signal:
     ctx = execution or ExecutionContext()
     ctx.checkpoint()
-    with Path(path).open('rb') as stream:
+    path = Path(path)
+    if not path.is_file():
+        raise ValueError('Se requiere un archivo científico regular.')
+    with path.open('rb') as stream:
         info = os.fstat(stream.fileno())
         if not stat.S_ISREG(info.st_mode):
             raise ValueError('Se requiere un archivo científico regular.')
@@ -74,10 +78,7 @@ def load_binary_signal(path, execution: ExecutionContext | None = None) -> Signa
         header = stream.read(header_size)
         if len(header) != header_size:
             raise ValueError('Cabecera científica incompleta.')
-        try:
-            fields = json.loads(header.decode('utf-8'),parse_constant=_reject_constant,parse_float=_finite_number)
-        except RecursionError as error:
-            raise ValueError('Anidamiento excesivo en los metadatos científicos.') from error
+        fields = decode_json(header.decode('utf-8'), parse_constant=_reject_constant, parse_float=_finite_number)
         if not isinstance(fields,dict) or fields.keys() != {'count', *_FIELDS}:
             raise ValueError('Esquema de metadatos científico inválido.')
         count = fields.pop('count')

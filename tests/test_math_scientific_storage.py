@@ -1,4 +1,6 @@
+import hashlib
 from pathlib import Path
+import struct
 from tempfile import TemporaryDirectory
 from threading import Event
 import unittest
@@ -52,3 +54,19 @@ class ScientificStorageTests(unittest.TestCase):
                     save_binary_signal(Signal([4,5]),path,ExecutionContext(cancel=cancel))
             self.assertEqual(path.read_bytes(),previous)
             self.assertEqual(list(Path(folder).iterdir()),[path])
+
+    def test_binary_layout_is_interoperable_and_duplicate_fields_are_rejected(self):
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / 'record.slbin'
+            save_binary_signal(Signal([1.25 - 2j], -5), path)
+            raw = path.read_bytes()
+            self.assertEqual(raw[:8], b'SLPCBIN\x01')
+            header_end = 12 + struct.unpack_from('<I', raw, 8)[0]
+            self.assertEqual(struct.unpack('<dd', raw[header_end:-32]), (1.25, -2.0))
+            self.assertEqual(hashlib.sha256(raw[:-32]).digest(), raw[-32:])
+
+            header = b'{"count":1,' + raw[13:header_end]
+            unsigned = raw[:8] + struct.pack('<I', len(header)) + header + raw[header_end:-32]
+            path.write_bytes(unsigned + hashlib.sha256(unsigned).digest())
+            with self.assertRaisesRegex(ValueError, 'claves repetidas'):
+                load_binary_signal(path)

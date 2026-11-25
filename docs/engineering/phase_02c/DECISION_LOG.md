@@ -1,5 +1,7 @@
 # Decisiones
 
+- WP05. Mantener JSON para proyectos y SLBIN experimental con especificación formal.
+
 - WP04. Mantener cancelación cooperativa y evitar completar una escritura descartada cuando el CLI ya conoce el estado.
 
 - WP03. Conservar huellas acotadas por bloque y evidencia opcional compatible con sesiones históricas.

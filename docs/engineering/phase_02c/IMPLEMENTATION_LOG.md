@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02C.05 · C05 · C-06
+
+**Estado inicial.** `b5ffa1d`. La cabecera SLBIN aceptaba claves repetidas aunque los documentos JSON de la app ya las rechazaban. Se compararon JSON, arreglos separados, contenedor y HDF5.
+
+**Decisión y evidencia.** Reutilizar el lector JSON estricto y preservar los formatos. Se agregó un oráculo de disposición binaria, orden de bytes y digest. La matriz histórica incluye proyectos, sesiones, diagramas, reloj, ROC, CAS y resultados verificados; la hoja CAS activa conserva su limitación documentada.
+
 ## 25 de noviembre de 2026 · WP-02C.04 · C04 · C-05
 
 **Estado inicial.** `8b1c63e`. El CLI honraba la cancelación al terminar la escritura JSON, aunque podía completar el archivo temporal después de que se cancelara. Se inspeccionaron `execution`, `jobs`, `resources`, `atomic_file`, `session` y el banco heredado.
