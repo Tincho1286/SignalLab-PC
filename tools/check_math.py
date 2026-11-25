@@ -33,6 +33,7 @@ FAMILIES={
     'core_robustness':('test_math_core_robustness.CoreRobustnessTests',5),
     'core_cli':('test_math_core_cli.CoreCLITests',2),
     'input_integrity':('test_math_input_integrity.InputIntegrityTests',3),
+    'verified_provenance':('test_math_provenance.VerifiedProvenanceTests',5),
     'random_signals':('test_math_contracts.RandomContracts',1),
     'representable_scales':('test_audit_numeric_clocks.CalculationScaleTests',4),
     'axis_and_sampling_clock':('test_audit_numeric_clocks.AxisAndClockTests',3),

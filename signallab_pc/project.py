@@ -8,6 +8,7 @@ import json
 from .model import Signal
 from .atomic_file import write_json
 from .filters import Transfer
+from .operation_provenance import content_digest, encoded_digest
 from .state_space import StateModel
 
 
@@ -65,6 +66,7 @@ class Project:
     def __init__(self):
         self._records={};self.dirty=False
         self._records_lock=RLock()
+        self._verification_cache = None
 
     @contextmanager
     def stage_records(self, *, before_commit):
@@ -72,12 +74,13 @@ class Project:
         with self._records_lock:
             staged = Project()
             staged._records = self._records.copy()
+            staged._verification_cache = {}
             yield staged
             before_commit()
             self._records = staged._records
             self.dirty = self.dirty or staged.dirty
 
-    def add(self,value,*,title=None,operation='',parents=(),tool=None):
+    def add(self,value,*,title=None,operation='',parents=(),tool=None,verification=None):
         kind,data=encode(value)
         parents=list(dict.fromkeys(parents))
         record=dict(id=uuid4().hex,kind=kind,title=title or getattr(value,'name','Cálculo'),
@@ -86,8 +89,36 @@ class Project:
         json.dumps(record,allow_nan=False)
         with self._records_lock:
             if any(parent not in self._records for parent in parents):raise ValueError('Origen no registrado en el proyecto.')
+            if verification is not None:
+                expected, parent_digests, checkpoint = verification
+                record['verified_provenance'] = {'schema': 1, 'content': expected, 'parents': list(parent_digests)}
+                cache = self._verification_cache if self._verification_cache is not None else {}
+                self._verify_record(record, checkpoint, cache)
             self._records[record['id']]=record;self.dirty=True
         return record['id']
+
+    def _record_digest(self, record, checkpoint):
+        data = record['data']
+        if record['kind'] == 'system' and not {'advance', 'sample_period_s', 'roc'} <= data.keys():
+            return content_digest(self.get(record['id']), checkpoint)
+        return encoded_digest(record['kind'], data, checkpoint)
+
+    def _verify_record(self, record, checkpoint, cache):
+        proof = record['verified_provenance']
+        if (not isinstance(proof, dict) or type(proof.get('schema')) is not int
+                or proof['schema'] != 1 or not isinstance(proof.get('parents'), list)
+                or len(proof['parents']) != len(record['parents'])):
+            raise ValueError('La procedencia verificada del registro tiene un formato inválido.')
+        key = record['id']
+        if key not in cache:
+            cache[key] = self._record_digest(record, checkpoint)
+        if cache[key] != proof.get('content'):
+            raise ValueError('El resultado o la entrada cambió después del cálculo.')
+        for parent, expected in zip(record['parents'], proof['parents'], strict=True):
+            if parent not in cache:
+                cache[parent] = self._record_digest(self._records[parent], checkpoint)
+            if cache[parent] != expected:
+                raise ValueError('El origen registrado no coincide con los datos utilizados en el cálculo.')
     def records(self,kind=None):
         return [deepcopy(r) for r in self._records.values() if kind is None or r['kind']==kind or kind=='expression' and self.expression(r['id']) is not None]
     def headers(self,kind=None):
@@ -192,6 +223,10 @@ class Project:
         json.dumps(records,allow_nan=False)
         project=cls()
         project._records=staging
+        digests = {}
+        for record in staging.values():
+            if 'verified_provenance' in record:
+                project._verify_record(record, lambda: None, digests)
         return project
 
     def merge(self,path):

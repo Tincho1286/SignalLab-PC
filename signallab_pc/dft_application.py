@@ -1,11 +1,11 @@
 """Application boundary for one finite, forward DFT."""
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass, field
 
 from . import operations
 from .execution import ExecutionContext
 from .model import Signal
-from .operation_provenance import scientific_metadata
+from .operation_provenance import content_digest, scientific_metadata, settings_digest, verify_inputs
 from .project import Project
 
 
@@ -37,6 +37,7 @@ class DFTResult:
     spectrum: Signal
     provenance: DFTProvenance
     estimated_work_bytes: int
+    _verification: tuple[str, str, str] | None = field(default=None, repr=False, compare=False)
 
 
 def calculate_dft(request: DFTRequest, execution: DFTExecution | None = None) -> DFTResult:
@@ -48,6 +49,7 @@ def calculate_dft(request: DFTRequest, execution: DFTExecution | None = None) ->
         raise ValueError('El orden centrado debe ser un booleano.')
     length = operations.dft_length(request.signal, request.length)
     estimate = length * operations.DFT_WORK_BYTES_PER_BIN
+    source_digest = content_digest(request.signal, execution.checkpoint)
     spectrum = execution.run(lambda: operations.dft(
         request.signal, length, centered=request.centered, phase_reference=request.phase_reference),
         work_bytes=estimate)
@@ -59,8 +61,18 @@ def calculate_dft(request: DFTRequest, execution: DFTExecution | None = None) ->
     spectrum.metadata['dft_provenance'] = scientific_metadata('dft', provenance)
     if isinstance(units := request.signal.metadata.get('amplitude_units'), str):
         spectrum.metadata['amplitude_units'] = units
+    spectrum_digest = content_digest(spectrum, execution.checkpoint)
     execution.checkpoint(100)
-    return DFTResult(spectrum, provenance, estimate)
+    verify_inputs((request.signal,), (source_digest,), execution.checkpoint)
+    proof = (source_digest, spectrum_digest, settings_digest([asdict(provenance), estimate]))
+    return DFTResult(spectrum, provenance, estimate, proof)
+
+
+def verify_dft_result(result):
+    proof = result._verification
+    if proof is None or proof[2] != settings_digest([asdict(result.provenance), result.estimated_work_bytes]):
+        raise ValueError('El resultado DFT carece de procedencia válida. Volvé a calcular.')
+    return proof[:2]
 
 
 def store_dft(project: Project, result: DFTResult, *, source_id=None, source=None,
@@ -71,9 +83,12 @@ def store_dft(project: Project, result: DFTResult, *, source_id=None, source=Non
     execution.checkpoint()
     if source is not None and (source_id is not None or not isinstance(source, Signal)):
         raise ValueError('Indicá una señal nueva o el identificador de su registro existente.')
+    source_digest, spectrum_digest = verify_dft_result(result)
     with project.stage_records(before_commit=execution.checkpoint) as staged:
         if source is not None:
             source_id = staged.add(source, operation=source_operation, parents=source_parents, tool=tool)
-        result_id = staged.add(result.spectrum, operation=operation,
-                               parents=() if source_id is None else (source_id,), tool=tool)
+        parents = () if source_id is None else (source_id,)
+        expected = () if source_id is None else (source_digest,)
+        result_id = staged.add(result.spectrum, operation=operation, parents=parents, tool=tool,
+                               verification=(spectrum_digest, expected, execution.checkpoint))
     return source_id, result_id

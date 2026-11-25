@@ -1,5 +1,9 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02C.03 · C03 · C-03
+
+La publicación verifica el contenido materializado y los padres antes de la entrega atómica. Pasaron 23 pruebas de cálculo, CLI y transacciones y 5 regresiones específicas de procedencia.
+
 ## 25 de noviembre de 2026 · WP-02C.02 · C02 · C-04
 
 Se corrigió el origen de los bins para Fs subnormal y se agregó un oráculo analítico de Nyquist. Pasaron 7 casos locales de adaptadores DSP.

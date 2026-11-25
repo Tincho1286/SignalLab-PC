@@ -1,16 +1,17 @@
 """Sequential DSP demonstration with one project commit."""
 
-from dataclasses import dataclass, replace
+from dataclasses import dataclass, field, fields, replace
 
-from .dft_application import DFTRequest, DFTResult, calculate_dft
+from .dft_application import DFTRequest, DFTResult, calculate_dft, verify_dft_result
 from .dsp_application import (
     FIRRequest, PSDRequest, ResampleRequest, ResampleResult, apply_fir,
-    estimate_psd, fir_output_count, resample, resample_size,
+    estimate_psd, fir_output_count, resample, resample_size, verify_dsp_signal,
 )
 from .execution import ExecutionContext
 from .filters import Transfer
 from .model import Signal
 from .operations import DFT_WORK_BYTES_PER_BIN, dft_length
+from .operation_provenance import content_digest, settings_digest, verify_inputs
 from .project import Project
 from .resources import ensure_working_set
 from .sampling import positive_integer
@@ -35,6 +36,7 @@ class DSPPipelineResult:
     filtered: Signal
     dft: DFTResult
     psd: Signal
+    _verification: tuple[str, str | None] | None = field(default=None, repr=False, compare=False)
 
 
 @dataclass(frozen=True, slots=True)
@@ -121,7 +123,14 @@ def run_pipeline(request: DSPPipelineRequest, execution: ExecutionContext | None
     memory = estimate_pipeline_memory(request)
     ensure_working_set(memory.total_bytes,bytes_per_sample=1,live_arrays=1)
     with ctx.reserve(memory.total_bytes):
-        return _run_stages(request,replace(ctx,pool=None))
+        inputs = (source, request.fir)
+        expected = tuple(content_digest(value, ctx.checkpoint) for value in inputs)
+        settings = _request_digest(request)
+        result = _run_stages(request, replace(ctx, pool=None))
+        verify_inputs(inputs, expected, ctx.checkpoint)
+        if settings != _request_digest(request):
+            raise ValueError('Los parámetros del flujo cambiaron durante el cálculo.')
+        return replace(result, _verification=(settings, result.resampled.warning))
 
 
 def _run_stages(request, ctx):
@@ -137,10 +146,29 @@ def _run_stages(request, ctx):
     return DSPPipelineResult(converted, filtered, dft, psd)
 
 
+def _request_digest(request):
+    parameters = {f.name: getattr(request, f.name) for f in fields(request) if f.name not in {'conversion', 'fir'}}
+    parameters['conversion'] = {f.name: getattr(request.conversion, f.name)
+                                for f in fields(request.conversion) if f.name != 'signal'}
+    return settings_digest(parameters)
+
+
 def store_pipeline(project: Project, request: DSPPipelineRequest, result: DSPPipelineResult, *,
                    source_id=None, filter_id=None, execution: ExecutionContext | None = None) -> PipelineRecords:
     ctx = execution or ExecutionContext()
     ctx.checkpoint()
+    if result._verification != (_request_digest(request), result.resampled.warning):
+        raise ValueError('El resultado requiere los parámetros originales del flujo DSP.')
+    converted_digest, (source_digest,), antialias_digest = verify_dsp_signal(result.resampled.signal)
+    filtered_digest, filter_parents, _ = verify_dsp_signal(result.filtered)
+    dft_parent, dft_digest = verify_dft_result(result.dft)
+    psd_digest, psd_parents, _ = verify_dsp_signal(result.psd)
+    if (result.resampled.antialias is None) != (antialias_digest is None):
+        raise ValueError('El filtro antialias cambió después del cálculo.')
+    if source_id is not None:
+        verify_inputs((request.conversion.signal,), (source_digest,), ctx.checkpoint)
+    if filter_id is not None:
+        verify_inputs((request.fir,), filter_parents[1:], ctx.checkpoint)
     with project.stage_records(before_commit=ctx.checkpoint) as staged:
         if source_id is None:
             source_id = staged.add(request.conversion.signal, operation='Entrada del flujo DSP')
@@ -148,11 +176,18 @@ def store_pipeline(project: Project, request: DSPPipelineRequest, result: DSPPip
             filter_id = staged.add(request.fir, operation='Filtro del flujo DSP')
         antialias = None
         parents = (source_id,)
+        converted_parents = (source_digest,)
         if result.resampled.antialias is not None:
-            antialias = staged.add(result.resampled.antialias, operation='FIR antialias', parents=parents)
+            antialias = staged.add(result.resampled.antialias, operation='FIR antialias', parents=parents,
+                                   verification=(antialias_digest, (source_digest,), ctx.checkpoint))
             parents += (antialias,)
-        converted = staged.add(result.resampled.signal, operation='Cambio de tasa', parents=parents)
-        filtered = staged.add(result.filtered, operation='Aplicar FIR', parents=(converted, filter_id))
-        dft = staged.add(result.dft.spectrum, operation='DFT', parents=(filtered,))
-        psd = staged.add(result.psd, operation='PSD', parents=(filtered,))
+            converted_parents += (antialias_digest,)
+        converted = staged.add(result.resampled.signal, operation='Cambio de tasa', parents=parents,
+                               verification=(converted_digest, converted_parents, ctx.checkpoint))
+        filtered = staged.add(result.filtered, operation='Aplicar FIR', parents=(converted, filter_id),
+                              verification=(filtered_digest, filter_parents, ctx.checkpoint))
+        dft = staged.add(result.dft.spectrum, operation='DFT', parents=(filtered,),
+                         verification=(dft_digest, (dft_parent,), ctx.checkpoint))
+        psd = staged.add(result.psd, operation='PSD', parents=(filtered,),
+                         verification=(psd_digest, psd_parents, ctx.checkpoint))
     return PipelineRecords(source_id, filter_id, converted, filtered, dft, psd, antialias)

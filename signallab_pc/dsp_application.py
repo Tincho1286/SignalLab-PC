@@ -1,6 +1,6 @@
 """Typed adapters for existing DSP motors; no presentation dependencies."""
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass, field
 from math import gcd
 
 import numpy as np
@@ -8,8 +8,24 @@ import numpy as np
 from . import filters, fourier, operations, sampling
 from .execution import ExecutionContext
 from .model import Signal
-from .operation_provenance import scientific_metadata
+from .operation_provenance import content_digest, scientific_metadata, settings_digest, verify_inputs
 from .project import Project
+
+
+def _finish_signal(result, inputs, expected, ctx, *, auxiliary=None):
+    output = content_digest(result, ctx.checkpoint)
+    auxiliary_digest = None if auxiliary is None else content_digest(auxiliary, ctx.checkpoint)
+    ctx.checkpoint(100)
+    verify_inputs(inputs, expected, ctx.checkpoint)
+    result._core_verification = (output, expected, auxiliary_digest)
+    return result
+
+
+def verify_dsp_signal(value):
+    proof = getattr(value, '_core_verification', None)
+    if proof is None:
+        raise ValueError('El resultado DSP carece de procedencia válida. Volvé a calcular.')
+    return proof
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,6 +46,7 @@ def calculate_idft(request: IDFTRequest, execution: ExecutionContext | None = No
     ctx = execution or ExecutionContext()
     ctx.checkpoint(0)
     source = request.spectrum
+    expected = (content_digest(source, ctx.checkpoint),)
     result = ctx.run(lambda: operations.idft(source, restore_origin=request.restore_origin),
                      work_bytes=int(source.values.size) * operations.DFT_WORK_BYTES_PER_BIN)
     provenance = source.metadata.get('dft_provenance')
@@ -40,8 +57,7 @@ def calculate_idft(request: IDFTRequest, execution: ExecutionContext | None = No
     spec = IDFTParameters(int(source.values.size), operations.is_centered_dft(source),
                           request.restore_origin, result.metadata['input_dft_phase_reference'])
     result.metadata['core_provenance'] = scientific_metadata('idft', spec)
-    ctx.checkpoint(100)
-    return result
+    return _finish_signal(result, (source,), expected, ctx)
 
 
 @dataclass(frozen=True, slots=True)
@@ -59,6 +75,7 @@ class FIRDesignRequest:
 class FIRDesignResult:
     transfer: filters.Transfer
     specification: FIRDesignRequest
+    _verification: tuple[str, str] | None = field(default=None, repr=False, compare=False)
 
 
 def design_fir(request: FIRDesignRequest, execution: ExecutionContext | None = None) -> FIRDesignResult:
@@ -74,7 +91,7 @@ def design_fir(request: FIRDesignRequest, execution: ExecutionContext | None = N
                             float(request.f2) if request.kind in ('bandpass','bandstop') else None,
                             request.window, float(request.beta), model.sample_period_s)
     ctx.checkpoint(100)
-    return FIRDesignResult(model, spec)
+    return FIRDesignResult(model, spec, (content_digest(model, ctx.checkpoint), settings_digest(asdict(spec))))
 
 
 @dataclass(frozen=True, slots=True)
@@ -116,6 +133,9 @@ def apply_fir(request: FIRRequest, execution: ExecutionContext | None = None) ->
         raise ValueError('El filtro FIR requiere una secuencia discreta.')
     from .resources import ensure_working_set
     ensure_working_set(count + len(request.transfer.b), live_arrays=8)
+    inputs = (source, request.transfer)
+    expected = tuple(content_digest(value, ctx.checkpoint) for value in inputs)
+
     def filter_record():
         working = source
         if count != source.values.size:
@@ -127,8 +147,7 @@ def apply_fir(request: FIRRequest, execution: ExecutionContext | None = None) ->
     result.metadata['core_provenance'] = scientific_metadata('fir_apply', spec)
     if isinstance(units := source.metadata.get('amplitude_units'), str):
         result.metadata['amplitude_units'] = units
-    ctx.checkpoint(100)
-    return result
+    return _finish_signal(result, inputs, expected, ctx)
 
 
 @dataclass(frozen=True, slots=True)
@@ -181,6 +200,8 @@ def resample(request: ResampleRequest, execution: ExecutionContext | None = None
     ctx = execution or ExecutionContext()
     ctx.checkpoint(0)
     up, down, width, _, estimate = resample_size(request)
+    inputs = (request.signal,)
+    expected = (content_digest(request.signal, ctx.checkpoint),)
     value = ctx.run(lambda: sampling.resample_rational(
         request.signal, up, down, rate=request.rate, start=request.start, half_width=width,
         beta=request.beta, boundary=request.boundary, override_clock=request.override_clock,
@@ -193,7 +214,7 @@ def resample(request: ResampleRequest, execution: ExecutionContext | None = None
     meta['core_provenance'] = scientific_metadata('resample', spec)
     if isinstance(units := request.signal.metadata.get('amplitude_units'), str):
         meta['amplitude_units'] = units
-    ctx.checkpoint(100)
+    _finish_signal(result.signal, inputs, expected, ctx, auxiliary=result.antialias)
     return result
 
 
@@ -234,6 +255,7 @@ def estimate_psd(request: PSDRequest, execution: ExecutionContext | None = None)
     if request.sidedness == 'one-sided' and (request.method == 'legacy' or np.any(source.values.imag)):
         raise ValueError('La PSD unilateral requiere una señal real y una normalización de densidad.')
     segment = sampling.positive_integer(request.segment, 'Longitud de segmento') if request.method == 'welch' else int(source.values.size)
+    expected = (content_digest(source, ctx.checkpoint),)
     result = ctx.run(lambda: fourier.spectral_density(
         source, rate, method=request.method, segment=segment, overlap=request.overlap,
         window=request.window, beta=request.beta, remove_mean=request.remove_mean),work_bytes=segment * 256)
@@ -251,22 +273,34 @@ def estimate_psd(request: PSDRequest, execution: ExecutionContext | None = None)
     spec = PSDParameters(request.method, metadata['segment'], metadata['overlap'], float(rate),
                          request.window, float(request.beta), request.remove_mean, request.sidedness)
     metadata['core_provenance'] = scientific_metadata('psd', spec)
-    ctx.checkpoint(100)
-    return result
+    return _finish_signal(result, (source,), expected, ctx)
 
 
 def store_signal(project: Project, value: Signal, *, parents=(), execution=None) -> str:
     ctx = execution or ExecutionContext()
     ctx.checkpoint()
+    parents = tuple(parents)
+    verification = None
+    if 'core_provenance' in value.metadata or hasattr(value, '_core_verification'):
+        output, expected, auxiliary = verify_dsp_signal(value)
+        if auxiliary is not None:
+            expected += (auxiliary,)
+        if parents and len(parents) != len(expected):
+            raise ValueError('Indicá todos los orígenes utilizados, en orden de cálculo.')
+        verification = (output, expected if parents else (), ctx.checkpoint)
     with project.stage_records(before_commit=ctx.checkpoint) as staged:
-        return staged.add(value, operation=value.metadata.get('operation', ''), parents=parents)
+        return staged.add(value, operation=value.metadata.get('operation', ''), parents=parents,
+                          verification=verification)
 
 
 def store_fir_design(project: Project, design: FIRDesignResult, *, execution=None) -> tuple[str, str]:
     ctx = execution or ExecutionContext()
     ctx.checkpoint()
+    proof = design._verification
+    if proof is None or proof[1] != settings_digest(asdict(design.specification)):
+        raise ValueError('El diseño FIR carece de procedencia válida. Volvé a calcular.')
     with project.stage_records(before_commit=ctx.checkpoint) as staged:
-        model = staged.add(design.transfer, operation='Diseño FIR')
+        model = staged.add(design.transfer, operation='Diseño FIR', verification=(proof[0], (), ctx.checkpoint))
         spec = staged.add(scientific_metadata('fir_design', design.specification),
                           operation='Especificación FIR', parents=(model,))
     return model, spec
