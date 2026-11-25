@@ -1,5 +1,15 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-04 y C-07 · Cobertura científica y de escritorio
+
+**Polos múltiples.** En la conversión inversa por invarianza al impulso, el cálculo numérico de residuos separaba artificialmente algunas raíces repetidas. La restricción a polos simples se comprueba ahora sobre el denominador racional reducido, con aritmética exacta de los coeficientes almacenados. Las pruebas comparan el mapeo exponencial, incluyen multiplicidad triple y distinguen una cancelación exacta que deja un solo polo.
+
+**Avance temporal en control.** La realimentación y el lugar de raíces construían el polinomio de lazo a partir de coeficientes en z⁻¹ sin incorporar el avance del sistema abierto. La realimentación reutiliza la aritmética de interconexión y conserva el reloj. El lugar de raíces incorpora la potencia de z y representa las ramas en infinito cuando cae el grado. Se comparan los resultados con la ecuación característica y con las fórmulas explícitas H y KH/(1 ± KH).
+
+**Pruebas ampliadas.** Se incorporaron oráculos de DFT e IDFT con origen y fase, filtros FIR/IIR y sus bandas, respuesta forzada y cruces de estabilidad, recurrencias con historial, Fourier y Laplace con distribuciones, más contratos de importación, controles del escritorio, gráfico y tabla, CAS, guías contextuales y reapertura de diagramas. Los ensayos Qt se ejecutaron en modo offscreen en Windows.
+
+**Comandos.** `python -B -X utf8 tools/check_static.py` y `coverage run --branch --source=signallab_pc -m unittest` con los módulos nuevos `test_math_*_workflows` y `test_workbench_{results,navigation,transfer}`. Pasaron 97 casos en la primera ejecución agrupada, incluidos los preventivos de cálculo, y se verificaron por separado las tres pruebas complementarias de documentos de transferencia. La proyección de [cobertura](testing/FINAL_COVERAGE_REPORT.md#medición-focal-de-la-siguiente-revisión) usa la cobertura integral de `eb50895` y el conjunto de líneas y ramas ejecutadas por los casos nuevos. La matriz de ambos sistemas se reserva hasta medir los objetivos globales en el candidato local.
+
 ## 25 de noviembre de 2026 · C-02, C-03, C-05 y C-11 · Importación y supervisión de CI
 
 **Entrada y procedencia.** El selector volvía a abrir el JSON después de inspeccionarlo, convertía a listas todas las muestras del proyecto y volvía a publicar cada objeto elegido. Los identificadores del contenido calculado quedaban apuntando a la biblioteca de origen. `7f1babd` reutiliza el documento validado, incorpora el subgrafo necesario con un único cambio de proyecto y vuelve a enlazar tanto padres como referencias calculadas. La copia conserva el origen, reloj y datos compactos. Lecturas de texto, análisis de JSON y preparación de manifiestos SLPROJ participan del mismo pool estimado que el Core.

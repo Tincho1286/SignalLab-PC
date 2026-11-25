@@ -44,5 +44,7 @@
 | C-09 · CI | Corrida 45684469040, timeout en verificador de interfaz Linux. `4f0f32d` mantiene las pruebas y renueva el presupuesto de supervisión. |
 | C-02, C-03 y C-05 · Selección importada | `7f1babd` conserva referencias y reloj al incorporar, evita reabrir el archivo y hace participar a los lectores de metadatos del pool. Regresiones de selector real, proyecto histórico y admisión. |
 | C-11 · Supervisor de pruebas | `eb50895` detecta progreso por prueba y conserva el tiempo total acotado. Un proceso real de ensayo termina correctamente al completar y se interrumpe si queda detenido. |
+| C-04 · Control e invarianza | La realimentación y el lugar de raíces preservan el avance de H(z). La inversa por invarianza reconoce polos múltiples tras una reducción exacta. Oráculos en `test_math_lti_workflows` y `test_math_study_workflows`. |
+| C-06 y C-07 · Escritorio y fórmulas | Reapertura de diagramas analógicos y digitales, filtros, procedencia de CAS, resultados de DFT y la interacción entre gráficos y tablas. Se suma la revisión de distribuciones y recurrencias con memoria. [Medición focal](testing/FINAL_COVERAGE_REPORT.md#medición-focal-de-la-siguiente-revisión) |
 
 [Registro de causas y pruebas](IMPLEMENTATION_LOG.md) · [Evidencia y SHA](validation/FINAL_VALIDATION_MATRIX.md)

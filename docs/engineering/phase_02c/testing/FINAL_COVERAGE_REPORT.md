@@ -1,5 +1,18 @@
 # Cobertura de la Fase 02C
 
+## Medición focal de la siguiente revisión
+
+Se combinaron las líneas y arcos del último candidato integral `eb50895` con ocho grupos de pruebas focales ejecutados en Windows con CPython 3.14.10. En los archivos de cálculo modificados se trasladaron sólo las líneas históricas que se conservan y los arcos cuyos extremos permanecen en el código. Se mantuvo el alcance de instrumentación de la aplicación. Esta proyección sirve para priorizar pruebas adicionales. La cobertura definitiva requiere la suite integral sobre el candidato limpio.
+
+| Base integral y pruebas focales agregadas | Líneas proyectadas | Ramas proyectadas | Líneas adicionales para 85 % | Ramas adicionales para 75 % |
+| --- | ---: | ---: | ---: | ---: |
+| Windows | 36 135/42 687 (84,65 %) | 11 596/16 420 (70,62 %) | 149 | 719 |
+| Ubuntu | 36 116/42 687 (84,61 %) | 11 595/16 420 (70,62 %) | 168 | 720 |
+
+La proyección de Ubuntu aplica los arcos locales a su línea base histórica. Las nuevas pruebas del candidato en ese sistema quedan pendientes. E-06a y E-06b siguen abiertos. Las brechas restantes se concentran en las rutas de despacho, cancelación, restauración, análisis simbólico y escritorio.
+
+## Historial de mediciones integrales
+
 Se midieron líneas y ramas con coverage.py en `459b9fc`. La suite subió de 850 a 870 pruebas, con 150 casos preventivos por plataforma. La cobertura global de líneas pasó de 77,96 % a 78,09 % en Windows y de 77,94 % a 78,06 % en Ubuntu. La de ramas subió de 63,61 % a 63,84 % y de 63,60 % a 63,82 %, respectivamente.
 
 | Componente | Objetivo líneas / ramas | Resultado líneas / ramas | Excepción pendiente |

@@ -77,7 +77,7 @@ class SessionFileTests(unittest.TestCase):
             self.assertEqual(list(Path(folder).iterdir()), [path])
 
 
-class DesktopSessionTests(unittest.TestCase):
+class DesktopSessionFixture(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
@@ -126,6 +126,8 @@ class DesktopSessionTests(unittest.TestCase):
             QTest.qWait(15)
         self.assertIsNone(window.sessions.writing)
 
+
+class DesktopSessionTests(DesktopSessionFixture):
     def test_compact_psd_keeps_visible_action_and_produces_calibrated_power(self):
         window = self.window()
         route = ROUTES['fourier', 7]

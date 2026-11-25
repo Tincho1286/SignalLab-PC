@@ -22,14 +22,14 @@ def second_order(natural_frequency, damping, gain=1):
 def feedback(system, gain=1, positive=False):
     gain = complex(gain)
     if not np.isfinite(gain): raise ValueError("K debe ser finito.")
-    size = max(len(system.a), len(system.b))
-    ensure_working_set(size, live_arrays=8)
-    padding = lambda values: np.pad(values, (0, size-len(values)) if system.domain == "digital" else (size-len(values), 0))
-    numerator = gain*padding(system.b)
-    denominator = padding(system.a) + (-1 if positive else 1)*numerator
-    if not np.any(denominator):
-        raise ValueError("El lazo produce denominador idénticamente cero; no define una transferencia.")
-    return Transfer(numerator, denominator, system.domain, f"Lazo {'positivo' if positive else 'negativo'} de {system.name}",sample_period_s=system.sample_period_s)
+    name = f"Lazo {'positivo' if positive else 'negativo'} de {system.name}"
+    if gain == 0:
+        return Transfer([0], [1], system.domain, name, sample_period_s=system.sample_period_s)
+    gain_block = Transfer([gain], [1], system.domain)
+    mode = "positive_feedback" if positive else "negative_feedback"
+    closed = _interconnect(system, gain_block, mode, forward_gain=gain)
+    closed.name = name
+    return closed
 
 
 def analog_response(system, duration, count, kind="step"):
@@ -74,11 +74,12 @@ def root_locus(system, start, stop, count):
     start, stop = float(start), float(stop)
     if not math.isfinite(start) or not math.isfinite(stop) or start < 0 or stop <= start or count < 2:
         raise ValueError("Usá 0 ≤ K inicial < K final y al menos dos ganancias.")
-    size = max(len(system.a), len(system.b))
+    size = max(len(system.a)+system.advance, len(system.b))
     if size <= 1: raise ValueError("La transferencia estática no tiene ramas de polos.")
     ensure_working_set(int(count*(size-1)+size*size), live_arrays=12)
     padding = lambda values: np.pad(values, (0,size-len(values)) if system.domain == "digital" else (size-len(values),0))
-    numerator, denominator = padding(system.b), padding(system.a)
+    numerator = padding(system.b)
+    denominator = padding(np.pad(system.a, (system.advance, 0))) if system.advance else padding(system.a)
     gains = np.linspace(start, stop, count)
     roots = np.full((count, size-1), np.nan+1j*np.nan)
     for index, gain in enumerate(gains):
@@ -194,6 +195,10 @@ def _connection_roc(first, second, connection):
 
 def interconnect(first, second, connection="cascade"):
     """Composición racional sin cancelaciones aproximadas de polos y ceros."""
+    return _interconnect(first, second, connection)
+
+
+def _interconnect(first, second, connection, *, forward_gain=1):
     if first.domain != second.domain:
         raise ValueError("Ambos sistemas deben tener el mismo dominio.")
     if connection not in {"cascade","parallel","negative_feedback","positive_feedback"}:
@@ -234,6 +239,7 @@ def interconnect(first, second, connection="cascade"):
         if first.domain=='digital':
             numerator=delayed(numerator,second.advance);denominator=delayed(denominator,first.advance+second.advance)
         denominator=add(denominator,np.convolve(first.b,second.b),1 if connection=="negative_feedback" else -1)
+        numerator=forward_gain*numerator
         name="Realimentación negativa" if connection=="negative_feedback" else "Realimentación positiva"
     numerator=_finite_output(numerator,"El numerador equivalente")
     denominator=_finite_output(denominator,"El denominador equivalente")
@@ -246,7 +252,7 @@ def interconnect(first, second, connection="cascade"):
         # A polynomial equivalent must not silently discard the accuracy of SOS inputs.
         w=np.linspace(0,np.pi,2049);h1=first.response(w);h2=second.response(w)
         with np.errstate(all='ignore'):
-            expected=h1*h2 if connection=='cascade' else h1+h2 if connection=='parallel' else h1/(1+(1 if connection=='negative_feedback' else -1)*h1*h2)
+            expected=h1*h2 if connection=='cascade' else h1+h2 if connection=='parallel' else forward_gain*h1/(1+(1 if connection=='negative_feedback' else -1)*h1*h2)
             actual=result.response(w);valid=np.isfinite(expected)
             mismatch=abs(actual[valid]-expected[valid])/np.maximum(1,abs(expected[valid]))
         if not np.any(valid) or not np.all(np.isfinite(mismatch)) or np.max(mismatch)>1e-6:

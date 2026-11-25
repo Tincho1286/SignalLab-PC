@@ -219,7 +219,23 @@ def convert_system(system,period,method):
         if system.domain!='digital':raise ValueError('La reconstrucción por invarianza requiere H(z).')
         if system.advance:raise ValueError('La inversa por invarianza de polos simples no admite avances. Para esta transferencia usá Bilineal inversa.')
         roc = impulse_roc(system, period, inverse=True)
-        residues,poles,direct=sp.residuez(system.b,system.a,tol=1e-10)
+        import sympy as symbolic
+        from .rational_frequency import RationalModel, complex_float
+        model = RationalModel.system(system)
+        model.reduce()
+        q = symbolic.Dummy('q')
+        denominator = symbolic.Poly.from_list(
+            [symbolic.Rational(re) + symbolic.I*symbolic.Rational(im) for re, im in model.a],
+            q, domain=symbolic.QQ_I)
+        checkpoint()
+        # A root solver can split an exactly repeated root by much more than its clustering tolerance.
+        if not denominator.is_sqf:
+            raise ValueError('La reconstrucción actual admite polos simples separados; el denominador tiene polos múltiples.')
+        numerator = [complex_float(value) for value in reversed(model.b)]
+        coefficients = [complex_float(value) for value in reversed(model.a)]
+        if not np.isfinite(numerator).all() or not np.isfinite(coefficients).all():
+            raise ValueError('Los coeficientes reducidos exceden el rango numérico.')
+        residues,poles,direct=sp.residuez(numerator,coefficients,tol=1e-10)
         if np.any(direct!=0):raise ValueError('Esta reconstrucción requiere fracciones simples sin parte polinómica directa; los términos de impulso necesitan un tratamiento distributivo.')
         if np.any(abs(poles)<1e-12):raise ValueError('Un polo nulo no tiene logaritmo finito en el mapeo exponencial.')
         if any(abs(poles[i]-poles[j])<1e-9*max(1,abs(poles[i])) for i in range(len(poles)) for j in range(i)):
