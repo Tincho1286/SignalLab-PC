@@ -78,3 +78,5 @@ La evidencia histórica permanece versionada. Los recibos, SBOM, campaña y benc
 ## Avance local posterior a eb50895
 
 Los ensayos focales sobre el código de desarrollo proyectan que el objetivo de líneas está cubierto y que quedan alrededor de 485 ramas para el 75 %. El expediente conserva los 35 de 37 controles automáticos aprobados en la última matriz por sistema. Los tres dictámenes anteriores permanecen abiertos hasta validar el mismo candidato en ambos sistemas y resolver las condiciones externas que les corresponden. Se reserva la ejecución completa en GitHub para el candidato que alcance ambos umbrales. [Medición ampliada](../testing/FINAL_COVERAGE_REPORT.md#medición-focal-de-la-siguiente-revisión)
+
+La medición integral local de `8793c48` confirmó 85,52 % de líneas y 72,10 % de ramas en Windows con 1 039 pruebas y 150 casos preventivos aprobados. El déficit de ramas fue de 477. Esta evidencia amplía la validación local en modo offscreen. La matriz de ambos sistemas, las verificaciones de escritorio y el dictamen de distribución mantienen sus condiciones. [Medición integral local](../testing/FINAL_COVERAGE_REPORT.md#medición-integral-local-en-windows)

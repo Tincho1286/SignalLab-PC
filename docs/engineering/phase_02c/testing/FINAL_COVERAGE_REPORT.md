@@ -1,5 +1,19 @@
 # Cobertura de la Fase 02C
 
+## Medición integral local en Windows
+
+Se ejecutó `python -B -X utf8 tools/check_engineering_baseline.py --output work/phase02c-local-8793c48` con CPython 3.14.10 y Qt offscreen en Windows 11. El SHA limpio `8793c48dfa75c98318e10cedf096e72c1dd210a5` coincidió antes y después de la ejecución. Aprobó el análisis estático de 390 archivos Python y pasaron 1 039 pruebas integrales, incluidas 58 de flujos, y 150 casos preventivos. El informe registra 185 archivos de cobertura, con 147 que ejecutaron el proceso de álgebra simbólica. La etapa integral tomó 1 328,7 s.
+
+| Medición | Resultado local en Windows | Objetivo |
+| --- | ---: | ---: |
+| Líneas globales | 36 577/42 772 (85,52 %) | 85 % |
+| Ramas globales | 11 868/16 460 (72,10 %) | 75 % |
+| Ramas adicionales requeridas | 477 | — |
+
+La medición usa el mismo alcance de instrumentación y las mismas exclusiones. Los archivos `baseline.json`, `integral-checks.json` y `coverage.json` quedan en la carpeta local de salida. E-06a sigue pendiente de confirmación en Linux. E-06b sigue por debajo del objetivo. La matriz de ambas plataformas se reserva para el candidato que alcance los dos umbrales.
+
+Tras la medición integral se instrumentaron 57 pruebas de entrega de resultados, CAS, observación de espectros y filtro FIR en `6c90aeb`. La proyección sobre `8793c48` conserva los arcos compatibles con las líneas sin cambios y agrega los ejecutados por ese lote. El resultado proyectado es 36 669/42 890 líneas (85,50 %) y 11 908/16 496 ramas (72,19 %). Quedan 464 ramas para el 75 % según esta proyección.
+
 ## Medición focal de la siguiente revisión
 
 Se combinaron las líneas y arcos del último candidato integral `eb50895` con ocho grupos de pruebas focales ejecutados en Windows con CPython 3.14.10. En los archivos de cálculo modificados se trasladaron sólo las líneas históricas que se conservan y los arcos cuyos extremos permanecen en el código. Se mantuvo el alcance de instrumentación de la aplicación. Esta proyección sirve para priorizar pruebas adicionales. La cobertura definitiva requiere la suite integral sobre el candidato limpio.

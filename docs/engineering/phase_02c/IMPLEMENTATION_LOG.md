@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-04, C-06 y C-07 · Entrega de resultados y CAS
+
+**Publicación de entradas.** La lectura de un borrador registraba la señal inmediatamente. Un segundo cálculo rechazado por concurrencia, dos relojes incompatibles o una cancelación podían dejar entradas sueltas en Resultados. Se separó la lectura del registro para los flujos modificados. La entrada y sus referencias se publican cuando se acepta el cálculo. Restaurar el reloj de remuestreo sólo actualiza el formulario. Las regresiones conservan el resultado anterior, comprueban la cancelación tardía y verifican procedencia, fase, reloj y potencia en los reintentos.
+
+**CAS.** El integrador del proveedor podía agregar una parte imaginaria espuria en integrales reales con polos en el intervalo. Para funciones racionales de coeficientes reales exactos e intervalos reales finitos, el adaptador reduce la fracción y toma el signo del término dominante de cada lado que pertenece al intervalo. Se distingue una singularidad removible, una divergencia de signo definido y una integral impropia con divergencias opuestas. `linsolve` controla también la linealidad cuando se escribe una sola incógnita.
+
+**Comprobación.** En `6c90aeb` pasaron 57 pruebas instrumentadas, incluida la comparación FIR, y el análisis estático de 390 archivos. En la comparación FIR, el plazo de prueba de 5 s se agotó con otra suite concurrente. Se amplió la espera de esa prueba a 15 s y pasó en la repetición. El cálculo y sus aserciones se conservaron. [Datos de cobertura](testing/FINAL_COVERAGE_REPORT.md#medición-integral-local-en-windows)
+
 ## 25 de noviembre de 2026 · C-04 y C-07 · Conversiones y ejemplos de la biblioteca
 
 **Causas y cambios.** Cargar un ejemplo de Z directa podía conservar la vista de secuencia finita o los límites de un ejercicio anterior. El ejemplo restablece la definición algebraica y su soporte. La inversa restablece la ROC y el intervalo de muestras de la ficha. La conversión ideal usa centros de frecuencia exactamente opuestos en el cálculo y la inversión. Conserva los coeficientes reales para una respuesta hermítica y mantiene la parte imaginaria cuando la especifica la fórmula. Un RC cuya constante deja de ser representable, o cuya cascada reduce el orden por subdesbordamiento, se rechaza antes de devolver una transferencia incorrecta.
