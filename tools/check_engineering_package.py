@@ -24,7 +24,8 @@ def main():
         subprocess.run(
             [sys.executable, '-m', 'PyInstaller', '--noconfirm', '--onefile', '--noupx',
              '--name', 'SignalLab-PC', '--distpath', str(temp), '--workpath', str(temp/'work'),
-             '--specpath', str(temp), '--add-data', 'signallab_pc/assets:signallab_pc/assets', 'main.py'],
+             '--specpath', str(temp), '--add-data', f"{ROOT/'signallab_pc/assets'}:signallab_pc/assets",
+             str(ROOT/'main.py')],
             cwd=ROOT, check=True, timeout=900)
         binary = temp/('SignalLab-PC.exe' if os.name == 'nt' else 'SignalLab-PC')
         env = os.environ | {'QT_QPA_PLATFORM': 'offscreen', 'OPENBLAS_NUM_THREADS': '1',
