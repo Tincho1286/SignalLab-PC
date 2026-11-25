@@ -3,9 +3,9 @@ from pathlib import Path
 from unittest.mock import patch
 
 import sympy as sp
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QUrl
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QComboBox, QDialog, QFileDialog, QInputDialog, QMessageBox
+from PySide6.QtWidgets import QComboBox, QDialog, QFileDialog, QInputDialog, QMessageBox, QWidget
 
 from signallab_pc.catalog_delegate import TARGET
 from signallab_pc.command_palette import TaskSearch
@@ -106,6 +106,66 @@ class WorkbenchNavigationContracts(DesktopSessionFixture):
                 self.assertIn(label, library.guide_context.label)
                 self.assertIn(phrase, library.guide_context.instructions)
                 self.assertEqual(library.return_route, route)
+
+    def test_result_links_preserve_the_filter_surface_and_restore_the_selected_detail_tab(self):
+        window = self.window()
+        window.show()
+        parent = window.publish(Signal([4,7],-1,name='Registro bruto'), operation='Entrada: medición')
+        child = window.publish(Signal([8,14],-1,name='Registro calibrado'), operation='Calibración',
+                               parents=[parent])
+        window.focus_result(child)
+        browser = window.pages['menu','Proyecto']
+        window.include_inputs.setChecked(False)
+        window.result_search.setText('calibrado')
+        self.assertEqual([record['id'] for record in window.visible_records], [child])
+        browser.detail_tabs.setCurrentIndex(browser.links_index)
+        browser.open_link(QUrl(f'result:{browser.link_ids.index(parent)}'))
+        self.assertEqual(browser.active_record['id'], parent)
+        self.assertEqual(window.result_search.text(), 'calibrado')
+        self.assertIn('1 vinculado', window.result_count.text())
+        self.assertIn('vínculo', window.project_list.currentItem().toolTip())
+        browser.follow_back()
+        self.assertEqual(browser.active_record['id'], child)
+        self.assertEqual(browser.detail_tabs.currentIndex(),browser.links_index)
+        browser.open_link(QUrl('result:999'))
+        self.assertEqual(browser.active_record['id'], child)
+        window.result_search.setText('inexistente')
+        self.assertIsNone(browser.active_record)
+        self.assertEqual(window.result_count.text(), '0 resultados')
+
+    def test_shortcuts_keep_the_input_focus_and_reopen_closed_documents_with_their_drafts(self):
+        window = self.window()
+        window.resize(850,650)
+        window.show()
+        key = ('basic','generate')
+        route = ROUTES[key]
+        window.open_tool(route)
+        page = window.pages[route]
+        source = page.first
+        input_field = source.expression.field
+        source.expression.setText('3*n-2')
+        source.count.setText('5')
+        window.desktop_keys.reveal(input_field)
+        self.app.processEvents()
+        self.assertIs(QWidget.window(input_field),window)
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        shortcuts = window.desktop_keys
+        shortcuts.focus_surface(False)
+        self.assertIs(self.app.focusWidget(), input_field)
+        shortcuts.focus_surface(True)
+        self.assertTrue(page.workspace.results.isAncestorOf(self.app.focusWidget()))
+        shortcuts.toggle_output()
+        self.assertTrue(page.workspace.output_expanded)
+        shortcuts.toggle_output()
+        self.assertFalse(page.workspace.output_expanded)
+        before = window.documents.count()
+        shortcuts.close_document()
+        self.assertEqual(window.documents.count(), before-1)
+        window.open_tool(route)
+        self.assertEqual(window.documents.count(), before)
+        self.assertIs(window.pages[route], page)
+        self.assertEqual(page.first.expression.text(), '3*n-2')
 
 
 class RealizationEditorContracts(DesktopSessionFixture):

@@ -247,6 +247,11 @@ def _local_numeric_dataset(node, h5):
     if any(creation.get_filter(index)[0] not in {1, 2, 3, 4, 5, 6, 32000}
            for index in range(creation.get_nfilters())):
         return False
+    declared = node.attrs.get('MATLAB_class', '')
+    if isinstance(declared, bytes):
+        declared = declared.decode('ascii', errors='replace')
+    if not isinstance(declared, str) or declared in ('char', 'cell', 'struct', 'opaque'):
+        return False
     dtype=node.dtype
     if dtype.kind in 'biufc':
         return True

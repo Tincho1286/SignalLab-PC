@@ -11,6 +11,15 @@ Se combinaron las líneas y arcos del último candidato integral `eb50895` con o
 
 La proyección de Ubuntu aplica los arcos locales a su línea base histórica. Las nuevas pruebas del candidato en ese sistema quedan pendientes. E-06a y E-06b siguen abiertos. Las brechas restantes se concentran en las rutas de despacho, cancelación, restauración, análisis simbólico y escritorio.
 
+La ampliación posterior agregó ensayos de rejillas y líneas espectrales desde fórmulas, validación de conversiones, filtros clásicos, comparación de ventanas, importación MAT y restauración de formularios.
+
+| Base integral y trece grupos focales | Líneas proyectadas | Ramas proyectadas | Ramas adicionales para 75 % |
+| --- | ---: | ---: | ---: |
+| Windows | 36 492/42 718 (85,43 %) | 11 820/16 436 (71,92 %) | 507 |
+| Ubuntu | 36 473/42 718 (85,38 %) | 11 819/16 436 (71,91 %) | 508 |
+
+El objetivo de líneas queda superado en la proyección. La validación de ambos objetivos exige un candidato integral. La instrumentación y sus exclusiones conservan la configuración del último candidato.
+
 ## Historial de mediciones integrales
 
 Se midieron líneas y ramas con coverage.py en `459b9fc`. La suite subió de 850 a 870 pruebas, con 150 casos preventivos por plataforma. La cobertura global de líneas pasó de 77,96 % a 78,09 % en Windows y de 77,94 % a 78,06 % en Ubuntu. La de ramas subió de 63,61 % a 63,84 % y de 63,60 % a 63,82 %, respectivamente.

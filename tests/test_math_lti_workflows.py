@@ -7,7 +7,7 @@ import numpy as np
 from signallab_pc import amplitude_design, control
 from signallab_pc.continuous_expression import sample_continuous
 from signallab_pc.distributions import dirac_terms
-from signallab_pc.filters import Transfer
+from signallab_pc.filters import Transfer, biquad, fir, rc, rc_design
 from signallab_pc.frequency_analysis import analyze_frequency, frequency_grid, frequency_summary
 from signallab_pc.model import Signal
 
@@ -39,6 +39,34 @@ class ResponseContracts(unittest.TestCase):
         ]:
             with self.subTest(reason=reason), self.assertRaisesRegex(ValueError, reason):
                 control.analog_response(system, duration, count, kind)
+
+    def test_discrete_history_order_and_zero_state_decomposition_use_record_clock(self):
+        system = Transfer.from_sos([[1,.25,.125,1,-.5,.25]], sample_period_s=.125)
+        signal = Signal([3,4j,-2,1],-3,metadata={'sample_rate_hz':8,'time_start_s':.75})
+        inputs = [2, -1]
+        outputs = [4, 3j]
+        expected = []
+        state = outputs[::-1]
+        x = [*inputs[::-1], *signal.values]
+        for index in range(2,6):
+            state.append(x[index]+x[index-1]/4+x[index-2]/8+state[-1]/2-state[-2]/4)
+            expected.append(state[-1])
+        total, forced, natural = control.discrete_response_parts(system,signal,inputs,outputs)
+        np.testing.assert_allclose(total.values,expected,atol=1e-13)
+        np.testing.assert_allclose(total.values,forced.values+natural.values,atol=1e-13)
+        for component in (total,forced,natural):
+            self.assertEqual(component.origin,-3)
+            self.assertEqual(component.metadata['sample_rate_hz'],8)
+            self.assertEqual(component.metadata['time_start_s'],.75)
+        self.assertTrue(forced.metadata['initial_rest'])
+        self.assertFalse(natural.metadata['initial_rest'])
+        for source,past_inputs,past_outputs,reason in [
+            (signal,[0,0,0],[], 'como máximo'),
+            (signal,[],[np.inf], 'finitos'),
+            (Signal(signal.values,0,.125,'s', domain='continuous'),[],[], 'discretos'),
+        ]:
+            with self.subTest(reason=reason), self.assertRaisesRegex(ValueError,reason):
+                control.discrete_response_parts(system,source,past_inputs,past_outputs)
 
     def test_held_and_linear_input_follow_distinct_closed_forms_from_nonzero_origin(self):
         system = Transfer([1], [1, 0], 'analog')
@@ -295,3 +323,66 @@ class TransferRecordContracts(unittest.TestCase):
         z, p = recovered.poles_zeros()
         self.assertIn(0j,z)
         self.assertIn(.5+0j,p)
+
+
+class ClassicalFilterContracts(unittest.TestCase):
+    def test_rc_from_either_component_and_multistage_response_match_circuit(self):
+        cutoff = 150.
+        for kind in ('lowpass','highpass'):
+            for name,value in [('resistance',4700.),('capacitance',22e-9)]:
+                with self.subTest(kind=kind, name=name):
+                    single,r,c=rc_design(kind,cutoff,name,value)
+                    wc=2*np.pi*cutoff
+                    self.assertAlmostEqual(wc*r*c,1.,places=13)
+                    self.assertAlmostEqual(abs(single.response([wc])[0]), 2**-.5,places=13)
+                    omega=np.array([0.,wc,2*wc])
+                    ratio=1j*omega/wc
+                    stage=ratio/(1+ratio) if kind=='highpass' else 1/(1+ratio)
+                    np.testing.assert_allclose(rc(kind,r,c,3).response(omega), stage**3,atol=1e-13)
+        for args,reason in [
+            (('lowpass',0,'resistance',1),'positivos'),
+            (('highpass',100,'unknown',1),'Componente conocido'),
+            (('bandstop',100,'resistance',1),'RC admite'),
+        ]:
+            with self.subTest(args=args), self.assertRaisesRegex(ValueError,reason):
+                rc_design(*args)
+        with self.assertRaisesRegex(ValueError,'R y C'):
+            rc('lowpass',1,np.inf)
+
+    def test_biquad_pass_at_dc_nyquist_and_center_follows_normalization(self):
+        w0=2*np.pi*.19
+        for kind,frequency,gain in [('lowpass',0,1),('highpass',np.pi,1),
+                                    ('bandstop',w0,0),('bandpass',w0,2.25)]:
+            with self.subTest(kind=kind):
+                system=biquad(kind,.19,2.25)
+                self.assertAlmostEqual(abs(system.response([frequency])[0]),gain,places=13)
+                self.assertTrue(np.all(abs(system.poles_zeros()[1])<1))
+        for f,q in [(0,1),(.5,1),(.25,0),(.25,np.inf)]:
+            with self.subTest(f=f,q=q), self.assertRaisesRegex(ValueError,'Q > 0'):
+                biquad('bandpass',f,q)
+        with self.assertRaisesRegex(ValueError,'Tipo biquad'):
+            biquad('shelf',.25,1)
+
+    def test_windowed_bandstop_and_highpass_are_complements_of_their_prototype(self):
+        windows=(('boxcar',np.ones(19)),('kaiser',np.kaiser(19,3.5)))
+        for name,weights in windows:
+            impulse=np.zeros(19)
+            impulse[9]=1
+            for passed,blocked,f2 in [('lowpass','highpass',None),('bandpass','bandstop',.31)]:
+                with self.subTest(window=name,filter=blocked):
+                    first=fir(passed,19,.1,f2,name,3.5)
+                    second=fir(blocked,19,.1,f2,name,3.5)
+                    n=np.arange(19)-9
+                    ideal=.2*np.sinc(.2*n)
+                    if f2 is not None:ideal=2*f2*np.sinc(2*f2*n)-ideal
+                    np.testing.assert_allclose(first.b,weights*ideal,atol=1e-14)
+                    np.testing.assert_allclose(first.b+second.b,impulse,atol=1e-14)
+        for args,reason in [
+            (('bandstop',20,.1,.3),'impar'), (('lowpass',9,0),'f1 debe'),
+            (('bandpass',9,.25,.2),'Para una banda'),
+            (('lowpass',9,.1,None,'unknown'),'Ventana'),
+            (('lowpass',9,.1,None,'kaiser',-1),'Beta'),
+            (('unknown',9,.1),'Tipo FIR'),
+        ]:
+            with self.subTest(args=args), self.assertRaisesRegex(ValueError,reason):
+                fir(*args)

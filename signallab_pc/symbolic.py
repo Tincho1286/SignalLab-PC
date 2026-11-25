@@ -356,6 +356,7 @@ def _execute(request):
     if operation == 'expression_grid':
         import numpy as np
         from .operations import _finite_output
+        from .sampling import positive_integer
         variable={'t':T,'w':W}.get(request['variable'])
         if variable is None:raise ValueError('Elegí t o w como variable de muestreo.')
         if request.get('encoded'):
@@ -374,8 +375,11 @@ def _execute(request):
         condition=parse(request.get('condition','True'))
         parameters=(value.free_symbols|condition.free_symbols)-{variable}
         if parameters:raise ValueError('Asigná valores a los parámetros: '+', '.join(sorted(str(p) for p in parameters)))
-        count=int(request['count']);start=float(request['start']);stop=float(request['stop'])
+        count=positive_integer(request['count'], 'Cantidad de puntos')
+        start=float(request['start']);stop=float(request['stop'])
         if count<2 or not math.isfinite(start) or not math.isfinite(stop) or stop<=start:raise ValueError('Indicá una rejilla finita creciente con al menos dos puntos.')
+        width=stop-start
+        if not math.isfinite(width):raise ValueError('La amplitud de la rejilla excede el rango numérico disponible.')
         ensure_working_set(count,live_arrays=16)
         grid=np.linspace(start,stop,count)
         if np.any(np.diff(grid)<=0):raise ValueError('La rejilla no se distingue con la precisión disponible.')
@@ -406,7 +410,7 @@ def _execute(request):
             from .analytic_frequency import _sample,_condition_mask
             eligible=_condition_mask(condition.xreplace({variable:W}),grid)
             grid_ulp=max(math.ulp(start),math.ulp(stop))
-            max_tolerance=(stop-start)/(4*(count-1))
+            max_tolerance=width/(4*(count-1))
             for pole in poles:
                 point=float(pole)
                 index=int(np.searchsorted(grid,point))
@@ -419,7 +423,7 @@ def _execute(request):
             valid=eligible&np.isfinite(values)
             return dict(format='signallab-expression-grid',schema_version=1,operation='expression_grid',
                 samples=[[float(v.real),float(v.imag)] if good else None for v,good in zip(values,valid)],valid=valid.tolist(),
-                origin=start,step=(stop-start)/(count-1),variable=request['variable'],expression=expression,condition=str(condition),
+                origin=start,step=width/(count-1),variable=request['variable'],expression=expression,condition=str(condition),
                 undefined_count=int(np.count_nonzero(~valid)),scope=(('El gráfico se abre en cada polo del valor principal. ' if principal else '')+('Los impulsos se indican por posición y área. ' if distribution else '')+'N/D indica que la parte ordinaria no está definida en ese punto.'),**extra)
         if condition is not sp.true:raise ValueError('Esta expresión tiene condiciones. Usá la vista de valores condicionados para conservar las posiciones N/D.')
         from .singularities import sample_symbolic
@@ -428,7 +432,7 @@ def _execute(request):
         if values.shape!=(count,):raise ValueError('La expresión no produjo un valor por punto.')
         values=_finite_output(values,'La evaluación de la expresión')
         return {'operation':'expression_grid','samples':[[float(v.real),float(v.imag)] for v in values],
-                'origin':start,'step':(stop-start)/(count-1),'variable':request['variable'],'expression':expression,
+                'origin':start,'step':width/(count-1),'variable':request['variable'],'expression':expression,
                 'scope':'Ventana de la expresión. Los impulsos conservan su posición y área.' if distribution else 'Muestras de la expresión indicada en una ventana finita.',**extra}
     if operation == 'continuous_correlation':
         left=parse(request['left']);right=parse(request['right'])

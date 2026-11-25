@@ -188,6 +188,8 @@ def impulse_roc(system, period, *, inverse=False):
 
 def convert_system(system,period,method):
     if not np.isfinite(period) or period<=0:raise ValueError('T debe ser positivo y finito.')
+    if method not in ('impulse','bilinear','inverse','bilinear_inverse','impulse_inverse'):
+        raise ValueError('Método de conversión no admitido.')
     ensure_working_set(int((max(len(system.a),len(system.b))+1)**2),live_arrays=18)
     if method in ('impulse','bilinear'):
         if system.domain!='analog':raise ValueError('Se requiere H(s) continua.')
@@ -222,6 +224,11 @@ def convert_system(system,period,method):
         import sympy as symbolic
         from .rational_frequency import RationalModel, complex_float
         model = RationalModel.system(system)
+        if all(not (real or imag) for real, imag in model.b):
+            zero=Transfer([0],[1],'analog','Sistema nulo',roc=roc)
+            return bundle('Inversa de invarianza al impulso · Sistema nulo\n\n'
+                          'h[n] = 0. La señal continua h(t) = 0 satisface h[n]=T·hc(nT).',
+                          systems=[zero])
         model.reduce()
         q = symbolic.Dummy('q')
         denominator = symbolic.Poly.from_list(
@@ -275,10 +282,12 @@ def convert_system(system,period,method):
 def normalize_gain(system,omega,target):
     target=float(target)
     if not math.isfinite(target) or target<=0:raise ValueError('El módulo objetivo debe ser positivo y finito.')
-    value=system.response(np.array([omega]))[0];magnitude=abs(value)
-    if not np.isfinite(magnitude) or magnitude==0:raise ValueError('No se puede normalizar sobre un cero o un punto singular.')
+    value=system.response(np.array([omega]))[0]
+    scale=max(abs(value.real),abs(value.imag))
+    if not np.isfinite(value) or scale==0:raise ValueError('No se puede normalizar sobre un cero o un punto singular.')
     target_mantissa,target_exponent=math.frexp(target)
-    source_mantissa,source_exponent=math.frexp(magnitude)
+    source_mantissa,source_exponent=math.frexp(scale)
+    source_mantissa*=math.hypot(value.real/scale,value.imag/scale)
     mantissa=target_mantissa/source_mantissa
     exponent=target_exponent-source_exponent
 
@@ -299,10 +308,13 @@ def normalize_gain(system,omega,target):
     result.advance=system.advance
     from copy import deepcopy
     result.roc=deepcopy(system.roc)
-    try:factor=f'{math.ldexp(mantissa,exponent):.12g}'
-    except OverflowError:factor=f'{mantissa:.12g} × 2^{exponent}'
-    if factor=='0':factor=f'{mantissa:.12g} × 2^{exponent}'
-    return bundle(f'Normalización de ganancia\n\nFrecuencia angular: {omega:g}\nMódulo previo: {magnitude:.12g}\nMódulo objetivo: {target:g}\nFactor aplicado: {factor}\n\nSe modifica sólo la ganancia; la fase y las posiciones de polos y ceros se conservan.',systems=[result])
+    def display_scale(base,power):
+        try:value=math.ldexp(base,power)
+        except OverflowError:value=0.
+        return f'{value:.12g}' if value else f'{base:.12g} × 2^{power}'
+    magnitude=display_scale(source_mantissa,source_exponent)
+    factor=display_scale(mantissa,exponent)
+    return bundle(f'Normalización de ganancia\n\nFrecuencia angular: {omega:g}\nMódulo previo: {magnitude}\nMódulo objetivo: {target:g}\nFactor aplicado: {factor}\n\nSe modifica sólo la ganancia; la fase y las posiciones de polos y ceros se conservan.',systems=[result])
 
 def phase_structure(system):
     from .phase_adjustment import factor_phase
@@ -311,6 +323,7 @@ def phase_structure(system):
 
 def inverse_z_contour(system,mode,radius,start,count,points):
     if system.domain!='digital':raise ValueError('Se requiere una transferencia discreta.')
+    if mode not in ('causal','anticausal','stable','manual','radius'):raise ValueError('Elección de contorno no admitida.')
     if count<1 or points<2*count:raise ValueError('Usá N≥1 y al menos 2N puntos de contorno.')
     ensure_working_set(int(points+count),live_arrays=14)
     from .transfer_plane import effective_plane_system,evaluate_plane,plane_poles
@@ -361,7 +374,11 @@ def map_analog_frequency(analog,period,method):
 
 def frequency_mapping(omega,analog,period,method,direction,branch):
     if not np.isfinite(period) or period<=0:raise ValueError('T debe ser positivo y finito.')
-    if method not in ('kaiser','butter','cheby1','cheby2','ellip','bilinear','impulse'):raise ValueError('Método de diseño no admitido.')
+    if method not in ('bilinear','impulse'):raise ValueError('Método de mapeo no admitido.')
+    if direction not in ('to_digital','to_analog','period'):raise ValueError('Sentido de mapeo no admitido.')
+    if method=='impulse' and direction!='to_digital':
+        from .scalar_expression import integer_value
+        branch=integer_value(branch)
     if method=='bilinear':
         if direction!='to_digital' and not -np.pi<omega<np.pi:raise ValueError('La bilineal requiere −π<ω<π para frecuencia analógica finita.')
         if direction=='to_digital':result=map_analog_frequency(analog,period,method);unit='rad/muestra'

@@ -7,7 +7,9 @@ from PySide6.QtCore import QUrl
 from PySide6.QtWidgets import QFileDialog, QInputDialog
 
 from signallab_pc import session
+from signallab_pc.cas_engine import restore
 from signallab_pc.cas_panel import CAS_ROUTE
+from signallab_pc.filters import Transfer
 from signallab_pc.model import Signal
 from signallab_pc.realization_graph import Block, RealizationGraph, Wire
 from signallab_pc.session_desktop import capture
@@ -16,6 +18,121 @@ from test_desktop_session import DesktopSessionFixture
 
 
 class TransferWorkflowContracts(DesktopSessionFixture):
+    def test_comparing_saved_systems_excludes_other_domains_and_generates_a_shared_grid(self):
+        from signallab_pc.result_comparison import open_comparison
+
+        window = self.window()
+        first = window.publish(Transfer([1],[1,2],'analog','Sistema A'), operation='Ensayo')
+        second = window.publish(Transfer([2],[1,4],'analog','Sistema B'), operation='Ensayo')
+        digital = window.publish(Transfer([1],[1,-.25],name='Sistema discreto'), operation='Ensayo')
+        open_comparison(window)
+        dialog = window._result_comparison
+        dialog.a.setCurrentIndex(dialog.a.findData(first))
+        self.assertEqual(dialog.b.currentData(),second)
+        self.assertEqual(dialog.b.findData(digital),-1)
+        self.assertEqual(dialog.unit.text(),'rad/s')
+        self.assertTrue(dialog.alignment.isHidden())
+        dialog.start.setText('-3')
+        dialog.stop.setText('7')
+        dialog.count.setText('21')
+        dialog.calculate_button.click()
+        self.wait_for_calculation(window)
+        omega = np.linspace(-3,7,21)
+        expected = 2/(4+1j*omega)-1/(2+1j*omega)
+        np.testing.assert_array_equal(dialog.data['omega'],omega)
+        np.testing.assert_allclose(dialog.data['trace']['error'],expected,atol=1e-14)
+        self.assertAlmostEqual(dialog.data['metrics']['rms'],np.sqrt(np.mean(abs(expected)**2)))
+        dialog.mode.setCurrentIndex(1)
+        self.assertEqual(dialog.figure.axes[0].get_ylabel(),'Módulo')
+        self.assertEqual(dialog.figure.axes[-1].get_xlabel(),'Frecuencia angular (rad/s)')
+        self.assertEqual(window.project.headers()[-1]['parents'],[first,second])
+        open_comparison(window)
+        self.assertIs(window._result_comparison,dialog)
+        self.assertEqual(dialog.a.currentData(),first)
+
+    def test_physical_comparison_exhibits_no_overlap_when_indices_match_but_times_do_not(self):
+        from signallab_pc.result_comparison import open_comparison
+
+        window = self.window()
+        keys=[window.publish(Signal([2,3,4],-1,metadata={'sample_rate_hz':8,'time_start_s':t}),
+                             operation='Registros con distinto reloj') for t in (0,1)]
+        open_comparison(window)
+        dialog=window._result_comparison
+        self.assertEqual(dialog.a.currentData(),keys[0])
+        self.assertEqual(dialog.b.currentData(),keys[1])
+        dialog.calculate_button.click()
+        self.wait_for_calculation(window)
+        self.assertEqual(dialog.data['metrics']['count'],3)
+        self.assertIn('sólo a los índices', dialog.data['clock_note'])
+        dialog.alignment.setCurrentIndex(1)
+        dialog.calculate_button.click()
+        self.wait_for_calculation(window)
+        self.assertEqual(dialog.data['metrics']['count'],0)
+        self.assertIsNone(dialog.data['metrics']['rms'])
+        self.assertFalse(dialog.export_button.isEnabled())
+        dialog.trace_mode.setCurrentIndex(1)
+        message,=dialog.figure.axes[0].texts
+        self.assertIn('Sin coordenadas',message.get_text())
+
+    def test_cas_reuses_piecewise_definitions_as_samples_with_the_exact_value_at_the_jump(self):
+        window = self.window()
+        window.open_cas()
+        worksheet = window.pages[CAS_ROUTE]
+        worksheet.input.setPlainText('where(x==0,4,where(x<0,2*x,-x))')
+        worksheet.calculate()
+        self.wait_for_calculation(window)
+        key = worksheet.selected_entry()['result_id']
+        worksheet.send_result('discrete')
+        route = ROUTES['basic','generate']
+        self.assertEqual(window.current_operation,route)
+        page = window.pages[route]
+        page.first.origin.setText('-2')
+        page.first.count.setText('5')
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        result = page.basic_result.result
+        self.assertEqual(result.origin,-2)
+        np.testing.assert_array_equal(result.values,[-4,-2,4,-1,-2])
+        parents = {item['id']:item['parents'] for item in window.project.headers()}
+        self.assertEqual(parents[page.first.reference_id], [key])
+        self.assertIn(page.first.reference_id, parents[page.basic_result.result_ids[0]])
+
+    def test_cas_result_actions_retain_history_and_reject_ambiguous_reuse(self):
+        import sympy as sp
+
+        window = self.window()
+        window.open_cas()
+        worksheet = window.pages[CAS_ROUTE]
+        worksheet.send_result('analog')
+        self.info.assert_not_called()
+        x, y = sp.symbols('x y')
+        worksheet.input.setPlainText('1/((x+1)*(x+y))')
+        worksheet.calculate()
+        self.wait_for_calculation(window)
+        source = worksheet.selected_entry()['result_id']
+        with patch.object(QInputDialog,'getItem',return_value=('',False)):
+            worksheet.operate_result('apart')
+        self.assertEqual(worksheet.selected,1)
+        self.assertEqual(len(window.project.headers()),1)
+        with patch.object(QInputDialog,'getItem',return_value=('x',True)):
+            worksheet.operate_result('apart')
+        self.wait_for_calculation(window)
+        self.assertEqual(worksheet.selected,2)
+        self.assertEqual(window.project.headers()[-1]['parents'],[source])
+        formula = restore(worksheet.state['results']['2'])
+        original = 1/((x+1)*(x+y))
+        self.assertEqual(sp.cancel(formula-original),0)
+        worksheet.send_result('analog')
+        self.info.assert_called_once()
+        self.assertEqual(window.current_operation,CAS_ROUTE)
+        worksheet.input.setPlainText('[1,2]')
+        worksheet.calculate()
+        self.wait_for_calculation(window)
+        self.info.reset_mock()
+        worksheet.send_result('discrete')
+        self.info.assert_called_once()
+        self.assertEqual(window.current_operation,CAS_ROUTE)
+
     def test_analog_analysis_reopens_frequency_after_roots_and_exports_the_same_response(self):
         window = self.window()
         route = ROUTES['system_analysis', 0]

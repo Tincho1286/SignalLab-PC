@@ -2,7 +2,7 @@
 from unittest.mock import patch
 
 import numpy as np
-from PySide6.QtWidgets import QInputDialog, QPushButton
+from PySide6.QtWidgets import QInputDialog, QMenu, QPushButton
 
 from signallab_pc.filters import Transfer
 from signallab_pc.model import Signal
@@ -11,6 +11,47 @@ from test_desktop_session import DesktopSessionFixture
 
 
 class WorkbenchResultContracts(DesktopSessionFixture):
+    def test_different_cursor_readings_open_the_corresponding_rows_without_losing_alignment(self):
+        window=self.window()
+        window.show()
+        route=ROUTES['basic','generate']
+        window.open_tool(route)
+        view=window.pages[route].basic_result
+        signal=Signal([1,2,8,4,9j],-2,name='Serie de medición')
+        view.show_result(signal)
+        view.table_view.set_signals([signal])
+        table=view.table_view
+        table.select_cell(2,1)
+        table.show_in_figure()
+        probe=view.canvas._signallab_probe
+        trace=next(trace for trace in probe.traces if trace.sample_source and trace.sample_source[1]=='real')
+        probe.focus(trace,-1,'a')
+        probe.focus(trace,2,'b')
+        rows=probe.available_value_rows(table)
+        self.assertEqual({row[2] for row in rows}, {1,2,4})
+        probe.copy_values()
+        copied=self.app.clipboard().text().splitlines()
+        self.assertGreaterEqual(len(copied),2)
+        self.assertIn('A',copied[0])
+        self.assertIn('B',copied[0])
+        class DismissedMenu(QMenu):
+            def exec(self, position):
+                return None
+
+        class CursorBMenu(QMenu):
+            def exec(self, position):
+                return next(item for item in self.actions() if item.text().startswith('Cursor B'))
+
+        with patch('signallab_pc.plot_probe.QMenu',DismissedMenu):
+            probe.open_values()
+        self.assertEqual(table.table.currentIndex().row(),2)
+        with patch('signallab_pc.plot_probe.QMenu',CursorBMenu):
+            probe.open_values()
+        self.assertEqual(table.table.currentIndex().row(),4)
+        self.assertEqual(table.model.coordinate(4),2)
+        self.assertEqual(probe.a[trace.key],(-1,2))
+        self.assertEqual(probe.b[trace.key],(2,0))
+
     def test_library_dft_and_idft_preserve_phase_origin_and_input_navigation(self):
         window=self.window()
         window.show()

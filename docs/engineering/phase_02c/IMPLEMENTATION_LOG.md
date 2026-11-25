@@ -1,5 +1,17 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-04 y C-07 · Ventanas de Fourier y continuidad de resultados
+
+**Causas.** La vista de Fourier expandía productos en una suma, pero dejaba adiciones anidadas por el analizador de fórmulas. Una rama podía contener varias deltas ordinariamente separadas y llegar como si fuera un producto de distribuciones. El contrato de rejilla convertía la cantidad a entero sin validar y permitía un intervalo cuya diferencia excedía el rango de representación. La reconstrucción por invarianza del sistema nulo entraba en el descomponedor de residuos aun sin polos.
+
+**Cambios.** La extracción separa los sumandos antes de validar cada línea. Se conserva el área y la regla que cuenta una sola vez el extremo de un período. La rejilla exige una cantidad entera y una amplitud de intervalo representable. La inversa del sistema nulo conserva un sistema analógico cero. Se validan explícitamente los métodos de conversión, los sentidos del mapeo, su rama entera y la elección de contorno.
+
+**Rango y entrada MAT.** La normalización de ganancia calcula el módulo mediante mantisa y exponente cuando el complejo es finito pero su módulo desborda. La prueba compara amplitud y fase, además de escalas subnormales y SOS. El catálogo HDF5 admitía códigos de caracteres si `MATLAB_class` llegaba como Unicode. El mismo criterio de clase se aplica ahora en catálogo y lector. Se verificaron dos representaciones de la etiqueta de texto, una matriz compleja con compresión y un eje entero por encima de 2⁵³.
+
+**Pruebas.** `test_math_transform_workflows` cubre reconstrucción de las líneas desde texto y desde un valor simbólico guardado, área, muestras complejas y dominio. `test_math_study_workflows` comprueba sistema nulo, ambos identificadores de bilineal inversa, parámetros inválidos y ROC. `test_math_lti_workflows` añade oráculos para historiales, secciones, circuitos RC y filtros clásicos. Los flujos de Qt prueban CSV real, fuentes de sesión independientes, selección de un diseño FIR, superposición DTFT/DFT, cursores, procedencia y recuperación del foco.
+
+**Estado.** La corrida agrupada de 186 pruebas aprobó en Windows. Una ejecución anterior detectó la necesidad de preservar el identificador histórico `radius` del contorno manual. Se conservó el alias y se verificaron ambos modos. Las ampliaciones de CAS, comparación, imágenes y normalización se ejecutaron también en grupos instrumentados. La fase mantiene pendiente el objetivo de ramas. [Cifras de continuación](testing/FINAL_COVERAGE_REPORT.md#medición-focal-de-la-siguiente-revisión).
+
 ## 25 de noviembre de 2026 · C-04 y C-07 · Cobertura científica y de escritorio
 
 **Polos múltiples.** En la conversión inversa por invarianza al impulso, el cálculo numérico de residuos separaba artificialmente algunas raíces repetidas. La restricción a polos simples se comprueba ahora sobre el denominador racional reducido, con aritmética exacta de los coeficientes almacenados. Las pruebas comparan el mapeo exponencial, incluyen multiplicidad triple y distinguen una cancelación exacta que deja un solo polo.

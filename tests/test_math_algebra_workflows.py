@@ -90,6 +90,64 @@ class WorksheetAlgebraContracts(unittest.TestCase):
             with self.subTest(expression=expression),self.assertRaisesRegex(ValueError,pattern):
                 self.evaluate(expression)
 
+    def test_symbolic_domains_follow_assignment_scoped_integrals_and_substitution(self):
+        t=sp.Symbol('t')
+        self.assertEqual(sp.cancel(self.evaluate('saved := (t^2-4)/(t-2)')-(t+2)),0)
+        self.assertEqual(self.evaluate('subst(saved,t,3)'),5)
+        with self.assertRaisesRegex(ValueError,'fuera del dominio'):
+            self.evaluate('subst(saved,t,2)')
+        self.assertEqual(self.evaluate('sum(1/(n-1),n,2,4)'),sp.Rational(11,6))
+        self.assertEqual(self.evaluate('integrate(1/(x+1),(x,0,1))'),sp.log(2))
+        self.assertEqual(self.evaluate('sum(n,(n,1,5))'),15)
+        for expression,answer in [
+            ('3.5j-2',sp.Rational(7,2)*sp.I-2),
+            ('matrix([[1,2],[3,4]])/2',sp.ImmutableMatrix([[sp.Rational(1,2),1],[sp.Rational(3,2),2]])),
+            ('0^0',sp.S.One), ('g(x)+g(x)',2*sp.Function('g')(sp.Symbol('x'))),
+        ]:
+            with self.subTest(expression=expression):
+                self.assertEqual(self.evaluate(expression),answer)
+
+    def test_assumptions_apply_to_calls_and_can_be_purged_without_losing_history(self):
+        self.assertEqual(self.evaluate('assume(a,positive)'),sp.true)
+        key=str(self.cell)
+        for source in ['a := -1','a := [1,2]']:
+            with self.subTest(source=source),self.assertRaisesRegex(ValueError,'no cumple los supuestos'):
+                self.evaluate(source)
+        self.assertIn(key,self.state['results'])
+        self.assertEqual(self.evaluate('a := 3'),3)
+        self.assertEqual(self.evaluate('sqrt(a^2)'),3)
+        self.assertEqual(self.evaluate('purge(a)'),sp.true)
+        self.assertNotIn('a',self.state['variables'])
+        self.assertNotIn('a',self.state['assumptions'])
+        self.evaluate('assume(f,real)')
+        with self.assertRaisesRegex(ValueError,'supuestos de variable'):
+            self.evaluate('f(x) := x+1')
+        with self.assertRaisesRegex(ValueError,'búsqueda numérica|raíz'):
+            self.evaluate('nsolve(1/x,x,0)')
+
+    def test_historical_encoded_symbolic_shapes_preserve_assumptions_and_bound_labels(self):
+        x=sp.Symbol('x', real=True)
+        n=sp.Dummy('counter', integer=True)
+        stored = {
+            x: (sp.Float('2.125',20), [sp.Interval.open(0,1), sp.Contains(x,sp.S.Integers,evaluate=False)]),
+            sp.Integer(4): sp.Sum(sp.Function('g')(n),(n,0,4)),
+        }
+        reopened=restore(encode(stored))
+        self.assertEqual(set(reopened),set(stored))
+        for key,value in stored.items():
+            self.assertEqual(reopened[key],value)
+        for document,reason in [
+            ("Float('not-decimal')",'Decimal inválido'),
+            ("Symbol('with spaces')",'Nombre simbólico'),
+            ("Symbol('x', real=2)",'Supuesto inválido'),
+            ("Symbol(1)",'Estado simbólico'),
+            ("Add(Integer(1), Integer(2), evaluate=False)",'Estado simbólico'),
+            ("unregistered_math_head(1)",'Constructor simbólico'),
+            ('1e999','numérico no finito'),
+        ]:
+            with self.subTest(document=document), self.assertRaisesRegex(ValueError,reason):
+                restore(document)
+
     def test_invalid_commands_never_change_previous_worksheet_answers(self):
         self.assertEqual(self.evaluate('a := 7'),7)
         for expression,reason in [

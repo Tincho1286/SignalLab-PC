@@ -46,5 +46,7 @@
 | C-11 · Supervisor de pruebas | `eb50895` detecta progreso por prueba y conserva el tiempo total acotado. Un proceso real de ensayo termina correctamente al completar y se interrumpe si queda detenido. |
 | C-04 · Control e invarianza | La realimentación y el lugar de raíces preservan el avance de H(z). La inversa por invarianza reconoce polos múltiples tras una reducción exacta. Oráculos en `test_math_lti_workflows` y `test_math_study_workflows`. |
 | C-06 y C-07 · Escritorio y fórmulas | Reapertura de diagramas analógicos y digitales, filtros, procedencia de CAS, resultados de DFT y la interacción entre gráficos y tablas. Se suma la revisión de distribuciones y recurrencias con memoria. [Medición focal](testing/FINAL_COVERAGE_REPORT.md#medición-focal-de-la-siguiente-revisión) |
+| C-04 y C-07 · Vista de Fourier y mapeos | Separación de sumandos de Dirac, preservación del extremo periódico, validación de la rejilla y conversión de un sistema nulo. `test_math_transform_workflows`, `test_math_study_workflows`, `test_workbench_filter_studies` y `test_workbench_input_drafts`. |
+| C-02 · Catálogo HDF5 | Criterio de tipos compartido entre la inspección y la lectura. `test_math_input_integrity` distingue texto UTF-8 de muestras complejas y conserva el índice de 64 bits. |
 
 [Registro de causas y pruebas](IMPLEMENTATION_LOG.md) · [Evidencia y SHA](validation/FINAL_VALIDATION_MATRIX.md)

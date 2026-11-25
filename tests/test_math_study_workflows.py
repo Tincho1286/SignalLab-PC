@@ -188,6 +188,19 @@ class FilterStudyContracts(unittest.TestCase):
         simple=course.convert_system(model,.5,'impulse_inverse')['systems'][0]
         np.testing.assert_allclose(simple.response([0,1]),2/(2*math.log(4)+1j*np.array([0,1])),atol=1e-13)
 
+    def test_zero_system_and_unknown_mapping_methods_do_not_select_other_models(self):
+        original=Transfer([0],[1,-.5,.0625],roc={'mode':'radius','radius':1})
+        output=course.convert_system(original,.5,'impulse_inverse')
+        zero,=output['systems']
+        self.assertEqual(zero.domain,'analog')
+        self.assertEqual(zero.roc,{'mode':'line','sigma':0.})
+        np.testing.assert_array_equal(zero.response([0,1,10]),[0,0,0])
+        with self.assertRaisesRegex(ValueError,'Método de conversión'):
+            course.convert_system(original,.5,'kaiser')
+        for method in ('inverse','bilinear_inverse'):
+            same=course.convert_system(original,.5,method)['systems'][0]
+            np.testing.assert_array_equal(same.response([0,1]),[0,0])
+
     def test_impulse_roc_exchanges_line_and_radius_only_when_representable(self):
         original=Transfer([1],[1,2],'analog',roc={'mode':'line','sigma':-1})
         result=course.convert_system(original,.25,'impulse')['systems'][0]
@@ -219,6 +232,7 @@ class FilterStudyContracts(unittest.TestCase):
             (Transfer([1],[1]),'manual',1,0,0,16,'puntos'),
             (Transfer([1],[1]),'manual',1,0,9,16,'puntos'),
             (Transfer([1],[1]),'manual',1,8,1,16,'mitad'),
+            (Transfer([1],[1]),'unknown',1,0,1,16,'contorno no admitida'),
         ]:
             with self.subTest(mode=mode,reason=reason),self.assertRaisesRegex(ValueError,reason):
                 course.inverse_z_contour(model,mode,r,lo,count,points)
@@ -239,6 +253,9 @@ class FilterStudyContracts(unittest.TestCase):
             ((0,2,0,'bilinear','to_digital',0),'positivo'),
             ((0,2,np.nan,'impulse','to_digital',0),'finito'),
             ((0,2,1,'bad','to_digital',0),'Método'),
+            ((1,2,1,'kaiser','to_analog',0),'Método'),
+            ((1,2,1,'impulse','unknown',0),'Sentido'),
+            ((1,2,1,'impulse','to_analog',.5),'entero'),
             ((np.pi,1,1,'bilinear','to_analog',0),'requiere'),
             ((1,0,1,'bilinear','period',0),'distinta'),
             ((1,0,1,'impulse','period',0),'distinta'),
@@ -248,6 +265,33 @@ class FilterStudyContracts(unittest.TestCase):
         ]:
             with self.subTest(args=args),self.assertRaisesRegex(ValueError,error):
                 course.frequency_mapping(*args)
+
+    def test_gain_normalization_accepts_extreme_linear_magnitudes_when_coefficients_fit(self):
+        tiny=float(np.nextafter(0.,1.))
+        for coefficient,target,answer in [
+            (1.6e308+1.6e308j,1.,(1+1j)/np.sqrt(2)),
+            (tiny,1.,1.),
+            (1e300,tiny,tiny),
+        ]:
+            with self.subTest(coefficient=coefficient, target=target):
+                output=course.normalize_gain(Transfer([coefficient],[1]),0.,target)
+                system,=output['systems']
+                if target==tiny:
+                    self.assertEqual(system.b[0],tiny)
+                else:
+                    np.testing.assert_allclose(system.b,[answer],atol=1e-14)
+                self.assertIn(' × 2^',output['report'])
+        original=Transfer.from_sos([[.25,0,0,1,-.5,0]],sample_period_s=.125)
+        result=course.normalize_gain(original,0.,2.)['systems'][0]
+        self.assertEqual(result.sample_period_s,.125)
+        np.testing.assert_array_equal(result.sos[0],[1,0,0,1,-.5,0])
+        for model,target,reason in [
+            (original,0,'objetivo'),
+            (Transfer([1,-1],[1]),1.,'cero'),
+            (Transfer([1],[1,-1]),1.,'singular'),
+        ]:
+            with self.subTest(reason=reason),self.assertRaisesRegex(ValueError,reason):
+                course.normalize_gain(model,0.,target)
 
 
 class MatlabNumericContracts(unittest.TestCase):

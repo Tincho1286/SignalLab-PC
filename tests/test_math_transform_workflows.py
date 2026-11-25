@@ -1,9 +1,10 @@
 """Distribution scaling, transform conventions and energy over exact supports."""
 import unittest
 
+import numpy as np
 import sympy as sp
 
-from signallab_pc.cas_engine import restore
+from signallab_pc.cas_engine import encode, restore
 from signallab_pc.measures_symbolic import measure_expression
 from signallab_pc.symbolic import N, S, T, W, execute, parse
 
@@ -86,3 +87,43 @@ class EnergyAndPowerContracts(unittest.TestCase):
         ]:
             with self.subTest(options=options), self.assertRaisesRegex(ValueError, reason):
                 measure_expression({'expression':'cos(t)', **options})
+
+
+class ExpressionGridContracts(unittest.TestCase):
+    def test_grid_preserves_exact_line_areas_and_excludes_one_periodic_endpoint(self):
+        expression = 'exp(i*w)+2*DiracDelta(w+pi)+2*DiracDelta(w-pi)+3*DiracDelta(w)'
+        base = dict(operation='expression_grid', variable='w', expression=expression,
+                    start=-np.pi, stop=np.pi, start_exact='-pi', stop_exact='pi', count=17,
+                    periodic_frequency=True, allow_distribution=True)
+        regular = execute(base)
+        self.assertEqual(regular['dirac_at_zero'], [3.,0.])
+        self.assertEqual(regular['dirac_terms'], [[-np.pi,[2.,0.]]])
+        np.testing.assert_allclose([complex(*pair) for pair in regular['samples']],
+                                   np.exp(1j*np.linspace(-np.pi,np.pi,17)), atol=1e-13)
+        conditioned = execute({**base, 'encoded':encode(parse(expression)),
+                               'condition':'Ne(w,0)', 'allow_undefined':True})
+        self.assertNotIn('dirac_at_zero', conditioned)
+        self.assertEqual(conditioned['dirac_terms'], regular['dirac_terms'])
+        self.assertIsNone(conditioned['samples'][8])
+        self.assertEqual(conditioned['undefined_count'], 1)
+
+    def test_invalid_or_unrepresentable_grid_cannot_change_number_of_samples(self):
+        base = dict(operation='expression_grid', variable='w', expression='1/(1+w^2)',
+                    start=-1., stop=1., count=9)
+        for options, reason in [
+            ({'count':2.9}, 'entero'),
+            ({'count':True}, 'entero'),
+            ({'count':1}, 'dos puntos'),
+            ({'start':-1e308, 'stop':1e308}, 'excede el rango'),
+            ({'start':1., 'stop':np.nextafter(1.,2.)}, 'precisión'),
+            ({'start':-np.inf}, 'rejilla finita'),
+            ({'variable':'s'}, 'variable de muestreo'),
+            ({'expression':'a+w'}, 'parámetros: a'),
+            ({'expression':'DiracDelta(w)'}, 'distribución'),
+            ({'condition':'w>0'}, 'condiciones'),
+        ]:
+            with self.subTest(options=options), self.assertRaisesRegex(ValueError,reason):
+                execute({**base, **options})
+        result = execute(base)
+        self.assertEqual(result['step'],.25)
+        np.testing.assert_allclose([complex(*p) for p in result['samples']], 1/(1+np.linspace(-1,1,9)**2))

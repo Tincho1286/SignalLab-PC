@@ -105,3 +105,38 @@ class InputIntegrityTests(unittest.TestCase):
                 with self.assertRaisesRegex(TimeoutError, 'lectura MAT'):
                     MatlabFile(path)
             assert_array_equal(MatlabFile(path).load('signal'), [[1, 2]])
+
+    def test_hdf_catalog_never_treats_character_codes_as_signal_samples(self):
+        import numpy as np
+        from signallab_pc.matlab_import import make_signal
+
+        with TemporaryDirectory() as directory:
+            path = Path(directory)/'measurements.mat'
+            wanted = np.array([[3+2j, 9], [5, 1-4j], [-2j, 7]])
+            index = np.arange(3, dtype=np.int64)+2**53+3
+            stored = np.empty(wanted.T.shape, dtype=[('real', 'f8'), ('imag','f8')])
+            stored['real'],stored['imag'] = wanted.T.real,wanted.T.imag
+            with h5py.File(path, 'w') as file:
+                samples = file.create_dataset('signal', data=stored, compression='gzip')
+                samples.attrs['MATLAB_class'] = np.bytes_('double')
+                file['axis'] = index
+                for name,kind in [('text_bytes',np.bytes_('char')),('text', 'char'),('unsupported', 'cell')]:
+                    node = file.create_dataset(name, data=[65, 66, 67], dtype='u2')
+                    node.attrs['MATLAB_class'] = kind
+                file['nonfinite'] = [0., np.inf]
+                file['cube'] = np.empty((2,2,2))
+                file['empty'] = np.empty(0)
+            reader = MatlabFile(path)
+            self.assertTrue(reader.hdf)
+            self.assertEqual(reader.entries, {'axis': (3,), 'nonfinite': (2,), 'signal': (3,2)})
+            assert_array_equal(reader.load('signal'), wanted)
+            signal = make_signal(reader, 'signal', 1, 'discrete', axis_name='axis')
+            assert_array_equal(signal.axis, index)
+            assert_array_equal(signal.values, wanted[:,1])
+            self.assertEqual(signal.metadata['source_file'], path.name)
+            with self.assertRaisesRegex(ValueError, 'muestras finitas'):
+                reader.load('nonfinite')
+            with h5py.File(path,'r') as file:
+                for name in ('text','text_bytes','unsupported'):
+                    with self.subTest(name=name), self.assertRaisesRegex(ValueError, 'numérica'):
+                        _local_dataset(file,name,h5py)

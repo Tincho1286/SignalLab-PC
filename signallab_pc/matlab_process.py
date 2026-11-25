@@ -181,9 +181,7 @@ def _entries(stream, hdf):
         with h5py.File(stream, 'r') as file:
             def visit(name, node):
                 if not name.startswith('#') and _local_numeric_dataset(node, h5py):
-                    declared = node.attrs.get('MATLAB_class', b'')
-                    if declared not in (b'char', b'cell', b'struct', b'opaque'):
-                        add(name, tuple(reversed(node.shape)))
+                    add(name, tuple(reversed(node.shape)))
             file.visititems(visit)
     else:
         from scipy.io import whosmat

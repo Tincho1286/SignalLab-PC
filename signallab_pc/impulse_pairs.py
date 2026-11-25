@@ -56,8 +56,15 @@ def distribution_parts(value, variable, lower, upper, *, right_open=False):
 
     regular = []
     lines = {}
-    for term in sp.Add.make_args(sp.expand_mul(value)):
+    pending = [sp.expand_mul(value)]
+    while pending:
         checkpoint()
+        term = pending.pop()
+        # Parsed additions may still be nested because domain checks retain
+        # the unevaluated expression. Split them without cancelling terms.
+        if isinstance(term, sp.Add):
+            pending.extend(reversed(term.args))
+            continue
         if term.has(ImpulseTrain):
             entries = weighted_lines(term, variable, lower, upper, right_open=right_open)
             if entries is None:
