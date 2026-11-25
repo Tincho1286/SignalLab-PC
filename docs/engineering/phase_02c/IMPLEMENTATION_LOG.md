@@ -1,5 +1,9 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-04 y C-07 · Mapeo de frecuencias y potencia periódica
+
+**Evidencia focal.** Pasaron las pruebas de `test_workbench_spectral_studies`. Se verificaron los tres sentidos del mapeo bilineal y de invarianza, la rama de aliasing y el rechazo del extremo no finito, conservando el informe anterior y permitiendo reintentar. La potencia periódica se comparó con la suma de los módulos al cuadrado. Las líneas conservaron su unidad, pesos, período y procedencia. También se probó volver del período heredado a una definición manual.
+
 ## 25 de noviembre de 2026 · C-06 y C-07 · Importación de tablas y biblioteca
 
 **Causa y corrección.** El importador CSV validaba inicio y paso incluso con un eje completo en el archivo. Un borrador de rejilla incompleto impedía cargar una medición con todas sus coordenadas. El lector determina qué datos necesita según el origen del eje y el número de filas. El diálogo delega esa validación al lector, incluido el paso de un espectro de un único punto.

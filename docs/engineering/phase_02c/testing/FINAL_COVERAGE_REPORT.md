@@ -24,6 +24,7 @@ La continuación incorporó lotes focales sobre la base de Windows. La cobertura
 | Análisis LTI, importación y diseño polar | 36 987/42 953 (86,11 %) | 12 097/16 528 (73,19 %) | 299 |
 | Diagramas, exportación y reloj heredado | 37 047/42 958 (86,24 %) | 12 127/16 528 (73,37 %) | 269 |
 | Hoja CAS, cancelación y datos tipados | 37 152/42 965 (86,47 %) | 12 161/16 532 (73,56 %) | 238 |
+| Fourier con impulsos, importación, guías y estudios espectrales | 37 738/42 977 (87,81 %) | 12 317/16 538 (74,48 %) | 87 |
 
 ## Medición focal de la siguiente revisión
 
