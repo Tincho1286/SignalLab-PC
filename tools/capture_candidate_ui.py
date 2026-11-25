@@ -51,8 +51,11 @@ def capture(output, width, height, hold):
                 qt_platform=app.platformName(), window=[window.width(),window.height()],
                 screen=[screen.size().width(),screen.size().height()], scale=screen.devicePixelRatio(),
                 dpi=screen.logicalDotsPerInch(), views=['inicio','muestreo','cas']),indent=2)+'\n')
-            window.project.dirty = False
-            window.close()
+            # These views create an unsaved session even with a clean project library.
+            # The audit uses a disposable profile and has no session to preserve.
+            with patch.object(window, 'session_has_changes', return_value=False):
+                if not window.close():
+                    raise RuntimeError('No se pudo cerrar el perfil descartable de auditoría.')
     return 0
 
 
