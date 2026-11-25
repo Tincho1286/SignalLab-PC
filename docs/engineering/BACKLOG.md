@@ -1,5 +1,7 @@
 # Backlog priorizado de estabilización
 
+La [matriz de Fase 02B](phase_02b/PHASE_02B_TRACEABILITY_MATRIX.md) registra los nuevos paquetes y sus criterios. Los controles y riesgos de estabilización siguen debajo como referencia.
+
 Prioridades de Fase 01 y condiciones de continuidad. El estado de los controles del candidato está en la [matriz de validación](VALIDATION_MATRIX.md). Los riesgos se registran en [RISK_REGISTER](RISK_REGISTER.md).
 
 | ID | Prioridad | Trabajo | Criterios de aceptación |

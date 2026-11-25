@@ -39,6 +39,8 @@ La autorización de Fase 02 se limita a la frontera de la DFT directa definida e
 
 ## Secuencia y criterios de salida
 
+La [Fase 02B](phase_02b/README.md) consolida la frontera de aplicación después del piloto DFT. Su plan autorizado cubre IDFT, FIR, resampling, PSD, ejecución secuencial, almacenamiento, recursos, API y validación. La preparación de Fase 03 se evalúa en el cierre.
+
 | Fase | Alcance | Salida comprobable |
 | --- | --- | --- |
 | 00 · Auditoría | Estado real, arquitectura, matemática, CI, dependencias, deuda y riesgos. | Informes revisados, evidencia ligada al commit y procedimientos de reproducción para las comprobaciones pendientes. |
