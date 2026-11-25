@@ -1,10 +1,13 @@
 """The audit must distinguish incomplete evidence from a passing criterion."""
 import json
 from pathlib import Path
+import subprocess
+import sys
 import tempfile
 import unittest
 
 from tools.check_quality_gate_02c import CANCELLATION_OPERATIONS, evidence, within_threshold
+from tools.check_workflows import supervise
 
 
 class QualityGateTests(unittest.TestCase):
@@ -53,3 +56,18 @@ class QualityGateTests(unittest.TestCase):
                 if row['operation'] == 'mat_hdf5':
                     row['operation'] = 'mat_classic'
             self.assertEqual(verdict(), 'fail')
+
+
+class WorkflowSupervisorTests(unittest.TestCase):
+    def test_watchdog_reports_a_stalled_worker_and_lets_a_completed_worker_exit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            progress = Path(directory)/'progress.txt'
+            options = ({'creationflags': subprocess.CREATE_NEW_PROCESS_GROUP}
+                       if sys.platform == 'win32' else {'start_new_session': True})
+            with subprocess.Popen([sys.executable, '-c', 'pass'], **options) as process:
+                self.assertEqual(supervise(process, progress, budget=60, idle_limit=30), (0, None))
+            with subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'], **options) as process:
+                code, reason = supervise(process, progress, budget=60, idle_limit=1)
+                self.assertEqual(code, 1)
+                self.assertIn('made no progress', reason)
+                self.assertIsNotNone(process.poll())

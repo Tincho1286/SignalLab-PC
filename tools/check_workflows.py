@@ -1,11 +1,12 @@
 """Required UI-workflow contracts, offscreen and isolated from user settings."""
 from pathlib import Path
 import json,os,platform,signal,subprocess,sys,time,unittest
+from tempfile import TemporaryDirectory
 ROOT=Path(__file__).resolve().parents[1]
 os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 
 
-def worker(destination):
+def worker(destination, progress):
     sys.path[:0]=[str(ROOT),str(ROOT/'tests')]
     contracts=[('system_expression','test_workflow_contracts.WorkflowContracts',30),('interactive_analysis','test_interactive_analysis',14),('window_convolution_analysis','test_window_convolution_analysis',8),('measurement_views','test_measurement_views',14),('channels_and_tools','test_update_channels_tools',12),('time_frequency_library','test_time_frequency_library',13),('spectral_measurements','test_spectral_measurements',16),('ar_estimation','test_ar_estimation',14),('plot_inspection','test_plot_inspection',19),('curve_reading','test_curve_reading',13),('temporal_tools','test_temporal_tools',17),('frequency_measurements','test_frequency_measurements',12),('state_studies','test_state_studies',15),('state_provenance','test_toolbox.ToolboxTests.test_state_simulation_channels_and_provenance',1),('record_measurements','test_record_measurements',12),('reconstruction_studies','test_reconstruction_studies',12),('basic_usability','test_basic_usability',12),('frontend_workspace','test_frontend_workspace',30),
                ('desktop_sessions','test_desktop_session',13),
@@ -14,39 +15,76 @@ def worker(destination):
     counts={key:group.countTestCases() for key,group,_ in groups}
     loaded=all(counts[key]>=minimum for key,_,minimum in groups)
     suite=unittest.TestSuite(group for _,group,_ in groups)
-    result=unittest.TextTestRunner(verbosity=2).run(suite)
+    class ProgressResult(unittest.TextTestResult):
+        def startTest(self, test):
+            Path(progress).write_text(test.id(), encoding='utf-8')
+            super().startTest(test)
+
+    result=unittest.TextTestRunner(verbosity=2,resultclass=ProgressResult).run(suite)
     checks=['library_examples_and_links','basic_pairs_and_degenerate_models','optional_result_boundaries','inverse_z_sample_scope','numerical_frequency_export','cas_inverse_context','cas_system_context','impulse_alias_transport','transform_button','result_library','system_import','general_hs','export_reload','rational_regression','bilateral_boundary_analysis','dtft_plot_visibility','dtft_system_reuse','qt_error_visibility','presentation_failure_recovery','worker_diagnostic','cas_frequency_context','conditional_dtft_plot_export','report_figure_header','measures_figure_header','temporal_roc_guard','z_reciprocal_round_trip','fir_auto_window_length','figure_vertical_range', 'dtft_cas_exclusions', 'ideal_filter_cas_exports']
     record=dict(contract='system-expression-workflows-v1',passed=loaded and result.wasSuccessful() and result.testsRun>=len(checks) and not result.skipped,tests=result.testsRun,failures=len(result.failures),errors=len(result.errors),skipped=len(result.skipped),checks=checks,families=counts)
     Path(destination).write_text(json.dumps(record,indent=2),encoding='utf-8')
     return 0 if record['passed'] else 1
 
 
+def supervise(process, progress, *, budget, idle_limit):
+    begin = last_activity = time.monotonic()
+    previous_stamp = None
+    while True:
+        try:
+            return process.wait(timeout=5), None
+        except subprocess.TimeoutExpired:
+            pass
+        try:
+            stamp = progress.stat().st_mtime_ns
+        except FileNotFoundError:
+            stamp = None
+        now = time.monotonic()
+        if stamp != previous_stamp:
+            previous_stamp, last_activity = stamp, now
+        if now-begin >= budget:
+            reason = f'Workflow suite exceeded the {budget} s overall deadline.'
+            break
+        if now-last_activity >= idle_limit:
+            reason = f'Workflow suite made no progress for {idle_limit} s.'
+            break
+    if sys.platform=='win32':
+        subprocess.run(['taskkill','/PID',str(process.pid),'/T','/F'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,creationflags=subprocess.CREATE_NO_WINDOW)
+    else:
+        try:
+            os.killpg(process.pid,signal.SIGTERM)
+        except ProcessLookupError:
+            pass
+    try:
+        process.wait(timeout=3)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait(timeout=3)
+    return 1, reason
+
+
 def main():
-    if len(sys.argv)==3 and sys.argv[1]=='--worker':return worker(sys.argv[2])
-    folder=ROOT/'work';folder.mkdir(exist_ok=True);destination=folder/'workflow-checks.json';temporary=folder/'workflow-checks.pending.json';temporary.unlink(missing_ok=True)
-    # The expanded desktop suite reached 420 s on a shared Linux runner.
-    # Leave two minutes of headroom while retaining the process-tree deadline.
-    begin=time.monotonic();budget=540
-    command=[sys.executable,'-B','-X','utf8',str(Path(__file__).resolve()),'--worker',str(temporary)]
+    if len(sys.argv)==4 and sys.argv[1]=='--worker':return worker(*sys.argv[2:])
+    folder=ROOT/'work';folder.mkdir(exist_ok=True);destination=folder/'workflow-checks.json'
+    # The full suite continues to grow. Detect a stalled test separately from elapsed batch time.
+    begin=time.monotonic();budget=960;idle_limit=120
     env = dict(os.environ, OPENBLAS_NUM_THREADS='1', OMP_NUM_THREADS='1')
     options=dict(cwd=ROOT,stdin=subprocess.DEVNULL,env=env)
     if sys.platform=='win32':options['creationflags']=subprocess.CREATE_NO_WINDOW|subprocess.CREATE_NEW_PROCESS_GROUP
     else:options['start_new_session']=True
-    process=subprocess.Popen(command,**options);timed_out=False
-    try:code=process.wait(timeout=budget)
-    except subprocess.TimeoutExpired:
-        timed_out=True
-        if sys.platform=='win32':subprocess.run(['taskkill','/PID',str(process.pid),'/T','/F'],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,creationflags=subprocess.CREATE_NO_WINDOW)
-        else:os.killpg(process.pid,signal.SIGTERM)
-        try:process.wait(timeout=3)
-        except subprocess.TimeoutExpired:process.kill();process.wait(timeout=3)
-        code=1
-    if temporary.exists():
-        record=json.loads(temporary.read_text(encoding='utf-8'))
-    else:
-        detail=f'Workflow worker exceeded the {budget} s deadline.' if timed_out else 'Workflow worker did not complete.'
-        record=dict(contract='system-expression-workflows-v1',passed=False,tests=0,error=detail)
-    record.update(passed=record['passed'] and code==0 and not timed_out,timed_out=timed_out,deadline_seconds=budget,seconds=round(time.monotonic()-begin,3),platform=sys.platform,python=platform.python_version())
+    with TemporaryDirectory(prefix='workflow-run-',dir=folder) as run:
+        temporary, progress = Path(run)/'report.json', Path(run)/'progress.txt'
+        command=[sys.executable,'-B','-X','utf8',str(Path(__file__).resolve()),'--worker',str(temporary),str(progress)]
+        with subprocess.Popen(command,**options) as process:
+            code, timeout_reason = supervise(process, progress, budget=budget, idle_limit=idle_limit)
+        if temporary.exists():
+            record=json.loads(temporary.read_text(encoding='utf-8'))
+        else:
+            record=dict(contract='system-expression-workflows-v1',passed=False,tests=0,
+                        error=timeout_reason or 'Workflow worker did not complete.')
+        if progress.is_file():
+            record['last_test']=progress.read_text(encoding='utf-8')
+    record.update(passed=record['passed'] and code==0 and timeout_reason is None,timed_out=timeout_reason is not None,deadline_seconds=budget,idle_limit_seconds=idle_limit,seconds=round(time.monotonic()-begin,3),platform=sys.platform,python=platform.python_version())
     sys.path.insert(0,str(ROOT/'tools'));from audit_mathematics import fingerprint
     record['source_fingerprint']=fingerprint();destination.write_text(json.dumps(record,indent=2),encoding='utf-8');temporary.unlink(missing_ok=True)
     outcome='PASS' if record['passed'] else 'FAIL'
