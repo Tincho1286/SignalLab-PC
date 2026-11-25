@@ -10,11 +10,68 @@ from signallab_pc.matlab_import_dialog import MatlabImportDialog
 from signallab_pc.model import Signal
 from signallab_pc.project import Project
 from signallab_pc.project_picker import ProjectPicker
-from signallab_pc.storage import save_csv
+from signallab_pc.storage import save_csv, save_json
+from signallab_pc.workspaces import ROUTES
 from test_desktop_session import DesktopSessionFixture
 
 
 class SignalImportContracts(DesktopSessionFixture):
+    def test_matlab_menu_cancellation_and_retry_publish_only_the_accepted_channel(self):
+        window = self.window()
+        path = self.path/'sesion.m'
+        path.write_text('t = 0:0.25:0.5; A = [t; 1 + 2*t].\';\n',encoding='utf-8')
+        with patch.object(QFileDialog,'getOpenFileName',return_value=('','')):
+            window.import_matlab()
+        self.assertEqual(window.project.headers(),[])
+        with patch.object(QFileDialog,'getOpenFileName',return_value=(str(path),'')), \
+             patch.object(MatlabImportDialog,'exec',return_value=QDialog.DialogCode.Rejected):
+            window.import_matlab()
+        self.assertEqual(window.project.headers(),[])
+
+        def select(dialog):
+            dialog.domain.setCurrentIndex(dialog.domain.findData('continuous'))
+            dialog.variable.setCurrentIndex(dialog.variable.findData('A'))
+            dialog.axis.setCurrentIndex(dialog.axis.findData('t'))
+            dialog.column.setValue(2)
+            dialog.load()
+            return dialog.result()
+
+        with patch.object(QFileDialog,'getOpenFileName',return_value=(str(path),'')), \
+             patch.object(MatlabImportDialog,'exec',select):
+            window.import_matlab()
+        record, = window.project.headers()
+        result = window.project.get(record['id'])
+        np.testing.assert_array_equal(result.axis,[0,0.25,0.5])
+        np.testing.assert_array_equal(result.values,[1,1.5,2])
+        self.assertIn('disponible para reutilizar',window.statusBar().currentMessage())
+
+    def test_external_file_and_project_result_keep_independent_drafts_and_survive_clear(self):
+        window = self.window()
+        route = ROUTES['basic','generate']
+        window.open_tool(route)
+        field = window.pages[route].first
+        project_value = Signal([8,12],origin=3,name='Resultado guardado')
+        project_key = window.publish(project_value,operation='Otra herramienta')
+        field.set_source(project_value,project_key)
+        path = self.path/'entrada.json'
+        save_json(Signal([1,2j],origin=-2,name='Datos del laboratorio'),path)
+        field.entry_modes.select(2)
+        with patch.object(QFileDialog,'getOpenFileName',return_value=(str(path),'')):
+            field.open_file()
+        self.assertEqual(field.loaded.origin,-2)
+        field.entry_modes.select(3)
+        self.assertEqual(field.loaded_reference_id,project_key)
+        field.entry_modes.select(2)
+        self.assertEqual(field.loaded.name,'Datos del laboratorio')
+        field.clear_source()
+        self.assertIsNone(field.loaded)
+        self.assertIsNone(field.loaded_reference_id)
+        field.entry_modes.select(3)
+        self.assertEqual(field.loaded_reference_id,project_key)
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        self.assertEqual(window.project.headers()[-1]['parents'],[project_key])
+
     def test_csv_table_uses_coordinates_instead_of_unused_grid_fields(self):
         path = self.path/'laboratorio.csv'
         path.write_text('t;real;imag\n0,1;2,0;-1,0\n0,3;4,0;0,5\n0,5;6,0;2,0\n',encoding='utf-8')

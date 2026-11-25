@@ -25,6 +25,7 @@ La continuación incorporó lotes focales sobre la base de Windows. La cobertura
 | Diagramas, exportación y reloj heredado | 37 047/42 958 (86,24 %) | 12 127/16 528 (73,37 %) | 269 |
 | Hoja CAS, cancelación y datos tipados | 37 152/42 965 (86,47 %) | 12 161/16 532 (73,56 %) | 238 |
 | Fourier con impulsos, importación, guías y estudios espectrales | 37 738/42 977 (87,81 %) | 12 317/16 538 (74,48 %) | 87 |
+| Entradas entre variantes, series y registro de archivos | 37 812/42 977 (87,98 %) | 12 349/16 538 (74,67 %) | 55 |
 
 ## Medición focal de la siguiente revisión
 

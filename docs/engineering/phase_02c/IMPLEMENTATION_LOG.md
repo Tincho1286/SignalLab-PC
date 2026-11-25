@@ -1,5 +1,9 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-06 y C-07 · Entradas compartidas entre variantes
+
+**Evidencia focal.** Pasaron 12 pruebas de transferencia de borradores, importación y reutilización. Se compararon suma y producto con sus índices y valores esperados, incluidas las referencias tras intercambiar entradas. Se comprobó que la serie discreta use la definición periódica completa aunque el gráfico muestre sólo dos muestras, y que el informe de medidas separe la energía por período de la total. El análisis LTI conservó el reloj de un sistema causal y evitó sobrescribir la entrada temporal con un modelo de avance. Los borradores de archivo y de Resultados se conservaron de modo independiente.
+
 ## 25 de noviembre de 2026 · C-04 y C-07 · Mapeo de frecuencias y potencia periódica
 
 **Evidencia focal.** Pasaron las pruebas de `test_workbench_spectral_studies`. Se verificaron los tres sentidos del mapeo bilineal y de invarianza, la rama de aliasing y el rechazo del extremo no finito, conservando el informe anterior y permitiendo reintentar. La potencia periódica se comparó con la suma de los módulos al cuadrado. Las líneas conservaron su unidad, pesos, período y procedencia. También se probó volver del período heredado a una definición manual.
