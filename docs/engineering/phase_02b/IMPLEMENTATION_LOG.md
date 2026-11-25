@@ -1,5 +1,9 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02B.06
+
+Desde `872bcf0` se revisaron las firmas, dependencias de consola y documentación DFT. Se extrajo `cli_session.py` para compartir carga, presupuesto, cancelación y sesión y se agregó el despacho `dsp` con subcomandos. Se añadieron guías y un ejemplo que incluye uso desde Jupyter sin instalarlo. Pasaron dos pruebas de consola con importación Qt prohibida, la guarda estática de 385 archivos y el ejemplo reproducible. El formato binario sigue optativo. Commit `phase02b(wp06): consolidate the experimental core API`. Se inicia la matriz final sobre ese SHA.
+
 ## 25 de noviembre de 2026 · WP-02B.05
 
 Tras `faa190b` se inspeccionaron execution, jobs, reservas existentes, el flujo y el reemplazo atómico. Se eligió un pool optativo con admisión inmediata. La estimación del flujo suma entrada, resultados retenidos y pico temporal. Se probaron dos hilos, liberación tras fallo, plazos anidados, cancelación dentro de Welch, rechazo de presupuesto y reemplazo fallido. Pasaron cinco casos nuevos y tres del flujo. La corrida de almacenamiento terminó con 48 casos exactos por plataforma, por lo que CORE-04 quedó verificado. Permanece una política cooperativa, sin cuota impuesta por el sistema. Commit `phase02b(wp05): enforce cooperative resource admission`. Sigue consolidar API y ejemplos.

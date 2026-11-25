@@ -1,5 +1,7 @@
 # Cambios de Fase 02B
 
+- WP-02B.06. API experimental, CLI por operación y guía reproducible.
+
 - WP-02B.05. Admisión por memoria, contención y validación de cancelación y fallos.
 
 - WP-02B.04. Benchmark de seis formatos y backend binario experimental para una señal.

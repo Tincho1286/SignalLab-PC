@@ -4,7 +4,7 @@ from argparse import ArgumentParser
 from dataclasses import asdict
 
 from . import session
-from .dft_cli import add_session_arguments, load_input, run_command
+from .cli_session import add_session_arguments, load_input, run_command
 from .dsp_application import ResampleRequest
 from .dsp_pipeline import DSPPipelineRequest, run_pipeline, store_pipeline
 from .filters import Transfer

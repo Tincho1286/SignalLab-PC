@@ -2,6 +2,7 @@
 
 | Paquete | Decisión |
 | --- | --- |
+| WP-02B.06 | Mantener API Python por motor y una CLI con carga y ejecución compartidas. |
 | WP-02B.05 | Compartir una reserva optativa con plazos y verificaciones cooperativas. |
 | WP-02B.04 | Híbrido de una señal por archivo, JSON histórico como formato de proyecto y sesión. |
 | WP-02B.03 | Una secuencia fija con dos ramas espectrales y una transacción de proyecto. |
