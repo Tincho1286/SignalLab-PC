@@ -368,7 +368,7 @@ class CasWorksheet(QWidget):
     def new_sheet(self):
         if self.pending:return
         if self.entries and QMessageBox.question(self,'Nueva hoja CAS','¿Vaciar la hoja y sus variables? Podés exportarla antes de continuar.',QMessageBox.StandardButton.Yes|QMessageBox.StandardButton.Cancel,QMessageBox.StandardButton.Cancel)!=QMessageBox.StandardButton.Yes:return
-        self.state=self._empty();self.entries=[];self.selected=None;self._serial=0;self._automatic_reference=None;self.commands=[];self.command_position=0;self.variables.clear();self.input.clear();self.render()
+        self.state=self._empty();self.entries=[];self.selected=None;self._serial=0;self._automatic_reference=None;self.commands=[];self.command_position=0;self.draft='';self.variables.clear();self.input.clear();self.render()
 
     def send_result(self,destination):
         entry=self.selected_entry()

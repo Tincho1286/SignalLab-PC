@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-06 y C-07 · Hoja CAS y valores tipados
+
+**Causas y cambios.** Al vaciar la hoja se conservaba un borrador del historial. Ahora se reinicia el borrador junto con sus comandos. La importación de mapas también podía sobrescribir un valor si dos etiquetas quedaban iguales al normalizar los nombres simbólicos. La importación detecta el conflicto y permite conservar la hoja previa.
+
+**Evidencia focal.** Pasaron 23 pruebas. Los casos ejercitan comandos y teclado, ventanas de fórmula, matrices y escalares complejos, procedencia, cancelación y reutilización en análisis de frecuencia con unidad elegida. La proyección global es 37 152/42 965 líneas (86,47 %) y 12 161/16 532 ramas (73,56 %). Faltan 238 ramas para el objetivo.
+
 ## 25 de noviembre de 2026 · C-06 y C-07 · Diagramas y reloj heredado
 
 **Causa y corrección.** El editor de un bloque retenía el período importado aunque se reemplazara la expresión. El período ahora queda ligado a la fórmula que lo recibió. Con la fórmula original se conserva al guardar y reabrir el diagrama. Se verificaron las dos situaciones con una cascada SOS y un oráculo de respuesta en frecuencia.

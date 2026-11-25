@@ -23,6 +23,7 @@ La continuación incorporó lotes focales sobre la base de Windows. La cobertura
 | Reapertura, matrices y procedencia | 36 882/42 953 (85,87 %) | 12 054/16 528 (72,93 %) | 342 |
 | Análisis LTI, importación y diseño polar | 36 987/42 953 (86,11 %) | 12 097/16 528 (73,19 %) | 299 |
 | Diagramas, exportación y reloj heredado | 37 047/42 958 (86,24 %) | 12 127/16 528 (73,37 %) | 269 |
+| Hoja CAS, cancelación y datos tipados | 37 152/42 965 (86,47 %) | 12 161/16 532 (73,56 %) | 238 |
 
 ## Medición focal de la siguiente revisión
 

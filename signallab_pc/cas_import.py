@@ -79,7 +79,14 @@ def _value(data,notices):
         notices.extend(data.get('conditions',[]))
         notices.append('Cada medida tiene una clave. Por ejemplo, usá rN[energy] para obtener la energía.')
         return {_symbol(k):_expression(v['expression'])[0] for k,v in data['items'].items()}
-    if kind=='mapping':return {_symbol(k):_value(v,notices) for k,v in data['items'].items()}
+    if kind=='mapping':
+        result = {}
+        for label,item in data['items'].items():
+            key = _symbol(label)
+            if key in result:
+                raise ValueError(f'Los nombres de origen coinciden como {key} en CAS. Renombrá esos campos antes de importar.')
+            result[key] = _value(item,notices)
+        return result
     if kind=='list':return [_value(v,notices) for v in data['items']]
     raise ValueError('Este tipo de resultado no tiene una representación CAS disponible.')
 
