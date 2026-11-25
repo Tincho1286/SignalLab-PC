@@ -8,6 +8,7 @@ from numpy.testing import assert_allclose
 from signallab_pc import session
 from signallab_pc.model import Signal
 from signallab_pc.scientific_storage import save_binary_signal
+from signallab_pc.storage import save_json
 from test_math_dft_pilot import cli
 
 
@@ -46,3 +47,20 @@ class CoreCLITests(unittest.TestCase):
             applied,A=self.execute(root/'applied.json','dsp','fir','--signal',source,
                                    '--coefficients',.25,.5,.25,'--mode','full')
             assert_allclose(applied.get(A['result_id']).values,[.25,.5,.25,0,0])
+
+    def test_cli_rejects_unsafe_destination_and_respects_expired_deadline(self):
+        with TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, output = root / 'input.json', root / 'result.json'
+            save_json(Signal([1, 2, 3]), source)
+            original = source.read_bytes()
+            output.write_bytes(b'previous session')
+            for target, options, fragment in (
+                    (source, (), 'distinto'),
+                    (output, ('--timeout', '1e-12'), 'plazo'),
+                    (output, ('--max-work-bytes', '1'), 'presupuesto')):
+                result = cli('dft', '--signal', source, '--output', target, *options)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertIn(fragment, result.stderr)
+                self.assertEqual(source.read_bytes(), original)
+                self.assertEqual(output.read_bytes(), b'previous session')

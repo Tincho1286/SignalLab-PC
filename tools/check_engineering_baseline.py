@@ -94,7 +94,9 @@ def run(output):
     line_and_branch_coverage = None
     if not stages['coverage_json']:
         data = json.loads((output/'coverage.json').read_text(encoding='utf-8'))
-        selected = {'sampling.py', 'fourier.py', 'filters.py', 'model.py', 'session.py', 'symbolic_process.py'}
+        selected = {'sampling.py', 'fourier.py', 'filters.py', 'model.py', 'session.py', 'symbolic_process.py',
+                    'execution.py', 'dft_application.py', 'dsp_application.py', 'dsp_pipeline.py',
+                    'scientific_storage.py', 'cli_session.py', 'project.py', 'operation_provenance.py'}
         line_and_branch_coverage = {
             'total': data['totals'],
             'modules': {Path(name).name: row['summary'] for name, row in data['files'].items()

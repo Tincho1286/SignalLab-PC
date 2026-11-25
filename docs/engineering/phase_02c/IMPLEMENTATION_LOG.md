@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02C.06 · C06 · C-07
+
+**Estado inicial.** `924154a`. Se revisó la matriz de oráculos y la cobertura heredada. Se priorizaron admisión, plazos, CLI y el caso IIR de alto condicionamiento.
+
+**Decisión y evidencia.** Se conservaron el descubrimiento y los denominadores. Pasaron 7 pruebas de ejecución/CLI y 10 de sistemas. Pasaron también 31 casos de persistencia, históricos y escritorio del paso anterior. El reporte selecciona los módulos críticos por nombre, sin modificar el conjunto instrumentado.
+
+**Estado.** Cobertura definitiva a partir de los artefactos del candidato.
+
 ## 25 de noviembre de 2026 · WP-02C.05 · C05 · C-06
 
 **Estado inicial.** `b5ffa1d`. La cabecera SLBIN aceptaba claves repetidas aunque los documentos JSON de la app ya las rechazaban. Se compararon JSON, arreglos separados, contenedor y HDF5.

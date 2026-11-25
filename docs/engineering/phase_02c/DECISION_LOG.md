@@ -1,5 +1,7 @@
 # Decisiones
 
+- WP06. Conservar pruebas con efectos observables y registrar cada déficit de cobertura por componente.
+
 - WP05. Mantener JSON para proyectos y SLBIN experimental con especificación formal.
 
 - WP04. Mantener cancelación cooperativa y evitar completar una escritura descartada cuando el CLI ya conoce el estado.

@@ -135,6 +135,18 @@ class SystemContracts(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'coeficientes no nulos'):Transfer([1e-300],[1e300])
         assert_allclose(Transfer([1e-200],[1e100]).b,[1e-300],rtol=1e-14,atol=0)
 
+    def test_near_unit_pole_retains_decay_and_true_dc_gain(self):
+        from decimal import Decimal, localcontext
+
+        pole = 1 - 2**-44
+        model = Transfer([1], [1, -pole], roc={'mode': 'right'})
+        with localcontext() as ctx:
+            ctx.prec = 60
+            reference = Decimal.from_float(pole)
+            expected = [float(reference**k) for k in range(128)]
+        assert_allclose(model.excitation_response(128).values, expected, rtol=2e-14, atol=0)
+        assert_allclose(model.response([0.0]), [2.0**44], rtol=2e-14, atol=0)
+
 
 class EquationContracts(unittest.TestCase):
     def difference(self,source='0',**extra):
