@@ -1,0 +1,330 @@
+{
+  "math": {
+    "commit": "e6d0ebc9f3cf30c6f4027e998a397b8a7ec8b7f0",
+    "preventive_audit": {
+      "contract": "preventive-math-audit-v1",
+      "passed": true,
+      "seeds": [
+        20261103,
+        9805352
+      ],
+      "source_fingerprint": "00959e288e8a01c4f196e1741d6724cd409d58e74221441578e33da9e64a2b52",
+      "case_deadline_seconds": 20,
+      "expected_cases": 150,
+      "completed_cases": 150,
+      "failed_cases": 0,
+      "timeout": null,
+      "groups": {
+        "exact_scalars": {
+          "expected": 16,
+          "completed": 16,
+          "failed": 0
+        },
+        "sampled_formulas": {
+          "expected": 24,
+          "completed": 24,
+          "failed": 0
+        },
+        "z_properties": {
+          "expected": 12,
+          "completed": 12,
+          "failed": 0
+        },
+        "dtft_convergence": {
+          "expected": 18,
+          "completed": 18,
+          "failed": 0
+        },
+        "filter_limits": {
+          "expected": 14,
+          "completed": 14,
+          "failed": 0
+        },
+        "fourier_definitions": {
+          "expected": 12,
+          "completed": 12,
+          "failed": 0
+        },
+        "cosine_power": {
+          "expected": 14,
+          "completed": 14,
+          "failed": 0
+        },
+        "equation_solution": {
+          "expected": 8,
+          "completed": 8,
+          "failed": 0
+        },
+        "cas_algebra": {
+          "expected": 8,
+          "completed": 8,
+          "failed": 0
+        },
+        "complex_records": {
+          "expected": 6,
+          "completed": 6,
+          "failed": 0
+        },
+        "fir_and_conversion": {
+          "expected": 6,
+          "completed": 6,
+          "failed": 0
+        },
+        "sampling_indices": {
+          "expected": 6,
+          "completed": 6,
+          "failed": 0
+        },
+        "state_realization": {
+          "expected": 6,
+          "completed": 6,
+          "failed": 0
+        }
+      },
+      "seconds": 17.875
+    },
+    "contract": "mathematical-families-v2",
+    "passed": true,
+    "families": {
+      "transforms": {
+        "tests": 74,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 73,
+        "passed": true
+      },
+      "transform_properties": {
+        "tests": 20,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 18,
+        "passed": true
+      },
+      "preventive_regressions": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 28,
+        "passed": true
+      },
+      "health_exchange": {
+        "tests": 36,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 20,
+        "passed": true
+      },
+      "expression_systems": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 8,
+        "passed": true
+      },
+      "scalar_input": {
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 7,
+        "passed": true
+      },
+      "systems_filters": {
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 9,
+        "passed": true
+      },
+      "diagram_realizations": {
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 10,
+        "passed": true
+      },
+      "equations": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 5,
+        "passed": true
+      },
+      "fourier_measures": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 5,
+        "passed": true
+      },
+      "symbolic_fourier": {
+        "tests": 22,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 22,
+        "passed": true
+      },
+      "global_energy_power": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 23,
+        "passed": true
+      },
+      "signals_windows": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 5,
+        "passed": true
+      },
+      "state_space": {
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 2,
+        "passed": true
+      },
+      "sampling_precision": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 3,
+        "passed": true
+      },
+      "random_signals": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 1,
+        "passed": true
+      },
+      "representable_scales": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 4,
+        "passed": true
+      },
+      "axis_and_sampling_clock": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 3,
+        "passed": true
+      },
+      "clock_reuse_and_sinc_scale": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 3,
+        "passed": true
+      },
+      "sample_coordinates_and_reindexing": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 8,
+        "passed": true
+      },
+      "independent_algebra_references": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 5,
+        "passed": true
+      },
+      "algebra_support_and_boundaries": {
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "minimum": 11,
+        "passed": true
+      }
+    },
+    "tests": 297,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 132.391,
+    "python": "3.12.10",
+    "platform": "win32",
+    "sympy": "1.14.0",
+    "numpy": "2.5.0",
+    "scipy": "1.18.0"
+  },
+  "static": {
+    "commit": "e6d0ebc9f3cf30c6f4027e998a397b8a7ec8b7f0",
+    "contract": "static-action-names-v1",
+    "passed": true,
+    "files": 375,
+    "issues": [],
+    "checker_verified": true,
+    "pyflakes": "3.4.0",
+    "source_fingerprint": "52f20571e4f8ecb3ae2301b98b38a71814d2b2507547fd9fe496da6e9e6c50a3"
+  },
+  "disposable_windows": {
+    "commit": "7e1846798af6fa02bf6e60c36b22bde2a9a8dfde",
+    "executable_check": {
+      "frozen": true,
+      "migration_complete": false,
+      "checks": {
+        "fft_roundtrip": true,
+        "lti_recurrence": true,
+        "bilinear": true,
+        "symbolic_runtime": true,
+        "packaged_update_verification": true,
+        "state_space_simulation_and_project": true,
+        "digital_delay_transfer_roundtrip": true,
+        "toolbox_menu_and_matplotlib": true,
+        "sampling_plot_and_report_layout": true,
+        "project_picker_search_and_selection": true,
+        "formatted_report_preserves_text": true,
+        "packaged_symbolic_measures_and_window": true,
+        "expression_measure_menu": true
+      },
+      "versions": {
+        "numpy": "2.5.0",
+        "scipy": "1.18.0",
+        "sympy": "1.14.0",
+        "matplotlib": "3.11.2"
+      },
+      "ok": true
+    },
+    "runtime": {
+      "qt": {
+        "file": "PySide6\\Qt6Core.dll",
+        "version": "6.12.0"
+      },
+      "qt_svg": {
+        "file": "PySide6\\Qt6Svg.dll"
+      },
+      "python": {
+        "file": "python312.dll",
+        "version": "3.12.10"
+      }
+    },
+    "sha256": "dc2ceced06bd382527c8c4d5dd0aa1de9f4e6dfcb371d551dc3ac62c614bc797"
+  }
+}

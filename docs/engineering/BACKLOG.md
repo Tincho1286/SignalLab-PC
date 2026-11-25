@@ -1,6 +1,6 @@
 # Backlog priorizado de estabilización
 
-Orden sugerido para cuando se autorice la Fase 01. Los elementos con el mismo nivel pueden avanzar en paralelo si no cambian el mismo contrato. Ver [RISK_REGISTER](RISK_REGISTER.md) para el estado de evidencia.
+Prioridades de Fase 01 y condiciones de continuidad. El estado de los controles del candidato está en la [matriz de validación](VALIDATION_MATRIX.md). Los riesgos se registran en [RISK_REGISTER](RISK_REGISTER.md).
 
 | ID | Prioridad | Trabajo | Criterios de aceptación |
 | --- | --- | --- | --- |
@@ -15,4 +15,17 @@ Orden sugerido para cuando se autorice la Fase 01. Los elementos con el mismo ni
 | E09 | Media | Evidencia independiente de diseño por tolerancias y precisión finita. | Probar pasabajos/pasa banda e IIR con extremos verificados fuera de la rejilla de diseño. Para FIR estimado, indicar orden más bajo comprobado y método. Para punto fijo, comparar vectores exactos y reglas de saturación. |
 | E10 | Media | Medir acoplamiento antes de modularizar. D01–D06. | Mapa de llamadas y dependencias para un flujo de importación, cálculo y reutilización. Detectar código muerto por referencias estáticas, registro dinámico y ejecución. Mantener el resultado tras extraer la primera frontera. |
 
-El criterio para empezar Fase 02 es la salida de estabilización descrita en [ROADMAP](ROADMAP.md). Los adaptadores de laboratorios y el demostrador QPSK forman parte de fases posteriores.
+### Seguimiento de Fase 01
+
+- E01 se corrigió en la primera estable y la guarda estática del candidato pasa con 375 archivos.
+- E02 verificó los runtimes publicados y añadió una actualización de Qt al candidato. Continúan abiertos el runtime CPython y el inventario de versiones transitivas.
+- E03 se verificó para la distribución 2.0.0. El candidato se valida como rama de trabajo.
+- E04 incorpora la convención explícita, comparaciones analíticas y round trips con las versiones históricas.
+- E05 conserva el perfil offscreen en ambos sistemas e instrumenta líneas, ramas y el worker simbólico. La validación interactiva con distintas pantallas permanece abierta.
+- E06 agrega tres fixtures históricos de sesión. Ampliar la muestra a proyectos antiguos, diagramas, ROC y hojas CAS.
+- E07 cubre el presupuesto previo a leer un script MATLAB. Quedan perfiles de estrés y política común de plazos y recursos del cálculo simbólico.
+- E08 adopta las ruedas Qt Essentials de versión fija que contienen los módulos utilizados. Contrastar bibliotecas nativas empaquetadas y dependencias de sistema.
+- E09 mantiene los controles de diseño y precisión del gate. Falta ampliar referencias independientes de extremos en banda y orden mínimo.
+- E10 actualiza el grafo y propone la DFT como el único piloto mediante ADR.
+
+El criterio para empezar Fase 02 es la salida de estabilización de [ROADMAP](ROADMAP.md) y su autorización específica.

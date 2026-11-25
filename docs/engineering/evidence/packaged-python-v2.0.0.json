@@ -1,0 +1,384 @@
+{
+  "source_commit": "adfad5c093a236b0565f00f5e97845acf040ec96",
+  "scope": "Frozen module namespaces compared to the release lock. A lock version is the build input. PySide6 wheels share a namespace and native libraries are inventoried separately.",
+  "inventories": [
+    {
+      "artifact": "SignalLab-PC-2.0.0.exe",
+      "sha256": "d3dd8156d73a5d9996673d2c15c0ef4d2260a54ab394ff31be8c135d00d4ea5f",
+      "available_metadata": [
+        "cryptography-50.0.2",
+        "numpy-2.5.0"
+      ],
+      "python_root_count_including_stdlib": 142,
+      "locked_distributions": [
+        {
+          "distribution": "altgraph",
+          "lock_version": "0.17.5",
+          "frozen_python_roots": []
+        },
+        {
+          "distribution": "contourpy",
+          "lock_version": "1.4.0",
+          "frozen_python_roots": [
+            "contourpy"
+          ]
+        },
+        {
+          "distribution": "cycler",
+          "lock_version": "0.12.1",
+          "frozen_python_roots": [
+            "cycler"
+          ]
+        },
+        {
+          "distribution": "fonttools",
+          "lock_version": "4.67.0",
+          "frozen_python_roots": [
+            "fontTools"
+          ]
+        },
+        {
+          "distribution": "kiwisolver",
+          "lock_version": "1.5.1",
+          "frozen_python_roots": [
+            "kiwisolver"
+          ]
+        },
+        {
+          "distribution": "matplotlib",
+          "lock_version": "3.11.2",
+          "frozen_python_roots": [
+            "matplotlib",
+            "mpl_toolkits"
+          ]
+        },
+        {
+          "distribution": "mpmath",
+          "lock_version": "1.3.0",
+          "frozen_python_roots": [
+            "mpmath"
+          ]
+        },
+        {
+          "distribution": "numpy",
+          "lock_version": "2.5.0",
+          "frozen_python_roots": [
+            "numpy"
+          ]
+        },
+        {
+          "distribution": "h5py",
+          "lock_version": "3.16.0",
+          "frozen_python_roots": [
+            "h5py"
+          ]
+        },
+        {
+          "distribution": "packaging",
+          "lock_version": "26.3",
+          "frozen_python_roots": [
+            "packaging"
+          ]
+        },
+        {
+          "distribution": "pefile",
+          "lock_version": "2024.8.26",
+          "frozen_python_roots": []
+        },
+        {
+          "distribution": "pillow",
+          "lock_version": "13.0.0",
+          "frozen_python_roots": [
+            "PIL"
+          ]
+        },
+        {
+          "distribution": "pyinstaller",
+          "lock_version": "6.22.3",
+          "frozen_python_roots": []
+        },
+        {
+          "distribution": "pyinstaller-hooks-contrib",
+          "lock_version": "2026.9",
+          "frozen_python_roots": []
+        },
+        {
+          "distribution": "pyparsing",
+          "lock_version": "3.3.3",
+          "frozen_python_roots": [
+            "pyparsing"
+          ]
+        },
+        {
+          "distribution": "PySide6",
+          "lock_version": "6.10.0",
+          "frozen_python_roots": [
+            "PySide6"
+          ]
+        },
+        {
+          "distribution": "PySide6_Addons",
+          "lock_version": "6.10.0",
+          "frozen_python_roots": []
+        },
+        {
+          "distribution": "PySide6_Essentials",
+          "lock_version": "6.10.0",
+          "frozen_python_roots": []
+        },
+        {
+          "distribution": "python-dateutil",
+          "lock_version": "2.9.0.post0",
+          "frozen_python_roots": [
+            "dateutil"
+          ]
+        },
+        {
+          "distribution": "pywin32-ctypes",
+          "lock_version": "0.2.3",
+          "frozen_python_roots": []
+        },
+        {
+          "distribution": "scipy",
+          "lock_version": "1.18.0",
+          "frozen_python_roots": [
+            "scipy"
+          ]
+        },
+        {
+          "distribution": "setuptools",
+          "lock_version": "84.2.1",
+          "frozen_python_roots": [
+            "setuptools"
+          ]
+        },
+        {
+          "distribution": "shiboken6",
+          "lock_version": "6.10.0",
+          "frozen_python_roots": [
+            "shiboken6"
+          ]
+        },
+        {
+          "distribution": "six",
+          "lock_version": "1.17.0",
+          "frozen_python_roots": [
+            "six"
+          ]
+        },
+        {
+          "distribution": "sympy",
+          "lock_version": "1.14.0",
+          "frozen_python_roots": [
+            "sympy"
+          ]
+        },
+        {
+          "distribution": "cffi",
+          "lock_version": "2.1.1",
+          "frozen_python_roots": [
+            "cffi"
+          ]
+        },
+        {
+          "distribution": "cryptography",
+          "lock_version": "50.0.2",
+          "frozen_python_roots": [
+            "cryptography"
+          ]
+        },
+        {
+          "distribution": "pycparser",
+          "lock_version": "3.12",
+          "frozen_python_roots": [
+            "pycparser"
+          ]
+        }
+      ]
+    },
+    {
+      "artifact": "SignalLab-PC-2.0.0-linux-x86_64.tar.gz",
+      "sha256": "2e02095b66b26a1ba0b6f57c700f7c636bd51f2a8208530e523265aecf87cb3b",
+      "available_metadata": [
+        "cryptography-50.0.2",
+        "numpy-2.5.0"
+      ],
+      "python_root_count_including_stdlib": 143,
+      "locked_distributions": [
+        {
+          "distribution": "altgraph",
+          "lock_version": "0.17.5",
+          "frozen_python_roots": []
+        },
+        {
+          "distribution": "contourpy",
+          "lock_version": "1.4.0",
+          "frozen_python_roots": [
+            "contourpy"
+          ]
+        },
+        {
+          "distribution": "cycler",
+          "lock_version": "0.12.1",
+          "frozen_python_roots": [
+            "cycler"
+          ]
+        },
+        {
+          "distribution": "fonttools",
+          "lock_version": "4.67.0",
+          "frozen_python_roots": [
+            "fontTools"
+          ]
+        },
+        {
+          "distribution": "kiwisolver",
+          "lock_version": "1.5.1",
+          "frozen_python_roots": [
+            "kiwisolver"
+          ]
+        },
+        {
+          "distribution": "matplotlib",
+          "lock_version": "3.11.2",
+          "frozen_python_roots": [
+            "matplotlib",
+            "mpl_toolkits"
+          ]
+        },
+        {
+          "distribution": "mpmath",
+          "lock_version": "1.3.0",
+          "frozen_python_roots": [
+            "mpmath"
+          ]
+        },
+        {
+          "distribution": "numpy",
+          "lock_version": "2.5.0",
+          "frozen_python_roots": [
+            "numpy"
+          ]
+        },
+        {
+          "distribution": "h5py",
+          "lock_version": "3.16.0",
+          "frozen_python_roots": [
+            "h5py"
+          ]
+        },
+        {
+          "distribution": "packaging",
+          "lock_version": "26.3",
+          "frozen_python_roots": [
+            "packaging"
+          ]
+        },
+        {
+          "distribution": "pillow",
+          "lock_version": "13.0.0",
+          "frozen_python_roots": [
+            "PIL"
+          ]
+        },
+        {
+          "distribution": "pyinstaller",
+          "lock_version": "6.22.3",
+          "frozen_python_roots": []
+        },
+        {
+          "distribution": "pyinstaller-hooks-contrib",
+          "lock_version": "2026.9",
+          "frozen_python_roots": []
+        },
+        {
+          "distribution": "pyparsing",
+          "lock_version": "3.3.3",
+          "frozen_python_roots": [
+            "pyparsing"
+          ]
+        },
+        {
+          "distribution": "PySide6",
+          "lock_version": "6.10.0",
+          "frozen_python_roots": [
+            "PySide6"
+          ]
+        },
+        {
+          "distribution": "PySide6_Addons",
+          "lock_version": "6.10.0",
+          "frozen_python_roots": []
+        },
+        {
+          "distribution": "PySide6_Essentials",
+          "lock_version": "6.10.0",
+          "frozen_python_roots": []
+        },
+        {
+          "distribution": "python-dateutil",
+          "lock_version": "2.9.0.post0",
+          "frozen_python_roots": [
+            "dateutil"
+          ]
+        },
+        {
+          "distribution": "scipy",
+          "lock_version": "1.18.0",
+          "frozen_python_roots": [
+            "scipy"
+          ]
+        },
+        {
+          "distribution": "setuptools",
+          "lock_version": "84.2.1",
+          "frozen_python_roots": [
+            "setuptools"
+          ]
+        },
+        {
+          "distribution": "shiboken6",
+          "lock_version": "6.10.0",
+          "frozen_python_roots": [
+            "shiboken6"
+          ]
+        },
+        {
+          "distribution": "six",
+          "lock_version": "1.17.0",
+          "frozen_python_roots": [
+            "six"
+          ]
+        },
+        {
+          "distribution": "sympy",
+          "lock_version": "1.14.0",
+          "frozen_python_roots": [
+            "sympy"
+          ]
+        },
+        {
+          "distribution": "cffi",
+          "lock_version": "2.1.1",
+          "frozen_python_roots": [
+            "cffi"
+          ]
+        },
+        {
+          "distribution": "cryptography",
+          "lock_version": "50.0.2",
+          "frozen_python_roots": [
+            "cryptography"
+          ]
+        },
+        {
+          "distribution": "pycparser",
+          "lock_version": "3.12",
+          "frozen_python_roots": [
+            "pycparser"
+          ]
+        }
+      ]
+    }
+  ]
+}

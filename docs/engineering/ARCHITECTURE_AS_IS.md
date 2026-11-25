@@ -67,3 +67,11 @@ El diagrama agrupa módulos. La última flecha refleja dependencias de presentac
 El grafo se deriva recorriendo `ast.Import` y `ast.ImportFrom` para `main.py` y `signallab_pc/**/*.py`. Resolver los niveles relativos antes de contar los pares. Separar los nodos de importación presentes directamente en `Module.body` de las demás apariciones. Calcular componentes fuertemente conexos sobre ambas versiones del grafo. El código cargado por nombre, el metacódigo y los PyInstaller hooks se revisan aparte. Un módulo sin importadores estáticos puede ser un punto de entrada o un recurso dinámico.
 
 La arquitectura objetivo y su orden de adopción se documentan en [ROADMAP](ROADMAP.md). Los hallazgos de complejidad y duplicación están en [TECHNICAL_DEBT](TECHNICAL_DEBT.md).
+
+## Actualización de Fase 01
+
+El [grafo del candidato `e6d0ebc`](evidence/import-graph-e6d0ebc.json) contiene 375 archivos de aplicación y 48.902 líneas físicas. Se identificaron 2.033 relaciones de importación internas, 955 declaradas directamente en el nivel de módulo y 178 módulos con referencias directas a Qt o a su backend de Matplotlib. La medición resuelve las importaciones del propio paquete y cuenta su inicializador como nodo. Es un refinamiento del método de Fase 00.
+
+No aparecen componentes cíclicos de dos o más módulos al considerar únicamente declaraciones directas de nivel de módulo. Al incorporar referencias anidadas se observan cinco componentes, el mayor de 229 módulos. Las referencias se infieren del AST y pueden estar condicionadas. `toolbox` concentra 100 dependencias internas y `workbench` 45.
+
+El cálculo DFT independiente vive en `operations`, mientras que la selección de origen, lanzamiento, visualización, exportación y recuperación de borradores se conectan todavía desde adaptadores Qt. El [ADR 001](ADR-001-DFT-PILOT.md) recorta una primera frontera que se apoya en `Signal` y `Project`. El script [audit_dependencies.py](../../tools/audit_dependencies.py) reproduce el informe y puede emitir el grafo DOT completo.

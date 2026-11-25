@@ -1,6 +1,6 @@
 # Hoja de ruta de SignalLab Engineering
 
-La evolución parte del repositorio y los formatos de SignalLab PC. Esta hoja de ruta registra decisiones propuestas en Fase 00. Cada fase requiere su propia autorización, una revisión de los riesgos y criterios de salida comprobados.
+La evolución parte del repositorio y los formatos de SignalLab PC. La Fase 00 terminó con autorización condicionada para estabilizar. Cada fase requiere su propia autorización, revisión de riesgos y criterios de salida comprobados. El [estado del proyecto](PROJECT_STATE.md) registra el avance actual.
 
 ## Arquitectura objetivo
 
@@ -34,6 +34,8 @@ flowchart LR
 | `ProcessingGraph`, `Experiment` y `Provenance` | Evolucionar el diagrama de realización con puertos tipados y conexiones versionadas. Extender la relación registro/padres con parámetros normalizados, versión del motor, huellas de entradas y salidas y manifiestos de backend. |
 
 Mantener formatos antiguos legibles. Las migraciones crean una copia versionada y validan invariantes antes de reemplazar datos. Preferir adaptadores y contratos extensibles en el mismo proceso. Mantener procesos aislados para cálculo simbólico costoso y componentes externos que lo justifiquen. Documentar alternativas, política de compatibilidad, código de referencia y evidencia con ADR al implementar.
+
+La preparación de estabilización elige una sola frontera para evaluar ese diseño. El [ADR 001](ADR-001-DFT-PILOT.md) propone reutilizar el motor DFT, `Signal` y la biblioteca de resultados. Su implementación queda sujeta a la decisión de cierre y a autorización específica.
 
 ## Secuencia y criterios de salida
 
