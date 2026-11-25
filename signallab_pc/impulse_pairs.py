@@ -267,8 +267,15 @@ def fourier_pairs(value,variable,output,*,inverse=False):
         if None in terms:
             raise ValueError('Una cola de impulsos crece exponencialmente y no tiene transformada de Fourier. Usá Laplace para revisar su región de convergencia.')
         known.extend(terms)
-    for term in sp.Add.make_args(value):
+    pending = [value]
+    while pending:
+        term = pending.pop()
         checkpoint()
+        # Domain-aware parsing preserves explicit parentheses. Linearity
+        # applies to nested additions too, without rewriting impulse weights.
+        if isinstance(term, sp.Add):
+            pending.extend(reversed(term.args))
+            continue
         train=affine_train_term(term,variable)
         if train is not None:
             period,origin,area=train

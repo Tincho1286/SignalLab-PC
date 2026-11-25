@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-04 y C-07 · Fourier algebraica y ventanas con impulsos
+
+**Causa y corrección.** Al copiar una ventana continua con varias Dirac, el analizador conservaba las sumas entre paréntesis. El reconocimiento de Fourier examinaba sólo el nivel superior y confundía una suma interna con un producto indefinido de distribuciones. Se recorren los sumandos anidados antes de aplicar los pares de transformadas, conservando el peso y el soporte de cada impulso.
+
+**Evidencia focal.** Pasaron 27 pruebas con `python -m unittest test_workbench_fourier_variants test_math_study_workflows`. Se comparó la contribución ordinaria con cuadratura independiente y el aporte de las dos Dirac de borde con su fórmula cerrada. Se ejercitaron también los índices de la DTFT, el rechazo de unidades o períodos incompatibles y la copia de las condiciones de la Fourier inversa continua.
+
 ## 25 de noviembre de 2026 · C-06 y C-07 · Hoja CAS y valores tipados
 
 **Causas y cambios.** Al vaciar la hoja se conservaba un borrador del historial. Ahora se reinicia el borrador junto con sus comandos. La importación de mapas también podía sobrescribir un valor si dos etiquetas quedaban iguales al normalizar los nombres simbólicos. La importación detecta el conflicto y permite conservar la hoja previa.
