@@ -1,5 +1,9 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02B.03
+
+Se revisaron los servicios y la frontera de Project en `c77efab`. Se eligió una secuencia tipada en lugar de un grafo. Se añadieron `dsp_pipeline.py`, la CLI compartida y referencias de GUI a las herramientas existentes. Tres pruebas en Windows confirmaron oráculo de flujo, publicación, CLI sin Qt, incompatibilidades y cancelación. El tamaño retenido del flujo se tratará en WP-02B.05. Commit `phase02b(wp03): implement sequential DSP pipeline`. Sigue el benchmark de almacenamiento.
+
 ## 25 de noviembre de 2026 · WP-02B.02
 
 Tras `c9cca2c` se revisaron `operations.py`, `filters.py`, `sampling.py`, `fourier.py`, `system_clock.py` y los paneles asociados. Se descartó duplicar los motores y se añadieron solicitudes tipadas y guardas en `dsp_application.py`. Qt usa los adaptadores en IDFT, FIR, cambio de tasa y PSD. Se incorporaron oráculos de suma directa, sinc, kernel Kaiser, tonos y ruido reproducible. Pasaron seis pruebas DSP, doce de reconstrucción y la guarda estática de 380 archivos en Windows. La CLI por operación y los flujos se registran en paquetes posteriores. El commit es `phase02b(wp02): integrate typed DSP operations`.

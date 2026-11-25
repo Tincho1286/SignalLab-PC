@@ -28,6 +28,7 @@ FAMILIES={
     'dft_application_boundary':('test_math_dft_pilot.DFTPilotTests',6),
     'execution_context':('test_math_execution_context.ExecutionContractTests',2),
     'dsp_application':('test_math_dsp_application.DSPApplicationTests',6),
+    'dsp_pipeline':('test_math_dsp_pipeline.DSPPipelineTests',3),
     'random_signals':('test_math_contracts.RandomContracts',1),
     'representable_scales':('test_audit_numeric_clocks.CalculationScaleTests',4),
     'axis_and_sampling_clock':('test_audit_numeric_clocks.AxisAndClockTests',3),
