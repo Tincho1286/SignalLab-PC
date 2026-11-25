@@ -243,6 +243,10 @@ def _local_numeric_dataset(node, h5):
         return False
     if node.is_virtual or node.external:
         return False
+    creation = node.id.get_create_plist()
+    if any(creation.get_filter(index)[0] not in {1, 2, 3, 4, 5, 6, 32000}
+           for index in range(creation.get_nfilters())):
+        return False
     dtype=node.dtype
     if dtype.kind in 'biufc':
         return True
@@ -267,37 +271,15 @@ class MatlabFile:
             self.script=read_script(path);self.entries={k:v.shape for k,v in self.script.items() if v.size and v.ndim<=2}
             if not self.entries:raise ValueError('El archivo .m no define variables numéricas importables.')
             return
-        import h5py
-        ensure_working_set(self.path.stat().st_size,bytes_per_sample=1,live_arrays=4)
-        self.hdf=h5py.is_hdf5(path)
-        if self.hdf:
-            with h5py.File(path,'r') as f:
-                def visit(name,node):
-                    if name.startswith('#') or not _local_numeric_dataset(node,h5py):return
-                    cls=node.attrs.get('MATLAB_class',b'')
-                    if cls in (b'char',b'cell',b'struct',b'opaque'):return
-                    self.entries[name]=tuple(reversed(node.shape))
-                f.visititems(visit)
-        else:
-            from scipy.io import whosmat
-            for name,shape,kind in whosmat(path):
-                if kind in ('double','single','int8','uint8','int16','uint16','int32','uint32','int64','uint64','logical') and len(shape)<=2 and math.prod(shape):self.entries[name]=shape
-        if not self.entries:raise ValueError('No hay vectores ni matrices numéricas compatibles. Exportá la señal y su eje como variables numéricas.')
+        from .matlab_process import file_identity, read_mat
+        self.path = self.path.absolute()
+        self._identity = file_identity(self.path)
+        self.hdf, self.entries = read_mat(self.path, self._identity)
     def load(self,name):
         ensure_working_set(math.prod(self.entries[name]),live_arrays=6)
         if self.script is not None:return self.script[name]
-        if self.hdf:
-            import h5py
-            with h5py.File(self.path,'r') as f:
-                dataset=_local_dataset(f,name,h5py)
-                if tuple(reversed(dataset.shape))!=self.entries[name]:
-                    raise ValueError('La variable MAT cambió de dimensiones. Volvé a abrir el archivo.')
-                ensure_working_set(int(dataset.size),bytes_per_sample=max(16,dataset.dtype.itemsize),live_arrays=6)
-                result=dataset[()]
-            if result.dtype.names:result=result['real']+1j*result['imag']
-            return result.T
-        from scipy.io import loadmat
-        return loadmat(self.path,variable_names=[name])[name]
+        from .matlab_process import read_mat
+        return read_mat(self.path, self._identity, name=name, shape=self.entries[name])
 
 def vector(array,column=0):
     array=np.asarray(array)

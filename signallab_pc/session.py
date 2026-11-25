@@ -6,6 +6,10 @@ from .project import Project, read_document
 
 
 def save(path, project, workspace, *, before_commit=None, checkpoint=None):
+    if Path(path).suffix.lower() == '.slproj':
+        from .project_archive import save as save_archive
+        save_archive(path, project, workspace, before_commit=before_commit, checkpoint=checkpoint)
+        return
     if checkpoint is not None:
         checkpoint()
     document = dict(format='signallab-session', schema_version=3,
@@ -14,6 +18,10 @@ def save(path, project, workspace, *, before_commit=None, checkpoint=None):
 
 
 def load(path):
+    if Path(path).suffix.lower() == '.slproj':
+        from .project_archive import load as load_archive
+        project, workspace = load_archive(path)
+        return project, _validate_workspace(workspace) if workspace is not None else empty_workspace()
     document = read_document(path)
     if isinstance(document, dict) and document.get('format') == 'signallab-project':
         return Project.from_document(document), empty_workspace()
@@ -21,7 +29,10 @@ def load(path):
             or type(document.get('schema_version')) is not int or document['schema_version'] not in (1,2,3)):
         raise ValueError('Formato o versión de sesión SignalLab incompatible.')
     project = Project.from_document(document.get('project'))
-    workspace = document.get('workspace')
+    return project, _validate_workspace(document.get('workspace'))
+
+
+def _validate_workspace(workspace):
     if not isinstance(workspace, dict) or set(workspace) != {'tools', 'tabs', 'active'}:
         raise ValueError('El archivo no contiene un escritorio válido.')
     if not isinstance(workspace['tools'], list) or not isinstance(workspace['tabs'], list):
@@ -29,7 +40,7 @@ def load(path):
     active = workspace['active']
     if type(active) is not int or not -1 <= active < len(workspace['tabs']):
         raise ValueError('La pestaña activa de la sesión no existe.')
-    return project, workspace
+    return workspace
 
 
 def empty_workspace():

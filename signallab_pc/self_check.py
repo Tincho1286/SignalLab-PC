@@ -64,6 +64,22 @@ def run(destination):
         report['checks']['state_space_simulation_and_project'] = True
         report['checks']['digital_delay_transfer_roundtrip'] = True
         report['checks']['toolbox_menu_and_matplotlib'] = True
+        from tempfile import TemporaryDirectory
+        from scipy.io import savemat
+        from .matlab_import import MatlabFile
+        from .project import Project
+        from . import session
+        with TemporaryDirectory() as directory:
+            mat = Path(directory)/'samples.mat'
+            savemat(mat, {'samples': [2, 4, 6]}, do_compression=True)
+            np.testing.assert_array_equal(MatlabFile(mat).load('samples'), [[2, 4, 6]])
+            project = Project()
+            record = project.add(x)
+            archive = Path(directory)/'diagnostic.slproj'
+            session.save(archive, project, session.empty_workspace())
+            copy, _ = session.load(archive)
+            np.testing.assert_array_equal(copy.get(record).values, x.values)
+        report['checks']['bounded_mat_worker_and_scientific_project'] = True
         from .sampling import sample_expression
         from .project_picker import ProjectPicker
         from .report_view import ReportView

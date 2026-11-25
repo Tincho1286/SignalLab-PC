@@ -3,11 +3,41 @@ from __future__ import annotations
 
 import ctypes
 import os
+from pathlib import Path, PurePosixPath
 import sys
 
 
 class ResourceLimitError(MemoryError):
     """El cálculo solicitado excede el presupuesto de memoria de trabajo actual."""
+
+
+def _linux_memory_headroom(cgroup_file=Path('/proc/self/cgroup'), hierarchy=Path('/sys/fs/cgroup')):
+    """Apply the tightest cgroup v2 memory cap that includes this process."""
+    try:
+        lines = cgroup_file.read_text(encoding='utf-8').splitlines()
+    except OSError:
+        return None
+    scope = next((line[3:] for line in lines if line.startswith('0::')), None)
+    if scope is None:
+        return None
+    components = PurePosixPath(scope)
+    if not components.is_absolute() or '..' in components.parts:
+        return None
+    current = hierarchy.joinpath(*components.parts[1:])
+    headroom = None
+    while current == hierarchy or hierarchy in current.parents:
+        try:
+            limit = (current/'memory.max').read_text(encoding='ascii').strip()
+            if limit != 'max':
+                used = int((current/'memory.current').read_text(encoding='ascii'))
+                free = max(0, int(limit) - used)
+                headroom = free if headroom is None else min(headroom, free)
+        except (OSError, ValueError):
+            pass
+        if current == hierarchy:
+            break
+        current = current.parent
+    return headroom
 
 
 def available_physical_memory() -> int:
@@ -27,9 +57,14 @@ def available_physical_memory() -> int:
             raise OSError("Windows no pudo informar la memoria física disponible.")
         return int(status.ullAvailPhys)
     try:
-        return int(os.sysconf("SC_AVPHYS_PAGES") * os.sysconf("SC_PAGE_SIZE"))
+        physical = int(os.sysconf("SC_AVPHYS_PAGES") * os.sysconf("SC_PAGE_SIZE"))
     except (ValueError, OSError, AttributeError):
         raise OSError("No se pudo estimar la memoria física disponible en este sistema.")
+    if sys.platform == 'linux':
+        limited = _linux_memory_headroom()
+        if limited is not None:
+            return min(physical, limited)
+    return physical
 
 
 def ensure_working_set(sample_count: int, *, bytes_per_sample: int = 16,

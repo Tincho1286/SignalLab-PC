@@ -12,6 +12,10 @@ from .tool_catalog import AREA_BY_ID, locate, normalized_key
 from .toolbox import LocalInput, ToolPage
 from .workspaces import ROUTES
 
+_JSON_SESSION = 'Sesión SignalLab (*.json)'
+_BINARY_SESSION = 'Proyecto científico SignalLab (*.slproj)'
+_SESSION_FILTERS = _JSON_SESSION + ';;' + _BINARY_SESSION
+
 
 def capture(window):
     records = {record['id'] for record in window.project.headers()}
@@ -174,10 +178,12 @@ class SessionController(QObject):
         return self.window.project.dirty or capture(self.window) != self.saved
 
     def save_dialog(self):
-        path, _ = QFileDialog.getSaveFileName(self.window, 'Guardar sesión completa',
-                                               'sesion.signallab.json', 'Sesión SignalLab (*.json)')
+        path, selected = QFileDialog.getSaveFileName(self.window, 'Guardar sesión completa',
+                                                      'sesion.signallab.json', _SESSION_FILTERS)
         if not path or self.busy():
             return False
+        if selected == _BINARY_SESSION and Path(path).suffix.lower() != '.slproj':
+            path = str(Path(path).with_suffix('.slproj'))
         try:
             workspace = capture(self.window)
             session.save(path, self.window.project, workspace)
@@ -191,7 +197,7 @@ class SessionController(QObject):
 
     @staticmethod
     def scope():
-        return 'Los informes previos quedan en Resultados. La recuperación excluye gráficos abiertos, historial del CAS y borradores de editores especiales.'
+        return 'Los informes y resultados CAS publicados quedan en Resultados. La hoja CAS activa, sus variables y borradores y los gráficos abiertos pertenecen al escritorio actual.'
 
     def can_replace(self):
         if self.busy():
@@ -205,7 +211,7 @@ class SessionController(QObject):
         return button == QMessageBox.StandardButton.Discard or button == QMessageBox.StandardButton.Save and self.save_dialog()
 
     def open_dialog(self):
-        path, _ = QFileDialog.getOpenFileName(self.window, 'Abrir sesión completa', '', 'Sesión SignalLab (*.json)')
+        path, _ = QFileDialog.getOpenFileName(self.window, 'Abrir sesión completa', '', _SESSION_FILTERS)
         if path:
             self.open_path(path)
 

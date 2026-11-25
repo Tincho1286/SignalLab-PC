@@ -6,6 +6,7 @@ from threading import RLock
 from uuid import uuid4
 import json
 from math import copysign
+import numpy as np
 from .model import Signal
 from .atomic_file import write_json
 from .filters import Transfer
@@ -13,9 +14,14 @@ from .operation_provenance import content_digest, encoded_digest
 from .state_space import StateModel
 
 
-def encode(value):
+def encode(value, *, compact=False):
     if isinstance(value, Signal):
-        return 'signal', dict(values=[[float(v.real),float(v.imag)] for v in value.values],
+        samples = np.array(value.values, dtype=np.complex128, copy=True).reshape(-1) if compact else _sample_pairs(value.values)
+        if compact:
+            if not samples.size or not np.isfinite(samples).all():
+                raise ValueError('El registro requiere muestras finitas.')
+            samples.setflags(write=False)
+        return 'signal', dict(values=samples,
             origin=value.origin,step=value.step,units=value.units,name=value.name,
             domain=value.domain,expression=value.expression,metadata=deepcopy(value.metadata))
     if isinstance(value, Transfer):
@@ -31,14 +37,35 @@ def encode(value):
     raise TypeError('Tipo de objeto no admitido en el proyecto.')
 
 
+def _sample_pairs(samples):
+    return np.asarray(samples, dtype=np.complex128, order='C').view(np.float64).reshape(-1, 2).tolist()
+
+
+def _record_without_samples(record):
+    if record['kind'] != 'signal':
+        return record
+    return {**record, 'data': {k: v for k, v in record['data'].items() if k != 'values'}}
+
+
+def _export_record(record):
+    if record['kind'] != 'signal':
+        return deepcopy(record)
+    data = deepcopy(_record_without_samples(record))
+    data['data']['values'] = _sample_pairs(record['data']['values'])
+    return data
+
+
 def decode(kind,data):
-    data=deepcopy(data)
     if kind=='signal':
-        data['values']=[complex(*v) for v in data['values']];return Signal(**data)
+        samples = data['values']
+        fields = deepcopy({k: v for k, v in data.items() if k != 'values'})
+        if not isinstance(samples, np.ndarray):
+            samples = [complex(*v) for v in samples]
+        return Signal(samples, **fields)
+    data=deepcopy(data)
     if kind=='system':
         data['b']=[complex(*v) for v in data['b']];data['a']=[complex(*v) for v in data['a']];return Transfer(**data)
     if kind=='state_space':
-        import numpy as np
         for key in ('A','B','C','D'):
             matrix=data[key];data[key]=np.array([complex(*z) for z in matrix['values']]).reshape(matrix['shape'])
         return StateModel(**data)
@@ -82,12 +109,12 @@ class Project:
             self.dirty = self.dirty or staged.dirty
 
     def add(self,value,*,title=None,operation='',parents=(),tool=None,verification=None):
-        kind,data=encode(value)
+        kind,data=encode(value, compact=True)
         parents=list(dict.fromkeys(parents))
         record=dict(id=uuid4().hex,kind=kind,title=title or getattr(value,'name','Cálculo'),
                     operation=operation,parents=parents,created=datetime.now(timezone.utc).isoformat(),data=data)
         record['tool']=deepcopy(tool) if tool else None
-        json.dumps(record,allow_nan=False)
+        json.dumps(_record_without_samples(record),allow_nan=False)
         with self._records_lock:
             if any(parent not in self._records for parent in parents):raise ValueError('Origen no registrado en el proyecto.')
             if verification is not None:
@@ -124,7 +151,12 @@ class Project:
             if cache[parent] != expected:
                 raise ValueError('El origen registrado no coincide con los datos utilizados en el cálculo.')
     def records(self,kind=None):
-        return [deepcopy(r) for r in self._records.values() if kind is None or r['kind']==kind or kind=='expression' and self.expression(r['id']) is not None]
+        return [_export_record(r) for r in self._records.values() if kind is None or r['kind']==kind or kind=='expression' and self.expression(r['id']) is not None]
+
+    def _stable_records(self):
+        """Take a shallow snapshot of the internally owned, immutable records."""
+        with self._records_lock:
+            return tuple(self._records.values())
     def headers(self,kind=None):
         return [deepcopy({k:v for k,v in r.items() if k!="data"}) for r in self._records.values() if kind is None or r["kind"]==kind or kind=='expression' and self.expression(r['id']) is not None]
     def describe(self,key):
@@ -161,7 +193,7 @@ class Project:
                 if record['kind'] == 'calculation':
                     pending.extend(ref for _, _, ref in _calculated_references(record['data'].get('calculated_data'))
                                    if ref in self._records)
-        document=dict(format='signallab-project',schema_version=2,records=[deepcopy(r) for k,r in self._records.items() if k in selected])
+        document=dict(format='signallab-project',schema_version=2,records=[_export_record(r) for k,r in self._records.items() if k in selected])
         write_json(path,document)
     def get(self,key):
         record=self._records[key];value=decode(record['kind'],record['data'])
@@ -188,7 +220,11 @@ class Project:
         return periods[0] if periods and all(math.isclose(period,periods[0],rel_tol=1e-12,abs_tol=0) for period in periods) else None
     def save(self,path):
         with self._records_lock:
-            write_json(path,self.document())
+            if str(path).lower().endswith('.slproj'):
+                from .project_archive import save
+                save(path, self)
+            else:
+                write_json(path,self.document())
             self.dirty=False
 
     def document(self):
@@ -215,16 +251,18 @@ class Project:
                 raise ValueError('Registro '+str(number)+': título, operación o procedencia inválidos.')
             # Los padres deben preceder al resultado: también impide ciclos.
             if any(parent not in staging for parent in record['parents']):raise ValueError('Procedencia faltante o circular.')
-            stored = deepcopy(record)
+            stored = deepcopy(_record_without_samples(record))
             stored.setdefault('operation','')
             if isinstance(value, Signal):
+                value.values.setflags(write=False)
+                stored['data']['values'] = value.values
                 for name in ('origin','step','units','name','domain','expression'):
                     stored['data'][name] = getattr(value,name)
             elif isinstance(value, Transfer):
                 for name in ('domain','name'):
                     stored['data'][name] = getattr(value,name)
             staging[record['id']] = stored
-        json.dumps(records,allow_nan=False)
+            json.dumps(_record_without_samples(stored),allow_nan=False)
         project=cls()
         project._records=staging
         digests = {}
@@ -234,7 +272,11 @@ class Project:
         return project
 
     def merge(self,path):
-        staging=self.from_document(read_document(path))._records
+        if str(path).lower().endswith('.slproj'):
+            from .project_archive import load
+            staging = load(path)[0]._records
+        else:
+            staging = self.from_document(read_document(path))._records
         mapping={old:uuid4().hex for old in staging}
         imported={}
         for old,record in staging.items():

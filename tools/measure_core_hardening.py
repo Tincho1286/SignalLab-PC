@@ -44,13 +44,16 @@ def workload(operation, size, directory):
     conversion = ResampleRequest(source, 2, 3)
     signal_path = directory / 'samples.slbin'
     project_path = directory / 'session.json'
+    archive_path = directory / 'project.slproj'
     flat_path = directory / 'data.json'
     spectrum = dft(source) if operation == 'idft' else None
     project = Project()
-    if operation.startswith('session_'):
+    if operation.startswith(('session_', 'archive_')):
         store_dft(project, calculate_dft(DFTRequest(source)), source=source)
     if operation == 'session_load':
         session.save(project_path, project, session.empty_workspace())
+    if operation == 'archive_load':
+        session.save(archive_path, project, session.empty_workspace())
     if operation == 'slbin_read':
         save_binary_signal(source, signal_path)
     result = calculate_dft(DFTRequest(source)) if operation == 'publish' else None
@@ -68,6 +71,9 @@ def workload(operation, size, directory):
         'session_save': (lambda ctx: session.save(project_path, project, session.empty_workspace(),
                                                  checkpoint=ctx.checkpoint), None),
         'session_load': (lambda ctx: session.load(project_path), None),
+        'archive_save': (lambda ctx: session.save(archive_path, project, session.empty_workspace(),
+                                                 checkpoint=ctx.checkpoint), 16 * 2 * size),
+        'archive_load': (lambda ctx: session.load(archive_path), 16 * 2 * size * 3),
         'slbin_write': (lambda ctx: save_binary_signal(source, signal_path, ctx), 32 * size),
         'slbin_read': (lambda ctx: load_binary_signal(signal_path, ctx), 64 * size),
         'json_write': (lambda ctx: write_json(flat_path, flat, checkpoint=ctx.checkpoint), None),
@@ -174,7 +180,8 @@ def main():
     clean = not git('status', '--porcelain')
     sizes = (1024, 16384, 65536, 262144, 1048576)
     operations = {
-        **dict.fromkeys(('dft', 'idft', 'fir', 'resample', 'psd', 'pipeline', 'slbin_read', 'slbin_write'), sizes),
+        **dict.fromkeys(('dft', 'idft', 'fir', 'resample', 'psd', 'pipeline', 'slbin_read', 'slbin_write',
+                         'archive_save', 'archive_load'), sizes),
         **dict.fromkeys(('publish', 'session_save', 'session_load', 'json_write'), sizes[:4]),
         'symbolic': (1,),
     }

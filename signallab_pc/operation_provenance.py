@@ -43,7 +43,8 @@ def _content(kind, data, checkpoint, *, encoded):
     fields = {key: data[key] for key in _FIELDS[kind]}
     digest = sha256(settings_digest([kind, fields]).encode('ascii'))
     for key in ('values',) if kind == 'signal' else ('b', 'a'):
-        _update_array(digest, data[key], '<c16', checkpoint, pairs=encoded)
+        values = data[key]
+        _update_array(digest, values, '<c16', checkpoint, pairs=encoded and not isinstance(values, np.ndarray))
     if kind == 'system' and data['sos'] is not None:
         _update_array(digest, np.asarray(data['sos']), '<f8', checkpoint)
     return digest.hexdigest()

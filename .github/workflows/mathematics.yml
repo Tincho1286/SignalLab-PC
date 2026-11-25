@@ -38,6 +38,7 @@ on:
       - 'tools/check_engineering_package.py'
       - 'tools/native_sbom.py'
       - 'tools/check_candidate_update.py'
+      - 'tools/check_stable_upgrade.py'
       - 'tools/check_resource_limits.py'
       - 'tools/measure_core_hardening.py'
       - 'tools/capture_candidate_ui.py'
@@ -254,7 +255,7 @@ jobs:
           $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
           & $python -B tools/build_installers.py windows --iscc $iscc
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & $python -B tools/check_candidate_update.py "outputs/SignalLab-PC-$version-setup.exe" --iscc $iscc --output work/distribution-audit/update.json
+          & $python -B tools/check_candidate_update.py "outputs/SignalLab-PC-$version-setup.exe" --iscc $iscc --from-stable --output work/distribution-audit/update.json
       - name: Audit candidate Linux distribution
         if: runner.os == 'Linux'
         run: |
@@ -267,7 +268,7 @@ jobs:
           .venv/bin/python -B tools/native_sbom.py "outputs/SignalLab-PC-$version-linux-x86_64.tar.gz" --output work/distribution-audit
           .venv/bin/python -B tools/build_installers.py linux
           .venv/bin/python -B tests/linux_installation_contract.py
-          .venv/bin/python -B tools/check_candidate_update.py "outputs/SignalLab-PC-$version-linux-x86_64.run" --output work/distribution-audit/update.json
+          .venv/bin/python -B tools/check_candidate_update.py "outputs/SignalLab-PC-$version-linux-x86_64.run" --from-stable --output work/distribution-audit/update.json
       - name: Measure Core on Windows
         if: ${{ !cancelled() && runner.os == 'Windows' }}
         shell: pwsh

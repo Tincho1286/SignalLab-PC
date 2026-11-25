@@ -50,6 +50,7 @@ def main():
     parser.add_argument('installer', type=Path)
     parser.add_argument('--iscc', type=Path)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--from-stable', action='store_true')
     args = parser.parse_args()
     windows = sys.platform == 'win32'
     target = 'windows-x86_64' if windows else 'linux-x86_64'
@@ -87,12 +88,18 @@ def main():
         else:
             check = ['tools/check_linux_installer.py', str(path)]
         subprocess.run([sys.executable,'-B','-X','utf8',*check], cwd=ROOT, check=True, timeout=900)
+        upgrade = None
+        if args.from_stable:
+            from check_stable_upgrade import verify_upgrade
+            if not source.newer_than('2.0.0'):
+                raise RuntimeError('El salto aislado necesita un candidato posterior a la estable 2.0.0.')
+            upgrade = verify_upgrade(path, source.assets[target], folder)
     proof = json.loads((ROOT/'work'/('installer-contract-windows.json' if windows
                                    else 'installer-contract-linux.json')).read_text())
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(dict(platform=target, sha256=checksum,
         temporary_signature_verified=True, production_key_rejected_test_signature=True,
-        download_verified=True, native_installation=proof), indent=2)+'\n', encoding='utf-8')
+        download_verified=True, native_installation=proof, upgrade_from_stable=upgrade), indent=2)+'\n', encoding='utf-8')
 
 
 if __name__ == '__main__':

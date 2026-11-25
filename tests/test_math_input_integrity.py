@@ -44,5 +44,42 @@ class InputIntegrityTests(unittest.TestCase):
                     _local_dataset(file,'data/missing',h5py)
                 del file['data/x']
                 file['data/x']=[1,2,3,4]
-            with self.assertRaisesRegex(ValueError,'dimensiones'):
+            with self.assertRaisesRegex(ValueError,'cambió.*selección'):
                 reader.load('data/x')
+
+    def test_mat_classic_compressed_and_hdf_numeric_selection(self):
+        import numpy as np
+        from scipy.io import savemat
+
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / 'classic.mat'
+            wanted = np.array([[1+2j, 3], [-1, 2-3j]])
+            savemat(path, {'signal': wanted, 'text': 'ordinary text'}, do_compression=True)
+            classic = MatlabFile(path)
+            self.assertEqual(classic.entries, {'signal': (2, 2)})
+            assert_array_equal(classic.load('signal'), wanted)
+
+            path = Path(directory) / 'numeric.mat'
+            with h5py.File(path, 'w', userblock_size=512) as file:
+                file.create_dataset('signal', data=wanted.T, compression='gzip')
+                file['scalar'] = 11
+                file['external_reference'] = h5py.ExternalLink('separate.mat', '/signal')
+                file.create_dataset('oversized', shape=(4_194_305,), dtype='c16', chunks=(1024,))
+            native = MatlabFile(path)
+            self.assertEqual(native.entries['scalar'], ())
+            self.assertNotIn('external_reference', native.entries)
+            assert_array_equal(native.load('signal'), wanted)
+            self.assertEqual(native.load('scalar').item(), 11)
+            with self.assertRaisesRegex(ResourceLimitError, '64 MiB'):
+                native.load('oversized')
+
+    def test_mat_timeout_releases_the_single_reader(self):
+        from scipy.io import savemat
+
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / 'ordinary.mat'
+            savemat(path, {'signal': [1, 2]})
+            with patch('signallab_pc.matlab_process.MAT_TIMEOUT_SECONDS', 0):
+                with self.assertRaisesRegex(TimeoutError, 'lectura MAT'):
+                    MatlabFile(path)
+            assert_array_equal(MatlabFile(path).load('signal'), [[1, 2]])

@@ -17,6 +17,9 @@ def main(argv=None):
     if len(args) == 3 and args[0] == '--symbolic-job':
         from .symbolic_process import worker
         return worker(args[1], args[2])
+    if len(args) == 2 and args[0] == '--matlab-job':
+        from .matlab_process import worker
+        return worker(args[1])
     if len(args) == 2 and args[0] == '--self-check':
         from .self_check import run
         return run(args[1])

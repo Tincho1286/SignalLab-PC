@@ -1,5 +1,15 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · Continuidad 02C · E-03, E-01/02, E-06
+
+**Punto de partida.** `268baa3` documenta `459b9fc`. El análisis de ramas de `coverage.json` identificó límites de precisión, incompatibilidades de dominio, roles de procedencia, errores de selección y cancelación. Se añadieron oráculos por suma directa, energía integrada y evolución de señales, además de regresiones de integración.
+
+**Recursos y MATLAB.** El estimador Linux sólo miraba memoria física del anfitrión y el lector MAT usaba bibliotecas nativas dentro del escritorio. La admisión consulta ahora el menor margen de la jerarquía cgroup v2. La importación clásica y HDF5 se realiza en un proceso limitado por el SO, con identidad del archivo ligada a su descriptor, formatos locales, filtros permitidos, cancelación y plazo.
+
+**Persistencia.** Project duplicaba muestras como listas de objetos Python antes de guardar. Se incorporaron instantáneas NumPy y el contenedor opcional `.slproj`, con muestras binarias y manifiesto versionado en una sustitución atómica. Se conservan la API y el formato JSON. Pasaron 37 pruebas de proyectos, sesiones y flujo, y 17 de matemáticas, entrada e interoperabilidad MAT en Windows.
+
+**Distribución.** `develop` utiliza 2.0.1 como versión de candidato de auditoría. Se comprobó la firma pública del manifiesto histórico 2.0.0. La matriz verifica por separado el salto nativo con clave de ensayo y perfiles descartables. La publicación permanece fuera de este trabajo.
+
 ## 25 de noviembre de 2026 · WP-02C.11 · C11 · C-01 a C-10
 
 **Estado inicial.** Desde `d29bcb8`, referencia 02B `8ad3066`. Se descartó una corrida local con fuentes cambiantes y se cotejaron los SHA de los cuatro trabajos de la corrida definitiva 45650373957.
