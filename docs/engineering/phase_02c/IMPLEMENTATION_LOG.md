@@ -1,5 +1,17 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-05, C-06 y C-11 · Continuidad autónoma
+
+**Causas.** La admisión por solicitud dejaba el pool como opción. La recuperación automática serializaba JSON en el hilo de Qt. Las hojas CAS sólo conservaban resultados publicados. El cierre anterior agregaba evidencia de CI manualmente.
+
+**Cambios.** Se usa la reserva estimada del proceso en ExecutionContext y en la lectura y escritura de SLPROJ. El escritorio captura widgets en su hilo y envía una instantánea de datos a un escritor exclusivo. Se conservan los puntos JSON de recuperación históricos. La sesión guarda CAS con un contrato versionado, verifica las referencias de las celdas y vuelve a mostrar los resultados almacenados. Se agregó un banco de campaña y un agregador de evidencia por SHA para CI.
+
+**Validación local.** 40 pruebas focales aprobadas con CPython 3.14.10. El guardado con I/O detenido por el ensayo permitió ejecutar un temporizador de Qt y retuvo el estado anterior hasta completar la escritura. SLPROJ obtuvo 93,91 % de líneas y 86,00 % de ramas. El contrato CAS alcanzó 100 % de líneas y ramas en la muestra focal. El banco sintético local verificó 48 corridas, 288 registros y 75 497 472 muestras. Usó 1 208 085 276 bytes de disco y tuvo 150,8 MiB de RSS pico, con cálculo, guardado, reapertura y verificación en 22,7 s. Es un resultado exploratorio de Windows, previo a la matriz.
+
+**Comandos.** `python -m coverage run -m unittest test_math_project_archive test_math_cas_session test_math_dft_pilot test_math_dsp_pipeline test_desktop_session`, `coverage combine`, `coverage json`, `python tools/measure_scientific_campaign.py --output work/02c-autonomous-local/campaign-48.json` y `python tools/check_quality_gate_02c.py --input work/phase02c-ci-45673548563 --candidate faef335bb7892cda92edc50a7c4f417a89b0415c --output work/02c-autonomous-local/historical-gate`.
+
+**Pendientes de verificación.** Matriz limpia en Windows y Linux para el candidato nuevo, cobertura global, perfiles de recuperación en escritorio y condiciones externas ya registradas. [Registro maestro](audit/MASTER_TECHNICAL_DEBT_REGISTER.md)
+
 ## 25 de noviembre de 2026 · Validación de la continuidad 02C
 
 **Candidatos.** `8884ca5485f3a70b9a6d53dcf527741eac12c904` introdujo el lector MAT con cuota, `.slproj`, los oráculos de Core y la verificación del salto estable. `faef335bb7892cda92edc50a7c4f417a89b0415c` corrigió el ajuste inicial Welch, la acción compacta y el control de apertura de proyectos, y amplió el banco. El ensayo de tasas pasabanda comprobó de forma independiente el intervalo abierto 5 < Ωs < 8 para m = 2, el traspaso de Fs a muestreo y el CSV.

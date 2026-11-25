@@ -14,3 +14,25 @@
 | C-10 · 00/02B | Acoplamiento Qt heredado, cancelación y despacho duplicados en rutas antiguas. | Media · medio · P2 | Revisión de dependencias y cambios sólo en fronteras con beneficio verificable. | Abierto. Medir antes de decidir expansión. |
 
 Los SHA de resolución y el riesgo residual se registran a través de la [trazabilidad](../TRACEABILITY_MATRIX.md).
+
+## Estado de continuidad autónoma
+
+Referencias de arranque `7973a52` y `faef335`. Se cotejaron el historial de Fases 00, 01, 02A y 02B, la matriz 45673548563 y el estado limpio de develop. El registro anterior conserva la evaluación de origen.
+
+| Hallazgo | Estado vigente | Criterio y verificación siguiente | Responsable |
+| --- | --- | --- | --- |
+| C-01 · E-01 | Bloqueado externamente para distribución | Rueda o binario corregido para los avisos aplicables, SBOM y portables por plataforma. | Empaquetado |
+| C-02 · E-02 | Mitigación implementada y ya verificada en el candidato previo | Proceso MAT con cuota y plazos. Mantener alcance local y revisar aviso de h5py/HDF5 con las ruedas que lo resuelvan. | Importación |
+| C-03, C-04 | Correcciones históricas resueltas en la referencia | Repetir la suite, oráculos y 150 casos preventivos sobre cada candidato posterior. Revisar cualquier fallo científico nuevo. | Core científico |
+| C-05 · E-03 | Envolvente previa verificada. Admisión compartida ampliada | Ejecución simultánea de cálculo y guardado con rechazo previsible, liberación y reintento. Medir el nuevo candidato. | Ejecución |
+| C-06a | SLPROJ robustecido, cobertura focal de 93,91 % de líneas y 86,00 % de ramas | Matriz completa, entradas inválidas, publicaciones y compatibilidad histórica. | Persistencia |
+| C-06b | Hoja CAS v1 implementada y probada en Windows offscreen | JSON/SLPROJ, estado exacto, relaciones, restauración inerte, errores y recuperación sobre la matriz limpia. | CAS |
+| C-06c | Recuperación asíncrona implementada y probada en Windows offscreen | Instancia exclusiva, bloqueo del disco sin bloquear la GUI, cancelación al cerrar, coalescencia y recuperación JSON histórica. | Escritorio |
+| C-06d | Campaña de 48 corridas probada localmente con proyectos independientes | Repetir los hitos 1/4/8/16/32/48 en ambos runners limpios, preservar catálogo al interrumpir y verificar cada señal al abrir. | Rendimiento |
+| C-07 · E-06a/b | Pendiente | 85 % de líneas y 75 % de ramas globales sin cambiar las reglas de medición. Repriorizar con el JSON de cobertura. | QA |
+| C-08 · E-05 | Parcialmente resuelto | Flujo Windows real al 100 % documentado. Completar perfiles offscreen y reservar escritorio Linux real y multimonitor para actas disponibles. | Escritorio |
+| C-09 · E-04 | Verificación técnica previa aprobada | Repetir salto desde 2.0.0 e inventario sobre el nuevo candidato. Firma y canal público conservan evaluación propia. | Distribución |
+| C-10 y deuda D01–D10 | Seguimiento acotado a fallos comprobados | Preservar contratos Qt/Python/CLI y revisar diferencias introducidas en la persistencia y la admisión. Usar pruebas de producción y el grafo de dependencias. | Arquitectura |
+| C-11 | Gate automático incorporado | Acreditar que faltantes, SHA cruzados y porcentajes insuficientes figuran como tales. Ejecutar sobre la matriz final. | QA |
+
+Los nuevos resultados locales son exploratorios hasta que se validen en un mismo SHA limpio en Windows y Linux. [Evidencia histórica](../validation/evidence/ci-faef335.json)
