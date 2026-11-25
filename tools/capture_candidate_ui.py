@@ -11,7 +11,8 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-PROFILES = ((640,480,1), (800,600,1.25), (960,640,1.5), (1280,800,1))
+PROFILES = ((640,420,1), (1366,768,1), (1366,768,1.25),
+            (1366,768,1.5), (1920,1080,1), (960,540,2), (1920,1080,2))
 
 
 def capture(output, width, height, hold):
@@ -36,21 +37,34 @@ def capture(output, width, height, hold):
             app.processEvents()
             if hold:
                 return app.exec()
-            sampling = ROUTES['sampling',0]
-            for name, route in (('inicio',None), ('muestreo',sampling), ('cas',CAS_ROUTE)):
-                if route is not None:
-                    window.open_tool(route)
-                if route==sampling:
-                    panel = window.pages[tuple(route)].panel
+            views = [
+                ('inicio', None), ('dft', ('basic', 'dft')), ('idft', ('basic', 'idft')),
+                ('fir', ('course_tools', 'fir')), ('iir', ('course_tools', 'iir')),
+                ('muestreo', ('sampling', 0)), ('resampling', ('rational_resampling', 0)),
+                ('psd', ('fourier', 7)), ('resultados', None), ('cas', None),
+            ]
+            captures = {}
+            for name, key in views:
+                if key is not None:
+                    window.open_tool(ROUTES[key])
+                elif name == 'resultados':
+                    window.show_menu('Proyecto')
+                elif name == 'cas':
+                    window.open_tool(CAS_ROUTE)
+                if name == 'muestreo':
+                    panel = window.pages[tuple(ROUTES[key])].panel
                     panel._accept_signal(sample_expression('cos(2*pi*t)',0,32,65))
                 app.processEvents()
-                if not window.grab().save(str(output/f'{name}.png')):
+                shot = window.grab()
+                if not shot.save(str(output/f'{name}.png')):
                     raise RuntimeError('No se pudo guardar la vista de auditoría.')
+                captures[name] = [shot.width(), shot.height()]
             screen = window.screen()
             (output/'profile.json').write_text(json.dumps(dict(
                 qt_platform=app.platformName(), window=[window.width(),window.height()],
+                requested_window=[width,height], minimum_window=[window.minimumWidth(),window.minimumHeight()],
                 screen=[screen.size().width(),screen.size().height()], scale=screen.devicePixelRatio(),
-                dpi=screen.logicalDotsPerInch(), views=['inicio','muestreo','cas']),indent=2)+'\n')
+                dpi=screen.logicalDotsPerInch(), captures_pixels=captures),indent=2)+'\n')
             # These views create an unsaved session even with a clean project library.
             # The audit uses a disposable profile and has no session to preserve.
             with patch.object(window, 'session_has_changes', return_value=False):

@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02C.08 · C08 · C-08
+
+**Estado inicial.** `825ecfb`. El capturador heredado abría tres vistas con tamaños y escalas parciales. Se amplió a diez vistas y siete perfiles. Se inspeccionó el escritorio Windows real en modo compacto desde el buscador hasta el gráfico DFT.
+
+**Evidencia.** Se generaron diez capturas por perfil offscreen en Windows para las seis combinaciones iniciales. La matriz definitiva agrega 960 × 540 al 200 %. Un gráfico de DFT muestra la fase de residuos numéricos; se registra como cuestión de legibilidad.
+
+**Estado.** Protocolo reproducible disponible. Falta una validación real adicional de escalas y Linux.
+
 ## 25 de noviembre de 2026 · WP-02C.07 · C07 · C-05
 
 **Estado inicial.** `c1bc5b2`, con perfiles previos que medían núcleos y almacenamiento por separado. El banco nuevo cubre 57 perfiles y conserva los efectos de memoria, cache y archivos.

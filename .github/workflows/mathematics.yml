@@ -261,7 +261,7 @@ jobs:
           python -m venv .venv
           .venv/bin/python -m pip install --only-binary=:all: -r requirements-lock.txt -r requirements-quality.txt
           .venv/bin/python -B tools/check_resource_limits.py --output work/distribution-audit/resources.json
-          xvfb-run -a -s '-screen 0 1920x1080x24' .venv/bin/python -B tools/capture_candidate_ui.py --output work/distribution-audit/ui
+          xvfb-run -a -s '-screen 0 4096x2304x24' .venv/bin/python -B tools/capture_candidate_ui.py --output work/distribution-audit/ui
           bash build_portable_linux.sh
           version=$(.venv/bin/python -B -c 'from signallab_pc import __version__; print(__version__)')
           .venv/bin/python -B tools/native_sbom.py "outputs/SignalLab-PC-$version-linux-x86_64.tar.gz" --output work/distribution-audit
@@ -273,6 +273,11 @@ jobs:
         shell: pwsh
         run: |
           & '.\.venv\Scripts\python.exe' -B -X utf8 tools/measure_core_hardening.py --output work/distribution-audit/core-performance.json
+      - name: Capture Windows audit views
+        if: ${{ !cancelled() && runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          & '.\.venv\Scripts\python.exe' -B -X utf8 tools/capture_candidate_ui.py --output work/distribution-audit/ui
       - name: Measure Core on Linux
         if: ${{ !cancelled() && runner.os == 'Linux' }}
         run: |
