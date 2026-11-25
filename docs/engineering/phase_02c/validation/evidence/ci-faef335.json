@@ -1,0 +1,3612 @@
+{
+  "run": 45673548563,
+  "platforms": {
+    "windows": {
+      "candidate": "faef335bb7892cda92edc50a7c4f417a89b0415c",
+      "runtime": "3.14.10",
+      "passed": true,
+      "tests": 890,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "preventive": {
+        "passed": true,
+        "completed_cases": 150,
+        "failed_cases": 0,
+        "seeds": [
+          20261103,
+          162961610
+        ]
+      },
+      "coverage": {
+        "lines": 78.666,
+        "branches": 64.597,
+        "target_lines": 85,
+        "target_branches": 75,
+        "meets_lines": false,
+        "meets_branches": false
+      },
+      "totals": {
+        "covered_lines": 33370,
+        "num_statements": 42420,
+        "covered_branches": 10550,
+        "num_branches": 16332
+      },
+      "covered_modules": {
+        "cli_session.py": {
+          "lines": 96.875,
+          "branches": 100.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "dft_application.py": {
+          "lines": 100.0,
+          "branches": 100.0,
+          "target_lines": null,
+          "target_branches": 85,
+          "meets_lines": null,
+          "meets_branches": true
+        },
+        "dsp_application.py": {
+          "lines": 98.507,
+          "branches": 90.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "dsp_pipeline.py": {
+          "lines": 96.269,
+          "branches": 95.455,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "execution.py": {
+          "lines": 100.0,
+          "branches": 100.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "fourier.py": {
+          "lines": 99.611,
+          "branches": 85.714,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "operation_provenance.py": {
+          "lines": 94.34,
+          "branches": 85.0,
+          "target_lines": null,
+          "target_branches": 85,
+          "meets_lines": null,
+          "meets_branches": true
+        },
+        "project.py": {
+          "lines": 95.62,
+          "branches": 85.507,
+          "target_lines": null,
+          "target_branches": 85,
+          "meets_lines": null,
+          "meets_branches": true
+        },
+        "project_archive.py": {
+          "lines": 86.111,
+          "branches": 64.0,
+          "target_lines": null,
+          "target_branches": null,
+          "meets_lines": null,
+          "meets_branches": null
+        },
+        "sampling.py": {
+          "lines": 99.671,
+          "branches": 93.846,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "scientific_storage.py": {
+          "lines": 94.737,
+          "branches": 90.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        }
+      },
+      "packaged_diagnostics": {
+        "fft_roundtrip": true,
+        "lti_recurrence": true,
+        "bilinear": true,
+        "symbolic_runtime": true,
+        "packaged_update_verification": true,
+        "state_space_simulation_and_project": true,
+        "digital_delay_transfer_roundtrip": true,
+        "toolbox_menu_and_matplotlib": true,
+        "bounded_mat_worker_and_scientific_project": true,
+        "sampling_plot_and_report_layout": true,
+        "project_picker_search_and_selection": true,
+        "formatted_report_preserves_text": true,
+        "packaged_symbolic_measures_and_window": true,
+        "expression_measure_menu": true
+      },
+      "distribution_commit": "faef335bb7892cda92edc50a7c4f417a89b0415c",
+      "native_files": 219,
+      "host_tls": [],
+      "native_runtime": {
+        "qt": {
+          "file": "PySide6\\Qt6Core.dll",
+          "version": "6.12.0"
+        },
+        "qt_svg": {
+          "file": "PySide6\\Qt6Svg.dll"
+        },
+        "python": {
+          "file": "python314.dll",
+          "version": "3.14.10"
+        },
+        "cryptography_openssl": {
+          "version_text": "OpenSSL 4.0.3 29 Sep 2026",
+          "matched_file": "cryptography\\hazmat\\bindings\\_rust.pyd",
+          "sha256": "1d4332a447cab13dec8e3a533ad579e0e562b79e40822c931f33769758fc7156"
+        }
+      },
+      "artifact_sha256": "d2138d471b520b608d89211aa4373c314c37cc116dafc4f46f001eba3be86d32",
+      "native_unconfirmed": [],
+      "native_origin_packages": [
+        [
+          "CPython",
+          "CPython",
+          "3.14.10"
+        ],
+        [
+          "PyPI",
+          "PySide6_Essentials",
+          "6.12.0"
+        ],
+        [
+          "PyPI",
+          "cffi",
+          "2.1.1"
+        ],
+        [
+          "PyPI",
+          "contourpy",
+          "1.4.0"
+        ],
+        [
+          "PyPI",
+          "cryptography",
+          "50.0.2"
+        ],
+        [
+          "PyPI",
+          "h5py",
+          "3.16.0"
+        ],
+        [
+          "PyPI",
+          "kiwisolver",
+          "1.5.1"
+        ],
+        [
+          "PyPI",
+          "matplotlib",
+          "3.11.2"
+        ],
+        [
+          "PyPI",
+          "numpy",
+          "2.5.0"
+        ],
+        [
+          "PyPI",
+          "pillow",
+          "13.0.0"
+        ],
+        [
+          "PyPI",
+          "scipy",
+          "1.18.0"
+        ],
+        [
+          "PyPI",
+          "shiboken6",
+          "6.12.0"
+        ]
+      ],
+      "native_python_notice_check": [
+        {
+          "package": "CPython",
+          "version": "3.14.10",
+          "license_expression": "PSF-2.0",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/Python/LICENSE.txt": "935cf13e19f8c31b497d20b05d73623431a226b230c3599bc30fa3348979bc68"
+          }
+        },
+        {
+          "package": "PySide6_Essentials",
+          "version": "6.12.0",
+          "license_expression": null,
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/PySide6_Essentials/pyside6_essentials-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+          }
+        },
+        {
+          "package": "cffi",
+          "version": "2.1.1",
+          "license_expression": "MIT-0",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/cffi/cffi-2.1.1.dist-info/licenses/LICENSE": "6b0fa4a0249011c398c67fc8138d7cd9f264d816d60f2c26bb169900f24d0617"
+          }
+        },
+        {
+          "package": "contourpy",
+          "version": "1.4.0",
+          "license_expression": "BSD-3-Clause",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/contourpy/contourpy-1.4.0.dist-info/licenses/LICENSE": "0e55e86a8fbf3e9b482ae8dc9e111e1b0dc09a7d300e7f480dda68c1125ed614"
+          }
+        },
+        {
+          "package": "cryptography",
+          "version": "50.0.2",
+          "license_expression": "Apache-2.0 OR BSD-3-Clause",
+          "notice_count": 3,
+          "notice_sha256": {
+            "LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE": "089d2e6abab324bda36cc4b032b9c39954b39b488ec92973f314ffe922dce4bc",
+            "LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE.APACHE": "e8de1a7393457e9c88768b78e6ba790622fbefb040ce48194c2cb0f1b6d4e9ff",
+            "LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE.BSD": "661d18932dd84bb263a8ee418ab7774ed94eec33c83fd1db5b533f78eb774ca4"
+          }
+        },
+        {
+          "package": "h5py",
+          "version": "3.16.0",
+          "license_expression": "BSD-3-Clause",
+          "notice_count": 7,
+          "notice_sha256": {
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/LICENSE": "b773bc7cf038637a7fd8087648cc28e05f0f24d53770d1827147a40a1d268ab5",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/hdf5.txt": "d7c1924744336633bbaac5626107ab55c961715abc9f71744443e43a4db3f194",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/license.txt": "9a6333afbf5c391994fe3e9f5241accb8c22a23eb50b2e7e9b00ea57dccf29d0",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/pytables.txt": "635a613f100d7ee01946fa52413f612cfe402b01f5cc139c221898f25d04b057",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/python.txt": "f44efbbdac3232645854843bec8e8a206621aab6c5d5cc3e4c3e838a2aa6d0cb",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/stdint.txt": "30b76942adcfe2517aa56e7a81644b412a2a29d14ac5f0d299a567ec54a295e5",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/lzf/LICENSE.txt": "d7b37a2bda245d5199b84a04cf4d91b899b4ad687076c8e0a92d792b521fd464"
+          }
+        },
+        {
+          "package": "kiwisolver",
+          "version": "1.5.1",
+          "license_expression": null,
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/kiwisolver/kiwisolver-1.5.1.dist-info/licenses/LICENSE": "b24c2bf6185f31a124ad6bacccae3071bdc7ad7882de00b00110aa62abb76a15"
+          }
+        },
+        {
+          "package": "matplotlib",
+          "version": "3.11.2",
+          "license_expression": null,
+          "notice_count": 3,
+          "notice_sha256": {
+            "LICENSES/matplotlib/matplotlib-3.11.2.dist-info/LICENSE": "8727104bcd93313371a7ea8a6798c2eadd5fac36b52f5aaa7a613f65dc69e90b",
+            "LICENSES/matplotlib/matplotlib/mpl-data/fonts/ttf/LICENSE_DEJAVU": "c61ba9e8668a511cbd0bcfdee8329e02ca6ca4048abda6ca7ee8ac68a059776a",
+            "LICENSES/matplotlib/matplotlib/mpl-data/fonts/ttf/LICENSE_STIX": "20742462c1dc14913b39f00ca1e06a2e9885b64b593a06de4209066988dbdb8e"
+          }
+        },
+        {
+          "package": "numpy",
+          "version": "2.5.0",
+          "license_expression": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+          "notice_count": 20,
+          "notice_sha256": {
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/LICENSE.txt": "9a7c3fddd888d6dd3a9e20361910c01eb5e00c92513bf159c2cee48e8a853a06",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/include/numpy/libdivide/LICENSE.txt": "d544761558b510866c21f7e8a2d5716fca76e0b98117e3b6b86314db7244d150",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/common/pythoncapi-compat/COPYING": "aea41976c720f91bd19725c16916a1ace40eb1ea42620d340e587a5de4bbcea0",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/highway/LICENSE": "d208152e2777ffd0126eacc1bd21c0320d69e4e6b622d21a2a12a47e8ef73763",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/multiarray/dragon4_LICENSE.txt": "b0fd592d4ead563148e3977e7b589169d46a5ef2ff133c755a81af880a3fc919",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md": "211e7d737d6179a08f791ebb0a99897ce7cd2457410c542876d125576edfe910",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/umath/svml/LICENSE": "585483905b13d4b42f800c55ba99e89d6e2e33ccd5f503e201c07531d148ff41",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md": "a85ca13fdf90160b64a0698215868c13b74d835ad0a4e2ba44713b8c5058a056",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/linalg/lapack_lite/LICENSE.txt": "19060ef465e1797d682ee0fc3081bd25ab1395e995e43d25c9d13c95d9a3cd6b",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/ma/LICENSE": "d78dbb208b80d92b4d333e41a4baae50d12444f46e53199fa7726a91de6e2da7",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/LICENSE.md": "103166b62b80443afb9eb3488e052ea06be0cff566b908f199e561fde49af19f",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/distributions/LICENSE.md": "469778be8f33d54e1bcaab28c281cc472916d2d273f835e55bc487d30503face",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md": "0e111337b25494a773106695f0e799f642b8567aaacca4f116a74a8177179156",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md": "e7d4f4fb20358f314210a892ae17351e04993813646f697ec387385ca2a36918",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/philox/LICENSE.md": "6f5828a57223d4cc7f8ea505a2623e7b978b242752c1515e355f46ba2cec1800",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md": "9d4098846018319cd68e228ee6220361787f73bccbf00237a85e4fc9621b998f",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md": "268b0ca06759d31ea3ca68dd35f20e877916e927b1c2a835e4592a3c4354b1f9",
+            "LICENSES/numpy/numpy/_core/include/numpy/random/LICENSE.txt": "d544761558b510866c21f7e8a2d5716fca76e0b98117e3b6b86314db7244d150",
+            "LICENSES/numpy/numpy/ma/LICENSE": "d78dbb208b80d92b4d333e41a4baae50d12444f46e53199fa7726a91de6e2da7",
+            "LICENSES/numpy/numpy/random/LICENSE.md": "103166b62b80443afb9eb3488e052ea06be0cff566b908f199e561fde49af19f"
+          }
+        },
+        {
+          "package": "pillow",
+          "version": "13.0.0",
+          "license_expression": "MIT-CMU",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/pillow/pillow-13.0.0.dist-info/licenses/LICENSE": "58a804e817de2d02bb1776d4ac8a2cffdc7b10056a411a154bdae36297b13365"
+          }
+        },
+        {
+          "package": "scipy",
+          "version": "1.18.0",
+          "license_expression": null,
+          "notice_count": 5,
+          "notice_sha256": {
+            "LICENSES/scipy/scipy-1.18.0.dist-info/LICENSE.txt": "9336855f8367bffb4bc45de4ca752683deb750412166f8c0e9993f61687e81d9",
+            "LICENSES/scipy/scipy/_lib/_uarray/LICENSE": "e4c4acc31e8287066d7c995d26e3ef902ca1977ee187b260b11c278366503811",
+            "LICENSES/scipy/scipy/fft/_duccfft/LICENSE.md": "c254b2b5fd30ae3c89d36ba061730563b9760fca04f1b746a1b2c3157da2c789",
+            "LICENSES/scipy/scipy/integrate/LICENSE_DOP": "6cc2ed6e35b8f376ff3d8f86aeef4e0c34c2309bd6f4a0565936d577839ba023",
+            "LICENSES/scipy/scipy/spatial/qhull_src/COPYING_QHULL.txt": "2a6ebb495e26dd5f88cbc40c593733da6edb27b64936f70409cd5a1acafb1c32"
+          }
+        },
+        {
+          "package": "shiboken6",
+          "version": "6.12.0",
+          "license_expression": null,
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/shiboken6/shiboken6-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+          }
+        }
+      ],
+      "upgrade_from_stable": {
+        "from": "2.0.0",
+        "to": "2.0.1",
+        "stable_sha256": "261dbd5ffd82adcf61cd33305532b37498e5cfdb673d3082b0c8b8638abfa487",
+        "candidate_sha256": "f7a41a4d8252278863804bf745df12f78e4de6601cca02436cd7ac4349b3e322",
+        "session_preserved": true,
+        "corrupt_download_rejected": true,
+        "native_handoff": true,
+        "in_place": true
+      },
+      "installer_checks": [
+        "native_upgrade_same_installation",
+        "per_user_registration",
+        "uninstall_preserves_untracked_files",
+        "real_installed_application_self_check",
+        "native_downgrade_rejected"
+      ],
+      "disposable_manifest": true,
+      "benchmark": {
+        "candidate": "faef335bb7892cda92edc50a7c4f417a89b0415c",
+        "clean_checkout": true,
+        "profiles": 67,
+        "cpu": "AMD64 Family 26 Model 2 Stepping 1, AuthenticAMD",
+        "selected": [
+          {
+            "operation": "dft",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6280381999999918,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 14520033280,
+            "peak_before_bytes": 113479680,
+            "peak_after_bytes": 124354560,
+            "files_bytes": {},
+            "wall_samples": [
+              0.014711199999965174,
+              0.014352099999996426,
+              0.014222500000073524
+            ],
+            "cpu_samples": [
+              0.015625,
+              0.0,
+              0.015625
+            ],
+            "wall_median_seconds": 0.014352099999996426,
+            "cpu_median_seconds": 0.015625
+          },
+          {
+            "operation": "dft",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.6384464000000207,
+            "work_estimate_bytes": 134217728,
+            "available_bytes": 14479233024,
+            "peak_before_bytes": 144781312,
+            "peak_after_bytes": 186884096,
+            "files_bytes": {},
+            "wall_samples": [
+              0.06068029999994451,
+              0.06212890000006155,
+              0.06481640000004063
+            ],
+            "cpu_samples": [
+              0.046875,
+              0.0625,
+              0.078125
+            ],
+            "wall_median_seconds": 0.06212890000006155,
+            "cpu_median_seconds": 0.0625
+          },
+          {
+            "operation": "idft",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6533491999999796,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 14508351488,
+            "peak_before_bytes": 120078336,
+            "peak_after_bytes": 120160256,
+            "files_bytes": {},
+            "wall_samples": [
+              0.013173800000004121,
+              0.013175199999977849,
+              0.013016099999958897
+            ],
+            "cpu_samples": [
+              0.015625,
+              0.015625,
+              0.015625
+            ],
+            "wall_median_seconds": 0.013173800000004121,
+            "cpu_median_seconds": 0.015625
+          },
+          {
+            "operation": "idft",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.7242721000000074,
+            "work_estimate_bytes": 134217728,
+            "available_bytes": 14466101248,
+            "peak_before_bytes": 170049536,
+            "peak_after_bytes": 170131456,
+            "files_bytes": {},
+            "wall_samples": [
+              0.055742000000009284,
+              0.05409450000001925,
+              0.05385399999988749
+            ],
+            "cpu_samples": [
+              0.046875,
+              0.0625,
+              0.046875
+            ],
+            "wall_median_seconds": 0.05409450000001925,
+            "cpu_median_seconds": 0.046875
+          },
+          {
+            "operation": "fir",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6265068000000156,
+            "work_estimate_bytes": 33558400,
+            "available_bytes": 14534639616,
+            "peak_before_bytes": 113922048,
+            "peak_after_bytes": 116203520,
+            "files_bytes": {},
+            "wall_samples": [
+              0.015004999999973734,
+              0.014937700000018594,
+              0.014996999999993932
+            ],
+            "cpu_samples": [
+              0.015625,
+              0.015625,
+              0.015625
+            ],
+            "wall_median_seconds": 0.014996999999993932,
+            "cpu_median_seconds": 0.015625
+          },
+          {
+            "operation": "fir",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.6449718000000075,
+            "work_estimate_bytes": 134221696,
+            "available_bytes": 14500859904,
+            "peak_before_bytes": 145182720,
+            "peak_after_bytes": 154865664,
+            "files_bytes": {},
+            "wall_samples": [
+              0.05855100000007951,
+              0.0576167000000396,
+              0.060578999999961525
+            ],
+            "cpu_samples": [
+              0.0625,
+              0.046875,
+              0.0625
+            ],
+            "wall_median_seconds": 0.05855100000007951,
+            "cpu_median_seconds": 0.0625
+          },
+          {
+            "operation": "resample",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.637106400000107,
+            "work_estimate_bytes": 111863808,
+            "available_bytes": 14512783360,
+            "peak_before_bytes": 113532928,
+            "peak_after_bytes": 113532928,
+            "files_bytes": {},
+            "wall_samples": [
+              0.012946300000066913,
+              0.012964199999942139,
+              0.012809500000003027
+            ],
+            "cpu_samples": [
+              0.015625,
+              0.015625,
+              0.015625
+            ],
+            "wall_median_seconds": 0.012946300000066913,
+            "cpu_median_seconds": 0.015625
+          },
+          {
+            "operation": "resample",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.6502591999999368,
+            "work_estimate_bytes": 447408128,
+            "available_bytes": 14507618304,
+            "peak_before_bytes": 144982016,
+            "peak_after_bytes": 144982016,
+            "files_bytes": {},
+            "wall_samples": [
+              0.049521000000027016,
+              0.049361000000089916,
+              0.050467799999978524
+            ],
+            "cpu_samples": [
+              0.0625,
+              0.03125,
+              0.0625
+            ],
+            "wall_median_seconds": 0.049521000000027016,
+            "cpu_median_seconds": 0.0625
+          },
+          {
+            "operation": "psd",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6569229000000405,
+            "work_estimate_bytes": 65536,
+            "available_bytes": 14518329344,
+            "peak_before_bytes": 113778688,
+            "peak_after_bytes": 113778688,
+            "files_bytes": {},
+            "wall_samples": [
+              0.06147199999998065,
+              0.06158970000001318,
+              0.06178699999998116
+            ],
+            "cpu_samples": [
+              0.0625,
+              0.0625,
+              0.0625
+            ],
+            "wall_median_seconds": 0.06158970000001318,
+            "cpu_median_seconds": 0.0625
+          },
+          {
+            "operation": "psd",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.6611813000000666,
+            "work_estimate_bytes": 65536,
+            "available_bytes": 14507786240,
+            "peak_before_bytes": 145092608,
+            "peak_after_bytes": 145092608,
+            "files_bytes": {},
+            "wall_samples": [
+              0.24233609999998862,
+              0.24670869999999923,
+              0.24480000000005475
+            ],
+            "cpu_samples": [
+              0.25,
+              0.234375,
+              0.25
+            ],
+            "wall_median_seconds": 0.24480000000005475,
+            "cpu_median_seconds": 0.25
+          },
+          {
+            "operation": "pipeline",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6620670999999447,
+            "work_estimate_bytes": 124451328,
+            "available_bytes": 14527356928,
+            "peak_before_bytes": 113725440,
+            "peak_after_bytes": 139374592,
+            "files_bytes": {},
+            "wall_samples": [
+              0.09580180000000382,
+              0.09638660000007349,
+              0.0955508000000691
+            ],
+            "cpu_samples": [
+              0.09375,
+              0.09375,
+              0.09375
+            ],
+            "wall_median_seconds": 0.09580180000000382,
+            "cpu_median_seconds": 0.09375
+          },
+          {
+            "operation": "pipeline",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.6723129999999173,
+            "work_estimate_bytes": 497744384,
+            "available_bytes": 14506692608,
+            "peak_before_bytes": 145448960,
+            "peak_after_bytes": 245006336,
+            "files_bytes": {},
+            "wall_samples": [
+              0.39867709999998624,
+              0.40212029999997867,
+              0.3955574000000297
+            ],
+            "cpu_samples": [
+              0.390625,
+              0.40625,
+              0.390625
+            ],
+            "wall_median_seconds": 0.39867709999998624,
+            "cpu_median_seconds": 0.390625
+          },
+          {
+            "operation": "slbin_read",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.689229800000021,
+            "work_estimate_bytes": 16777216,
+            "available_bytes": 14552375296,
+            "peak_before_bytes": 113778688,
+            "peak_after_bytes": 113778688,
+            "files_bytes": {
+              "samples.slbin": 4194481
+            },
+            "wall_samples": [
+              0.004510500000037609,
+              0.0045558000000482934,
+              0.00460540000005949
+            ],
+            "cpu_samples": [
+              0.0,
+              0.0,
+              0.015625
+            ],
+            "wall_median_seconds": 0.0045558000000482934,
+            "cpu_median_seconds": 0.0
+          },
+          {
+            "operation": "slbin_read",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.7778966999999284,
+            "work_estimate_bytes": 67108864,
+            "available_bytes": 14522642432,
+            "peak_before_bytes": 144850944,
+            "peak_after_bytes": 144850944,
+            "files_bytes": {
+              "samples.slbin": 16777394
+            },
+            "wall_samples": [
+              0.01673849999997401,
+              0.01670009999998001,
+              0.016609700000003613
+            ],
+            "cpu_samples": [
+              0.015625,
+              0.015625,
+              0.015625
+            ],
+            "wall_median_seconds": 0.01670009999998001,
+            "cpu_median_seconds": 0.015625
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6353290000000698,
+            "work_estimate_bytes": 8388608,
+            "available_bytes": 14526013440,
+            "peak_before_bytes": 113623040,
+            "peak_after_bytes": 113623040,
+            "files_bytes": {
+              "samples.slbin": 4194481
+            },
+            "wall_samples": [
+              0.03544859999999517,
+              0.03720109999994747,
+              0.03618730000005144
+            ],
+            "cpu_samples": [
+              0.0,
+              0.015625,
+              0.0
+            ],
+            "wall_median_seconds": 0.03618730000005144,
+            "cpu_median_seconds": 0.0
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.6459636000000728,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 14505992192,
+            "peak_before_bytes": 145674240,
+            "peak_after_bytes": 145674240,
+            "files_bytes": {
+              "samples.slbin": 16777394
+            },
+            "wall_samples": [
+              0.10676079999996091,
+              0.10592499999995653,
+              0.10694269999999051
+            ],
+            "cpu_samples": [
+              0.03125,
+              0.015625,
+              0.0
+            ],
+            "wall_median_seconds": 0.10676079999996091,
+            "cpu_median_seconds": 0.015625
+          },
+          {
+            "operation": "archive_save",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6540208999999777,
+            "work_estimate_bytes": 8388608,
+            "available_bytes": 14517022720,
+            "peak_before_bytes": 124293120,
+            "peak_after_bytes": 124293120,
+            "files_bytes": {
+              "project.slproj": 8390142
+            },
+            "wall_samples": [
+              0.05855700000006436,
+              0.059857899999997244,
+              0.056763100000011946
+            ],
+            "cpu_samples": [
+              0.0,
+              0.0,
+              0.03125
+            ],
+            "wall_median_seconds": 0.05855700000006436,
+            "cpu_median_seconds": 0.0
+          },
+          {
+            "operation": "archive_save",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.7410504999999148,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 14474588160,
+            "peak_before_bytes": 187359232,
+            "peak_after_bytes": 187359232,
+            "files_bytes": {
+              "project.slproj": 33555971
+            },
+            "wall_samples": [
+              0.20733300000006238,
+              0.19655429999988883,
+              0.1936303999999609
+            ],
+            "cpu_samples": [
+              0.03125,
+              0.046875,
+              0.015625
+            ],
+            "wall_median_seconds": 0.19655429999988883,
+            "cpu_median_seconds": 0.03125
+          },
+          {
+            "operation": "archive_load",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.7715077999999949,
+            "work_estimate_bytes": 25165824,
+            "available_bytes": 14540197888,
+            "peak_before_bytes": 124272640,
+            "peak_after_bytes": 124272640,
+            "files_bytes": {
+              "project.slproj": 8390142
+            },
+            "wall_samples": [
+              0.013282599999911326,
+              0.013678400000003421,
+              0.01340760000005048
+            ],
+            "cpu_samples": [
+              0.0,
+              0.015625,
+              0.015625
+            ],
+            "wall_median_seconds": 0.01340760000005048,
+            "cpu_median_seconds": 0.015625
+          },
+          {
+            "operation": "archive_load",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.9587530999999672,
+            "work_estimate_bytes": 100663296,
+            "available_bytes": 14510870528,
+            "peak_before_bytes": 187183104,
+            "peak_after_bytes": 187183104,
+            "files_bytes": {
+              "project.slproj": 33555971
+            },
+            "wall_samples": [
+              0.05004750000000513,
+              0.050700200000051154,
+              0.052310900000065885
+            ],
+            "cpu_samples": [
+              0.046875,
+              0.0625,
+              0.03125
+            ],
+            "wall_median_seconds": 0.050700200000051154,
+            "cpu_median_seconds": 0.046875
+          },
+          {
+            "operation": "publish",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6592780999999377,
+            "work_estimate_bytes": null,
+            "available_bytes": 14538973184,
+            "peak_before_bytes": 124411904,
+            "peak_after_bytes": 124411904,
+            "files_bytes": {},
+            "wall_samples": [
+              0.0060798999999178704,
+              0.0058977999999569874,
+              0.0058549000000311935
+            ],
+            "cpu_samples": [
+              0.0,
+              0.0,
+              0.015625
+            ],
+            "wall_median_seconds": 0.0058977999999569874,
+            "cpu_median_seconds": 0.0
+          },
+          {
+            "operation": "session_save",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6812926000000061,
+            "work_estimate_bytes": null,
+            "available_bytes": 14538211328,
+            "peak_before_bytes": 124276736,
+            "peak_after_bytes": 191590400,
+            "files_bytes": {
+              "session.json": 48590767
+            },
+            "wall_samples": [
+              2.1142364999999472,
+              2.0892584999999144,
+              2.07636320000006
+            ],
+            "cpu_samples": [
+              1.859375,
+              1.859375,
+              1.875
+            ],
+            "wall_median_seconds": 2.0892584999999144,
+            "cpu_median_seconds": 1.859375
+          },
+          {
+            "operation": "session_load",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 2.5482679000000417,
+            "work_estimate_bytes": null,
+            "available_bytes": 14543589376,
+            "peak_before_bytes": 195207168,
+            "peak_after_bytes": 241016832,
+            "files_bytes": {
+              "session.json": 48590767
+            },
+            "wall_samples": [
+              0.3723878999999215,
+              0.3769939000000022,
+              0.37987299999997504
+            ],
+            "cpu_samples": [
+              0.375,
+              0.359375,
+              0.40625
+            ],
+            "wall_median_seconds": 0.3769939000000022,
+            "cpu_median_seconds": 0.375
+          },
+          {
+            "operation": "json_write",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.654789199999982,
+            "work_estimate_bytes": null,
+            "available_bytes": 14516744192,
+            "peak_before_bytes": 117940224,
+            "peak_after_bytes": 117940224,
+            "files_bytes": {
+              "data.json": 6194970
+            },
+            "wall_samples": [
+              0.26574200000004566,
+              0.2842549000000645,
+              0.28697349999993094
+            ],
+            "cpu_samples": [
+              0.234375,
+              0.234375,
+              0.234375
+            ],
+            "wall_median_seconds": 0.2842549000000645,
+            "cpu_median_seconds": 0.234375
+          },
+          {
+            "operation": "symbolic",
+            "samples": 1,
+            "status": "measured",
+            "seconds_setup": 0.6648970999999619,
+            "work_estimate_bytes": null,
+            "available_bytes": 14549516288,
+            "peak_before_bytes": 103034880,
+            "peak_after_bytes": 103092224,
+            "files_bytes": {},
+            "wall_samples": [
+              0.6957502000000204,
+              0.7380103000000418,
+              0.6982562999999118
+            ],
+            "cpu_samples": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "wall_median_seconds": 0.6982562999999118,
+            "cpu_median_seconds": 0.0
+          }
+        ],
+        "cancellation": [
+          {
+            "operation": "dft",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.014971199999990858,
+            "latency_seconds": 0.00012139999989813077,
+            "files_preserved": true
+          },
+          {
+            "operation": "idft",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.003973800000039773,
+            "latency_seconds": 0.0034765999999990527,
+            "files_preserved": true
+          },
+          {
+            "operation": "fir",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.012138499999991836,
+            "latency_seconds": 0.001628900000014255,
+            "files_preserved": true
+          },
+          {
+            "operation": "resample",
+            "samples": 262144,
+            "status": "completed_before_acknowledgement"
+          },
+          {
+            "operation": "psd",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.01338450000002922,
+            "latency_seconds": 0.0014032999999926687,
+            "files_preserved": true
+          },
+          {
+            "operation": "pipeline",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0008376000000680506,
+            "latency_seconds": 0.0001641999999719701,
+            "files_preserved": true
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0019320999999763444,
+            "latency_seconds": 0.0020468000000164466,
+            "files_preserved": true
+          },
+          {
+            "operation": "archive_save",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.008288300000003801,
+            "latency_seconds": 0.0016391999999996187,
+            "files_preserved": true
+          },
+          {
+            "operation": "dft",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.012501999999926738,
+            "latency_seconds": 0.0282771000000821,
+            "files_preserved": true
+          },
+          {
+            "operation": "idft",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.015442000000007283,
+            "latency_seconds": 0.015532399999983681,
+            "files_preserved": true
+          },
+          {
+            "operation": "fir",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.005736599999977443,
+            "latency_seconds": 0.03310579999993024,
+            "files_preserved": true
+          },
+          {
+            "operation": "resample",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.008191100000090046,
+            "latency_seconds": 0.01804549999997107,
+            "files_preserved": true
+          },
+          {
+            "operation": "psd",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.014344100000016624,
+            "latency_seconds": 0.0015313000000105603,
+            "files_preserved": true
+          },
+          {
+            "operation": "pipeline",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.00539600000001883,
+            "latency_seconds": 0.00010080000004109024,
+            "files_preserved": true
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.006423300000051313,
+            "latency_seconds": 0.0012947999999823878,
+            "files_preserved": true
+          },
+          {
+            "operation": "archive_save",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0072508999999172374,
+            "latency_seconds": 0.0014908000000559696,
+            "files_preserved": true
+          },
+          {
+            "operation": "json_write",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0062656000000060885,
+            "latency_seconds": 0.0030428000000028987,
+            "files_preserved": true
+          }
+        ],
+        "symbolic_cancellation": {
+          "dtft_seconds_after_signal": 3.8600000038968574e-05,
+          "symbolic_seconds_after_signal": 0.06422150000003057,
+          "worker_exit": 1,
+          "symbolic_temporary_removed": true,
+          "symbolic_cancel_from_launch_seconds": 0.15
+        }
+      },
+      "captured_ui_profiles": {
+        "1366x768-1": {
+          "qt_platform": "offscreen",
+          "window": [
+            1366,
+            768
+          ],
+          "requested_window": [
+            1366,
+            768
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            800,
+            800
+          ],
+          "scale": 1.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1366,
+              768
+            ],
+            "dft": [
+              1366,
+              768
+            ],
+            "idft": [
+              1366,
+              768
+            ],
+            "fir": [
+              1366,
+              768
+            ],
+            "iir": [
+              1366,
+              768
+            ],
+            "muestreo": [
+              1366,
+              768
+            ],
+            "resampling": [
+              1366,
+              768
+            ],
+            "psd": [
+              1366,
+              768
+            ],
+            "resultados": [
+              1366,
+              768
+            ],
+            "cas": [
+              1366,
+              768
+            ]
+          }
+        },
+        "1366x768-1.25": {
+          "qt_platform": "offscreen",
+          "window": [
+            1366,
+            768
+          ],
+          "requested_window": [
+            1366,
+            768
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            640,
+            640
+          ],
+          "scale": 1.25,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1708,
+              960
+            ],
+            "dft": [
+              1708,
+              960
+            ],
+            "idft": [
+              1708,
+              960
+            ],
+            "fir": [
+              1708,
+              960
+            ],
+            "iir": [
+              1708,
+              960
+            ],
+            "muestreo": [
+              1708,
+              960
+            ],
+            "resampling": [
+              1708,
+              960
+            ],
+            "psd": [
+              1708,
+              960
+            ],
+            "resultados": [
+              1708,
+              960
+            ],
+            "cas": [
+              1708,
+              960
+            ]
+          }
+        },
+        "1366x768-1.5": {
+          "qt_platform": "offscreen",
+          "window": [
+            1366,
+            768
+          ],
+          "requested_window": [
+            1366,
+            768
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            533,
+            533
+          ],
+          "scale": 1.5,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              2049,
+              1152
+            ],
+            "dft": [
+              2049,
+              1152
+            ],
+            "idft": [
+              2049,
+              1152
+            ],
+            "fir": [
+              2049,
+              1152
+            ],
+            "iir": [
+              2049,
+              1152
+            ],
+            "muestreo": [
+              2049,
+              1152
+            ],
+            "resampling": [
+              2049,
+              1152
+            ],
+            "psd": [
+              2049,
+              1152
+            ],
+            "resultados": [
+              2049,
+              1152
+            ],
+            "cas": [
+              2049,
+              1152
+            ]
+          }
+        },
+        "1920x1080-1": {
+          "qt_platform": "offscreen",
+          "window": [
+            1920,
+            1080
+          ],
+          "requested_window": [
+            1920,
+            1080
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            800,
+            800
+          ],
+          "scale": 1.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1920,
+              1080
+            ],
+            "dft": [
+              1920,
+              1080
+            ],
+            "idft": [
+              1920,
+              1080
+            ],
+            "fir": [
+              1920,
+              1080
+            ],
+            "iir": [
+              1920,
+              1080
+            ],
+            "muestreo": [
+              1920,
+              1080
+            ],
+            "resampling": [
+              1920,
+              1080
+            ],
+            "psd": [
+              1920,
+              1080
+            ],
+            "resultados": [
+              1920,
+              1080
+            ],
+            "cas": [
+              1920,
+              1080
+            ]
+          }
+        },
+        "1920x1080-2": {
+          "qt_platform": "offscreen",
+          "window": [
+            1920,
+            1080
+          ],
+          "requested_window": [
+            1920,
+            1080
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            400,
+            400
+          ],
+          "scale": 2.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              3840,
+              2160
+            ],
+            "dft": [
+              3840,
+              2160
+            ],
+            "idft": [
+              3840,
+              2160
+            ],
+            "fir": [
+              3840,
+              2160
+            ],
+            "iir": [
+              3840,
+              2160
+            ],
+            "muestreo": [
+              3840,
+              2160
+            ],
+            "resampling": [
+              3840,
+              2160
+            ],
+            "psd": [
+              3840,
+              2160
+            ],
+            "resultados": [
+              3840,
+              2160
+            ],
+            "cas": [
+              3840,
+              2160
+            ]
+          }
+        },
+        "640x420-1": {
+          "qt_platform": "offscreen",
+          "window": [
+            640,
+            420
+          ],
+          "requested_window": [
+            640,
+            420
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            800,
+            800
+          ],
+          "scale": 1.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              640,
+              420
+            ],
+            "dft": [
+              640,
+              420
+            ],
+            "idft": [
+              640,
+              420
+            ],
+            "fir": [
+              640,
+              420
+            ],
+            "iir": [
+              640,
+              420
+            ],
+            "muestreo": [
+              640,
+              420
+            ],
+            "resampling": [
+              640,
+              420
+            ],
+            "psd": [
+              640,
+              420
+            ],
+            "resultados": [
+              640,
+              420
+            ],
+            "cas": [
+              640,
+              420
+            ]
+          }
+        },
+        "960x540-2": {
+          "qt_platform": "offscreen",
+          "window": [
+            960,
+            540
+          ],
+          "requested_window": [
+            960,
+            540
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            400,
+            400
+          ],
+          "scale": 2.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1920,
+              1080
+            ],
+            "dft": [
+              1920,
+              1080
+            ],
+            "idft": [
+              1920,
+              1080
+            ],
+            "fir": [
+              1920,
+              1080
+            ],
+            "iir": [
+              1920,
+              1080
+            ],
+            "muestreo": [
+              1920,
+              1080
+            ],
+            "resampling": [
+              1920,
+              1080
+            ],
+            "psd": [
+              1920,
+              1080
+            ],
+            "resultados": [
+              1920,
+              1080
+            ],
+            "cas": [
+              1920,
+              1080
+            ]
+          }
+        }
+      },
+      "baseline_stages": {
+        "coverage_combine": 0,
+        "coverage_json": 0,
+        "integral": 0,
+        "static": 0
+      }
+    },
+    "linux": {
+      "candidate": "faef335bb7892cda92edc50a7c4f417a89b0415c",
+      "runtime": "3.14.10",
+      "passed": true,
+      "tests": 890,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "preventive": {
+        "passed": true,
+        "completed_cases": 150,
+        "failed_cases": 0,
+        "seeds": [
+          20261103,
+          162961610
+        ]
+      },
+      "coverage": {
+        "lines": 78.609,
+        "branches": 64.585,
+        "target_lines": 85,
+        "target_branches": 75,
+        "meets_lines": false,
+        "meets_branches": false
+      },
+      "totals": {
+        "covered_lines": 33346,
+        "num_statements": 42420,
+        "covered_branches": 10548,
+        "num_branches": 16332
+      },
+      "covered_modules": {
+        "cli_session.py": {
+          "lines": 96.875,
+          "branches": 100.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "dft_application.py": {
+          "lines": 100.0,
+          "branches": 100.0,
+          "target_lines": null,
+          "target_branches": 85,
+          "meets_lines": null,
+          "meets_branches": true
+        },
+        "dsp_application.py": {
+          "lines": 98.507,
+          "branches": 90.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "dsp_pipeline.py": {
+          "lines": 96.269,
+          "branches": 95.455,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "execution.py": {
+          "lines": 100.0,
+          "branches": 100.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "fourier.py": {
+          "lines": 99.611,
+          "branches": 85.714,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "operation_provenance.py": {
+          "lines": 94.34,
+          "branches": 85.0,
+          "target_lines": null,
+          "target_branches": 85,
+          "meets_lines": null,
+          "meets_branches": true
+        },
+        "project.py": {
+          "lines": 95.62,
+          "branches": 85.507,
+          "target_lines": null,
+          "target_branches": 85,
+          "meets_lines": null,
+          "meets_branches": true
+        },
+        "project_archive.py": {
+          "lines": 86.111,
+          "branches": 64.0,
+          "target_lines": null,
+          "target_branches": null,
+          "meets_lines": null,
+          "meets_branches": null
+        },
+        "sampling.py": {
+          "lines": 99.671,
+          "branches": 93.846,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "scientific_storage.py": {
+          "lines": 94.737,
+          "branches": 90.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        }
+      },
+      "packaged_diagnostics": {
+        "fft_roundtrip": true,
+        "lti_recurrence": true,
+        "bilinear": true,
+        "symbolic_runtime": true,
+        "packaged_update_verification": true,
+        "state_space_simulation_and_project": true,
+        "digital_delay_transfer_roundtrip": true,
+        "toolbox_menu_and_matplotlib": true,
+        "bounded_mat_worker_and_scientific_project": true,
+        "sampling_plot_and_report_layout": true,
+        "project_picker_search_and_selection": true,
+        "formatted_report_preserves_text": true,
+        "packaged_symbolic_measures_and_window": true,
+        "expression_measure_menu": true
+      },
+      "distribution_commit": "faef335bb7892cda92edc50a7c4f417a89b0415c",
+      "native_files": 391,
+      "host_tls": [
+        [
+          "Ubuntu",
+          "libssl3:amd64",
+          "3.0.2-0ubuntu1.30"
+        ]
+      ],
+      "native_runtime": {
+        "qt": {
+          "file": "PySide6/Qt/lib/libQt6Core.so.6",
+          "version": "6.12.0"
+        },
+        "qt_svg": {
+          "file": "PySide6/Qt/lib/libQt6Svg.so.6"
+        },
+        "python": {
+          "file": "libpython3.14.so.1.0",
+          "version": "3.14.10"
+        },
+        "cryptography_openssl": {
+          "version_text": "OpenSSL 4.0.3 29 Sep 2026",
+          "matched_file": "cryptography/hazmat/bindings/_rust.abi3.so",
+          "sha256": "1e5d23fa66915204b9b67202a46993844d81cda56f6ad52cead2def37617ee29"
+        }
+      },
+      "artifact_sha256": "ea7e27e97bd5938ffdfc72cde967026808f3a54c678a83294e49c7644fd10e1d",
+      "native_unconfirmed": [],
+      "native_origin_packages": [
+        [
+          "CPython",
+          "CPython",
+          "3.14.10"
+        ],
+        [
+          "PyPI",
+          "PySide6_Essentials",
+          "6.12.0"
+        ],
+        [
+          "PyPI",
+          "cffi",
+          "2.1.1"
+        ],
+        [
+          "PyPI",
+          "contourpy",
+          "1.4.0"
+        ],
+        [
+          "PyPI",
+          "cryptography",
+          "50.0.2"
+        ],
+        [
+          "PyPI",
+          "h5py",
+          "3.16.0"
+        ],
+        [
+          "PyPI",
+          "kiwisolver",
+          "1.5.1"
+        ],
+        [
+          "PyPI",
+          "matplotlib",
+          "3.11.2"
+        ],
+        [
+          "PyPI",
+          "numpy",
+          "2.5.0"
+        ],
+        [
+          "PyPI",
+          "pillow",
+          "13.0.0"
+        ],
+        [
+          "PyPI",
+          "scipy",
+          "1.18.0"
+        ],
+        [
+          "PyPI",
+          "shiboken6",
+          "6.12.0"
+        ],
+        [
+          "Ubuntu",
+          "libatk-bridge2.0-0:amd64",
+          "2.38.0-3"
+        ],
+        [
+          "Ubuntu",
+          "libatk1.0-0:amd64",
+          "2.36.0-3build1"
+        ],
+        [
+          "Ubuntu",
+          "libatspi2.0-0:amd64",
+          "2.44.0-3"
+        ],
+        [
+          "Ubuntu",
+          "libblkid1:amd64",
+          "2.37.2-4ubuntu3.6"
+        ],
+        [
+          "Ubuntu",
+          "libbrotli1:amd64",
+          "1.0.9-2ubuntu0.1"
+        ],
+        [
+          "Ubuntu",
+          "libbsd0:amd64",
+          "0.11.5-1"
+        ],
+        [
+          "Ubuntu",
+          "libbz2-1.0:amd64",
+          "1.0.8-5ubuntu0.1"
+        ],
+        [
+          "Ubuntu",
+          "libcairo-gobject2:amd64",
+          "1.16.0-5ubuntu2.1"
+        ],
+        [
+          "Ubuntu",
+          "libcairo2:amd64",
+          "1.16.0-5ubuntu2.1"
+        ],
+        [
+          "Ubuntu",
+          "libcap2:amd64",
+          "1:2.44-1ubuntu0.22.04.3"
+        ],
+        [
+          "Ubuntu",
+          "libcom-err2:amd64",
+          "1.46.5-2ubuntu1.2"
+        ],
+        [
+          "Ubuntu",
+          "libdatrie1:amd64",
+          "0.2.13-2"
+        ],
+        [
+          "Ubuntu",
+          "libdbus-1-3:amd64",
+          "1.12.20-2ubuntu4.1"
+        ],
+        [
+          "Ubuntu",
+          "libepoxy0:amd64",
+          "1.5.10-1"
+        ],
+        [
+          "Ubuntu",
+          "libexpat1:amd64",
+          "2.4.7-1ubuntu0.9"
+        ],
+        [
+          "Ubuntu",
+          "libffi8:amd64",
+          "3.4.2-4"
+        ],
+        [
+          "Ubuntu",
+          "libfontconfig1:amd64",
+          "2.13.1-4.2ubuntu5"
+        ],
+        [
+          "Ubuntu",
+          "libfreetype6:amd64",
+          "2.11.1+dfsg-1ubuntu0.4"
+        ],
+        [
+          "Ubuntu",
+          "libfribidi0:amd64",
+          "1.0.8-2ubuntu3.1"
+        ],
+        [
+          "Ubuntu",
+          "libgcc-s1:amd64",
+          "12.3.0-1ubuntu1~22.04.3"
+        ],
+        [
+          "Ubuntu",
+          "libgcrypt20:amd64",
+          "1.9.4-3ubuntu3.3"
+        ],
+        [
+          "Ubuntu",
+          "libgdk-pixbuf-2.0-0:amd64",
+          "2.42.8+dfsg-1ubuntu0.5"
+        ],
+        [
+          "Ubuntu",
+          "libglib2.0-0:amd64",
+          "2.72.4-0ubuntu2.11"
+        ],
+        [
+          "Ubuntu",
+          "libgpg-error0:amd64",
+          "1.43-3"
+        ],
+        [
+          "Ubuntu",
+          "libgraphite2-3:amd64",
+          "1.3.14-1ubuntu0.1"
+        ],
+        [
+          "Ubuntu",
+          "libgssapi-krb5-2:amd64",
+          "1.19.2-2ubuntu0.10"
+        ],
+        [
+          "Ubuntu",
+          "libgtk-3-0:amd64",
+          "3.24.33-1ubuntu2.2"
+        ],
+        [
+          "Ubuntu",
+          "libharfbuzz0b:amd64",
+          "2.7.4-1ubuntu3.2"
+        ],
+        [
+          "Ubuntu",
+          "libjpeg-turbo8:amd64",
+          "2.1.2-0ubuntu1"
+        ],
+        [
+          "Ubuntu",
+          "libk5crypto3:amd64",
+          "1.19.2-2ubuntu0.10"
+        ],
+        [
+          "Ubuntu",
+          "libkeyutils1:amd64",
+          "1.6.1-2ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libkrb5-3:amd64",
+          "1.19.2-2ubuntu0.10"
+        ],
+        [
+          "Ubuntu",
+          "libkrb5support0:amd64",
+          "1.19.2-2ubuntu0.10"
+        ],
+        [
+          "Ubuntu",
+          "liblz4-1:amd64",
+          "1.9.3-2build2"
+        ],
+        [
+          "Ubuntu",
+          "liblzma5:amd64",
+          "5.2.5-2ubuntu1.2"
+        ],
+        [
+          "Ubuntu",
+          "libmd0:amd64",
+          "1.0.4-1build1"
+        ],
+        [
+          "Ubuntu",
+          "libmount1:amd64",
+          "2.37.2-4ubuntu3.6"
+        ],
+        [
+          "Ubuntu",
+          "libpango-1.0-0:amd64",
+          "1.50.6+ds-2ubuntu1"
+        ],
+        [
+          "Ubuntu",
+          "libpangocairo-1.0-0:amd64",
+          "1.50.6+ds-2ubuntu1"
+        ],
+        [
+          "Ubuntu",
+          "libpangoft2-1.0-0:amd64",
+          "1.50.6+ds-2ubuntu1"
+        ],
+        [
+          "Ubuntu",
+          "libpcre2-8-0:amd64",
+          "10.39-3ubuntu0.2"
+        ],
+        [
+          "Ubuntu",
+          "libpcre3:amd64",
+          "2:8.39-13ubuntu0.22.04.1"
+        ],
+        [
+          "Ubuntu",
+          "libpixman-1-0:amd64",
+          "0.40.0-1ubuntu0.22.04.1"
+        ],
+        [
+          "Ubuntu",
+          "libpng16-16:amd64",
+          "1.6.37-3ubuntu0.7"
+        ],
+        [
+          "Ubuntu",
+          "libreadline8:amd64",
+          "8.1.2-1"
+        ],
+        [
+          "Ubuntu",
+          "libselinux1:amd64",
+          "3.3-1build2"
+        ],
+        [
+          "Ubuntu",
+          "libssl3:amd64",
+          "3.0.2-0ubuntu1.30"
+        ],
+        [
+          "Ubuntu",
+          "libstdc++6:amd64",
+          "12.3.0-1ubuntu1~22.04.3"
+        ],
+        [
+          "Ubuntu",
+          "libsystemd0:amd64",
+          "249.11-0ubuntu3.23"
+        ],
+        [
+          "Ubuntu",
+          "libthai0:amd64",
+          "0.1.29-1build1"
+        ],
+        [
+          "Ubuntu",
+          "libtinfo6:amd64",
+          "6.3-2ubuntu0.3"
+        ],
+        [
+          "Ubuntu",
+          "libuuid1:amd64",
+          "2.37.2-4ubuntu3.6"
+        ],
+        [
+          "Ubuntu",
+          "libx11-6:amd64",
+          "2:1.7.5-1ubuntu0.4"
+        ],
+        [
+          "Ubuntu",
+          "libx11-xcb1:amd64",
+          "2:1.7.5-1ubuntu0.4"
+        ],
+        [
+          "Ubuntu",
+          "libxau6:amd64",
+          "1:1.0.9-1build5"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-cursor0:amd64",
+          "0.1.1-4ubuntu1"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-glx0:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-icccm4:amd64",
+          "0.4.1-1.1build2"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-image0:amd64",
+          "0.4.0-2"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-keysyms1:amd64",
+          "0.4.0-1build3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-randr0:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-render-util0:amd64",
+          "0.3.9-1build3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-render0:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-shape0:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-shm0:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-sync1:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-util1:amd64",
+          "0.4.0-1build2"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-xfixes0:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-xkb1:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcomposite1:amd64",
+          "1:0.4.5-1build2"
+        ],
+        [
+          "Ubuntu",
+          "libxcursor1:amd64",
+          "1:1.2.0-2build4"
+        ],
+        [
+          "Ubuntu",
+          "libxdamage1:amd64",
+          "1:1.1.5-2build2"
+        ],
+        [
+          "Ubuntu",
+          "libxdmcp6:amd64",
+          "1:1.1.3-0ubuntu5"
+        ],
+        [
+          "Ubuntu",
+          "libxext6:amd64",
+          "2:1.3.4-1build1"
+        ],
+        [
+          "Ubuntu",
+          "libxfixes3:amd64",
+          "1:6.0.0-1"
+        ],
+        [
+          "Ubuntu",
+          "libxi6:amd64",
+          "2:1.8-1build1"
+        ],
+        [
+          "Ubuntu",
+          "libxinerama1:amd64",
+          "2:1.1.4-3"
+        ],
+        [
+          "Ubuntu",
+          "libxkbcommon-x11-0:amd64",
+          "1.4.0-1"
+        ],
+        [
+          "Ubuntu",
+          "libxkbcommon0:amd64",
+          "1.4.0-1"
+        ],
+        [
+          "Ubuntu",
+          "libxrandr2:amd64",
+          "2:1.5.2-1build1"
+        ],
+        [
+          "Ubuntu",
+          "libxrender1:amd64",
+          "1:0.9.10-1build4"
+        ],
+        [
+          "Ubuntu",
+          "libzstd1:amd64",
+          "1.4.8+dfsg-3build1"
+        ],
+        [
+          "Ubuntu",
+          "zlib1g:amd64",
+          "1:1.2.11.dfsg-2ubuntu9.2"
+        ]
+      ],
+      "native_python_notice_check": [
+        {
+          "package": "CPython",
+          "version": "3.14.10",
+          "license_expression": "PSF-2.0",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/Python/LICENSE.txt": "935cf13e19f8c31b497d20b05d73623431a226b230c3599bc30fa3348979bc68"
+          }
+        },
+        {
+          "package": "PySide6_Essentials",
+          "version": "6.12.0",
+          "license_expression": null,
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/PySide6_Essentials/pyside6_essentials-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+          }
+        },
+        {
+          "package": "cffi",
+          "version": "2.1.1",
+          "license_expression": "MIT-0",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/cffi/cffi-2.1.1.dist-info/licenses/LICENSE": "6b0fa4a0249011c398c67fc8138d7cd9f264d816d60f2c26bb169900f24d0617"
+          }
+        },
+        {
+          "package": "contourpy",
+          "version": "1.4.0",
+          "license_expression": "BSD-3-Clause",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/contourpy/contourpy-1.4.0.dist-info/licenses/LICENSE": "0e55e86a8fbf3e9b482ae8dc9e111e1b0dc09a7d300e7f480dda68c1125ed614"
+          }
+        },
+        {
+          "package": "cryptography",
+          "version": "50.0.2",
+          "license_expression": "Apache-2.0 OR BSD-3-Clause",
+          "notice_count": 3,
+          "notice_sha256": {
+            "LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE": "089d2e6abab324bda36cc4b032b9c39954b39b488ec92973f314ffe922dce4bc",
+            "LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE.APACHE": "e8de1a7393457e9c88768b78e6ba790622fbefb040ce48194c2cb0f1b6d4e9ff",
+            "LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE.BSD": "661d18932dd84bb263a8ee418ab7774ed94eec33c83fd1db5b533f78eb774ca4"
+          }
+        },
+        {
+          "package": "h5py",
+          "version": "3.16.0",
+          "license_expression": "BSD-3-Clause",
+          "notice_count": 7,
+          "notice_sha256": {
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/LICENSE": "b773bc7cf038637a7fd8087648cc28e05f0f24d53770d1827147a40a1d268ab5",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/hdf5.txt": "d7c1924744336633bbaac5626107ab55c961715abc9f71744443e43a4db3f194",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/license.txt": "9a6333afbf5c391994fe3e9f5241accb8c22a23eb50b2e7e9b00ea57dccf29d0",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/pytables.txt": "635a613f100d7ee01946fa52413f612cfe402b01f5cc139c221898f25d04b057",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/python.txt": "f44efbbdac3232645854843bec8e8a206621aab6c5d5cc3e4c3e838a2aa6d0cb",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/stdint.txt": "30b76942adcfe2517aa56e7a81644b412a2a29d14ac5f0d299a567ec54a295e5",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/lzf/LICENSE.txt": "d7b37a2bda245d5199b84a04cf4d91b899b4ad687076c8e0a92d792b521fd464"
+          }
+        },
+        {
+          "package": "kiwisolver",
+          "version": "1.5.1",
+          "license_expression": null,
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/kiwisolver/kiwisolver-1.5.1.dist-info/licenses/LICENSE": "b24c2bf6185f31a124ad6bacccae3071bdc7ad7882de00b00110aa62abb76a15"
+          }
+        },
+        {
+          "package": "matplotlib",
+          "version": "3.11.2",
+          "license_expression": null,
+          "notice_count": 3,
+          "notice_sha256": {
+            "LICENSES/matplotlib/matplotlib-3.11.2.dist-info/LICENSE": "8727104bcd93313371a7ea8a6798c2eadd5fac36b52f5aaa7a613f65dc69e90b",
+            "LICENSES/matplotlib/matplotlib/mpl-data/fonts/ttf/LICENSE_DEJAVU": "c61ba9e8668a511cbd0bcfdee8329e02ca6ca4048abda6ca7ee8ac68a059776a",
+            "LICENSES/matplotlib/matplotlib/mpl-data/fonts/ttf/LICENSE_STIX": "20742462c1dc14913b39f00ca1e06a2e9885b64b593a06de4209066988dbdb8e"
+          }
+        },
+        {
+          "package": "numpy",
+          "version": "2.5.0",
+          "license_expression": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+          "notice_count": 20,
+          "notice_sha256": {
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/LICENSE.txt": "9a7c3fddd888d6dd3a9e20361910c01eb5e00c92513bf159c2cee48e8a853a06",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/include/numpy/libdivide/LICENSE.txt": "d544761558b510866c21f7e8a2d5716fca76e0b98117e3b6b86314db7244d150",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/common/pythoncapi-compat/COPYING": "aea41976c720f91bd19725c16916a1ace40eb1ea42620d340e587a5de4bbcea0",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/highway/LICENSE": "d208152e2777ffd0126eacc1bd21c0320d69e4e6b622d21a2a12a47e8ef73763",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/multiarray/dragon4_LICENSE.txt": "b0fd592d4ead563148e3977e7b589169d46a5ef2ff133c755a81af880a3fc919",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md": "211e7d737d6179a08f791ebb0a99897ce7cd2457410c542876d125576edfe910",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/umath/svml/LICENSE": "585483905b13d4b42f800c55ba99e89d6e2e33ccd5f503e201c07531d148ff41",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md": "a85ca13fdf90160b64a0698215868c13b74d835ad0a4e2ba44713b8c5058a056",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/linalg/lapack_lite/LICENSE.txt": "19060ef465e1797d682ee0fc3081bd25ab1395e995e43d25c9d13c95d9a3cd6b",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/ma/LICENSE": "d78dbb208b80d92b4d333e41a4baae50d12444f46e53199fa7726a91de6e2da7",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/LICENSE.md": "103166b62b80443afb9eb3488e052ea06be0cff566b908f199e561fde49af19f",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/distributions/LICENSE.md": "469778be8f33d54e1bcaab28c281cc472916d2d273f835e55bc487d30503face",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md": "0e111337b25494a773106695f0e799f642b8567aaacca4f116a74a8177179156",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md": "e7d4f4fb20358f314210a892ae17351e04993813646f697ec387385ca2a36918",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/philox/LICENSE.md": "6f5828a57223d4cc7f8ea505a2623e7b978b242752c1515e355f46ba2cec1800",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md": "9d4098846018319cd68e228ee6220361787f73bccbf00237a85e4fc9621b998f",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md": "268b0ca06759d31ea3ca68dd35f20e877916e927b1c2a835e4592a3c4354b1f9",
+            "LICENSES/numpy/numpy/_core/include/numpy/random/LICENSE.txt": "d544761558b510866c21f7e8a2d5716fca76e0b98117e3b6b86314db7244d150",
+            "LICENSES/numpy/numpy/ma/LICENSE": "d78dbb208b80d92b4d333e41a4baae50d12444f46e53199fa7726a91de6e2da7",
+            "LICENSES/numpy/numpy/random/LICENSE.md": "103166b62b80443afb9eb3488e052ea06be0cff566b908f199e561fde49af19f"
+          }
+        },
+        {
+          "package": "pillow",
+          "version": "13.0.0",
+          "license_expression": "MIT-CMU",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/pillow/pillow-13.0.0.dist-info/licenses/LICENSE": "58a804e817de2d02bb1776d4ac8a2cffdc7b10056a411a154bdae36297b13365"
+          }
+        },
+        {
+          "package": "scipy",
+          "version": "1.18.0",
+          "license_expression": null,
+          "notice_count": 5,
+          "notice_sha256": {
+            "LICENSES/scipy/scipy-1.18.0.dist-info/LICENSE.txt": "9336855f8367bffb4bc45de4ca752683deb750412166f8c0e9993f61687e81d9",
+            "LICENSES/scipy/scipy/_lib/_uarray/LICENSE": "e4c4acc31e8287066d7c995d26e3ef902ca1977ee187b260b11c278366503811",
+            "LICENSES/scipy/scipy/fft/_duccfft/LICENSE.md": "c254b2b5fd30ae3c89d36ba061730563b9760fca04f1b746a1b2c3157da2c789",
+            "LICENSES/scipy/scipy/integrate/LICENSE_DOP": "6cc2ed6e35b8f376ff3d8f86aeef4e0c34c2309bd6f4a0565936d577839ba023",
+            "LICENSES/scipy/scipy/spatial/qhull_src/COPYING_QHULL.txt": "2a6ebb495e26dd5f88cbc40c593733da6edb27b64936f70409cd5a1acafb1c32"
+          }
+        },
+        {
+          "package": "shiboken6",
+          "version": "6.12.0",
+          "license_expression": null,
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/shiboken6/shiboken6-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+          }
+        }
+      ],
+      "upgrade_from_stable": {
+        "from": "2.0.0",
+        "to": "2.0.1",
+        "stable_sha256": "a3fa8ce6ed4a5d559d8b8eb007c595dc680bc2070da92298d20f69f8f983f3c4",
+        "candidate_sha256": "f02bb775e3f069284464a974bbf82eafa47786509a99ac18484e91900dc1cb41",
+        "session_preserved": true,
+        "corrupt_download_rejected": true,
+        "native_handoff": true,
+        "in_place": true
+      },
+      "installer_checks": [
+        "real_run_payload",
+        "installed_packaged_self_check",
+        "repair_in_place",
+        "uninstall_preserves_data"
+      ],
+      "disposable_manifest": true,
+      "benchmark": {
+        "candidate": "faef335bb7892cda92edc50a7c4f417a89b0415c",
+        "clean_checkout": true,
+        "profiles": 67,
+        "cpu": "x86_64",
+        "selected": [
+          {
+            "operation": "dft",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.7039976260000458,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 11097313280,
+            "peak_before_bytes": 122994688,
+            "peak_after_bytes": 133431296,
+            "files_bytes": {},
+            "wall_samples": [
+              0.02065424800002802,
+              0.02055995599994276,
+              0.02070832000003975
+            ],
+            "cpu_samples": [
+              0.02065428799999991,
+              0.02056163099999997,
+              0.02071089199999987
+            ],
+            "wall_median_seconds": 0.02065424800002802,
+            "cpu_median_seconds": 0.02065428799999991
+          },
+          {
+            "operation": "dft",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.7165577000000667,
+            "work_estimate_bytes": 134217728,
+            "available_bytes": 11076669440,
+            "peak_before_bytes": 154652672,
+            "peak_after_bytes": 196530176,
+            "files_bytes": {},
+            "wall_samples": [
+              0.07719530999997914,
+              0.07700376000002507,
+              0.07717305599999236
+            ],
+            "cpu_samples": [
+              0.07718027299999997,
+              0.0770046929999999,
+              0.07717415500000002
+            ],
+            "wall_median_seconds": 0.07717305599999236,
+            "cpu_median_seconds": 0.07717415500000002
+          },
+          {
+            "operation": "idft",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.7143638680000777,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 11077541888,
+            "peak_before_bytes": 129114112,
+            "peak_after_bytes": 129269760,
+            "files_bytes": {},
+            "wall_samples": [
+              0.01684604600006878,
+              0.01696139000000585,
+              0.016911113999981353
+            ],
+            "cpu_samples": [
+              0.016846897999999944,
+              0.016964473000000035,
+              0.01691351699999999
+            ],
+            "wall_median_seconds": 0.016911113999981353,
+            "cpu_median_seconds": 0.01691351699999999
+          },
+          {
+            "operation": "idft",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.7559958069999766,
+            "work_estimate_bytes": 134217728,
+            "available_bytes": 11057971200,
+            "peak_before_bytes": 179499008,
+            "peak_after_bytes": 179503104,
+            "files_bytes": {},
+            "wall_samples": [
+              0.06458548299997346,
+              0.06502329500005999,
+              0.06542038500003855
+            ],
+            "cpu_samples": [
+              0.06458466400000007,
+              0.06502598799999992,
+              0.06542173499999993
+            ],
+            "wall_median_seconds": 0.06502329500005999,
+            "cpu_median_seconds": 0.06502598799999992
+          },
+          {
+            "operation": "fir",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6898511299999655,
+            "work_estimate_bytes": 33558400,
+            "available_bytes": 11113250816,
+            "peak_before_bytes": 122994688,
+            "peak_after_bytes": 125341696,
+            "files_bytes": {},
+            "wall_samples": [
+              0.02257689600003232,
+              0.022369331999925635,
+              0.02257548400007181
+            ],
+            "cpu_samples": [
+              0.022574597000000085,
+              0.02235964899999998,
+              0.0225770500000001
+            ],
+            "wall_median_seconds": 0.02257548400007181,
+            "cpu_median_seconds": 0.022574597000000085
+          },
+          {
+            "operation": "fir",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.7082232849999173,
+            "work_estimate_bytes": 134221696,
+            "available_bytes": 11092803584,
+            "peak_before_bytes": 154304512,
+            "peak_after_bytes": 163856384,
+            "files_bytes": {},
+            "wall_samples": [
+              0.0826839490000566,
+              0.08243845799995597,
+              0.08274219700001595
+            ],
+            "cpu_samples": [
+              0.08267213299999998,
+              0.08243953800000003,
+              0.08274321799999984
+            ],
+            "wall_median_seconds": 0.0826839490000566,
+            "cpu_median_seconds": 0.08267213299999998
+          },
+          {
+            "operation": "resample",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6895663199999262,
+            "work_estimate_bytes": 111863808,
+            "available_bytes": 11064250368,
+            "peak_before_bytes": 123047936,
+            "peak_after_bytes": 123047936,
+            "files_bytes": {},
+            "wall_samples": [
+              0.02513433100000384,
+              0.02492802999995547,
+              0.02500576700003876
+            ],
+            "cpu_samples": [
+              0.025133744999999985,
+              0.024929542000000082,
+              0.0250071369999999
+            ],
+            "wall_median_seconds": 0.02500576700003876,
+            "cpu_median_seconds": 0.0250071369999999
+          },
+          {
+            "operation": "resample",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.7018500109999195,
+            "work_estimate_bytes": 447408128,
+            "available_bytes": 11075219456,
+            "peak_before_bytes": 154427392,
+            "peak_after_bytes": 154427392,
+            "files_bytes": {},
+            "wall_samples": [
+              0.09908493099999305,
+              0.09884825400001773,
+              0.09892454900000303
+            ],
+            "cpu_samples": [
+              0.09908315400000012,
+              0.09884956799999989,
+              0.09892567099999994
+            ],
+            "wall_median_seconds": 0.09892454900000303,
+            "cpu_median_seconds": 0.09892567099999994
+          },
+          {
+            "operation": "psd",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.7037448439999707,
+            "work_estimate_bytes": 65536,
+            "available_bytes": 11117486080,
+            "peak_before_bytes": 122978304,
+            "peak_after_bytes": 122978304,
+            "files_bytes": {},
+            "wall_samples": [
+              0.06819714000005206,
+              0.06813867100004245,
+              0.06828893900001276
+            ],
+            "cpu_samples": [
+              0.06819730499999999,
+              0.06814015999999978,
+              0.06829060300000012
+            ],
+            "wall_median_seconds": 0.06819714000005206,
+            "cpu_median_seconds": 0.06819730499999999
+          },
+          {
+            "operation": "psd",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.7382450750000089,
+            "work_estimate_bytes": 65536,
+            "available_bytes": 11117744128,
+            "peak_before_bytes": 154705920,
+            "peak_after_bytes": 154705920,
+            "files_bytes": {},
+            "wall_samples": [
+              0.26927461800005403,
+              0.26948482599993895,
+              0.26988883599995006
+            ],
+            "cpu_samples": [
+              0.269269124,
+              0.2694627810000001,
+              0.26988617999999986
+            ],
+            "wall_median_seconds": 0.26948482599993895,
+            "cpu_median_seconds": 0.2694627810000001
+          },
+          {
+            "operation": "pipeline",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6926199749999569,
+            "work_estimate_bytes": 124451328,
+            "available_bytes": 11128881152,
+            "peak_before_bytes": 123240448,
+            "peak_after_bytes": 148803584,
+            "files_bytes": {},
+            "wall_samples": [
+              0.12339986899996802,
+              0.12428878299999724,
+              0.1251902550000068
+            ],
+            "cpu_samples": [
+              0.12337084400000009,
+              0.1242884350000002,
+              0.12519049300000007
+            ],
+            "wall_median_seconds": 0.12428878299999724,
+            "cpu_median_seconds": 0.1242884350000002
+          },
+          {
+            "operation": "pipeline",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.7130072869999822,
+            "work_estimate_bytes": 497744384,
+            "available_bytes": 11135590400,
+            "peak_before_bytes": 154669056,
+            "peak_after_bytes": 253661184,
+            "files_bytes": {},
+            "wall_samples": [
+              0.5077832830000943,
+              0.5112624920000144,
+              0.5077397470000733
+            ],
+            "cpu_samples": [
+              0.5077042660000002,
+              0.5112403619999999,
+              0.5063827070000002
+            ],
+            "wall_median_seconds": 0.5077832830000943,
+            "cpu_median_seconds": 0.5077042660000002
+          },
+          {
+            "operation": "slbin_read",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.7386994610000102,
+            "work_estimate_bytes": 16777216,
+            "available_bytes": 11050135552,
+            "peak_before_bytes": 123039744,
+            "peak_after_bytes": 123039744,
+            "files_bytes": {
+              "samples.slbin": 4194481
+            },
+            "wall_samples": [
+              0.006558029000075294,
+              0.0064512980000017706,
+              0.00648635999993985
+            ],
+            "cpu_samples": [
+              0.006557871000000048,
+              0.006453606000000001,
+              0.006488648000000041
+            ],
+            "wall_median_seconds": 0.00648635999993985,
+            "cpu_median_seconds": 0.006488648000000041
+          },
+          {
+            "operation": "slbin_read",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.8082671839999875,
+            "work_estimate_bytes": 67108864,
+            "available_bytes": 11044786176,
+            "peak_before_bytes": 154636288,
+            "peak_after_bytes": 154636288,
+            "files_bytes": {
+              "samples.slbin": 16777394
+            },
+            "wall_samples": [
+              0.01878529400005391,
+              0.018961089000072207,
+              0.018905134999954498
+            ],
+            "cpu_samples": [
+              0.018785335000000014,
+              0.01896472100000013,
+              0.018908707000000025
+            ],
+            "wall_median_seconds": 0.018905134999954498,
+            "cpu_median_seconds": 0.018908707000000025
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6946760849999691,
+            "work_estimate_bytes": 8388608,
+            "available_bytes": 11101962240,
+            "peak_before_bytes": 122998784,
+            "peak_after_bytes": 122998784,
+            "files_bytes": {
+              "samples.slbin": 4194481
+            },
+            "wall_samples": [
+              0.018739044999961152,
+              0.023041949000003115,
+              0.018997234999915236
+            ],
+            "cpu_samples": [
+              0.006490225000000072,
+              0.00643752799999997,
+              0.0064132520000000914
+            ],
+            "wall_median_seconds": 0.018997234999915236,
+            "cpu_median_seconds": 0.00643752799999997
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.6992618470000025,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 11094118400,
+            "peak_before_bytes": 154570752,
+            "peak_after_bytes": 154570752,
+            "files_bytes": {
+              "samples.slbin": 16777394
+            },
+            "wall_samples": [
+              0.10010376200000337,
+              0.09098028000005343,
+              0.08146493799995369
+            ],
+            "cpu_samples": [
+              0.024683269999999924,
+              0.02404120300000001,
+              0.024172647999999963
+            ],
+            "wall_median_seconds": 0.09098028000005343,
+            "cpu_median_seconds": 0.024172647999999963
+          },
+          {
+            "operation": "archive_save",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.7360978259999911,
+            "work_estimate_bytes": 8388608,
+            "available_bytes": 11061796864,
+            "peak_before_bytes": 133685248,
+            "peak_after_bytes": 133685248,
+            "files_bytes": {
+              "project.slproj": 8390142
+            },
+            "wall_samples": [
+              0.04141116499999953,
+              0.04015746000004583,
+              0.03985034499999074
+            ],
+            "cpu_samples": [
+              0.012658644000000052,
+              0.012703169000000014,
+              0.01270980899999996
+            ],
+            "wall_median_seconds": 0.04015746000004583,
+            "cpu_median_seconds": 0.012703169000000014
+          },
+          {
+            "operation": "archive_save",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.8220891659999552,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 11003789312,
+            "peak_before_bytes": 196534272,
+            "peak_after_bytes": 196534272,
+            "files_bytes": {
+              "project.slproj": 33555971
+            },
+            "wall_samples": [
+              0.20760274500003106,
+              0.2078718589999653,
+              0.19632898199995452
+            ],
+            "cpu_samples": [
+              0.050079965000000115,
+              0.049884634999999955,
+              0.04969905599999991
+            ],
+            "wall_median_seconds": 0.20760274500003106,
+            "cpu_median_seconds": 0.049884634999999955
+          },
+          {
+            "operation": "archive_load",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.7623136110000814,
+            "work_estimate_bytes": 25165824,
+            "available_bytes": 11142795264,
+            "peak_before_bytes": 133496832,
+            "peak_after_bytes": 133496832,
+            "files_bytes": {
+              "project.slproj": 8390142
+            },
+            "wall_samples": [
+              0.017331166000076337,
+              0.01723844600007851,
+              0.017077141999948253
+            ],
+            "cpu_samples": [
+              0.017331146999999936,
+              0.017240412000000038,
+              0.017079303000000046
+            ],
+            "wall_median_seconds": 0.01723844600007851,
+            "cpu_median_seconds": 0.017240412000000038
+          },
+          {
+            "operation": "archive_load",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 1.0120632980000437,
+            "work_estimate_bytes": 100663296,
+            "available_bytes": 11074531328,
+            "peak_before_bytes": 196222976,
+            "peak_after_bytes": 196222976,
+            "files_bytes": {
+              "project.slproj": 33555971
+            },
+            "wall_samples": [
+              0.05638464599996951,
+              0.05637141599993356,
+              0.05628049799997825
+            ],
+            "cpu_samples": [
+              0.05638361499999989,
+              0.05637415000000012,
+              0.056282394999999985
+            ],
+            "wall_median_seconds": 0.05637141599993356,
+            "cpu_median_seconds": 0.05637415000000012
+          },
+          {
+            "operation": "publish",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.7300717809999924,
+            "work_estimate_bytes": null,
+            "available_bytes": 11098365952,
+            "peak_before_bytes": 133197824,
+            "peak_after_bytes": 133197824,
+            "files_bytes": {},
+            "wall_samples": [
+              0.005846186999974634,
+              0.005806516000006923,
+              0.005764743999975508
+            ],
+            "cpu_samples": [
+              0.005845524000000046,
+              0.005807778000000097,
+              0.005765525000000049
+            ],
+            "wall_median_seconds": 0.005806516000006923,
+            "cpu_median_seconds": 0.005807778000000097
+          },
+          {
+            "operation": "session_save",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.7192028059999984,
+            "work_estimate_bytes": null,
+            "available_bytes": 11099316224,
+            "peak_before_bytes": 133419008,
+            "peak_after_bytes": 200900608,
+            "files_bytes": {
+              "session.json": 46493969
+            },
+            "wall_samples": [
+              2.7055425710000236,
+              2.6647550980000005,
+              2.626219868000021
+            ],
+            "cpu_samples": [
+              2.482409566,
+              2.4561174669999994,
+              2.4542109629999995
+            ],
+            "wall_median_seconds": 2.6647550980000005,
+            "cpu_median_seconds": 2.4561174669999994
+          },
+          {
+            "operation": "session_load",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 3.135010270999942,
+            "work_estimate_bytes": null,
+            "available_bytes": 10991022080,
+            "peak_before_bytes": 204881920,
+            "peak_after_bytes": 247136256,
+            "files_bytes": {
+              "session.json": 46493969
+            },
+            "wall_samples": [
+              0.636402925000084,
+              0.639159161000066,
+              0.6383994220000204
+            ],
+            "cpu_samples": [
+              0.6363559630000002,
+              0.6391157679999999,
+              0.6383632829999994
+            ],
+            "wall_median_seconds": 0.6383994220000204,
+            "cpu_median_seconds": 0.6383632829999994
+          },
+          {
+            "operation": "json_write",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.6966528500000777,
+            "work_estimate_bytes": null,
+            "available_bytes": 11094532096,
+            "peak_before_bytes": 126726144,
+            "peak_after_bytes": 126726144,
+            "files_bytes": {
+              "data.json": 5932825
+            },
+            "wall_samples": [
+              0.3490027159999727,
+              0.34791451199998846,
+              0.3486507149999625
+            ],
+            "cpu_samples": [
+              0.329038594,
+              0.32717319199999984,
+              0.3282513079999998
+            ],
+            "wall_median_seconds": 0.3486507149999625,
+            "cpu_median_seconds": 0.3282513079999998
+          },
+          {
+            "operation": "symbolic",
+            "samples": 1,
+            "status": "measured",
+            "seconds_setup": 0.6945333959999971,
+            "work_estimate_bytes": null,
+            "available_bytes": 11123351552,
+            "peak_before_bytes": 112693248,
+            "peak_after_bytes": 112693248,
+            "files_bytes": {},
+            "wall_samples": [
+              0.7020518190000757,
+              0.7020484159999114,
+              0.6653528059999871
+            ],
+            "cpu_samples": [
+              0.002408545999999956,
+              0.0026101840000000154,
+              0.002105668000000005
+            ],
+            "wall_median_seconds": 0.7020484159999114,
+            "cpu_median_seconds": 0.002408545999999956
+          }
+        ],
+        "cancellation": [
+          {
+            "operation": "dft",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.00235681599997406,
+            "latency_seconds": 0.01375878700002886,
+            "files_preserved": true
+          },
+          {
+            "operation": "idft",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0012843810000049416,
+            "latency_seconds": 0.009284540000066954,
+            "files_preserved": true
+          },
+          {
+            "operation": "fir",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0013071339999441989,
+            "latency_seconds": 0.01585677300010957,
+            "files_preserved": true
+          },
+          {
+            "operation": "resample",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0012824629999386161,
+            "latency_seconds": 0.01881682999999157,
+            "files_preserved": true
+          },
+          {
+            "operation": "psd",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.002313045999926544,
+            "latency_seconds": 0.012916328000073918,
+            "files_preserved": true
+          },
+          {
+            "operation": "pipeline",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0012638549999337556,
+            "latency_seconds": 4.364100004750071e-05,
+            "files_preserved": true
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.001279103000001669,
+            "latency_seconds": 0.0006924470000058136,
+            "files_preserved": true
+          },
+          {
+            "operation": "archive_save",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.002471579999905771,
+            "latency_seconds": 0.0002699130000110017,
+            "files_preserved": true
+          },
+          {
+            "operation": "dft",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0025177150000672555,
+            "latency_seconds": 0.05079747199999929,
+            "files_preserved": true
+          },
+          {
+            "operation": "idft",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0013870519999272801,
+            "latency_seconds": 0.04279158700001062,
+            "files_preserved": true
+          },
+          {
+            "operation": "fir",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0013722090000101161,
+            "latency_seconds": 0.046893696999973145,
+            "files_preserved": true
+          },
+          {
+            "operation": "resample",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0014369259999966744,
+            "latency_seconds": 0.07413983600008578,
+            "files_preserved": true
+          },
+          {
+            "operation": "psd",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0024274129999639626,
+            "latency_seconds": 0.012861784000051557,
+            "files_preserved": true
+          },
+          {
+            "operation": "pipeline",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0012755320000223946,
+            "latency_seconds": 5.4557999987991934e-05,
+            "files_preserved": true
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.001299402999961785,
+            "latency_seconds": 0.0006469280000374056,
+            "files_preserved": true
+          },
+          {
+            "operation": "archive_save",
+            "samples": 1048576,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0024967530000594707,
+            "latency_seconds": 0.0002740039999480359,
+            "files_preserved": true
+          },
+          {
+            "operation": "json_write",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.006364206999933231,
+            "latency_seconds": 0.004681263000065883,
+            "files_preserved": true
+          }
+        ],
+        "symbolic_cancellation": {
+          "dtft_seconds_after_signal": 2.723099999002443e-05,
+          "symbolic_seconds_after_signal": 0.05766574599999785,
+          "worker_exit": -15,
+          "symbolic_temporary_removed": true,
+          "symbolic_cancel_from_launch_seconds": 0.15
+        }
+      },
+      "captured_ui_profiles": {
+        "1366x768-1": {
+          "qt_platform": "xcb",
+          "window": [
+            1366,
+            768
+          ],
+          "requested_window": [
+            1366,
+            768
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            4096,
+            2304
+          ],
+          "scale": 1.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1366,
+              768
+            ],
+            "dft": [
+              1366,
+              768
+            ],
+            "idft": [
+              1366,
+              768
+            ],
+            "fir": [
+              1366,
+              768
+            ],
+            "iir": [
+              1366,
+              768
+            ],
+            "muestreo": [
+              1366,
+              768
+            ],
+            "resampling": [
+              1366,
+              768
+            ],
+            "psd": [
+              1366,
+              768
+            ],
+            "resultados": [
+              1366,
+              768
+            ],
+            "cas": [
+              1366,
+              768
+            ]
+          }
+        },
+        "1366x768-1.25": {
+          "qt_platform": "xcb",
+          "window": [
+            1366,
+            768
+          ],
+          "requested_window": [
+            1366,
+            768
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            3277,
+            1843
+          ],
+          "scale": 1.25,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1708,
+              960
+            ],
+            "dft": [
+              1708,
+              960
+            ],
+            "idft": [
+              1708,
+              960
+            ],
+            "fir": [
+              1708,
+              960
+            ],
+            "iir": [
+              1708,
+              960
+            ],
+            "muestreo": [
+              1708,
+              960
+            ],
+            "resampling": [
+              1708,
+              960
+            ],
+            "psd": [
+              1708,
+              960
+            ],
+            "resultados": [
+              1708,
+              960
+            ],
+            "cas": [
+              1708,
+              960
+            ]
+          }
+        },
+        "1366x768-1.5": {
+          "qt_platform": "xcb",
+          "window": [
+            1366,
+            768
+          ],
+          "requested_window": [
+            1366,
+            768
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            2731,
+            1536
+          ],
+          "scale": 1.5,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              2049,
+              1152
+            ],
+            "dft": [
+              2049,
+              1152
+            ],
+            "idft": [
+              2049,
+              1152
+            ],
+            "fir": [
+              2049,
+              1152
+            ],
+            "iir": [
+              2049,
+              1152
+            ],
+            "muestreo": [
+              2049,
+              1152
+            ],
+            "resampling": [
+              2049,
+              1152
+            ],
+            "psd": [
+              2049,
+              1152
+            ],
+            "resultados": [
+              2049,
+              1152
+            ],
+            "cas": [
+              2049,
+              1152
+            ]
+          }
+        },
+        "1920x1080-1": {
+          "qt_platform": "xcb",
+          "window": [
+            1920,
+            1080
+          ],
+          "requested_window": [
+            1920,
+            1080
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            4096,
+            2304
+          ],
+          "scale": 1.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1920,
+              1080
+            ],
+            "dft": [
+              1920,
+              1080
+            ],
+            "idft": [
+              1920,
+              1080
+            ],
+            "fir": [
+              1920,
+              1080
+            ],
+            "iir": [
+              1920,
+              1080
+            ],
+            "muestreo": [
+              1920,
+              1080
+            ],
+            "resampling": [
+              1920,
+              1080
+            ],
+            "psd": [
+              1920,
+              1080
+            ],
+            "resultados": [
+              1920,
+              1080
+            ],
+            "cas": [
+              1920,
+              1080
+            ]
+          }
+        },
+        "1920x1080-2": {
+          "qt_platform": "xcb",
+          "window": [
+            1920,
+            1080
+          ],
+          "requested_window": [
+            1920,
+            1080
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            2048,
+            1152
+          ],
+          "scale": 2.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              3840,
+              2160
+            ],
+            "dft": [
+              3840,
+              2160
+            ],
+            "idft": [
+              3840,
+              2160
+            ],
+            "fir": [
+              3840,
+              2160
+            ],
+            "iir": [
+              3840,
+              2160
+            ],
+            "muestreo": [
+              3840,
+              2160
+            ],
+            "resampling": [
+              3840,
+              2160
+            ],
+            "psd": [
+              3840,
+              2160
+            ],
+            "resultados": [
+              3840,
+              2160
+            ],
+            "cas": [
+              3840,
+              2160
+            ]
+          }
+        },
+        "640x420-1": {
+          "qt_platform": "xcb",
+          "window": [
+            640,
+            420
+          ],
+          "requested_window": [
+            640,
+            420
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            4096,
+            2304
+          ],
+          "scale": 1.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              640,
+              420
+            ],
+            "dft": [
+              640,
+              420
+            ],
+            "idft": [
+              640,
+              420
+            ],
+            "fir": [
+              640,
+              420
+            ],
+            "iir": [
+              640,
+              420
+            ],
+            "muestreo": [
+              640,
+              420
+            ],
+            "resampling": [
+              640,
+              420
+            ],
+            "psd": [
+              640,
+              420
+            ],
+            "resultados": [
+              640,
+              420
+            ],
+            "cas": [
+              640,
+              420
+            ]
+          }
+        },
+        "960x540-2": {
+          "qt_platform": "xcb",
+          "window": [
+            960,
+            540
+          ],
+          "requested_window": [
+            960,
+            540
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            2048,
+            1152
+          ],
+          "scale": 2.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1920,
+              1080
+            ],
+            "dft": [
+              1920,
+              1080
+            ],
+            "idft": [
+              1920,
+              1080
+            ],
+            "fir": [
+              1920,
+              1080
+            ],
+            "iir": [
+              1920,
+              1080
+            ],
+            "muestreo": [
+              1920,
+              1080
+            ],
+            "resampling": [
+              1920,
+              1080
+            ],
+            "psd": [
+              1920,
+              1080
+            ],
+            "resultados": [
+              1920,
+              1080
+            ],
+            "cas": [
+              1920,
+              1080
+            ]
+          }
+        }
+      },
+      "baseline_stages": {
+        "coverage_combine": 0,
+        "coverage_json": 0,
+        "integral": 0,
+        "static": 0
+      }
+    }
+  },
+  "evidence_sha256": {
+    "linux-installer-faef335.json": "074ffe66dae185dcb574b8e9539653570a9def51193861bc982c9dd857f26f32",
+    "linux-native.cdx-faef335.json": "4d14a97929f70f6f3119a212fc06faed411ba5269cdd44ef89e515ea57736c43",
+    "linux-performance-faef335.json": "ea57ee543032c89c739445b418eff5f03b15313d2f1efeb7835b8376d99d1c56",
+    "linux-portable-smoke-faef335.json": "63ee9e9f45c5a4bd01810b3a11720dc776447c75b3646e2ef4411f7512c2c557",
+    "linux-resources-faef335.json": "b47c720d47e917e0153d20bbce73b40e4eef29f7a5c6ea72cc014952a31d115b",
+    "windows-installer-faef335.json": "e75d297e09c0dddb299913f8f03add46dea769a4b7c1765b00668813dfc78690",
+    "windows-native.cdx-faef335.json": "ffb255f79d0f3c8adba7c40b0ce3ab67935dcf9ff50b01fb0b47ace1a5a9d34d",
+    "windows-performance-faef335.json": "b32953392d2fec73542e807549fd79fcb974e8fa9d558000926a12227bece8bf",
+    "windows-portable-smoke-faef335.json": "a8a360ea9422334a994ed783d96698bd9236073cd76bbf429fd0cded15f8a8b6",
+    "windows-resources-faef335.json": "de3d5a86d270dafb5fbf451a0634efb1ce747fdf3df45cff73d261b03fb5adb3"
+  },
+  "ci_artifact_sha256": {
+    "linux-installer-faef335.json": "074ffe66dae185dcb574b8e9539653570a9def51193861bc982c9dd857f26f32",
+    "linux-native.cdx-faef335.json": "4d14a97929f70f6f3119a212fc06faed411ba5269cdd44ef89e515ea57736c43",
+    "linux-performance-faef335.json": "ea57ee543032c89c739445b418eff5f03b15313d2f1efeb7835b8376d99d1c56",
+    "linux-portable-smoke-faef335.json": "63ee9e9f45c5a4bd01810b3a11720dc776447c75b3646e2ef4411f7512c2c557",
+    "linux-resources-faef335.json": "b47c720d47e917e0153d20bbce73b40e4eef29f7a5c6ea72cc014952a31d115b",
+    "windows-installer-faef335.json": "aa7b0a8e5b5f6ad5120cfea803b1868f7f51cd30953725cb8f664aad408b52a4",
+    "windows-native.cdx-faef335.json": "ed2b3e821953dd1b6a62ca53e2b45e8fdda1053e1ea07b67d1ac09c360cff0d9",
+    "windows-performance-faef335.json": "56506462076669fca737f3fc3938c4a6288d8268a51f908b48e5ce2880ea8b2b",
+    "windows-portable-smoke-faef335.json": "68676c985bb1f8e331bee410ad964d01debf6d79c7f790731d6de1df03b82625",
+    "windows-resources-faef335.json": "1f421366367ae17ba0151f20ee144ee70cdb80564ef6bdd8c6cc9302096b77c9"
+  }
+}

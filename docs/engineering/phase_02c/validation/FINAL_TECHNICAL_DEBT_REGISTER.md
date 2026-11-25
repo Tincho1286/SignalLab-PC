@@ -14,3 +14,15 @@
 | C-10 · P2 | Frontera headless y dependencias auditadas. Acoplamientos históricos registrados. | Prueba sin Qt y grafo de imports |
 
 El [registro de riesgos](RESIDUAL_RISK_REGISTER.md) identifica responsables y condiciones de revisión. La valoración anterior conserva el origen documentado en el registro maestro.
+
+## Continuidad de 02C
+
+| Hallazgo | Estado en el nuevo candidato | Condición pendiente |
+| --- | --- | --- |
+| C-01 | Revaluación de ruedas y binarios en ambos SBOM. | Actualización nativa de Qt y OpenJPEG o decisión explícita E-01. |
+| C-02 | MATLAB clásico y HDF5 separados con cuota y plazo. | Rueda HDF5 corregida o decisión E-02 sobre el alcance local mitigado. |
+| C-05 | Se cuantificaron memoria de trabajo, concurrencia, escritura y cancelación. | E-03 conserva los límites cooperativos del Core y el simbólico sin cuota de memoria. |
+| C-06 | `.slproj` opcional y CAS delimitado. Compatibilidad con JSON verificada. | Validar un barrido de tamaño real y revisar recuperación automática para proyectos grandes. |
+| C-07 | E-06c–j alcanzaron el objetivo. | E-06a y E-06b siguen activos. Se priorizan despacho Qt, paneles y escritorio. |
+| C-08 | Validación Windows real con gráfico, informe y proyecto científico. | E-05 para Linux real y otros DPI. |
+| C-09 | Actualización aislada 2.0.0 → 2.0.1 aprobada. | Firma Windows y canal de distribución siguen como condición independiente E-04. |

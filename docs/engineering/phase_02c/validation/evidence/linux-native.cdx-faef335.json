@@ -1,0 +1,6677 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "version": 1,
+  "metadata": {
+    "component": {
+      "type": "application",
+      "name": "SignalLab PC",
+      "bom-ref": "signallab-pc",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ea7e27e97bd5938ffdfc72cde967026808f3a54c678a83294e49c7644fd10e1d"
+        }
+      ]
+    },
+    "properties": [
+      {
+        "name": "signallab:source-commit",
+        "value": "faef335bb7892cda92edc50a7c4f417a89b0415c"
+      },
+      {
+        "name": "signallab:artifact",
+        "value": "SignalLab-PC-2.0.1-linux-x86_64.tar.gz"
+      }
+    ]
+  },
+  "components": [
+    {
+      "type": "file",
+      "name": "PIL/_avif.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e5a30b964816159559d639be5b35aba6ec312c3c2e5232a379af3002fab93db0"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PIL/_imaging.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ab913e97d2dd06360033e26a2af3a28fd7d8980f6b103c1d498ec119b35a3ba2"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PIL/_imagingcms.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "bb9a2459261d5eb238af21feda5f5ae10aeadfc1525cbb50c2d34865dae1f33e"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PIL/_imagingtk.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cf6031c484aab36ec3af1dd3fd2432631f60c59d4a1972001bfbd44cdae6c38b"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PIL/_webp.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a43dc8018f754a58ed5348c1285a83a18ded63f3fbba7aa75e495b18c4e58b8f"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libQt6Core.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "26341368e3f2017ab9e33a3faa8806ae87fd59f2f8491f4c5aa7e8c1053b8a05"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libQt6DBus.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "678d0bf82548e35680a93615d476d79405f1d4beec4ce405236e04bc64ea14eb"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libQt6EglFSDeviceIntegration.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "512704d1a788f73c64318baca8fb7ff80c46c0cd8b87cb3a021b433f8abaa874"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libQt6EglFsKmsSupport.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3727e903fd06b0de0804ccaa9e938262c82e879ac5479802c935af35201c322e"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libQt6Gui.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "392cf5a2fed77ca7b861484ae0f25a2f7f54789024e79518c6c28e1ddf5b4b1a"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libQt6Network.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "973d87ea5fc92dafb82aac307c32b7646cbd6640d06bc3f7d8b6c1771077603f"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libQt6OpenGL.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8452e1c7f849a81f38fa2e99fbcd066c24902892fcfa4ce0e188f4691dc2d106"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libQt6Svg.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ad54290bfb1929296b1662375d1902ad9810162051f51ff00bce3b2843bdbf2c"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libQt6WaylandClient.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "28423e53b5c6f6c69d50068be70467f15826027e6d965b68411e9daad30712dc"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libQt6Widgets.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ae894c4a328a883311faf7449dcdd1ec70e6be25784e5676cb9977fe437d01c4"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libQt6WlShellIntegration.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "03b88400fcbbaeb19448b39cc1db9bd1cbc7e870ce5827eeb7254103e634549d"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libQt6XcbQpa.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "fe274149676867bb59884a3bb0aa5ae6b2365a92f1e7449ea12a4dc267a53fa3"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libicudata.so.73",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4d24b3a908dd838bea23414e16aa830d05a2a306c475246ab11ef0a00c3037e9"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libicui18n.so.73",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ad5410f3e4eb4f01f91d10ddb3780cdbcbeb902ed04a3bc4d3f562b956578d52"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/lib/libicuuc.so.73",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8ce3427af0d2bf566bb422ce80a12014137d12ed452fe2dd9ed481ee46181168"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/egldeviceintegrations/libqeglfs-emu-integration.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1e337b4872b2e121b42ddc96c2f8f2d2ff8ac1cf316d16aa76ed6096c680fce2"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/egldeviceintegrations/libqeglfs-kms-egldevice-integration.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b0667a9cfac316748dbaa0ea0bb1d210a4fab52827b8e245cb91f89637a91adc"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/egldeviceintegrations/libqeglfs-x11-integration.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0fef7c20fb7101c14af8364083a3c1189d747e426bcb4583c4b047d5fee66ebb"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/generic/libqevdevkeyboardplugin.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ef18d01f3a305ace09d2090169adc08701333337e5e4a8cda47d09c60aca7a86"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/generic/libqevdevmouseplugin.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6687ce702ef9f59abc343ee84ed3dbc3632b68f1042d32afd52a56304c5d9635"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/generic/libqevdevtabletplugin.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "58ded2aa69be32828a522266431f33a95b936caf09def7bcc27325ba2df7b425"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/generic/libqevdevtouchplugin.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "fb973c106f3b3a680c36c0ec4b0bb0e7253c824b1be3a5810e2f31fc41fb6fc6"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/generic/libqtuiotouchplugin.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f2309a67f0856db60872807b502344d641f412896fc7c1ba99bf512e7a8313e2"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/iconengines/libqsvgicon.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5c83c91f83f7a528ad054d1031b338c21e9d7c3aca3d02bf98518ec5d89d65af"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/imageformats/libqgif.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c84d1245e6824a2176079c5d72234b0a2a805b10214037b1229e8bc2c4ff62ca"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/imageformats/libqicns.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "36c77e14da63b8a6c2a09892240cd003fa31b4d7e0a1c1e3ff442baedf15b952"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/imageformats/libqico.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9423748bb76c7a26197f7f5c437e25ce21aa3ff2717e5c6cc9c35d552b46f28e"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/imageformats/libqjpeg.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "aedd3e4f7a233365dcef9f016bd64f05575dd49aba69ce923fc99f214f5384ee"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/imageformats/libqsvg.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b178be1a99734997111e740a54b2ac0649e66b73d51ce259f13cc6c7534861c9"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/imageformats/libqtga.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b0efbd5a9c43151335f9490b0403ef0dcd7e77fbd06ecef9f16da7b4a80849c3"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/imageformats/libqtiff.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4ec0307bc51f16f4812a781ab2facfdf45e06f427a103435d70ed29768808332"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/imageformats/libqwbmp.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d7200eb7ab8542b4a99836c39c1f638b4f10bce171b9d0e71dd272bba5bb06d4"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/imageformats/libqwebp.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4b22639fb50987b5aec000690b165d7406ee4486a11d4c02b86c8a14e321f162"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/networkinformation/libqconnman.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "59c2c9e4860dcf8d951770cb665e6dda44517c8b54ed6ea7a627e8ce0d91c923"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/networkinformation/libqglib.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8e978c49756b441464463ac743f733553e05e7a68cd4751c429876ebe0a149c3"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/networkinformation/libqnetworkmanager.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "46a019a556c37d05aee27e436884b5c99bb6c14bdc5616c9968d0ee9e05fc658"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platforminputcontexts/libcomposeplatforminputcontextplugin.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "45aaae8084b7fa779198d157ad86ab4b531ba2dac1f7878a31f406f2ca81f273"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platforminputcontexts/libibusplatforminputcontextplugin.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "804c433df38fa569cfc7519feeafd79af04d8ad704f029578407e7fa05582b65"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platforms/libqeglfs.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e1041cf05c62d6cbe087f483765f5ba746150d6f205d6c73e33967e25460cb10"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platforms/libqlinuxfb.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ad25c4ba5d9c3c4f0d309e49f4c58a1ee414849cce3459922e51ff227e17ff5f"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platforms/libqminimal.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "65b076f7bcfcc1dfa2da0bfff3a40f6429d7b0470569d6569f8d8fe2d5314b1a"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platforms/libqminimalegl.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a768d21ffdf42dedfe79e68e6672ef5daf1e4ce84086f1ca52d3ca36cb0bb64a"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platforms/libqoffscreen.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b03cc26de26de6e09adceaf7ab2866ebbae39d88d893e0a5032e3ea55f190a67"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platforms/libqvkkhrdisplay.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "85812de2f714114edb5540245bacf2781582be044fd4d8aea087c94e630fd2df"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platforms/libqvnc.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "06b3346cc502993ffe14a771a42b85923bd176324550a42cb8959718f94aab54"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platforms/libqwayland.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1ade530571b63a433d192110121a11bae023cc58d8a6e586a352936ac0d6c7c2"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platforms/libqxcb.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8611ee4e2315bcf4b38e14e2714b553e227e489a5cfaaa40b692fff9f2ac272a"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platformthemes/libqgtk3.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9a8157d6b1ae49e790f0d84b93d350616f92c97cbb3df673b3a63aa8b6351e7f"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/platformthemes/libqxdgdesktopportal.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "67fe302dbb46f498dc6b7fc7d1d54d5939f55635ad988b9af730c2e25a31ea4a"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/tls/libqcertonlybackend.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "06589a3be6fc031cf9342c754c44682da1da3ad4e5f04979ff9e58d140364650"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/tls/libqopensslbackend.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d6f153ea607720b1ea08fb66d224be3c012d5023cee983a22735ae11c03709d2"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/wayland-decoration-client/libadwaita.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "225a5289c9518ea4a61a31daf881524309ff150a57601944eed37699e079da54"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/wayland-decoration-client/libbradient.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c7f7f5547ad55202de8a35dfa0765a7c67a8404dee19eb07c568ee3d64f49cc9"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/wayland-graphics-integration-client/libdmabuf-server.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "06de14b9f4af7f3a89f8136b21bf3178c9e7d5957496a034ea5c3cc41f1cc23a"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/wayland-graphics-integration-client/libdrm-egl-server.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "18e9efba44e96184c60581f13273285bf787d8f2e21231eb2f4b14a357a7dd44"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/wayland-graphics-integration-client/libqt-plugin-wayland-egl.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a18ea802b7cde98dbfb0769c8ff69b1fa7cd49750078567a8462f297e30665e4"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/wayland-graphics-integration-client/libshm-emulation-server.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "571b172fb331e199f3c63c09d2cded3b585cd81cedeb2a15bddbb1540beb0017"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/wayland-graphics-integration-client/libvulkan-server.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8d8ac1c33618dc979c50497541bd7c0f5012ed34248de5b05fc15077b7e20fac"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/wayland-shell-integration/libfullscreen-shell-v1.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "411e4a8b431937b0b54b7d72e1c7669c475ce91e31832808995387cd88e35306"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/wayland-shell-integration/libivi-shell.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b50baea26ba1a06806086e067b247eedaa6562dfe151e56fc1a90cf00b66c9dc"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/wayland-shell-integration/libqt-shell.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7b07043f423d73168b74b80a39ffe01b2e6bd091a155c2d3388e60fcaabb8772"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/wayland-shell-integration/libwl-shell-plugin.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "644dd3a2a0cec928f16350088d90e0fe81db3364e386c498e43e5145a769f7d7"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/wayland-shell-integration/libxdg-shell.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "69dee3d9eb391e4d167fb9c077a6bf2f0d7a074ce0a7d62ff6b6e34f50984f8c"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/xcbglintegrations/libqxcb-egl-integration.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "01088ab95461d805bd558ce9d651e07b20215958f7febf4ec099c710cfcef5e7"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/Qt/plugins/xcbglintegrations/libqxcb-glx-integration.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "af8bb94f80cdbed024770705f5ce1ec77cd543d379f539bd6463b26dc2ad7caa"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/QtCore.abi3.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c69ab7ddf99eaf37df6c9ed9498bba9f3678d8544de3921c13d046c31f0d484b"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/QtDBus.abi3.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c74ee1c00716b866f91f2bd083c381e0fffcb013830e05e8ecece5f33e587c0e"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/QtGui.abi3.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a4ebd89caef6afa4944f73436b47203fcbf5923d7fe2a8a90f1da00aeb4a4f27"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/QtNetwork.abi3.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "37e1c2cd174d8f5bce1115df7b205a9f488f731b99a1b22f2fcb54efe3469424"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/QtSvg.abi3.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2422460f02185b847c1b3443a303a9943699f8584621ab1d0f8f9b90c3ad35d2"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/QtWidgets.abi3.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4543cab2c4a8edee5bc4c818dc0ba2f8552ffa6b10a4b4ab02d8536f10400115"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "PySide6/libpyside6.abi3.so.6.12",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ec683d54c92945d3e1fa400c034e02600e812a274620d048203a885e26bc1776"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:PySide6_Essentials@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "_cffi_backend.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7d1eff7fbb874ee72228fd426103da2b9eef528979156077bdec736d5b4f61a2"
+        }
+      ],
+      "version": "2.1.1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:cffi@2.1.1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "contourpy/_contourpy.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2ca7acf9648399bd92b50fe3d13995363e6e0f00f74330a68e5751e7ec700201"
+        }
+      ],
+      "version": "1.4.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:contourpy@1.4.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "cryptography/hazmat/bindings/_rust.abi3.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1e5d23fa66915204b9b67202a46993844d81cda56f6ad52cead2def37617ee29"
+        }
+      ],
+      "version": "50.0.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:cryptography@50.0.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py.libs/libaec-a27cf049.so.0.1.4",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9a7239926b162e0dbe41a1fc0181e55ecd29d5dbfa56ffde42bec8ad4b4f2db6"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py.libs/libhdf5-9e18f0c6.so.320.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1f63f3c02f02dcd702fce63a0f6dc6786430bf1b989926c6850d2026b2c8b424"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py.libs/libhdf5_hl-69da89c9.so.320.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c42fb5846fa65835756661844c59a60dde848212f4b35e04bae1d9fb177536f9"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py.libs/libsz-c6be10dd.so.2.0.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a4a964d66f834b7787c9697de019565333ecd190ad19579ea1805056f9bc7d56"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/_conv.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2196956ce613f0670d430c2f7d621f87ce4d0fdce48029a065890c0db9045d0b"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/_errors.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "54df37d196b2f8d79b2d627d8f483848b5d10f57e28631cd9c31c96c842f583c"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/_npystrings.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a824f872042c60d5add46f6a60f8dcc84712c87c710514ec25a7bef335e04d6d"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/_objects.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "49c09b0d473a49174088f668ca2aa3db80b5a148d4d8394bc809371c198f4ee3"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/_proxy.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d4af70f9c450ccba6d2195d510252f037f9d135483cb35a4e2eb39dc4e8e93f8"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/_selector.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8a93dc19e8fd4881bc3458739efd5357a074ca55b58a43e679c9a2f8ba7b248b"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/defs.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b21c3af51fb2bdcc1f37f035f7f034665d672ba67e25a6927f4b9472bbd18b88"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3661bdf46c06a393d51e528602e5971ca4b503e6a57d03a9bbd2d25c26e33839"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5a.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f3052c3ba3368ca29831b36a00e490b0655e15d66fa9872f2099036390a3b155"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5ac.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4b1cbb8efa518edaf074b5a42e2b02d0240eead64657481bb605af67324aa4f1"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5d.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2e663c83f5267d136ab62d6fa0769c3f98bb7213e413c8cac422a6c3a4503222"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5ds.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ad1072cb54d5e15d8b858eb1e6d626a335f11595be2c6214c001263d8dd948d0"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5f.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6bc0e686d41cc7be50c69411b45b8c1592d15225597493c63bfc1dcf908bdafe"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5fd.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "68bfbeb8b9200a0f51094abe25b1e664145a489c537c3d3bffc0d96cfe1f88f6"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5g.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c4f3b9fafe5b60b1a113a1f4dd92f50623c05b77e511e24edd6e8dcea5f68eb1"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5i.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f73824591311481f4bc18e47352211f2bdffaa3e54b1e296520f9297adf2e57b"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5l.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cb1a5e0da4b8379415592d9fab27ffa87540b03f4f34e56fdc2543b4a28fc80e"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5o.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "61f4233898c8f76fb644c53802ef70f4253ee9584ec6f931509f7b8c23237ebd"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5p.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "07df1813221cea61169c81bbf5eeb737f579a83712b2d855130b5397fec50644"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5pl.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0730f7755c8167d08ef8cde85fe50f5159fc9844203115ffeb3b07f2de89a5ef"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5r.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "42c8af5d86c1e27db63699127225cd14599e70fd032d44bd7f9dc16e96234f2f"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5s.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "10c1e2d58e7efbe4bcfd585b1d04d96f8edf9383acafca4949f8eeafd4b17f38"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5t.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e324a662c8ede0694f0f085d9456c9ccfdaf2667cb7d1d74d798f884a127f517"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/h5z.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a4da0f3e9543c0996c7e3327be0809b14ec7e699198b4fba7982df2f75e4140a"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "h5py/utils.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3af3259032fda444d54b0a7f91b5b7fbed177cdfc643458f67b7de1ecf7bcf58"
+        }
+      ],
+      "version": "3.16.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:h5py@3.16.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "kiwisolver/_cext.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b9f4e6713e3cc5e3856a608c9bf6c37008a3f4ac0f939868c0b3e9b648aec686"
+        }
+      ],
+      "version": "1.5.1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:kiwisolver@1.5.1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libX11-xcb.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d7f9e86161421311a1023c44295a88b4a00b6ecbd20c416fc71895f43e358a0a"
+        }
+      ],
+      "version": "2:1.7.5-1ubuntu0.4",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libx11-xcb1:amd64@2:1.7.5-1ubuntu0.4"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libX11.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e23ed094eaf0a74a822a6d9d14eee628ab9f7ec08aecbf20ffd803f019ff6e98"
+        }
+      ],
+      "version": "2:1.7.5-1ubuntu0.4",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libx11-6:amd64@2:1.7.5-1ubuntu0.4"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libXau.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "98343a8324ea62ed75a13c923ed5dea96b7a8ad41aeba9f18126c4cbf7178064"
+        }
+      ],
+      "version": "1:1.0.9-1build5",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxau6:amd64@1:1.0.9-1build5"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libXcomposite.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4eea309674b05930c58bb4c8d2588c049ebae4fc0ce27fd06abe3a5fed9e6f91"
+        }
+      ],
+      "version": "1:0.4.5-1build2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcomposite1:amd64@1:0.4.5-1build2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libXcursor.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a66dc7552a800690b9ff1e7e5026b2ec3f0c359603fe0267f82cc4a6f984f5ac"
+        }
+      ],
+      "version": "1:1.2.0-2build4",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcursor1:amd64@1:1.2.0-2build4"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libXdamage.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2e059ebfa3ed4d37e85c7924529d4c2cf7f3890786acd806b308c2b56571bc20"
+        }
+      ],
+      "version": "1:1.1.5-2build2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxdamage1:amd64@1:1.1.5-2build2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libXdmcp.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1dc3ff1269a5ede69ef9a8ec2436d73fccbcd10531055b359292e0bde4e29b46"
+        }
+      ],
+      "version": "1:1.1.3-0ubuntu5",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxdmcp6:amd64@1:1.1.3-0ubuntu5"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libXext.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d61399986f565c00c090a1f222019db7b40f42eaf2d93834136d6234c16ec465"
+        }
+      ],
+      "version": "2:1.3.4-1build1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxext6:amd64@2:1.3.4-1build1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libXfixes.so.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3e03576f262820fe27a8cfbcf4d8a2f3bbb5f1df55290e91643794a8147dffb7"
+        }
+      ],
+      "version": "1:6.0.0-1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxfixes3:amd64@1:6.0.0-1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libXi.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "dc46e4ed45e94b521486438d902b2c360e50bd162849448b53adc7143fa1cb84"
+        }
+      ],
+      "version": "2:1.8-1build1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxi6:amd64@2:1.8-1build1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libXinerama.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2db9101cec47fe2f00fe27dedf3325ad47e9e8d8f4a552c8ca5f04d6271bd172"
+        }
+      ],
+      "version": "2:1.1.4-3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxinerama1:amd64@2:1.1.4-3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libXrandr.so.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "237b8560e61e4c2d244ea21b4d2e0cd9614de26ce284f7258646897940d8e796"
+        }
+      ],
+      "version": "2:1.5.2-1build1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxrandr2:amd64@2:1.5.2-1build1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libXrender.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2415c0b512d332522625bc65bcc5e05dba93c2e3418329ded2855111fb0cf723"
+        }
+      ],
+      "version": "1:0.9.10-1build4",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxrender1:amd64@1:0.9.10-1build4"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libatk-1.0.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "65831ad344b15dae860a3c73dbe97512b05e54d3566948f5bc633f67216ffd97"
+        }
+      ],
+      "version": "2.36.0-3build1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libatk1.0-0:amd64@2.36.0-3build1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libatk-bridge-2.0.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "13670b19f87dbf32b697104cb5019c91ad886d8122e8d645c27162c97e41e877"
+        }
+      ],
+      "version": "2.38.0-3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libatk-bridge2.0-0:amd64@2.38.0-3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libatspi.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e1df48522f75baa048beb637c749708536bb6459d7dc8e9df12736f003fb2a88"
+        }
+      ],
+      "version": "2.44.0-3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libatspi2.0-0:amd64@2.44.0-3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libblkid.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0aa92efdef9d9419f49b784c9377e3fa09c6e4247162ff8b581934b891fcfa0f"
+        }
+      ],
+      "version": "2.37.2-4ubuntu3.6",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libblkid1:amd64@2.37.2-4ubuntu3.6"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libbrotlicommon.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "617035f98d836e37ccaefdd5fe56b45ef4f5e10460c5b4f68c2d488e5a62766f"
+        }
+      ],
+      "version": "1.0.9-2ubuntu0.1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libbrotli1:amd64@1.0.9-2ubuntu0.1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libbrotlidec.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b877956d7814d95fb37473002f46a43fe7f09bebb48a41312c329c65631622b5"
+        }
+      ],
+      "version": "1.0.9-2ubuntu0.1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libbrotli1:amd64@1.0.9-2ubuntu0.1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libbsd.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e4ad21c203d8e8b9b7f49071311339af6b438026e1ad236403e3b379b022f23d"
+        }
+      ],
+      "version": "0.11.5-1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libbsd0:amd64@0.11.5-1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libbz2.so.1.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "54d16979912ab62282350dd2dc5dceb5b73b13e27bb02792087aff752d16f6e9"
+        }
+      ],
+      "version": "1.0.8-5ubuntu0.1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libbz2-1.0:amd64@1.0.8-5ubuntu0.1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libcairo-gobject.so.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "edecf402c8e98ed8d8eb3a7e4b9df27671678b7f7b786bdf243a4c84c003b9b1"
+        }
+      ],
+      "version": "1.16.0-5ubuntu2.1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libcairo-gobject2:amd64@1.16.0-5ubuntu2.1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libcairo.so.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "62328c06e62439ce52ee03a7e7fa44ebe33a39a56d22b8c96ffc7c7e1eaf0d19"
+        }
+      ],
+      "version": "1.16.0-5ubuntu2.1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libcairo2:amd64@1.16.0-5ubuntu2.1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libcap.so.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "00e8d9ef4e9c081a3c8d8164cfd06165937c9bcb6d4f9b47c6dcfa53d9e52046"
+        }
+      ],
+      "version": "1:2.44-1ubuntu0.22.04.3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libcap2:amd64@1:2.44-1ubuntu0.22.04.3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libcom_err.so.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f196091d8ec9790b4cd203ecdb0eab3b242d35ae8625ead7962d0a944a8fdfa5"
+        }
+      ],
+      "version": "1.46.5-2ubuntu1.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libcom-err2:amd64@1.46.5-2ubuntu1.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libcrypto.so.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7cc817ff1841b59516d684f357bc0c3fc2cc52c3fa9b4ffb8ce8bdc215f02915"
+        }
+      ],
+      "version": "3.0.2-0ubuntu1.30",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libssl3:amd64@3.0.2-0ubuntu1.30"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libdatrie.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "bb12f6deede55959973954640ed050ec758de674a73c19715adcd6202abb8dcd"
+        }
+      ],
+      "version": "0.2.13-2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libdatrie1:amd64@0.2.13-2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libdbus-1.so.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a3d53f7215af9860f3466b94cd8fe3e95c253c46df164dea62af9b9def93dcea"
+        }
+      ],
+      "version": "1.12.20-2ubuntu4.1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libdbus-1-3:amd64@1.12.20-2ubuntu4.1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libepoxy.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "bc592509279dab19668583d47e2edc2b1c6ae9b93ed7ed1a2cef9810b0ad263d"
+        }
+      ],
+      "version": "1.5.10-1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libepoxy0:amd64@1.5.10-1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libexpat.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "683e2e41db14581194bf1f6616e95a8f02cd4ab599f0fba807e46325ec01d21f"
+        }
+      ],
+      "version": "2.4.7-1ubuntu0.9",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libexpat1:amd64@2.4.7-1ubuntu0.9"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libffi.so.8",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "247da4d5d34a91cadcdd6282be4c4644fcb8af001334d2b8a82ecda435418cbf"
+        }
+      ],
+      "version": "3.4.2-4",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libffi8:amd64@3.4.2-4"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libfontconfig.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7d688909aab1c566b60832045fef012ea118ff7ee189df87608fbff999d3bd0d"
+        }
+      ],
+      "version": "2.13.1-4.2ubuntu5",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libfontconfig1:amd64@2.13.1-4.2ubuntu5"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libfreetype.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c338538f8d90eb85217e8525ab363e68e79b46d3c8acc0b6824190e032687e5f"
+        }
+      ],
+      "version": "2.11.1+dfsg-1ubuntu0.4",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libfreetype6:amd64@2.11.1+dfsg-1ubuntu0.4"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libfribidi.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "91879069d84de2889086ad44dfc088405e7e7065e1220c1a122f8970fb1f29a9"
+        }
+      ],
+      "version": "1.0.8-2ubuntu3.1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libfribidi0:amd64@1.0.8-2ubuntu3.1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libgcc_s.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "fc9d43b2f6c20e53b009238f767c5b949d202389e20de9e202ea684b4ba3729a"
+        }
+      ],
+      "version": "12.3.0-1ubuntu1~22.04.3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libgcc-s1:amd64@12.3.0-1ubuntu1~22.04.3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libgcrypt.so.20",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "82f7902f4cffbb89540c09cdb3045d8026548ae4c811d003f25e7b74a6de9d9c"
+        }
+      ],
+      "version": "1.9.4-3ubuntu3.3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libgcrypt20:amd64@1.9.4-3ubuntu3.3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libgdk-3.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "65444438dce4b145a61cdf9ccee7dd3feb2ae249c939056eff89c04d8766e5a7"
+        }
+      ],
+      "version": "3.24.33-1ubuntu2.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libgtk-3-0:amd64@3.24.33-1ubuntu2.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libgdk_pixbuf-2.0.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c9b29b64bff5f913438def9ffa26ea972245b89cd61dc9d2388bc1d1540412ef"
+        }
+      ],
+      "version": "2.42.8+dfsg-1ubuntu0.5",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libgdk-pixbuf-2.0-0:amd64@2.42.8+dfsg-1ubuntu0.5"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libgio-2.0.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "efb5da3c5c7ee298d814cfe1aa36187a8d7517cf3a579b9bdc1c3b3e1b56712b"
+        }
+      ],
+      "version": "2.72.4-0ubuntu2.11",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libglib2.0-0:amd64@2.72.4-0ubuntu2.11"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libglib-2.0.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4ae79290c905fb0f3642ba3dd624551b9418136f2dcdfbd190827d02907d4a51"
+        }
+      ],
+      "version": "2.72.4-0ubuntu2.11",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libglib2.0-0:amd64@2.72.4-0ubuntu2.11"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libgmodule-2.0.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c282fc583f4c4dddbc68ee0116627d8dba04c606bfd977be0f5eab72fe34af6b"
+        }
+      ],
+      "version": "2.72.4-0ubuntu2.11",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libglib2.0-0:amd64@2.72.4-0ubuntu2.11"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libgobject-2.0.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "241941cf96b4e813f63a2fc8a75cdd39c89a9a98e47708a058043811f10d5e3a"
+        }
+      ],
+      "version": "2.72.4-0ubuntu2.11",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libglib2.0-0:amd64@2.72.4-0ubuntu2.11"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libgpg-error.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ed682e103b671d628ef11f19f8a5b772b8d2501ba26e4b80c055331a4c4d8dfc"
+        }
+      ],
+      "version": "1.43-3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libgpg-error0:amd64@1.43-3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libgraphite2.so.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1d9215d0099e87da7ed9e1a9c2064fdb1da270253b869721ea0580a00657b723"
+        }
+      ],
+      "version": "1.3.14-1ubuntu0.1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libgraphite2-3:amd64@1.3.14-1ubuntu0.1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libgssapi_krb5.so.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a8c1a62a7b925e198c5fb8f8123bb2900c235dd678d6dbf0c1e0b5f06175e84b"
+        }
+      ],
+      "version": "1.19.2-2ubuntu0.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libgssapi-krb5-2:amd64@1.19.2-2ubuntu0.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libgthread-2.0.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4a4a092d24f2dfd676990817319f3199f9146bb05c442d48fa9b11de54eed541"
+        }
+      ],
+      "version": "2.72.4-0ubuntu2.11",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libglib2.0-0:amd64@2.72.4-0ubuntu2.11"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libgtk-3.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7d48175fd1550f8b77119e77775073f10b5fd736e62efea25f6484fb97b15c57"
+        }
+      ],
+      "version": "3.24.33-1ubuntu2.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libgtk-3-0:amd64@3.24.33-1ubuntu2.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libharfbuzz.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "da47b2baefbb4e6e6058fec0c4dd0bc9d31703d94150c17c9615288188f4a118"
+        }
+      ],
+      "version": "2.7.4-1ubuntu3.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libharfbuzz0b:amd64@2.7.4-1ubuntu3.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libjpeg.so.8",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2cfbcf67051b3efd1bf634af7d0b65a47dda98ff61ba793a87415ed554731344"
+        }
+      ],
+      "version": "2.1.2-0ubuntu1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libjpeg-turbo8:amd64@2.1.2-0ubuntu1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libk5crypto.so.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d3c3d1c5415f09918c67a5bb23cf5004aa9524b916003655af4a2bb15627760a"
+        }
+      ],
+      "version": "1.19.2-2ubuntu0.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libk5crypto3:amd64@1.19.2-2ubuntu0.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libkeyutils.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ad20d5fb89df5297073b46373c65bfbb01f33a00b4949894055d29a7fcf00900"
+        }
+      ],
+      "version": "1.6.1-2ubuntu3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libkeyutils1:amd64@1.6.1-2ubuntu3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libkrb5.so.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ecc1a3b592c3685e330499aba8eac3b635e9be80b99fa65b2ef3e4f0b2d8a166"
+        }
+      ],
+      "version": "1.19.2-2ubuntu0.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libkrb5-3:amd64@1.19.2-2ubuntu0.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libkrb5support.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "add5050d2a960ab105b568c714849d1e771cf2bd67a46dbfcc068a99de80eeec"
+        }
+      ],
+      "version": "1.19.2-2ubuntu0.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libkrb5support0:amd64@1.19.2-2ubuntu0.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "liblz4.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "65f47a3dc2cec5f938379b7b625f0621657bf1254551895d22462c6a204cbad8"
+        }
+      ],
+      "version": "1.9.3-2build2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:liblz4-1:amd64@1.9.3-2build2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "liblzma.so.5",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3147e2cb512d17a4064d34f61e69591b6473543db2ec63cd797f766cd3b09037"
+        }
+      ],
+      "version": "5.2.5-2ubuntu1.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:liblzma5:amd64@5.2.5-2ubuntu1.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libmd.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "bb376813876bb214535bbbdac70f2c0c4b00baecb81557dab78a79518248df06"
+        }
+      ],
+      "version": "1.0.4-1build1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libmd0:amd64@1.0.4-1build1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libmount.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b6e4a8ddc851b58e7f8c93945f875439d2a14a8809efde17b028c4e2db6af328"
+        }
+      ],
+      "version": "2.37.2-4ubuntu3.6",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libmount1:amd64@2.37.2-4ubuntu3.6"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libpango-1.0.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "de79fa0f427b7f0e4eaec7246393435535541bb3b0333f0c71b65d73f07602e1"
+        }
+      ],
+      "version": "1.50.6+ds-2ubuntu1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libpango-1.0-0:amd64@1.50.6+ds-2ubuntu1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libpangocairo-1.0.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f8ca87d7af66241aae432050c679e61d726a6542cb47a1333ce248c0d14c2448"
+        }
+      ],
+      "version": "1.50.6+ds-2ubuntu1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libpangocairo-1.0-0:amd64@1.50.6+ds-2ubuntu1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libpangoft2-1.0.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "158f0b0d7de5fdadf4b6671f97f69e84fa2eec827bb0416788a54dea41b85b39"
+        }
+      ],
+      "version": "1.50.6+ds-2ubuntu1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libpangoft2-1.0-0:amd64@1.50.6+ds-2ubuntu1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libpcre.so.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "baae995e98223eee1afe6c640f21bdbba91b9c170584ce766418b59810d98a93"
+        }
+      ],
+      "version": "2:8.39-13ubuntu0.22.04.1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libpcre3:amd64@2:8.39-13ubuntu0.22.04.1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libpcre2-8.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "28626d3b1bfcc7305496b30e621068f67d8707d88d0193cc536983c748c8cbbc"
+        }
+      ],
+      "version": "10.39-3ubuntu0.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libpcre2-8-0:amd64@10.39-3ubuntu0.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libpixman-1.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f6b5d0cabb6fd4b1007edbfdff4a0601f6631aa66595a89aa4f0128958661dd0"
+        }
+      ],
+      "version": "0.40.0-1ubuntu0.22.04.1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libpixman-1-0:amd64@0.40.0-1ubuntu0.22.04.1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libpng16.so.16",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0c55d5776d3382cb7859ff48fcf813e0c3b27f33c46f9364633748830246c723"
+        }
+      ],
+      "version": "1.6.37-3ubuntu0.7",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libpng16-16:amd64@1.6.37-3ubuntu0.7"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libpython3.14.so.1.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "83ef0c3cc369737f689854b1bb52b84e5d3d5dfdb24a070aadaccef8218d04df"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libreadline.so.8",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "57419e3b177639246ecf7ffd2eba170bde779b7369d70e68b9b4c5fc3051cbc1"
+        }
+      ],
+      "version": "8.1.2-1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libreadline8:amd64@8.1.2-1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libselinux.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "624eb1e6a7510e0983e9caa1bbf3e1966acb64fd6d3ad4db94528addbe1e7224"
+        }
+      ],
+      "version": "3.3-1build2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libselinux1:amd64@3.3-1build2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libssl.so.3",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "51fc92556f11ddce62f3f988d3fe973fab8fb4742032e61a713688581c924262"
+        }
+      ],
+      "version": "3.0.2-0ubuntu1.30",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libssl3:amd64@3.0.2-0ubuntu1.30"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libstdc++.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ff0825e113603c3866680d5d52216bc6d8eedf3a59f52a0aef67ff01994db128"
+        }
+      ],
+      "version": "12.3.0-1ubuntu1~22.04.3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libstdc++6:amd64@12.3.0-1ubuntu1~22.04.3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libsystemd.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "40c7e0a11f089d712f0462df20e75e968c734a5813c4546f149c11a2f837d88c"
+        }
+      ],
+      "version": "249.11-0ubuntu3.23",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libsystemd0:amd64@249.11-0ubuntu3.23"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libthai.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f8459dcadb747e81e21cad576f8143d7e794671689e2aac0edb1b319f548293a"
+        }
+      ],
+      "version": "0.1.29-1build1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libthai0:amd64@0.1.29-1build1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libtinfo.so.6",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "856b8451914abc2277c3d91c64ba3e72b2e0d519806397afecae92fda1a6b10c"
+        }
+      ],
+      "version": "6.3-2ubuntu0.3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libtinfo6:amd64@6.3-2ubuntu0.3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libuuid.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4472cf91dbc01395761fb45d0f4b25f6241406fe54cbf540c13755a3706a7b17"
+        }
+      ],
+      "version": "2.37.2-4ubuntu3.6",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libuuid1:amd64@2.37.2-4ubuntu3.6"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-cursor.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "729297e66519bdb0df3ac8d5a2950e2e09b1e8d0b9eeea33250fce57a27aafa3"
+        }
+      ],
+      "version": "0.1.1-4ubuntu1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-cursor0:amd64@0.1.1-4ubuntu1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-glx.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3ae585380e28079862b4a9928b2ca8798efe806e566ba5ba8d1bdc1c951e1d1f"
+        }
+      ],
+      "version": "1.14-3ubuntu3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-glx0:amd64@1.14-3ubuntu3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-icccm.so.4",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "bba23d0d7e19f602113032e351035aa7968514fc85a9f30b152c363f153ccb6a"
+        }
+      ],
+      "version": "0.4.1-1.1build2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-icccm4:amd64@0.4.1-1.1build2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-image.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2ae417d723f9ad4e68951fa7890c8b50b2a386bee16c4ad5491da24addd67f13"
+        }
+      ],
+      "version": "0.4.0-2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-image0:amd64@0.4.0-2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-keysyms.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "46afa09b0cce49e33792b8527bc714cf23832c67eb2e436c372fcf5ff708be1d"
+        }
+      ],
+      "version": "0.4.0-1build3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-keysyms1:amd64@0.4.0-1build3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-randr.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "942a242b33c80ab4a5ce6d3db62d12f8856589860fa1986248b046850e58a80e"
+        }
+      ],
+      "version": "1.14-3ubuntu3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-randr0:amd64@1.14-3ubuntu3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-render-util.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2a6dd5e6d3062be2874691c93392765f1d9ef224e2097fc22bc73906070de7bb"
+        }
+      ],
+      "version": "0.3.9-1build3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-render-util0:amd64@0.3.9-1build3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-render.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "116b70d1eef6cbad17bec65091b19fce427dc009a6213cee796935fa6a9ce520"
+        }
+      ],
+      "version": "1.14-3ubuntu3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-render0:amd64@1.14-3ubuntu3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-shape.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "db29fddf057f86d4561cd54c843efd34ec17af3471ca2ab32e8f3031aa3aad33"
+        }
+      ],
+      "version": "1.14-3ubuntu3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-shape0:amd64@1.14-3ubuntu3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-shm.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "722e13a0a26551dd9f11b930c4632c9e51d2e9f743315d45c1b665356950d42d"
+        }
+      ],
+      "version": "1.14-3ubuntu3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-shm0:amd64@1.14-3ubuntu3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-sync.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "bfc92d901bfa11f61e3b921631676e0cd4a553dc825943d378e9997218345440"
+        }
+      ],
+      "version": "1.14-3ubuntu3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-sync1:amd64@1.14-3ubuntu3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-util.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d05e3f95b9fdc2264c28f3df6aa735c2942e39d6a7184e42bc092fd637ea6c80"
+        }
+      ],
+      "version": "0.4.0-1build2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-util1:amd64@0.4.0-1build2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-xfixes.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e3d14d45bd5208e7b146627f8a6d8918c52846face02cfc4418690c32534bc42"
+        }
+      ],
+      "version": "1.14-3ubuntu3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-xfixes0:amd64@1.14-3ubuntu3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxcb-xkb.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "05db2c686a9d76722d4e2a433286b266ee39286e0eef87782431a10d2e16c5a1"
+        }
+      ],
+      "version": "1.14-3ubuntu3",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxcb-xkb1:amd64@1.14-3ubuntu3"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxkbcommon-x11.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "18144e8476746721512f4a23a2670fa4b3c0683715db0ed16f12e6bad39cc298"
+        }
+      ],
+      "version": "1.4.0-1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxkbcommon-x11-0:amd64@1.4.0-1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libxkbcommon.so.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "26773f54626af26f5f26f0279a9748ea2445c1adcfef50a7d572c9b54575bd86"
+        }
+      ],
+      "version": "1.4.0-1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libxkbcommon0:amd64@1.4.0-1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libz.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "64c206f0146cc58bbddc4f22054436f4ff278f5a554aa3ce6921ddf7e9133370"
+        }
+      ],
+      "version": "1:1.2.11.dfsg-2ubuntu9.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:zlib1g:amd64@1:1.2.11.dfsg-2ubuntu9.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "libzstd.so.1",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5df4f4df42d76270bb6981fabc7c1fdccd8ad28a23d84d67f73203fb3f537667"
+        }
+      ],
+      "version": "1.4.8+dfsg-3build1",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "Ubuntu:libzstd1:amd64@1.4.8+dfsg-3build1"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "matplotlib/_c_internal_utils.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "fb7709387b3a0b401424f4de5fd14da28f519126a776346a40375c47f0ae7906"
+        }
+      ],
+      "version": "3.11.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:matplotlib@3.11.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "matplotlib/_image.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "09d71cfa7b9c0b90f367e63531cd4b6f145d80df2fd4f8d7000902e95846778e"
+        }
+      ],
+      "version": "3.11.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:matplotlib@3.11.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "matplotlib/_path.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "58fca3d04943d65594f7cb538a1f233ffc61cb0d2c1ea28b450e93c3c71cb97d"
+        }
+      ],
+      "version": "3.11.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:matplotlib@3.11.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "matplotlib/_qhull.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1150326587028fba9118f5ea0d0d9d8fc66240d83360ddd94c2aa00d07b082f9"
+        }
+      ],
+      "version": "3.11.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:matplotlib@3.11.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "matplotlib/_tri.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "694c50431202acffb38fda4e71c682c615fdc1dc3a84f515376d3a4117779f1e"
+        }
+      ],
+      "version": "3.11.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:matplotlib@3.11.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "matplotlib/backends/_backend_agg.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c0c9e942e9eee435e071e1a7dcda4f808beb3e3a06c0bfe18f3289a8e145b297"
+        }
+      ],
+      "version": "3.11.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:matplotlib@3.11.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "matplotlib/ft2font.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "fa0d7163bd7e8b4327d6e3a96cbdc5d38a1aa6de25385f3bbe78456e52ebc8b0"
+        }
+      ],
+      "version": "3.11.2",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:matplotlib@3.11.2"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy.libs/libgfortran-83c28eba-b4027c22.so.5.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "fd1eab02b28ddb97628ca82220f0141336e390990d1d92ae6a3475aaf4f51b03"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy.libs/libquadmath-2284e583-a9307bba.so.0.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6bc3069003caec1f075be3c51ae8355332f081fa9465910c4b5724e7fe7d8ad4"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy.libs/libscipy_openblas64_-017048f4.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7f88e5cb3075a73d1610511f5de871c93e11701e862341c002ec8db936a60af8"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/_core/_multiarray_tests.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0f18ef1c2cf33895a9abbce3101e05f45dbfdc57c91a5d0ce10b14f518422e89"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/_core/_multiarray_umath.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c25d185f5759db66c2ffa4ddecc7901a955e7c0a93f985e7e45b0667b5f70f85"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/fft/_pocketfft_umath.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8532d109d939ca5e9d500f7b0d051728aa3d18266dd14cf925b42ab561da7e20"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/linalg/_umath_linalg.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "45a4bea3df883c7c4da8a3575a7e13ae51c186b0930d9baa8f1813f948070430"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/random/_bounded_integers.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "76a39e51560e3ae3d5859c7bfbe0a084b15ab80a7f8f9bf0d024c32a59c94ee4"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/random/_common.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7fba8cfb6f9853519bf2e686bf23fa631101034593b7efb38ba85fd019579d58"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/random/_generator.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "14924390226c9a65395707148c2e75155b4ebe94d5519a4f97e5b4b27ac6f860"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/random/_mt19937.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "07a722e91fcefc538ebfa19fc2a5fb67b809aca27ec270f00cab2fc6cf387b8a"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/random/_pcg64.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0ca77a70301fb8ad86f1de586a12f3f5011b2328c1713a8488a53c28d25a4db2"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/random/_philox.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "617538df8d6a6421cab73d852bc3129b9187acb757a2e23eda01e5da5909e1d6"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/random/_sfc64.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c7a9ffa8693c2164b70968b0c2d58d92eae69de30aa2db693124c3044972465b"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/random/bit_generator.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "00b249e49c2df88640ed96702ecf2f55357a4cdf84e3048ae71861b70b6932fa"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "numpy/random/mtrand.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1732a0a07ccdeaf24fdf14a4849af7807c1b4d371332ffa2fa5ef8668085cd88"
+        }
+      ],
+      "version": "2.5.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:numpy@2.5.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/libXau-154567c4.so.6.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8b5a93469805d3550471766696d4755f05bc6ca0587f22c03037ca7d12545c8b"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/libavif-c6062d5f.so.16.4.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d12ec0b696860b292114b130ecac6082fc75c198c1b4fa57b26089e9b0a7eb6a"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/libjpeg-6dc8d115.so.62.4.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cc04bc42fd6296e81d24d13955fb95bd829624f6c74105eaf4a7fcf2ce42e048"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/liblcms2-88eaba2f.so.2.0.19",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4cf9f69016c7804bcb4fa56f5bbc55640cb1b7196ac7b93ba29ed9df9bd9ff4d"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/liblzma-de26b416.so.5.8.4",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ab4d2f260d6777088cc4bd96ce4997a5199d20b94e146a764b02c37d42477ce9"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/libopenjp2-e530e1bf.so.2.5.4",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "eea7a2058e0f2084d41ba88c561bddc866bd38e74f76b5ca4fccb965e2fb1c24"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/libsharpyuv-0066295b.so.0.1.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8abd5c39ee3b26330288b2e833d4d9b5d4b5ed4c881649057354df17326b6996"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/libtiff-20b7e810.so.6.3.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "729883f61144533eb3215d405e4daad528a68f89e9a1fccf51e9862819f30020"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/libwebp-51b0b3f7.so.7.2.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6a97159a7c36acacb112618eb74720c97bbab4ecc499a8bfeb495dd726285259"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/libwebpdemux-9fe2abcc.so.2.0.17",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5d728787db553c48c74dccd93d2763ec88234850a5f2f821df11483c8d28d2a7"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/libwebpmux-8fb1c9f6.so.3.1.2",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6bdb41f738f088e7420374d67a4a6523cc4786f340d355d2bf4f124dcf3d5820"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/libxcb-9065bb12.so.1.1.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f3707868b0b2e78dbdac0994d2977b0ec4303c9c6250f03576b1bd93c42cad63"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "pillow.libs/libzstd-40ad5e7e.so.1.5.7",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "95a5af7845018639470635243c36b428f90af32b728804af6d951e7fcb08bbea"
+        }
+      ],
+      "version": "13.0.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:pillow@13.0.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_asyncio.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "dbedff90501da2264cfcad1b8267ea797cf008259146065a52d5c73bcd9130d7"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_bisect.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9dc02c6af368b909fc488bd1f23e0aff5c1d010cc0224d014500503e94b0e888"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_blake2.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5a09cbffcff8155eafba54dea8c685ed93ff7c116e94ddad48d77cf02b2171de"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_bz2.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7716ccfdb97d07f94afb4c20c573cb8894512b3cba87ab49f9a6f3b95e76e094"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_codecs_cn.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "66407a74a4ddb4f9eb51bb90b0aa16dfcca2b7b0337f2ce325c9cc894cd88b65"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_codecs_hk.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4a0e030d814f27390d2f1e58995fe90106d66f2c9a4b726fbff1c446734a50cb"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_codecs_iso2022.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6f2fafe05854cc63483a0baadf0b39c59154c4ca201b17a33ea93c6184d6c856"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_codecs_jp.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "784b21eb91a8e0534a8a0525518bfe0925560edb32a0f1d390485ce5c9778aca"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_codecs_kr.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f6bfa6b691b1bf1e665dc4e69d4d2c9a270e9bc7eaca4c52c0666c3287ec3273"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_codecs_tw.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9706025f98410ab7d45ea7539a627bea7b876b7052f0e62cf8fc004c97efd2f9"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_csv.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5b41546031c8a0e73d64bf22b3ebd889bb8e6327227df266824d466c276f8368"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_ctypes.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "db4770d311ac2e7166638629a1b1f9b9de551a5f40452a45ccc7cf7b10c579ed"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_decimal.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2a99852109a9482af4708a71246af1103db0b541f393db07d70164eec36d8f6d"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_elementtree.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d6b7cdd2e29c551058d6599bdd6e590e4edb072507d2cfd35bd1f8f77ef99929"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_hashlib.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2bd79db5603fa47638fe45b9ca111bac2867e6d594e07ec0f460f1178d3cfd90"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_heapq.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9b4ab7b311fde5113baf01eaa0a741c1373fe492c8cc480553d3a653637e4474"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_hmac.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5d54141f530adba55f54d6b6894754195615b858c354960bfe638d09df28c492"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_interpqueues.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "bc80609f39e4193e3b399837d47e03084a7f6ae7e752e58e54669fef49d77c76"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_interpreters.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8dbe238b1499cd1df691ff1622d6db984c92229f597a1b0234a0db3b738d46f2"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_json.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d4e5a45d7148f633cabf42256c159355a700b0e1eea5028633a5e3c427abfcb9"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_lsprof.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "998e25963848cde148c89c9bb734165c9c9a111a4507d4eb95eac504f0605f9e"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_lzma.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8b55873d6c2f1b12d9ada8f375707b279905b0934ebe6a8efc96265d061b14d0"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_md5.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b9fc183c12b459f379945d46429061477e280e8c363f5ed1e59c26a503faf6f2"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_multibytecodec.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1fe753761b5e2a48758aa218f710a27b59fbfff31a34597e42a5cef790ee5e04"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_multiprocessing.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "40af7a0f7cc0901b6056c4008bfa4a7b885d51b9e6953e4c46ee4d4c30013f88"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_pickle.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "821ec6fe5a624d50f0839f4f2cfe5f06624fc59c3f15f9e977382f2fd3dd82ee"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_posixshmem.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6c718bbee61f0384f0d4ba20175d6c9118bc1ea34d5090ac953cf64344174604"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_posixsubprocess.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "346ffb697d2b08f77c5a6a38cbdcffe46867dce6413366323659a4c86b38b881"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_queue.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c80c3b2c96468b0e1f65d21261e4890536b4cfc5206d741bf11b608bf4494b46"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_random.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "65c4336fbde1ec620834d2a0285d29ba1a331ba76e0bae9debaeba7f2bea1730"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_sha1.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "aab7b7014aea3b9a37db1ba8076646bc982a6ae101039ab2675ad6b89763380c"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_sha2.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f2dd4644e74e4d7f4531643377cbd524f6ccf54eac87799de20c11a2b93697f8"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_sha3.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8493f08eb37b52817bfc72799f5fd3c31045d93ffe1b5c9787c8c02bcb29415c"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_socket.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c2c9ed91a33a7ddb6460943ce0707696eea47dd2393926a300328fd8378aebd9"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_ssl.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "808f6ecd5004335f116a5dd737f7b849daac30e4b007ad3897630e5e0f212a6a"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_statistics.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "14cb7bcde788e236b8c0a1676c81301ca29a343d516c276fbfa2a115cea916c4"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_struct.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9278875012ec100489fcae5e40691793e4bd0fa1663a1f44663adb27715309a1"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_uuid.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1805afb61070fed6f76c1869cf548131b26110771e2fc91895f5004dbb4e495d"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/_zstd.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9983db5a64778afe477267bc720c88e5768d35e5ce81fabafc783ff10e8fa514"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/array.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6ac1e34e0f3a30f5ab54756d69b927695098a28ddd051cc156f3f0bfb6ee6795"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/binascii.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4b109e0a1040e186d850522c31767094aed6fe61215b01f2ce1d91c11acac90b"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/cmath.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "76d43bfea533a49a59650b43b9b0bc51dc43c87d9e1b0e4eb3750b5494a25bfd"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/fcntl.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "67d715e00eb3a622bdd8f2d5c41f5cbd83d446f87119b31e873ecd1063218f50"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/grp.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4c684547953adac8c6317348eb1eb8d63497daf6ff46c5b28066df60944a8477"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/math.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "60c2d9947a4794755528ec2fb04574177425cda62baa23e7be74d5a4d018e720"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/mmap.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e5b6e0149ed8d382bad5f2713c70786f7041cf0bfcd34a0153fe026413c756ff"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/pyexpat.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f4e2974fcb0155990e2dbc6e9cc7c059a12aea2b923bb42afb798f662902636c"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/readline.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "dfae01e5fd3dd0eab0ae7a4d7be54cdc31f60b1229f4e4ee18032eb253ec9e7a"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/resource.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "75930e32f410d52ad89a1e81f2c51e2b94686ea456388a44115e2878ab5e1fc4"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/select.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2a8cf8fcd4b7cda26975b6e1fbe6f1267c3f477c8a3da8cccef115ba593d163a"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/syslog.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ad2ba24bb63959d32b04901a8ae2635b8b077187c59257fd6e617cd7fed9094b"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/termios.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d23ea1ca73de053ef08581c891fa17f229aef0747c9d4e0c2b329dbdc58af41a"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/unicodedata.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2b1cb3c7dffcd698db9a8c756af70f2789cf7c2713815222403a5977496fd1f9"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/xxsubtype.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2e97f0b5011eaf7d11ebcb0e901c07b432bd1d9f675820f48e3688b170c30bd6"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "python3.14/lib-dynload/zlib.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e1c6bc6fe547c67da8d362151bccd1bfe40f13fca9260a32c07edc8dbbf93f25"
+        }
+      ],
+      "version": "3.14.10",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "CPython:CPython@3.14.10"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy.libs/libgfortran-040039e1-0352e75f.so.5.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c6090048eccc763522c12ef016f81da6b627cb3a044f55cf0479a839c41c0980"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy.libs/libgfortran-83c28eba.so.5.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e554879fee7eda80055b6ca1407a54d00050874f830cc86b2bf3f50df5c7bb2b"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy.libs/libquadmath-2284e583.so.0.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a9307bbaa353623fa014e8b682d50c4629f5e5c7d61daa9a8652f7d165cd421a"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy.libs/libquadmath-96973f99-934c22de.so.0.0.0",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6ed5137f412781ad7863439fb543613f620b43c32b63292a0029246162f5bbc6"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy.libs/libscipy_openblas-5f890258.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2a5b4c1a6311873c59132b2ceaaf3c26258a17350b7cd27ea8782a47e3322981"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/_cyutility.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ffe4946b4a488837b205e414b70d9489ad07e024ccc0f1e30e1326b0cafc1a6d"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/_lib/_ccallback_c.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1ddf298d9ad97abfd28f89d0d732d96c3a6de7b901043edff7e7d14187e26241"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/_lib/_fpumode.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "da235e1b74de802028a786828164c832c06f886ca7dfed99c955e99f9f132778"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/_lib/_uarray/_uarray.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9385d907d5ab7da478512425abd4897c1ecac37fc60bb80525f6f99348e12897"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/_lib/messagestream.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "81dbeed797f306cbbd3d4b9cb01fb5adf720cf2097b7f490d1f472732f4e51f5"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/fft/_duccfft/pyduccfft.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f1b5e318dd6a25acad44904966e0f9cbf8d636a22e6a8f38cd612cf059830e25"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/integrate/_dop.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "72edc95b0fa611347929965b3d6c2ce5017e884d34350f14381c419b646999f9"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/integrate/_odepack.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2c215947aaccaff2dfa62019e76228fddfea4f2892574523e6cfaf821a755bbc"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/integrate/_quadpack.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "056f143cd23f37838eba67cde089e7ccd1cdbc0b4609eadd3a75ece074b0fd82"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/integrate/_vode.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5fe0cbff8beee5cbf1cc49aba0f8583d02b98226983c3ac2a89d1e81150ca74a"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/interpolate/_dierckx.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "38ca40c30ce5c1d4c31fefb641f5d5132fd0808a29a59acd1e3683da91ded5c6"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/interpolate/_fitpack.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b5fed9cbd65374a9f304049a71f941b27fedb8c61e5926d9ecc63833aa1ba362"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/interpolate/_interpnd.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "710f5686181ae1fbc392af0bc91cce33bee5cc5894a27ae502748ccc81d6e618"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/interpolate/_ppoly.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b46a94a8e77d50b9ad6df0aceae427a1558b488920c0d1ec9fe36565de3e7e12"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/interpolate/_rbfinterp_pythran.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "376bbefc8a6645043bf0ca20833e31c44bad9aaf5054bea7eba30267141df16d"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/interpolate/_rgi_cython.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "e4d076547e3ffe2314508faf1fccd974cea9d578f7ee7ce123c55a4179b35c34"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/io/_fast_matrix_market/_fmm_core.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7305cac763849933e98d95a6ad9bceba9702e0f594551fcfb860a939e7a3efad"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/io/matlab/_mio5_utils.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f79ad1aab30f007236aa930f07e6cfdf555bf34f41da0efd2f6993ece1c447ac"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/io/matlab/_mio_utils.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1f2490b12b9a5189b244ec5e92cd302c1b31f33fbe62667376b821eba48796ab"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/io/matlab/_streams.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b52b5b77b1d8218d4dabdbbb84d039e8838e175ce80b5d41c108155a26c2d4c3"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/linalg/_batched_linalg.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "77cacff5880e4419182c7755d3f3e498d64f66cf55ea7f2b79f59194a597cf38"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/linalg/_cythonized_array_utils.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "023bfcb5b59a9ca7618e8cfecd17680eac1cdf20cb2c6e2b987ba911f0314555"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/linalg/_decomp_interpolative.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "8a56a7d312b1f8fc053946f9b2a73d66afdb51e18ae99b488a36c90a9500f562"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/linalg/_decomp_update.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1bddac78b40efcdc2198421a5924a000e599cd7db9f90fc85c0eb1683dc5ff7d"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/linalg/_fblas.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7504bc2bd5434544b84ba7ff605b2254ffc619c92e5521a5a5f1f6cd9014b7be"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/linalg/_flapack.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3955632e59fd0aadea557c848bb1d9db1d6330272552b9d645c188e55bd27e9a"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/linalg/_internal_matfuncs.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d92eec765019abc0c01f8b2e87ce099aa156679f721cb005fd550a57a6aa7a85"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/linalg/_linalg_pythran.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4653c23e7afe293c5cf40d329c67b398976bb6f298b02d5aa5600ca1ddf720ca"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/linalg/_matfuncs_sqrtm_triu.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c127b255547f3d5c9bc130dd276aa475ba5e2e5a2da574780935b01be831c03b"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/linalg/_solve_toeplitz.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d14ff3ded3c80844bae698f5b9db06c37edbdf3458f0cbcd8f8afd919d957fd5"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/linalg/cython_blas.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f1cec48876a166e3c4eeda0aa6c5363e48c99d7fceee12d43c93d7baec37316e"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/linalg/cython_lapack.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "91ecdf3dbedde98cdd1c10e74b0869c142f043c723188e5d6ecdc7bf8dbb5076"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/ndimage/_nd_image.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "212abf8f661562cc895e688f77b7ad3fbfba01bfbf852923a78916ff9f70b968"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/ndimage/_ni_label.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "122b9fc251edf0430eac7f3a0d0caae6769530533342aa97a16cf07ae71985df"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/ndimage/_rank_filter_1d.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "00697055a9f634f7f77fe3404fe0df5c0312b1ab02631283bfb894372b0f2954"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_bglu_dense.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f042cbd2347cc1cf006fe6a3558353ec1d9012f589285df82a20ec24d037eb7b"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_direct.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "4778fc182b161979a7b0fba6d68251244ec9d3bbec85589051afb1a7f9a3dbe1"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_group_columns.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "5a27642fa6bb44daf0dc5cb348c505e0d9c4769c05e89618989039872cc93355"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_highspy/_core.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c74b47e7333826cebe872c22ae4a2af6ad39eace2bd99f258dd5fd69ac6a3e4c"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_highspy/_highs_options.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b12df8fca3e4d3fb61b8ca8439f5aed3d5399690692c626a38e4139858aa666b"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_lbfgsb.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "bfa869a856ab87dfe462e75b4df2116a401d60a09e127fc4e3dc2d684b613a39"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_lsap.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6f7c72942200e3cad8c6e2d4882339b3c7ba72f850f2eb382966af2e3200ecd3"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_lsq/givens_elimination.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "21a6e65ab8f00b6b27efb78e938d6d4d524c5eb6b174c7aa58be1f86b63cbd50"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_minpack.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9e8dffdee579bd35bb36dd5eb96093be431940e9489dcff8437d9dd81214a754"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_moduleTNC.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6e1be96927dc853446f57a62726faf1ebc34be1f601cf2cdbf4c60a9d4e4a618"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_pava_pybind.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "c580bfb8fd165485561f593591141f8f43917ebb121b65e47d1c09c8462ddb65"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_slsqplib.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1d3918b788abc3988247e58c7a31bbfb8c2cfd8380412ba0589003b943ea744b"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_trlib/_trlib.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d45addc6da4c2570d54d1bb8cdfbecee8d84d4e4b040aae09898d441f962f2f1"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/optimize/_zeros.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "86a5a2c119f5c00780863519e777be5f9e76b79655032de529ef97a15e752504"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/signal/_max_len_seq_inner.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "29d6a5c69509a2fc132f811fc536fdd647c975001e085c0eee62e09b495c1384"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/signal/_peak_finding_utils.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "64f5d9725213f3fa660a44ff0896cefa8e94b59b9464078da3b64bc5173ada20"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/signal/_sigtools.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d921e15866e33a0d5e1d01e5f44605a6ff0053c4aef22f8aafb929cb99593450"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/signal/_sosfilt.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "38c9d197862697e3457eae88daf6a9fe52f92e83644bcc7c28d9fa6ac5180b5d"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/signal/_spline.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "97b9892352c4c5568283fc9451f19b48a5b672bfd3711fa5ecf054f651c1bb5f"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/signal/_upfirdn_apply.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d34c76870474625a3195a5c9245a6cbafdfc5f22409cf6a4da10c5b1333d0147"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/sparse/_csparsetools.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7661d2d8c0b994fd4a87259beed166ec6862e278cfc17a098384724f2b1bf8da"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/sparse/_sparsetools.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "b06842b8c23ba2db0383183925d75796ad6d65c46686c2b570e443339d529c6c"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/sparse/csgraph/_flow.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1d2b041af7d45f7e55810001e7eb2896bb7825ff4aeff2808d714eedcf91c501"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/sparse/csgraph/_matching.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "86b691c25e592fb7ab4b96caf0ed0ca5ab0baebe6733fee0b01dd737ee129784"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/sparse/csgraph/_min_spanning_tree.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "9f76de6432078fdc114ac06aa6f5768a9b90fd9b7129ec134ecadb5ef0a29fce"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/sparse/csgraph/_reordering.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7dc9981f0c4e8e3201a9134e6a1fbfef04a666dfbc443eb6deaed003d76ec8ae"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/sparse/csgraph/_shortest_path.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "7c33645b846851eb752b6cdcb14d41a455e582ff2a69adff5bfc1aba6c03910a"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/sparse/csgraph/_tools.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "01804141334e12eb08b49856cdc7e97750a7c27829c4ae99cc2e19ef399a0afe"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/sparse/csgraph/_traversal.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "bbea9af9c5f05fed052886df0dc6851e1d49cbf3cd4d26dc70f83f6bd78e8163"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/sparse/linalg/_dsolve/_superlu.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a489e00c7b6feac3f7b9517c78a359ddfac8f889a48a060ad39e180c54e05e13"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/sparse/linalg/_eigen/arpack/_arpacklib.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f4214b4912bc02878019d59527e067a49b8411f0d0c5e00ef23c008c80b89596"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/sparse/linalg/_propack.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "073d95653b55687dbeff56ba8531b8202496905dffe31942cc711c44c7af7989"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/spatial/_ckdtree.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0c4ed9eaeb6c6ed24842d65d7d3318601e680b57ed34b5e0ccc55987519c6c72"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/spatial/_distance_pybind.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "57acc4ed53036bdc724a88ffe3a1a629351214c8dae4e438f0d1fdb1fa648b98"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/spatial/_distance_wrap.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "31d6a77f4a62d9ca5d692eeaac4abb371a653b48f0cc89dcc1970e7ae0c8feab"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/spatial/_hausdorff.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "bf7fb28faa97dd86ef38897df56933be41bdeec256ddc5deb3917ec2970b92bd"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/spatial/_qhull.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "69917ca29f0cde401748a2cd4fe6d7426e61492f3de48767bef32a771e579b79"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/spatial/_voronoi.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cb3c3c48d9f5a0e6704975fa62f6a7537c28041590f8c124016831f4e6bda9bf"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/spatial/transform/_rigid_transform_cy.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a6e3d1f13a39c0a0befdd839978d9e2a88d3b0698d0b234c57a74b5833c59342"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/spatial/transform/_rotation_cy.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d3b5b72894a1b9962394a5e38c1cd59db56e9b7e321143262f36f59f5d3ff20d"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/special/_comb.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "0c325c8a38df02c1af4ac7f80d1af23b6b214a252d9d2483b76454ea650d2770"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/special/_ellip_harm_2.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3582ea026ba30a22d098143be1dff3e50d8513ee31a298782a45a76c92331af3"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/special/_gufuncs.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f518e696ed315d57da653eedf23e92d9e92a0faf1faa137c271157fb23e7a3a9"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/special/_specfun.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "a1fd8ef421e5092bf89c1784512b301a6c4082401f87a4ce82c8d1b627ee2dce"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/special/_special_ufuncs.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "677ab400342b1e9f1f464f9dfc66258973fbad76ead8f6933d42f5ee891382b3"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/special/_ufuncs.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "cab8e3497f473cfd3a1c3f1889ca9cd476f51dabcd36cac7816d643586bdc27b"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/special/_ufuncs_cxx.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "06fb5dfa6969434ec3d31ca822d6fa0d99620d7b559ea84680b1b93287d0d899"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/special/cython_special.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f024b083e45d876c9153ab3da60667b0b31bb9f850438f3837f132d09286a139"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/stats/_ansari_swilk_statistics.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d0606452fb5befdccc3d806d7bbec0f5bdfc0f776fe16ba9eadc639702ba9100"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/stats/_biasedurn.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "f1815c2b361f3993fe23c72d32e52255d6a5429b8a2e610385a492eaf8ebb1d2"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/stats/_levy_stable/levyst.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ba7653c491a6d72c256ab5fb3635a7aa8a2d4062f8a9df4d1047ce1375d63e77"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/stats/_qmc_cy.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2a5f4c948492eac2914df5275efbc6e0f419d27614a5a0dfbd219acb8ce3aa93"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/stats/_qmvnt_cy.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "3129caa251fd6919396b3d0137f8ad70b02ab81d8f2ac09003aee2be4ac231fb"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/stats/_rcont/rcont.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "1d08e786c35d3cb36c39f1355345f094e0e6d3ff279605890bace4b98e5668bc"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/stats/_sobol.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d282d6e4ca8a818aae536aa8af2898a649738f8df6447e29bc98978eeee72ba6"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/stats/_stats.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "ea8eb09d92e41d3ba13ce39c90ce66a59ee49499d1473825b0308a05480a9238"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "scipy/stats/_stats_pythran.cpython-314-x86_64-linux-gnu.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "d08c26d254abaf6c223c9f610d4ddf67bb397c5b5d3dda5f48b2e91f17374e70"
+        }
+      ],
+      "version": "1.18.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:scipy@1.18.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "shiboken6/Shiboken.abi3.so",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "6195b9fac615bd9e5d9c3527819b844216b0f876dbfaafa5b3b314327b292d0c"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:shiboken6@6.12.0"
+        }
+      ]
+    },
+    {
+      "type": "file",
+      "name": "shiboken6/libshiboken6.abi3.so.6.12",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "2b3d9767d69da0afabe4a383dc241a110fac4c0bb63cdeb3d01314e9c702241e"
+        }
+      ],
+      "version": "6.12.0",
+      "properties": [
+        {
+          "name": "signallab:byte-identical-origin",
+          "value": "PyPI:shiboken6@6.12.0"
+        }
+      ]
+    }
+  ]
+}

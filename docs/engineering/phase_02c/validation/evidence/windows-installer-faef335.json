@@ -1,0 +1,59 @@
+{
+  "platform": "windows-x86_64",
+  "sha256": "f7a41a4d8252278863804bf745df12f78e4de6601cca02436cd7ac4349b3e322",
+  "temporary_signature_verified": true,
+  "production_key_rejected_test_signature": true,
+  "download_verified": true,
+  "native_installation": {
+    "passed": true,
+    "checks": [
+      "native_upgrade_same_installation",
+      "per_user_registration",
+      "uninstall_preserves_untracked_files",
+      "real_installed_application_self_check",
+      "native_downgrade_rejected"
+    ],
+    "packaged": {
+      "frozen": true,
+      "migration_complete": false,
+      "checks": {
+        "fft_roundtrip": true,
+        "lti_recurrence": true,
+        "bilinear": true,
+        "symbolic_runtime": true,
+        "packaged_update_verification": true,
+        "state_space_simulation_and_project": true,
+        "digital_delay_transfer_roundtrip": true,
+        "toolbox_menu_and_matplotlib": true,
+        "bounded_mat_worker_and_scientific_project": true,
+        "sampling_plot_and_report_layout": true,
+        "project_picker_search_and_selection": true,
+        "formatted_report_preserves_text": true,
+        "packaged_symbolic_measures_and_window": true,
+        "expression_measure_menu": true
+      },
+      "runtime": {
+        "python": "3.14.10",
+        "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+        "expat": "expat_2.9.0"
+      },
+      "versions": {
+        "numpy": "2.5.0",
+        "scipy": "1.18.0",
+        "sympy": "1.14.0",
+        "matplotlib": "3.11.2"
+      },
+      "ok": true
+    }
+  },
+  "upgrade_from_stable": {
+    "from": "2.0.0",
+    "to": "2.0.1",
+    "stable_sha256": "261dbd5ffd82adcf61cd33305532b37498e5cfdb673d3082b0c8b8638abfa487",
+    "candidate_sha256": "f7a41a4d8252278863804bf745df12f78e4de6601cca02436cd7ac4349b3e322",
+    "session_preserved": true,
+    "corrupt_download_rejected": true,
+    "native_handoff": true,
+    "in_place": true
+  }
+}

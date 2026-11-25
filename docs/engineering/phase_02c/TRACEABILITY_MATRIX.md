@@ -11,3 +11,14 @@
 | C-08 | C08 · GUI | `b036fd9`, [matriz visual](gui/GUI_VISUAL_VALIDATION_MATRIX.md) | Escritorio Windows y capturas, DPI del sistema y Linux real pendientes |
 | C-09 | C09 · Distribución | `37ac1d4`, [comprobación de instaladores](distribution/INSTALLER_VALIDATION.md) | Evidencia aislada, entrega pública pendiente |
 | C-10 | C10 y C11 · Arquitectura y cierre | `320030f`, [auditoría arquitectónica](architecture/FINAL_ARCHITECTURE_AUDIT.md) | Base headless comprobada, ampliación bajo autorización separada |
+
+## Continuidad de 02C
+
+| Excepción o requisito | Causa y corrección | Evidencia |
+| --- | --- | --- |
+| E-01, E-02 | Ruedas corregidas pendientes. Lector MATLAB clásico y HDF5 antes ejecutado dentro de la app. Aislamiento nativo en `8884ca5`. | [Revisión de componentes](security/DEPENDENCY_CONTINUATION.md), `test_math_input_integrity` y comprobación del portable |
+| E-03 | El estimador Linux omitía cgroup v2. Se registra el presupuesto efectivo y se amplía la medición de tamaños, concurrencia y cancelación. | `8884ca5`, `faef335`, [envolvente](resources/OPERATIONAL_ENVELOPE.md) |
+| C-06 | JSON duplicaba muestras en objetos Python y crecía por codificación decimal. Instantáneas compactas y formato opcional transaccional. | `8884ca5`, `faef335`, `test_math_project_archive`, [dimensionamiento](persistence/COMMUNICATIONS_STORAGE_SIZING.md) |
+| E-04 | Ensayos previos no instalaban la versión estable pública antes del candidato. Se verifican el salto, la reapertura y la descarga rechazada. | `8884ca5`, `tools/check_stable_upgrade.py` y recibos de la matriz |
+| E-05 | Etiqueta principal truncada en ventana compacta y Welch inicial incompatible con N = 64. Etiqueta accesible abreviada y segmento automático. | `faef335`, `test_desktop_session`, [acta y protocolo de escritorio](gui/DESKTOP_CONTINUATION.md) |
+| E-06a–j | Brechas en precisión, procedencia, validación y traspaso entre herramientas. Casos preventivos y de integración con oráculos y resultados persistidos. | `8884ca5`, `faef335`, [cobertura por objetivo](testing/FINAL_COVERAGE_REPORT.md) |

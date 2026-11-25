@@ -8,3 +8,5 @@ Usá un perfil descartable y registrá plataforma, gestor de ventanas, resoluci�
 4. Enviá una captura de cada fallo junto con la ruta y los pasos. Para los perfiles aprobados, basta el listado de pasos, tamaños y escala real con resultado.
 
 La ejecución pendiente en Linux debe hacerse en un escritorio real. La matriz automatizada Xvfb aporta evidencia adicional.
+
+El [acta Windows de la continuidad y la secuencia de verificación pendiente](DESKTOP_CONTINUATION.md) documentan el flujo compacto, Welch y el nuevo formato de sesión.

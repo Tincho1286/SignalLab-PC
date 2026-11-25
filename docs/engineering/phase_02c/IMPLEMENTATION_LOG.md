@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · Validación de la continuidad 02C
+
+**Candidatos.** `8884ca5485f3a70b9a6d53dcf527741eac12c904` introdujo el lector MAT con cuota, `.slproj`, los oráculos de Core y la verificación del salto estable. `faef335bb7892cda92edc50a7c4f417a89b0415c` corrigió el ajuste inicial Welch, la acción compacta y el control de apertura de proyectos, y amplió el banco. El ensayo de tasas pasabanda comprobó de forma independiente el intervalo abierto 5 < Ωs < 8 para m = 2, el traspaso de Fs a muestreo y el CSV.
+
+**Comandos de referencia.** En CPython 3.14.10 con dependencias fijadas se ejecutaron `python -B -X utf8 tools/check_engineering_baseline.py --output work/engineering-baseline`, `python -B -X utf8 tools/check_engineering_package.py --output work/engineering-baseline/packaged-smoke.json` y `python -B tools/measure_core_hardening.py --output work/distribution-audit/core-performance.json`. Los trabajos de empaquetado ejecutaron `tools/native_sbom.py`, `tools/build_installers.py` y `tools/check_candidate_update.py --from-stable` con los nombres y rutas de cada plataforma.
+
+**Resultados.** Cuatro trabajos aprobados de la corrida 45673548563. 890 pruebas integrales y 150 casos preventivos por plataforma. Las ocho brechas de componentes designados alcanzaron el objetivo. La cobertura global y los controles externos conservan el cierre abierto. Se verificó en Windows real el flujo PSD, informe, figura y sesión compacta. [Quality Gate](validation/QUALITY_GATE_REPORT.md#continuidad-de-fase-02c--25112026) · [Matriz y evidencias](validation/FINAL_VALIDATION_MATRIX.md#matriz-de-la-continuidad)
+
 ## 25 de noviembre de 2026 · Continuidad 02C · E-03, E-01/02, E-06
 
 **Punto de partida.** `268baa3` documenta `459b9fc`. El análisis de ramas de `coverage.json` identificó límites de precisión, incompatibilidades de dominio, roles de procedencia, errores de selección y cancelación. Se añadieron oráculos por suma directa, energía integrada y evolución de señales, además de regresiones de integración.

@@ -1,5 +1,15 @@
 # Decisiones
 
+## Continuidad de 02C · 25/11/2026
+
+- E-01 y E-02. Mantener ruedas fijadas mientras el proveedor no entregue una corrección utilizable y reproducible. Aislar el lector nativo MATLAB antes de importar SciPy o h5py y delimitar su uso a archivos seleccionados localmente.
+- E-03. Aplicar la cuota del SO al lector MAT y conservar la reserva estimada y la cancelación cooperativa para los motores numéricos. El banco mide archivos y operaciones concretas. La latencia observada no fija un plazo máximo.
+- C-06. Mantener JSON y añadir `.slproj` opcional. Almacenar cargas complejas en binario en un solo archivo atómico. Conservar resultados CAS publicados y explicitar el alcance de variables y borradores activos.
+- E-04. Usar 2.0.1 como versión de auditoría en develop. Verificar la actualización desde 2.0.0 con un entorno descartable y una clave de ensayo. Mantener la firma para distribución pública como condición independiente.
+- E-05 y E-06. Conservar los objetivos y el alcance de instrumentación. Registrar escritorio real por separado de los perfiles automatizados y dirigir las nuevas pruebas a flujos con resultados observables.
+
+## Decisiones registradas en el expediente anterior
+
 - WP11. Mantener separados los dictámenes del Core, de arquitectura y de distribución y solicitar la aceptación de cada excepción.
 
 - WP10. Mantener motores y fronteras actuales sin introducir una reorganización transversal.
