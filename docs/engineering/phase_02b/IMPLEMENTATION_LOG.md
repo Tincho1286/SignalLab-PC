@@ -1,5 +1,9 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02B.02
+
+Tras `c9cca2c` se revisaron `operations.py`, `filters.py`, `sampling.py`, `fourier.py`, `system_clock.py` y los paneles asociados. Se descartó duplicar los motores y se añadieron solicitudes tipadas y guardas en `dsp_application.py`. Qt usa los adaptadores en IDFT, FIR, cambio de tasa y PSD. Se incorporaron oráculos de suma directa, sinc, kernel Kaiser, tonos y ruido reproducible. Pasaron seis pruebas DSP, doce de reconstrucción y la guarda estática de 380 archivos en Windows. La CLI por operación y los flujos se registran en paquetes posteriores. El commit es `phase02b(wp02): integrate typed DSP operations`.
+
 ## 25 de noviembre de 2026 · WP-02B.01
 
 Se inspeccionaron la DFT, jobs, resources y la publicación atómica tras `cb23d43`. El ADR contrasta contextos repetidos y un registro dinámico. Se incorporaron `execution.py`, `operation_provenance.py` y la observación local al hilo con restauración. Se conservaron las firmas DFT y la metadata histórica. `unittest discover -s tests -p test_math_execution_context.py` y la familia DFT pasaron 2 y 6 pruebas en Windows. La interrupción del bloque nativo sigue siendo cooperativa. Este registro acompaña `phase02b(wp01): define execution contracts`. Sigue la integración científica.

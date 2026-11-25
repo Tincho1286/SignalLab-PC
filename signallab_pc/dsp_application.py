@@ -1,0 +1,275 @@
+"""Typed adapters for existing DSP motors; no presentation dependencies."""
+
+from dataclasses import dataclass
+from math import gcd
+
+import numpy as np
+
+from . import filters, fourier, operations, sampling
+from .execution import ExecutionContext
+from .model import Signal
+from .operation_provenance import scientific_metadata
+from .project import Project
+
+
+@dataclass(frozen=True, slots=True)
+class IDFTRequest:
+    spectrum: Signal
+    restore_origin: bool = True
+
+
+@dataclass(frozen=True, slots=True)
+class IDFTParameters:
+    bins: int
+    centered: bool
+    restore_origin: bool
+    phase_reference: str
+
+
+def calculate_idft(request: IDFTRequest, execution: ExecutionContext | None = None) -> Signal:
+    ctx = execution or ExecutionContext()
+    ctx.checkpoint(0)
+    source = request.spectrum
+    ctx.require(int(source.values.size) * operations.DFT_WORK_BYTES_PER_BIN)
+    result = ctx.run(lambda: operations.idft(source, restore_origin=request.restore_origin))
+    provenance = source.metadata.get('dft_provenance')
+    if isinstance(provenance, dict) and isinstance(units := provenance.get('input_units'), str) and units:
+        result.units = units
+    if isinstance(units := source.metadata.get('amplitude_units'), str):
+        result.metadata['amplitude_units'] = units
+    spec = IDFTParameters(int(source.values.size), operations.is_centered_dft(source),
+                          request.restore_origin, result.metadata['input_dft_phase_reference'])
+    result.metadata['core_provenance'] = scientific_metadata('idft', spec)
+    ctx.checkpoint(100)
+    return result
+
+
+@dataclass(frozen=True, slots=True)
+class FIRDesignRequest:
+    kind: str
+    taps: int
+    f1: float
+    f2: float | None = None
+    window: str = 'hamming'
+    beta: float = 8.6
+    sample_period_s: float | None = None
+
+
+@dataclass(frozen=True, slots=True)
+class FIRDesignResult:
+    transfer: filters.Transfer
+    specification: FIRDesignRequest
+
+
+def design_fir(request: FIRDesignRequest, execution: ExecutionContext | None = None) -> FIRDesignResult:
+    ctx = execution or ExecutionContext()
+    ctx.checkpoint(0)
+    taps = filters.positive_integer(request.taps, 'Cantidad de coeficientes')
+    ctx.require(taps * 112)
+    model = ctx.run(lambda: filters.fir(request.kind, taps, request.f1, request.f2,
+                                        request.window, request.beta))
+    if request.sample_period_s is not None:
+        model = filters.Transfer(model.b, model.a, name=model.name, roc=model.roc,
+                                 sample_period_s=request.sample_period_s)
+    spec = FIRDesignRequest(request.kind, taps, float(request.f1),
+                            float(request.f2) if request.kind in ('bandpass','bandstop') else None,
+                            request.window, float(request.beta), model.sample_period_s)
+    ctx.checkpoint(100)
+    return FIRDesignResult(model, spec)
+
+
+@dataclass(frozen=True, slots=True)
+class FIRRequest:
+    signal: Signal
+    transfer: filters.Transfer
+    mode: str = 'same'
+
+
+@dataclass(frozen=True, slots=True)
+class FIRParameters:
+    mode: str
+    taps: int
+    input_origin: int
+    input_length: int
+
+
+def _fir_count(request):
+    model = request.transfer
+    if not is_causal_fir(model):
+        raise ValueError('La aplicación FIR requiere un filtro digital causal en coeficientes.')
+    if request.mode not in {'same', 'full'}:
+        raise ValueError('El modo FIR debe ser same o full.')
+    n = int(request.signal.values.size)
+    return n if request.mode == 'same' else n + len(model.b) - 1
+
+
+def is_causal_fir(transfer):
+    return (transfer.domain == 'digital' and not transfer.advance
+            and transfer.sos is None and not np.any(transfer.a[1:]))
+
+
+def apply_fir(request: FIRRequest, execution: ExecutionContext | None = None) -> Signal:
+    ctx = execution or ExecutionContext()
+    ctx.checkpoint(0)
+    source = request.signal
+    count = _fir_count(request)
+    ctx.require((count + len(request.transfer.b)) * 128)
+    from .signal_semantics import require_temporal
+    require_temporal(source)
+    if source.domain != 'discrete':
+        raise ValueError('El filtro FIR requiere una secuencia discreta.')
+    from .resources import ensure_working_set
+    ensure_working_set(count + len(request.transfer.b), live_arrays=8)
+    working = source
+    if count != source.values.size:
+        working = source.copy_with(values=np.pad(source.values, (0, count - source.values.size)))
+    result = ctx.run(lambda: request.transfer.apply(working))
+    spec = FIRParameters(request.mode, len(request.transfer.b), source.origin, int(source.values.size))
+    result.metadata['core_provenance'] = scientific_metadata('fir_apply', spec)
+    if isinstance(units := source.metadata.get('amplitude_units'), str):
+        result.metadata['amplitude_units'] = units
+    ctx.checkpoint(100)
+    return result
+
+
+@dataclass(frozen=True, slots=True)
+class ResampleRequest:
+    signal: Signal
+    up: int
+    down: int
+    rate: float | None = None
+    start: float | None = None
+    half_width: int = 10
+    beta: float = 5.0
+    boundary: str = 'zero'
+    override_clock: bool = False
+    return_filter: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class ResampleParameters:
+    up: int
+    down: int
+    input_rate_hz: float
+    half_width: int
+    beta: float
+    boundary: str
+    override_clock: bool
+    input_origin: int
+    time_start_s: float | None
+
+
+@dataclass(frozen=True, slots=True)
+class ResampleResult:
+    signal: Signal
+    antialias: filters.Transfer | None = None
+    warning: str | None = None
+
+
+def _resample_size(request):
+    up = sampling.positive_integer(request.up, 'L')
+    down = sampling.positive_integer(request.down, 'M')
+    width = sampling.positive_integer(request.half_width, 'Semilongitud por fase')
+    common = gcd(up, down)
+    up, down = up // common, down // common
+    n = int(request.signal.values.size)
+    length = (n * up + down - 1) // down
+    taps = 1 if up == down else 2 * width * max(up, down) + 1
+    return up, down, width, length, (length + n + taps) * 256
+
+
+def resample(request: ResampleRequest, execution: ExecutionContext | None = None) -> ResampleResult:
+    ctx = execution or ExecutionContext()
+    ctx.checkpoint(0)
+    up, down, width, _, estimate = _resample_size(request)
+    ctx.require(estimate)
+    value = ctx.run(lambda: sampling.resample_rational(
+        request.signal, up, down, rate=request.rate, start=request.start, half_width=width,
+        beta=request.beta, boundary=request.boundary, override_clock=request.override_clock,
+        return_filter=request.return_filter))
+    result = ResampleResult(*value) if request.return_filter else ResampleResult(value)
+    meta = result.signal.metadata
+    spec = ResampleParameters(up, down, meta['input_rate_hz'], width, meta['kaiser_beta'],
+                              request.boundary, request.override_clock,
+                              request.signal.origin, meta.get('time_start_s'))
+    meta['core_provenance'] = scientific_metadata('resample', spec)
+    if isinstance(units := request.signal.metadata.get('amplitude_units'), str):
+        meta['amplitude_units'] = units
+    ctx.checkpoint(100)
+    return result
+
+
+@dataclass(frozen=True, slots=True)
+class PSDRequest:
+    signal: Signal
+    rate: float | None = None
+    method: str = 'welch'
+    segment: int = 256
+    overlap: int = 128
+    window: str = 'hann'
+    beta: float = 5.0
+    remove_mean: bool = False
+    sidedness: str = 'two-sided'
+
+
+@dataclass(frozen=True, slots=True)
+class PSDParameters:
+    method: str
+    segment: int
+    overlap: int
+    sample_rate_hz: float
+    window: str
+    beta: float
+    remove_mean: bool
+    sidedness: str
+
+
+def estimate_psd(request: PSDRequest, execution: ExecutionContext | None = None) -> Signal:
+    ctx = execution or ExecutionContext()
+    ctx.checkpoint(0)
+    source = request.signal
+    rate = request.rate if request.rate is not None else source.metadata.get('sample_rate_hz')
+    if rate is None:
+        raise ValueError('Indicá Fs para estimar la densidad espectral.')
+    if request.sidedness not in {'two-sided', 'one-sided'}:
+        raise ValueError('Elegí una PSD unilateral o bilateral.')
+    if request.sidedness == 'one-sided' and (request.method == 'legacy' or np.any(source.values.imag)):
+        raise ValueError('La PSD unilateral requiere una señal real y una normalización de densidad.')
+    segment = sampling.positive_integer(request.segment, 'Longitud de segmento') if request.method == 'welch' else int(source.values.size)
+    ctx.require(segment * 256)
+    result = ctx.run(lambda: fourier.spectral_density(
+        source, rate, method=request.method, segment=segment, overlap=request.overlap,
+        window=request.window, beta=request.beta, remove_mean=request.remove_mean))
+    metadata = result.metadata
+    if request.sidedness == 'one-sided':
+        bins = np.fft.ifftshift(result.values).real[:segment//2 + 1].copy()
+        bins[1: (None if segment % 2 else -1)] *= 2
+        if not np.isfinite(bins).all():
+            raise FloatingPointError('La PSD unilateral excede el rango finito.')
+        metadata['sidedness'] = 'one-sided, power folded'
+        result = Signal(bins, 0., result.step, result.units, result.name, 'frequency', metadata=metadata)
+    amplitude_units = source.metadata.get('amplitude_units')
+    if isinstance(amplitude_units, str) and amplitude_units:
+        metadata['density_units'] = f'{amplitude_units}²' + ('/Hz' if request.method != 'legacy' else '')
+    spec = PSDParameters(request.method, metadata['segment'], metadata['overlap'], float(rate),
+                         request.window, float(request.beta), request.remove_mean, request.sidedness)
+    metadata['core_provenance'] = scientific_metadata('psd', spec)
+    ctx.checkpoint(100)
+    return result
+
+
+def store_signal(project: Project, value: Signal, *, parents=(), execution=None) -> str:
+    ctx = execution or ExecutionContext()
+    ctx.checkpoint()
+    with project.stage_records(before_commit=ctx.checkpoint) as staged:
+        return staged.add(value, operation=value.metadata.get('operation', ''), parents=parents)
+
+
+def store_fir_design(project: Project, design: FIRDesignResult, *, execution=None) -> tuple[str, str]:
+    ctx = execution or ExecutionContext()
+    ctx.checkpoint()
+    with project.stage_records(before_commit=ctx.checkpoint) as staged:
+        model = staged.add(design.transfer, operation='Diseño FIR')
+        spec = staged.add(scientific_metadata('fir_design', design.specification),
+                          operation='Especificación FIR', parents=(model,))
+    return model, spec

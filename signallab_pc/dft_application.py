@@ -57,6 +57,8 @@ def calculate_dft(request: DFTRequest, execution: DFTExecution | None = None) ->
                                spectrum.metadata['input_length'], clock.get('sample_rate_hz'),
                                clock.get('time_start_s'))
     spectrum.metadata['dft_provenance'] = scientific_metadata('dft', provenance)
+    if isinstance(units := request.signal.metadata.get('amplitude_units'), str):
+        spectrum.metadata['amplitude_units'] = units
     execution.checkpoint(100)
     return DFTResult(spectrum, provenance, estimate)
 

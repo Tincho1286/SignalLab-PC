@@ -188,6 +188,7 @@ class FourierPanel(QWidget):
         source = self._source(); self._job(lambda: fourier.energy_density(source))
 
     def psd(self):
+        from .dsp_application import PSDRequest, estimate_psd
         source = self._source()
         rate=source.metadata.get('sample_rate_hz')
         if rate is None:rate=real_field(self.rate)
@@ -197,7 +198,8 @@ class FourierPanel(QWidget):
                     remove_mean=self.demean.isChecked())
         if method=='welch':
             kwargs.update(segment=integer_field(self.segment),overlap=integer_field(self.overlap))
-        self._job(lambda: fourier.spectral_density(source, rate, **kwargs))
+        request = PSDRequest(source, rate, **kwargs)
+        self._job(lambda: estimate_psd(request))
 
     def compare(self):
         args=self._source(),*self._frequency_args()

@@ -1068,6 +1068,7 @@ class ToolPage(QWidget):
                 x=self.first.read();h=self.second.read() if self.second else None
                 parameter=constant_value(self.parameter.text()) if operation=='scale' else integer_field(self.parameter) if operation=='shift' else None
                 restore_origin=operation=='idft' and self.restore_dft_origin.isChecked()
+                from .dsp_application import IDFTRequest, calculate_idft
                 functions = {
                     'generate': lambda: x,
                     'measures': lambda: ops.finite_measures(x),
@@ -1079,7 +1080,7 @@ class ToolPage(QWidget):
                     'convolve': lambda: ops.linear_convolution(x, h),
                     'correlate': lambda: ops.linear_correlation(x, h),
                     'circular': lambda: ops.circular_convolution(x, h),
-                    'idft': lambda: ops.idft(x, restore_origin=restore_origin),
+                    'idft': lambda: calculate_idft(IDFTRequest(x, restore_origin)),
                     'continuous_convolve': lambda: continuous.convolution(x, h),
                     'continuous_correlate': lambda: continuous.correlation(x, h),
                     'continuous_normalized': lambda: continuous.correlation(x, h, normalized=True),

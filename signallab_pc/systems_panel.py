@@ -15,7 +15,7 @@ from PySide6.QtWidgets import (QWidget, QVBoxLayout, QHBoxLayout, QFormLayout,
 from PySide6.QtCore import Qt
 
 from .pole_zero_marks import draw_root_markers
-from .filters import Transfer, fir, biquad, rc, rc_design, bilinear, from_poles_zeros
+from .filters import Transfer, biquad, rc, rc_design, bilinear, from_poles_zeros
 from .resources import ensure_working_set
 from . import control
 from .design import install_tasks
@@ -204,12 +204,13 @@ class SystemsPanel(QWidget):
             "digital" if self.domain.currentIndex() == 0 else "analog"))
 
     def design_fir(self):
+        from .dsp_application import FIRDesignRequest, design_fir
         args = (self.selected_kind(), self.integer("taps"), self.angular_cutoff("f1"),
                 self.angular_cutoff("f2") if self.kind.currentIndex()>=2 else .2, ["boxcar", "hann", "hamming", "blackman", "kaiser", "bartlett"][self.window.currentIndex()],
                 self.number("beta") if self.window.currentIndex()==4 else 8.6)
         if self.kind.currentIndex()>=2 and not args[2]<args[3]:raise ValueError("La banda requiere 0 < ω₁ < ω₂ < π rad/muestra.")
         def compute():
-            system=fir(*args)
+            system=design_fir(FIRDesignRequest(*args)).transfer
             omega=np.linspace(0,np.pi,2049)
             return system,(omega,system.response(omega),'digital',False)
         def accept(result):
@@ -314,10 +315,12 @@ class SystemsPanel(QWidget):
         self._job("Construyendo sistema y plano de polos y ceros…",compute,accept)
 
     def apply_signal(self):
+        from .dsp_application import FIRRequest, apply_fir, is_causal_fir
         source, system = self.owner.signal, self.system
         if source is None:
             raise ValueError("Primero creá o importá una señal.")
-        self._job("Resolviendo ecuación en diferencias…", lambda: system.apply(source), self.owner._set_signal)
+        compute = (lambda: apply_fir(FIRRequest(source, system))) if is_causal_fir(system) else lambda: system.apply(source)
+        self._job("Resolviendo ecuación en diferencias…", compute, self.owner._set_signal)
 
     def excitation(self, kind):
         system, count = self.system, self.integer("count")

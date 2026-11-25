@@ -17,13 +17,14 @@ def rate_ratio(input_rate,target):
 
 
 def convert(source,up,down,*,target=None,**arguments):
-    from .sampling import resample_rational
+    from .dsp_application import ResampleRequest, resample
     if target is not None:
         rate=arguments.get('rate')
         if not arguments.get('override_clock') and source.metadata.get('sample_rate_hz') is not None:rate=source.metadata['sample_rate_hz']
         if rate is None:raise ValueError('Indicá la frecuencia de muestreo de entrada antes de elegir la de salida.')
         up,down=rate_ratio(rate,target)
-    result,system,note=resample_rational(source,up,down,return_filter=True,**arguments)
+    converted=resample(ResampleRequest(source,up,down,return_filter=True,**arguments))
+    result,system,note=converted.signal,converted.antialias,converted.warning
     if target is not None:result.metadata['requested_rate_expression']=str(target)
     return dict(signal=result,filter=system,filter_note=note)
 

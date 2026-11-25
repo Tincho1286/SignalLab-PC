@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QFileDialog,
 from .catalog import FUTURE_MENU_MAP, IMPLEMENTED, MODULES
 from .engine import sequence_from_expression, sequence_from_values, replace_sample
 from .model import Signal
-from .operations import (add_sequences, even_odd_parts, finite_measures, idft,
+from .operations import (add_sequences, even_odd_parts, finite_measures,
                          linear_convolution, linear_correlation, circular_convolution, correlation, reverse, scale_amplitude, shift)
 from .storage import load_json, save_csv, save_json
 from .systems_panel import SystemsPanel
@@ -614,7 +614,8 @@ class SignalLabWindow(QMainWindow):
         if self.signal is None: return self._need_signal()
         try:
             source = self.signal
-            self._run_operation("Calculando IDFT…", lambda: idft(source),
+            from .dsp_application import IDFTRequest, calculate_idft
+            self._run_operation("Calculando IDFT…", lambda: calculate_idft(IDFTRequest(source, False)),
                 lambda result: self._operation_succeeded(result, "IDFT: normalización 1/N aplicada; salida compleja en n entero desde cero."))
         except Exception as exc: QMessageBox.warning(self, "No se pudo calcular IDFT", str(exc))
 
