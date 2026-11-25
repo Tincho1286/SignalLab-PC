@@ -1,0 +1,24 @@
+{
+  "numpy": {
+    "previous_version": "2.5.0",
+    "version": "2.5.5",
+    "wheels": {
+      "numpy-2.5.5-cp314-cp314-win_amd64.whl": "20145b11776d2f7570cd61351b156a51d3a341822282095baa819d87272bc710",
+      "numpy-2.5.5-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl": "c48960d420e90cf305cb1fde0d4e6082cc90512cda87a9acf0b6e04e91cf4abe"
+    },
+    "linux_specific_notices": [
+      "LICENSES/numpy/numpy-2.5.5.dist-info/licenses/LICENSE-manylinux.txt"
+    ]
+  },
+  "scipy": {
+    "previous_version": "1.18.0",
+    "version": "1.18.1",
+    "wheels": {
+      "scipy-1.18.1-cp314-cp314-win_amd64.whl": "78a0d7c918e74a232394117160e7e3db503377572a45bcef8826e4ab8a35feba",
+      "scipy-1.18.1-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl": "ac0333bdf38309aa3dcbe7e3fa7ea29e7a2c37c6ea306a757b700ded8e4596ad"
+    },
+    "linux_specific_notices": [
+      "LICENSES/scipy/scipy-1.18.1.dist-info/LICENSE-manylinux.txt"
+    ]
+  }
+}
