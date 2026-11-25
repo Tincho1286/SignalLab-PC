@@ -5,7 +5,7 @@ from PySide6.QtGui import QAction,QKeySequence
 from PySide6.QtWidgets import QApplication,QWidget,QScrollArea,QDialog,QVBoxLayout,QFormLayout,QLabel,QDialogButtonBox
 from shiboken6 import isValid
 
-SHORTCUTS=[('Ctrl+Enter','Calcular con los datos de la herramienta abierta'),('Ctrl+K','Buscar una herramienta'),('Ctrl+Tab / Ctrl+Shift+Tab','Cambiar de documento'),('Ctrl+W','Cerrar la pestaña; sus datos se conservan en esta sesión'),('Alt+1 / Alt+2','Ir a los datos de entrada o al resultado'),('Ctrl+Shift+R','Ampliar el resultado o restaurar los paneles'),('Alt+G','Abrir el gráfico o ampliar la fórmula'),('Alt+R','Reutilizar el resultado'),('Alt+E','Exportar el resultado'),('Ctrl+Shift+C','Abrir la calculadora CAS'),('F1','Consultar la ayuda de la herramienta'),('F11','Ocultar o recuperar los paneles laterales')]
+SHORTCUTS=[('Ctrl+Enter','Calcular con los datos de la herramienta abierta'),('Ctrl+K','Buscar una herramienta'),('Ctrl+Tab / Ctrl+Shift+Tab','Cambiar de documento'),('Ctrl+W','Cerrar la pestaña; sus datos se conservan en esta sesión'),('Alt+V','Elegir una variante de la herramienta'),('Alt+1 / Alt+2','Ir a los datos de entrada o al resultado'),('Ctrl+Shift+R','Ampliar el resultado o restaurar los paneles'),('Alt+G','Abrir el gráfico o ampliar la fórmula'),('Alt+R','Reutilizar el resultado'),('Alt+E','Exportar el resultado'),('Ctrl+Shift+C','Abrir la calculadora CAS'),('F1','Consultar la ayuda de la herramienta'),('F11','Ocultar o recuperar los paneles laterales')]
 
 
 class DesktopKeys(QObject):
@@ -18,6 +18,11 @@ class DesktopKeys(QObject):
         action.triggered.connect(lambda: self.dispatch(self.toggle_output))
         window.addAction(action)
         self.commands['expand-result'] = action
+        action = QAction(window)
+        action.setShortcut('Alt+V')
+        action.triggered.connect(lambda: self.dispatch(window.variant_strip.open_menu))
+        window.addAction(action)
+        self.commands['variant'] = action
         QApplication.instance().focusChanged.connect(self.remember_focus)
 
     def dispatch(self,callback):

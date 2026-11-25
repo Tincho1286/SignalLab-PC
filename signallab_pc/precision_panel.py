@@ -5,6 +5,7 @@ from PySide6.QtCore import Qt,QAbstractTableModel
 from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QScrollArea,QComboBox,QLineEdit,QLabel,QPushButton,QFileDialog,QMessageBox,QTableView
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg,NavigationToolbar2QT
+from .validation import show_input_error
 from .precision import Encoding,represent,quantize_coefficients,precision_summary
 from .numeric_input import integer_field
 from .coefficient_editor import CoefficientEditor,TransferPreview
@@ -126,7 +127,7 @@ class PrecisionPanel(QWidget):
                 else:self.result_id=self.window.publish(result,title='Representación '+result['format'],operation='Representación numérica');self.table_model.set_rows([])
                 self.export.setText('Exportar comparación CSV…' if simulation else 'Exportar coeficientes CSV…' if is_system else 'Exportar representación JSON…');self.export.setEnabled(True);self.result_state.accept(snapshot)
             self.window._run_operation('Calculando efectos de precisión…',job,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá el formato o la entrada',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá el formato o la entrada',exc)
     def draw(self):
         import numpy as np
         from .theme_tokens import COLORS as C

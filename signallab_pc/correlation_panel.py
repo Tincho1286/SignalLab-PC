@@ -1,5 +1,6 @@
 """Familias de correlación accesibles sin perder las escalas del modelo HP."""
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLabel,QPushButton,QScrollArea,QMessageBox
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLabel,QPushButton,QScrollArea
+from .validation import show_input_error
 from . import operations,continuous
 import numpy as np
 
@@ -66,4 +67,4 @@ class CorrelationPanel(QWidget):
                 sections.extend(temporal_sections(result))
                 self.result.text.set_readable(Summary('Correlación y retardo',sections));self.result_state.accept(calculated_inputs)
             self.window._run_operation('Calculando correlación…',compute,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá las entradas',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá las entradas',exc)

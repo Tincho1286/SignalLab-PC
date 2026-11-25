@@ -10,6 +10,7 @@ from .filters import Transfer
 from .engine import evaluate_expression
 from .report_view import ReportView,report_panel
 from .transfer_report import TransferResultReport
+from .validation import passive_fields, show_input_error
 from .navigation import MENUS
 from . import course_tools as calc
 
@@ -61,7 +62,6 @@ class CourseToolsPanel(QWidget):
         elif action in ('fir','iir','analog'):
             self.band_edges=BandEdgesEditor(analog=action=="analog");self.fields['band_edges']=self.band_edges;form.addRow(self.band_edges)
             from .amplitude_design import limits
-            from .validation import passive_fields
             field('amplitude_low','Amplitud deseada en paso','1')
             field('amplitude_high','Amplitud de paso superior','1')
             units_box=choice('tolerance_units','Unidad de las tolerancias',[('Amplitud','absolute'),('Fracción relativa','relative'),('Decibelios','db')])
@@ -445,7 +445,7 @@ class CourseToolsPanel(QWidget):
                     self.bandpass_result=result['bandpass'];self.export_bands_button.show();self.use_rate_button.show();self.export_bands_button.setEnabled(True);self.draw_sampling_bands();self.use_rate_button.setEnabled(self.bandpass_result['status']=='Admisible con margen espectral')
                 self.result_state.accept(calculated_inputs)
             self.window._run_operation('Calculando '+TITLES[action]+'…',job,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá los datos',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá los datos',exc)
     def export_compensation(self):
         if self.reconstruction_data is None and self.compensation_data is None:return
         from PySide6.QtWidgets import QFileDialog

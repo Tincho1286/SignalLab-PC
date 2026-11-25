@@ -1,6 +1,7 @@
 """Stack sizing follows the visible calculation, not all cached options."""
-from PySide6.QtCore import QSize
+from PySide6.QtCore import QEvent,QSize
 from PySide6.QtWidgets import QStackedWidget,QTabWidget
+from shiboken6 import isValid
 class ActiveStack(QStackedWidget):
     def minimumSizeHint(self):
         widget=self.currentWidget()
@@ -13,7 +14,23 @@ class ActiveStack(QStackedWidget):
 class ActiveTabs(QTabWidget):
     """Size the visible page; hidden cached reports do not widen the document."""
     def __init__(self,parent=None):
-        super().__init__(parent);self.currentChanged.connect(lambda:self.updateGeometry())
+        super().__init__(parent)
+        self._measured_page = None
+        self.currentChanged.connect(self.watch_page)
+
+    def watch_page(self, *_):
+        page = self.currentWidget()
+        if self._measured_page is not None and isValid(self._measured_page):
+            self._measured_page.removeEventFilter(self)
+        self._measured_page = page
+        if page is not None:
+            page.installEventFilter(self)
+        self.updateGeometry()
+
+    def eventFilter(self, watched, event):
+        if watched is self._measured_page and event.type() == QEvent.Type.LayoutRequest:
+            self.updateGeometry()
+        return super().eventFilter(watched, event)
 
     def minimumSizeHint(self):
         page=self.currentWidget()

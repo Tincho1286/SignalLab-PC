@@ -21,6 +21,18 @@ class Samples(unittest.TestCase):
     def trace(self,x,y,source=None,component='real'):
         figure=Figure();axis=figure.add_subplot(111);plot_samples(axis,x,y,discrete=source is not None and source.domain=='discrete',source=source,component=component,label='x')
         return collect(figure)[0]
+    def test_sample_reading_preserves_large_indices_and_respects_support(self):
+        origin = 2**53 + 1
+        source = Signal([1, 7, 3], origin)
+        trace = self.trace(source.axis[::2], source.values.real[::2], source)
+        configure_signal_axis(trace.axis, source)
+        self.assertEqual(trace.point(1), (origin + 1, 7))
+        self.assertIsNone(trace.point(-0.01))
+        self.assertIsNone(trace.point(2.01))
+        formatter = trace.axis.xaxis.get_major_formatter()
+        self.assertEqual(formatter(1), '1')
+        self.assertEqual(formatter.get_offset(), f'+{origin}')
+
     def test_full_source_extrema_are_not_the_decimated_visible_subset(self):
         source=Signal([0,2,0,9,0,1,0],-3,expression='sin(n)');trace=self.trace(source.axis[::2],source.values.real[::2],source)
         result=inspection.extrema(trace,local=True);self.assertTrue(result['complete']);self.assertEqual(result['rows'][0]['x'],0);self.assertEqual(result['rows'][0]['y'],9);self.assertTrue(any(r['x']==-2 for r in result['rows']))
@@ -86,6 +98,39 @@ class Interaction(unittest.TestCase):
         x,y=self.axis.transData.transform((.2,0));self.probe.motion(MouseEvent('motion_notify_event',self.canvas,x,y,button=1),force=True);self.probe.release(None);self.assertEqual(self.probe.a[self.trace.key][0],0);self.assertEqual(self.probe.b,saved)
         with patch.object(self.canvas,'blit') as repaint:
             self.canvas.draw();repaint.assert_not_called()
+
+    def test_overlay_reference_snaps_other_traces_but_keeps_their_true_coordinates(self):
+        self.figure.clear()
+        axis, linked = self.figure.subplots(2, 1, sharex=True)
+        axis.plot([0, .38, .71, 1.04, 1.5, 2, 3], [8]*7, label='DTFT')
+        stems = plot_samples(axis, [0, 2], [2, 2], discrete=True, label='DFT')
+        inspection.stored_curve(stems, np.array([0., 1., 2.]), np.array([2., 2., 2.]), None, None)
+        linked.plot([0, .51, 1.07, 2.02, 3], [0]*5, label='Otro panel')
+        self.canvas.draw()
+        dtft, dft, other = self.probe.traces
+
+        def at(x, y):
+            px, py = axis.transData.transform((x, y))
+            self.probe.motion(MouseEvent('motion_notify_event', self.canvas, px, py), force=True)
+
+        at(.63, 8)
+        self.assertEqual(self.probe.live_key, dtft.key)
+        self.probe.curve_actions[dft.key].trigger()
+        self.assertEqual(self.probe.live_key, dft.key)
+        self.assertEqual(self.probe.live[dft.key], (1., 2.))
+        self.assertEqual(self.probe.live[dtft.key][0], 1.04)
+        self.assertEqual(self.probe.live[other.key][0], 1.07)
+        self.assertEqual(list(self.probe.guides[linked][0].line.get_xdata()), [1., 1.])
+        self.assertIn('DFT', self.probe.hint.text())
+        self.probe.pin('a')
+        self.probe.key(SimpleNamespace(key='right'))
+        self.assertEqual(self.probe.a[dft.key][0], 2.)
+        self.assertEqual(self.probe.a_key, dft.key)
+        self.probe.clear()
+        at(2.8, 8)
+        self.assertFalse(self.probe.live)
+        self.assertIn('Sin punto', self.probe.hint.text())
+
     def test_design_editor_clicks_are_not_taken_by_cursor_dragging(self):
         self.canvas._signallab_editable=True;self.probe.focus(self.trace,-1,'a');x,y=self.axis.transData.transform((-1,1));self.probe.press(MouseEvent('button_press_event',self.canvas,x,y,button=1));self.assertIsNone(self.probe._dragging)
     def test_inspector_search_pin_export_and_redraw_invalidation(self):

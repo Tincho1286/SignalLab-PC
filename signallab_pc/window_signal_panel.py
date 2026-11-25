@@ -1,8 +1,8 @@
 """Generate FIR windows without loading an existing signal or filter."""
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QScrollArea,QComboBox,QLineEdit,QCheckBox,QPushButton,QLabel,QMessageBox
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QScrollArea,QComboBox,QLineEdit,QCheckBox,QPushButton,QLabel
 from .window_signals import WINDOWS,generate_window,summary
 from .numeric_input import integer_field,real_field
-from .validation import passive_fields
+from .validation import passive_fields, show_input_error
 from .result_state import ResultState
 
 
@@ -60,4 +60,4 @@ class WindowSignalPanel(QWidget):
                 except (ValueError,MemoryError) as exc:analysis={'error':str(exc)}
                 return result,analysis
             self.window._run_operation('Generando ventana…',work,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá la ventana',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá la ventana',exc)

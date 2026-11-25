@@ -1,3 +1,4 @@
+from .validation import show_input_error
 from .pole_zero_marks import draw_root_markers
 from .numeric_input import real_field,integer_field
 from .signal_plot import plot_samples
@@ -228,7 +229,7 @@ class StateSpacePanel(QWidget):
                     summary.sections.insert(1,Section('Canal calculado',rows=[*rows,('Estado inicial','Nulo')]))
                     self.report.set_readable(summary);self.result_tabs.setCurrentIndex(0)
                 self.run('Obteniendo transferencia…',lambda:model.to_transfer(input_index,output_index),accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá el modelo',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá el modelo',exc)
     def simulate(self,model,model_id):
         from .state_response_studies import simulate
         self.inputs.configure(model.inputs,model.dt is not None)

@@ -18,7 +18,11 @@ Usá la barra de iconos para ampliar, desplazar o guardar la figura. **Vista** r
 
 Los paneles con un eje compartido o explícitamente compatible se consultan juntos. En módulo, fase y retardo se ve el valor de cada traza. No se enlazan índices n con frecuencias ω ni rad/s con rad/muestra.
 
+Si un panel superpone varias curvas, **Curva · Automática** toma como referencia el punto más cercano al puntero. El menú permite fijar una curva, por ejemplo DFT, para recorrer sus bins aunque también esté dibujada la DTFT. El marcador más grande identifica la referencia y la guía vertical pasa por su coordenada. Las otras curvas se leen cerca de esa coordenada y la tabla indica dónde está cada punto. Fuera del soporte de la curva elegida, la lectura indica que no hay un punto disponible.
+
 Podés **arrastrar A o B** sin mover el otro cursor. En secuencias se siguen eligiendo índices enteros. Con el foco en la figura, las flechas izquierda y derecha recorren puntos de la traza activa. En el editor de polos y ceros, usá los botones o cargá una coordenada para medir sin editar raíces.
+
+En las herramientas con tabla **Valores**, seleccioná una celda y elegí **Ver en gráfico**. El rombo marca la muestra de esa serie, incluso si el dibujo se redujo para mostrar un registro largo. La marca se puede quitar por separado de los cursores A/B. En la figura, **Ver en Valores** te lleva a la fila de la lectura. Si hay varias series o varios cursores, elegí la lectura en el menú.
 
 ## Curvas, fórmulas y posición exacta
 

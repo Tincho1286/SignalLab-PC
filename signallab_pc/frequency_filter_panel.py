@@ -1,6 +1,7 @@
+from .validation import show_input_error
 from .numeric_input import real_field,integer_field
 """Entrada visual de H por tramos, respuesta al impulso y filtrado espectral."""
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QCheckBox,QPushButton,QLabel,QScrollArea,QTabWidget,QMessageBox
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QCheckBox,QPushButton,QLabel,QScrollArea,QTabWidget
 from .report_view import ReportView,report_panel
 from .frequency_filter import analyze
 from .choice_buttons import ChoiceButtons
@@ -65,7 +66,6 @@ class FrequencyFilterPanel(QWidget):
         units = 'rad/muestra' if digital else 'rad/s'
         self.h.frequency_units.setCurrentText(units)
         self.h.layout().labelForField(self.h.expression).setText(f'H(ω) en función de w ({units})' if digital else f'H(Ω) en función de w ({units})')
-        self.h.range_note.setText(f'Inicio y paso en {units}. El último punto es el inicio más (N−1) pasos.')
         interval = (self.start,self.count,self.step,self.h.origin,self.h.count,self.h.step)
         if self._active_domain != domain:
             if self._active_domain is not None:
@@ -141,7 +141,7 @@ class FrequencyFilterPanel(QWidget):
                 self.window.publish({'report':summary.plain_text()},title='Filtro por tramos',operation='Informe de filtro por tramos',parents=keys[:2])
                 self.display();self.tabs.setCurrentIndex(1);self.state.accept(snapshot)
             self.window._run_operation('Calculando filtro por tramos…',compute,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá la definición',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá la definición',exc)
     def add_filter_destinations(self):
         from .result_expressions import populate_reuse_menu
         index=self.selector.currentIndex()

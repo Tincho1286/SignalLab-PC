@@ -1,5 +1,6 @@
 """Local inputs for Hilbert, reversible STFT and inspected block convolution."""
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QComboBox,QLineEdit,QScrollArea,QPushButton,QLabel,QMessageBox,QCheckBox
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QComboBox,QLineEdit,QScrollArea,QPushButton,QLabel,QCheckBox
+from .validation import show_input_error
 from .numeric_input import integer_field,real_field
 from .result_state import ResultState
 from . import dsp_extensions as calc
@@ -90,7 +91,7 @@ class DspExtensionsPanel(QWidget):
                         self.view.views.currentChanged.connect(self.prepare_inspector) if not hasattr(self,'_inspector_connected') else None;self._inspector_connected=True
                 self.state.accept(snapshot)
             self.window._run_operation('Calculando '+self.action+'…',job,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá los datos',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá los datos',exc)
 
     def prepare_inspector(self,index):
         if index==self.inspector_index and self.inspector.trace is None:self.inspector.set_trace(self._block_trace,self._block_parents)

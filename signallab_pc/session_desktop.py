@@ -104,8 +104,7 @@ def restore(window, project, state, pages):
     while window.documents.count():
         window.documents.removeTab(0)
     window.documents.blockSignals(False)
-    window.variant_strip.setParent(window.centralWidget())
-    window.variant_strip.memory.clear()
+    window.variant_strip.reset()
     auxiliary = {key: page for key, page in window.pages.items() if key[0] == 'menu'}
     for key, view in list(window.views.items()):
         if key not in auxiliary:

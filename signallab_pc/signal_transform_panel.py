@@ -1,5 +1,6 @@
 """Consistent independent inputs for continuous and discrete transformations."""
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineEdit,QLabel,QPushButton,QScrollArea,QMessageBox,QTabWidget
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineEdit,QLabel,QPushButton,QScrollArea,QTabWidget
+from .validation import show_input_error
 from .numeric_input import constant_value,real_field,integer_field
 from .result_state import ResultState
 from .result_summary import signal_summary,Section,Formula,number
@@ -84,4 +85,4 @@ class SignalTransformPanel(QWidget):
                 result=transform_signal(source,operation,**parameters)
                 return transform_definition(source,result,operation,parameter_sources=fields,**parameters)
             self.window._run_operation('Transformando señal…',calculate,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá la transformación',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá la transformación',exc)

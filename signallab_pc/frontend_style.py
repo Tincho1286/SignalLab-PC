@@ -40,13 +40,21 @@ QTabBar::tab {border:0;background:transparent;border-radius:9px;padding:9px 11px
 QTabBar::tab:selected {background:@selected@;border:0;color:@text@;}
 QFrame#inputSurface QScrollArea > QWidget > QWidget {background:transparent;}
 QWidget#workspaceInputForm,QWidget#workspaceInputForm > QWidget {background:transparent;}
-QWidget#workflowSelector QLabel {color:@muted@;font-size:9pt;font-weight:600;}
+QWidget#workflowSelector {background:@window@;}
+QLabel#variantCaption {color:@muted@;font-size:9pt;font-weight:600;}
+QToolButton#variantMenuButton {background:@selected@;border:1px solid @border@;border-radius:8px;padding:6px 29px 6px 11px;font-weight:650;text-align:left;}
+QToolButton#variantMenuButton::menu-indicator {subcontrol-origin:padding;subcontrol-position:right center;right:10px;width:9px;}
+QToolButton#variantCopyButton {background:@panel@;border:1px solid @rule@;border-radius:8px;padding:6px 10px;}
+QToolButton#variantMenuButton:hover,QToolButton#variantMenuButton:focus,QToolButton#variantCopyButton:hover,QToolButton#variantCopyButton:focus {border-color:@accent@;}
+QMenu#variantMenu::item {padding:6px 18px 6px 25px;}
+QMenu#variantMenu::item:disabled {color:@accent@;background:@chrome@;padding:5px 16px 5px 10px;font-weight:700;}
 QWidget#toolWorkspace {background:transparent;}
 QLabel#surfaceTitle {font-size:12pt;font-weight:700;color:@text@;}
 QFrame#inputSurface QLabel#surfaceTitle {color:@accent@;}
 QLabel#surfaceCaption {font-size:9pt;color:@muted@;}
 QLabel[resultStale="true"] {color:@amber@;}
 QLabel#resultEmpty {font-size:12pt;color:@muted@;padding:26px;}
+QLabel#inputGridPreview {color:@accent@;background:@input@;border:1px solid @rule@;border-radius:7px;padding:5px 8px;}
 QWidget#resultActionBar {background:transparent;}
 QWidget#resultActionBar QPushButton,QWidget#resultActionBar QToolButton {min-height:18px;border-radius:7px;padding:6px 8px;font-size:9pt;}
 QWidget#resultActionBar QPushButton:disabled {border:1px solid @rule@;background:transparent;color:@disabled@;}
@@ -55,6 +63,11 @@ QTabWidget#workspaceModes > QTabBar::tab {padding:7px 15px;font-weight:600;}
 QTextBrowser#resultReport {border:1px solid @rule@;border-radius:9px;background:@report@;padding:10px;}
 QTableWidget,QTableView,QPlainTextEdit {border:1px solid @rule@;border-radius:12px;}
 QHeaderView::section {padding:9px 8px;}
+QTableView#resultValues QHeaderView::section:vertical {padding:3px 8px;}
+QToolButton#resultPageStep {border:1px solid @rule@;background:@panel@;border-radius:7px;padding:8px;}
+QToolButton#resultPageStep:hover,QToolButton#resultPageStep:focus {border-color:@accent@;}
+QPushButton#resultTableCopy {padding-right:24px;}
+QPushButton#resultTableCopy::menu-indicator {subcontrol-origin:padding;subcontrol-position:right center;right:7px;}
 QScrollBar:vertical {width:10px;background:transparent;}
 QScrollBar::handle:vertical {border:2px solid transparent;border-radius:5px;background:@disabled@;}
 QDockWidget::title {padding:3px 9px;font-size:8pt;border:0;}
@@ -137,8 +150,11 @@ QWidget#libraryArticle {background:@report@;border:1px solid @rule@;border-radiu
 QSplitter#librarySplit::handle {background:transparent;border:3px solid transparent;border-radius:4px;}
 QSplitter#librarySplit::handle:hover {background:@border@;}
 QTreeWidget#libraryTopics::item {padding:2px 4px;}
+QPushButton#guideChapter {background:@input@;border:1px solid @rule@;border-radius:7px;padding:5px 9px;}
+QPushButton#guideChapter:hover,QPushButton#guideChapter:focus {border-color:@accent@;}
 QListWidget#savedResults {background:@input@;border:1px solid @rule@;border-radius:9px;padding:4px;}
 QLineEdit#resultHistorySearch {font-family:'Segoe UI';}
+QLabel#resultHistoryTitle {font-size:15pt;font-weight:600;color:@text@;}
 QToolButton#formulaMenu,QToolButton#libraryOutline {background:@panel@;border-color:@border@;border-radius:7px;padding:6px 21px 6px 9px;}
 QToolButton#formulaMenu::menu-indicator,QToolButton#libraryOutline::menu-indicator {subcontrol-position:right center;right:6px;width:8px;}
 QTextBrowser#formulaPreview {background:@report@;border:1px solid @rule@;border-radius:7px;padding:2px;}
@@ -198,13 +214,20 @@ QToolButton[figureControl="true"]:checked,QToolButton[figureControl="true"]:hove
 QToolButton#figureScale {padding-right:19px;}
 QToolButton#figureScale::menu-indicator {subcontrol-position:right center;right:6px;}
 QWidget#cursorPanel {background:@chrome@;border:1px solid @rule@;border-radius:7px;}
+QLabel#sampleReadout {color:@green@;}
 QLabel#cursorReadout {font-family:'Consolas';font-size:9pt;color:@text@;padding:2px 0;}
 QWidget#cursorPanel QPushButton,QWidget#cursorPanel QToolButton {min-height:16px;padding:3px 8px;border-radius:5px;font-size:9pt;}
 QWidget#cursorPanel QToolButton {border:1px solid @rule@;}
 QWidget#cursorPanel QToolButton:checked {background:@selected@;border-color:@accent@;}
+QWidget#cursorPanel QToolButton#cursorCurveMenu {background:@selected@;border-color:@border@;padding-right:22px;}
+QToolButton#cursorCurveMenu::menu-indicator {subcontrol-position:right center;right:6px;width:8px;}
 QTableWidget#cursorTable {border-radius:6px;padding:0;}
 QTableWidget#cursorTable QHeaderView::section {padding:3px 7px;}
 QPushButton:focus,QToolButton:focus,QLineEdit:focus,QComboBox:focus,QSpinBox:focus,QDoubleSpinBox:focus,QPlainTextEdit:focus,QTableView:focus {border:1px solid @accent@;}
+QFrame#inputIssue {background:@input@;border:1px solid @red@;border-radius:8px;}
+QLabel#inputIssueTitle {color:@red@;font-weight:700;}
+QFrame#inputIssue QPushButton,QFrame#inputIssue QToolButton {min-height:16px;padding:3px 7px;}
+QLineEdit[inputError="true"],QComboBox[inputError="true"],QSpinBox[inputError="true"],QDoubleSpinBox[inputError="true"],QPlainTextEdit[inputError="true"],QWidget[inputError="true"] QLineEdit {border:1px solid @red@;}
 QToolButton#documentArea:focus,QToolButton#studioSearch:focus,QPushButton#catalogArea:focus,QPushButton#toolLink:focus,QPushButton#catalogShortcut:focus,QPushButton#favoriteShortcut:focus {border:1px solid @accent@;}
 QToolButton[segment="true"]:focus {border:1px solid @text@;}
 QPushButton#primary:focus,QPushButton[primaryAction="true"]:focus {border:1px solid @text@;}

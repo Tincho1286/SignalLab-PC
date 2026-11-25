@@ -63,29 +63,44 @@ def measurement_summary(value,source=None):
         Section('Definición',rows=rows,formulas=formulas),
         Section('Alcance',paragraphs=[interpretation+' La potencia media corresponde al registro observado.'])])
 
+def signal_record_rows(signal):
+    from .uniform_axis import sample_coordinate
+    meta = signal.metadata
+    count = signal.values.size
+    last = sample_coordinate(signal, count - 1)
+    if signal.domain == 'discrete':
+        coefficient = signal.units in ('k', 'bin k') or meta.get('operation') in ('DFT', 'discrete_fourier_series', 'continuous_fourier_series')
+        domain = 'Coeficientes de índice entero k' if coefficient else 'Secuencia discreta x[n]'
+        axis = 'Índices k' if coefficient else 'Índices n'
+        unit = ''
+    else:
+        domain = 'Registro de una señal continua' if signal.domain == 'continuous' else 'Respuesta o espectro en frecuencia'
+        axis = 'Intervalo temporal' if signal.domain == 'continuous' else 'Intervalo de frecuencia'
+        unit = ' ' + signal.units
+    rows = [('Dominio', domain), ('Valores almacenados', str(count)),
+            (axis, number(signal.origin) + ' a ' + number(last) + unit)]
+    if signal.domain != 'discrete':
+        rows.append(('Separación entre puntos', number(signal.step) + unit))
+    if 'N' in meta:
+        rows.append(('Longitud N', str(meta['N'])))
+    elif 'nfft' in meta:
+        rows.append(('Puntos de DFT N', str(meta['nfft'])))
+    if 'sample_rate_hz' in meta:
+        rows.append(('Tasa de muestreo Fs', number(meta['sample_rate_hz']) + ' muestras/s'))
+    if 'time_start_s' in meta:
+        rows.append(('Tiempo de la primera muestra', number(meta['time_start_s']) + ' s'))
+    if 'time_reference' in meta:
+        rows.append(('Referencia del eje temporal', meta['time_reference']))
+    return rows
+
+
 def signal_summary(value,operation=None):
     signals=value if isinstance(value,tuple) else (value,)
     if not signals or not all(isinstance(signal,Signal) for signal in signals):return None
     sections=[]
     for signal in signals:
-        meta=signal.metadata;count=signal.values.size;last=int(signal.origin)+int(count)-1 if signal.domain=='discrete' else signal.origin+signal.step*(count-1)
-        if signal.domain=='discrete':
-            coefficient=signal.units in ('k','bin k') or meta.get('operation') in ('DFT','discrete_fourier_series','continuous_fourier_series')
-            domain='Coeficientes de índice entero k' if coefficient else 'Secuencia discreta x[n]'
-            axis='Índices k' if coefficient else 'Índices n'
-            unit=''
-        else:
-            domain='Registro de una señal continua' if signal.domain=='continuous' else 'Respuesta o espectro en frecuencia'
-            axis='Intervalo temporal' if signal.domain=='continuous' else 'Intervalo de frecuencia'
-            unit=' '+signal.units
-        rows=[('Dominio',domain),('Valores almacenados',str(count)),(axis,number(signal.origin)+' a '+number(last)+unit)]
-        if signal.domain!='discrete':rows.append(('Separación entre puntos',number(signal.step)+unit))
-        if 'N' in meta:rows.append(('Longitud N',str(meta['N'])))
-        elif 'nfft' in meta:rows.append(('Puntos de DFT N',str(meta['nfft'])))
-        if 'sample_rate_hz' in meta:rows.append(('Tasa de muestreo Fs',number(meta['sample_rate_hz'])+' muestras/s'))
-        if 'time_start_s' in meta:rows.append(('Tiempo de la primera muestra',number(meta['time_start_s'])+' s'))
-        if 'time_reference' in meta:rows.append(('Referencia del eje temporal',meta['time_reference']))
-        sections.append(Section(signal.name,rows=rows))
+        meta=signal.metadata
+        sections.append(Section(signal.name,rows=signal_record_rows(signal)))
         from .temporal_formula import sections as temporal_sections
         sections.extend(temporal_sections(signal))
         if signal.expression and signal.expression!='lista ingresada':

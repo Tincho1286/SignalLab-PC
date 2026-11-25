@@ -223,19 +223,23 @@ def hide_plot(canvas):
         window.hide()
 
 
-def open_result_plot(view, owner):
-    canvas = view.canvas
+def ensure_figure_window(canvas):
     if getattr(canvas, '_signallab_window', None) is None:
-        for toolbar in view.findChildren(NavigationToolbar2QT):
+        for toolbar in canvas.parentWidget().findChildren(NavigationToolbar2QT):
             if toolbar.canvas is canvas:
                 install_enlarge(toolbar)
                 break
+
+
+def open_result_plot(view, owner):
+    canvas = view.canvas
+    ensure_figure_window(canvas)
     view.views.setCurrentIndex(0)
     canvas.draw()
     enlarge_plot(canvas, owner)
 
 
-def install_enlarge(toolbar):
+def install_enlarge(toolbar, *, standalone=False):
     from PySide6.QtCore import Qt,QTimer
     from PySide6.QtWidgets import QWidget,QLabel,QMenu,QSizePolicy,QToolButton
     if getattr(toolbar,'_signallab_enlarge',False):return
@@ -288,8 +292,9 @@ def install_enlarge(toolbar):
     canvas.setMinimumSize(0,0);canvas.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
     available=parent.screen().availableGeometry();window.resize(min(1000,available.width()-32),min(700,available.height()-48));window.setMinimumSize(360,280)
     canvas._signallab_window=window;canvas._signallab_launcher=launcher
-    from .plot_actions import bind_canvas
-    bind_canvas(canvas,parent)
+    if not standalone:
+        from .plot_actions import bind_canvas
+        bind_canvas(canvas,parent)
     from .plot_probe import PlotProbe
     PlotProbe(canvas,toolbar,window.readout_layout)
     from .figure_controls import install as install_controls

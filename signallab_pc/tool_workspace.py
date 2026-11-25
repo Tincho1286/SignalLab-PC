@@ -1,5 +1,5 @@
 """Input and result surfaces with one compact-screen navigation pattern."""
-from PySide6.QtCore import Qt,QSize,QTimer,Signal
+from PySide6.QtCore import QEvent,Qt,QSize,QTimer,Signal
 from PySide6.QtWidgets import QWidget,QFrame,QVBoxLayout,QHBoxLayout,QLabel,QScrollArea,QSplitter,QTabWidget,QBoxLayout,QSizePolicy,QFormLayout,QPushButton,QApplication
 from .active_stack import ActiveStack,ActiveTabs
 
@@ -25,9 +25,6 @@ class Surface(QFrame):
             form_box = QVBoxLayout(form_page)
             form_box.setContentsMargins(0, 0, 0, 0)
             form_box.setSpacing(0)
-            self.commands = QVBoxLayout()
-            self.commands.setSpacing(0)
-            form_box.addLayout(self.commands)
             form_box.addWidget(fields, 1)
             content.setWidget(form_page)
         root.addWidget(content,1);self.content=content
@@ -43,15 +40,40 @@ class ToolWorkspace(QWidget):
         super().__init__(parent);self.setObjectName('toolWorkspace');self.setProperty('workspaceLayout',True);self.compact=None;self.result_preferred=False;self.titles=titles;self.wide_sizes=[380,790]
         self.output_expanded = False
         self._compact_index_before_expansion = None
+        self._height_pending = False
         self.handoff = None
+        self.input_issue = None
         root=QVBoxLayout(self);root.setContentsMargins(16,0,16,12);self.modes=ActiveStack();root.addWidget(self.modes)
         self.split=QSplitter(Qt.Orientation.Horizontal);self.split.setObjectName('toolSplit');self.split.setChildrenCollapsible(False);self.split.setHandleWidth(12);self.modes.addWidget(self.split)
         self.tabs=ActiveTabs();self.tabs.setObjectName('workspaceModes');self.modes.addWidget(self.tabs)
+        self.tabs.currentChanged.connect(self.schedule_height)
         self.inputs=Surface(titles[0],captions[0],inputs,True);self.results=Surface(titles[1],captions[1],results)
+        self.results.installEventFilter(self)
         self.inputs.setObjectName('inputSurface');self.results.setObjectName('resultSurface');self.switch_mode(False)
     def minimumSizeHint(self):return QSize(300,max(160 if self.compact else 240,self.modes.minimumSizeHint().height()+12))
     def sizeHint(self):return QSize(1040,620)
-    def resizeEvent(self,event):super().resizeEvent(event);self.switch_mode(self.width()<870)
+    def resizeEvent(self,event):
+        super().resizeEvent(event)
+        # A scrollbar must not repeatedly flip between the two workspace layouts.
+        self.switch_mode(self.width() < (888 if self.compact else 870))
+        if event.oldSize().width() != event.size().width():
+            self.schedule_height()
+
+    def eventFilter(self, watched, event):
+        if watched is self.results and event.type() == QEvent.Type.LayoutRequest:
+            self.schedule_height()
+        return super().eventFilter(watched, event)
+
+    def schedule_height(self, *_):
+        if not self._height_pending:
+            self._height_pending = True
+            QTimer.singleShot(0, self, self.reserve_results_height)
+
+    def reserve_results_height(self):
+        self._height_pending = False
+        minimum = self.minimumSizeHint().height()
+        if self.minimumHeight() != minimum:
+            self.setMinimumHeight(minimum)
     def switch_mode(self,compact):
         if compact==self.compact:return
         focused=QApplication.focusWidget()
@@ -103,6 +125,17 @@ class ToolWorkspace(QWidget):
         self.set_output_expanded(False)
         if self.compact:
             self.tabs.setCurrentIndex(0)
+
+    def show_input_issue(self, message, field=None, *, reveal=True):
+        if self.input_issue is None:
+            from .input_issue import InputIssue
+            self.input_issue = InputIssue(self)
+            self.inputs.layout().insertWidget(2, self.input_issue)
+        self.input_issue.show_issue(message, field, reveal)
+
+    def clear_input_issue(self):
+        if self.input_issue is not None:
+            self.input_issue.clear()
 
     def show_handoff(self, card):
         if self.handoff is not None:

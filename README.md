@@ -14,20 +14,18 @@ SignalLab PC es un laboratorio de escritorio para **Sistemas y Señales I/II y p
 
 ## Descargar SignalLab PC
 
-**1.9.6 estable** · [Notas de la versión](docs/releases/v1.9.6.md) · [Código fuente y sumas SHA‑256](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.6)
+**2.0.0 estable** · [Notas de la versión](docs/releases/v2.0.0.md) · [Código fuente y sumas SHA‑256](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.0.0)
 
 | Plataforma | Instalable | Portable |
 | --- | --- | --- |
-| Windows x64 | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.9.6/SignalLab-PC-1.9.6-setup.exe) | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.9.6/SignalLab-PC-1.9.6.exe) |
-| Linux x86_64 | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.9.6/SignalLab-PC-1.9.6-linux-x86_64.run) | [Archivo .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v1.9.6/SignalLab-PC-1.9.6-linux-x86_64.tar.gz) |
+| Windows x64 | [Instalador .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.0.0/SignalLab-PC-2.0.0-setup.exe) | [Ejecutable .exe](https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.0.0/SignalLab-PC-2.0.0.exe) |
+| Linux x86_64 | [Instalador .run](https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.0.0/SignalLab-PC-2.0.0-linux-x86_64.run) | [Archivo .tar.gz](https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.0.0/SignalLab-PC-2.0.0-linux-x86_64.tar.gz) |
 
 Los cuatro paquetes incluyen Python y las dependencias. Si querés actualizar desde la aplicación, elegí el instalable y abrí **Ayuda → Buscar actualizaciones**. Para ejecutar SignalLab desde una carpeta, elegí el portable. [Requisitos e instrucciones](docs/installation.md) · [Canales de actualización](docs/installed-updates.md).
 
-**1.9.9 preliminar** · Probá el rediseño del escritorio, las figuras y los flujos de reutilización. [Descargas para Windows y Linux](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.9) · [Notas de la versión](docs/releases/v1.9.9.md).
-
 <p align="center">
-  <img src="docs/assets/workbench-196.png" alt="Análisis LTI en SignalLab PC con entradas, informe algebraico y acciones de resultados" width="1080">
-  <br><sub>Análisis de un sistema continuo a partir de sus coeficientes.</sub>
+  <img src="docs/assets/workbench-200.png" alt="Diseño de un filtro FIR en SignalLab PC con bandas de paso, transición y rechazo" width="1080">
+  <br><sub>Diseño FIR por bandas y tolerancias.</sub>
 </p>
 
 ## Herramientas
@@ -50,11 +48,11 @@ Consultá el [catálogo detallado](docs/tools.md) o el alcance por materia para 
 
 Por ejemplo, podés diseñar un FIR por tolerancias, revisar sus bandas y usar ese mismo filtro en una respuesta temporal. [Primeros pasos](docs/getting-started.md) · [Gráficos y mediciones](docs/cursors.md) · [Sesiones y formatos](docs/file-formats.md).
 
-## Novedades de la 1.9.6
+## Novedades de la 2.0.0
 
-El motor algebraico conserva mejor el soporte de las señales y la región de convergencia al calcular transformadas. Las correcciones abarcan impulsos, integrales por tramos, secuencias desplazadas y medidas de energía y potencia.
+El nuevo escritorio agrupa las variantes en un selector que se puede abrir desde el informe o los datos. La ayuda sigue el método activo y los avisos de validación llevan al campo que hay que corregir. En diseños FIR e IIR, el esquema de bandas muestra sus bordes con acceso directo a los parámetros.
 
-Esta estable incorpora además las sesiones recuperables, el guardado de muestras editadas y las mejoras de precisión y relojes de muestreo. [Notas completas](docs/releases/v1.9.6.md) · [Historial de cambios](CHANGELOG.md).
+Las figuras permiten elegir una curva de referencia y seguir sus muestras con los cursores. En **Resultados** podés distinguir tipos de salida, abrir gráficos guardados y seguir los vínculos con los datos que originaron cada cálculo. [Notas completas](docs/releases/v2.0.0.md) · [Historial de cambios](CHANGELOG.md).
 
 ## Proyecto abierto
 

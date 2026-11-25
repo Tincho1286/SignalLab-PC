@@ -118,7 +118,7 @@ def latex(source):
             elif name.lower()=='abs':result=r'\left|'+args+r'\right|'
             elif name=='exp':result='e^{'+args+'}'
             elif lower in ('asin','acos','atan'):result='\\arc'+lower[1:]+wrapped(args)
-            elif re.fullmatch(r'g[0-9]+',name):result=visit(n.func)+wrapped(args)
+            elif re.fullmatch(r'[A-Za-z]_?[0-9]+',name):result=visit(n.func)+wrapped(args)
             else:result=r'\mathrm{'+name.replace('_',r'\_')+'}'+wrapped(args)
         else:raise ValueError('Notación no disponible')
         return wrapped(result) if priority<parent else result

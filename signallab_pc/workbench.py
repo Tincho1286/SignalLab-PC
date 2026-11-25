@@ -4,7 +4,7 @@ import json
 import unicodedata
 from PySide6.QtCore import Qt,QThreadPool,QSize,QTimer
 from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import (QHeaderView,QComboBox,QMainWindow,QWidget,QHBoxLayout,QVBoxLayout,QLabel,QLineEdit,
+from PySide6.QtWidgets import (QApplication,QHeaderView,QComboBox,QMainWindow,QWidget,QHBoxLayout,QVBoxLayout,QLabel,QLineEdit,
     QPushButton,QStackedWidget,QSplitter,QTabBar,QToolButton,QScrollArea,QFrame,QDockWidget,QTreeWidget,QTreeWidgetItem,QStyle,QButtonGroup,QSizePolicy)
 from .toolbox import ToolboxWindow,ToolPage
 from .project import Project
@@ -84,6 +84,7 @@ class WorkbenchWindow(ToolboxWindow):
         self.help=QToolButton();self.help.setText('Ayuda');self.help.setObjectName('contextHelp');self.help.setIcon(icon('book',C['green']));self.help.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon);self.help.clicked.connect(self.open_help);row.addWidget(self.help);body.addWidget(heading)
         from .workflow_selector import WorkflowSelector
         self.variant_strip=WorkflowSelector(self)
+        body.addWidget(self.variant_strip)
         self.stack=QStackedWidget();body.addWidget(self.stack,1);self.setCentralWidget(root)
         self.build_explorer();self.build_workspace()
         from .studio_shell import install_toolbar
@@ -148,24 +149,27 @@ class WorkbenchWindow(ToolboxWindow):
         self.tree.itemClicked.connect(self.choose_tool);self.tree.itemActivated.connect(self.choose_tool);self.search.textChanged.connect(self.filter_tools);self.search.returnPressed.connect(self.open_first_match)
         self.explorer_dock.setWidget(panel);self.addDockWidget(Qt.DockWidgetArea.LeftDockWidgetArea,self.explorer_dock);self.resizeDocks([self.explorer_dock],[265],Qt.Orientation.Horizontal)
     def _render_tools(self,query):
-        from .tool_catalog import ENTRIES,AREA_BY_ID,matches,DETAILS_BY_KEY,normalize
+        from .tool_catalog import ENTRIES,AREA_BY_ID,BY_KEY
+        from .tool_search import find_tools, rank, tokens
         self.tree.blockSignals(True);self.tree.clear();self.tool_nodes=[];self.area_nodes={};self.operation_nodes={}
         shortcuts={('basic','generate'),('system_analysis',0),('course_tools','fir'),('fourier',0),('sampling',0)}
-        entries=[e for e in ENTRIES if matches(e,query)] if query.strip() else [e for e in ENTRIES if e['area']==self.navigation_area] if self.navigation_area else [e for e in ENTRIES if e['key'] in shortcuts]
+        hits,entries=[],[]
+        if query.strip():hits=find_tools(query)
+        elif self.navigation_area:entries=[e for e in ENTRIES if e['area']==self.navigation_area]
+        else:entries=[e for e in ENTRIES if e['key'] in shortcuts]
         self.tool_list_title.setText('Resultados de búsqueda' if query.strip() else AREA_BY_ID[self.navigation_area][1] if self.navigation_area else 'Acceso directo')
         for entry in entries:
-            text=entry['title'];detail='';target=entry['route']
-            if query.strip():
-                candidate=next((DETAILS_BY_KEY[key] for key,_ in entry['variants'] if matches(DETAILS_BY_KEY[key],query)),None)
-                if candidate is not None:
-                    target=candidate['route']
-                    if candidate['title']!=text:detail=candidate['title']
-                text+='\n'+AREA_BY_ID[entry['area']][1]+(' · '+detail if detail else '')
+            text=entry['title'];target=entry['route']
             node=QTreeWidgetItem([text]);node.setData(0,Qt.ItemDataRole.UserRole,target);node.setToolTip(0,entry['summary']);self.tree.addTopLevelItem(node);self.tool_nodes.append((node,entry['title']));self.operation_nodes[entry['key']]=node
-        cas_match=bool(query.strip()) and all(word in normalize(CAS_SEARCH) for word in normalize(query).split())
+        for hit in hits:
+            node=QTreeWidgetItem([hit.title+'\n'+AREA_BY_ID[hit.area][1]])
+            node.setData(0,Qt.ItemDataRole.UserRole+2,(hit.key,hit.settings))
+            node.setToolTip(0,hit.summary);self.tree.addTopLevelItem(node);self.tool_nodes.append((node,hit.title))
+            self.operation_nodes.setdefault(BY_KEY[hit.key]['key'],node)
+        cas_match=rank(tokens(query),(tokens('Calculadora CAS'),),tokens(CAS_SEARCH)) is not None
         if cas_match:
             node=QTreeWidgetItem(['Calculadora CAS\nMatemática simbólica']);node.setData(0,Qt.ItemDataRole.UserRole,CAS_ROUTE);self.tree.addTopLevelItem(node);self.tool_nodes.append((node,'Calculadora CAS'))
-        if not entries and not cas_match:
+        if not entries and not hits and not cas_match:
             node=QTreeWidgetItem(['No se encontraron herramientas. Probá con otro nombre, como FIR, polos o energía.']);node.setFlags(Qt.ItemFlag.NoItemFlags);self.tree.addTopLevelItem(node)
         self.tree.itemDelegate().update_heights();self.tree.blockSignals(False);self._select_navigation()
     def _select_navigation(self):
@@ -278,19 +282,24 @@ class WorkbenchWindow(ToolboxWindow):
         self._render_tools(self.search.text())
         self.tree.clearSelection()
     def route_for_key(self,key):return ROUTES[key]
-    def open_workflow(self,entry,query=''):
-        from .tool_catalog import search_variant
+    def open_workflow(self,entry):
         key=self.variant_strip.memory.get(entry['key'],entry['key'])
-        if query:
-            match=search_variant(entry,query,key)
-            if match is not None:key=match
         self.open_tool(ROUTES[key])
+
+    def open_tool_search(self,key,settings=()):
+        route=ROUTES[tuple(key)]
+        self.open_tool(route)
+        if settings:
+            panel=self.pages[route].panel
+            for field,index in settings:
+                getattr(panel,field).setCurrentIndex(index)
     def operation_changed(self,item):
         from .tool_catalog import locate,AREA_BY_ID,ENTRIES,normalized_key
         entry=locate(item)
         if entry is None:return
-        from .workflow_choices import values_for
-        detail_label=' · '.join((entry['title'],*values_for(entry,normalized_key(item))))
+        from .workflow_choices import variant_title
+        option=variant_title(entry,normalized_key(item))
+        detail_label=f"{entry['title']} · {option}" if option else entry['title']
         view=self.views.get(getattr(self,'active_route',None))
         if view is not None and self.stack.currentWidget() is view:
             page=getattr(view,'active_page',view.widget())
@@ -356,9 +365,6 @@ class WorkbenchWindow(ToolboxWindow):
         workspace = self._layout_workspace
         expanded = workspace is not None and workspace.output_expanded
         self.result_layout.setVisible(workspace is not None)
-        current = self.desktop_keys.active_page()
-        if current is not None and hasattr(current,'tool_item'):
-            self.variant_strip.setVisible(self.variant_strip.form.rowCount()>0 and not expanded)
         if workspace is not None:
             self.result_layout.setChecked(expanded)
             label = 'Restaurar paneles' if expanded else 'Ampliar resultado'
@@ -408,11 +414,6 @@ class WorkbenchWindow(ToolboxWindow):
         page=self.pages[route];document.select_page(page);self.pages[requested]=page if requested[1]!='workspace' else document
         from .tool_workspace import install as install_workspace
         workspace=install_workspace(page)
-        command_box = getattr(workspace.inputs, 'commands', None) if workspace is not None else None
-        layout = document.layout() if command_box is None else command_box
-        if layout.indexOf(self.variant_strip) < 0:
-            layout.insertWidget(0, self.variant_strip)
-        self.variant_strip.set_embedded(command_box is not None)
         view=self.views[doc_route];view.active_page=page;view.panel=getattr(page,'panel',None);view.context=getattr(page,'context',None)
         from .navigation import TRANSFORM_ALIASES
         if item[1:3] in TRANSFORM_ALIASES:page.panel.select_legacy(item[1:3])
@@ -468,27 +469,33 @@ class WorkbenchWindow(ToolboxWindow):
         if self.current_operation and self.category not in ('Inicio','Proyecto','Biblioteca'):self.show_tool_help(self.current_operation)
         else:self.show_menu('Biblioteca')
     def show_tool_help(self,item):
-        self.show_menu('Biblioteca', browse=False);self.pages['menu','Biblioteca'].select_tool(item)
+        from .guide_context import configured_guide, field_in_focus
+        page=self.pages.get(tuple(item))
+        context=configured_guide(item,getattr(page,'panel',None))
+        field=field_in_focus(page,QApplication.focusWidget())
+        self.show_menu('Biblioteca', browse=False)
+        self.pages['menu','Biblioteca'].select_tool(item,context=context,focused_field=field)
     def choose_tool(self,node,column=0):
+        hit=node.data(0,Qt.ItemDataRole.UserRole+2)
+        if hit:
+            self.open_tool_search(*hit)
+            return
         route=node.data(0,Qt.ItemDataRole.UserRole)
         if route:
             if tuple(route)==CAS_ROUTE:self.open_cas();return
             from .tool_catalog import locate
-            self.open_workflow(locate(tuple(route)),self.search.text());return
+            self.open_workflow(locate(tuple(route)));return
         branch=node.data(0,Qt.ItemDataRole.UserRole+1)
         if branch:
             self.show_area(branch[1])
             if branch[0]=='section':node.setExpanded(True)
     def filter_tools(self,text):self._render_tools(text)
     def open_first_match(self):
-        from .tool_catalog import normalize
-        if not self.tool_nodes:return
-        query=normalize(self.search.text())
-        node=next((node for node,title in self.tool_nodes if normalize(title).startswith(query)),self.tool_nodes[0][0]);self.choose_tool(node)
+        if self.tool_nodes:self.choose_tool(self.tool_nodes[0][0])
 
-    def focus_tool_search(self):
+    def focus_tool_search(self,query=''):
         from .command_palette import open_search
-        open_search(self)
+        open_search(self,query if isinstance(query,str) else '')
 
     def focus_document(self):
         panels=(self.explorer_dock,self.workspace_dock)
@@ -517,11 +524,9 @@ class WorkbenchWindow(ToolboxWindow):
     def open_workspace_record(self,node,column=0):
         self.focus_result(node.data(0,Qt.ItemDataRole.UserRole))
     def focus_result(self,key):
-        self.show_menu('Proyecto');self.include_inputs.setChecked(True);self.result_search.clear();self.result_kind.setCurrentIndex(0);self.refresh_project()
-        index=next((i for i,r in enumerate(self.visible_records) if r['id']==key),-1)
-        if index >= 0:
-            self.project_list.setCurrentRow(index)
-            self.pages['menu', 'Proyecto'].workspace.show_results()
+        self.show_menu('Proyecto')
+        if not self.pages['menu','Proyecto'].focus_record(key):
+            self.statusBar().showMessage('Este resultado ya no está en la sesión.')
 
     def capture_handoff(self):
         from .input_handoff import HandoffOrigin
@@ -578,11 +583,26 @@ class WorkbenchWindow(ToolboxWindow):
             journal.calculation_notes=list(records.values())
             return result
         route=self.current_operation
+        page=self.pages.get(route)
+        workspace=getattr(page,'workspace',None)
+        if workspace is not None and not self._workers:
+            workspace.clear_input_issue()
         def accepted(result):
             journal.accept(result,on_success)
-            page=self.pages.get(route);workspace=getattr(page,'workspace',None)
             if workspace is not None:workspace.show_results()
-        return super()._run_operation(message,calculate,accepted)
+        return super()._run_operation(message,calculate,accepted,input_context=workspace is not None)
+
+    def present_input_failure(self, worker, message):
+        page = self.pages.get(worker.origin)
+        workspace = getattr(page, 'workspace', None)
+        if workspace is None:
+            return False
+        current = self.desktop_keys.active_page() is page
+        workspace.show_input_issue(message, reveal=current)
+        if current:
+            self.statusBar().showMessage('Revisá los datos del cálculo.')
+        return True
+
     def _run_view_operation(self,message,function,on_success):
         """Build a view cache from already registered data, without duplicating it."""
         def accept(result):
@@ -686,7 +706,10 @@ class WorkbenchWindow(ToolboxWindow):
         for field in self.findChildren(QLineEdit)+self.findChildren(QComboBox):
             field.setMinimumHeight(34);field.setMinimumWidth(0);field.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed)
             if isinstance(field,QComboBox):
-                field.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon);field.setMinimumContentsLength(16)
+                if field.property('fitComboText'):
+                    field.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToContents)
+                else:
+                    field.setSizeAdjustPolicy(QComboBox.SizeAdjustPolicy.AdjustToMinimumContentsLengthWithIcon);field.setMinimumContentsLength(16)
                 ancestor=field.parentWidget()
                 while ancestor is not None and ancestor.objectName()!='inputSurface':ancestor=ancestor.parentWidget()
                 if ancestor is not None:field.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Fixed)

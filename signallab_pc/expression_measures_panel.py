@@ -1,3 +1,4 @@
+from .validation import show_input_error
 from .numeric_input import real_field,integer_field
 """Medidas algebraicas y aproximaciones de una misma definición de señal."""
 import json
@@ -180,7 +181,7 @@ class ExpressionMeasuresPanel(QWidget):
                 self._sampled_plot = (parent, request)
             self.window._run_operation('Evaluando ventana numérica…',lambda:run_request(request),accept)
         except FieldError as exc:self.sample_button.invalid_interval(exc)
-        except Exception as exc:QMessageBox.warning(self,'Revisá la ventana',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá la ventana',exc)
     def save(self):
         path,_=QFileDialog.getSaveFileName(self,'Guardar informe','energia-potencia.txt','Texto (*.txt)')
         if path:

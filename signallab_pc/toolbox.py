@@ -1,7 +1,6 @@
 from .numeric_input import real_field,integer_field,constant_value
-from .validation import passive_fields
+from .validation import invalid, passive_fields, show_input_error
 """Menús de calculadoras independientes, con entradas y resultados locales."""
-from copy import copy
 from dataclasses import asdict
 import json
 import hashlib
@@ -36,8 +35,7 @@ from .tool_descriptions import describe_tool
 from .report_view import ReportView,report_panel
 from .expression_editor import ExpressionEditor
 from .result_summary import operation_label
-from .signal_plot import plot_samples
-from .signal_plot import configure_axis,configure_signal_axis, is_discrete_plot, validate_overlay
+from .signal_plot import validate_overlay
 
 def signal_destinations(value,items):
     kind=value.data_kind
@@ -85,7 +83,6 @@ class LocalInput(QGroupBox):
         self.mode=QComboBox();self.mode.addItems(['Definir una fórmula','Ingresar muestras','Usar archivo o resultado anterior'])
         self.expression=ExpressionEditor('exp(-w^2)' if kind=='frequency' else 'cos(2*pi*t)' if kind=='continuous' else 'cos(pi*n/4)');self.expression.setProperty('variableHint','w' if kind=='frequency' else 't' if kind=='continuous' else 'n')
         self.samples=QLineEdit('1, 2, 1');self.samples.setToolTip('Pegá valores separados por coma, punto y coma o salto de línea. Se admiten pi, fracciones, 10^(-3) y complejos.');self.origin=QLineEdit('0');self.count=QLineEdit('64');self.step=QLineEdit('0.01')
-        from .choice_buttons import ChoiceButtons
         from .source_selector import SourceSelector
         self.entry_modes=SourceSelector(self.mode);form.addRow(self.entry_modes);form.addRow('X(ω), usar w como variable' if kind=='frequency' else 'x(t)' if kind=='continuous' else 'x[n]',self.expression);form.addRow('Valores separados por coma',self.samples)
         self.paste_button=QPushButton('Pegar datos…');self.paste_button.setToolTip('Revisar columnas, eje y valores antes de cargar el portapapeles.');self.paste_button.clicked.connect(self.paste_samples);form.addRow(self.paste_button)
@@ -94,9 +91,10 @@ class LocalInput(QGroupBox):
         if kind in ('continuous','frequency'):fields.append(('Paso Δω' if kind=='frequency' else 'Paso Δt (s)',self.step))
         axis_widgets={};self.coordinate_labels={}
         for title,field in fields:
+            field.setAccessibleName(title)
             container=QWidget();column=QVBoxLayout(container);column.setContentsMargins(0,0,0,0);column.setSpacing(4);coordinate_label=QLabel(title);self.coordinate_labels[field]=coordinate_label;column.addWidget(coordinate_label);field.setMaximumWidth(180);column.addWidget(field);row.addWidget(container);axis_widgets[field]=container
         form.addRow(interval)
-        self.range_note=QLabel('Último punto: ω₀ + (N−1)·Δω. Inicio y paso usan la unidad elegida abajo.' if kind=='frequency' else 'Último instante: t₀ + (N−1)·Δt. El paso es la separación entre puntos.' if kind=='continuous' else 'N es la cantidad de muestras. El último índice es n₀ + N−1.');self.range_note.setObjectName('muted');self.range_note.setWordWrap(True);form.addRow(self.range_note)
+        self.range_note=QLabel();self.range_note.setObjectName('inputGridPreview');self.range_note.setWordWrap(True);self.range_note.setToolTip('Última coordenada = inicio + (cantidad−1)·paso.');form.addRow(self.range_note)
         if kind=='frequency':
             self.frequency_units=QComboBox();self.frequency_units.addItems(['rad/s','rad/muestra']);form.addRow('Unidad del eje de frecuencia',self.frequency_units)
         if kind=='continuous':self.expression.setToolTip('Usá t en segundos. DiracDelta(t-a), dirac(t-a) e impulse(t-a) conservan posición y peso, incluso entre puntos. La última coordenada es inicio+(cantidad−1)·paso; los impulsos fuera de ese intervalo se informan aparte.')
@@ -104,17 +102,27 @@ class LocalInput(QGroupBox):
         self.count.setToolTip('Cantidad entera positiva. Última coordenada = inicio + (cantidad−1)·paso.')
         self.step.setToolTip('Separación positiva entre puntos. No es la frecuencia de muestreo.')
         self.file_note=QLabel();self.file_note.setTextFormat(Qt.TextFormat.PlainText);self.file_note.setWordWrap(True);form.addRow(self.file_note)
+        from .wrapping_row import WrappingRow
+        self.external_actions=WrappingRow()
+        inspect=QPushButton('Revisar datos…');inspect.clicked.connect(self.inspect_loaded)
+        clear=QPushButton('Quitar');clear.setToolTip('Quitar la entrada de este formulario.');clear.clicked.connect(lambda:self.clear_source())
+        for button in (inspect,clear):self.external_actions.flow.addWidget(button)
+        form.addRow(self.external_actions)
         load=QPushButton('Elegir archivo…');load.clicked.connect(self.open_file);form.addRow(load)
         def update(index):
             self.change_source_view(self.entry_modes.view)
             form.setRowVisible(self.expression,index==0);form.setRowVisible(self.samples,index==1);form.setRowVisible(self.paste_button,index==1)
-            form.setRowVisible(interval,index!=2);form.setRowVisible(self.range_note,index==0);form.setRowVisible(self.file_note,index==2)
+            form.setRowVisible(interval,index!=2);form.setRowVisible(self.range_note,index!=2 and not (index==0 and getattr(self,'series_analysis',False)));form.setRowVisible(self.file_note,index==2)
             if hasattr(self,'frequency_units'):
                 form.setRowVisible(self.frequency_units,index!=2 and not self.frequency_units.property('fromDomain'))
             axis_widgets[self.count].setVisible((index==0 and not getattr(self,'series_analysis',False)) or index==1 and hasattr(self,'repeat_period') and self.repeat_period.isChecked());form.setRowVisible(load,index==2 and self.entry_modes.view==2)
             if hasattr(self,'recent'):form.setRowVisible(self.recent,index==2 and self.entry_modes.view==3);form.setRowVisible(self.browse_results,index==2 and self.entry_modes.view==3)
         self.entry_modes.viewChanged.connect(lambda:update(self.mode.currentIndex()))
-        self.mode.currentIndexChanged.connect(update);self.mode.setCurrentIndex(2 if kind=='import' else 0);update(self.mode.currentIndex())
+        initial_mode=2 if kind=='import' else 0
+        if initial_mode!=self.mode.currentIndex():self.mode.setCurrentIndex(initial_mode)
+        else:update(initial_mode)
+        from .input_grid import InputGrid
+        self.input_grid=InputGrid(self)
     def enable_periodic_definition(self):
         form=self.layout()
         self.repeat_period=QCheckBox('Repetir un período en todo el eje')
@@ -139,7 +147,7 @@ class LocalInput(QGroupBox):
             self.period.setProperty('calculationInput',formula and enabled)
             self.period_origin.setProperty('calculationInput',choose_start)
             self.count.parentWidget().setVisible(formula or enabled)
-        self.repeat_period.toggled.connect(refresh);self.mode.currentIndexChanged.connect(refresh);self.period.textChanged.connect(refresh);refresh()
+        self.repeat_period.toggled.connect(refresh);self.repeat_period.toggled.connect(self.input_grid.schedule);self.mode.currentIndexChanged.connect(refresh);self.period.textChanged.connect(refresh);refresh()
         return [self.repeat_period,self.period,self.period_origin]
     def enable_discrete_series_period(self):
         from .period_input import PeriodInput
@@ -165,7 +173,7 @@ class LocalInput(QGroupBox):
             form.setRowVisible(field,use_period)
             field.setProperty('calculationInput',use_period)
             self.count.setProperty('calculationInput',not self.series_analysis and self.mode.currentIndex()==0)
-            form.setRowVisible(self.range_note,self.mode.currentIndex()==0 and not self.series_analysis)
+            form.setRowVisible(self.range_note,self.mode.currentIndex()==1)
             self.count.parentWidget().setVisible(self.mode.currentIndex()==0 and not self.series_analysis)
         self.mode.currentIndexChanged.connect(refresh);self.sourceChanged.connect(refresh)
         self.refresh_series_fields=refresh
@@ -186,12 +194,19 @@ class LocalInput(QGroupBox):
         if self.loaded is None:
             self.file_note.setText('Elegí una señal compatible en la lista o explorá los resultados calculados.' if self.entry_modes.view==3 else 'Abrí CSV, JSON o MATLAB (.mat / .m). Podés elegir las columnas, variables y el eje.');name='muted'
         else:
-            value=self.loaded;domain={'continuous':'Señal continua','discrete':'Secuencia discreta','frequency':'Datos de frecuencia'}.get(value.domain,value.domain);origin='Resultado' if self.entry_modes.view==3 else 'Archivo'
-            if not value.values.size:axis='Registro sin muestras.'
-            elif value.domain=='discrete':axis='Índices n: '+str(value.origin)+' a '+str(value.origin+value.values.size-1)
-            else:axis=('Frecuencia: ' if value.domain=='frequency' else 'Tiempo: ')+format(value.origin,'.8g')+' a '+format(value.origin+(value.values.size-1)*value.step,'.8g')+' '+value.units+' · paso '+format(value.step,'.8g')
-            self.file_note.setText(value.name+'\n'+origin+' · '+domain+' · '+format(value.values.size,',')+' valores\n'+axis);name='loadedSignal'
+            from .result_summary import signal_record_rows
+            value=self.loaded;origin='Resultado' if self.entry_modes.view==3 else 'Archivo'
+            rows=signal_record_rows(value)
+            domain,count,axis=(row[1] for row in rows[:3])
+            self.file_note.setText(f'{value.name}\n{origin} · {domain}\n{rows[2][0]} {axis} · {count} valores');name='loadedSignal'
         self.file_note.setObjectName(name);self.file_note.style().unpolish(self.file_note);self.file_note.style().polish(self.file_note)
+        self.layout().setRowVisible(self.external_actions,self.entry_modes.view in (2,3) and self.loaded is not None)
+
+    def inspect_loaded(self):
+        if self.loaded is not None and self.entry_modes.view in (2,3):
+            from .signal_inspector import inspect_signal
+            provenance='Resultados de la sesión' if self.entry_modes.view==3 else 'Archivo cargado'
+            inspect_signal(self,self.loaded,provenance)
     def clear_source(self,view=None):
         self.entry_modes.select(view if view is not None else self.entry_modes.view if self.entry_modes.view in (2,3) else 2);self.loaded=None;self.loaded_reference_id=None;self.reference_id=None;self.fingerprint=None;self.remember_external_source();self.refresh_source_note();self.refresh_recent();self.source_revision=getattr(self,'source_revision',0)+1;self.sourceChanged.emit()
     def paste_samples(self):
@@ -226,7 +241,7 @@ class LocalInput(QGroupBox):
         self.layout().labelForField(self.samples).setText('c[k₀], c[k₀+1], …' if coefficients else 'Valores separados por coma')
         self.coordinate_labels[self.origin].setText('Primer armónico k₀' if coefficients else 'Índice inicial n₀')
         self.coordinate_labels[self.count].setText('Coeficientes' if coefficients else 'Muestras N')
-        self.range_note.setText('Último armónico: k₀ + N−1. N es la cantidad de coeficientes.' if coefficients else 'N es la cantidad de muestras. El último índice es n₀ + N−1.')
+        self.input_grid.schedule()
     def open_file(self):
         try:
             from .data_import import load_signal
@@ -253,19 +268,19 @@ class LocalInput(QGroupBox):
     def bind_project(self,window):
         self.project_window=window
         self.recent=QComboBox();self.recent.setAccessibleName('Señales recientes compatibles');self.recent.activated.connect(self.use_recent);self.layout().addRow('Reutilizar señal',self.recent)
-        button=QPushButton('Explorar resultados o importar…');self.browse_results=button;button.clicked.connect(self.choose_project);self.layout().addRow(button)
+        button=QPushButton('Explorar resultados…');self.browse_results=button;button.clicked.connect(self.choose_project);self.layout().addRow(button)
         self.layout().setRowVisible(self.recent,self.mode.currentIndex()==2 and self.entry_modes.view==3);self.layout().setRowVisible(button,self.mode.currentIndex()==2 and self.entry_modes.view==3)
         self.refresh_recent()
     def refresh_recent(self):
         if not hasattr(self,'recent'):return
+        from .reuse_sources import compatible
+        constraints=self.source_constraints()
         self.recent.blockSignals(True);self.recent.clear();self.recent.addItem('Elegir una señal reciente…',None)
         records=reversed(self.project_window.project.headers('signal'))
         for record in records:
             info=self.project_window.project.describe(record['id'])
-            accepts_centered = (getattr(self, 'dft_input', False) and info.get('centered_dft', False)) or info.get('data_kind') in getattr(self,'cross_domain_kinds',())
-            if self.kind in ('continuous','discrete','frequency') and info['domain']!=self.kind and not accepts_centered:continue
-            if self.data_kinds() is not None and info.get('data_kind') not in self.data_kinds():continue
-            self.recent.addItem(f"{record['title']} · {info['count']:,} muestras",record['id'])
+            if not compatible(info,**constraints):continue
+            self.recent.addItem(f"{record['title']} · {info['count']:,} valores",record['id'])
             self.recent.setItemData(self.recent.count()-1,record['operation'],Qt.ItemDataRole.ToolTipRole)
             if self.recent.count()>20:break
         current=self.recent.findData(self.loaded_reference_id) if self.loaded is not None and self.entry_modes.view==3 else 0
@@ -275,11 +290,13 @@ class LocalInput(QGroupBox):
         key=self.recent.itemData(index)
         if key:self.set_source(self.project_window.project.get(key),key)
 
+    def source_constraints(self):
+        dft=bool(getattr(self,'dft_input',False))
+        domains=['discrete','frequency'] if dft else [self.kind] if self.kind in ('continuous','discrete','frequency') else None
+        return dict(domains=domains,dft_input=dft,data_kinds=self.data_kinds(),cross_domain_kinds=getattr(self,'cross_domain_kinds',()))
+
     def choose_project(self):
-        if getattr(self, 'dft_input', False):
-            key=self.project_window.choose_record('signal',domains=['discrete','frequency'],dft_input=True,data_kinds=self.data_kinds())
-        else:
-            key=self.project_window.choose_record('signal',domains=None if getattr(self,'cross_domain_kinds',()) else [self.kind] if self.kind in ('continuous','discrete','frequency') else None,data_kinds=self.data_kinds())
+        key=self.project_window.choose_record('signal',**self.source_constraints())
         if key:self.set_source(self.project_window.project.get(key),key)
     def read(self):
         value=self._read()
@@ -314,11 +331,14 @@ class LocalInput(QGroupBox):
             return self.loaded
         expression=self.expression.text()
         periodic=hasattr(self,'repeat_period') and self.repeat_period.isChecked()
+        if mode == 0 and not expression.strip():
+            invalid(self.expression, 'ingresá la fórmula de un período.' if periodic else 'ingresá la fórmula de la señal.')
+        if mode == 1 and not self.samples.text().strip():
+            invalid(self.samples, 'ingresá al menos una muestra.')
         definition_key='periodic_definition' if periodic else None
         if periodic:
             variable='n' if self.kind=='discrete' else 't'
             if mode==0:
-                if not expression.strip():raise ValueError('Escribí la fórmula de un período antes de calcular.')
                 period=self.repeat_length.text()
                 if self.repeat_length.suggestion is None:
                     expression=f'Repeat(({expression}), {variable}, ({period}), ({self.period_origin.text()}))'
@@ -331,13 +351,11 @@ class LocalInput(QGroupBox):
             from .periodic_signals import waveform_definition_key
             definition_key=waveform_definition_key(expression,self.kind)
         if self.kind in ('continuous','frequency'):
-            origin=real_field(self.origin);step=real_field(self.step)
-            if step<=0:raise ValueError('El paso del eje debe ser positivo.')
+            origin=real_field(self.origin);step=real_field(self.step,minimum=0,strict=True)
             if mode==0 or periodic:
-                count=integer_field(self.count)
+                count=integer_field(self.count,minimum=1)
                 from .resources import ensure_working_set
                 ensure_working_set(count)
-                if count<1:raise ValueError('La cantidad debe ser positiva.')
                 from .continuous_expression import sample_continuous,has_dirac
                 if self.kind=='continuous':
                     result=sample_continuous(expression,origin,step,count)
@@ -379,7 +397,7 @@ class ResultView(QWidget):
         self.figure=Figure(figsize=(7,3));empty=self.figure.add_subplot(111);empty.set_axis_off();empty.text(.5,.5,'Completá las entradas y presioná Calcular',ha='center',color='#8194ae',transform=empty.transAxes);self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumHeight(260);layout.addWidget(NavigationToolbar2QT(self.canvas,self));layout.addWidget(self.canvas,1)
         self.text=ReportView();self.views.addTab(report_panel(self.text),'Informe');self.views.setTabVisible(1,details)
         from .result_table import ResultTable
-        self.table_view=ResultTable();self.table_index=self.views.addTab(self.table_view,'Valores');self.views.setTabVisible(self.table_index,False)
+        self.table_view=ResultTable();self.table_view.link_figure(self.canvas);self.table_index=self.views.addTab(self.table_view,'Valores');self.views.setTabVisible(self.table_index,False)
         self.details_view=ReportView();self.details_index=self.views.addTab(report_panel(self.details_view),'Datos del cálculo');self.views.setTabVisible(self.details_index,False)
         if not details:self.views.tabBar().hide()
         from PySide6.QtWidgets import QSizePolicy
@@ -468,84 +486,25 @@ class ResultView(QWidget):
         if self.dft_axis.currentIndex()!=1 or not all(ops.is_centered_dft(signal) for signal in signals):
             return signals
         # Share the calculated coefficients. Only the view uses integer coordinates.
-        indexed=tuple(copy(signal) for signal in signals)
-        for signal in indexed:
-            signal.origin=-(signal.values.size//2)
-            signal.step=1
-            signal.domain='discrete'
-            signal.units='k'
-        return indexed
+        from .signal_figure import centered_bins_view
+        return tuple(centered_bins_view(signal) for signal in signals)
 
     def update_dft_axis(self,*_):
         if not self.dft_axis.isHidden():
-            self.table_view.set_signals(self.displayed_signals())
+            self.table_view.set_signals(self.displayed_signals(),preserve_position=True)
             self.draw_signal()
 
     def draw_signal(self,*_):
         if self.result is None:return
         result=self.result if isinstance(self.result,tuple) else (self.result,)
         if not isinstance(result[0],Signal):return
-        if all(v.metadata.get('operation')=='spectral_fraction' for v in result):
-            self.figure.clear();axis=self.figure.add_subplot(111)
-            from .probe_data import attach_signal
-            for value in result:
-                if value.metadata.get('bins'):
-                    low,high=value.metadata['bounds'];x=np.r_[low,value.axis,high];y=np.r_[0.,value.values.real,1.]
-                    artists=axis.step(x,y,where='post',label=value.name)
-                else:artists=axis.plot(value.axis,value.values.real,linestyle='none',marker='.',label=value.name)
-                attach_signal(artists,value,'real');configure_signal_axis(axis,value)
-                if value.units in ('k','bin k'):configure_axis(axis,discrete_index=True,units=value.units,label='Índice k',index_symbol='k')
-            axis.set_ylabel('Fracción acumulada');axis.set_ylim(-.02,1.02);axis.grid(alpha=.15);self.canvas.draw_idle();return
+        from .signal_figure import draw_signal_figure, polar_label
         signals=self.displayed_signals()
-        self.figure.clear();polar=self.plot_mode.currentIndex()==0
-        delay_view=polar and all(v.metadata.get('operation')=='frequency_filter' for v in signals)
-        from .distributions import dirac_terms
-        from .signal_plot import plot_impulse_areas
-        if all(source.metadata.get('lines_only') for source in signals):
-            axis=self.figure.add_subplot(111)
-            for source in signals:
-                plot_impulse_areas(axis,dirac_terms(source),source.name)
-            configure_signal_axis(axis,signals[0]);axis.set_xlim(min(source.origin for source in signals),max(source.axis[-1] for source in signals))
-            axis.set_ylabel('Área Dirac');axis.set_title('Impulsos ideales',fontsize=9);axis.grid(alpha=.2)
-            if axis.get_legend_handles_labels()[0]:axis.legend()
-            else:axis.text(.5,.5,'No hay impulsos en esta ventana',ha='center',transform=axis.transAxes)
-            self.figure.tight_layout();self.canvas.draw_idle();return
-        ideal_view=any(dirac_terms(source) for source in signals)
-        axes=self.figure.subplots(2+int(delay_view)+int(ideal_view),1,sharex=True)
-        density=all(source.metadata.get('operation') in {'spectral_density','energy_density'} for source in signals)
-        self.plot_mode.setItemText(0,'Densidad y dB' if density else 'Módulo y fase')
-        for index,source in enumerate(signals):
-            shown=SignalLabWindow._plot_indices(source.values);values=source.values[shown];x=source.axis[shown]
-            name=source.name
-            discrete=is_discrete_plot(source)
-            if polar and density:
-                first=values.real;second=np.full(values.size,np.nan);valid=first>0;second[valid]=10*np.log10(first[valid])
-            elif polar:
-                first=np.abs(values);second=np.full(values.size,np.nan);valid=first!=0;second[valid]=np.angle(values[valid])
-            else:first=values.real;second=values.imag
-            plot_samples(axes[0],x,first,discrete=discrete,label=name,source=source,component='real' if density or not polar else 'magnitude')
-            valid=np.isfinite(second)
-            if np.any(valid):plot_samples(axes[1],x[valid] if discrete else x,second[valid] if discrete else second,discrete=discrete,label=name,phase=polar and not density,source=source,component='density_db' if polar and density else 'phase' if polar else 'imag')
-            elif polar:axes[1].text(.5,.5,'Densidad nula: dB = −∞' if density else 'Fase no definida: módulo nulo',ha='center',transform=axes[1].transAxes,color='#95a9bf')
-            if delay_view:
-                delay=np.full(source.values.size,np.nan);valid_full=np.abs(source.values)>0
-                for segment in np.split(np.flatnonzero(valid_full),np.flatnonzero(np.diff(np.flatnonzero(valid_full))>1)+1):
-                    if segment.size>2:delay[segment[1:-1]]=-np.gradient(np.unwrap(np.angle(source.values[segment])),source.step)[1:-1]
-                delay_line=axes[2].plot(source.axis[shown],delay[shown],label=name)[0];delay_line._signallab_probe_values=(source.origin,source.step,delay);axes[2].set_ylabel('Retardo aprox. (muestras)' if source.units=='rad/muestra' else 'Retardo aprox. (s)')
-                axes[2].set_title('Derivada numérica de fase; no definida en ceros o discontinuidades',fontsize=8)
-            impulses=dirac_terms(source)
-            if impulses:
-                weight_axis=axes[-1]
-                plot_impulse_areas(weight_axis,impulses,name)
-                weight_axis.set_title('Impulsos ideales',fontsize=9)
-                axes[0].set_title('Parte ordinaria · los impulsos se muestran por separado',fontsize=9)
-        if any(SignalLabWindow._plot_indices(v.values).size<v.values.size for v in signals):axes[0].set_title('Vista reducida: consultá Valores o exportá para ver todas las muestras',fontsize=9)
-        axes[0].set_ylabel('Densidad' if polar and density else 'Módulo' if polar else 'Parte real');axes[1].set_ylabel('Densidad (dB)' if polar and density else 'Fase (rad)' if polar else 'Parte imaginaria');configure_signal_axis(axes[-1],signals[0])
-        for axis in axes:
-            axis.grid(alpha=.2)
-            if axis.get_legend_handles_labels()[0]:axis.legend()
-        if polar:axes[1].set_title('10 log10 de la densidad; cero → −∞, no trazado' if density else 'Fase principal; no se dibuja donde el módulo es cero',fontsize=9)
-        self.figure.tight_layout();self.canvas.draw_idle()
+        self.plot_mode.setItemText(0,polar_label(signals))
+        draw_signal_figure(self.figure,signals,polar=self.plot_mode.currentIndex()==0,
+                           select_indices=SignalLabWindow._plot_indices)
+        if self.figure.get_layout_engine() is None:self.figure.tight_layout()
+        self.canvas.draw_idle()
     def prepare_cas(self):
         self.cas_menu.clear();window=self.window()
         from .cas_transfer import send_to_cas,can_send
@@ -1047,7 +1006,7 @@ class ToolPage(QWidget):
             self.first.samples.setText('1, 1, 1, 1');self.first.mode.setCurrentIndex(1)
             self.first.layout().labelForField(self.first.expression).setText('X[k] · usar n como índice k')
             self.first.layout().labelForField(self.first.samples).setText('X[0], X[1], …, X[N−1]')
-            self.first.coordinate_labels[self.first.count].setText('Coeficientes N');self.first.range_note.setText('N es la cantidad de coeficientes. Se usan los índices k=0, …, N−1.')
+            self.first.coordinate_labels[self.first.count].setText('Coeficientes N')
             self.first.origin.setText('0');self.first.origin.parentWidget().hide()
             self.restore_dft_origin=QCheckBox('Restaurar el índice inicial de la señal original')
             self.restore_dft_origin.setChecked(True);box.addWidget(self.restore_dft_origin)
@@ -1119,7 +1078,7 @@ class ToolPage(QWidget):
                     from .convolution_steps import calculate as convolution_with_steps
                     calculate_value=lambda:convolution_with_steps(x,h)
                 window._run_operation('Calculando…',calculate_value,accept)
-            except Exception as exc:QMessageBox.warning(self,'Revisá los datos',str(exc))
+            except Exception as exc:show_input_error(self,'Revisá los datos',exc)
         button.clicked.connect(calculate)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(300)
         split=QSplitter(Qt.Orientation.Horizontal);split.setChildrenCollapsible(False);split.addWidget(scroll);split.addWidget(result);split.setSizes([350,740]);split.setStretchFactor(1,1);root.addWidget(split,1)
@@ -1381,42 +1340,29 @@ class ToolboxWindow(SignalLabWindow):
         return ResultsBrowser(self)
     def refresh_project(self):
         for field in self.findChildren(LocalInput):field.refresh_recent()
-        if not hasattr(self,'project_list'):return
-        import unicodedata
-        def normalized(value):return ''.join(c for c in unicodedata.normalize('NFKD',value.casefold()) if not unicodedata.combining(c))
-        previous=getattr(self,'visible_records',[]);row=self.project_list.currentRow()
-        selected=previous[row]['id'] if 0<=row<len(previous) else None
-        query=normalized(self.result_search.text()).split();kind=self.result_kind.currentData()
-        self.project_list.blockSignals(True);self.project_list.clear()
-        self.visible_records=[r for r in reversed(self.project.headers())
-            if (self.include_inputs.isChecked() or not r['operation'].startswith(('Entrada:','Modelo de entrada:','Entrada de simulación')))
-            and (kind is None or r['kind']==kind or kind=='expression' and self.project.expression(r['id']) is not None)
-            and all(word in normalized(r['title']+' '+r['operation']) for word in query)]
-        for r in self.visible_records:
-            kind = 'expression' if self.project.expression(r['id']) is not None else r['kind']
-            self.project_list.add_record(r, kind)
-        index=next((i for i,r in enumerate(self.visible_records) if r['id']==selected),0) if self.visible_records else -1
-        self.project_list.setCurrentRow(index);self.project_list.blockSignals(False)
-        self.result_count.setText(f'{len(self.visible_records)} resultados · más recientes primero')
-        self.show_record(index)
+        if hasattr(self,'result_browser'):self.result_browser.refresh()
+
     def show_record(self,index):
         records=self.visible_records
         available=0<=index<len(records);self.export_selection_button.setEnabled(available)
         if hasattr(self,'cas_selection'):self.cas_selection.setEnabled(False)
         self.view_selection.setEnabled(available)
-        self.reuse_selection.setEnabled(available and (records[index]['kind'] in ('signal','system','state_space') or self.project.expression(records[index]['id']) is not None))
+        self.reuse_selection.setEnabled(False)
         if not available:
-            self.result_browser.set_record(None, {})
+            self.result_browser.set_record(None)
             self.result_origin.clear()
-            self.project_details.setPlainText('No hay resultados que coincidan. Cambiá la búsqueda o el tipo seleccionado.' if self.project.headers() else 'Todavía no hay resultados. Abrí una herramienta, ingresá sus datos y calculá; el resultado aparecerá aquí automáticamente.');return
-        record=records[index];parents={r['id']:r['title'] for r in self.project.headers()}
-        self.result_browser.set_record(record, parents)
+            self.project_details.setPlainText('No hay resultados que coincidan con los filtros.' if self.result_browser.records else 'Los resultados aparecerán acá al calcular en una herramienta.');return
+        record=records[index]
+        cached = self.result_browser.set_record(record)
         details={'Nombre':record['title'],'Operación':record['operation'],'Herramienta':(record.get('tool') or {}).get('title','No registrada')}
-        details['entradas']=[parents[p] for p in record['parents']]
-        value=self.project.get(record['id'])
+        details['entradas']=[self.result_browser.by_id[p]['title'] for p in record['parents'] if p in self.result_browser.by_id]
+        value=cached if cached is not None else self.project.get(record['id'])
+        self.result_browser.set_value(value)
         from .cas_transfer import can_send
-        if hasattr(self,'cas_selection'):self.cas_selection.setEnabled(can_send(value))
-        if can_send(value):self.reuse_selection.setEnabled(True)
+        transferable=can_send(value)
+        if hasattr(self,'cas_selection'):self.cas_selection.setEnabled(transferable)
+        self.reuse_selection.setEnabled(transferable or isinstance(value,(Signal,Transfer,StateModel)) or self.result_browser.record_info[record['id']].get('expression',False))
+        if cached is not None:return
         if isinstance(value,dict) and 'cas_answer' in value:
             from .library_result_view import show_cas_result
             show_cas_result(self.project_details,value);return

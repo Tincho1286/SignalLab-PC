@@ -1,7 +1,8 @@
 """Densidad de energía desde una señal local o un espectro definido aquí."""
 import numpy as np
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QComboBox,QLineEdit,QPushButton,QLabel,QScrollArea,QSplitter,QMessageBox
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QComboBox,QLineEdit,QPushButton,QLabel,QScrollArea,QSplitter
 from PySide6.QtCore import Qt
+from .validation import show_input_error
 from .numeric_input import real_field,integer_field
 from . import fourier
 from .result_state import ResultState
@@ -49,7 +50,7 @@ class EnergyDensityPanel(QWidget):
                 spectrum_id=self.window.publish(spectrum,operation='Espectro para densidad de energía',parents=parents)
                 self.window.publish(density,operation='Densidad de energía',parents=[spectrum_id]);self.window.publish({'report':self.energy_report},operation='Informe de energía y Parseval',parents=[spectrum_id]);self.results=[density,spectrum];self.display();self.state.accept(snapshot)
             self.window._run_operation('Calculando espectro y densidad de energía…',compute,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá la entrada',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá la entrada',exc)
     def display(self,*_):
         if self.results:
             self.view.show_result(self.results[self.selector.currentIndex()]);self.view.text.setPlainText(self.energy_report)

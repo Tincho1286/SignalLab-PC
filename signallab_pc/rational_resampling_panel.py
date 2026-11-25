@@ -1,3 +1,4 @@
+from .validation import show_input_error
 from .numeric_input import real_field,integer_field
 from .report_view import ReportView
 """Cambio racional de tasa con filtro antialias y reloj físico explícitos."""
@@ -76,4 +77,4 @@ class RationalResamplingPanel(QWidget):
                 self.result_state.accept(calculated_inputs)
             from .resampling_tools import convert
             self.window._run_operation('Convirtiendo tasa con filtro polifásico…',lambda:convert(source,up,down,target=target,**arguments),accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá los parámetros',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá los parámetros',exc)

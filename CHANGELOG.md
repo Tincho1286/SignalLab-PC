@@ -1,6 +1,12 @@
 # Historial de cambios
 
-La versión estable actual es la [1.9.6](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v1.9.6). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
+La versión estable actual es la [2.0.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.0.0). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
+
+## 2.0.0 · Estable
+
+El escritorio agrupa variantes en un menú fijo y presenta los errores de entrada en el formulario. Los gráficos permiten elegir una curva de referencia, recorrer muestras y vincularlas con la tabla. La Biblioteca abre la ayuda del método activo, el diseño por bandas muestra un esquema ampliado y Resultados conserva el recorrido de cada cálculo.
+
+[Novedades completas](docs/releases/v2.0.0.md)
 
 ## 1.9.9 · Preliminar
 

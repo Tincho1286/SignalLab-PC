@@ -1,9 +1,9 @@
 """Input, closed solution and sample window for a discrete recurrence."""
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineEdit,QCheckBox,QPushButton,QScrollArea,QLabel,QTabWidget,QMessageBox,QMenu
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QLineEdit,QCheckBox,QPushButton,QScrollArea,QLabel,QTabWidget,QMenu
 from .expression_editor import ExpressionEditor
 from .coefficient_editor import split_coefficients
 from .numeric_input import integer_field,constant_value
-from .validation import passive_fields
+from .validation import passive_fields, show_input_error
 from .result_state import ResultState
 from .report_view import ReportView,report_panel
 from .symbolic_process import run_request
@@ -103,4 +103,4 @@ class DifferencePanel(QWidget):
                     key=self.window.publish(signal,operation='Muestras de solución en diferencias',parents=[self.result_key]);self.output.show_result(signal);self.output.result_ids=[key]
                 self.tabs.setCurrentIndex(0);self.state.accept(snapshot)
             self.window._run_operation('Resolviendo ecuación en diferencias…',lambda:run_request(request),accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá la ecuación en diferencias',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá la ecuación en diferencias',exc)

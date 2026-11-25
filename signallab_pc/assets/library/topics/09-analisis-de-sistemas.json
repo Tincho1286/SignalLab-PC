@@ -21,6 +21,10 @@
           "Elegí Diagrama y abrí el editor. Transferencia admite una fórmula racional propia, un sistema JSON o un sistema de Resultados. Usá el mismo dominio en todos los bloques y, si hay períodos de muestreo registrados, el mismo período.\n\nGanancia multiplica por una constante y aparece como un triángulo. En el sumador, hacé doble clic para elegir Sumar o Restar por separado en la entrada izquierda y la inferior. Podés usar dos signos iguales o cambiarlos con los cables ya conectados. Integrador acumula la entrada continua y retardo devuelve la muestra anterior de la entrada discreta. Cada rectángulo contiene la fórmula del bloque.\n\nArrastrá un cable desde el punto lleno de salida hasta un círculo de entrada. Para encadenar dos transferencias, conectá x con la primera, la primera con la segunda y la segunda con y. Para hacer una rama, sacá otro cable desde el mismo punto. Conectar permite elegir origen y destino con dos clics. El estado al pie del editor indica qué bloque requiere conexión. Para editar una ganancia o transferencia, hacé doble clic en su bloque.\n\nElegí Usar diagrama y luego Analizar sistema. El cálculo obtiene Y/X con estado inicial nulo. Los lazos de realimentación deben definir una solución única en cada instante o muestra. Desde Archivo podés guardar o abrir un diagrama editable. Realización también permite exportarlo en JSON."
         ],
         [
+          "Ecuaciones del diagrama",
+          "En el editor, la pestaña Ecuaciones muestra cada salida interna Vᵢ y las señales que llegan a su bloque. Los signos se toman de los puertos del sumador. Si la misma salida alimenta ambos puertos con signos opuestos, esos términos se cancelan. Si un cable devuelve la salida del sumador a su propia entrada, la segunda ecuación agrupa los términos de esa realimentación."
+        ],
+        [
           "Cómo interpretar la salida",
           "Respuesta en frecuencia evalúa el sistema sobre el eje imaginario de s o el círculo unitario de z. Podés ver módulo y fase o las partes real e imaginaria. Transferencia muestra H en el plano complejo, con la altura de cada superficie dada por una de esas componentes."
         ],

@@ -1,3 +1,4 @@
+from .validation import show_input_error
 from .numeric_input import real_field,integer_field
 from .signal_plot import plot_samples
 from .signal_plot import configure_signal_axis, is_discrete_plot
@@ -116,7 +117,7 @@ class FourierPanel(QWidget):
         button = QPushButton(title)
         def invoke():
             try: callback()
-            except Exception as exc: QMessageBox.warning(self, "Operación no aplicada", str(exc))
+            except Exception as exc: show_input_error(self, "Operación no aplicada", exc)
         button.clicked.connect(invoke); form.addRow(button)
 
     def _source(self):
@@ -230,17 +231,14 @@ class FourierPanel(QWidget):
                 component='real' if label in ('Parte real','Densidad') else 'imag' if label=='Parte imaginaria' else 'density_db' if power else 'magnitude' if label=='Módulo' else 'phase'
                 plot_samples(axis,coordinates,data,discrete=discrete,label=result.name,phase=polar and not power and label.startswith('Fase'),source=result,component=component);axis.set_ylabel(label);axis.grid(alpha=.2)
             if self.comparison is not None:
-                frequencies,bins=self.comparison
-                selected=self.owner._plot_indices(bins) if bins.size else np.array([],dtype=int)
-                frequencies=frequencies[selected];bins=bins[selected]
+                bins=self.comparison[1]
                 parts=(np.abs(bins),np.angle(bins)) if polar else (bins.real,bins.imag)
-                if polar:parts[1][np.abs(bins)==0]=np.nan
-                for axis,part in zip(axes,parts):
-                    plot_samples(axis,frequencies,part,discrete=True,label='DFT',color='#efb56c');axis.legend()
-                    axis.set_xlim(*result.metadata.get('frequency_bounds', (result.origin, result.axis[-1])))
+                if polar:parts[1][parts[0]==0]=np.nan
+                self.draw_dft_bins(result, zip(axes, parts))
             configure_signal_axis(axes[1],result)
             if polar:axes[1].set_title('Ceros: dB = −∞, no trazado' if power else 'Fase no definida donde el módulo es cero',fontsize=9)
-            self.figure.tight_layout();self.canvas.draw_idle();return
+            if not getattr(self.canvas,'_signallab_layout',False):self.figure.tight_layout()
+            self.canvas.draw_idle();return
         axes = self.figure.subplots(2, 2, sharex=True)
         index = self.owner._plot_indices(result.values)
         coordinate = result.origin+result.step*index
@@ -253,7 +251,7 @@ class FourierPanel(QWidget):
         valid = magnitude > 0
         db[valid] = (10 if is_power else 20)*np.log10(magnitude[valid])
         from .plot_inspection import stored_curve
-        artists=plot_samples(axes[0, 1],coordinate, db[index],discrete=discrete);stored_curve(artists,result.axis,db,result,'density_db' if is_power else 'magnitude_db');axes[0, 1].set_title("dB; cero → −∞ (no trazado)")
+        artists=plot_samples(axes[0, 1],coordinate, db[index],discrete=discrete,label=result.name);stored_curve(artists,result.axis,db,result,'density_db' if is_power else 'magnitude_db');axes[0, 1].set_title("dB; cero → −∞ (no trazado)")
         if not is_power:
             phase = np.full(magnitude.shape, np.nan)
             delay = np.full(magnitude.shape, np.nan)
@@ -269,15 +267,24 @@ class FourierPanel(QWidget):
             plot_samples(axes[1, 0],coordinate, result.values.real[index],discrete=discrete,source=result,component='real');axes[1, 0].set_title("Vista lineal")
             axes[1, 1].axis("off")
         if self.comparison is not None:
-            frequencies,bins=self.comparison
-            selected=self.owner._plot_indices(bins) if bins.size else np.array([],dtype=int)
-            magnitude_dft=np.abs(bins[selected]);db_dft=np.full(magnitude_dft.shape,np.nan)
+            magnitude_dft=np.abs(self.comparison[1]);db_dft=np.full(magnitude_dft.shape,np.nan)
             valid_dft=magnitude_dft>0;db_dft[valid_dft]=20*np.log10(magnitude_dft[valid_dft])
-            for axis,part in ((axes[0,0],magnitude_dft),(axes[0,1],db_dft)):
-                plot_samples(axis,frequencies[selected],part,discrete=True,label='DFT',color='#efb56c');axis.legend()
-                axis.set_xlim(*result.metadata.get('frequency_bounds', (result.origin, result.axis[-1])))
+            self.draw_dft_bins(result, ((axes[0,0],magnitude_dft),(axes[0,1],db_dft)))
         for axis in axes.flat: configure_signal_axis(axis,result); axis.grid(alpha=.2)
-        self.figure.tight_layout(); self.canvas.draw_idle()
+        if not getattr(self.canvas,'_signallab_layout',False):self.figure.tight_layout()
+        self.canvas.draw_idle()
+
+    def draw_dft_bins(self, result, panels):
+        from .plot_inspection import stored_curve
+        frequencies, bins = self.comparison
+        selected = self.owner._plot_indices(bins) if bins.size else np.array([], dtype=int)
+        bounds = result.metadata.get('frequency_bounds', (result.origin, result.axis[-1]))
+        for axis, values in panels:
+            if selected.size:
+                stems = plot_samples(axis, frequencies[selected], values[selected], discrete=True, label='DFT', color='#efb56c')
+                stored_curve(stems, frequencies, values, None, None)
+            axis.legend()
+            axis.set_xlim(*bounds)
 
     def use_result(self):
         if self.result is None: raise ValueError("Primero calculá un resultado.")

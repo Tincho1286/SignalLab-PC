@@ -12,6 +12,7 @@ from .spectral_measurements_panel import Rows
 from .scalar_expression import real_value,integer_value
 from .atomic_file import atomic_text_file
 from .active_stack import ActiveTabs
+from .probe_data import trace_name
 from .signal_plot import vertical_axis_name
 from .wrapping_row import WrappingRow
 
@@ -78,6 +79,7 @@ class PlotInspector(QFrame):
             self.tabs.addTab(self.readings_page, 'Tabla A/B')
 
         self.selector.currentIndexChanged.connect(self.selection_changed)
+        self.selector.activated.connect(self.choose_cursor_reference)
         self.scope.currentIndexChanged.connect(self.options_changed)
         self.local.toggled.connect(self.options_changed)
         self.tabs.currentChanged.connect(self.measure_tab_changed)
@@ -194,14 +196,17 @@ class PlotInspector(QFrame):
         previous = self.selector.currentText()
         self.signature = self.probe.signature
         self.traces = list(self.probe.traces)
-        labels = []
-        for trace in self.traces:
-            name = vertical_axis_name(trace.axis)
-            labels.append((name + ' · ' if name and name != trace.label else '') + trace.label)
+        labels = [trace_name(trace) for trace in self.traces]
+        reference = self.probe.preferred_trace
+        if not previous and reference is None:
+            reference = self.probe.live_key
+        position = next((index for index, trace in enumerate(self.traces) if trace.key == reference), -1)
         self.selector.blockSignals(True)
         self.selector.clear()
         self.selector.addItems(labels)
-        if previous in labels:
+        if position >= 0:
+            self.selector.setCurrentIndex(position)
+        elif previous in labels:
             self.selector.setCurrentIndex(labels.index(previous))
         self.selector.blockSignals(False)
         self.selection_changed()
@@ -236,6 +241,16 @@ class PlotInspector(QFrame):
     def selected(self):
         index=self.selector.currentIndex()
         return self.traces[index] if 0<=index<len(self.traces) else None
+
+    def select_trace(self, key):
+        index = next((index for index, trace in enumerate(self.traces) if trace.key == key), -1)
+        if index >= 0:
+            self.selector.setCurrentIndex(index)
+
+    def choose_cursor_reference(self, _):
+        trace = self.selected()
+        if trace is not None:
+            self.probe.choose_curve(trace.key if trace.key in self.probe.curve_actions else None)
 
     def invalidate(self,*_):
         self.result=None;self.result_key=None;self.model.set_rows([]);self.overlay.clear()

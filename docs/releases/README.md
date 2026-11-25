@@ -2,12 +2,13 @@
 
 [← Documentación](../README.md)
 
-La **1.9.6** es la estable actual. Reúne correcciones algebraicas, sesiones recuperables y mejoras de precisión y muestreo. [Descargas](https://github.com/Tincho1286/SignalLab-PC/releases/latest) · [Notas de la 1.9.6](v1.9.6.md).
+La **2.0.0** es la estable actual. Reúne el escritorio rediseñado, la lectura de gráficos por curva y la navegación entre entradas, cálculos y resultados. [Descargas](https://github.com/Tincho1286/SignalLab-PC/releases/latest) · [Notas de la 2.0.0](v2.0.0.md).
 
 Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [2.0.0](v2.0.0.md) | Escritorio, gráficos y resultados conectados | Estable |
 | [1.9.9](v1.9.9.md) | Rediseño del escritorio científico | Preliminar |
 | [1.9.6](v1.9.6.md) | Motor algebraico, sesiones y relojes de muestreo | Estable |
 | [1.9.5](v1.9.5.md) | Recuperación de muestras, relojes y transformada de Laplace | Preliminar |

@@ -41,6 +41,49 @@ class Frontend(unittest.TestCase):
         bar.slots['cas'].click();self.assertEqual(clicked,['cas'])
     def test_workspace_keeps_controls_and_result_when_changing_size(self):
         inputs=QWidget();form=QVBoxLayout(inputs);button=QPushButton('dato');form.addWidget(button);result=QWidget();space=ToolWorkspace(inputs,result);self.widgets.append(space);space.resize(1200,700);space.show();self.settle();self.assertFalse(space.compact);space.resize(700,600);self.settle();self.assertTrue(space.compact);space.show_results();self.assertEqual(space.tabs.currentIndex(),1);space.tabs.setCurrentIndex(0);self.assertTrue(button.isVisible());space.resize(1200,700);self.settle();self.assertFalse(space.compact);self.assertTrue(space.inputs.content.widget().isAncestorOf(inputs));self.assertIs(space.results.content,result)
+
+    def test_input_error_reveals_field_and_keeps_result_in_compact_mode(self):
+        from types import SimpleNamespace
+        from unittest.mock import patch
+        from PySide6.QtWidgets import QLineEdit, QMainWindow, QMessageBox
+        from signallab_pc.numeric_input import integer_field
+        from signallab_pc.validation import FieldError, show_input_error
+
+        window = QMainWindow()
+        self.widgets.append(window)
+        panel = QWidget()
+        panel.window = window  # Legacy tool panels store the host under this name.
+        form = QWidget()
+        field = QLineEdit('0')
+        field.setToolTip('Cantidad de muestras')
+        QVBoxLayout(form).addWidget(field)
+        result = QWidget()
+        workspace = ToolWorkspace(form, result)
+        QVBoxLayout(panel).addWidget(workspace)
+        window.setCentralWidget(panel)
+        window.desktop_keys = SimpleNamespace(workspace=lambda: workspace, active_page=lambda: panel)
+        window.resize(710, 600)
+        window.show()
+        self.settle()
+        workspace.set_output_expanded(True)
+        try:
+            integer_field(field, minimum=1)
+        except FieldError as error:
+            with patch.object(QMessageBox, 'warning') as modal:
+                show_input_error(panel, 'Revisá los datos', error)
+                modal.assert_not_called()
+        self.settle()
+        self.assertFalse(workspace.output_expanded)
+        self.assertEqual(workspace.tabs.currentIndex(), 0)
+        self.assertIs(workspace.input_issue.field(), field)
+        self.assertEqual(field.selectedText(), '0')
+        self.assertTrue(field.property('inputError'))
+        self.assertIs(workspace.results.content, result)
+        field.setText('8')
+        self.assertTrue(workspace.input_issue.isHidden())
+        self.assertFalse(field.property('inputError'))
+        self.assertEqual(field.toolTip(), 'Cantidad de muestras')
+
     def test_wrapping_document_header_does_not_force_the_preferred_workspace_height(self):
         from PySide6.QtWidgets import QLabel
         from signallab_pc.problem_document import ProblemDocument
@@ -175,6 +218,27 @@ class Frontend(unittest.TestCase):
         self.assertEqual(dialog.list.currentItem().data(TARGET), ('command', 'cas'))
         QTest.keyClick(dialog.query, Qt.Key.Key_Return)
         self.assertEqual(dialog.selection, ('command', 'cas'))
+
+    def test_search_distinguishes_transform_and_response_entry_points(self):
+        from signallab_pc.tool_search import find_tools
+
+        cases = (
+            ('¿Cómo saco la Z inversa con muestras?', ('transform_lab','z'), {'mode': 1}),
+            ('Laplace inversa bilateral', ('transform_lab','laplace'), {'interpretation': 1, 'mode': 1}),
+            ('respuesta al escalón discreta', ('systems',9), {'domain': 1, 'stimulus': 0}),
+            ('Bode de H(s)', ('system_analysis',0), {'domain': 0}),
+            ('DFT vs. DTFT', ('fourier',0), {}),
+            ('enventanar h[n]', ('fir_window',0), {}),
+        )
+        for query, key, settings in cases:
+            with self.subTest(query=query):
+                hit = find_tools(query)[0]
+                self.assertEqual(hit.key, key)
+                self.assertEqual(dict(hit.settings), settings)
+                self.assertEqual(find_tools(query, area=hit.area)[0], hit)
+        self.assertEqual([hit.key for hit in find_tools('Z')], [('transform_lab','z')])
+        self.assertFalse(find_tools('Laplace inversa', area='filters'))
+
     def test_multiple_outputs_share_one_toolbar_with_an_explicit_target(self):
         from signallab_pc.result_action_dock import install
         result=QWidget();layout=QVBoxLayout(result);bars=[];clicked=[]
@@ -203,6 +267,19 @@ class Frontend(unittest.TestCase):
             def save_project(self):pass
             def import_project(self):pass
         host=Host();host.project=Project();key=host.project.add(Signal([0,1,0],-1,name='Pulso'));self.widgets.append(host);layout=QVBoxLayout(host);browser=ResultsBrowser(host);layout.addWidget(browser);host.resize(1200,720);host.show();self.settle();self.assertEqual(host.visible_records[0]['id'],key);self.assertTrue(host.cas_selection.isEnabled());self.assertEqual(set(browser.actions.slots),set(ORDER));host.result_search.setText('no existe');self.settle();self.assertFalse(host.cas_selection.isEnabled());self.assertFalse(host.reuse_selection.isEnabled());host.result_search.clear();host.resize(700,620);self.settle();self.assertEqual([browser.workspace.tabs.tabText(i) for i in range(2)],['Resultados','Detalle']);self.assertTrue(host.cas_selection.isEnabled());self.assertEqual(host.visible_records[0]['id'],key)
+        output = host.project.add(Signal([0,2,0],-1,name='Pulso escalado'), parents=[key])
+        host.refresh_project()
+        host.result_search.setText('escalado')
+        self.assertEqual(browser.active_record['id'], output)
+        browser.detail_tabs.setCurrentIndex(browser.links_index)
+        browser.follow_record(key)
+        self.assertEqual(browser.active_record['id'], key)
+        self.assertEqual(host.result_search.text(), 'escalado')
+        self.assertIn('1 vinculado', host.result_count.text())
+        browser.follow_back()
+        self.assertEqual(browser.active_record['id'], output)
+        self.assertEqual(browser.detail_tabs.currentIndex(), browser.links_index)
+        self.assertEqual([record['id'] for record in host.visible_records], [output])
     def test_theme_icon_refresh_handles_widgets_with_a_result_actions_attribute(self):
         from PySide6.QtGui import QAction
         from signallab_pc.design import refresh_icons,icon

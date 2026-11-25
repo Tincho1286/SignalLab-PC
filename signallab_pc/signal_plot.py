@@ -62,7 +62,7 @@ class SampleMarkLocator(Locator):
         low,high=sorted((vmin,vmax));first=int(np.ceil(low));last=int(np.floor(high))
         # Drawing millions of coincident ticks is neither readable nor useful.
         # This affects display only; zoom restores every individual index.
-        capacity=max(32,int(self.axis.axes.bbox.width*2)) if self.axis is not None else 1000
+        capacity=max(2,int(self.axis.axes.bbox.width/4)) if self.axis is not None else 1000
         step=max(1,int(np.ceil((last-first+1)/capacity)))
         first=((first+step-1)//step)*step
         return np.arange(first,last+1,step,dtype=float)
@@ -114,7 +114,11 @@ def configure_axis(axis, *, discrete_index=False, units='', label=None, index_sy
             axis.xaxis.set_major_locator(IndexLocator())
             axis.xaxis.set_minor_locator(SampleMarkLocator())
             base=getattr(axis,'_signallab_index_origin',None)
-            formatter=ScalarFormatter(useOffset=False) if base is None else FuncFormatter(lambda tick,_:str(base+int(round(tick))))
+            if base is None:
+                formatter = ScalarFormatter(useOffset=False)
+            else:
+                formatter = FuncFormatter(lambda tick, _: str(int(round(tick))).replace('-', '−'))
+                formatter.set_offset_string(f'{base:+d}'.replace('-', '−'))
             axis.xaxis.set_major_formatter(formatter)
         elif units=='rad/muestra':
             axis.xaxis.set_major_locator(AngularLocator())

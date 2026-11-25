@@ -98,9 +98,15 @@ def prepare_inputs(source,target):
     def role(page):
         key=page.tool_item[1:3]
         return 'dft_coefficients' if key==('basic','idft') else 'series_coefficients' if key==('course_tools','lines') else 'ordinary_signal'
+
+    def active_inputs(page):
+        workspace = getattr(page, 'workspace', None)
+        surface = workspace.inputs if workspace is not None else page
+        return [field for field in surface.findChildren(LocalInput) if field.isVisibleTo(surface)]
+
     if role(source)==role(target):
-        sources=[x for x in source.findChildren(LocalInput) if x.isVisibleTo(source)]
-        targets=[x for x in target.findChildren(LocalInput) if x.isVisibleTo(target)];used=set()
+        sources=active_inputs(source)
+        targets=active_inputs(target);used=set()
         for dst in targets:
             src=next((x for i,x in enumerate(sources) if i not in used and x.kind==dst.kind),None)
             if src is None:continue

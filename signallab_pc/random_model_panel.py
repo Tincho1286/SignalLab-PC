@@ -1,5 +1,6 @@
 """Independent model analysis and AR estimation, sharing one workflow."""
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QScrollArea,QComboBox,QLineEdit,QCheckBox,QPushButton,QTabWidget,QLabel,QMessageBox
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QScrollArea,QComboBox,QLineEdit,QCheckBox,QPushButton,QTabWidget,QLabel
+from .validation import show_input_error
 from .numeric_input import real_field,integer_field
 from .systems_panel import parse_list,list_text
 from .result_state import ResultState
@@ -99,4 +100,4 @@ class RandomModelPanel(QWidget):
                 self.selector.blockSignals(True);self.selector.clear();self.selector.addItems([value.name for value in values]);self.selector.blockSignals(False)
                 self.actions.set_result(model.system,system_key);self.actions.show();self.tabs.setCurrentIndex(0);self.state.accept(snapshot)
             self.window._run_operation('Calculando el modelo aleatorio…',compute,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá el modelo aleatorio',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá el modelo aleatorio',exc)

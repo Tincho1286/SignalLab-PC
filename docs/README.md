@@ -1,6 +1,6 @@
 # Documentación de SignalLab PC
 
-[← Proyecto](../README.md) · [Descargar la última estable](https://github.com/Tincho1286/SignalLab-PC/releases/latest) · [Novedades de la 1.9.6](releases/v1.9.6.md)
+[← Proyecto](../README.md) · [Descargar la última estable](https://github.com/Tincho1286/SignalLab-PC/releases/latest) · [Novedades de la 2.0.0](releases/v2.0.0.md)
 
 ## Empezar
 

@@ -1,3 +1,4 @@
+from .validation import show_input_error
 from .numeric_input import real_field,integer_field
 from .expression_editor import ExpressionEditor
 from .report_view import ReportView
@@ -95,7 +96,7 @@ class SamplingPanel(QWidget):
         button = QPushButton(title)
         def invoke():
             try: callback()
-            except Exception as exc: QMessageBox.warning(self, "Operación no aplicada", str(exc))
+            except Exception as exc: show_input_error(self, "Operación no aplicada", exc)
         button.clicked.connect(invoke); form.addRow(button)
 
     def _source(self):

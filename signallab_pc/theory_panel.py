@@ -1,6 +1,6 @@
 """Biblioteca con conceptos, glosario y procedimientos separados."""
 import html
-from PySide6.QtCore import QUrl,Qt
+from PySide6.QtCore import QTimer,QUrl,Qt
 from PySide6.QtGui import QCursor,QTextDocument
 from .visual_help import diagrams_for
 from PySide6.QtWidgets import QApplication,QComboBox,QLabel,QLineEdit,QMenu,QPushButton,QSplitter,QToolButton,QToolTip,QTreeWidget,QTreeWidgetItem,QVBoxLayout,QWidget
@@ -17,7 +17,9 @@ KIND_LABELS = {'concept': 'Concepto', 'tool': 'Guía', 'reference': 'Referencia'
 
 class TheoryPanel(QWidget):
     def __init__(self,on_open=None,on_example=None):
-        super().__init__();self.on_example=on_example;self.sections=library_sections();self.filtered=[];self.on_open=on_open;self.selected_route=None;self.return_route=None;self.fields_open=False;self.field_route=None
+        super().__init__();self.on_example=on_example;self.sections=library_sections();self.filtered=[];self.on_open=on_open;self.selected_route=None;self.return_route=None
+        self.guide_context = None
+        self.guide_anchors = {}
         self.search_index = [self.search_entry(section) for section in self.sections]
         self.last_query = ''
         self.compact = None
@@ -95,6 +97,15 @@ class TheoryPanel(QWidget):
         self.text = ResponsiveHelpView()
         self.text.setMinimumHeight(130)
         self.text.anchorClicked.connect(self.follow_reference)
+        self.guide_navigation = WrappingRow()
+        self.guide_buttons = {}
+        for key, label in (('fields', 'Campos'), ('diagrams', 'Esquemas'), ('results', 'Leer la salida')):
+            button = QPushButton(label)
+            button.setObjectName('guideChapter')
+            button.clicked.connect(lambda checked=False, chapter=key: self.open_chapter(chapter))
+            self.guide_navigation.flow.addWidget(button)
+            self.guide_buttons[key] = button
+        right.addWidget(self.guide_navigation)
         right.addWidget(self.text, 1)
         self.search.textChanged.connect(self.filter)
         self.search.returnPressed.connect(self.read_article)
@@ -166,6 +177,9 @@ class TheoryPanel(QWidget):
     def refresh_actions(self):
         reading = not (self.compact and self.topic_toggle.isChecked())
         self.contents_button.setVisible(reading and bool(self.contents_menu.actions()))
+        self.guide_navigation.setVisible(reading and bool(self.guide_anchors))
+        for key, button in self.guide_buttons.items():
+            button.setVisible(key in self.guide_anchors)
         self.export_button.setVisible(reading and bool(self.filtered))
         self.return_button.setVisible(self.on_open is not None and self.return_route is not None)
         example = getattr(self, 'selected_example', None)
@@ -213,6 +227,7 @@ class TheoryPanel(QWidget):
         else:
             self.selected_route = None
             self.contents_menu.clear()
+            self.guide_anchors.clear()
             self.text.setPlainText('No hay coincidencias. Probá otra palabra o cambiá el tipo de artículo.')
             self.refresh_actions()
 
@@ -229,19 +244,43 @@ class TheoryPanel(QWidget):
     def select_article(self, identifier, kind=0):
         self.kind.setCurrentIndex(kind);self.search.clear()
         for index,section in enumerate(self.filtered):
-            if section['article_id']==identifier:self.select_index(index);self.topic_toggle.setChecked(False);return
+            if section['article_id']==identifier:
+                if self.selected_index() == index:
+                    self.show_section(index)
+                else:
+                    self.select_index(index)
+                self.topic_toggle.setChecked(False)
+                return
 
     def set_return_route(self, route):
+        had_context = self.guide_context is not None
+        self.guide_context = None
         self.return_route = tuple(route) if route else None
         self.return_button.setToolTip(route[0] if route else '')
+        if had_context and route is None:
+            self.show_section(self.selected_index())
         self.refresh_actions()
 
-    def select_tool(self,item):
+    def select_tool(self,item, *, context=None, focused_field=''):
+        from .tool_catalog import normalized_key
         self.topic_toggle.setChecked(False)
         self.set_return_route(item)
-        section = next((section for section in self.sections if section['route'] == tuple(item) and section['content_kind'] == 'tool'), None)
+        self.guide_context = context
+        key = normalized_key(item)
+        section = next((section for section in self.sections
+                        if section['route'] and section['route'][1:3] == key and section['content_kind'] == 'tool'), None)
         if section is not None:
             self.select_article(section['article_id'])
+            if focused_field:
+                names = ('course_tools','fir'), ('course_tools','iir'), ('course_tools','analog')
+                chapter = 'diagrams' if key in names and focused_field[:1].isdigit() else 'fields'
+                QTimer.singleShot(0, self, lambda: self.open_chapter(chapter))
+
+    def open_chapter(self, key):
+        anchor = self.guide_anchors.get(key)
+        if anchor:
+            self.text.scrollToAnchor(anchor)
+
     def show_section(self,row):
         if row is None or not 0<=row<len(self.filtered):return
         section = self.filtered[row]
@@ -249,21 +288,30 @@ class TheoryPanel(QWidget):
         self.selected_example = section.get('example')
         self.selected_route = section['route']
         blocks=list(section['blocks'])
-        if self.field_route!=self.selected_route:self.fields_open=False;self.field_route=self.selected_route
         self.text._formula_number=0
         body = [f'<p>{html.escape(KIND_LABELS[section["content_kind"]] + " · " + section["topic"])}</p>',
                 '<h1>'+html.escape(section['title'])+'</h1>']
+        context = self.guide_context if self.selected_route == self.return_route else None
+        if context is not None:
+            body.append('<p style="color:#8ab6df"><b>'+html.escape(context.label)+'</b></p>')
+            body.append('<p>'+html.escape(context.instructions)+'</p>')
         self.contents_menu.clear()
+        self.guide_anchors.clear()
         heading_count = 0
 
-        def add_heading(title):
+        def add_heading(title, chapter=None):
             nonlocal heading_count
             destination = f'article-section-{heading_count}'
             heading_count += 1
             body.append(f'<h2><a name="{destination}"></a>{html.escape(title)}</h2>')
             self.contents_menu.addAction(title, lambda checked=False, anchor=destination: self.text.scrollToAnchor(anchor))
+            if chapter:
+                self.guide_anchors[chapter] = destination
 
         illustrations=diagrams_for(section)
+        if context is not None and context.diagram:
+            illustrations = sorted(illustrations, key=lambda diagram: diagram[0] != context.diagram)
+        is_guide = section.get('field_reference', False)
         forms = section.get('forms',[])
         self.function_examples = []
         form_blocks = []
@@ -287,10 +335,21 @@ class TheoryPanel(QWidget):
             for index,(title,picture,caption) in enumerate(illustrations):
                 url=QUrl(f'help-diagram-{index}');self.text.document().addResource(QTextDocument.ResourceType.ImageResource,url,picture)
                 width=min(680,max(120,self.text.viewport().width()-50));height=round(picture.height()*width/picture.width())
-                add_heading(title)
+                add_heading(title, 'diagrams' if is_guide and index == 0 else None)
                 body.append(f'<img src="{url.toString()}" width="{width}" height="{height}"><p>'+html.escape(caption)+'</p>')
+
+        def append_fields():
+            from .library_fields import field_rows
+            fields = field_rows(self.selected_route)
+            if not fields:
+                return
+            add_heading('Campos de entrada', 'fields')
+            for name, meaning in fields:
+                body.append(f'<h3>{html.escape(name)}</h3><p>{html.escape(meaning)}</p>')
+            form_blocks.append(('Campos de entrada','\n\n'.join(name+'\n'+meaning for name,meaning in fields)))
+
         for index,(title,content) in enumerate(blocks):
-            add_heading(title)
+            add_heading(title, 'results' if is_guide and title == 'Cómo interpretar la salida' else None)
             if title=='Relación matemática':
                 for line in content.splitlines():body.append(self.text._render_formula(line) or '<p>'+html.escape(line)+'</p>')
             else:
@@ -298,7 +357,10 @@ class TheoryPanel(QWidget):
             if index==0:
                 append_forms()
                 append_illustrations()
-        blocks[1:1] = form_blocks
+            if index==1 and is_guide:
+                append_fields()
+        insert_at = 2 if is_guide else 1
+        blocks[insert_at:insert_at] = form_blocks
         if section.get('related'):
             add_heading('Temas relacionados')
             blocks.append(('Temas relacionados','\n'.join(title for _,title in section['related'])))
@@ -307,19 +369,14 @@ class TheoryPanel(QWidget):
             add_heading('Ejemplos resueltos')
             blocks.append(('Ejemplos resueltos','\n'.join(title for _,title in section['examples'])))
             for example_id,title in section['examples']:body.append('<p><a href="library:example/'+example_id+'">'+html.escape(title)+'</a></p>')
-        if section.get('field_reference'):
-            from .library_fields import field_rows
-            fields=field_rows(self.selected_route)
-            add_heading('Campos de entrada')
-            body.append('<p><a href="library:fields">'+('Ocultar definiciones' if self.fields_open else 'Ver qué significa cada campo')+'</a></p>')
-            if self.fields_open:
-                for name,meaning in fields:body.append('<h3>'+html.escape(name)+'</h3><p style="line-height:150%">'+html.escape(meaning)+'</p>')
-            # Include the complete reference when copying/exporting the article.
-            blocks.append(('Referencia de los campos','\n\n'.join(name+': '+meaning for name,meaning in fields)))
         if section.get('route') is not None or section.get('reference'):
             body.append('<p><a href="library:glossary">Consultar el glosario de siglas y términos</a></p>')
-        self.text._raw=section['title']+'\n\n'+'\n\n'.join(title+'\n'+text for title,text in blocks)
-        self.text._raw+='\n\n'+'\n\n'.join(title+'\n'+caption for title,_,caption in illustrations)
+        exported = [section['title']]
+        if context is not None:
+            exported.append(context.label+'\n'+context.instructions)
+        exported.extend(title+'\n'+text for title,text in blocks)
+        exported.extend(title+'\n'+caption for title,_,caption in illustrations)
+        self.text._raw='\n\n'.join(exported)
         self.text.setHtml('<html><body style="font-family:Segoe UI;color:#dce4ef;font-size:11pt;margin:20px">'+''.join(body)+'</body></html>')
         self.refresh_actions()
     def follow_reference(self,url):
@@ -335,7 +392,7 @@ class TheoryPanel(QWidget):
         if url.path().startswith('example/'):
             self.select_article('example:'+url.path().split('/',1)[1]);return
         if url.path()=='fields':
-            bar=self.text.verticalScrollBar();position=bar.value();self.fields_open=not self.fields_open;self.show_section(self.selected_index());bar.setValue(position)
+            self.open_chapter('fields')
         elif url.path()=='glossary':
             self.kind.setCurrentIndex(1);self.search.setText('Glosario');self.filter('Glosario')
     def open_selected(self):

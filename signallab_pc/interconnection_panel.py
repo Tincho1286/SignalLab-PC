@@ -1,5 +1,6 @@
 """Composición de dos sistemas LTI con resultado reutilizable."""
 from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QComboBox,QPushButton,QLabel,QTabWidget,QScrollArea,QMessageBox,QAbstractItemView
+from .validation import show_input_error
 from .coefficient_editor import CoefficientEditor,TransferPreview
 from .systems_panel import parse_list,list_text
 from .filters import Transfer
@@ -99,4 +100,4 @@ class InterconnectionPanel(QWidget):
                 summary.sections.insert(0,Section('Conexión calculada',paragraphs=[relation]))
                 self.report.set_readable(summary);self.system_actions.set_result(value,self.result_id);self.result_state.accept(snapshot)
             self.window._run_operation('Conectando sistemas…',lambda:interconnect(*systems,mode),accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá los sistemas',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá los sistemas',exc)

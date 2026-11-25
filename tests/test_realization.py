@@ -44,6 +44,30 @@ class RealizationTests(unittest.TestCase):
 
 
 class RealizationGraphTests(unittest.TestCase):
+    def test_same_source_can_feed_both_sum_ports_without_losing_a_term(self):
+        from signallab_pc.realization_equations import summary
+        from signallab_pc.symbolic import S
+
+        ports = RealizationGraph.empty('analog').blocks
+        blocks = ports + (Block(3, 'transfer', 160, 0, formula='1/(s+1)'), Block(4, 'sum', 380, 0))
+        forward = (Wire(1, 3), Wire(3, 4, target_port=1), Wire(4, 2))
+        feedback = RealizationGraph('analog', blocks, forward + (Wire(4, 4, target_port=2),))
+        self.assertEqual(feedback.transfer(), 1/(2*S+2))
+        self.assertIn('V_4(s) = V_3(s) - V_4(s)', summary(feedback).plain_text())
+        self.assertIn('2*V_4(s) = V_3(s)', summary(feedback).plain_text())
+
+        cancelled = RealizationGraph('analog', blocks, forward + (Wire(3, 4, target_port=2),))
+        self.assertEqual(RealizationGraph.from_document(cancelled.to_document()).transfer(), 0)
+        self.assertIn('V_4(s) = V_3(s) - V_3(s)', summary(cancelled).plain_text())
+        self.assertIn('V_4(s) = 0', summary(cancelled).plain_text())
+        with self.assertRaisesRegex(ValueError, 'mismo puerto'):
+            RealizationGraph('analog', blocks, cancelled.wires + (Wire(3, 4),)).connections()
+
+        direct = (Wire(1, 4), Wire(1, 4, -1), Wire(4, 2))
+        self.assertEqual(RealizationGraph('analog', ports + (blocks[-1],), direct).transfer(), 0)
+        doubled = Block(4, 'sum', 380, 0, input_signs=(1, 1))
+        self.assertEqual(RealizationGraph('analog', ports + (doubled,), direct).transfer(), 2)
+
     def test_sum_ports_keep_their_position_and_apply_independent_signs(self):
         import json
         import sympy as sp

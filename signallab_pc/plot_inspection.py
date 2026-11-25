@@ -12,7 +12,9 @@ def system_curve(artist,system,component,*,advance=0,phase_kind='continuous'):
 def stored_curve(artists,x,y,source,component):
     from matplotlib.container import StemContainer
     targets=[artists.markerline] if isinstance(artists,StemContainer) else artists if isinstance(artists,(tuple,list)) else [artists]
-    for artist in targets:artist._signallab_probe_curve=(x,y);artist._signallab_curve_input=(source,component)
+    for artist in targets:
+        artist._signallab_probe_curve=(x,y)
+        if source is not None:artist._signallab_curve_input=(source,component)
 
 
 def coordinate_expression(expression,variable):

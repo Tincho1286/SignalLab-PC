@@ -1,5 +1,6 @@
 """Common independent inputs for sum and pointwise product."""
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QComboBox,QScrollArea,QPushButton,QMessageBox,QTabWidget,QStackedWidget,QLabel
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QComboBox,QScrollArea,QPushButton,QTabWidget,QStackedWidget,QLabel
+from .validation import show_input_error
 from .choice_buttons import ChoiceButtons
 from .result_state import ResultState
 from .result_summary import signal_summary,Section,Formula
@@ -69,4 +70,4 @@ class SignalProductPanel(QWidget):
                 journal=getattr(self.window,'_result_journal',None)
                 if journal is not None:journal.reported(pack,outputs_registered=True)
             self.window._run_operation('Multiplicando señales…' if product else 'Sumando señales…',run,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá las señales',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá las señales',exc)

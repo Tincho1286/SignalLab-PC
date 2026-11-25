@@ -10,7 +10,8 @@ from PySide6.QtWidgets import (
 
 from .design import icon
 from .theme_tokens import AREA_COLORS, COLORS
-from .tool_catalog import AREAS, AREA_BY_ID, BY_KEY, DETAILS_BY_KEY, ENTRIES, matches, normalize
+from .tool_catalog import AREAS, AREA_BY_ID, BY_KEY, DETAILS_BY_KEY, ENTRIES
+from .tool_search import find_tools
 from .workspaces import ROUTES
 
 
@@ -231,8 +232,14 @@ class ToolBrowser(QScrollArea):
         self.quick = CatalogSection('Accesos directos')
         self.groups.addWidget(self.quick)
 
-        self.empty = label('No hay coincidencias en esta área. Buscá en toda la app con Ctrl+K.', 'catalogIntro')
+        self.search_results = CatalogSection('Coincidencias')
+        self.hits = []
+        self.groups.addWidget(self.search_results)
+        self.empty = label('No hay coincidencias en esta área.', 'catalogIntro')
         self.groups.addWidget(self.empty)
+        self.search_global = QPushButton('Buscar en todas las áreas')
+        self.search_global.clicked.connect(lambda: self.window.focus_tool_search(self.home_search.text()))
+        self.groups.addWidget(self.search_global, 0, Qt.AlignmentFlag.AlignLeft)
         self.sections = {}
         for entry in ENTRIES:
             key = entry['area'], entry['section']
@@ -293,20 +300,33 @@ class ToolBrowser(QScrollArea):
             self.apply_query('')
 
     def open_entry(self, entry):
-        self.window.open_workflow(entry, self.home_search.text())
+        self.window.open_workflow(entry)
 
     def apply_query(self, text):
         query = text.strip()
         self.show_home_sections()
-        found = False
+        hits = find_tools(query, area=self.area) if query else []
+        if hits != self.hits:
+            for card in self.search_results.shown_cards:
+                card.hide()
+                card.deleteLater()
+            self.hits = hits
+            cards = []
+            for hit in hits:
+                symbol = AREA_BY_ID[hit.area][3]
+                card = CatalogCard(hit.title, hit.summary, symbol, hit.area,
+                                   lambda checked=False, match=hit: self.window.open_tool_search(match.key, match.settings))
+                cards.append(card)
+            self.search_results.shown_cards = cards
+        self.search_results.setVisible(bool(hits))
         for (area, topic), (section, links) in self.sections.items():
-            shown = [link for entry, link in links if not query or matches(entry, query)] if area == self.area else []
+            shown = [link for _, link in links] if area == self.area and not query else []
             for _, link in links:
                 link.setVisible(link in shown)
             section.shown_cards = shown
             section.setVisible(bool(shown))
-            found = found or bool(shown)
-        self.empty.setVisible(bool(query) and not found)
+        self.empty.setVisible(bool(query) and not hits)
+        self.search_global.setVisible(bool(query) and not hits)
         self.adapt_grid()
         self.verticalScrollBar().setValue(0)
 
@@ -319,13 +339,13 @@ class ToolBrowser(QScrollArea):
             section.cards.arrange(section.shown_cards, area_columns)
         for section, _ in self.sections.values():
             section.cards.arrange(section.shown_cards, tool_columns)
+        self.search_results.cards.arrange(self.search_results.shown_cards, tool_columns)
         self.illustration.setVisible(self.area is None and width >= 710)
 
     def open_search_match(self):
-        query = self.home_search.text().strip()
-        candidates = [entry for entry in ENTRIES if entry['area'] == self.area and query and matches(entry, query)]
-        if candidates:
-            self.open_entry(min(candidates, key=lambda entry: normalize(entry['title']) != normalize(query)))
+        if self.hits:
+            first = self.hits[0]
+            self.window.open_tool_search(first.key, first.settings)
 
     def refresh_theme(self):
         self.search_icon.setIcon(icon('search'))

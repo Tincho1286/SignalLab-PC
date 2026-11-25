@@ -3,15 +3,20 @@ import re
 from .scalar_expression import constant_value,real_value,integer_value
 
 def field_name(widget):
-    if hasattr(widget,'accessibleName') and widget.accessibleName():return widget.accessibleName()
-    parent=widget.parentWidget() if hasattr(widget,'parentWidget') else None
-    while parent is not None:
-        layout=parent.layout()
-        if hasattr(layout,'labelForField'):
-            try:label=layout.labelForField(widget)
-            except TypeError:label=None
-            if label is not None and hasattr(label,'text'):return label.text()
-        parent=parent.parentWidget()
+    if not hasattr(widget, 'parentWidget'):
+        return 'Este campo'
+    field = widget
+    while field is not None:
+        if field.accessibleName():
+            return field.accessibleName()
+        parent = field.parentWidget()
+        if parent is not None:
+            layout = parent.layout()
+            if hasattr(layout, 'labelForField'):
+                label = layout.labelForField(field)
+                if label is not None and hasattr(label, 'text'):
+                    return label.text()
+        field = parent
     return 'Este campo'
 
 def real_field(widget,*,minimum=None,maximum=None,strict=False):

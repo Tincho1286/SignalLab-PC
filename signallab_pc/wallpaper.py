@@ -18,6 +18,12 @@ def appearance_folder():
 
 def read_photo(path):
     reader=QImageReader(str(path));reader.setAutoTransform(True)
+    allowed = (b'png', b'jpeg', b'webp', b'bmp')
+    detected = bytes(reader.format()).lower()
+    if detected not in allowed:
+        raise ValueError('Elegí una imagen PNG, JPEG, WebP o BMP válida.')
+    reader.setFormat(detected)
+    reader.setAutoDetectImageFormat(False)
     if not reader.canRead():raise ValueError('No se pudo leer la foto. Elegí una imagen PNG, JPEG, WebP o BMP válida.')
     size=reader.size()
     if not size.isValid():raise ValueError('La imagen no tiene dimensiones válidas.')

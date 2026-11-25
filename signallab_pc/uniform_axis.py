@@ -1,6 +1,33 @@
-"""Validate imported coordinates without moving samples onto another grid."""
+"""Validate and inspect sampled coordinates on their original grid."""
+from bisect import bisect_left
 import math
 import numpy as np
+
+
+def sample_coordinate(source, index):
+    if source.domain == 'discrete':
+        return int(source.origin) + index
+    return source.origin + source.step * index
+
+
+def sample_index(source, coordinate, *, base=0):
+    """Nearest stored sample inside the axis; ties use the earlier row."""
+    count = source.values.size
+    if not count:
+        return None
+    first = sample_coordinate(source, 0) - base
+    last = sample_coordinate(source, count - 1) - base
+    if not min(first, last) <= coordinate <= max(first, last):
+        return None
+    if source.domain == 'discrete':
+        offset = coordinate - first
+        index = int(offset)
+        return index + int(offset - index > 0.5)
+    direction = 1 if source.step > 0 else -1
+    after = bisect_left(range(count), direction * coordinate,
+                        key=lambda index: direction * (sample_coordinate(source, index) - base))
+    candidates = range(max(0, after - 1), min(count, after + 1))
+    return min(candidates, key=lambda index: abs(sample_coordinate(source, index) - base - coordinate))
 
 
 def uniform_step(coordinates):

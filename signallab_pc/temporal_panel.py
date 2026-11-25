@@ -1,3 +1,4 @@
+from .validation import show_input_error
 from .numeric_input import real_field,integer_field
 """Respuesta temporal autónoma: una definición local del sistema por cálculo."""
 import numpy as np
@@ -211,4 +212,4 @@ class TemporalPanel(QWidget):
             key=self.parent_id
             calculated_inputs=self.result_state.snapshot();percent=self.settling_percent.text()
             self.window._run_operation('Calculando respuesta…',lambda:simulate(system,source,kind=kind,duration=duration,extra=extra,interpolation=interpolation,separate=separate,previous_inputs=previous_inputs,previous_outputs=previous_outputs,percent=percent),lambda snapshot:self._accept_snapshot(snapshot,key,parents,title,calculated_inputs))
-        except Exception as exc:QMessageBox.warning(self,'Revisá la definición',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá la definición',exc)

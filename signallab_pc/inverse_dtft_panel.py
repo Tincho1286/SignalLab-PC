@@ -1,5 +1,6 @@
 """Independent frequency input and integer output interval for inverse DTFT."""
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QScrollArea,QLineEdit,QPushButton,QLabel,QMessageBox
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QScrollArea,QLineEdit,QPushButton,QLabel
+from .validation import show_input_error
 from .inverse_dtft import inverse_dtft
 from .numeric_input import integer_field
 from .result_state import ResultState
@@ -62,4 +63,4 @@ class InverseDtftPanel(QWidget):
                     ],paragraphs=['Las muestras aproximan la inversa en el intervalo elegido.']),
                 ]));self.state.accept(snapshot)
             self.window._run_operation('Calculando DTFT inversa…',compute,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá la DTFT inversa',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá la DTFT inversa',exc)

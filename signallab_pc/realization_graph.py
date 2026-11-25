@@ -13,6 +13,11 @@ LOWER_INPUT = 2
 DEFAULT_SUM_SIGNS = (1, -1)
 
 
+def signal_name(block, domain):
+    name = {'input': 'X', 'output': 'Y'}.get(block.kind, f'V_{block.id}')
+    return f'{name}({"z" if domain == "digital" else "s"})'
+
+
 @dataclass(frozen=True)
 class Block:
     id: int
@@ -40,6 +45,9 @@ class Wire:
 
     def sign_at(self, target):
         return target.input_signs[self.sum_port - 1] if target.kind == 'sum' else self.sign
+
+    def connection_key(self, target):
+        return self.source, self.target, self.sum_port if target.kind == 'sum' else None
 
 
 @dataclass(frozen=True)
@@ -146,12 +154,12 @@ class RealizationGraph:
                 raise ValueError('El puerto de destino del sumador no es válido.')
             if source.kind == 'output' or target.kind == 'input':
                 raise ValueError('La entrada x sólo emite señales y la salida y sólo las recibe.')
-            pair = (source.id, target.id)
-            if pair in connected:
-                raise ValueError('Esos bloques ya están conectados en ese sentido.')
+            key = wire.connection_key(target)
+            if key in connected:
+                raise ValueError('Esa señal ya está conectada a ese mismo puerto.')
             if target.kind != 'sum' and incoming[target.id]:
                 raise ValueError(f'Agregá un sumador antes de conectar varias señales al bloque {target.id}.')
-            connected.add(pair)
+            connected.add(key)
             incoming[target.id].append(wire)
         return incoming
 
@@ -213,7 +221,7 @@ class RealizationGraph:
             for wire in incoming[block.id]:
                 term = wire.sign_at(block) * gain
                 if wire.source == input_id:
-                    rhs[row, 0] = term
+                    rhs[row, 0] = rhs.get((row, 0), 0) + term
                 else:
                     index = (row, indices[wire.source])
                     entries[index] = entries.get(index, 0) - term

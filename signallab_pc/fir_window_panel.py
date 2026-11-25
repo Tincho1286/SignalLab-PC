@@ -1,7 +1,7 @@
 """Window an independently supplied h[n] inside the existing FIR workflow."""
-from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QPushButton,QScrollArea,QCheckBox,QTabWidget,QMessageBox,QLabel
+from PySide6.QtWidgets import QWidget,QHBoxLayout,QVBoxLayout,QFormLayout,QComboBox,QLineEdit,QPushButton,QScrollArea,QCheckBox,QTabWidget,QLabel
 from .numeric_input import real_field,integer_field
-from .validation import passive_fields
+from .validation import passive_fields, show_input_error
 from .result_state import ResultState
 from .report_view import ReportView,report_panel
 from .result_summary import transfer_summary,Section,Formula
@@ -90,4 +90,4 @@ class FirWindowPanel(QWidget):
                 if notice:summary.sections.append(Section('Vista de frecuencia',paragraphs=[notice]))
                 self.report.set_readable(summary);self.window.publish({'report':self.report.toPlainText()},title='Enventanado de h[n] · '+result.window_name,operation='Informe de FIR enventanado',parents=[system_key]);self.state.accept(snapshot);self.show_series()
             self.window._run_operation('Enventanando h[n]…',compute,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá h[n] y la ventana',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá h[n] y la ventana',exc)

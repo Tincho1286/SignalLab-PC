@@ -11,8 +11,8 @@ from .catalog_delegate import DETAIL, TARGET, DetailListDelegate
 from .design import icon
 from .result_summary import operation_label
 from .theme_tokens import AREA_COLORS, COLORS
-from .tool_catalog import AREA_BY_ID, BY_KEY, DETAILS_BY_KEY, ENTRIES, matching_variants, normalize, normalized_key
-from .workspaces import ROUTES
+from .tool_catalog import AREAS, AREA_BY_ID, BY_KEY, DETAILS_BY_KEY, normalized_key
+from .tool_search import find_tools, rank, tokens
 
 
 @dataclass(frozen=True)
@@ -24,23 +24,25 @@ class Choice:
     color: str
     keywords: str = ''
 
-    def matches(self, query):
-        text = normalize(' '.join((self.title, self.detail, self.keywords)))
-        return all(word in text for word in query.split())
+    def search_rank(self, query):
+        return rank(query, (tokens(self.title),), tokens(self.detail + ' ' + self.keywords))
 
 
-def tool_choice(key):
+def tool_choice(key, hit=None, *, opened=False):
     entry = BY_KEY[key]
     _, area, _, symbol = AREA_BY_ID[entry['area']]
     detail = DETAILS_BY_KEY[key]
-    return Choice(('tool', key), detail['title'], area + ' · ' + detail['summary'],
-                  symbol, AREA_COLORS[entry['area']])
+    target = ('tool', key, hit.settings) if hit is not None and hit.settings else ('tool', key)
+    title = hit.title if hit is not None else detail['title']
+    summary = hit.summary if hit is not None else detail['summary']
+    state = ' · Abierto' if opened else ''
+    return Choice(target, title, area + state + ' · ' + summary, symbol, AREA_COLORS[entry['area']])
 
 
 def commands():
     return [
         Choice(('command', 'cas'), 'Calculadora CAS', 'Álgebra y cálculo simbólico',
-               'calculator', COLORS['purple'], CAS_SEARCH),
+               'calculator', COLORS['purple'], CAS_SEARCH + ' expresion simbolico derivada integral'),
         Choice(('command', 'results'), 'Resultados', 'Abrir la biblioteca de la sesión',
                'table', COLORS['blue'], 'resultados guardados señales sistemas exportar'),
         Choice(('command', 'compare'), 'Comparar resultados', 'Superponer señales o respuestas compatibles',
@@ -53,7 +55,7 @@ def commands():
 
 
 class TaskSearch(QDialog):
-    def __init__(self, window):
+    def __init__(self, window, query=''):
         super().__init__(window)
         self.window_owner = window
         self.setWindowTitle('Acceso rápido · SignalLab')
@@ -92,7 +94,11 @@ class TaskSearch(QDialog):
         root.addWidget(self.note)
         self.query.textChanged.connect(self.refresh)
         self.query.returnPressed.connect(lambda: self.choose(self.list.currentItem()))
-        self.refresh('')
+        if query:
+            self.query.setText(query)
+            self.query.selectAll()
+        else:
+            self.refresh('')
         self.query.setFocus()
 
     def documents(self, *, include_current):
@@ -119,8 +125,9 @@ class TaskSearch(QDialog):
         for record in reversed(self.window_owner.project.headers()):
             choice = Choice(('result', record['id']), record['title'], operation_label(record['operation']),
                             symbols.get(record['kind'], 'table'), COLORS['cyan'])
-            if choice.matches(query):
-                yield choice
+            score = choice.search_rank(query)
+            if score is not None:
+                yield score, choice
 
     def groups(self, query):
         owner = self.window_owner
@@ -139,29 +146,30 @@ class TaskSearch(QDialog):
             yield 'Acciones', actions
             return
 
-        matched = {}
-        for entry in ENTRIES:
-            for key, _ in matching_variants(entry, query):
-                matched[key] = tool_choice(key)
+        open_keys = {key for key, _ in opened}
+        matched = [(hit.score, tool_choice(hit.key, hit, opened=hit.key in open_keys)) for hit in find_tools(query)]
+        terms = tokens(query)
+        action_titles = {choice.title for choice in actions}
         for key, choice in opened:
-            if key in matched or choice.matches(query):
-                matched[key or choice.target] = choice
+            if key is None and choice.title not in action_titles:
+                score = choice.search_rank(terms)
+                if score is not None:
+                    matched.append((score, choice))
         for choice in actions:
-            if choice.matches(query) and not any(other.title == choice.title for other in matched.values()):
-                matched[choice.target] = choice
+            score = choice.search_rank(terms)
+            if score is not None:
+                matched.append((score, choice))
+        for key, title, description, symbol in AREAS:
+            score = rank(terms, (tokens(title),))
+            if score is not None:
+                matched.append((score, Choice(('area', key), title, 'Área de trabajo · ' + description,
+                                              symbol, AREA_COLORS[key])))
 
-        words = set(query.split())
-
-        def rank(choice):
-            title = normalize(choice.title)
-            return (title != query, not words.issubset(title.split()), not title.startswith(query),
-                    query not in title, choice.target[0] != 'document')
-
-        yield 'Herramientas y acciones', sorted(matched.values(), key=rank)
-        yield 'Resultados de la sesión', sorted(self.saved_results(query), key=rank)
+        yield 'Herramientas y acciones', [choice for _, choice in sorted(matched, key=lambda entry: entry[0])]
+        yield 'Resultados de la sesión', [choice for _, choice in sorted(self.saved_results(terms), key=lambda entry: entry[0])]
 
     def refresh(self, text):
-        query = ' '.join(normalize(text).split())
+        query = text.strip()
         self.list.clear()
         for title, choices in self.groups(query):
             if not choices:
@@ -221,16 +229,16 @@ class TaskSearch(QDialog):
             self.accept()
 
 
-def open_search(window):
-    dialog = TaskSearch(window)
+def open_search(window, query=''):
+    dialog = TaskSearch(window, query)
     accepted = dialog.exec()
     selection = dialog.selection
     dialog.deleteLater()
     if not accepted or selection is None:
         return
-    kind, target = selection
+    kind, target = selection[:2]
     if kind == 'tool':
-        window.open_tool(ROUTES[tuple(target)])
+        window.open_tool_search(tuple(target), selection[2] if len(selection) > 2 else ())
     elif kind == 'document':
         tabs = window.documents
         index = next((i for i in range(tabs.count()) if tabs.tabData(i) == target), -1)
@@ -238,6 +246,8 @@ def open_search(window):
             tabs.setCurrentIndex(index)
     elif kind == 'result':
         window.focus_result(target)
+    elif kind == 'area':
+        window.show_area(target)
     elif target == 'cas':
         window.open_cas()
     elif target == 'results':

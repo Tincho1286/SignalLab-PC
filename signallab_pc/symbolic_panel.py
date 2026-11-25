@@ -1,3 +1,4 @@
+from .validation import show_input_error
 from .numeric_input import real_field,integer_field
 from .report_view import ReportView
 from .expression_editor import ExpressionEditor
@@ -5,7 +6,7 @@ from .expression_editor import ExpressionEditor
 import json
 from pathlib import Path
 from PySide6.QtWidgets import (QWidget, QHBoxLayout, QVBoxLayout, QFormLayout, QComboBox,
-    QLineEdit, QPushButton, QPlainTextEdit, QMessageBox, QFileDialog, QLabel, QScrollArea)
+    QLineEdit, QPushButton, QPlainTextEdit, QFileDialog, QLabel, QScrollArea)
 from .symbolic_process import run_request
 from .model import Signal
 from .resources import ensure_working_set
@@ -59,7 +60,7 @@ class SymbolicPanel(QWidget):
         if title=="Calcular":button.setObjectName("primary")
         def invoke():
             try:callback()
-            except Exception as exc:QMessageBox.warning(self,"Operación no aplicada",str(exc))
+            except Exception as exc:show_input_error(self,"Operación no aplicada",exc)
         button.clicked.connect(invoke);form.addRow(button)
 
     def calculate(self):

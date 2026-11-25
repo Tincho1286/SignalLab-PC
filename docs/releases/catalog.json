@@ -1,6 +1,20 @@
 {
   "releases": [
     {
+      "tag": "v2.0.0",
+      "title": "Escritorio, gráficos y resultados conectados",
+      "channel": "stable",
+      "summary": "La 2.0.0 incorpora el rediseño del escritorio y mejora la lectura y reutilización de resultados.",
+      "changes": [
+        "El menú Variante agrupa los métodos de cada herramienta y conserva sus entradas.",
+        "Los cursores A/B pueden seguir una curva de referencia, incluidos los bins de DFT.",
+        "Resultados permite abrir gráficos guardados y recorrer los orígenes de un cálculo.",
+        "El esquema de bandas es más amplio y cada número abre el campo del borde correspondiente."
+      ],
+      "limits": [],
+      "notes": "docs/releases/v2.0.0.md"
+    },
+    {
       "tag": "v1.9.9",
       "title": "Rediseño del escritorio científico",
       "channel": "preview",

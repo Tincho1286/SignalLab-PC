@@ -1,5 +1,6 @@
 """Auto/cross correlation and covariance estimates in one independent tool."""
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QLineEdit,QComboBox,QCheckBox,QPushButton,QLabel,QScrollArea,QMessageBox
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QLineEdit,QComboBox,QCheckBox,QPushButton,QLabel,QScrollArea
+from .validation import show_input_error
 from .numeric_input import integer_field
 from .random_signals import autocorrelation
 from .random_cross_correlation import cross_correlation
@@ -47,4 +48,4 @@ class RandomCorrelationPanel(QWidget):
                 self.output.text.setPlainText(text);self.state.accept(snapshot)
             job=(lambda:cross_correlation(source,second,*options)) if cross else (lambda:autocorrelation(source,*options))
             self.window._run_operation('Estimando correlación del registro…',job,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá las entradas',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá las entradas',exc)

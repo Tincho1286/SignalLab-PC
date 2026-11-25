@@ -14,11 +14,11 @@ class ExpressionGridView(QWidget):
         self.tabs=QTabWidget();layout.addWidget(self.tabs);plot=QWidget();box=QVBoxLayout(plot)
         self.figure=Figure(figsize=(7,4));self.canvas=FigureCanvasQTAgg(self.figure);self.toolbar=NavigationToolbar2QT(self.canvas,self);box.addWidget(self.toolbar);box.addWidget(self.canvas);self.tabs.addTab(plot,'Gráfico')
         from .result_table import ResultTable
-        self.table=ResultTable();self.tabs.addTab(self.table,'Valores');self.components.currentIndexChanged.connect(self.draw)
+        self.table=ResultTable();self.table.link_figure(self.canvas);self.tabs.addTab(self.table,'Valores');self.components.currentIndexChanged.connect(self.draw)
     def set_grid(self,data,units):
         self.data={**data,'units':units};values=np.array([complex(*v) if v is not None else complex(np.nan,np.nan) for v in data['samples']])
         self.source=SimpleNamespace(values=values,origin=data['origin'],step=data['step'],units=units,name='Resultado condicionado',domain='continuous' if data['variable']=='t' else 'frequency',metadata={field:data[field] for field in ('dirac_terms','dirac_at_zero') if field in data})
-        self.table.set_signals([self.source]);self.table.note.setText('N/D conserva su posición; no se interpola ni se convierte en cero. Para reutilizar la función usá el resultado algebraico.')
+        self.table.set_signals([self.source]);self.table.note.setText('N/D conserva la posición de cada valor indefinido. Para reutilizar la función usá el resultado algebraico.');self.table.note.show()
         self.note.setText(str(data['undefined_count'])+' posiciones no definidas. Condición: '+data['condition']+'. '+data['scope'])
         self.tabs.setCurrentIndex(0);self.draw()
         from .plot_view import install_enlarge,enlarge_plot
@@ -38,8 +38,9 @@ class ExpressionGridView(QWidget):
         gaps=(insertion>0)&(insertion<len(axis))
         positions=insertion[gaps]
         x=np.insert(axis,positions,poles[gaps])
-        for plot,component,label in zip(axes,(first,second),('Módulo' if polar else 'Parte real','Fase (rad)' if polar else 'Parte imaginaria')):
-            line=plot.plot(x,np.insert(component,positions,np.nan))[0];line._signallab_probe_values=(source.origin,source.step,component);plot.set_ylabel(label);plot.grid(alpha=.2)
+        names=('magnitude','phase') if polar else ('real','imag')
+        for plot,component,label,name in zip(axes,(first,second),('Módulo' if polar else 'Parte real','Fase (rad)' if polar else 'Parte imaginaria'),names):
+            line=plot.plot(x,np.insert(component,positions,np.nan))[0];line._signallab_probe_values=(source.origin,source.step,component);line._signallab_table_source=(source,name);plot.set_ylabel(label);plot.grid(alpha=.2)
         if not np.isfinite(values).any():axes[0].text(.5,.5,'No hay valores definidos en este intervalo',ha='center',transform=axes[0].transAxes)
         if impulses:
             plot_impulse_areas(axes[-1],impulses,source.name);axes[-1].legend()

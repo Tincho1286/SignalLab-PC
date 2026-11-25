@@ -49,40 +49,28 @@ FAMILIES=[
 # Presentation metadata keeps a family's choices meaningful without new routes.
 PRESENTATION={
  'Diseñar filtro':{
-    'restore_fixed_fields':(2,),
     'destination_labels':{('systems',6):'Diseñar filtro · Polos y ceros',('fir_window',0):'Diseñar filtro · h[n] propia'},
-    'dimension_labels':{(2,'Respuesta FIR','Digital'):'Definir h[n]'},
-    'search_models':{'rc':'Circuito RC','biquad':'Segundo orden','polos':'Polos y ceros','ceros':'Polos y ceros'},
+    'variant_titles':{
+        ('course_tools','fir'):'FIR digital', ('course_tools','iir'):'IIR digital', ('course_tools','analog'):'IIR analógico',
+        ('systems',0):'Cortes y longitud', ('fir_window',0):'h[n] propia', ('systems',6):'',
+        ('systems',1):'Biquad digital', ('systems',8):'Analógico', ('systems',2):'',
+    },
     'variant_tags':{
         ('systems',2):'modelos filtros físicos circuito resistencia capacitancia',
         ('systems',8):'modelos filtros físicos frecuencia natural amortiguamiento',
         ('systems',6):'diseño interactivo raíces mouse ratón',
     },
-    'choice_hints':{
-        'Bandas y tolerancias':'Definí qué frecuencias deben pasar o rechazarse y cuánto puede variar la amplitud.',
-        'Respuesta FIR':'Partí de cortes y longitud o de una h[n] propia; elegí una ventana.',
-        'Polos y ceros':'Ubicá raíces y ganancia en el editor; elegí allí plano s o z. El análisis de un filtro existente está en Analizar un sistema.',
-        'Segundo orden':'Digital: sección biquad por frecuencia, Q y tipo. Analógico: frecuencia natural, amortiguamiento y ganancia.',
-        'Circuito RC':'Diseñá el modelo analógico desde resistencia, capacitancia o frecuencia de corte.',
-        'Digital':'Trabaja en z; las frecuencias angulares se expresan en rad/muestra.',
-        'Analógico':'Trabaja en s; las frecuencias angulares se expresan en rad/s.',
-    },
  },
 
  'Transformada de Fourier':{
-    'dimension_labels':{(2,'DFT / FFT','Directa'):'Estudio'},
-    'search_models':{'dtft':'DTFT','dft':'DFT / FFT','fft':'DFT / FFT','continua':'Fourier continua','ctft':'Fourier continua'},
     'model_tags':{'DTFT':'rad/muestra secuencia espectro periódico continuo','DFT / FFT':'rad/muestra coeficientes bins registro finito','Fourier continua':'rad/s tiempo segundos'},
     'variant_tags':{('basic','dft'):'numérico muestras',('course_tools','fft'):'numérico muestras',('fourier',0):'comparar superponer comparación'},
-
-    'choice_hints':{
-        'DTFT':'Transformada de una secuencia x[n]. X(ω) es continua y periódica cada 2π, en rad/muestra.',
-        'DFT / FFT':'DFT de un registro finito: N coeficientes X[k]. FFT es un algoritmo para calcular esa misma DFT.',
-        'Fourier continua':'Transformada de x(t). El eje angular Ω se expresa en rad/s.',
-        'Directa':'De la señal a su transformada. La entrada de la inversa se conserva por separado.',
-        'Inversa':'De la transformada a la señal. Para usar una salida ya calculada, elegila en Resultados.',
-        'Transformada':'DFT de las muestras del registro; conserva N coeficientes complejos para su inversión.',
-        'Ventanas y resolución':'Ventanas, relleno con ceros y comparación con DTFT; sigue calculando la DFT mediante FFT.',
+    'variant_titles':{
+        ('fourier',0):'Directa numérica', ('dtft_symbolic',0):'Directa algebraica',
+        ('inverse_dtft',0):'Inversa numérica', ('dtft_symbolic',1):'Inversa algebraica',
+        ('basic','dft'):'Transformada directa', ('course_tools','fft'):'Ventanas y resolución', ('basic','idft'):'Inversa',
+        ('fourier',1):'Directa numérica', ('fourier_symbolic',0):'Directa algebraica',
+        ('fourier',3):'Inversa numérica', ('fourier_symbolic',1):'Inversa algebraica',
     },
  },
 }

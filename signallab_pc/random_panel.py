@@ -1,9 +1,10 @@
+from .validation import show_input_error
 from .numeric_input import real_field,integer_field
 """Herramientas independientes para señales aleatorias y sus registros."""
 import secrets
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QLineEdit,QComboBox,QPushButton,QLabel,QScrollArea,QSplitter,QTabWidget,QMessageBox
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QLineEdit,QComboBox,QPushButton,QLabel,QScrollArea,QSplitter,QTabWidget
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg,NavigationToolbar2QT
 from . import random_signals
@@ -70,4 +71,4 @@ class RandomPanel(QWidget):
                     if data.get('histogram_notice'):
                         axis.clear();axis.set_axis_off();axis.text(.5,.5,data['histogram_notice'],ha='center',va='center',wrap=True,transform=axis.transAxes);self.canvas.draw_idle()
                 self.window._run_operation('Calculando estadísticas…',lambda:random_signals.statistics(source,component,bins,histogram_notice=bins_notice),accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá las entradas',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá las entradas',exc)

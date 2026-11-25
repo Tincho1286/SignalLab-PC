@@ -51,6 +51,7 @@ class _OperationWorker(QRunnable):
             self.signals.finished.emit(self, result)
         except Exception as exc:
             import traceback
+            self.input_failure = isinstance(exc, ValueError)
             self.failure_details=''.join(traceback.format_exception(type(exc),exc,exc.__traceback__))
             self.signals.failed.emit(self, str(exc))
         finally:
@@ -659,7 +660,7 @@ class SignalLabWindow(QMainWindow):
                 lambda result: self._operation_succeeded(result, f"Resultado {operation} · convención y escala registradas en metadatos."))
         except Exception as exc: QMessageBox.warning(self, "Operación no aplicada", str(exc))
 
-    def _run_operation(self, message, function, on_success):
+    def _run_operation(self, message, function, on_success, *, input_context=False):
         if self._workers:
             QMessageBox.information(self, "Cálculo en curso", "Esperá el resultado antes de iniciar otro cálculo.")
             return
@@ -667,6 +668,7 @@ class SignalLabWindow(QMainWindow):
         worker.on_success = on_success
         worker.label = message
         worker.origin=getattr(self,'current_operation',None)
+        worker.input_context = input_context
         worker.last_progress = -1
         self.cancel_button.setEnabled(True)
         self.cancel_button.setVisible(True)
@@ -716,6 +718,9 @@ class SignalLabWindow(QMainWindow):
         self.cancel_button.setVisible(bool(self._workers))
         if worker.cancel_event.is_set():
             self.statusBar().showMessage("Cálculo cancelado; no se guardó un resultado parcial.")
+            return
+        present = getattr(self, 'present_input_failure', None)
+        if worker.input_context and worker.input_failure and present is not None and present(worker, error):
             return
         self.statusBar().showMessage("El cálculo no terminó.")
         from .runtime_diagnostics import report_error

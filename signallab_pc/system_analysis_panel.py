@@ -1,3 +1,4 @@
+from .validation import show_input_error
 from .numeric_input import real_field,integer_field
 from .report_view import ReportView,report_panel
 from .tool_guide import ToolGuide
@@ -405,7 +406,7 @@ class SystemAnalysisPanel(QWidget):
                     summary.sections.append(Section('Muestreo del sistema',rows=[('Período T (s)',number(system.sample_period_s))]))
                 self.report.set_readable(summary);self.result_state.accept(calculated_inputs)
             self.window._run_operation('Analizando sistema algebraico y numérico…',compute,accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá el sistema',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá el sistema',exc)
 
 
     def draw_frequency(self,*_):

@@ -1,5 +1,6 @@
 """One transform document: explicit inputs, conditions and optional output samples."""
 from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QComboBox,QLineEdit,QLabel,QPushButton,QScrollArea,QMessageBox,QCheckBox,QTabWidget,QMenu
+from .validation import show_input_error
 from .expression_editor import ExpressionEditor
 from .report_view import ReportView,report_panel
 from .symbolic_process import run_request
@@ -330,4 +331,4 @@ class TransformLab(QWidget):
                 record=(request,result,key,snapshot,signal);self.records[record_key]=record
                 if self.record_key()==record_key:self.display_record(record)
             self.window._run_operation('Calculando transformada…',lambda:run_request(request),accept)
-        except Exception as exc:QMessageBox.warning(self,'Revisá la transformada',str(exc))
+        except Exception as exc:show_input_error(self,'Revisá la transformada',exc)

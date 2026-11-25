@@ -27,37 +27,53 @@ PASS_EDGES={'lowpass':(0,), 'highpass':(1,), 'bandpass':(1,2), 'bandstop':(0,3)}
 def draw_bands(p,rect,kind,edges=None,analog=False,*,active=-1,pending=False):
     p.setRenderHint(QPainter.RenderHint.Antialiasing)
     p.setPen(QColor(C['rule']));p.setBrush(QColor(C['input']));p.drawRoundedRect(rect.adjusted(.5,.5,-.5,-.5),9,9)
-    x0=rect.left()+14;x1=rect.right()-14;y0=rect.top()+34;y1=rect.bottom()-66
+    x0, x1 = rect.left() + 15, rect.right() - 15
+    y1 = rect.bottom() - 69
     values=edges if edges is not None else ([.3,.4] if kind in ('lowpass','highpass') else [.2,.3,.6,.7])
     positions=[x0]+[x0+v*(x1-x0) for v in values]+[x1]
     colors={'pass':C['green'],'stop':C['amber'],'transition':C['muted']}
-    p.setFont(QFont('Segoe UI',9));font=p.fontMetrics()
+    names={'pass':'Paso','transition':'Transición','stop':'Rechazo'}
+    p.setFont(QFont('Segoe UI',10));font=p.fontMetrics()
     legend=[('Paso','pass'),('Transición','transition'),('Rechazo','stop')]
-    width=sum(font.horizontalAdvance(label)+14 for label,_ in legend)
-    gap=max(4,min(15,(x1-x0-width)/2))
-    x=max(x0,rect.center().x()-(width+2*gap)/2)
-    for label,mode in legend:
-        p.fillRect(QRectF(x,rect.top()+14,8,8),QColor(colors[mode]))
-        p.setPen(QColor(C['text']));p.drawText(QRectF(x+13,rect.top()+6,font.horizontalAdvance(label)+1,24),Qt.AlignmentFlag.AlignVCenter,label)
-        x+=font.horizontalAdvance(label)+14+gap
+    gap = 14
+    widths = [font.horizontalAdvance(label) + 14 for label, _ in legend]
+    wraps = sum(widths) + 2 * gap > x1 - x0
+    groups = ((0, 1), (2,)) if wraps else ((0, 1, 2),)
+    legend_y = rect.top() + 9
+    legend_height = max(21, font.height() + 2)
+    for group in groups:
+        span = sum(widths[index] for index in group) + (len(group) - 1) * gap
+        x = rect.center().x() - span / 2
+        for index in group:
+            label, mode = legend[index]
+            p.fillRect(QRectF(x, legend_y + (legend_height - 8) / 2, 8, 8), QColor(colors[mode]))
+            p.setPen(QColor(C['text']))
+            p.drawText(QRectF(x + 13, legend_y, widths[index] - 12, legend_height), Qt.AlignmentFlag.AlignVCenter, label)
+            x += widths[index] + gap
+        legend_y += legend_height
+    y0 = legend_y + 9
     for i,mode in enumerate(REGIONS[kind]):
         color=QColor(colors[mode]);color.setAlpha(30 if pending else 56)
-        p.fillRect(QRectF(positions[i],y0,positions[i+1]-positions[i],y1-y0),color)
+        band = QRectF(positions[i], y0, positions[i+1]-positions[i], y1-y0)
+        p.fillRect(band,color)
+        if band.width() >= font.horizontalAdvance(names[mode]) + 14:
+            p.setPen(QColor(colors[mode]))
+            p.drawText(band, Qt.AlignmentFlag.AlignCenter, names[mode])
         edge=y0+3 if mode=='pass' else y1-3
         if mode!='transition':
             p.setPen(QPen(QColor(colors[mode]),2));p.drawLine(QLineF(positions[i],edge,positions[i+1],edge))
     p.setPen(QPen(QColor(C['border']),1));p.drawLine(QLineF(x0,y1,x1,y1))
     markers=[]
-    previous=x0-12
+    previous=x0-16
     for i,x in enumerate(positions[1:-1]):
         # Let the marker use its own horizontal space while its leader stays on the exact edge.
-        center=max(previous+20,min(x,x1-8-20*(len(values)-i-1)))
+        center=max(previous+26,min(x,x1-10-26*(len(values)-i-1)))
         previous=center
-        cy=y1+25+(i%2)*15
-        dot=QRectF(center-8,cy-8,16,16)
+        cy=y1+26+(i%2)*15
+        dot=QRectF(center-10,cy-10,20,20)
         role='accent' if i==active else 'green' if i in PASS_EDGES[kind] else 'amber'
-        p.setPen(QPen(QColor(C[role]),1,Qt.PenStyle.DashLine if pending else Qt.PenStyle.SolidLine))
-        p.drawLine(QLineF(x,y0,x,y1+4));p.drawLine(QLineF(x,y1+4,center,cy-8))
+        p.setPen(QPen(QColor(C[role]),2 if i==active else 1,Qt.PenStyle.DashLine if pending else Qt.PenStyle.SolidLine))
+        p.drawLine(QLineF(x,y0,x,y1+4));p.drawLine(QLineF(x,y1+4,center,cy-10))
         p.setBrush(QColor(C['selected'] if i==active else C['panel']));p.drawEllipse(dot)
         p.setPen(QColor(C['text']));p.drawText(dot,Qt.AlignmentFlag.AlignCenter,str(i+1));markers.append(dot)
     p.setPen(QColor(C['muted']));p.drawText(QRectF(x0-5,y1+2,20,16),Qt.AlignmentFlag.AlignLeft,'0')
@@ -66,14 +82,20 @@ def draw_bands(p,rect,kind,edges=None,analog=False,*,active=-1,pending=False):
     return markers
 
 def bands_image(kind,analog=False):
-    image=QImage(490,155,QImage.Format.Format_ARGB32);image.fill(QColor(C['report']));p=QPainter(image);draw_bands(p,QRectF(0,0,490,155),kind,analog=analog);p.end();return image
+    image=QImage(1000,430,QImage.Format.Format_ARGB32)
+    image.fill(QColor(C['report']))
+    painter=QPainter(image)
+    painter.scale(2,2)
+    draw_bands(painter,QRectF(0,0,500,215),kind,analog=analog)
+    painter.end()
+    return image
 
 class BandDiagram(QWidget):
     edgeSelected=Signal(int)
 
     def __init__(self):
         super().__init__();self.kind='lowpass';self.edges=None;self.analog=False;self.active=-1;self.markers=[]
-        self.setFixedHeight(134)
+        self.setFixedHeight(184)
         self.setMinimumWidth(220)
         self.setAccessibleName('Bandas de paso, transición y rechazo')
         self.setToolTip('Seleccioná un número para editar ese borde.')
@@ -84,7 +106,7 @@ class BandDiagram(QWidget):
     def mousePressEvent(self,event):
         if event.button()==Qt.MouseButton.LeftButton:
             for index,marker in enumerate(self.markers):
-                if marker.contains(event.position()):
+                if marker.adjusted(-3,-3,3,3).contains(event.position()):
                     self.edgeSelected.emit(index)
                     event.accept()
                     return
@@ -128,6 +150,7 @@ class BandEdgesEditor(QWidget):
         edit.selectAll()
 
     def place_diagram(self, destination=None):
+        self.diagram.setFixedHeight(184 if destination is None else 224)
         if destination is None:
             self.layout().insertWidget(2,self.diagram)
         else:
@@ -172,7 +195,7 @@ class BandEdgesEditor(QWidget):
         if self.loading:return
         self.saved[self.current]=[edit.text() for edit in self.edits[:len(KINDS[self.current][1])]];self.diagram.kind=self.current
         try:
-            f=self.frequencies();self.diagram.edges=[v/(f[-1]*1.25 if self.analog else math.pi) for v in f]
+            f=self.frequencies();self.diagram.edges=[(v/f[-1])*.8 if self.analog else v/math.pi for v in f]
             width=f'{f[1]-f[0]:.6g} {self.unit}'
             self.status.setText(f'Transición de {width}' if len(f)==2 else f'Transición izquierda de {width}\nTransición derecha de {f[3]-f[2]:.6g} {self.unit}')
         except FieldError as exc:

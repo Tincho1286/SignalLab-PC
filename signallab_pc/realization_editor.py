@@ -12,7 +12,7 @@ from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtWidgets import (
     QBoxLayout, QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout, QFrame, QGraphicsEllipseItem, QGraphicsItem,
     QGraphicsPathItem, QGraphicsRectItem, QGraphicsScene, QGraphicsSimpleTextItem, QGraphicsView,
-    QGridLayout, QHBoxLayout, QInputDialog, QLabel, QMenu, QMessageBox, QPushButton, QToolButton, QVBoxLayout, QWidget,
+    QGridLayout, QHBoxLayout, QInputDialog, QLabel, QMenu, QMessageBox, QPushButton, QTabWidget, QToolButton, QVBoxLayout, QWidget,
 )
 
 from .atomic_file import write_json
@@ -20,7 +20,7 @@ from .design import icon
 from .math_display import latex
 from .math_source import normalize
 from .realization_diagram import DiagramView
-from .realization_graph import BLOCK_NAMES, LEFT_INPUT, LOWER_INPUT, Block, RealizationGraph, Wire
+from .realization_graph import BLOCK_NAMES, LEFT_INPUT, LOWER_INPUT, Block, RealizationGraph, Wire, signal_name
 from .resources import ensure_working_set
 from .theme_tokens import COLORS as C
 from .vector_math import render_latex
@@ -119,7 +119,8 @@ class BlockItem(QGraphicsRectItem):
                 width, height = max(138, width + 26), max(50, height + 16)
             self.setRect(-width / 2, -height / 2, width, height)
         name = ('Retardo de una muestra' if discrete else 'Integrador') if kind == 'memory' else BLOCK_NAMES[kind]
-        self.setToolTip(name + (f' · {text}' if text else ''))
+        signal = signal_name(block, self.domain)
+        self.setToolTip(f'{name} {block.id} · {signal}' + (f' · {text}' if text and kind not in ('input','output') else ''))
         self.position_ports()
         self.update()
 
@@ -432,9 +433,25 @@ class RealizationEditor(QDialog):
         header.addWidget(self.domain_label)
         root.addLayout(header)
 
+        self.editor_tabs = QTabWidget()
+        self.editor_tabs.setObjectName('realizationEditorViews')
+        diagram_page = QWidget()
+        diagram_layout = QVBoxLayout(diagram_page)
+        diagram_layout.setContentsMargins(0, 8, 0, 0)
+        diagram_layout.setSpacing(8)
+        self.editor_tabs.addTab(diagram_page, 'Diagrama')
+        from .report_view import ReportView
+        self.equations_view = ReportView()
+        self.equations_view.setAccessibleName('Ecuaciones del diagrama de realización')
+        self.equations_view.setMinimumHeight(100)
+        self.editor_tabs.addTab(self.equations_view, 'Ecuaciones')
+        self.equations_dirty = True
+        self.editor_tabs.currentChanged.connect(self.change_view)
+        root.addWidget(self.editor_tabs, 1)
+
         commands = WrappingRow()
         commands.setObjectName('diagramCommands')
-        root.addWidget(commands)
+        diagram_layout.addWidget(commands)
         file_button = self.menu_button('Archivo', 'folder', commands)
         file_button.setObjectName('diagramFileMenu')
         file_menu = QMenu(file_button)
@@ -463,7 +480,7 @@ class RealizationEditor(QDialog):
 
         self.workspace_layout = QBoxLayout(QBoxLayout.Direction.LeftToRight)
         self.workspace_layout.setSpacing(10)
-        root.addLayout(self.workspace_layout, 1)
+        diagram_layout.addLayout(self.workspace_layout, 1)
         self.palette = QFrame()
         self.palette.setObjectName('diagramPalette')
         palette_box = QVBoxLayout(self.palette)
@@ -501,7 +518,7 @@ class RealizationEditor(QDialog):
         self.view.setToolTip('Ctrl + rueda cambia el zoom. Arrastrá un espacio vacío para recorrer el diagrama.')
         self.view.setMinimumSize(0, 90)
         self.workspace_layout.addWidget(self.view, 1)
-        root.addWidget(self.hint)
+        diagram_layout.addWidget(self.hint)
 
         selection = WrappingRow()
         self.selection_label = QLabel()
@@ -509,7 +526,7 @@ class RealizationEditor(QDialog):
         selection.flow.addWidget(self.selection_label)
         self.edit_button = self.button('Editar bloque…', 'filter', self.edit_selected_block, selection)
         self.delete_button = self.button('Quitar selección', 'remove', self.delete_selection, selection)
-        root.addWidget(selection)
+        diagram_layout.addWidget(selection)
         self.scene.selectionChanged.connect(self.update_selection)
 
         footer = QHBoxLayout()
@@ -590,6 +607,20 @@ class RealizationEditor(QDialog):
         super().showEvent(event)
         self.fit_diagram()
 
+    def change_view(self, index):
+        if index == 0:
+            if self.fit_mode:self.fit_timer.start(0)
+        else:
+            self.view.cancel_cable()
+            self.render_equations()
+
+    def render_equations(self):
+        if not self.equations_dirty:
+            return
+        from .realization_equations import summary
+        self.equations_view.set_readable(summary(self.graph()))
+        self.equations_dirty = False
+
     def set_graph(self, graph):
         self.view.cancel_cable()
         self.domain = graph.domain
@@ -626,6 +657,8 @@ class RealizationEditor(QDialog):
 
     def fit_diagram(self):
         self.fit_mode = True
+        if self.editor_tabs.currentIndex()!=0:
+            return
         self.update_bounds()
         bounds = self.scene.itemsBoundingRect().adjusted(-42, -42, 42, 42)
         self.view.fitInView(bounds, Qt.AspectRatioMode.KeepAspectRatio)
@@ -685,7 +718,10 @@ class RealizationEditor(QDialog):
             return
         if item.block.kind == 'sum':
             if port is None or port.block_id != item.block.id:
-                port = next((entry for entry in item.inputs.values() if entry.sign == self.connection_sign), None)
+                matches = [entry for entry in item.inputs.values() if entry.sign == self.connection_sign]
+                port = next((entry for entry in matches
+                             if (self.connection_source, item.block.id, entry.index) not in self.wires),
+                            matches[0] if matches else None)
             if port is None:
                 self.hint.setText('El sumador no tiene una entrada con ese signo. '
                                   'Elegí un puerto o editá los signos del sumador.')
@@ -709,13 +745,14 @@ class RealizationEditor(QDialog):
 
     def add_wire(self, wire):
         item = WireItem(wire, self.blocks[wire.source], self.blocks[wire.target])
-        self.wires[wire.source, wire.target] = item
+        self.wires[wire.connection_key(item.target.block)] = item
         self.scene.addItem(item)
         self.redraw_wires(wire.source)
 
     def reverse_wire(self, wire):
         if wire.source != wire.target:
-            return self.wires.get((wire.target, wire.source))
+            return next((self.wires[wire.target,wire.source,port] for port in (None,LEFT_INPUT,LOWER_INPUT)
+                         if (wire.target,wire.source,port) in self.wires),None)
         return None
 
     def redraw_wires(self, ident):
@@ -743,6 +780,8 @@ class RealizationEditor(QDialog):
         elif len(selected) == 1 and isinstance(selected[0], WireItem):
             wire = selected[0].wire
             label = f'Conexión {wire.source} → {wire.target}'
+            if selected[0].target.block.kind == 'sum':
+                label += ' · '+('entrada izquierda' if wire.sum_port == LEFT_INPUT else 'entrada inferior')
         else:
             label = f'{len(selected)} elementos seleccionados' if selected else 'Seleccioná un bloque o un cable.'
         self.selection_label.setText(label)
@@ -761,6 +800,9 @@ class RealizationEditor(QDialog):
             label.style().unpolish(label)
             label.style().polish(label)
         label.setText(text)
+        self.equations_dirty = True
+        if self.editor_tabs.currentWidget() is self.equations_view:
+            self.render_equations()
 
     def edit_selected_block(self):
         for item in self.scene.selectedItems():
@@ -810,6 +852,7 @@ class RealizationEditor(QDialog):
         item.set_definition(definition)
         self.redraw_wires(definition.id)
         self.update_bounds()
+        self.update_connection_state()
 
     def edit_transfer(self, block):
         from .realization_transfer_input import TransferBlockDialog
@@ -828,7 +871,7 @@ class RealizationEditor(QDialog):
         wires.update(item.wire for item in self.wires.values()
                      if item.wire.source in blocks or item.wire.target in blocks)
         for wire in wires:
-            self.scene.removeItem(self.wires.pop((wire.source, wire.target)))
+            self.scene.removeItem(self.wires.pop(wire.connection_key(self.blocks[wire.target].block)))
         for source in {wire.source for wire in wires}:
             self.redraw_wires(source)
         for ident in blocks:

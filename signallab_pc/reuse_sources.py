@@ -41,10 +41,10 @@ def source_info(project, key, kind):
     return info
 
 
-def compatible(info, *, domains=None, variables=None, units=None, allow_advance=True, dft_input=False, data_kinds=None):
+def compatible(info, *, domains=None, variables=None, units=None, allow_advance=True, dft_input=False, data_kinds=None, cross_domain_kinds=()):
     if info is None:
         return False
-    if domains is not None and info.get('domain') not in domains:
+    if domains is not None and info.get('domain') not in domains and info.get('data_kind') not in cross_domain_kinds:
         return False
     if data_kinds is not None and info.get('data_kind') not in data_kinds:
         return False
