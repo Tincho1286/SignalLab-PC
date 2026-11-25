@@ -22,6 +22,8 @@ El objetivo de líneas queda superado en la proyección. La validación de ambos
 
 La continuación con análisis de expresiones, lecturas de retardo y borradores de sesión registra 36 534/42 754 líneas y 11 842/16 454 ramas proyectadas sobre Windows (85,45 % y 71,97 %). Sobre la base Ubuntu proyecta 36 515 líneas y 11 841 ramas (85,41 % y 71,96 %). Faltan respectivamente 499 y 500 ramas para 75 %. Los resultados se usan para priorizar la siguiente ampliación y no acreditan la matriz.
 
+El lote de conversiones, RC y traspaso Z amplió la proyección a 36 572/42 772 líneas y 11 861/16 460 ramas en Windows (85,51 % y 72,06 %). Sobre la base Ubuntu proyecta 36 553 líneas y 11 860 ramas (85,46 % y 72,05 %). Faltan 484 ramas en Windows y 485 en Ubuntu. El resultado sigue siendo una combinación focal sobre la matriz histórica.
+
 ## Historial de mediciones integrales
 
 Se midieron líneas y ramas con coverage.py en `459b9fc`. La suite subió de 850 a 870 pruebas, con 150 casos preventivos por plataforma. La cobertura global de líneas pasó de 77,96 % a 78,09 % en Windows y de 77,94 % a 78,06 % en Ubuntu. La de ramas subió de 63,61 % a 63,84 % y de 63,60 % a 63,82 %, respectivamente.

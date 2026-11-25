@@ -365,12 +365,16 @@ def rc(kind, resistance, capacitance, stages=1):
     if kind not in {"lowpass", "highpass"}:
         raise ValueError("RC admite pasa bajos o pasa altos.")
     ensure_working_set(stages+1, live_arrays=5)
-    tau = resistance*capacitance
+    tau = float(resistance)*float(capacitance)
+    if not np.isfinite(tau) or tau == 0:
+        raise ValueError("La constante RC excede el rango numérico representable.")
     b, a = np.array([1.]), np.array([1.])
     for _ in range(stages):
         a = np.convolve(a, [tau, 1])
         if kind == "highpass":
             b = np.convolve(b, [tau, 0])
+    if a[0] == 0:
+        raise ValueError("Los coeficientes de la cascada RC pierden el orden del filtro por falta de rango numérico.")
     return Transfer(b, a, "analog", f"RC {kind}")
 
 

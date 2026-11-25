@@ -8,6 +8,11 @@ from .jobs import checkpoint
 from .operations import _finite_output
 
 
+def _frequency_centers(count):
+    step=2*np.pi/count
+    return (np.arange(count)-(count-1)/2)*step
+
+
 def convert_response(expression,period,method,count=2049,support=None):
     from .continuous_expression import has_dirac
     if has_dirac(expression):raise ValueError('La conversión de H(jΩ) por una rejilla requiere una respuesta ordinaria. Los impulsos ideales en frecuencia deben trabajarse como distribuciones en Fourier algebraica; no son valores de un filtro.')
@@ -15,7 +20,7 @@ def convert_response(expression,period,method,count=2049,support=None):
     if isinstance(count,bool) or int(count)!=count or count<3:raise ValueError('Usá al menos tres puntos de frecuencia.')
     count=int(count);ensure_working_set(count,live_arrays=12)
     # Cell centers avoid the infinite bilinear mapping at +/- pi.
-    step=2*np.pi/count;omega=-np.pi+(np.arange(count)+.5)*step
+    step=2*np.pi/count;omega=_frequency_centers(count)
     if method=='bilinear':
         analog=(2/period)*np.tan(omega/2)
         if not np.all(np.isfinite(analog)):raise ValueError('El mapeo excede el rango numérico; revisá T.')
@@ -52,11 +57,12 @@ def windowed_conversion(expression,period,method,count,support,length,window,bet
     from .filters import Transfer
     from .fourier import _sum
     if length<3 or int(length)!=length or length%2!=1:raise ValueError('La longitud FIR debe ser impar y al menos 3 para centrar y desplazar la respuesta.')
+    length=int(length)
     if count<length:raise ValueError('La rejilla de frecuencia debe tener al menos tantos puntos como coeficientes FIR; refinála para comprobar convergencia.')
     if not np.isfinite(beta) or beta<0:raise ValueError('β debe ser finito y no negativo.')
     bundle=convert_response(expression,period,method,count,support);response=bundle['signals'][0]
     delay=(length-1)//2;n=np.arange(-delay,delay+1)
-    impulse=_sum(response.values*response.step,response.axis,n,sign=1)/(2*np.pi)
+    impulse=_sum(response.values*response.step,_frequency_centers(response.values.size),n,sign=1)/(2*np.pi)
     # Exact Hermitian samples imply a real inverse; discard only quadrature roundoff.
     if np.array_equal(response.values,response.values[::-1].conj()):impulse=impulse.real
     weights=get_window(('kaiser',beta) if window=='kaiser' else window,length,fftbins=False)

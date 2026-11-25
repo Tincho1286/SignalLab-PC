@@ -349,6 +349,16 @@ class ClassicalFilterContracts(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'R y C'):
             rc('lowpass',1,np.inf)
 
+    def test_rc_cannot_silently_become_a_static_or_lower_order_filter(self):
+        for r,c,stages,message in [
+            (1e-200,1e-200,1,'constante RC'), (1e200,1e200,1,'constante RC'),
+            (1e-160,1,3,'pierden el orden'),
+        ]:
+            with self.subTest(r=r,c=c,stages=stages), self.assertRaisesRegex(ValueError,message):
+                rc('lowpass',r,c,stages)
+        small=rc('lowpass',1e-160,1)
+        np.testing.assert_allclose(small.response([0,1e160]),[1.,.5-.5j],atol=1e-13)
+
     def test_biquad_pass_at_dc_nyquist_and_center_follows_normalization(self):
         w0=2*np.pi*.19
         for kind,frequency,gain in [('lowpass',0,1),('highpass',np.pi,1),

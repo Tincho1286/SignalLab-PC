@@ -108,11 +108,11 @@ class DesktopSessionFixture(unittest.TestCase):
         QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
         self.app.processEvents()
 
-    def wait_for_calculation(self, window):
+    def wait_for_calculation(self, window, timeout_ms=5000):
         from PySide6.QtCore import QDeadlineTimer
         from PySide6.QtTest import QTest
 
-        timeout = QDeadlineTimer(5000)
+        timeout = QDeadlineTimer(timeout_ms)
         while window._workers and not timeout.hasExpired():
             QTest.qWait(15)
         self.assertFalse(window._workers)

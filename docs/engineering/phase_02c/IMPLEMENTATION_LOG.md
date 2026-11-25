@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-04 y C-07 · Conversiones y ejemplos de la biblioteca
+
+**Causas y cambios.** Cargar un ejemplo de Z directa podía conservar la vista de secuencia finita o los límites de un ejercicio anterior. El ejemplo restablece la definición algebraica y su soporte. La inversa restablece la ROC y el intervalo de muestras de la ficha. La conversión ideal usa centros de frecuencia exactamente opuestos en el cálculo y la inversión. Conserva los coeficientes reales para una respuesta hermítica y mantiene la parte imaginaria cuando la especifica la fórmula. Un RC cuya constante deja de ser representable, o cuya cascada reduce el orden por subdesbordamiento, se rechaza antes de devolver una transferencia incorrecta.
+
+**Evidencia focal.** El recorrido Z finita → inversa → CAS verifica los índices exactos y las muestras complejas publicadas. Un caso bilateral selecciona una región abierta, calcula la secuencia exacta y usa la misma ROC en análisis en frecuencia. Se ejecutaron también 34 pruebas de LTI y filtros y 22 de estudios de filtros e importación numérica.
+
 ## 25 de noviembre de 2026 · C-04, C-06 y C-07 · Derivación en frecuencia y borradores
 
 **Retardo de grupo.** La fórmula de `exp(-2*i*w)*sin(w)/w` conserva el valor 1 en ω = 0 mediante un tramo aislado. La derivación por tramos usaba la constante de ese punto y mostraba 0 muestras. El motor calcula ahora el límite bilateral del cociente incremental para un punto aislado identificado de forma exacta. Si la asignación difiere del límite, el retardo se marca como no definido. El gráfico y la lectura directa comparten la derivación. Se contrastaron el valor de 2 muestras, las uniones periódicas y los puntos con discontinuidad intencional.

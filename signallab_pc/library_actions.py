@@ -12,9 +12,19 @@ def apply_example(window,example):
     elif operation=='difference_equation':
         panel.coefficients.setText(', '.join(request['coefficients']));panel.rest.setChecked(request.get('rest',True));panel.initial.setText(', '.join(request.get('initial',[])));panel.start.setText(str(request.get('start',0)));panel.count.setText(str(request.get('count',24)))
     elif route[1]=='transform_lab':
-        panel.mode.setCurrentIndex(1 if operation in ('z_inverse_expression','inverse_laplace') else 0)
+        inverse=operation in ('z_inverse_expression','inverse_laplace')
+        panel.mode.setCurrentIndex(int(inverse))
         if route[2]=='laplace':panel.load_laplace_context(request)
+        elif inverse:
+            panel.roc.setCurrentIndex({'right':0,'left':1,'radius':2}[request.get('roc','right')])
+            panel.radius.setText(str(request.get('radius',1)))
+            panel.include_samples.setChecked(request.get('include_samples',False))
+            panel.sample_scope.setCurrentIndex(int(request.get('complete_finite',False)))
+            panel.start.setText(str(request.get('start',-16)))
+            panel.count.setText(str(request.get('count',65)))
         else:
-            panel.roc.setCurrentIndex({'right':0,'left':1,'radius':2}[request.get('roc','right')]);panel.include_samples.setChecked(request.get('include_samples',False))
+            panel.direct_input.setCurrentIndex(0)
+            panel.lower.setText(str(request.get('lower','0')))
+            panel.upper.setText(str(request.get('upper','oo')))
     panel.expression.setText(request['expression'])
     window.statusBar().showMessage('Datos del ejemplo cargados. Revisá las entradas y presioná Calcular.')

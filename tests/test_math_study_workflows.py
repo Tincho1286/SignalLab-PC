@@ -45,6 +45,24 @@ class FilterStudyContracts(unittest.TestCase):
             with self.subTest(message=message), self.assertRaisesRegex(ValueError,message):
                 course.window_fft(*args)
 
+    def test_windowed_ideal_conversion_uses_mirrored_frequencies_for_real_coefficients(self):
+        from signallab_pc.ideal_conversion import windowed_conversion
+
+        period=.1
+        for points in (63,64):
+            center=2*np.pi*(np.arange(points)+.5)/points-np.pi
+            reference=np.exp(-abs(2*np.tan(center/2)/period))
+            n=np.arange(-8,9)
+            expected=(np.exp(1j*np.outer(n,center))@reference/points)*np.hanning(17)
+            with self.subTest(points=points):
+                result=windowed_conversion('exp(-abs(w))',period,'bilinear',points,None,17.,'hann')
+                system,=result['systems']
+                self.assertFalse(np.any(system.b.imag))
+                np.testing.assert_allclose(system.b,expected,atol=1e-14)
+                complex_result=windowed_conversion('exp(-abs(w))+1e-12*i',period,
+                                                   'bilinear',points,None,17,'hann')
+                self.assertAlmostEqual(complex_result['systems'][0].b[8].imag/1e-12,1.,places=5)
+
     def test_fft_and_dtft_retain_index_phase_beyond_exact_float_integers(self):
         from signallab_pc.model import Signal
 
