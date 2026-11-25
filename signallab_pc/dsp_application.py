@@ -1,6 +1,6 @@
 """Typed adapters for existing DSP motors; no presentation dependencies."""
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from math import gcd
 
 import numpy as np
@@ -8,7 +8,7 @@ import numpy as np
 from . import filters, fourier, operations, sampling
 from .execution import ExecutionContext
 from .model import Signal
-from .operation_provenance import content_digest, scientific_metadata, settings_digest, verify_inputs
+from .operation_provenance import content_digest, encoded_digest, scientific_metadata, verify_inputs
 from .project import Project
 
 
@@ -91,7 +91,9 @@ def design_fir(request: FIRDesignRequest, execution: ExecutionContext | None = N
                             float(request.f2) if request.kind in ('bandpass','bandstop') else None,
                             request.window, float(request.beta), model.sample_period_s)
     ctx.checkpoint(100)
-    return FIRDesignResult(model, spec, (content_digest(model, ctx.checkpoint), settings_digest(asdict(spec))))
+    definition = scientific_metadata('fir_design', spec)
+    return FIRDesignResult(model, spec, (content_digest(model, ctx.checkpoint),
+                                         encoded_digest('calculation', definition, ctx.checkpoint)))
 
 
 @dataclass(frozen=True, slots=True)
@@ -297,10 +299,11 @@ def store_fir_design(project: Project, design: FIRDesignResult, *, execution=Non
     ctx = execution or ExecutionContext()
     ctx.checkpoint()
     proof = design._verification
-    if proof is None or proof[1] != settings_digest(asdict(design.specification)):
+    if proof is None:
         raise ValueError('El diseño FIR carece de procedencia válida. Volvé a calcular.')
     with project.stage_records(before_commit=ctx.checkpoint) as staged:
-        model = staged.add(design.transfer, operation='Diseño FIR', verification=(proof[0], (), ctx.checkpoint))
-        spec = staged.add(scientific_metadata('fir_design', design.specification),
-                          operation='Especificación FIR', parents=(model,))
+        model_digest, spec_digest = proof
+        model = staged.add(design.transfer, operation='Diseño FIR', verification=(model_digest, (), ctx.checkpoint))
+        spec = staged.add(scientific_metadata('fir_design', design.specification), operation='Especificación FIR',
+                          parents=(model,), verification=(spec_digest, (model_digest,), ctx.checkpoint))
     return model, spec

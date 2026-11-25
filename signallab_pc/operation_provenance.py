@@ -61,6 +61,9 @@ def content_digest(value, checkpoint):
 
 
 def encoded_digest(kind, data, checkpoint):
+    if kind == 'calculation':
+        checkpoint()
+        return settings_digest([kind, data])
     if kind not in _FIELDS:
         raise ValueError('El registro de procedencia debe ser una señal o un sistema.')
     return _content(kind, data, checkpoint, encoded=True)

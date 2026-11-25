@@ -1,5 +1,6 @@
 import hashlib
 from pathlib import Path
+import json
 import struct
 from tempfile import TemporaryDirectory
 from threading import Event
@@ -70,3 +71,48 @@ class ScientificStorageTests(unittest.TestCase):
             path.write_bytes(unsigned + hashlib.sha256(unsigned).digest())
             with self.assertRaisesRegex(ValueError, 'claves repetidas'):
                 load_binary_signal(path)
+
+    def test_header_schema_and_truncation_fail_before_sample_materialization(self):
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / 'record.slbin'
+            save_binary_signal(Signal([1, 2]), path)
+            raw = path.read_bytes()
+            header_end = 12 + struct.unpack_from('<I', raw, 8)[0]
+            header = json.loads(raw[12:header_end])
+            self.assertEqual(header['count'], 2)
+            cases = (({**header, 'count': 0}, 'Cantidad'),
+                     ({**header, 'metadata': []}, 'tipos'),
+                     ({**header, 'origin': float('inf')}, 'Constante'),
+                     ({**header, 'unexpected': 3}, 'Esquema'))
+            with patch('signallab_pc.scientific_storage.np.empty') as allocate:
+                for fields, diagnostic in cases:
+                    with self.subTest(diagnostic=diagnostic):
+                        encoded = json.dumps(fields).encode()
+                        unsigned = raw[:8] + struct.pack('<I', len(encoded)) + encoded + raw[header_end:-32]
+                        path.write_bytes(unsigned + hashlib.sha256(unsigned).digest())
+                        with self.assertRaisesRegex(ValueError, diagnostic):
+                            load_binary_signal(path)
+                path.write_bytes(raw[:header_end-1])
+                with self.assertRaisesRegex(ValueError, 'incompleta'):
+                    load_binary_signal(path)
+                allocate.assert_not_called()
+
+    def test_cancelled_read_exits_between_payload_blocks(self):
+        from signallab_pc import jobs
+
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / 'record.slbin'
+            save_binary_signal(Signal([1] * 70000), path)
+            event = Event()
+            calls = 0
+
+            def interrupt(_):
+                nonlocal calls
+                calls += 1
+                if calls == 4:
+                    event.set()
+
+            with jobs.observe(interrupt), self.assertRaises(OperationCancelled):
+                load_binary_signal(path, ExecutionContext(cancel=event))
+            self.assertEqual(calls, 4)
+            self.assertEqual(load_binary_signal(path).values.size, 70000)

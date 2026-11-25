@@ -6,4 +6,6 @@ Un identificador de proyecto puede existir y referirse a otra señal del mismo l
 
 La recarga de un filtro puede renormalizar un denominador legado con a₀ apenas distinto de uno o con un cero imaginario con signo. La verificación de registros históricos recupera primero la representación utilizada por el motor. En los modelos nuevos el primer coeficiente normalizado se representa exactamente como uno.
 
+La especificación de diseño FIR verifica su contenido y el modelo generado al guardar y al reabrir la sesión.
+
 El mecanismo detecta cambios de contenido y asociaciones incompatibles. La API requiere que el consumidor mantenga estables los buffers durante la ejecución y los hashes no autentican la autoría del archivo.

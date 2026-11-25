@@ -64,3 +64,32 @@ class CoreCLITests(unittest.TestCase):
                 self.assertIn(fragment, result.stderr)
                 self.assertEqual(source.read_bytes(), original)
                 self.assertEqual(output.read_bytes(), b'previous session')
+
+    def test_cli_rejects_mismatched_record_arguments_and_nonsignal_records(self):
+        from contextlib import redirect_stderr
+        from io import StringIO
+        from signallab_pc.dft_cli import main
+        from signallab_pc.filters import Transfer
+        from signallab_pc.project import Project
+
+        with TemporaryDirectory() as directory:
+            folder = Path(directory)
+            project = Project()
+            record = project.add(Transfer([1], [1]))
+            source, target = folder / 'source.json', folder / 'target.json'
+            session.save(source, project, session.empty_workspace())
+            cases = [
+                (['--session', str(source)], '--record'),
+                (['--signal', str(source), '--record', record], '--session'),
+                (['--session', str(source), '--record', record, '--timeout', 'nan'], 'plazo positivo'),
+            ]
+            for options, fragment in cases:
+                with self.subTest(options=options), redirect_stderr(StringIO()) as error:
+                    with self.assertRaises(SystemExit) as result:
+                        main([*options, '--output', str(target)])
+                    self.assertEqual(result.exception.code, 2)
+                    self.assertIn(fragment, error.getvalue())
+            with redirect_stderr(StringIO()) as error:
+                self.assertEqual(main(['--session', str(source), '--record', record, '--output', str(target)]), 1)
+                self.assertIn('debe ser una señal', error.getvalue())
+            self.assertFalse(target.exists())

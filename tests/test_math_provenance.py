@@ -7,7 +7,7 @@ from numpy.testing import assert_array_equal
 
 from signallab_pc import session
 from signallab_pc.dft_application import DFTRequest, calculate_dft, store_dft
-from signallab_pc.dsp_application import FIRRequest, apply_fir, store_signal
+from signallab_pc.dsp_application import FIRDesignRequest, FIRRequest, apply_fir, design_fir, store_fir_design, store_signal
 from signallab_pc.dsp_pipeline import run_pipeline, store_pipeline
 from signallab_pc.execution import ExecutionContext
 from signallab_pc.filters import Transfer
@@ -122,3 +122,18 @@ class VerifiedProvenanceTests(unittest.TestCase):
                 result_id = store_signal(restored, result, parents=(source_id, model_id))
                 reopened = Project.from_document(restored.document())
                 assert_array_equal(reopened.get(result_id).values, result.values)
+
+    def test_fir_design_preserves_its_specification_at_commit_and_reopen(self):
+        design = design_fir(FIRDesignRequest('lowpass', 7, .25))
+        project = Project()
+        crafted = replace(design, specification=replace(design.specification, f1=.2))
+        with self.assertRaisesRegex(ValueError, 'cambió después'):
+            store_fir_design(project, crafted)
+        self.assertEqual(project.headers(), [])
+        model, spec = store_fir_design(project, design)
+        document = project.document()
+        self.assertEqual(Project.from_document(document).get(spec)['f1'], .25)
+        self.assertEqual(document['records'][1]['parents'], [model])
+        document['records'][1]['data']['f1'] = .2
+        with self.assertRaisesRegex(ValueError, 'cambió después'):
+            Project.from_document(document)

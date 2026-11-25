@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · Revisión de WP-02C.03 y WP-02C.06 · C03, C06 · C-03, C-07
+
+**Estado inicial.** `caf7bcd`. La comprobación del diseño FIR se aplicaba al modelo publicado. El objeto de especificaciones se contrastaba sólo durante la primera publicación. La línea base intermedia midió brechas en importación binaria y CLI.
+
+**Decisión y evidencia.** Se incorporó la huella de la especificación al registro de proyecto. Se probaron la sustitución de parámetros y la reapertura. También se ejercitaron cancelación entre bloques, cabecera incompleta, rechazo antes de reservar muestras y argumentos de sesión del CLI. Se mantienen la API experimental y el esquema de proyecto.
+
 ## 25 de noviembre de 2026 · Revisión de WP-02C.03 · C03 · C-03
 
 **Estado inicial y causa.** Una transferencia aceptada por el motor se podía volver a normalizar al abrirla. Se reprodujo con un FIR de coeficiente a₀ = −90,1 + 33,2j. La huella del registro y la del objeto diferían en el cero con signo.
