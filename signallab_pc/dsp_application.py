@@ -30,8 +30,8 @@ def calculate_idft(request: IDFTRequest, execution: ExecutionContext | None = No
     ctx = execution or ExecutionContext()
     ctx.checkpoint(0)
     source = request.spectrum
-    ctx.require(int(source.values.size) * operations.DFT_WORK_BYTES_PER_BIN)
-    result = ctx.run(lambda: operations.idft(source, restore_origin=request.restore_origin))
+    result = ctx.run(lambda: operations.idft(source, restore_origin=request.restore_origin),
+                     work_bytes=int(source.values.size) * operations.DFT_WORK_BYTES_PER_BIN)
     provenance = source.metadata.get('dft_provenance')
     if isinstance(provenance, dict) and isinstance(units := provenance.get('input_units'), str) and units:
         result.units = units
@@ -65,9 +65,8 @@ def design_fir(request: FIRDesignRequest, execution: ExecutionContext | None = N
     ctx = execution or ExecutionContext()
     ctx.checkpoint(0)
     taps = filters.positive_integer(request.taps, 'Cantidad de coeficientes')
-    ctx.require(taps * 112)
     model = ctx.run(lambda: filters.fir(request.kind, taps, request.f1, request.f2,
-                                        request.window, request.beta))
+                                        request.window, request.beta),work_bytes=taps * 112)
     if request.sample_period_s is not None:
         model = filters.Transfer(model.b, model.a, name=model.name, roc=model.roc,
                                  sample_period_s=request.sample_period_s)
@@ -93,14 +92,12 @@ class FIRParameters:
     input_length: int
 
 
-def _fir_count(request):
-    model = request.transfer
+def fir_output_count(model, mode, n):
     if not is_causal_fir(model):
         raise ValueError('La aplicación FIR requiere un filtro digital causal en coeficientes.')
-    if request.mode not in {'same', 'full'}:
+    if mode not in {'same', 'full'}:
         raise ValueError('El modo FIR debe ser same o full.')
-    n = int(request.signal.values.size)
-    return n if request.mode == 'same' else n + len(model.b) - 1
+    return n if mode == 'same' else n + len(model.b) - 1
 
 
 def is_causal_fir(transfer):
@@ -112,18 +109,20 @@ def apply_fir(request: FIRRequest, execution: ExecutionContext | None = None) ->
     ctx = execution or ExecutionContext()
     ctx.checkpoint(0)
     source = request.signal
-    count = _fir_count(request)
-    ctx.require((count + len(request.transfer.b)) * 128)
+    count = fir_output_count(request.transfer, request.mode, int(source.values.size))
     from .signal_semantics import require_temporal
     require_temporal(source)
     if source.domain != 'discrete':
         raise ValueError('El filtro FIR requiere una secuencia discreta.')
     from .resources import ensure_working_set
     ensure_working_set(count + len(request.transfer.b), live_arrays=8)
-    working = source
-    if count != source.values.size:
-        working = source.copy_with(values=np.pad(source.values, (0, count - source.values.size)))
-    result = ctx.run(lambda: request.transfer.apply(working))
+    def filter_record():
+        working = source
+        if count != source.values.size:
+            working = source.copy_with(values=np.pad(source.values, (0, count - source.values.size)))
+        return request.transfer.apply(working)
+
+    result = ctx.run(filter_record,work_bytes=(count + len(request.transfer.b)) * 128)
     spec = FIRParameters(request.mode, len(request.transfer.b), source.origin, int(source.values.size))
     result.metadata['core_provenance'] = scientific_metadata('fir_apply', spec)
     if isinstance(units := source.metadata.get('amplitude_units'), str):
@@ -166,7 +165,7 @@ class ResampleResult:
     warning: str | None = None
 
 
-def _resample_size(request):
+def resample_size(request):
     up = sampling.positive_integer(request.up, 'L')
     down = sampling.positive_integer(request.down, 'M')
     width = sampling.positive_integer(request.half_width, 'Semilongitud por fase')
@@ -181,12 +180,11 @@ def _resample_size(request):
 def resample(request: ResampleRequest, execution: ExecutionContext | None = None) -> ResampleResult:
     ctx = execution or ExecutionContext()
     ctx.checkpoint(0)
-    up, down, width, _, estimate = _resample_size(request)
-    ctx.require(estimate)
+    up, down, width, _, estimate = resample_size(request)
     value = ctx.run(lambda: sampling.resample_rational(
         request.signal, up, down, rate=request.rate, start=request.start, half_width=width,
         beta=request.beta, boundary=request.boundary, override_clock=request.override_clock,
-        return_filter=request.return_filter))
+        return_filter=request.return_filter),work_bytes=estimate)
     result = ResampleResult(*value) if request.return_filter else ResampleResult(value)
     meta = result.signal.metadata
     spec = ResampleParameters(up, down, meta['input_rate_hz'], width, meta['kaiser_beta'],
@@ -236,10 +234,9 @@ def estimate_psd(request: PSDRequest, execution: ExecutionContext | None = None)
     if request.sidedness == 'one-sided' and (request.method == 'legacy' or np.any(source.values.imag)):
         raise ValueError('La PSD unilateral requiere una señal real y una normalización de densidad.')
     segment = sampling.positive_integer(request.segment, 'Longitud de segmento') if request.method == 'welch' else int(source.values.size)
-    ctx.require(segment * 256)
     result = ctx.run(lambda: fourier.spectral_density(
         source, rate, method=request.method, segment=segment, overlap=request.overlap,
-        window=request.window, beta=request.beta, remove_mean=request.remove_mean))
+        window=request.window, beta=request.beta, remove_mean=request.remove_mean),work_bytes=segment * 256)
     metadata = result.metadata
     if request.sidedness == 'one-sided':
         bins = np.fft.ifftshift(result.values).real[:segment//2 + 1].copy()

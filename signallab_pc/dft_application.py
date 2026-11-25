@@ -48,9 +48,9 @@ def calculate_dft(request: DFTRequest, execution: DFTExecution | None = None) ->
         raise ValueError('El orden centrado debe ser un booleano.')
     length = operations.dft_length(request.signal, request.length)
     estimate = length * operations.DFT_WORK_BYTES_PER_BIN
-    execution.require(estimate)
     spectrum = execution.run(lambda: operations.dft(
-        request.signal, length, centered=request.centered, phase_reference=request.phase_reference))
+        request.signal, length, centered=request.centered, phase_reference=request.phase_reference),
+        work_bytes=estimate)
     clock = spectrum.metadata['input_clock']
     provenance = DFTProvenance(length, request.centered, request.phase_reference,
                                request.signal.units, spectrum.metadata['input_origin'],

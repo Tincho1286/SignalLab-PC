@@ -36,7 +36,7 @@ def save_binary_signal(signal: Signal, path, execution: ExecutionContext | None 
     prefix = _MAGIC + struct.pack('<I',len(encoded))
     payload = memoryview(np.asarray(signal.values,dtype=_DTYPE,order='C')).cast('B')
     digest = hashlib.sha256(prefix + encoded)
-    with atomic_binary_file(path,before_commit=ctx.checkpoint) as stream:
+    with ctx.reserve(32 * count), atomic_binary_file(path,before_commit=ctx.checkpoint) as stream:
         stream.write(prefix)
         stream.write(encoded)
         for offset in range(0, len(payload), _CHUNK):
@@ -89,22 +89,22 @@ def load_binary_signal(path, execution: ExecutionContext | None = None) -> Signa
                 or any(type(fields[name]) not in (int,float) for name in ('origin','step'))
                 or any(not isinstance(fields[name],str) for name in ('units','name','domain','expression'))):
             raise ValueError('Los tipos de los metadatos científicos no son válidos.')
-        ctx.require(64 * count)
         ensure_working_set(count,live_arrays=4)
-        samples = np.empty(count,dtype=_DTYPE)
-        payload = memoryview(samples).cast('B')
-        digest = hashlib.sha256(prefix + header)
-        for offset in range(0,len(payload),_CHUNK):
-            ctx.checkpoint()
-            block = payload[offset:offset+_CHUNK]
-            if stream.readinto(block) != len(block):
-                raise ValueError('Datos científicos incompletos.')
-            digest.update(block)
-        if not hmac.compare_digest(stream.read(32),digest.digest()) or stream.read(1):
-            raise ValueError('Falló la integridad del archivo científico.')
-    try:
-        signal = Signal(samples,**fields)
-    except (OverflowError,TypeError) as error:
-        raise ValueError('Coordenadas científicas inválidas.') from error
+        with ctx.reserve(64 * count):
+            samples = np.empty(count,dtype=_DTYPE)
+            payload = memoryview(samples).cast('B')
+            digest = hashlib.sha256(prefix + header)
+            for offset in range(0,len(payload),_CHUNK):
+                ctx.checkpoint()
+                block = payload[offset:offset+_CHUNK]
+                if stream.readinto(block) != len(block):
+                    raise ValueError('Datos científicos incompletos.')
+                digest.update(block)
+            if not hmac.compare_digest(stream.read(32),digest.digest()) or stream.read(1):
+                raise ValueError('Falló la integridad del archivo científico.')
+            try:
+                signal = Signal(samples,**fields)
+            except (OverflowError,TypeError) as error:
+                raise ValueError('Coordenadas científicas inválidas.') from error
     ctx.checkpoint()
     return signal

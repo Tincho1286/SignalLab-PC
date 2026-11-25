@@ -1,6 +1,6 @@
 # ADR 003 · Almacenamiento experimental para señales
 
-**Estado** implementado, en validación. **Contexto.** La fase piloto mostró que codificar muestras como listas JSON domina el guardado. La misma ruta de sesión se volvió a medir.
+**Estado** implementado. La comparación se verificó en Windows y Linux. **Contexto.** La fase piloto mostró que codificar muestras como listas JSON domina el guardado. La misma ruta de sesión se volvió a medir.
 
 **Requisitos.** Compatibilidad con JSON histórico, archivos autocontenidos e integridad y límites verificables. Se evaluaron JSON, NPY, NPZ, HDF5, SigMF y un híbrido.
 

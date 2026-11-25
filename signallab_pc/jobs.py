@@ -20,7 +20,11 @@ def clear():
 @contextmanager
 def observe(callback):
     previous = getattr(_context, 'observer', None)
-    _context.observer = callback
+    def notify(fraction):
+        if previous is not None:
+            previous(fraction)
+        callback(fraction)
+    _context.observer = notify
     try:
         yield
     finally:

@@ -1,5 +1,9 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02B.05
+
+Tras `faa190b` se inspeccionaron execution, jobs, reservas existentes, el flujo y el reemplazo atómico. Se eligió un pool optativo con admisión inmediata. La estimación del flujo suma entrada, resultados retenidos y pico temporal. Se probaron dos hilos, liberación tras fallo, plazos anidados, cancelación dentro de Welch, rechazo de presupuesto y reemplazo fallido. Pasaron cinco casos nuevos y tres del flujo. La corrida de almacenamiento terminó con 48 casos exactos por plataforma, por lo que CORE-04 quedó verificado. Permanece una política cooperativa, sin cuota impuesta por el sistema. Commit `phase02b(wp05): enforce cooperative resource admission`. Sigue consolidar API y ejemplos.
+
 ## 25 de noviembre de 2026 · WP-02B.04
 
 Desde `9c1366b` se contrastó JSON, NPY, NPZ, HDF5, SigMF y un híbrido. Se agregó el script y se registraron las 48 medidas locales de Windows antes de seleccionar el híbrido. El primer workflow fue rechazado por un valor YAML con dos puntos en un comando de pip. Se corrigió en `6997142`. Tres controles del lector experimental y la regresión de escritura de sesión pasaron en Windows. La verificación de mediciones en runners de ambos sistemas quedó en curso en la corrida `45636393425`. El backend es opcional y los 10 millones de muestras exceden el tope de ensayo. Commit `phase02b(wp04): add optional scientific signal storage`. Continúa la política de recursos mientras finaliza esa verificación externa.
