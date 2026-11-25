@@ -328,10 +328,11 @@ class CourseToolsPanel(QWidget):
                 source=self.source.read();parents=[self.source.reference_id] if self.source.reference_id else []
             ideal_conversion=action=='convert' and self.fields['definition'].currentData()=='response'
             reconstructing=action=='phase' and self.fields['phase_mode'].currentData()=='reconstruct'
-            if hasattr(self,'b') and not ideal_conversion and not reconstructing:
+            has_local_system = hasattr(self, 'b') and not ideal_conversion and not reconstructing
+            if has_local_system:
                 from .transfer_input import read_system
                 system=read_system(self,allow_advance=action in ('inverse_z','gain','convert'))
-                parents=[self.window.publish(system,operation='Definición local de '+TITLES[action],parents=[self.parent_id] if self.parent_id else [])]
+                parents = [self.parent_id] if self.parent_id else []
             if action=='fft':
                 args=(source,self.integer('length') or source.values.size,self.integer('nfft'),self.fields['window'].currentData(),self.scalar('beta') if self.fields['window'].currentData()=='kaiser' else 0,self.integer('points'));job=lambda:calc.window_fft(*args)
             elif action=='bandpass_sampling':
@@ -404,6 +405,9 @@ class CourseToolsPanel(QWidget):
                 imported_parents,imported_conditions=expression_context(self.ideal_expression);parents.extend(imported_parents)
             calculated_inputs=self.result_state.snapshot()
             def accept(result):
+                result_parents = parents
+                if has_local_system:
+                    result_parents = [self.window.publish(system, operation='Definición local de '+TITLES[action], parents=parents)]
                 self.view.show_content();self.view.actions.setVisible(bool(result['systems']+result['signals']) or action=='bandpass_sampling')
                 if not hasattr(self,'specification_status'):
                     self.specification_status=QLabel();self.specification_status.setWordWrap(True);self.tabs.parentWidget().layout().insertWidget(0,self.specification_status)
@@ -417,11 +421,11 @@ class CourseToolsPanel(QWidget):
                     comparison=result.get('fir_comparison');self.fir_comparison_view.set_result(comparison);self.tabs.setTabVisible(self.fir_comparison_index,comparison is not None)
                     if comparison is not None:self.specification_status.setText('Comparación: '+str(sum(row['met'] for row in comparison['rows']))+' de '+str(len(comparison['rows']))+' diseños dentro de tolerancias. Elegí una fila para trabajar con su filtro.')
                 self.items=result['systems']+result['signals'];self.records=[];self.specifications=result.get('specifications')
-                for value in self.items:self.records.append(self.window.publish(value,operation=TITLES[action],parents=parents))
-                self.window.publish({'report':result['report'],'specifications':self.specifications,'procedure':self.procedure,**({'fir_comparison':result['fir_comparison']} if result.get('fir_comparison') else {}),**({'input_conditions':imported_conditions} if ideal_conversion else {})},title=TITLES[action],operation='Informe de '+TITLES[action],parents=parents)
+                for value in self.items:self.records.append(self.window.publish(value,operation=TITLES[action],parents=result_parents))
+                self.window.publish({'report':result['report'],'specifications':self.specifications,'procedure':self.procedure,**({'fir_comparison':result['fir_comparison']} if result.get('fir_comparison') else {}),**({'input_conditions':imported_conditions} if ideal_conversion else {})},title=TITLES[action],operation='Informe de '+TITLES[action],parents=result_parents)
                 if result.get('exact_transfer'):
                     target=result['systems'][0];exact=result['exact_transfer']
-                    self.window.publish({'request':{'operation':'system_formula','expression':exact,'domain':target.domain},'result':{'operation':'system_formula','transfer':exact,'evaluated':True,'output_variable':'s' if target.domain=='analog' else 'z','sample_period_s':target.sample_period_s,'procedure':self.procedure,'scope':'Conversión racional exacta de los coeficientes almacenados; no fija una ROC.'}},title='H exacta de la conversión',operation='Conversión bilineal algebraica',parents=parents)
+                    self.window.publish({'request':{'operation':'system_formula','expression':exact,'domain':target.domain},'result':{'operation':'system_formula','transfer':exact,'evaluated':True,'output_variable':'s' if target.domain=='analog' else 'z','sample_period_s':target.sample_period_s,'procedure':self.procedure,'scope':'Conversión racional exacta de los coeficientes almacenados; no fija una ROC.'}},title='H exacta de la conversión',operation='Conversión bilineal algebraica',parents=result_parents)
                 if action=='phase':
                     self.phase_adjustment=result.get('phase_adjustment');self.phase_input=system;self.phase_report=result['report'];self._phase_report_value=None;self.compensation_data=result.get('compensation');self.reconstruction_data=result.get('reconstruction')
                     self.compensation_export.setText('Exportar reconstrucción CSV…' if self.reconstruction_data is not None else 'Exportar comparación CSV…');self.compensation_export.setVisible(self.compensation_data is not None or self.reconstruction_data is not None)

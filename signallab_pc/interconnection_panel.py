@@ -82,15 +82,18 @@ class InterconnectionPanel(QWidget):
         self.window.send_system(self.result,self.result_id,destination)
     def calculate(self):
         try:
-            domain='digital' if self.domain.currentIndex()==1 else 'analog';index=self.connection.currentIndex()
+            index=self.connection.currentIndex()
             systems=[]
             from .transfer_input import read_system
             for i,editor in enumerate(self.definitions):systems.append(read_system(editor,name='H'+str(i+1),allow_advance=True))
             snapshot=self.result_state.snapshot()
-            keys=[self.window.publish(value,operation='Definición local de '+value.name,parents=[parent] if parent else []) for value,parent in zip(systems,self.parents)]
+            parents = tuple(self.parents)
             mode=['cascade','parallel','negative_feedback','positive_feedback'][index]
             relation=['H = H₁ · H₂','H = H₁ + H₂','H = H₁ / (1 + H₁H₂)','H = H₁ / (1 − H₁H₂)'][index]
             def accept(value):
+                keys = [self.window.publish(system, operation='Definición local de '+system.name,
+                                            parents=[parent] if parent else [])
+                        for system, parent in zip(systems, parents)]
                 self.result=value;self.result_id=self.window.publish(value,operation=value.name,parents=keys)
                 for editor,coefficients in [(self.output_b,value.b),(self.output_a,value.a)]:editor.set_domain(value.domain=='digital');editor.setText(list_text(coefficients))
                 self.equivalent.schedule();self.equivalent.setVisible(not value.advance);self.status.setText(value.name+' · Sistema equivalente calculado')

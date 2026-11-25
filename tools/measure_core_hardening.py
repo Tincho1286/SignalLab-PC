@@ -1,6 +1,7 @@
 """Measure Core workloads without including application startup in operation times."""
 
 import argparse
+from hashlib import file_digest
 import json
 import os
 from pathlib import Path
@@ -82,10 +83,10 @@ def workload(operation, size, directory):
         'publish': (lambda ctx: store_dft(Project(), result, source=source, execution=ctx), None),
         'session_save': (lambda ctx: session.save(project_path, project, session.empty_workspace(),
                                                  checkpoint=ctx.checkpoint), None),
-        'session_load': (lambda ctx: session.load(project_path), None),
+        'session_load': (lambda ctx: session.load(project_path, checkpoint=ctx.checkpoint), None),
         'archive_save': (lambda ctx: session.save(archive_path, project, session.empty_workspace(),
                                                  checkpoint=ctx.checkpoint), 16 * 2 * size),
-        'archive_load': (lambda ctx: session.load(archive_path), 16 * 2 * size * 3),
+        'archive_load': (lambda ctx: session.load(archive_path, checkpoint=ctx.checkpoint), 16 * 2 * size * 3),
         'slbin_write': (lambda ctx: save_binary_signal(source, signal_path, ctx), 32 * size),
         'slbin_read': (lambda ctx: load_binary_signal(signal_path, ctx), 64 * size),
         'json_write': (lambda ctx: write_json(flat_path, flat, checkpoint=ctx.checkpoint), None),
@@ -134,7 +135,14 @@ def timed_cancellation(operation, size):
     with TemporaryDirectory(prefix='signallab-cancel-') as folder:
         directory = Path(folder)
         task, _, _ = workload(operation, size, directory)
-        files = {file.name: file.read_bytes() for file in directory.iterdir()}
+        def digests():
+            files = {}
+            for path in directory.iterdir():
+                with path.open('rb') as stream:
+                    files[path.name] = file_digest(stream, 'sha256').hexdigest()
+            return files
+
+        files = digests()
         event, triggered = Event(), []
         def request_stop():
             triggered.append(perf_counter())
@@ -158,7 +166,7 @@ def timed_cancellation(operation, size):
                 task(ExecutionContext(cancel=event))
         except OperationCancelled:
             elapsed = perf_counter() - triggered[0]
-            assert {file.name: file.read_bytes() for file in directory.iterdir()} == files
+            assert digests() == files
             return dict(operation=operation, samples=size, status='cancelled',
                         trigger_after_seconds=triggered[0] - starts[0],
                         latency_seconds=elapsed, files_preserved=True)
@@ -208,7 +216,9 @@ def main():
     rows = [isolate(op, size) for op, lengths in operations.items() for size in lengths]
     numerical = ('dft', 'idft', 'fir', 'resample', 'psd', 'pipeline', 'slbin_write', 'archive_save')
     cancelled = [isolate(op, f'cancel:{size}') for size in (262144, 1048576) for op in numerical]
-    cancelled.append(isolate('json_write', 'cancel:262144'))
+    cancelled.extend(isolate(op, 'cancel:262144') for op in
+                     ('json_write', 'session_load', 'archive_load', 'mat_classic', 'mat_hdf5'))
+    cancelled.append(isolate('slbin_read', 'cancel:1048576'))
     symbolic = cancellation()
     report = dict(commit=revision, clean_checkout=clean and git('rev-parse', 'HEAD') == revision
                   and not git('status', '--porcelain'),

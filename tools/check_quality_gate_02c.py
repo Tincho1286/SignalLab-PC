@@ -15,6 +15,10 @@ COMPONENTS = {
     'cli_session.py': (90, 85), 'operation_provenance.py': (None, 85), 'project.py': (None, 85),
 }
 PLATFORMS = {'windows-2022': 'Windows', 'ubuntu-22.04': 'Linux'}
+CANCELLATION_OPERATIONS = {
+    'dft', 'idft', 'fir', 'resample', 'psd', 'pipeline', 'slbin_write', 'archive_save',
+    'json_write', 'session_load', 'archive_load', 'mat_classic', 'mat_hdf5', 'slbin_read',
+}
 
 
 def read(folders, filename):
@@ -70,6 +74,10 @@ def evidence(folder, revision, platform):
     declared = {(row['name'], row['hashes'][0]['content']) for row in sbom.get('components', [])}
     stages = baseline.get('stages', {})
     executable = portable.get('executable_check', {})
+    cancellations = performance.get('cancellation', [])
+    cancellation_states = [row.get('status') == 'completed_before_acknowledgement'
+                           or row.get('status') == 'cancelled' and row.get('files_preserved') is True
+                           for row in cancellations]
     gaps = [
         dict(file=path.replace('\\', '/'), lines=row['summary']['missing_lines'],
              branches=row['summary']['num_branches']-row['summary']['covered_branches'])
@@ -89,8 +97,11 @@ def evidence(folder, revision, platform):
             'coverage_matches': verdict(coverage, coverage_matches),
             'performance': verdict(performance, performance.get('commit') == revision
                                    and performance.get('clean_checkout') is True
-                                   and len(performance.get('measurements', [])) >= 67
-                                   and bool(performance.get('cancellation'))),
+                                   and len(performance.get('measurements', [])) >= 71),
+            'cancellation_profiles': verdict(performance, len(cancellations) >= 22
+                                             and {row.get('operation') for row in cancellations} >= CANCELLATION_OPERATIONS
+                                             and all(cancellation_states)
+                                             and bool(performance.get('symbolic_cancellation'))),
             'campaign': verdict(campaign, campaign.get('commit') == revision
                                 and campaign.get('clean_checkout') is True
                                 and campaign.get('integrity_verified') is True

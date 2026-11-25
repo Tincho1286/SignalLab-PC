@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from tools.check_quality_gate_02c import evidence, within_threshold
+from tools.check_quality_gate_02c import CANCELLATION_OPERATIONS, evidence, within_threshold
 
 
 class QualityGateTests(unittest.TestCase):
@@ -31,3 +31,25 @@ class QualityGateTests(unittest.TestCase):
         self.assertEqual(measured['lines']['additional_required'], 1)
         self.assertEqual(measured['branches']['state'], 'pass')
         self.assertEqual(within_threshold(dict(row, covered_lines=20002), 85, None)['lines']['state'], 'fail')
+
+    def test_cancellation_evidence_rejects_a_changed_output_and_missing_operation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            folder = Path(directory)
+            report = folder/'core-performance.json'
+            cases = [dict(operation=name, status='cancelled', files_preserved=True)
+                     for name in sorted(CANCELLATION_OPERATIONS)]
+            cases += [dict(row, samples=1048576) for row in cases[:8]]
+
+            def verdict():
+                report.write_text(json.dumps({'cancellation': cases, 'symbolic_cancellation': {'ms': 50}}),
+                                  encoding='utf-8')
+                return evidence([folder], 'target', 'Windows')['checks']['cancellation_profiles']
+
+            self.assertEqual(verdict(), 'pass')
+            cases[0]['files_preserved'] = False
+            self.assertEqual(verdict(), 'fail')
+            cases[0]['files_preserved'] = True
+            for row in cases:
+                if row['operation'] == 'mat_hdf5':
+                    row['operation'] = 'mat_classic'
+            self.assertEqual(verdict(), 'fail')

@@ -559,6 +559,56 @@ class DesktopSessionTests(unittest.TestCase):
         self.assertFalse(window.project.dirty)
         self.assertEqual(session.load(path)[0].get(record).values[0], 3)
 
+    def test_recovery_created_by_another_instance_is_offered_and_discarded_explicitly(self):
+        window = self.window()
+        window.show()
+        path = window.sessions.path
+        backup = Project()
+        key = backup.add(Signal([8]))
+        session.save(path, backup, session.empty_workspace())
+        route = ROUTES['basic', 'generate']
+        window.open_tool(route)
+        window.pages[route].first.expression.setText('2*n')
+        window.sessions.autosave()
+        self.assertTrue(window.sessions.protected)
+        self.assertIsNone(window.sessions.writing)
+        self.assertEqual(session.load(path)[0].get(key).values[0], 8)
+
+        self.question.return_value = QMessageBox.StandardButton.Discard
+        window.sessions.offer_recovery()
+        self.assertFalse(path.exists())
+        self.assertFalse(window.sessions.protected)
+        window.sessions.autosave()
+        self.wait_for_recovery(window)
+        self.assertIn(b'2*n', path.read_bytes())
+
+    def test_failed_checkpoint_cleanup_releases_lock_and_preserves_recoverable_data(self):
+        window = self.window()
+        window.show()
+        key = window.publish(Signal([6]), operation='Dato recuperable')
+        window.sessions.autosave()
+        self.wait_for_recovery(window)
+        path = window.sessions.path
+        original = path.read_bytes()
+        unlink = Path.unlink
+
+        def blocked_unlink(target, *args, **kwargs):
+            if target == path:
+                raise PermissionError('Acceso denegado al punto de recuperación.')
+            return unlink(target, *args, **kwargs)
+
+        with patch.object(Path, 'unlink', blocked_unlink):
+            self.assertTrue(window.close())
+        self.assertFalse(window.sessions.lock.isLocked())
+        self.assertEqual(path.read_bytes(), original)
+        self.assertIn('sigue disponible', self.warning.call_args.args[2])
+
+        reopened = self.window()
+        self.question.return_value = QMessageBox.StandardButton.Yes
+        reopened.sessions.offer_recovery()
+        self.assertEqual(reopened.project.get(key).values[0], 6)
+        self.question.return_value = QMessageBox.StandardButton.Discard
+
     def test_cas_session_reopens_exact_bindings_published_parents_and_draft_without_evaluation(self):
         from signallab_pc.cas_reference import CAS_ROUTE
         from signallab_pc.cas_engine import restore as decode
@@ -957,6 +1007,75 @@ class DesktopSessionTests(unittest.TestCase):
         normalized = next(item for item in gain.items if isinstance(item, Transfer))
         np.testing.assert_allclose(normalized.response(omega), 2*oracle, atol=1e-14)
         self.assertEqual(normalized.sample_period_s, .125)
+
+    def test_gain_rejects_normalization_at_a_zero_without_publishing_its_input(self):
+        window = self.window()
+        route = ROUTES['course_tools', 'gain']
+        window.open_tool(route)
+        panel = window.pages[route].panel
+        panel.domain.setCurrentIndex(1)
+        panel.b.setText('1, -1')
+        panel.a.setText('1')
+        panel.fields['target'].setText('2')
+        panel.fields['omega'].setText('0')
+        with patch.object(window, 'present_input_failure', wraps=window.present_input_failure) as failure:
+            panel.calculate()
+            self.wait_for_calculation(window)
+            self.assertIn('cero', failure.call_args.args[1])
+        self.assertEqual(window.project.headers(), [])
+
+        panel.fields['omega'].setText('pi')
+        panel.calculate()
+        self.wait_for_calculation(window)
+        source, normalized = window.project.headers('system')
+        self.assertEqual(normalized['parents'], [source['id']])
+        result = window.project.get(normalized['id'])
+        np.testing.assert_allclose(result.response([0., np.pi]), [0., 2.], atol=1e-14)
+
+    def test_singular_or_cancelled_interconnection_leaves_no_partially_published_blocks(self):
+        from threading import Event
+        from signallab_pc.control import interconnect
+
+        window = self.window()
+        route = ROUTES['interconnection', 0]
+        window.open_tool(route)
+        panel = window.pages[route].panel
+        for b, a in panel.inputs:
+            b.setText('1')
+            a.setText('1')
+        panel.connection.setCurrentIndex(3)
+        with patch.object(window, 'present_input_failure', wraps=window.present_input_failure) as failure:
+            panel.calculate()
+            self.wait_for_calculation(window)
+            self.assertIn('denominador cero', failure.call_args.args[1])
+        self.assertEqual(window.project.headers(), [])
+
+        panel.connection.setCurrentIndex(2)
+        started, release = Event(), Event()
+
+        def delayed(*args):
+            started.set()
+            if not release.wait(5):
+                raise TimeoutError('El test no liberó el cálculo.')
+            return interconnect(*args)
+
+        with patch('signallab_pc.interconnection_panel.interconnect', side_effect=delayed):
+            panel.calculate()
+            try:
+                self.assertTrue(started.wait(2))
+                self.assertEqual(window.project.headers(), [])
+                window._cancel_operations()
+            finally:
+                release.set()
+            self.wait_for_calculation(window)
+        self.assertEqual(window.project.headers(), [])
+        self.assertIsNone(panel.result)
+
+        panel.calculate()
+        self.wait_for_calculation(window)
+        left, right, result = window.project.headers('system')
+        self.assertEqual(result['parents'], [left['id'], right['id']])
+        np.testing.assert_allclose(panel.result.response([0., 1.]), [.5, .5], atol=1e-14)
 
     def test_table_navigation_preserves_exact_integer_coordinates_and_copies_full_values(self):
         from unittest.mock import Mock
