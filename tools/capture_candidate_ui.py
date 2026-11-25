@@ -11,7 +11,7 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-PROFILES = ((640,420,1), (1366,768,1), (1366,768,1.25),
+PROFILES = ((640,420,1), (800,600,1), (1366,768,1), (1366,768,1.25),
             (1366,768,1.5), (1920,1080,1), (960,540,2), (1920,1080,2))
 
 

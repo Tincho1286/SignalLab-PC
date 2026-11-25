@@ -46,6 +46,8 @@ def workload(operation, size, directory):
     project_path = directory / 'session.json'
     archive_path = directory / 'project.slproj'
     flat_path = directory / 'data.json'
+    mat_path = directory / 'signal.mat'
+    matlab = None
     spectrum = dft(source) if operation == 'idft' else None
     project = Project()
     if operation.startswith(('session_', 'archive_')):
@@ -56,6 +58,16 @@ def workload(operation, size, directory):
         session.save(archive_path, project, session.empty_workspace())
     if operation == 'slbin_read':
         save_binary_signal(source, signal_path)
+    if operation in ('mat_classic', 'mat_hdf5'):
+        from signallab_pc.matlab_import import MatlabFile
+        if operation == 'mat_classic':
+            from scipy.io import savemat
+            savemat(mat_path, {'signal': source.values}, do_compression=True)
+        else:
+            import h5py
+            with h5py.File(mat_path, 'w') as handle:
+                handle.create_dataset('signal', data=source.values, compression='gzip')
+        matlab = lambda: MatlabFile(mat_path).load('signal')
     result = calculate_dft(DFTRequest(source)) if operation == 'publish' else None
     flat = source.values.real.tolist() if operation == 'json_write' else None
     pipeline = DSPPipelineRequest(conversion, model)
@@ -79,6 +91,8 @@ def workload(operation, size, directory):
         'json_write': (lambda ctx: write_json(flat_path, flat, checkpoint=ctx.checkpoint), None),
         'symbolic': (lambda ctx: run_request({'operation': 'z_expression', 'expression': 'exp(-n)',
                                             'lower': '0', 'upper': 'oo'}), None),
+        'mat_classic': (lambda ctx: ctx.run(matlab), None),
+        'mat_hdf5': (lambda ctx: ctx.run(matlab), None),
     }
     task, estimate = jobs[operation]
     return task, estimate, available_physical_memory()
@@ -183,6 +197,7 @@ def main():
         **dict.fromkeys(('dft', 'idft', 'fir', 'resample', 'psd', 'pipeline', 'slbin_read', 'slbin_write',
                          'archive_save', 'archive_load'), sizes),
         **dict.fromkeys(('publish', 'session_save', 'session_load', 'json_write'), sizes[:4]),
+        **dict.fromkeys(('mat_classic', 'mat_hdf5'), (65536, 262144)),
         'symbolic': (1,),
     }
     env = os.environ | {'OPENBLAS_NUM_THREADS': '1', 'OMP_NUM_THREADS': '1'}

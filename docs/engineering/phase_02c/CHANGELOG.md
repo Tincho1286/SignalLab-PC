@@ -23,3 +23,12 @@
 - WP01. Restringir entradas a datos locales y verificar formatos antes del decoder.
 
 - WP00. Línea base, inventario de deuda, revisión de excepciones y criterios de validación.
+
+## Continuidad autónoma 02C
+
+- Recuperación de sesiones en segundo plano con escritor exclusivo, cancelación y compatibilidad con los puntos JSON históricos.
+- Hoja CAS versionada con variables, funciones, supuestos, borrador y referencias verificadas a resultados.
+- SLBIN y SLPROJ comparten apertura de archivos regulares y validación de JSON finito. SLPROJ usa admisión compartida y mantiene la atomicidad al fallar o cancelar.
+- El editor de polos conserva la multiplicidad al devolver al eje real una raíz que se volvió compleja durante el arrastre.
+- Campaña sintética de 48 corridas, medición del event loop y Quality Gate de evidencia por SHA.
+- Actualización de NumPy y SciPy con trazabilidad de ruedas y avisos nativos.

@@ -21,3 +21,11 @@ El formato es opcional en Archivo → Sesiones → Guardar sesión completa. JSO
 ## Alcance de CAS
 
 Las sesiones conservan los resultados de CAS que se publicaron en Resultados. Hoja activa, variables y borradores pertenecen al escritorio actual. Quedan fuera de JSON y de `.slproj`. No se agregaron conversiones irreversibles ni reconstrucción de variables a partir de informes.
+
+## Ejecución del escenario de referencia
+
+`tools/measure_scientific_campaign.py --output work/distribution-audit/scientific-campaign.json` genera 48 proyectos independientes con seis registros cada uno. Construye y verifica un proyecto por vez. Cada corrida tiene una configuración y una semilla, enlaces entre los seis registros, eje, reloj y huella del archivo. Los hitos registran 1, 4, 8, 16, 32 y 48 corridas completas. Al cancelar durante la octava escritura se conserva el índice, se vuelven a verificar los siete proyectos previos y se reintenta la octava corrida. Los archivos temporales del banco se eliminan al terminar.
+
+El primer ensayo Windows completó los 288 registros y 75 497 472 muestras, ocupó 1 208 085 276 B y midió 150,8 MiB de RSS pico. La medición end-to-end fue 22,7 s. La reapertura y validación de cada carga forma parte de ese tiempo. La verificación posterior de los primeros siete tras la interrupción amplía el ensayo del candidato de CI.
+
+El autoguardado ahora escribe el contenedor binario en un escritor dedicado. Un ensayo Windows offscreen con dos registros de 262 144 muestras midió un mayor intervalo del temporizador de 29,27 ms con autoguardado y de 3 237,55 ms con escritura JSON síncrona. Se usa un temporizador de 10 ms. Para ese perfil, 100 ms permite detectar una pausa perceptible y es holgado frente al resultado local. En runners compartidos se registra la desviación con tres ensayos y se investiga junto con el perfil del host. [Integridad y contrato CAS](PERSISTENCE_INTEGRITY_REPORT.md)

@@ -79,14 +79,17 @@ def digest(path):
         return stream.read(32).hex()
 
 
-def verify_run(restored, run, expected):
+def verify_run(restored, run, expected=None):
     headers = restored.headers()
-    assert headers == expected
+    if expected is not None:
+        assert headers == expected
     assert len(headers) == RECORDS
     for ordinal, row in enumerate(headers):
         signal = restored.get(row['id'])
         assert signal.origin == -64 and signal.metadata['sample_rate_hz'] == 8192
         assert signal.metadata['time_start_s'] == -1/128
+        assert signal.metadata['configuration'] == run//3 and signal.metadata['seed'] == SEEDS[run%3]
+        assert signal.metadata['channel'] == ordinal
         assert row['parents'] == ([] if ordinal == 0 else [headers[ordinal-1]['id']])
         np.testing.assert_array_equal(signal.values, samples(run, ordinal))
 
@@ -110,10 +113,17 @@ def measure(folder, runs):
             latency = cancelled_write(path, project)
             retained = json.loads(previous)['runs'] if previous else []
             assert retained == reports
-            assert all(digest(folder/row['file']) == row['digest_sha256'] for row in retained)
+            for row in retained:
+                previous_path = folder/row['file']
+                assert digest(previous_path) == row['digest_sha256']
+                previous_project, workspace = load(previous_path)
+                assert workspace is None
+                verify_run(previous_project, row['run']-1)
+                del previous_project
             assert previous == (index_path.read_bytes() if index_path.is_file() else b'')
+            reports = retained
             interrupted = dict(run=run+1, previous_runs=len(retained), aborted_seconds=latency,
-                               partial_file=False, catalog_preserved=True, retried=True)
+                               partial_file=False, catalog_preserved=True, revalidated=True, retried=True)
         start = perf_counter()
         save(path, project)
         write_seconds = perf_counter() - start

@@ -2,6 +2,7 @@
 
 import argparse
 import json
+from math import ceil
 from pathlib import Path
 
 
@@ -32,8 +33,13 @@ def within_threshold(summary, lines, branches):
         if target is None:
             continue
         size, hit = summary.get(total, 0), summary.get(covered, 0)
-        checks[measured] = {'goal': target, 'covered': hit, 'total': size,
-                            'state': 'missing' if not size else 'pass' if 100*hit >= target*size else 'fail'}
+        valid = type(size) is int and type(hit) is int and 0 <= hit <= size
+        state = ('fail' if not valid else 'missing' if not size else
+                 'pass' if 100*hit >= target*size else 'fail')
+        checks[measured] = {
+            'goal': target, 'covered': hit, 'total': size, 'state': state,
+            'additional_required': max(0, ceil(target*size/100)-hit) if valid and size else None,
+        }
     return checks
 
 
@@ -44,6 +50,7 @@ def evidence(folder, revision, platform):
     coverage = read(folder, 'coverage.json') or {}
     performance = read(folder, 'core-performance.json') or {}
     campaign = read(folder, 'scientific-campaign.json') or {}
+    recovery = read(folder, 'recovery-responsiveness.json') or {}
     inventory = read(folder, 'native-inventory.json') or {}
     sbom = read(folder, 'native.cdx.json') or {}
     portable = read(folder, 'packaged-smoke.json') or {}
@@ -62,12 +69,17 @@ def evidence(folder, revision, platform):
     native = {(row['path'], row['sha256']) for row in inventory.get('native_files', [])}
     declared = {(row['name'], row['hashes'][0]['content']) for row in sbom.get('components', [])}
     stages = baseline.get('stages', {})
+    gaps = [
+        dict(file=path.replace('\\', '/'), lines=row['summary']['missing_lines'],
+             branches=row['summary']['num_branches']-row['summary']['covered_branches'])
+        for path, row in coverage.get('files', {}).items()
+    ]
     return {
         'checks': {
             'clean_revision': verdict(baseline, baseline.get('commit') == revision == baseline.get('commit_after')
                                       and baseline.get('os', '').startswith(platform)),
             'integral': verdict(suite, suite.get('passed') is True and suite.get('source_unchanged') is True
-                                and suite.get('complete_discovery_coverage') is True and suite.get('tests', 0) > 0
+                                and suite.get('complete_discovery_coverage') is True and suite.get('tests', 0) >= 890
                                 and stages.get('integral') == 0),
             'static': verdict(baseline, stages.get('static') == 0),
             'preventive': verdict(preventive, preventive.get('passed') is True
@@ -83,6 +95,9 @@ def evidence(folder, revision, platform):
                                 and campaign.get('integrity_verified') is True
                                 and len(campaign.get('runs', [])) == 48
                                 and campaign.get('interruption', {}).get('catalog_preserved') is True),
+            'recovery_responsiveness_measured': verdict(recovery, recovery.get('commit') == revision
+                                                       and recovery.get('clean_checkout') is True
+                                                       and len(recovery.get('trials', [])) == 6),
             'portable': verdict(portable, portable.get('ok') is True
                                 or portable.get('executable_check', {}).get('ok') is True),
             'sbom': verdict(inventory, inventory.get('source_commit') == revision and bool(native)
@@ -98,6 +113,10 @@ def evidence(folder, revision, platform):
         'coverage': within_threshold(coverage.get('totals', {}), 85, 75),
         'components': {name: within_threshold(modules.get(name, {}), *target)
                        for name, target in COMPONENTS.items()},
+        'coverage_priority': {
+            metric: sorted(gaps, key=lambda item: (-item[metric], item['file']))[:15]
+            for metric in ('lines', 'branches')
+        },
     }
 
 

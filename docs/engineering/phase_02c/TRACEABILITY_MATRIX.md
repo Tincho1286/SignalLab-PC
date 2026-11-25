@@ -22,3 +22,15 @@
 | E-04 | Ensayos previos no instalaban la versión estable pública antes del candidato. Se verifican el salto, la reapertura y la descarga rechazada. | `8884ca5`, `tools/check_stable_upgrade.py` y recibos de la matriz |
 | E-05 | Etiqueta principal truncada en ventana compacta y Welch inicial incompatible con N = 64. Etiqueta accesible abreviada y segmento automático. | `faef335`, `test_desktop_session`, [acta y protocolo de escritorio](gui/DESKTOP_CONTINUATION.md) |
 | E-06a–j | Brechas en precisión, procedencia, validación y traspaso entre herramientas. Casos preventivos y de integración con oráculos y resultados persistidos. | `8884ca5`, `faef335`, [cobertura por objetivo](testing/FINAL_COVERAGE_REPORT.md) |
+
+## Continuidad autónoma y expedientes
+
+| Hallazgo | Cambios y criterios | Prueba o evidencia |
+| --- | --- | --- |
+| C-05 · E-03 | Presupuesto compartido para cálculo, SLBIN, SLPROJ y el lector MAT | `test_math_project_archive.ProjectArchiveTests.test_parallel_calculation_and_archive_share_admission_and_release_on_error` y banco de recursos |
+| C-06a | Contratos binarios documentados. Cabeceras finitas y rechazo antes de publicar. | `test_math_project_archive`, `test_math_scientific_storage` y casos de integridad |
+| C-06b | Hoja CAS con estado versionado y referencias a registros ya publicados | `test_math_cas_session`, reapertura y cálculo posterior en `test_desktop_session` |
+| C-06c | Recuperación binaria asíncrona, exclusión, cancelación y reintento | `test_desktop_session`, `tools/measure_recovery_responsiveness.py` |
+| C-06d | Reapertura exacta por proyecto y retomado desde índice tras cancelar | `tools/measure_scientific_campaign.py` |
+| C-08 | Flujo de edición de polos conserva multiplicidad. Convolución coincide en señal, inspector y CSV. | `test_desktop_session` |
+| C-11 | Evaluación de integridad, cobertura y requisitos externos sin mezclar SHAs. | `tools/check_quality_gate_02c.py` y `test_engineering_quality_gate` |

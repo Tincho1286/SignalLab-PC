@@ -35,3 +35,10 @@
 - WP00. Conservar evidencia histórica y establecer una referencia reproducible de código.
 - WP01. Pendiente de verificar rutas y dependencias.
 - WP03. El criterio es comprobar contenido científico antes de publicar.
+
+## Continuidad autónoma 02C
+
+- C-05. Usar un presupuesto estimado compartido por defecto en las fronteras de aplicación y en la persistencia binaria. Mantener la cuota efectiva del lector MAT y reservar su capacidad antes de crearlo. El pool integra consumidores del proceso, con margen del host o cgroup. El proceso simbólico es terminable y sigue sin cuota propia.
+- C-06. Recuperar de forma automática con un escritor y una instantánea de catálogo en SLPROJ. Mantener el diálogo y el formato predeterminado JSON para guardado explícito. Mantener lectura de checkpoints JSON anteriores.
+- C-06. Verificar el volumen de comunicaciones con proyectos independientes y catálogo. El banco usa señales sintéticas y vuelve a cargar cada proyecto. Controlar el consumo al retener una ejecución a la vez.
+- C-11. Calcular el gate desde las evidencias de dos sistemas con la misma revisión. La aceptación de riesgos y las actas externas requieren revisión explícita. El comando con `--require-automated` devuelve error cuando falte un requisito automático.
