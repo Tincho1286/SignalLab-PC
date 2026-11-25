@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-07 · Lecturas de figuras y tablas
+
+**Flujos.** Las pruebas abren Curvas y medidas, eligen una traza, fijan y arrastran ambos cursores y verifican los extremos entre A y B. El CSV conserva la meseta medida. También se comprueban el desplazamiento en un eje logarítmico invertido, la actualización de las lecturas al cambiar de curva, el rechazo de extremos sobre un mapa y la tabla con coordenadas muy cercanas.
+
+**Evidencia focal.** Pasaron 20 pruebas. La proyección Windows registra 36 816/42 953 líneas (85,71 %) y 12 011/16 528 ramas (72,67 %). Quedan 385 ramas para el 75 %. La ejecución Qt se hizo en modo offscreen.
+
 ## 25 de noviembre de 2026 · C-04 y C-07 · Laplace y dominios del CAS
 
 **Causas y cambios.** La regla del integrador simbólico producía un factor exponencial incorrecto para recíprocos desplazados, por ejemplo `1/(t+1)`. Se incorporó la integral exponencial generalizada para fracciones parciales con desplazamientos en su rama principal, incluidos polos repetidos. Se agrupan términos que comparten un desplazamiento exponencial antes de determinar si persiste un polo en el intervalo. La salida mantiene explícitas las condiciones del desplazamiento y conserva una integral pendiente cuando la continuación no está resuelta.
