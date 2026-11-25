@@ -1,15 +1,12 @@
 """Application boundary for one finite, forward DFT."""
 
-from collections.abc import Callable
-from dataclasses import asdict, dataclass
-import math
-from threading import Event
-from time import monotonic
+from dataclasses import dataclass
 
-from . import jobs, operations
+from . import operations
+from .execution import ExecutionContext
 from .model import Signal
+from .operation_provenance import scientific_metadata
 from .project import Project
-from .resources import ResourceLimitError
 
 
 @dataclass(frozen=True, slots=True)
@@ -20,32 +17,7 @@ class DFTRequest:
     phase_reference: str = 'sample_indices'
 
 
-@dataclass(frozen=True, slots=True)
-class DFTExecution:
-    max_work_bytes: int | None = None
-    deadline: float | None = None
-    cancel: Event | None = None
-    progress: Callable[[int], None] | None = None
-
-    def __post_init__(self):
-        if self.max_work_bytes is not None and (
-            type(self.max_work_bytes) is not int or self.max_work_bytes < 1
-        ):
-            raise ValueError('El presupuesto de memoria debe ser un entero positivo en bytes.')
-        if self.deadline is not None and not math.isfinite(self.deadline):
-            raise ValueError('El plazo monotónico debe ser finito.')
-
-    def checkpoint(self, percentage=None):
-        jobs.checkpoint()
-        if self.cancel is not None and self.cancel.is_set():
-            raise jobs.OperationCancelled('Cálculo cancelado; se descartó el resultado.')
-        if self.deadline is not None and monotonic() >= self.deadline:
-            raise TimeoutError('Se agotó el plazo de ejecución de la DFT.')
-        if percentage is not None:
-            jobs.checkpoint(percentage / 100)
-            if self.progress is not None:
-                self.progress(percentage)
-            self.checkpoint()
+DFTExecution = ExecutionContext
 
 
 @dataclass(frozen=True, slots=True)
@@ -76,19 +48,15 @@ def calculate_dft(request: DFTRequest, execution: DFTExecution | None = None) ->
         raise ValueError('El orden centrado debe ser un booleano.')
     length = operations.dft_length(request.signal, request.length)
     estimate = length * operations.DFT_WORK_BYTES_PER_BIN
-    if execution.max_work_bytes is not None and estimate > execution.max_work_bytes:
-        raise ResourceLimitError(
-            f'La DFT estima {estimate} bytes de trabajo; el presupuesto es {execution.max_work_bytes}.'
-        )
-    execution.checkpoint()
-    spectrum = operations.dft(request.signal, length, centered=request.centered,
-                              phase_reference=request.phase_reference)
+    execution.require(estimate)
+    spectrum = execution.run(lambda: operations.dft(
+        request.signal, length, centered=request.centered, phase_reference=request.phase_reference))
     clock = spectrum.metadata['input_clock']
     provenance = DFTProvenance(length, request.centered, request.phase_reference,
                                request.signal.units, spectrum.metadata['input_origin'],
                                spectrum.metadata['input_length'], clock.get('sample_rate_hz'),
                                clock.get('time_start_s'))
-    spectrum.metadata['dft_provenance'] = {'schema': 1, 'operation': 'dft', **asdict(provenance)}
+    spectrum.metadata['dft_provenance'] = scientific_metadata('dft', provenance)
     execution.checkpoint(100)
     return DFTResult(spectrum, provenance, estimate)
 
