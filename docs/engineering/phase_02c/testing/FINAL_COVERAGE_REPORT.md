@@ -71,3 +71,18 @@ El controlador de sesión alcanzó 318/348 líneas y 128/154 ramas en ambos sist
 ## Medición integral de 99f7ce2
 
 Las dos suites de 922 pruebas y 150 casos preventivos alcanzaron los mínimos de todos los componentes críticos controlados. El total global quedó en 81,35 % de líneas y 66,74 % de ramas en Windows y en 81,29 % / 66,72 % en Linux. El déficit fue de 1 557 líneas y 1 357 ramas en Windows y 1 582 líneas y 1 360 ramas en Linux. Los procesos de CI de distribución agotaron el plazo previo y sus artefactos de portables auditados, SBOM e instalación están incompletos para este SHA. [Resultado por condición](../validation/evidence/quality-gate-99f7ce2.json)
+
+## Matriz completa de eb50895
+
+| Medición | Windows | Linux | Objetivo |
+| --- | ---: | ---: | ---: |
+| Pruebas integrales | 925 | 925 | — |
+| Casos preventivos | 150 | 150 | — |
+| Líneas globales | 34 914/42 674 (81,82 %) | 34 889/42 674 (81,76 %) | 85 % |
+| Ramas globales | 11 010/16 416 (67,07 %) | 11 007/16 416 (67,05 %) | 75 % |
+| Líneas y ramas adicionales | 1 359 y 1 302 | 1 384 y 1 305 | — |
+| SLPROJ, líneas / ramas | 95,33 % / 89,13 % | 95,33 % / 89,13 % | 90 % / 85 % |
+| Controlador de sesión, líneas / ramas | 94,25 % / 86,36 % | 94,25 % / 86,36 % | 90 % / 85 % |
+| Hoja CAS headless, líneas / ramas | 100 % / 100 % | 100 % / 100 % | 90 % / 85 % |
+
+Cada componente crítico alcanzó sus objetivos en los dos sistemas. Linux concentra líneas pendientes en `toolbox.py` (415), `ui.py` (238), `workbench.py` (196), `linux_installation.py` (195) y `course_tools.py` (170). El índice incluye las 15 prioridades de líneas y ramas por sistema. [Datos reproducibles](../validation/evidence/ci-eb50895.json)

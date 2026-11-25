@@ -16,4 +16,4 @@ El cambio se mantiene en `develop`. La referencia estable comprobada es `v2.0.0`
 
 ## Continuación autónoma
 
-**NO-GO de cierre** por cobertura global pendiente y validación incompleta del candidato vigente. Se verificaron mejoras en recuperación, persistencia CAS y binaria, procedencia, escala por lotes, actualización aislada y empaquetado. Las actas de escritorio y la condición de distribución se registran por separado. [Expediente vigente](../validation/QUALITY_GATE_REPORT.md#continuación-autónoma-de-fase-02c)
+**NO-GO de cierre.** `eb50895` completó la matriz integral, los mínimos críticos, los instaladores y la actualización aislada en Windows y Linux. La aplicación queda bajo objetivo en líneas y ramas globales y la verificación de escritorio conserva actas físicas pendientes. Se documentaron los límites de recursos, persistencia CAS, procedencia, campaña por lotes y recuperación asíncrona. [Expediente vigente](../validation/QUALITY_GATE_REPORT.md#continuación-autónoma-de-fase-02c)

@@ -1,0 +1,85 @@
+{
+  "commit": "eb50895250b124ec0554a4c52d894d5ac790e7a5",
+  "clean_checkout": true,
+  "os": "Linux-6.8.0-1070-azure-x86_64-with-glibc2.35",
+  "qt_platform": "offscreen",
+  "heartbeat_interval_ms": 10,
+  "trials": [
+    {
+      "mode": "sync_json",
+      "attempt": 1,
+      "samples_per_record": 262144,
+      "seconds": 2.113524876000156,
+      "max_gap_ms": 2118.8227100001313,
+      "p95_gap_ms": 1697.0855190000748,
+      "heartbeat_count": 24,
+      "file_bytes": 42799893,
+      "process_peak_bytes": 457453568
+    },
+    {
+      "mode": "archive_worker",
+      "attempt": 1,
+      "samples_per_record": 262144,
+      "seconds": 0.06185155699995448,
+      "max_gap_ms": 10.861335000072359,
+      "p95_gap_ms": 10.612854000123662,
+      "heartbeat_count": 29,
+      "file_bytes": 8389341,
+      "process_peak_bytes": 457453568
+    },
+    {
+      "mode": "sync_json",
+      "attempt": 2,
+      "samples_per_record": 262144,
+      "seconds": 2.118727728000067,
+      "max_gap_ms": 2125.0125409999328,
+      "p95_gap_ms": 1702.0458741999846,
+      "heartbeat_count": 24,
+      "file_bytes": 42799893,
+      "process_peak_bytes": 458067968
+    },
+    {
+      "mode": "archive_worker",
+      "attempt": 2,
+      "samples_per_record": 262144,
+      "seconds": 0.060670935999951325,
+      "max_gap_ms": 10.298019000174463,
+      "p95_gap_ms": 10.269009000012375,
+      "heartbeat_count": 30,
+      "file_bytes": 8389341,
+      "process_peak_bytes": 458067968
+    },
+    {
+      "mode": "sync_json",
+      "attempt": 3,
+      "samples_per_record": 262144,
+      "seconds": 2.120441891999917,
+      "max_gap_ms": 2125.790211999856,
+      "p95_gap_ms": 1702.6617591999184,
+      "heartbeat_count": 24,
+      "file_bytes": 42799893,
+      "process_peak_bytes": 458076160
+    },
+    {
+      "mode": "archive_worker",
+      "attempt": 3,
+      "samples_per_record": 262144,
+      "seconds": 0.05115662900016105,
+      "max_gap_ms": 10.16839599992636,
+      "p95_gap_ms": 10.162481199995455,
+      "heartbeat_count": 28,
+      "file_bytes": 8389341,
+      "process_peak_bytes": 458076160
+    }
+  ],
+  "summary": {
+    "sync_json": {
+      "median_seconds": 2.118727728000067,
+      "max_gap_ms": 2125.790211999856
+    },
+    "archive_worker": {
+      "median_seconds": 0.060670935999951325,
+      "max_gap_ms": 10.861335000072359
+    }
+  }
+}

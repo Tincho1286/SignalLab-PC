@@ -6,4 +6,4 @@ El candidato y la estable pública comparten número de versión. El actualizado
 
 ## Continuación autónoma
 
-**NO-GO para distribución pública.** La matriz completa de `54adaa0` usa 2.0.1 y acredita el salto desde 2.0.0 en Windows y Linux con firma de ensayo, datos conservados y rechazo de descarga corrupta. El candidato vigente conserva 2.0.1 como versión de auditoría y se distingue por SHA. El dictamen público depende del estado de su matriz, la firma Windows, el canal y el alcance de exposición nativa. [Matriz de candidatos](../validation/FINAL_VALIDATION_MATRIX.md#continuación-autónoma) · [Revisión nativa](../security/DEPENDENCY_CONTINUATION.md)
+**NO-GO para distribución pública.** La matriz completa de `eb50895` verifica portables, instaladores y salto aislado desde 2.0.0 en Windows y Linux con firma de ensayo, datos conservados y rechazo de descarga corrupta. El candidato usa 2.0.1 como versión de auditoría. El dictamen público queda sujeto a firma Windows, canal, exposición nativa y autorización expresa. [Matriz de candidatos](../validation/FINAL_VALIDATION_MATRIX.md#resultado-de-eb50895) · [Revisión nativa](../security/DEPENDENCY_CONTINUATION.md)

@@ -1,0 +1,1275 @@
+{
+  "run": 45689459348,
+  "candidate": "eb50895250b124ec0554a4c52d894d5ac790e7a5",
+  "quality_gate": {
+    "commit": "eb50895250b124ec0554a4c52d894d5ac790e7a5",
+    "platforms": {
+      "windows-2022": {
+        "checks": {
+          "clean_revision": "pass",
+          "integral": "pass",
+          "static": "pass",
+          "preventive": "pass",
+          "coverage_matches": "pass",
+          "performance": "pass",
+          "cancellation_profiles": "pass",
+          "campaign": "pass",
+          "recovery_responsiveness_measured": "pass",
+          "portable": "pass",
+          "sbom": "pass",
+          "isolated_upgrade": "pass"
+        },
+        "tests": 925,
+        "coverage": {
+          "lines": {
+            "goal": 85,
+            "covered": 34914,
+            "total": 42674,
+            "state": "fail",
+            "additional_required": 1359
+          },
+          "branches": {
+            "goal": 75,
+            "covered": 11010,
+            "total": 16416,
+            "state": "fail",
+            "additional_required": 1302
+          }
+        },
+        "components": {
+          "sampling.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 303,
+              "total": 304,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 122,
+              "total": 130,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "fourier.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 256,
+              "total": 257,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 72,
+              "total": 84,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "execution.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 72,
+              "total": 72,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 22,
+              "total": 22,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "dft_application.py": {
+            "branches": {
+              "goal": 85,
+              "covered": 12,
+              "total": 12,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "dsp_application.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 198,
+              "total": 201,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 36,
+              "total": 40,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "dsp_pipeline.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 129,
+              "total": 134,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 21,
+              "total": 22,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "scientific_storage.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 75,
+              "total": 78,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 23,
+              "total": 24,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "project_archive.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 102,
+              "total": 107,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 41,
+              "total": 46,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "cas_worksheet.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 59,
+              "total": 59,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 42,
+              "total": 42,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "session_desktop.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 328,
+              "total": 348,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 133,
+              "total": 154,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "cli_session.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 62,
+              "total": 64,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 12,
+              "total": 12,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "operation_provenance.py": {
+            "branches": {
+              "goal": 85,
+              "covered": 17,
+              "total": 20,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "project.py": {
+            "branches": {
+              "goal": 85,
+              "covered": 126,
+              "total": 146,
+              "state": "pass",
+              "additional_required": 0
+            }
+          }
+        },
+        "coverage_priority": {
+          "lines": [
+            {
+              "file": "signallab_pc/toolbox.py",
+              "lines": 415,
+              "branches": 225
+            },
+            {
+              "file": "signallab_pc/ui.py",
+              "lines": 238,
+              "branches": 120
+            },
+            {
+              "file": "signallab_pc/workbench.py",
+              "lines": 196,
+              "branches": 109
+            },
+            {
+              "file": "signallab_pc/linux_installation.py",
+              "lines": 195,
+              "branches": 94
+            },
+            {
+              "file": "signallab_pc/course_tools.py",
+              "lines": 170,
+              "branches": 132
+            },
+            {
+              "file": "signallab_pc/course_tools_panel.py",
+              "lines": 139,
+              "branches": 71
+            },
+            {
+              "file": "signallab_pc/systems_panel.py",
+              "lines": 130,
+              "branches": 34
+            },
+            {
+              "file": "signallab_pc/self_check.py",
+              "lines": 127,
+              "branches": 0
+            },
+            {
+              "file": "signallab_pc/plot_probe.py",
+              "lines": 119,
+              "branches": 78
+            },
+            {
+              "file": "signallab_pc/realization_editor.py",
+              "lines": 118,
+              "branches": 78
+            },
+            {
+              "file": "signallab_pc/system_analysis_panel.py",
+              "lines": 117,
+              "branches": 67
+            },
+            {
+              "file": "signallab_pc/cas_panel.py",
+              "lines": 92,
+              "branches": 66
+            },
+            {
+              "file": "signallab_pc/workflow_inputs.py",
+              "lines": 88,
+              "branches": 49
+            },
+            {
+              "file": "signallab_pc/alias_view.py",
+              "lines": 86,
+              "branches": 12
+            },
+            {
+              "file": "signallab_pc/fourier_panel.py",
+              "lines": 86,
+              "branches": 29
+            }
+          ],
+          "branches": [
+            {
+              "file": "signallab_pc/toolbox.py",
+              "lines": 415,
+              "branches": 225
+            },
+            {
+              "file": "signallab_pc/course_tools.py",
+              "lines": 170,
+              "branches": 132
+            },
+            {
+              "file": "signallab_pc/ui.py",
+              "lines": 238,
+              "branches": 120
+            },
+            {
+              "file": "signallab_pc/workbench.py",
+              "lines": 196,
+              "branches": 109
+            },
+            {
+              "file": "signallab_pc/linux_installation.py",
+              "lines": 195,
+              "branches": 94
+            },
+            {
+              "file": "signallab_pc/cas_engine.py",
+              "lines": 33,
+              "branches": 86
+            },
+            {
+              "file": "signallab_pc/matlab_import.py",
+              "lines": 43,
+              "branches": 80
+            },
+            {
+              "file": "signallab_pc/plot_probe.py",
+              "lines": 119,
+              "branches": 78
+            },
+            {
+              "file": "signallab_pc/realization_editor.py",
+              "lines": 118,
+              "branches": 78
+            },
+            {
+              "file": "signallab_pc/continuous_expression.py",
+              "lines": 67,
+              "branches": 75
+            },
+            {
+              "file": "signallab_pc/symbolic.py",
+              "lines": 50,
+              "branches": 75
+            },
+            {
+              "file": "signallab_pc/course_tools_panel.py",
+              "lines": 139,
+              "branches": 71
+            },
+            {
+              "file": "signallab_pc/session_fields.py",
+              "lines": 77,
+              "branches": 71
+            },
+            {
+              "file": "signallab_pc/system_analysis_panel.py",
+              "lines": 117,
+              "branches": 67
+            },
+            {
+              "file": "signallab_pc/cas_panel.py",
+              "lines": 92,
+              "branches": 66
+            }
+          ]
+        }
+      },
+      "ubuntu-22.04": {
+        "checks": {
+          "clean_revision": "pass",
+          "integral": "pass",
+          "static": "pass",
+          "preventive": "pass",
+          "coverage_matches": "pass",
+          "performance": "pass",
+          "cancellation_profiles": "pass",
+          "campaign": "pass",
+          "recovery_responsiveness_measured": "pass",
+          "portable": "pass",
+          "sbom": "pass",
+          "isolated_upgrade": "pass"
+        },
+        "tests": 925,
+        "coverage": {
+          "lines": {
+            "goal": 85,
+            "covered": 34889,
+            "total": 42674,
+            "state": "fail",
+            "additional_required": 1384
+          },
+          "branches": {
+            "goal": 75,
+            "covered": 11007,
+            "total": 16416,
+            "state": "fail",
+            "additional_required": 1305
+          }
+        },
+        "components": {
+          "sampling.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 303,
+              "total": 304,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 122,
+              "total": 130,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "fourier.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 256,
+              "total": 257,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 72,
+              "total": 84,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "execution.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 72,
+              "total": 72,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 22,
+              "total": 22,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "dft_application.py": {
+            "branches": {
+              "goal": 85,
+              "covered": 12,
+              "total": 12,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "dsp_application.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 198,
+              "total": 201,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 36,
+              "total": 40,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "dsp_pipeline.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 129,
+              "total": 134,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 21,
+              "total": 22,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "scientific_storage.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 75,
+              "total": 78,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 23,
+              "total": 24,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "project_archive.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 102,
+              "total": 107,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 41,
+              "total": 46,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "cas_worksheet.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 59,
+              "total": 59,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 42,
+              "total": 42,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "session_desktop.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 328,
+              "total": 348,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 133,
+              "total": 154,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "cli_session.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 62,
+              "total": 64,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 12,
+              "total": 12,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "operation_provenance.py": {
+            "branches": {
+              "goal": 85,
+              "covered": 17,
+              "total": 20,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "project.py": {
+            "branches": {
+              "goal": 85,
+              "covered": 126,
+              "total": 146,
+              "state": "pass",
+              "additional_required": 0
+            }
+          }
+        },
+        "coverage_priority": {
+          "lines": [
+            {
+              "file": "signallab_pc/toolbox.py",
+              "lines": 415,
+              "branches": 225
+            },
+            {
+              "file": "signallab_pc/ui.py",
+              "lines": 238,
+              "branches": 120
+            },
+            {
+              "file": "signallab_pc/workbench.py",
+              "lines": 196,
+              "branches": 109
+            },
+            {
+              "file": "signallab_pc/linux_installation.py",
+              "lines": 195,
+              "branches": 94
+            },
+            {
+              "file": "signallab_pc/course_tools.py",
+              "lines": 170,
+              "branches": 132
+            },
+            {
+              "file": "signallab_pc/course_tools_panel.py",
+              "lines": 142,
+              "branches": 72
+            },
+            {
+              "file": "signallab_pc/systems_panel.py",
+              "lines": 130,
+              "branches": 34
+            },
+            {
+              "file": "signallab_pc/self_check.py",
+              "lines": 127,
+              "branches": 0
+            },
+            {
+              "file": "signallab_pc/plot_probe.py",
+              "lines": 119,
+              "branches": 78
+            },
+            {
+              "file": "signallab_pc/realization_editor.py",
+              "lines": 118,
+              "branches": 78
+            },
+            {
+              "file": "signallab_pc/system_analysis_panel.py",
+              "lines": 117,
+              "branches": 67
+            },
+            {
+              "file": "signallab_pc/cas_panel.py",
+              "lines": 92,
+              "branches": 66
+            },
+            {
+              "file": "signallab_pc/workflow_inputs.py",
+              "lines": 88,
+              "branches": 49
+            },
+            {
+              "file": "signallab_pc/alias_view.py",
+              "lines": 86,
+              "branches": 12
+            },
+            {
+              "file": "signallab_pc/fourier_panel.py",
+              "lines": 86,
+              "branches": 29
+            }
+          ],
+          "branches": [
+            {
+              "file": "signallab_pc/toolbox.py",
+              "lines": 415,
+              "branches": 225
+            },
+            {
+              "file": "signallab_pc/course_tools.py",
+              "lines": 170,
+              "branches": 132
+            },
+            {
+              "file": "signallab_pc/ui.py",
+              "lines": 238,
+              "branches": 120
+            },
+            {
+              "file": "signallab_pc/workbench.py",
+              "lines": 196,
+              "branches": 109
+            },
+            {
+              "file": "signallab_pc/linux_installation.py",
+              "lines": 195,
+              "branches": 94
+            },
+            {
+              "file": "signallab_pc/cas_engine.py",
+              "lines": 33,
+              "branches": 86
+            },
+            {
+              "file": "signallab_pc/matlab_import.py",
+              "lines": 43,
+              "branches": 80
+            },
+            {
+              "file": "signallab_pc/plot_probe.py",
+              "lines": 119,
+              "branches": 78
+            },
+            {
+              "file": "signallab_pc/realization_editor.py",
+              "lines": 118,
+              "branches": 78
+            },
+            {
+              "file": "signallab_pc/continuous_expression.py",
+              "lines": 67,
+              "branches": 75
+            },
+            {
+              "file": "signallab_pc/symbolic.py",
+              "lines": 50,
+              "branches": 75
+            },
+            {
+              "file": "signallab_pc/course_tools_panel.py",
+              "lines": 142,
+              "branches": 72
+            },
+            {
+              "file": "signallab_pc/session_fields.py",
+              "lines": 77,
+              "branches": 71
+            },
+            {
+              "file": "signallab_pc/system_analysis_panel.py",
+              "lines": 117,
+              "branches": 67
+            },
+            {
+              "file": "signallab_pc/cas_panel.py",
+              "lines": 92,
+              "branches": 66
+            }
+          ]
+        }
+      }
+    },
+    "automated_passed": false,
+    "external": {
+      "escritorio f\u00edsico y DPI": "review_required",
+      "avisos nativos y mitigaciones": "review_required",
+      "firma y canal p\u00fablico": "review_required",
+      "hallazgos y decisiones de cierre": "review_required"
+    }
+  },
+  "evidence": {
+    "windows": {
+      "baseline": {
+        "ci_path": "engineering-baseline-windows-2022-45689459348/baseline.json",
+        "ci_sha256": "627fc0c81e77994255acaae3bcf5006d684253960f99f399624bcb33ecb8d719"
+      },
+      "integral": {
+        "ci_path": "engineering-baseline-windows-2022-45689459348/integral-checks.json",
+        "ci_sha256": "c0db0ab9556bac24dab82ce4f53444768346946a19cff9c16aca4042a4f45254"
+      },
+      "preventive": {
+        "ci_path": "engineering-baseline-windows-2022-45689459348/integral-checks-preventive.json",
+        "ci_sha256": "7bf0da8474a67b2fde84d18e66236e07e3223f20854f4305d65ca805d7565bbb"
+      },
+      "coverage": {
+        "ci_path": "engineering-baseline-windows-2022-45689459348/coverage.json",
+        "ci_sha256": "5c52d5d6aa2d1936b59cc053074b5fe45112d0af2a3cea4a247fd948946cf71b"
+      },
+      "performance": {
+        "ci_path": "engineering-distribution-windows-2022-45689459348/distribution-audit/core-performance.json",
+        "ci_sha256": "3616a1ba09801e1ee81a57395b9a74befe61df72488cd7873fa92f830c292fe4",
+        "file": "windows-performance-eb50895.json",
+        "git_sha256": "669b6529e6aec791bff58dc18fcee8ce3475ae529c46860d996353ad330a6447"
+      },
+      "campaign": {
+        "ci_path": "engineering-distribution-windows-2022-45689459348/distribution-audit/scientific-campaign.json",
+        "ci_sha256": "06b78cd12baa65932b9a856b639b9546df3e540ec933de0db6474d3420f6b61f",
+        "file": "windows-campaign-eb50895.json",
+        "git_sha256": "3bf5774c1a8c644717a9d2bb8d6820cd36aff2184814bbdb09d429c3ddd2b3af"
+      },
+      "responsiveness": {
+        "ci_path": "engineering-distribution-windows-2022-45689459348/distribution-audit/recovery-responsiveness.json",
+        "ci_sha256": "77b8abcebc95babe26443467c48bacfe52d2a0945b2cfa19371f57765c8593de",
+        "file": "windows-responsiveness-eb50895.json",
+        "git_sha256": "6110652f8efe73c10a6ea7e1d87cd64641900ebc2fa221b8713748e2b549d0c7"
+      },
+      "native.cdx": {
+        "ci_path": "engineering-distribution-windows-2022-45689459348/distribution-audit/native.cdx.json",
+        "ci_sha256": "63d4cf5a0262c9f196ba4e2b30a18dcb826343f35e5e3ac08e5b38a79a971504",
+        "file": "windows-native.cdx-eb50895.json",
+        "git_sha256": "bc0adb32a362c33b4d3177ab5ade739e48a052e7e8528bc54b724ce655db7c6c"
+      },
+      "native-inventory": {
+        "ci_path": "engineering-distribution-windows-2022-45689459348/distribution-audit/native-inventory.json",
+        "ci_sha256": "06354e9f7adf3865c040197180c1c8c12b0d062d992622e520b6a55364d4e4bf"
+      },
+      "portable-smoke": {
+        "ci_path": "engineering-baseline-windows-2022-45689459348/packaged-smoke.json",
+        "ci_sha256": "ab68ed4aa39ea3f01738a37141b5db579e243b94d9e51e13e896e9de35ec7342",
+        "file": "windows-portable-smoke-eb50895.json",
+        "git_sha256": "650c079f338f9f6bae0e751fa5e9ecec82c5d9fabe40539cd06b9e7d59bb34f3"
+      },
+      "installer": {
+        "ci_path": "engineering-distribution-windows-2022-45689459348/distribution-audit/update.json",
+        "ci_sha256": "20bcb41f4f2618c1ea6ed3948d448eceb9ccf4793460d91d1869cd701d5cf59e",
+        "file": "windows-installer-eb50895.json",
+        "git_sha256": "e0042fe467a03d17fe5b5f97c4b7a7db199763004fec8a0dfc6397ef86d48f5a"
+      },
+      "resources": {
+        "ci_path": "engineering-distribution-windows-2022-45689459348/distribution-audit/resources.json",
+        "ci_sha256": "7ca9450aeb784cf0edcd443479f950dfad055425559d9b70527421e96c6f27c4",
+        "file": "windows-resources-eb50895.json",
+        "git_sha256": "f8e2ba9ecbba990044da858580667ff745cfde3c28adcff78c0df2d8958f18fc"
+      },
+      "workflows": {
+        "ci_path": "engineering-distribution-windows-2022-45689459348/workflow-checks.json",
+        "ci_sha256": "b4db53138c4c3a7fc0ce1486deac7ab2d9498dae6768515ee1de61cf2a2d69c8",
+        "file": "windows-workflows-eb50895.json",
+        "git_sha256": "56fb67972e9d486ee81d9d354d0b3aedc6dce48ff330f180cd8359cf517f552b"
+      }
+    },
+    "linux": {
+      "baseline": {
+        "ci_path": "engineering-baseline-ubuntu-22.04-45689459348/baseline.json",
+        "ci_sha256": "db0f9573feab7e520e33159a4ba5fc1da11e39ed98d367fbf835c7654a1f58dd"
+      },
+      "integral": {
+        "ci_path": "engineering-baseline-ubuntu-22.04-45689459348/integral-checks.json",
+        "ci_sha256": "bd4f33af8366eb3de824f4921825dc10b71ed1e59cf138c947df9854bf09919a"
+      },
+      "preventive": {
+        "ci_path": "engineering-baseline-ubuntu-22.04-45689459348/integral-checks-preventive.json",
+        "ci_sha256": "b3336e857e41e255c427ede4882c05b4e0f8933423961ccdcca88b3337dbf4bb"
+      },
+      "coverage": {
+        "ci_path": "engineering-baseline-ubuntu-22.04-45689459348/coverage.json",
+        "ci_sha256": "0e5476428f1565ec53e777a148314c0df80c7e8df67d765278a0b21cd970d58f"
+      },
+      "performance": {
+        "ci_path": "engineering-distribution-ubuntu-22.04-45689459348/distribution-audit/core-performance.json",
+        "ci_sha256": "6445ca6b5f06934b1203ccfac0e2ffe8af58cfdea16b41effc11113bab64d3f9",
+        "file": "linux-performance-eb50895.json",
+        "git_sha256": "6445ca6b5f06934b1203ccfac0e2ffe8af58cfdea16b41effc11113bab64d3f9"
+      },
+      "campaign": {
+        "ci_path": "engineering-distribution-ubuntu-22.04-45689459348/distribution-audit/scientific-campaign.json",
+        "ci_sha256": "f442090b58ff31502db6934206589a831821e7577165adccb4a6489ec4c72f48",
+        "file": "linux-campaign-eb50895.json",
+        "git_sha256": "f442090b58ff31502db6934206589a831821e7577165adccb4a6489ec4c72f48"
+      },
+      "responsiveness": {
+        "ci_path": "engineering-distribution-ubuntu-22.04-45689459348/distribution-audit/recovery-responsiveness.json",
+        "ci_sha256": "f35d6562ece2bbf511508eb34a1b848f26b3897320e14b8163121e9506baf16b",
+        "file": "linux-responsiveness-eb50895.json",
+        "git_sha256": "f35d6562ece2bbf511508eb34a1b848f26b3897320e14b8163121e9506baf16b"
+      },
+      "native.cdx": {
+        "ci_path": "engineering-distribution-ubuntu-22.04-45689459348/distribution-audit/native.cdx.json",
+        "ci_sha256": "034fce281b8e16aaeccfeab59e124df5e18a8af7ffe3fb33a9e5ae408247e22a",
+        "file": "linux-native.cdx-eb50895.json",
+        "git_sha256": "034fce281b8e16aaeccfeab59e124df5e18a8af7ffe3fb33a9e5ae408247e22a"
+      },
+      "native-inventory": {
+        "ci_path": "engineering-distribution-ubuntu-22.04-45689459348/distribution-audit/native-inventory.json",
+        "ci_sha256": "58b1c3f6d60486aeedd39ef23cd89aeceabf8f12860b9dbea31b98ab9cfccb04"
+      },
+      "portable-smoke": {
+        "ci_path": "engineering-baseline-ubuntu-22.04-45689459348/packaged-smoke.json",
+        "ci_sha256": "37349e357e86e8d5278f115d361110cebe06bd40c53017cab3c92b650795f61c",
+        "file": "linux-portable-smoke-eb50895.json",
+        "git_sha256": "37349e357e86e8d5278f115d361110cebe06bd40c53017cab3c92b650795f61c"
+      },
+      "installer": {
+        "ci_path": "engineering-distribution-ubuntu-22.04-45689459348/distribution-audit/update.json",
+        "ci_sha256": "d7d673cdc938f7a0ceff011e28af89c9b8cdcb14662987e567c219b23560289b",
+        "file": "linux-installer-eb50895.json",
+        "git_sha256": "d7d673cdc938f7a0ceff011e28af89c9b8cdcb14662987e567c219b23560289b"
+      },
+      "resources": {
+        "ci_path": "engineering-distribution-ubuntu-22.04-45689459348/distribution-audit/resources.json",
+        "ci_sha256": "2ab99ac23a7ccb1dd3ab81126e01b9b928ff2015ee5af0e8340b63ca9324b86a",
+        "file": "linux-resources-eb50895.json",
+        "git_sha256": "2ab99ac23a7ccb1dd3ab81126e01b9b928ff2015ee5af0e8340b63ca9324b86a"
+      },
+      "workflows": {
+        "ci_path": "engineering-distribution-ubuntu-22.04-45689459348/workflow-checks.json",
+        "ci_sha256": "bd7ff442ca2e2a65e1310f8de6d0442be0fa86d5d3c7c546cd02698326f53693",
+        "file": "linux-workflows-eb50895.json",
+        "git_sha256": "bd7ff442ca2e2a65e1310f8de6d0442be0fa86d5d3c7c546cd02698326f53693"
+      }
+    }
+  },
+  "observations": {
+    "windows": {
+      "suite": {
+        "tests": 925,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": true,
+        "source_fingerprint": "a00654bcc5c4d05fd68bff03bdf58e656fff430304b48761584e23a2f4606c69"
+      },
+      "preventive": {
+        "completed_cases": 150,
+        "failed_cases": 0,
+        "seeds": [
+          20261103,
+          2684769468
+        ],
+        "passed": true
+      },
+      "packages": {
+        "versions": {
+          "numpy": "2.5.5",
+          "scipy": "1.18.1",
+          "sympy": "1.14.0"
+        },
+        "portable_sha256": "1ba9f2741a83a8c07d48205fd873ab2e971b3c1ab1d5535c14c231d3e18bd3ee",
+        "inventory_count": 219,
+        "runtime": {
+          "qt": {
+            "file": "PySide6\\Qt6Core.dll",
+            "version": "6.12.0"
+          },
+          "qt_svg": {
+            "file": "PySide6\\Qt6Svg.dll"
+          },
+          "python": {
+            "file": "python314.dll",
+            "version": "3.14.10"
+          },
+          "cryptography_openssl": {
+            "version_text": "OpenSSL 4.0.3 29 Sep 2026",
+            "matched_file": "cryptography\\hazmat\\bindings\\_rust.pyd",
+            "sha256": "1d4332a447cab13dec8e3a533ad579e0e562b79e40822c931f33769758fc7156"
+          }
+        },
+        "native_ssl": []
+      },
+      "campaign": {
+        "final": {
+          "runs": 48,
+          "records": 288,
+          "samples": 75497472,
+          "bytes": 1208085276,
+          "elapsed_seconds": 10.63853539999991,
+          "save_seconds": 1.4618684999995821,
+          "load_seconds": 1.4471994999989874,
+          "peak_rss_bytes": 178171904
+        },
+        "interruption": {
+          "run": 8,
+          "previous_runs": 7,
+          "aborted_seconds": 0.0003324000003885885,
+          "partial_file": false,
+          "catalog_preserved": true,
+          "revalidated": true,
+          "retried": true
+        }
+      },
+      "responsiveness": {
+        "sync_json": {
+          "median_seconds": 2.8094287999997505,
+          "max_gap_ms": 2827.3801999998796
+        },
+        "archive_worker": {
+          "median_seconds": 0.13013339999997697,
+          "max_gap_ms": 13.075999999728083
+        }
+      },
+      "benchmarks": 71,
+      "cancellation_profiles": 22,
+      "symbolic_cancellation": {
+        "dtft_seconds_after_signal": 2.3399999918183312e-05,
+        "symbolic_seconds_after_signal": 0.06417659999988246,
+        "worker_exit": 1,
+        "symbolic_temporary_removed": true,
+        "symbolic_cancel_from_launch_seconds": 0.15
+      },
+      "upgrade": {
+        "from": "2.0.0",
+        "to": "2.0.1",
+        "stable_sha256": "261dbd5ffd82adcf61cd33305532b37498e5cfdb673d3082b0c8b8638abfa487",
+        "candidate_sha256": "78a2919952cc4f2e52d1841c5c460918baef2e56ffee7aa9f5b60a709c6cdd26",
+        "session_preserved": true,
+        "corrupt_download_rejected": true,
+        "native_handoff": true,
+        "in_place": true
+      },
+      "gui_count": 8,
+      "workflow": {
+        "contract": "system-expression-workflows-v1",
+        "passed": true,
+        "tests": 345,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "checks": [
+          "library_examples_and_links",
+          "basic_pairs_and_degenerate_models",
+          "optional_result_boundaries",
+          "inverse_z_sample_scope",
+          "numerical_frequency_export",
+          "cas_inverse_context",
+          "cas_system_context",
+          "impulse_alias_transport",
+          "transform_button",
+          "result_library",
+          "system_import",
+          "general_hs",
+          "export_reload",
+          "rational_regression",
+          "bilateral_boundary_analysis",
+          "dtft_plot_visibility",
+          "dtft_system_reuse",
+          "qt_error_visibility",
+          "presentation_failure_recovery",
+          "worker_diagnostic",
+          "cas_frequency_context",
+          "conditional_dtft_plot_export",
+          "report_figure_header",
+          "measures_figure_header",
+          "temporal_roc_guard",
+          "z_reciprocal_round_trip",
+          "fir_auto_window_length",
+          "figure_vertical_range",
+          "dtft_cas_exclusions",
+          "ideal_filter_cas_exports"
+        ],
+        "families": {
+          "system_expression": 58,
+          "interactive_analysis": 14,
+          "window_convolution_analysis": 8,
+          "measurement_views": 14,
+          "channels_and_tools": 13,
+          "time_frequency_library": 13,
+          "spectral_measurements": 16,
+          "ar_estimation": 14,
+          "plot_inspection": 21,
+          "curve_reading": 13,
+          "temporal_tools": 17,
+          "frequency_measurements": 12,
+          "state_studies": 15,
+          "state_provenance": 1,
+          "record_measurements": 12,
+          "reconstruction_studies": 12,
+          "basic_usability": 12,
+          "frontend_workspace": 34,
+          "desktop_sessions": 44,
+          "sample_clock_ui": 2
+        },
+        "last_test": "test_sample_coordinates.ClockFieldTests.test_new_source_clears_old_auto_clock_and_preserves_explicit_values",
+        "timed_out": false,
+        "deadline_seconds": 960,
+        "idle_limit_seconds": 120,
+        "seconds": 555.781,
+        "platform": "win32",
+        "python": "3.14.10",
+        "source_fingerprint": "a00654bcc5c4d05fd68bff03bdf58e656fff430304b48761584e23a2f4606c69"
+      }
+    },
+    "linux": {
+      "suite": {
+        "tests": 925,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": true,
+        "source_fingerprint": "a00654bcc5c4d05fd68bff03bdf58e656fff430304b48761584e23a2f4606c69"
+      },
+      "preventive": {
+        "completed_cases": 150,
+        "failed_cases": 0,
+        "seeds": [
+          20261103,
+          2684769468
+        ],
+        "passed": true
+      },
+      "packages": {
+        "versions": {
+          "numpy": "2.5.5",
+          "scipy": "1.18.1",
+          "sympy": "1.14.0"
+        },
+        "portable_sha256": "f1388c6248de425dc85088d2e53ff9a3dd9b62fd35875561406d7bade593d3a6",
+        "inventory_count": 389,
+        "runtime": {
+          "qt": {
+            "file": "PySide6/Qt/lib/libQt6Core.so.6",
+            "version": "6.12.0"
+          },
+          "qt_svg": {
+            "file": "PySide6/Qt/lib/libQt6Svg.so.6"
+          },
+          "python": {
+            "file": "libpython3.14.so.1.0",
+            "version": "3.14.10"
+          },
+          "cryptography_openssl": {
+            "version_text": "OpenSSL 4.0.3 29 Sep 2026",
+            "matched_file": "cryptography/hazmat/bindings/_rust.abi3.so",
+            "sha256": "1e5d23fa66915204b9b67202a46993844d81cda56f6ad52cead2def37617ee29"
+          }
+        },
+        "native_ssl": [
+          {
+            "path": "libcrypto.so.3",
+            "sha256": "7cc817ff1841b59516d684f357bc0c3fc2cc52c3fa9b4ffb8ce8bdc215f02915",
+            "sources": [
+              {
+                "source": "Ubuntu",
+                "package": "libssl3:amd64",
+                "version": "3.0.2-0ubuntu1.30"
+              }
+            ]
+          },
+          {
+            "path": "libssl.so.3",
+            "sha256": "51fc92556f11ddce62f3f988d3fe973fab8fb4742032e61a713688581c924262",
+            "sources": [
+              {
+                "source": "Ubuntu",
+                "package": "libssl3:amd64",
+                "version": "3.0.2-0ubuntu1.30"
+              }
+            ]
+          }
+        ]
+      },
+      "campaign": {
+        "final": {
+          "runs": 48,
+          "records": 288,
+          "samples": 75497472,
+          "bytes": 1208085276,
+          "elapsed_seconds": 9.57707547599989,
+          "save_seconds": 2.1537392149998595,
+          "load_seconds": 2.328321141999595,
+          "peak_rss_bytes": 185425920
+        },
+        "interruption": {
+          "run": 8,
+          "previous_runs": 7,
+          "aborted_seconds": 0.000742845000104353,
+          "partial_file": false,
+          "catalog_preserved": true,
+          "revalidated": true,
+          "retried": true
+        }
+      },
+      "responsiveness": {
+        "sync_json": {
+          "median_seconds": 2.118727728000067,
+          "max_gap_ms": 2125.790211999856
+        },
+        "archive_worker": {
+          "median_seconds": 0.060670935999951325,
+          "max_gap_ms": 10.861335000072359
+        }
+      },
+      "benchmarks": 71,
+      "cancellation_profiles": 22,
+      "symbolic_cancellation": {
+        "dtft_seconds_after_signal": 3.8391000089177396e-05,
+        "symbolic_seconds_after_signal": 0.05360084199992343,
+        "worker_exit": -15,
+        "symbolic_temporary_removed": true,
+        "symbolic_cancel_from_launch_seconds": 0.15
+      },
+      "upgrade": {
+        "from": "2.0.0",
+        "to": "2.0.1",
+        "stable_sha256": "a3fa8ce6ed4a5d559d8b8eb007c595dc680bc2070da92298d20f69f8f983f3c4",
+        "candidate_sha256": "849db8c76d73fc33b63a1659f8204872c06704fcbb9503718f731db078956efd",
+        "session_preserved": true,
+        "corrupt_download_rejected": true,
+        "native_handoff": true,
+        "in_place": true
+      },
+      "gui_count": 8,
+      "workflow": {
+        "contract": "system-expression-workflows-v1",
+        "passed": true,
+        "tests": 345,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "checks": [
+          "library_examples_and_links",
+          "basic_pairs_and_degenerate_models",
+          "optional_result_boundaries",
+          "inverse_z_sample_scope",
+          "numerical_frequency_export",
+          "cas_inverse_context",
+          "cas_system_context",
+          "impulse_alias_transport",
+          "transform_button",
+          "result_library",
+          "system_import",
+          "general_hs",
+          "export_reload",
+          "rational_regression",
+          "bilateral_boundary_analysis",
+          "dtft_plot_visibility",
+          "dtft_system_reuse",
+          "qt_error_visibility",
+          "presentation_failure_recovery",
+          "worker_diagnostic",
+          "cas_frequency_context",
+          "conditional_dtft_plot_export",
+          "report_figure_header",
+          "measures_figure_header",
+          "temporal_roc_guard",
+          "z_reciprocal_round_trip",
+          "fir_auto_window_length",
+          "figure_vertical_range",
+          "dtft_cas_exclusions",
+          "ideal_filter_cas_exports"
+        ],
+        "families": {
+          "system_expression": 58,
+          "interactive_analysis": 14,
+          "window_convolution_analysis": 8,
+          "measurement_views": 14,
+          "channels_and_tools": 13,
+          "time_frequency_library": 13,
+          "spectral_measurements": 16,
+          "ar_estimation": 14,
+          "plot_inspection": 21,
+          "curve_reading": 13,
+          "temporal_tools": 17,
+          "frequency_measurements": 12,
+          "state_studies": 15,
+          "state_provenance": 1,
+          "record_measurements": 12,
+          "reconstruction_studies": 12,
+          "basic_usability": 12,
+          "frontend_workspace": 34,
+          "desktop_sessions": 44,
+          "sample_clock_ui": 2
+        },
+        "last_test": "test_sample_coordinates.ClockFieldTests.test_new_source_clears_old_auto_clock_and_preserves_explicit_values",
+        "timed_out": false,
+        "deadline_seconds": 960,
+        "idle_limit_seconds": 120,
+        "seconds": 506.889,
+        "platform": "linux",
+        "python": "3.14.10",
+        "source_fingerprint": "a00654bcc5c4d05fd68bff03bdf58e656fff430304b48761584e23a2f4606c69"
+      }
+    }
+  }
+}

@@ -32,10 +32,10 @@ Este registro conserva pendientes las decisiones de aceptación individual. [Cob
 | --- | --- | --- |
 | E-01 | Condición externa para distribución del portable. Qt y OpenJPEG siguen bajo seguimiento. | Incorporar ruedas verificadas que reparen los avisos aplicables y reconstruir ambos paquetes. |
 | E-02 | Riesgo del parser nativo con archivos no controlados. MAT conserva selección local, cuota y plazo. | Verificar una rueda h5py con corrección del parser. El proceso conserva los permisos de su cuenta. |
-| E-03 | Admisión compartida implementada en Core numérico, SLPROJ y MAT. | Medir el candidato con los nuevos perfiles de cancelación. Las cuotas del SO aplican al lector MAT. |
-| E-04 | Actualización técnica aislada verificada en `54adaa0`. | Firma Authenticode y canal público requieren evaluación propia. |
+| E-03 | Admisión compartida implementada y validada para los perfiles medidos en Core numérico, persistencia y MAT. | Registrar operación, tamaño y latencia para cualquier alcance adicional. Las cuotas del SO aplican al lector MAT. |
+| E-04 | Actualización técnica aislada revalidada en `eb50895` en ambas plataformas. | Firma Authenticode y canal público requieren evaluación propia. |
 | E-05 | Windows 96 DPI real incluye recuperación CAS. | Actas de escritorio Linux real y de escalas del SO en monitores disponibles. |
 | E-06a y E-06b | Pendientes internos. | Alcanzar 85 % de líneas y 75 % de ramas. Medir también los componentes críticos nuevos. |
-| E-06c–j | Dentro del objetivo en ambas plataformas de `54adaa0`. | Revalidar objetivos en el candidato posterior. |
+| E-06c–j | Dentro del objetivo en ambas plataformas de `eb50895`. SLPROJ, CAS y controlador de sesiones también cumplen. | Mantener mínimos y validar en cada candidato integral. |
 
 El [Quality Gate](QUALITY_GATE_REPORT.md#continuación-autónoma-de-fase-02c) registra los pendientes antes de cualquier solicitud de decisión. [Evaluación nativa](../security/DEPENDENCY_CONTINUATION.md) · [Protocolo de escritorio](../gui/DESKTOP_CONTINUATION.md)
