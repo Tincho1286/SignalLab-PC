@@ -23,3 +23,7 @@ El cierre técnico de Fase 01 aprobó el inicio controlado del piloto definido e
 ## Fase 02B · Engineering Core
 
 El candidato `8ad3066` consolidó el contexto común, las cinco operaciones DSP, el flujo secuencial y el almacenamiento experimental. Pasó 850 pruebas y 150 casos preventivos por plataforma. El informe registra el alcance, cobertura, memoria estimada y las excepciones de distribución. La recomendación para Fase 03 es GO condicionado y su implementación requiere autorización específica. [Cierre de Fase 02B](phase_02b/closeout/PHASE_02B_CLOSEOUT.md)
+
+## Fase 02C · Integridad y validación del Core
+
+El trabajo en `develop` verifica la procedencia de los cálculos y sus entradas, corrige el eje de PSD a escalas extremas y amplía los controles de entradas, cancelación y persistencia. La puerta de calidad mantiene revisiones separadas para el Core, la preparación de Fase 03 y la distribución. [Expediente y estado de cierre](phase_02c/README.md)

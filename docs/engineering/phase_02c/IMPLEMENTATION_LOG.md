@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02C.11 · C11 · C-01 a C-10
+
+**Estado inicial.** Desde `d29bcb8`, referencia 02B `8ad3066`. Se descartó una corrida local con fuentes cambiantes y se cotejaron los SHA de los cuatro trabajos de la corrida definitiva 45650373957.
+
+**Evidencia.** El candidato limpio `459b9fc` aprobó 870 pruebas integrales y 150 preventivas por sistema. Se archivaron métricas, SBOM, instaladores, perfiles, mediciones y capturas representativas. Se verificaron los objetivos por módulo y las condiciones que el runner no puede acreditar.
+
+**Dictámenes.** Cierre NO-GO hasta revisar excepciones. Fase 03 GO condicionado de arquitectura. Distribución pública NO-GO. [Puerta de calidad](validation/QUALITY_GATE_REPORT.md) · [Revisión de excepciones](validation/EXCEPTION_APPROVAL_REGISTER.md).
+
 ## 25 de noviembre de 2026 · Revisión de WP-02C.03 y WP-02C.06 · C03, C06 · C-03, C-07
 
 **Estado inicial.** `caf7bcd`. La comprobación del diseño FIR se aplicaba al modelo publicado. El objeto de especificaciones se contrastaba sólo durante la primera publicación. La línea base intermedia midió brechas en importación binaria y CLI.
@@ -68,11 +76,19 @@
 
 ## 25 de noviembre de 2026 · WP-02C.03 · C03 · C-03
 
-La publicación verifica el contenido materializado y los padres antes de la entrega atómica. Pasaron 23 pruebas de cálculo, CLI y transacciones y 5 regresiones específicas de procedencia.
+**Estado inicial y causa.** `ef15207`. `Project.add` comprobaba la existencia de IDs. `store_pipeline` y `store_dft` podían ligar contenido distinto. Se revisaron `project`, `session`, `execution`, adaptadores, modelos y usos del CLI y Qt.
+
+**Alternativas y decisión.** Una versión de registro sólo serviría dentro de un proyecto. Comparar las listas serializadas exigiría duplicarlas. Se eligieron huellas por bloques, parámetros congelados y verificación contra el estado preparado para commit. Se ajustaron pruebas de cambios de muestras y metadatos, parámetros, padres, reapertura y merge.
+
+**Resultado y límite.** Pasaron 23 casos de cálculo, CLI y transacciones y 5 regresiones iniciales de procedencia. Se conserva el contrato de buffers estables durante la ejecución. La implementación inicial está en `8b1c63e`. Las ampliaciones de normalización y especificación están registradas arriba.
 
 ## 25 de noviembre de 2026 · WP-02C.02 · C02 · C-04
 
-Se corrigió el origen de los bins para Fs subnormal y se agregó un oráculo analítico de Nyquist. Pasaron 7 casos locales de adaptadores DSP.
+**Estado inicial y causa.** `609c8c3`. Se inspeccionaron convenciones de Fourier, muestreo, filtros y estado y pruebas simbólicas por familia. En `fourier.spectral_density`, invertir Fs para obtener el índice de origen podía desbordar aun con un eje representable.
+
+**Alternativas y decisión.** Aumentar precisión del recíproco añadiría una dependencia de plataforma. Construir el eje desde N y Fs da el origen correcto. Se registraron oráculos independientes y se incorporó la regresión de Nyquist, con el rechazo de paso no representable.
+
+**Resultado y límite.** Se ejecutaron siete casos de `test_math_dsp_application`. Se documentaron tolerancias, números subnormales y alcance del gate. Implementación `ef15207`. La suite del candidato acredita el resto de familias.
 
 ## 25 de noviembre de 2026 · WP-02C.01 · C01 · C-01 y C-02
 

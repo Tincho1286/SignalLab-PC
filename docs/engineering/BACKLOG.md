@@ -31,3 +31,7 @@ Prioridades de Fase 01 y condiciones de continuidad. El estado de los controles 
 - E10 actualiza el grafo y propone la DFT como el único piloto mediante ADR.
 
 El criterio para empezar Fase 02 es la salida de estabilización de [ROADMAP](ROADMAP.md) y su autorización específica.
+
+### Seguimiento de Fase 02C
+
+Los hallazgos y acciones pendientes de 02C se gestionan con su prioridad, condición de salida y evidencia. La procedencia verificada y el error de escala de PSD tienen regresiones dedicadas. La cobertura, el escritorio real y la distribución tienen criterios de revisión propios. [Deuda de Fase 02C](phase_02c/validation/FINAL_TECHNICAL_DEBT_REGISTER.md)

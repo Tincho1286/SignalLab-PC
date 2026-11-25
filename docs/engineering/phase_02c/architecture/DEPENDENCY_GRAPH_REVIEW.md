@@ -11,7 +11,7 @@ flowchart LR
     CLI --> Session[Sesión]
     Session --> Project
     Project --> Domain
-    Apps --> Binary[SLBIN experimental]
+    CLI --> Binary[SLBIN experimental]
     Binary --> Domain
 ```
 

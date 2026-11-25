@@ -55,3 +55,5 @@ La [Fase 02B](phase_02b/README.md) consolida la frontera de aplicación después
 | 09 · Plataforma integrada | Plugins opcionales, SoapySDR, RTL-SDR, PlutoSDR, USRP, SCPI/PyVISA, instrumentos de RF, reportes y notebooks. | Smoke sin hardware, pruebas en dispositivos representativos y documentación de los límites. El núcleo no necesita drivers ni GNU Radio para iniciar. |
 
 La primera validación de AWGN se necesita en Fase 03 para el demostrador. La Fase 04 amplía el mismo contrato y su implementación. Las dependencias recomendadas para pruebas de concepto y sus condicionantes están en [DEPENDENCY_AUDIT](DEPENDENCY_AUDIT.md).
+
+La [Fase 02C](phase_02c/README.md) evalúa la solidez del Core antes de ese cambio de alcance. Sus condiciones de salida incluyen procedencia demostrada, recursos medidos, auditoría científica y de dependencias, compatibilidad, cobertura y excepciones explícitas.

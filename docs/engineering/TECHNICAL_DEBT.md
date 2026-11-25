@@ -16,3 +16,5 @@ La auditoría separa evidencia observada de cambios propuestos. Los identificado
 | D10 · Automatización de auditoría | Alta | CI usa baterías con familias y mínimos. La cobertura, el inventario de binarios y la revisión de vulnerabilidades no aparecen como gates automáticos. | Trazar commit, bloqueo de dependencias, cobertura por dominio, SBOM y verificación de cada artefacto. |
 
 La complejidad es una métrica estructural y las coincidencias de nombres son hipótesis de duplicación. Convolución algebraica y numérica, reconstrucción ideal y muestral, o distintas políticas de ROC pueden requerir implementaciones separadas. Se debe compartir un algoritmo sólo cuando coincidan el dominio, la convención y las garantías.
+
+El [registro de deuda de Fase 02C](phase_02c/validation/FINAL_TECHNICAL_DEBT_REGISTER.md) conserva la prioridad y la evidencia actual de los hallazgos vinculados con Engineering Core. Los hallazgos históricos anteriores quedan como referencia de auditoría.

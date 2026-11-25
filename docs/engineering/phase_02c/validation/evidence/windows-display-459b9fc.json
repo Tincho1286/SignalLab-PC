@@ -1,0 +1,509 @@
+{
+  "candidate": "459b9fc505c0a6a4d20bb6c5e898a5ae3f3cb281",
+  "native_1366": {
+    "qt_platform": "windows",
+    "window": [
+      1366,
+      749
+    ],
+    "requested_window": [
+      1366,
+      768
+    ],
+    "minimum_window": [
+      640,
+      420
+    ],
+    "screen": [
+      1366,
+      768
+    ],
+    "scale": 1.0,
+    "dpi": 96.0,
+    "captures_pixels": {
+      "inicio": [
+        1366,
+        749
+      ],
+      "dft": [
+        1366,
+        749
+      ],
+      "idft": [
+        1366,
+        749
+      ],
+      "fir": [
+        1366,
+        749
+      ],
+      "iir": [
+        1366,
+        749
+      ],
+      "muestreo": [
+        1366,
+        749
+      ],
+      "resampling": [
+        1366,
+        749
+      ],
+      "psd": [
+        1366,
+        749
+      ],
+      "resultados": [
+        1366,
+        749
+      ],
+      "cas": [
+        1366,
+        749
+      ]
+    }
+  },
+  "simulated_profiles": {
+    "1366x768-1": {
+      "qt_platform": "windows",
+      "window": [
+        1366,
+        749
+      ],
+      "requested_window": [
+        1366,
+        768
+      ],
+      "minimum_window": [
+        640,
+        420
+      ],
+      "screen": [
+        1366,
+        768
+      ],
+      "scale": 1.0,
+      "dpi": 96.0,
+      "captures_pixels": {
+        "inicio": [
+          1366,
+          749
+        ],
+        "dft": [
+          1366,
+          749
+        ],
+        "idft": [
+          1366,
+          749
+        ],
+        "fir": [
+          1366,
+          749
+        ],
+        "iir": [
+          1366,
+          749
+        ],
+        "muestreo": [
+          1366,
+          749
+        ],
+        "resampling": [
+          1366,
+          749
+        ],
+        "psd": [
+          1366,
+          749
+        ],
+        "resultados": [
+          1366,
+          749
+        ],
+        "cas": [
+          1366,
+          749
+        ]
+      }
+    },
+    "1366x768-1.25": {
+      "qt_platform": "windows",
+      "window": [
+        1096,
+        599
+      ],
+      "requested_window": [
+        1366,
+        768
+      ],
+      "minimum_window": [
+        640,
+        420
+      ],
+      "screen": [
+        1093,
+        614
+      ],
+      "scale": 1.25,
+      "dpi": 96.0,
+      "captures_pixels": {
+        "inicio": [
+          1370,
+          749
+        ],
+        "dft": [
+          1370,
+          749
+        ],
+        "idft": [
+          1370,
+          749
+        ],
+        "fir": [
+          1370,
+          749
+        ],
+        "iir": [
+          1370,
+          749
+        ],
+        "muestreo": [
+          1370,
+          749
+        ],
+        "resampling": [
+          1370,
+          749
+        ],
+        "psd": [
+          1370,
+          749
+        ],
+        "resultados": [
+          1370,
+          749
+        ],
+        "cas": [
+          1370,
+          749
+        ]
+      }
+    },
+    "1366x768-1.5": {
+      "qt_platform": "windows",
+      "window": [
+        913,
+        499
+      ],
+      "requested_window": [
+        1366,
+        768
+      ],
+      "minimum_window": [
+        640,
+        420
+      ],
+      "screen": [
+        911,
+        512
+      ],
+      "scale": 1.5,
+      "dpi": 96.0,
+      "captures_pixels": {
+        "inicio": [
+          1370,
+          749
+        ],
+        "dft": [
+          1370,
+          749
+        ],
+        "idft": [
+          1370,
+          749
+        ],
+        "fir": [
+          1370,
+          749
+        ],
+        "iir": [
+          1370,
+          749
+        ],
+        "muestreo": [
+          1370,
+          749
+        ],
+        "resampling": [
+          1370,
+          749
+        ],
+        "psd": [
+          1370,
+          749
+        ],
+        "resultados": [
+          1370,
+          749
+        ],
+        "cas": [
+          1370,
+          749
+        ]
+      }
+    },
+    "1920x1080-1": {
+      "qt_platform": "windows",
+      "window": [
+        1370,
+        749
+      ],
+      "requested_window": [
+        1920,
+        1080
+      ],
+      "minimum_window": [
+        640,
+        420
+      ],
+      "screen": [
+        1366,
+        768
+      ],
+      "scale": 1.0,
+      "dpi": 96.0,
+      "captures_pixels": {
+        "inicio": [
+          1370,
+          749
+        ],
+        "dft": [
+          1370,
+          749
+        ],
+        "idft": [
+          1370,
+          749
+        ],
+        "fir": [
+          1370,
+          749
+        ],
+        "iir": [
+          1370,
+          749
+        ],
+        "muestreo": [
+          1370,
+          749
+        ],
+        "resampling": [
+          1370,
+          749
+        ],
+        "psd": [
+          1370,
+          749
+        ],
+        "resultados": [
+          1370,
+          749
+        ],
+        "cas": [
+          1370,
+          749
+        ]
+      }
+    },
+    "1920x1080-2": {
+      "qt_platform": "windows",
+      "window": [
+        685,
+        420
+      ],
+      "requested_window": [
+        1920,
+        1080
+      ],
+      "minimum_window": [
+        640,
+        420
+      ],
+      "screen": [
+        683,
+        384
+      ],
+      "scale": 2.0,
+      "dpi": 96.0,
+      "captures_pixels": {
+        "inicio": [
+          1370,
+          840
+        ],
+        "dft": [
+          1370,
+          840
+        ],
+        "idft": [
+          1370,
+          840
+        ],
+        "fir": [
+          1370,
+          840
+        ],
+        "iir": [
+          1370,
+          840
+        ],
+        "muestreo": [
+          1370,
+          840
+        ],
+        "resampling": [
+          1370,
+          840
+        ],
+        "psd": [
+          1370,
+          840
+        ],
+        "resultados": [
+          1370,
+          840
+        ],
+        "cas": [
+          1370,
+          840
+        ]
+      }
+    },
+    "640x420-1": {
+      "qt_platform": "windows",
+      "window": [
+        640,
+        420
+      ],
+      "requested_window": [
+        640,
+        420
+      ],
+      "minimum_window": [
+        640,
+        420
+      ],
+      "screen": [
+        1366,
+        768
+      ],
+      "scale": 1.0,
+      "dpi": 96.0,
+      "captures_pixels": {
+        "inicio": [
+          640,
+          420
+        ],
+        "dft": [
+          640,
+          420
+        ],
+        "idft": [
+          640,
+          420
+        ],
+        "fir": [
+          640,
+          420
+        ],
+        "iir": [
+          640,
+          420
+        ],
+        "muestreo": [
+          640,
+          420
+        ],
+        "resampling": [
+          640,
+          420
+        ],
+        "psd": [
+          640,
+          420
+        ],
+        "resultados": [
+          640,
+          420
+        ],
+        "cas": [
+          640,
+          420
+        ]
+      }
+    },
+    "960x540-2": {
+      "qt_platform": "windows",
+      "window": [
+        685,
+        420
+      ],
+      "requested_window": [
+        960,
+        540
+      ],
+      "minimum_window": [
+        640,
+        420
+      ],
+      "screen": [
+        683,
+        384
+      ],
+      "scale": 2.0,
+      "dpi": 96.0,
+      "captures_pixels": {
+        "inicio": [
+          1370,
+          840
+        ],
+        "dft": [
+          1370,
+          840
+        ],
+        "idft": [
+          1370,
+          840
+        ],
+        "fir": [
+          1370,
+          840
+        ],
+        "iir": [
+          1370,
+          840
+        ],
+        "muestreo": [
+          1370,
+          840
+        ],
+        "resampling": [
+          1370,
+          840
+        ],
+        "psd": [
+          1370,
+          840
+        ],
+        "resultados": [
+          1370,
+          840
+        ],
+        "cas": [
+          1370,
+          840
+        ]
+      }
+    }
+  }
+}

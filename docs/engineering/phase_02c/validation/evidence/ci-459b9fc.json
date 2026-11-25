@@ -1,0 +1,3663 @@
+{
+  "run": 45650373957,
+  "platforms": {
+    "windows": {
+      "candidate": "459b9fc505c0a6a4d20bb6c5e898a5ae3f3cb281",
+      "runtime": "3.14.10",
+      "passed": true,
+      "tests": 870,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "preventive": {
+        "passed": true,
+        "completed_cases": 150,
+        "failed_cases": 0,
+        "seeds": [
+          20261103,
+          1716233495
+        ]
+      },
+      "coverage": {
+        "lines": 78.091,
+        "branches": 63.843,
+        "target_lines": 85,
+        "target_branches": 75,
+        "meets_lines": false,
+        "meets_branches": false
+      },
+      "covered_modules": {
+        "cli_session.py": {
+          "lines": 96.875,
+          "branches": 100.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "dft_application.py": {
+          "lines": 92.857,
+          "branches": 66.667,
+          "target_lines": null,
+          "target_branches": 85,
+          "meets_lines": null,
+          "meets_branches": false
+        },
+        "dsp_application.py": {
+          "lines": 96.517,
+          "branches": 80.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": false
+        },
+        "dsp_pipeline.py": {
+          "lines": 92.537,
+          "branches": 77.273,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": false
+        },
+        "execution.py": {
+          "lines": 100.0,
+          "branches": 100.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "fourier.py": {
+          "lines": 91.829,
+          "branches": 61.905,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": false
+        },
+        "operation_provenance.py": {
+          "lines": 88.462,
+          "branches": 75.0,
+          "target_lines": null,
+          "target_branches": 85,
+          "meets_lines": null,
+          "meets_branches": false
+        },
+        "project.py": {
+          "lines": 95.868,
+          "branches": 84.677,
+          "target_lines": null,
+          "target_branches": null,
+          "meets_lines": null,
+          "meets_branches": null
+        },
+        "sampling.py": {
+          "lines": 92.105,
+          "branches": 75.385,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": false
+        },
+        "scientific_storage.py": {
+          "lines": 91.579,
+          "branches": 80.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": false
+        }
+      },
+      "packaged_diagnostics": {
+        "fft_roundtrip": true,
+        "lti_recurrence": true,
+        "bilinear": true,
+        "symbolic_runtime": true,
+        "packaged_update_verification": true,
+        "state_space_simulation_and_project": true,
+        "digital_delay_transfer_roundtrip": true,
+        "toolbox_menu_and_matplotlib": true,
+        "sampling_plot_and_report_layout": true,
+        "project_picker_search_and_selection": true,
+        "formatted_report_preserves_text": true,
+        "packaged_symbolic_measures_and_window": true,
+        "expression_measure_menu": true
+      },
+      "distribution_commit": "459b9fc505c0a6a4d20bb6c5e898a5ae3f3cb281",
+      "native_files": 219,
+      "host_tls": [],
+      "native_runtime": {
+        "qt": {
+          "file": "PySide6\\Qt6Core.dll",
+          "version": "6.12.0"
+        },
+        "qt_svg": {
+          "file": "PySide6\\Qt6Svg.dll"
+        },
+        "python": {
+          "file": "python314.dll",
+          "version": "3.14.10"
+        },
+        "cryptography_openssl": {
+          "version_text": "OpenSSL 4.0.3 29 Sep 2026",
+          "matched_file": "cryptography\\hazmat\\bindings\\_rust.pyd",
+          "sha256": "1d4332a447cab13dec8e3a533ad579e0e562b79e40822c931f33769758fc7156"
+        }
+      },
+      "artifact_sha256": "8e292feac7e54bf7c454d4500c98ddc5709a40b33b8c676a746882015b3155b7",
+      "native_unconfirmed": [],
+      "native_origin_packages": [
+        [
+          "CPython",
+          "CPython",
+          "3.14.10"
+        ],
+        [
+          "PyPI",
+          "PySide6_Essentials",
+          "6.12.0"
+        ],
+        [
+          "PyPI",
+          "cffi",
+          "2.1.1"
+        ],
+        [
+          "PyPI",
+          "contourpy",
+          "1.4.0"
+        ],
+        [
+          "PyPI",
+          "cryptography",
+          "50.0.2"
+        ],
+        [
+          "PyPI",
+          "h5py",
+          "3.16.0"
+        ],
+        [
+          "PyPI",
+          "kiwisolver",
+          "1.5.1"
+        ],
+        [
+          "PyPI",
+          "matplotlib",
+          "3.11.2"
+        ],
+        [
+          "PyPI",
+          "numpy",
+          "2.5.0"
+        ],
+        [
+          "PyPI",
+          "pillow",
+          "13.0.0"
+        ],
+        [
+          "PyPI",
+          "scipy",
+          "1.18.0"
+        ],
+        [
+          "PyPI",
+          "shiboken6",
+          "6.12.0"
+        ]
+      ],
+      "native_python_notice_check": [
+        {
+          "package": "CPython",
+          "version": "3.14.10",
+          "license_expression": "PSF-2.0",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/Python/LICENSE.txt": "935cf13e19f8c31b497d20b05d73623431a226b230c3599bc30fa3348979bc68"
+          }
+        },
+        {
+          "package": "PySide6_Essentials",
+          "version": "6.12.0",
+          "license_expression": null,
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/PySide6_Essentials/pyside6_essentials-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+          }
+        },
+        {
+          "package": "cffi",
+          "version": "2.1.1",
+          "license_expression": "MIT-0",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/cffi/cffi-2.1.1.dist-info/licenses/LICENSE": "6b0fa4a0249011c398c67fc8138d7cd9f264d816d60f2c26bb169900f24d0617"
+          }
+        },
+        {
+          "package": "contourpy",
+          "version": "1.4.0",
+          "license_expression": "BSD-3-Clause",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/contourpy/contourpy-1.4.0.dist-info/licenses/LICENSE": "0e55e86a8fbf3e9b482ae8dc9e111e1b0dc09a7d300e7f480dda68c1125ed614"
+          }
+        },
+        {
+          "package": "cryptography",
+          "version": "50.0.2",
+          "license_expression": "Apache-2.0 OR BSD-3-Clause",
+          "notice_count": 3,
+          "notice_sha256": {
+            "LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE": "089d2e6abab324bda36cc4b032b9c39954b39b488ec92973f314ffe922dce4bc",
+            "LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE.APACHE": "e8de1a7393457e9c88768b78e6ba790622fbefb040ce48194c2cb0f1b6d4e9ff",
+            "LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE.BSD": "661d18932dd84bb263a8ee418ab7774ed94eec33c83fd1db5b533f78eb774ca4"
+          }
+        },
+        {
+          "package": "h5py",
+          "version": "3.16.0",
+          "license_expression": "BSD-3-Clause",
+          "notice_count": 7,
+          "notice_sha256": {
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/LICENSE": "b773bc7cf038637a7fd8087648cc28e05f0f24d53770d1827147a40a1d268ab5",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/hdf5.txt": "d7c1924744336633bbaac5626107ab55c961715abc9f71744443e43a4db3f194",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/license.txt": "9a6333afbf5c391994fe3e9f5241accb8c22a23eb50b2e7e9b00ea57dccf29d0",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/pytables.txt": "635a613f100d7ee01946fa52413f612cfe402b01f5cc139c221898f25d04b057",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/python.txt": "f44efbbdac3232645854843bec8e8a206621aab6c5d5cc3e4c3e838a2aa6d0cb",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/stdint.txt": "30b76942adcfe2517aa56e7a81644b412a2a29d14ac5f0d299a567ec54a295e5",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/lzf/LICENSE.txt": "d7b37a2bda245d5199b84a04cf4d91b899b4ad687076c8e0a92d792b521fd464"
+          }
+        },
+        {
+          "package": "kiwisolver",
+          "version": "1.5.1",
+          "license_expression": null,
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/kiwisolver/kiwisolver-1.5.1.dist-info/licenses/LICENSE": "b24c2bf6185f31a124ad6bacccae3071bdc7ad7882de00b00110aa62abb76a15"
+          }
+        },
+        {
+          "package": "matplotlib",
+          "version": "3.11.2",
+          "license_expression": null,
+          "notice_count": 3,
+          "notice_sha256": {
+            "LICENSES/matplotlib/matplotlib-3.11.2.dist-info/LICENSE": "8727104bcd93313371a7ea8a6798c2eadd5fac36b52f5aaa7a613f65dc69e90b",
+            "LICENSES/matplotlib/matplotlib/mpl-data/fonts/ttf/LICENSE_DEJAVU": "c61ba9e8668a511cbd0bcfdee8329e02ca6ca4048abda6ca7ee8ac68a059776a",
+            "LICENSES/matplotlib/matplotlib/mpl-data/fonts/ttf/LICENSE_STIX": "20742462c1dc14913b39f00ca1e06a2e9885b64b593a06de4209066988dbdb8e"
+          }
+        },
+        {
+          "package": "numpy",
+          "version": "2.5.0",
+          "license_expression": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+          "notice_count": 20,
+          "notice_sha256": {
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/LICENSE.txt": "9a7c3fddd888d6dd3a9e20361910c01eb5e00c92513bf159c2cee48e8a853a06",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/include/numpy/libdivide/LICENSE.txt": "d544761558b510866c21f7e8a2d5716fca76e0b98117e3b6b86314db7244d150",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/common/pythoncapi-compat/COPYING": "aea41976c720f91bd19725c16916a1ace40eb1ea42620d340e587a5de4bbcea0",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/highway/LICENSE": "d208152e2777ffd0126eacc1bd21c0320d69e4e6b622d21a2a12a47e8ef73763",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/multiarray/dragon4_LICENSE.txt": "b0fd592d4ead563148e3977e7b589169d46a5ef2ff133c755a81af880a3fc919",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md": "211e7d737d6179a08f791ebb0a99897ce7cd2457410c542876d125576edfe910",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/umath/svml/LICENSE": "585483905b13d4b42f800c55ba99e89d6e2e33ccd5f503e201c07531d148ff41",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md": "a85ca13fdf90160b64a0698215868c13b74d835ad0a4e2ba44713b8c5058a056",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/linalg/lapack_lite/LICENSE.txt": "19060ef465e1797d682ee0fc3081bd25ab1395e995e43d25c9d13c95d9a3cd6b",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/ma/LICENSE": "d78dbb208b80d92b4d333e41a4baae50d12444f46e53199fa7726a91de6e2da7",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/LICENSE.md": "103166b62b80443afb9eb3488e052ea06be0cff566b908f199e561fde49af19f",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/distributions/LICENSE.md": "469778be8f33d54e1bcaab28c281cc472916d2d273f835e55bc487d30503face",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md": "0e111337b25494a773106695f0e799f642b8567aaacca4f116a74a8177179156",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md": "e7d4f4fb20358f314210a892ae17351e04993813646f697ec387385ca2a36918",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/philox/LICENSE.md": "6f5828a57223d4cc7f8ea505a2623e7b978b242752c1515e355f46ba2cec1800",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md": "9d4098846018319cd68e228ee6220361787f73bccbf00237a85e4fc9621b998f",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md": "268b0ca06759d31ea3ca68dd35f20e877916e927b1c2a835e4592a3c4354b1f9",
+            "LICENSES/numpy/numpy/_core/include/numpy/random/LICENSE.txt": "d544761558b510866c21f7e8a2d5716fca76e0b98117e3b6b86314db7244d150",
+            "LICENSES/numpy/numpy/ma/LICENSE": "d78dbb208b80d92b4d333e41a4baae50d12444f46e53199fa7726a91de6e2da7",
+            "LICENSES/numpy/numpy/random/LICENSE.md": "103166b62b80443afb9eb3488e052ea06be0cff566b908f199e561fde49af19f"
+          }
+        },
+        {
+          "package": "pillow",
+          "version": "13.0.0",
+          "license_expression": "MIT-CMU",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/pillow/pillow-13.0.0.dist-info/licenses/LICENSE": "58a804e817de2d02bb1776d4ac8a2cffdc7b10056a411a154bdae36297b13365"
+          }
+        },
+        {
+          "package": "scipy",
+          "version": "1.18.0",
+          "license_expression": null,
+          "notice_count": 5,
+          "notice_sha256": {
+            "LICENSES/scipy/scipy-1.18.0.dist-info/LICENSE.txt": "9336855f8367bffb4bc45de4ca752683deb750412166f8c0e9993f61687e81d9",
+            "LICENSES/scipy/scipy/_lib/_uarray/LICENSE": "e4c4acc31e8287066d7c995d26e3ef902ca1977ee187b260b11c278366503811",
+            "LICENSES/scipy/scipy/fft/_duccfft/LICENSE.md": "c254b2b5fd30ae3c89d36ba061730563b9760fca04f1b746a1b2c3157da2c789",
+            "LICENSES/scipy/scipy/integrate/LICENSE_DOP": "6cc2ed6e35b8f376ff3d8f86aeef4e0c34c2309bd6f4a0565936d577839ba023",
+            "LICENSES/scipy/scipy/spatial/qhull_src/COPYING_QHULL.txt": "2a6ebb495e26dd5f88cbc40c593733da6edb27b64936f70409cd5a1acafb1c32"
+          }
+        },
+        {
+          "package": "shiboken6",
+          "version": "6.12.0",
+          "license_expression": null,
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/shiboken6/shiboken6-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+          }
+        }
+      ],
+      "installer_checks": [
+        "native_upgrade_same_installation",
+        "per_user_registration",
+        "uninstall_preserves_untracked_files",
+        "real_installed_application_self_check",
+        "native_downgrade_rejected"
+      ],
+      "disposable_manifest": true,
+      "benchmark": {
+        "candidate": "459b9fc505c0a6a4d20bb6c5e898a5ae3f3cb281",
+        "clean_checkout": true,
+        "profiles": 57,
+        "cpu": "AMD64 Family 25 Model 1 Stepping 1, AuthenticAMD",
+        "selected": [
+          {
+            "operation": "dft",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9466867000001002,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 14506819584,
+            "peak_before_bytes": 113303552,
+            "peak_after_bytes": 123932672,
+            "files_bytes": {},
+            "wall_samples": [
+              0.020307899999806978,
+              0.01976269999977376,
+              0.019894200000180717
+            ],
+            "cpu_samples": [
+              0.03125,
+              0.015625,
+              0.015625
+            ],
+            "wall_median_seconds": 0.019894200000180717,
+            "cpu_median_seconds": 0.015625
+          },
+          {
+            "operation": "dft",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.9642561999999089,
+            "work_estimate_bytes": 134217728,
+            "available_bytes": 14501797888,
+            "peak_before_bytes": 145006592,
+            "peak_after_bytes": 187105280,
+            "files_bytes": {},
+            "wall_samples": [
+              0.08464989999993122,
+              0.08587850000003527,
+              0.09018429999969158
+            ],
+            "cpu_samples": [
+              0.09375,
+              0.09375,
+              0.078125
+            ],
+            "wall_median_seconds": 0.08587850000003527,
+            "cpu_median_seconds": 0.09375
+          },
+          {
+            "operation": "idft",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9233023000001594,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 14518915072,
+            "peak_before_bytes": 119906304,
+            "peak_after_bytes": 119984128,
+            "files_bytes": {},
+            "wall_samples": [
+              0.018810000000030414,
+              0.01835209999990184,
+              0.018476100000043516
+            ],
+            "cpu_samples": [
+              0.015625,
+              0.015625,
+              0.03125
+            ],
+            "wall_median_seconds": 0.018476100000043516,
+            "cpu_median_seconds": 0.015625
+          },
+          {
+            "operation": "idft",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 1.032698999999866,
+            "work_estimate_bytes": 134217728,
+            "available_bytes": 14469066752,
+            "peak_before_bytes": 170774528,
+            "peak_after_bytes": 170856448,
+            "files_bytes": {},
+            "wall_samples": [
+              0.08425050000005285,
+              0.08130309999978635,
+              0.07788669999990816
+            ],
+            "cpu_samples": [
+              0.078125,
+              0.09375,
+              0.078125
+            ],
+            "wall_median_seconds": 0.08130309999978635,
+            "cpu_median_seconds": 0.078125
+          },
+          {
+            "operation": "fir",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9308209000000716,
+            "work_estimate_bytes": 33558400,
+            "available_bytes": 14520811520,
+            "peak_before_bytes": 114204672,
+            "peak_after_bytes": 116510720,
+            "files_bytes": {},
+            "wall_samples": [
+              0.021841499999936786,
+              0.02167669999971622,
+              0.021842299999661918
+            ],
+            "cpu_samples": [
+              0.015625,
+              0.03125,
+              0.015625
+            ],
+            "wall_median_seconds": 0.021841499999936786,
+            "cpu_median_seconds": 0.015625
+          },
+          {
+            "operation": "fir",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.9267352000001665,
+            "work_estimate_bytes": 134221696,
+            "available_bytes": 14499815424,
+            "peak_before_bytes": 144187392,
+            "peak_after_bytes": 154161152,
+            "files_bytes": {},
+            "wall_samples": [
+              0.08463279999978113,
+              0.08557550000023184,
+              0.08488289999968401
+            ],
+            "cpu_samples": [
+              0.078125,
+              0.09375,
+              0.078125
+            ],
+            "wall_median_seconds": 0.08488289999968401,
+            "cpu_median_seconds": 0.078125
+          },
+          {
+            "operation": "resample",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9374471999999514,
+            "work_estimate_bytes": 111863808,
+            "available_bytes": 14524149760,
+            "peak_before_bytes": 113692672,
+            "peak_after_bytes": 113692672,
+            "files_bytes": {},
+            "wall_samples": [
+              0.018024099999820464,
+              0.017868199999611534,
+              0.018011099999966973
+            ],
+            "cpu_samples": [
+              0.015625,
+              0.015625,
+              0.015625
+            ],
+            "wall_median_seconds": 0.018011099999966973,
+            "cpu_median_seconds": 0.015625
+          },
+          {
+            "operation": "resample",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.9641063999997641,
+            "work_estimate_bytes": 447408128,
+            "available_bytes": 14512992256,
+            "peak_before_bytes": 144433152,
+            "peak_after_bytes": 144433152,
+            "files_bytes": {},
+            "wall_samples": [
+              0.06919150000021546,
+              0.06900550000000294,
+              0.06959290000031615
+            ],
+            "cpu_samples": [
+              0.078125,
+              0.0625,
+              0.078125
+            ],
+            "wall_median_seconds": 0.06919150000021546,
+            "cpu_median_seconds": 0.078125
+          },
+          {
+            "operation": "psd",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9305552000000716,
+            "work_estimate_bytes": 65536,
+            "available_bytes": 14515654656,
+            "peak_before_bytes": 113541120,
+            "peak_after_bytes": 113541120,
+            "files_bytes": {},
+            "wall_samples": [
+              0.12689950000003591,
+              0.116631000000325,
+              0.11556989999962752
+            ],
+            "cpu_samples": [
+              0.140625,
+              0.109375,
+              0.109375
+            ],
+            "wall_median_seconds": 0.116631000000325,
+            "cpu_median_seconds": 0.109375
+          },
+          {
+            "operation": "psd",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.9696979999998803,
+            "work_estimate_bytes": 65536,
+            "available_bytes": 14519377920,
+            "peak_before_bytes": 145461248,
+            "peak_after_bytes": 145461248,
+            "files_bytes": {},
+            "wall_samples": [
+              0.44884040000033565,
+              0.4481000999999196,
+              0.4524156999996194
+            ],
+            "cpu_samples": [
+              0.4375,
+              0.4375,
+              0.453125
+            ],
+            "wall_median_seconds": 0.44884040000033565,
+            "cpu_median_seconds": 0.4375
+          },
+          {
+            "operation": "pipeline",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9456060999996225,
+            "work_estimate_bytes": 124451328,
+            "available_bytes": 14520446976,
+            "peak_before_bytes": 113496064,
+            "peak_after_bytes": 139128832,
+            "files_bytes": {},
+            "wall_samples": [
+              0.14931399999977657,
+              0.1461712999998781,
+              0.14683089999971344
+            ],
+            "cpu_samples": [
+              0.140625,
+              0.15625,
+              0.140625
+            ],
+            "wall_median_seconds": 0.14683089999971344,
+            "cpu_median_seconds": 0.140625
+          },
+          {
+            "operation": "pipeline",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.9428194000001895,
+            "work_estimate_bytes": 497744384,
+            "available_bytes": 14501289984,
+            "peak_before_bytes": 145055744,
+            "peak_after_bytes": 244600832,
+            "files_bytes": {},
+            "wall_samples": [
+              0.5940055999999458,
+              0.5993141000003561,
+              0.6037871000003179
+            ],
+            "cpu_samples": [
+              0.59375,
+              0.59375,
+              0.609375
+            ],
+            "wall_median_seconds": 0.5993141000003561,
+            "cpu_median_seconds": 0.59375
+          },
+          {
+            "operation": "slbin_read",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9741367999999966,
+            "work_estimate_bytes": 16777216,
+            "available_bytes": 14537895936,
+            "peak_before_bytes": 113811456,
+            "peak_after_bytes": 113811456,
+            "files_bytes": {
+              "samples.slbin": 4194481
+            },
+            "wall_samples": [
+              0.005176199999823439,
+              0.00512380000009216,
+              0.005149500000243279
+            ],
+            "cpu_samples": [
+              0.0,
+              0.0,
+              0.015625
+            ],
+            "wall_median_seconds": 0.005149500000243279,
+            "cpu_median_seconds": 0.0
+          },
+          {
+            "operation": "slbin_read",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 1.0457225000000108,
+            "work_estimate_bytes": 67108864,
+            "available_bytes": 14529523712,
+            "peak_before_bytes": 144728064,
+            "peak_after_bytes": 144728064,
+            "files_bytes": {
+              "samples.slbin": 16777394
+            },
+            "wall_samples": [
+              0.020039300000007643,
+              0.019993999999769585,
+              0.02042170000004262
+            ],
+            "cpu_samples": [
+              0.015625,
+              0.015625,
+              0.03125
+            ],
+            "wall_median_seconds": 0.020039300000007643,
+            "cpu_median_seconds": 0.015625
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9379343000000517,
+            "work_estimate_bytes": 8388608,
+            "available_bytes": 14536335360,
+            "peak_before_bytes": 113475584,
+            "peak_after_bytes": 113475584,
+            "files_bytes": {
+              "samples.slbin": 4194481
+            },
+            "wall_samples": [
+              0.04766669999980877,
+              0.052812700000231416,
+              0.044515900000078545
+            ],
+            "cpu_samples": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "wall_median_seconds": 0.04766669999980877,
+            "cpu_median_seconds": 0.0
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.9474233999999342,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 14516379648,
+            "peak_before_bytes": 145858560,
+            "peak_after_bytes": 145858560,
+            "files_bytes": {
+              "samples.slbin": 16777394
+            },
+            "wall_samples": [
+              0.09666520000018863,
+              0.09445999999979904,
+              0.12857110000004468
+            ],
+            "cpu_samples": [
+              0.03125,
+              0.03125,
+              0.015625
+            ],
+            "wall_median_seconds": 0.09666520000018863,
+            "cpu_median_seconds": 0.03125
+          },
+          {
+            "operation": "publish",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9813693999999487,
+            "work_estimate_bytes": null,
+            "available_bytes": 14524502016,
+            "peak_before_bytes": 123265024,
+            "peak_after_bytes": 207945728,
+            "files_bytes": {},
+            "wall_samples": [
+              0.9895259999998416,
+              0.986858299999767,
+              0.9908286999998381
+            ],
+            "cpu_samples": [
+              0.984375,
+              0.984375,
+              0.984375
+            ],
+            "wall_median_seconds": 0.9895259999998416,
+            "cpu_median_seconds": 0.984375
+          },
+          {
+            "operation": "session_save",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 1.9309868000000279,
+            "work_estimate_bytes": null,
+            "available_bytes": 14453538816,
+            "peak_before_bytes": 209575936,
+            "peak_after_bytes": 262975488,
+            "files_bytes": {
+              "session.json": 48590767
+            },
+            "wall_samples": [
+              3.809241099999781,
+              3.8598904000000402,
+              3.7930515000002742
+            ],
+            "cpu_samples": [
+              3.671875,
+              3.6875,
+              3.625
+            ],
+            "wall_median_seconds": 3.809241099999781,
+            "cpu_median_seconds": 3.671875
+          },
+          {
+            "operation": "session_load",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 5.548566899999969,
+            "work_estimate_bytes": null,
+            "available_bytes": 14459949056,
+            "peak_before_bytes": 265187328,
+            "peak_after_bytes": 291975168,
+            "files_bytes": {
+              "session.json": 48590767
+            },
+            "wall_samples": [
+              2.8148345000004156,
+              2.8388676000004125,
+              2.7614411999998083
+            ],
+            "cpu_samples": [
+              2.8125,
+              2.859375,
+              2.75
+            ],
+            "wall_median_seconds": 2.8148345000004156,
+            "cpu_median_seconds": 2.8125
+          },
+          {
+            "operation": "json_write",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9571337000002131,
+            "work_estimate_bytes": null,
+            "available_bytes": 14527930368,
+            "peak_before_bytes": 117669888,
+            "peak_after_bytes": 117669888,
+            "files_bytes": {
+              "data.json": 6194970
+            },
+            "wall_samples": [
+              0.43707899999981237,
+              0.41565510000009454,
+              0.4244174999998904
+            ],
+            "cpu_samples": [
+              0.375,
+              0.375,
+              0.375
+            ],
+            "wall_median_seconds": 0.4244174999998904,
+            "cpu_median_seconds": 0.375
+          },
+          {
+            "operation": "symbolic",
+            "samples": 1,
+            "status": "measured",
+            "seconds_setup": 0.9374194000001808,
+            "work_estimate_bytes": null,
+            "available_bytes": 14539694080,
+            "peak_before_bytes": 103358464,
+            "peak_after_bytes": 103415808,
+            "files_bytes": {},
+            "wall_samples": [
+              0.9333166000001256,
+              0.944325999999819,
+              0.9186022999997476
+            ],
+            "cpu_samples": [
+              0.0,
+              0.015625,
+              0.015625
+            ],
+            "wall_median_seconds": 0.9333166000001256,
+            "cpu_median_seconds": 0.015625
+          }
+        ],
+        "cancellation": [
+          {
+            "operation": "dft",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.004686199999923701,
+            "latency_seconds": 0.010402900000372028,
+            "files_preserved": true
+          },
+          {
+            "operation": "idft",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.011023500000192143,
+            "latency_seconds": 0.00017660000003161258,
+            "files_preserved": true
+          },
+          {
+            "operation": "fir",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.012474599999677594,
+            "latency_seconds": 0.007307400000172493,
+            "files_preserved": true
+          },
+          {
+            "operation": "resample",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.008172299999841925,
+            "latency_seconds": 0.0029230999998617335,
+            "files_preserved": true
+          },
+          {
+            "operation": "psd",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.012910500000089087,
+            "latency_seconds": 0.001575900000261754,
+            "files_preserved": true
+          },
+          {
+            "operation": "pipeline",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.010383100000126433,
+            "latency_seconds": 0.006731500000114465,
+            "files_preserved": true
+          },
+          {
+            "operation": "json_write",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.009203999999954249,
+            "latency_seconds": 0.004349099999672035,
+            "files_preserved": true
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.008832699999857141,
+            "latency_seconds": 0.031006600000182516,
+            "files_preserved": true
+          }
+        ],
+        "symbolic_cancellation": {
+          "dtft_seconds_after_signal": 3.399999968678458e-05,
+          "symbolic_seconds_after_signal": 0.06428049999976793,
+          "worker_exit": 1,
+          "symbolic_temporary_removed": true,
+          "symbolic_cancel_from_launch_seconds": 0.15
+        }
+      },
+      "captured_ui_profiles": {
+        "1366x768-1": {
+          "qt_platform": "offscreen",
+          "window": [
+            1366,
+            768
+          ],
+          "requested_window": [
+            1366,
+            768
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            800,
+            800
+          ],
+          "scale": 1.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1366,
+              768
+            ],
+            "dft": [
+              1366,
+              768
+            ],
+            "idft": [
+              1366,
+              768
+            ],
+            "fir": [
+              1366,
+              768
+            ],
+            "iir": [
+              1366,
+              768
+            ],
+            "muestreo": [
+              1366,
+              768
+            ],
+            "resampling": [
+              1366,
+              768
+            ],
+            "psd": [
+              1366,
+              768
+            ],
+            "resultados": [
+              1366,
+              768
+            ],
+            "cas": [
+              1366,
+              768
+            ]
+          }
+        },
+        "1366x768-1.25": {
+          "qt_platform": "offscreen",
+          "window": [
+            1366,
+            768
+          ],
+          "requested_window": [
+            1366,
+            768
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            640,
+            640
+          ],
+          "scale": 1.25,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1708,
+              960
+            ],
+            "dft": [
+              1708,
+              960
+            ],
+            "idft": [
+              1708,
+              960
+            ],
+            "fir": [
+              1708,
+              960
+            ],
+            "iir": [
+              1708,
+              960
+            ],
+            "muestreo": [
+              1708,
+              960
+            ],
+            "resampling": [
+              1708,
+              960
+            ],
+            "psd": [
+              1708,
+              960
+            ],
+            "resultados": [
+              1708,
+              960
+            ],
+            "cas": [
+              1708,
+              960
+            ]
+          }
+        },
+        "1366x768-1.5": {
+          "qt_platform": "offscreen",
+          "window": [
+            1366,
+            768
+          ],
+          "requested_window": [
+            1366,
+            768
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            533,
+            533
+          ],
+          "scale": 1.5,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              2049,
+              1152
+            ],
+            "dft": [
+              2049,
+              1152
+            ],
+            "idft": [
+              2049,
+              1152
+            ],
+            "fir": [
+              2049,
+              1152
+            ],
+            "iir": [
+              2049,
+              1152
+            ],
+            "muestreo": [
+              2049,
+              1152
+            ],
+            "resampling": [
+              2049,
+              1152
+            ],
+            "psd": [
+              2049,
+              1152
+            ],
+            "resultados": [
+              2049,
+              1152
+            ],
+            "cas": [
+              2049,
+              1152
+            ]
+          }
+        },
+        "1920x1080-1": {
+          "qt_platform": "offscreen",
+          "window": [
+            1920,
+            1080
+          ],
+          "requested_window": [
+            1920,
+            1080
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            800,
+            800
+          ],
+          "scale": 1.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1920,
+              1080
+            ],
+            "dft": [
+              1920,
+              1080
+            ],
+            "idft": [
+              1920,
+              1080
+            ],
+            "fir": [
+              1920,
+              1080
+            ],
+            "iir": [
+              1920,
+              1080
+            ],
+            "muestreo": [
+              1920,
+              1080
+            ],
+            "resampling": [
+              1920,
+              1080
+            ],
+            "psd": [
+              1920,
+              1080
+            ],
+            "resultados": [
+              1920,
+              1080
+            ],
+            "cas": [
+              1920,
+              1080
+            ]
+          }
+        },
+        "1920x1080-2": {
+          "qt_platform": "offscreen",
+          "window": [
+            1920,
+            1080
+          ],
+          "requested_window": [
+            1920,
+            1080
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            400,
+            400
+          ],
+          "scale": 2.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              3840,
+              2160
+            ],
+            "dft": [
+              3840,
+              2160
+            ],
+            "idft": [
+              3840,
+              2160
+            ],
+            "fir": [
+              3840,
+              2160
+            ],
+            "iir": [
+              3840,
+              2160
+            ],
+            "muestreo": [
+              3840,
+              2160
+            ],
+            "resampling": [
+              3840,
+              2160
+            ],
+            "psd": [
+              3840,
+              2160
+            ],
+            "resultados": [
+              3840,
+              2160
+            ],
+            "cas": [
+              3840,
+              2160
+            ]
+          }
+        },
+        "640x420-1": {
+          "qt_platform": "offscreen",
+          "window": [
+            640,
+            420
+          ],
+          "requested_window": [
+            640,
+            420
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            800,
+            800
+          ],
+          "scale": 1.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              640,
+              420
+            ],
+            "dft": [
+              640,
+              420
+            ],
+            "idft": [
+              640,
+              420
+            ],
+            "fir": [
+              640,
+              420
+            ],
+            "iir": [
+              640,
+              420
+            ],
+            "muestreo": [
+              640,
+              420
+            ],
+            "resampling": [
+              640,
+              420
+            ],
+            "psd": [
+              640,
+              420
+            ],
+            "resultados": [
+              640,
+              420
+            ],
+            "cas": [
+              640,
+              420
+            ]
+          }
+        },
+        "960x540-2": {
+          "qt_platform": "offscreen",
+          "window": [
+            960,
+            540
+          ],
+          "requested_window": [
+            960,
+            540
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            400,
+            400
+          ],
+          "scale": 2.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1920,
+              1080
+            ],
+            "dft": [
+              1920,
+              1080
+            ],
+            "idft": [
+              1920,
+              1080
+            ],
+            "fir": [
+              1920,
+              1080
+            ],
+            "iir": [
+              1920,
+              1080
+            ],
+            "muestreo": [
+              1920,
+              1080
+            ],
+            "resampling": [
+              1920,
+              1080
+            ],
+            "psd": [
+              1920,
+              1080
+            ],
+            "resultados": [
+              1920,
+              1080
+            ],
+            "cas": [
+              1920,
+              1080
+            ]
+          }
+        }
+      },
+      "baseline_stages": {
+        "coverage_combine": 0,
+        "coverage_json": 0,
+        "integral": 0,
+        "static": 0
+      },
+      "scientific_families": {
+        "transforms": {
+          "tests": 74,
+          "minimum": 73,
+          "passed": true
+        },
+        "transform_properties": {
+          "tests": 20,
+          "minimum": 18,
+          "passed": true
+        },
+        "preventive_regressions": {
+          "tests": 28,
+          "minimum": 28,
+          "passed": true
+        },
+        "health_exchange": {
+          "tests": 36,
+          "minimum": 20,
+          "passed": true
+        },
+        "expression_systems": {
+          "tests": 8,
+          "minimum": 8,
+          "passed": true
+        },
+        "scalar_input": {
+          "tests": 7,
+          "minimum": 7,
+          "passed": true
+        },
+        "systems_filters": {
+          "tests": 10,
+          "minimum": 10,
+          "passed": true
+        },
+        "diagram_realizations": {
+          "tests": 11,
+          "minimum": 10,
+          "passed": true
+        },
+        "equations": {
+          "tests": 5,
+          "minimum": 5,
+          "passed": true
+        },
+        "fourier_measures": {
+          "tests": 8,
+          "minimum": 5,
+          "passed": true
+        },
+        "symbolic_fourier": {
+          "tests": 22,
+          "minimum": 22,
+          "passed": true
+        },
+        "global_energy_power": {
+          "tests": 24,
+          "minimum": 23,
+          "passed": true
+        },
+        "signals_windows": {
+          "tests": 5,
+          "minimum": 5,
+          "passed": true
+        },
+        "state_space": {
+          "tests": 2,
+          "minimum": 2,
+          "passed": true
+        },
+        "sampling_precision": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "sampling_analytic_references": {
+          "tests": 10,
+          "minimum": 10,
+          "passed": true
+        },
+        "fourier_analytic_references": {
+          "tests": 7,
+          "minimum": 7,
+          "passed": true
+        },
+        "historical_projects": {
+          "tests": 5,
+          "minimum": 5,
+          "passed": true
+        },
+        "scientific_paths": {
+          "tests": 2,
+          "minimum": 2,
+          "passed": true
+        },
+        "dft_application_boundary": {
+          "tests": 6,
+          "minimum": 6,
+          "passed": true
+        },
+        "execution_context": {
+          "tests": 4,
+          "minimum": 4,
+          "passed": true
+        },
+        "dsp_application": {
+          "tests": 7,
+          "minimum": 7,
+          "passed": true
+        },
+        "dsp_pipeline": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "scientific_storage": {
+          "tests": 6,
+          "minimum": 6,
+          "passed": true
+        },
+        "core_robustness": {
+          "tests": 6,
+          "minimum": 6,
+          "passed": true
+        },
+        "core_cli": {
+          "tests": 4,
+          "minimum": 4,
+          "passed": true
+        },
+        "input_integrity": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "verified_provenance": {
+          "tests": 7,
+          "minimum": 7,
+          "passed": true
+        },
+        "random_signals": {
+          "tests": 1,
+          "minimum": 1,
+          "passed": true
+        },
+        "representable_scales": {
+          "tests": 4,
+          "minimum": 4,
+          "passed": true
+        },
+        "axis_and_sampling_clock": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "clock_reuse_and_sinc_scale": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "sample_coordinates_and_reindexing": {
+          "tests": 8,
+          "minimum": 8,
+          "passed": true
+        },
+        "independent_algebra_references": {
+          "tests": 5,
+          "minimum": 5,
+          "passed": true
+        },
+        "algebra_support_and_boundaries": {
+          "tests": 11,
+          "minimum": 11,
+          "passed": true
+        }
+      },
+      "previous_global_coverage": {
+        "lines": 77.96029788558702,
+        "branches": 63.61429282868526
+      },
+      "raw_coverage_totals": {
+        "covered_lines": 32791,
+        "num_statements": 41991,
+        "percent_covered": 74.12877159804006,
+        "percent_covered_display": "74.13",
+        "missing_lines": 9200,
+        "excluded_lines": 0,
+        "percent_statements_covered": 78.0905432116406,
+        "percent_statements_covered_display": "78.09",
+        "num_branches": 16174,
+        "num_partial_branches": 2934,
+        "covered_branches": 10326,
+        "missing_branches": 5848,
+        "percent_branches_covered": 63.843205144058366,
+        "percent_branches_covered_display": "63.84"
+      },
+      "source_snapshot": {
+        "mathematics": "664ba517e3ab0e443c71c7bf134f346f9eaf77088373963f1dc4d2bfabc1329e",
+        "application": "672249a8bd85ce6b3b904ac9deb7384eb8b3b1336bce1434f4af8600727dfe72",
+        "tests_and_tools": "db7094db715f927105f09953fb3dd8374767119a79ba09e02437316cfb9d6312"
+      },
+      "suite_seconds": 781.683,
+      "gui_workflow_tests": {
+        "tests": 58,
+        "passed": true
+      },
+      "uncovered_line_leaders": [
+        [
+          "toolbox.py",
+          494
+        ],
+        [
+          "course_tools_panel.py",
+          250
+        ],
+        [
+          "ui.py",
+          241
+        ],
+        [
+          "workbench.py",
+          219
+        ],
+        [
+          "pole_zero_editor.py",
+          200
+        ],
+        [
+          "course_tools.py",
+          195
+        ]
+      ]
+    },
+    "linux": {
+      "candidate": "459b9fc505c0a6a4d20bb6c5e898a5ae3f3cb281",
+      "runtime": "3.14.10",
+      "passed": true,
+      "tests": 870,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "preventive": {
+        "passed": true,
+        "completed_cases": 150,
+        "failed_cases": 0,
+        "seeds": [
+          20261103,
+          1716233495
+        ]
+      },
+      "coverage": {
+        "lines": 78.064,
+        "branches": 63.818,
+        "target_lines": 85,
+        "target_branches": 75,
+        "meets_lines": false,
+        "meets_branches": false
+      },
+      "covered_modules": {
+        "cli_session.py": {
+          "lines": 96.875,
+          "branches": 100.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "dft_application.py": {
+          "lines": 92.857,
+          "branches": 66.667,
+          "target_lines": null,
+          "target_branches": 85,
+          "meets_lines": null,
+          "meets_branches": false
+        },
+        "dsp_application.py": {
+          "lines": 96.517,
+          "branches": 80.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": false
+        },
+        "dsp_pipeline.py": {
+          "lines": 92.537,
+          "branches": 77.273,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": false
+        },
+        "execution.py": {
+          "lines": 100.0,
+          "branches": 100.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": true
+        },
+        "fourier.py": {
+          "lines": 91.829,
+          "branches": 61.905,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": false
+        },
+        "operation_provenance.py": {
+          "lines": 88.462,
+          "branches": 75.0,
+          "target_lines": null,
+          "target_branches": 85,
+          "meets_lines": null,
+          "meets_branches": false
+        },
+        "project.py": {
+          "lines": 95.868,
+          "branches": 84.677,
+          "target_lines": null,
+          "target_branches": null,
+          "meets_lines": null,
+          "meets_branches": null
+        },
+        "sampling.py": {
+          "lines": 92.105,
+          "branches": 75.385,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": false
+        },
+        "scientific_storage.py": {
+          "lines": 91.579,
+          "branches": 80.0,
+          "target_lines": 90,
+          "target_branches": 85,
+          "meets_lines": true,
+          "meets_branches": false
+        }
+      },
+      "packaged_diagnostics": {
+        "fft_roundtrip": true,
+        "lti_recurrence": true,
+        "bilinear": true,
+        "symbolic_runtime": true,
+        "packaged_update_verification": true,
+        "state_space_simulation_and_project": true,
+        "digital_delay_transfer_roundtrip": true,
+        "toolbox_menu_and_matplotlib": true,
+        "sampling_plot_and_report_layout": true,
+        "project_picker_search_and_selection": true,
+        "formatted_report_preserves_text": true,
+        "packaged_symbolic_measures_and_window": true,
+        "expression_measure_menu": true
+      },
+      "distribution_commit": "459b9fc505c0a6a4d20bb6c5e898a5ae3f3cb281",
+      "native_files": 391,
+      "host_tls": [
+        [
+          "Ubuntu",
+          "libssl3:amd64",
+          "3.0.2-0ubuntu1.30"
+        ]
+      ],
+      "native_runtime": {
+        "qt": {
+          "file": "PySide6/Qt/lib/libQt6Core.so.6",
+          "version": "6.12.0"
+        },
+        "qt_svg": {
+          "file": "PySide6/Qt/lib/libQt6Svg.so.6"
+        },
+        "python": {
+          "file": "libpython3.14.so.1.0",
+          "version": "3.14.10"
+        },
+        "cryptography_openssl": {
+          "version_text": "OpenSSL 4.0.3 29 Sep 2026",
+          "matched_file": "cryptography/hazmat/bindings/_rust.abi3.so",
+          "sha256": "1e5d23fa66915204b9b67202a46993844d81cda56f6ad52cead2def37617ee29"
+        }
+      },
+      "artifact_sha256": "0a36a27f8ae6196638d1977ebd5817f48fda6ad8a931d5e3edf1df51da0e538c",
+      "native_unconfirmed": [],
+      "native_origin_packages": [
+        [
+          "CPython",
+          "CPython",
+          "3.14.10"
+        ],
+        [
+          "PyPI",
+          "PySide6_Essentials",
+          "6.12.0"
+        ],
+        [
+          "PyPI",
+          "cffi",
+          "2.1.1"
+        ],
+        [
+          "PyPI",
+          "contourpy",
+          "1.4.0"
+        ],
+        [
+          "PyPI",
+          "cryptography",
+          "50.0.2"
+        ],
+        [
+          "PyPI",
+          "h5py",
+          "3.16.0"
+        ],
+        [
+          "PyPI",
+          "kiwisolver",
+          "1.5.1"
+        ],
+        [
+          "PyPI",
+          "matplotlib",
+          "3.11.2"
+        ],
+        [
+          "PyPI",
+          "numpy",
+          "2.5.0"
+        ],
+        [
+          "PyPI",
+          "pillow",
+          "13.0.0"
+        ],
+        [
+          "PyPI",
+          "scipy",
+          "1.18.0"
+        ],
+        [
+          "PyPI",
+          "shiboken6",
+          "6.12.0"
+        ],
+        [
+          "Ubuntu",
+          "libatk-bridge2.0-0:amd64",
+          "2.38.0-3"
+        ],
+        [
+          "Ubuntu",
+          "libatk1.0-0:amd64",
+          "2.36.0-3build1"
+        ],
+        [
+          "Ubuntu",
+          "libatspi2.0-0:amd64",
+          "2.44.0-3"
+        ],
+        [
+          "Ubuntu",
+          "libblkid1:amd64",
+          "2.37.2-4ubuntu3.6"
+        ],
+        [
+          "Ubuntu",
+          "libbrotli1:amd64",
+          "1.0.9-2ubuntu0.1"
+        ],
+        [
+          "Ubuntu",
+          "libbsd0:amd64",
+          "0.11.5-1"
+        ],
+        [
+          "Ubuntu",
+          "libbz2-1.0:amd64",
+          "1.0.8-5ubuntu0.1"
+        ],
+        [
+          "Ubuntu",
+          "libcairo-gobject2:amd64",
+          "1.16.0-5ubuntu2.1"
+        ],
+        [
+          "Ubuntu",
+          "libcairo2:amd64",
+          "1.16.0-5ubuntu2.1"
+        ],
+        [
+          "Ubuntu",
+          "libcap2:amd64",
+          "1:2.44-1ubuntu0.22.04.3"
+        ],
+        [
+          "Ubuntu",
+          "libcom-err2:amd64",
+          "1.46.5-2ubuntu1.2"
+        ],
+        [
+          "Ubuntu",
+          "libdatrie1:amd64",
+          "0.2.13-2"
+        ],
+        [
+          "Ubuntu",
+          "libdbus-1-3:amd64",
+          "1.12.20-2ubuntu4.1"
+        ],
+        [
+          "Ubuntu",
+          "libepoxy0:amd64",
+          "1.5.10-1"
+        ],
+        [
+          "Ubuntu",
+          "libexpat1:amd64",
+          "2.4.7-1ubuntu0.9"
+        ],
+        [
+          "Ubuntu",
+          "libffi8:amd64",
+          "3.4.2-4"
+        ],
+        [
+          "Ubuntu",
+          "libfontconfig1:amd64",
+          "2.13.1-4.2ubuntu5"
+        ],
+        [
+          "Ubuntu",
+          "libfreetype6:amd64",
+          "2.11.1+dfsg-1ubuntu0.4"
+        ],
+        [
+          "Ubuntu",
+          "libfribidi0:amd64",
+          "1.0.8-2ubuntu3.1"
+        ],
+        [
+          "Ubuntu",
+          "libgcc-s1:amd64",
+          "12.3.0-1ubuntu1~22.04.3"
+        ],
+        [
+          "Ubuntu",
+          "libgcrypt20:amd64",
+          "1.9.4-3ubuntu3.3"
+        ],
+        [
+          "Ubuntu",
+          "libgdk-pixbuf-2.0-0:amd64",
+          "2.42.8+dfsg-1ubuntu0.5"
+        ],
+        [
+          "Ubuntu",
+          "libglib2.0-0:amd64",
+          "2.72.4-0ubuntu2.11"
+        ],
+        [
+          "Ubuntu",
+          "libgpg-error0:amd64",
+          "1.43-3"
+        ],
+        [
+          "Ubuntu",
+          "libgraphite2-3:amd64",
+          "1.3.14-1ubuntu0.1"
+        ],
+        [
+          "Ubuntu",
+          "libgssapi-krb5-2:amd64",
+          "1.19.2-2ubuntu0.10"
+        ],
+        [
+          "Ubuntu",
+          "libgtk-3-0:amd64",
+          "3.24.33-1ubuntu2.2"
+        ],
+        [
+          "Ubuntu",
+          "libharfbuzz0b:amd64",
+          "2.7.4-1ubuntu3.2"
+        ],
+        [
+          "Ubuntu",
+          "libjpeg-turbo8:amd64",
+          "2.1.2-0ubuntu1"
+        ],
+        [
+          "Ubuntu",
+          "libk5crypto3:amd64",
+          "1.19.2-2ubuntu0.10"
+        ],
+        [
+          "Ubuntu",
+          "libkeyutils1:amd64",
+          "1.6.1-2ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libkrb5-3:amd64",
+          "1.19.2-2ubuntu0.10"
+        ],
+        [
+          "Ubuntu",
+          "libkrb5support0:amd64",
+          "1.19.2-2ubuntu0.10"
+        ],
+        [
+          "Ubuntu",
+          "liblz4-1:amd64",
+          "1.9.3-2build2"
+        ],
+        [
+          "Ubuntu",
+          "liblzma5:amd64",
+          "5.2.5-2ubuntu1.2"
+        ],
+        [
+          "Ubuntu",
+          "libmd0:amd64",
+          "1.0.4-1build1"
+        ],
+        [
+          "Ubuntu",
+          "libmount1:amd64",
+          "2.37.2-4ubuntu3.6"
+        ],
+        [
+          "Ubuntu",
+          "libpango-1.0-0:amd64",
+          "1.50.6+ds-2ubuntu1"
+        ],
+        [
+          "Ubuntu",
+          "libpangocairo-1.0-0:amd64",
+          "1.50.6+ds-2ubuntu1"
+        ],
+        [
+          "Ubuntu",
+          "libpangoft2-1.0-0:amd64",
+          "1.50.6+ds-2ubuntu1"
+        ],
+        [
+          "Ubuntu",
+          "libpcre2-8-0:amd64",
+          "10.39-3ubuntu0.2"
+        ],
+        [
+          "Ubuntu",
+          "libpcre3:amd64",
+          "2:8.39-13ubuntu0.22.04.1"
+        ],
+        [
+          "Ubuntu",
+          "libpixman-1-0:amd64",
+          "0.40.0-1ubuntu0.22.04.1"
+        ],
+        [
+          "Ubuntu",
+          "libpng16-16:amd64",
+          "1.6.37-3ubuntu0.7"
+        ],
+        [
+          "Ubuntu",
+          "libreadline8:amd64",
+          "8.1.2-1"
+        ],
+        [
+          "Ubuntu",
+          "libselinux1:amd64",
+          "3.3-1build2"
+        ],
+        [
+          "Ubuntu",
+          "libssl3:amd64",
+          "3.0.2-0ubuntu1.30"
+        ],
+        [
+          "Ubuntu",
+          "libstdc++6:amd64",
+          "12.3.0-1ubuntu1~22.04.3"
+        ],
+        [
+          "Ubuntu",
+          "libsystemd0:amd64",
+          "249.11-0ubuntu3.23"
+        ],
+        [
+          "Ubuntu",
+          "libthai0:amd64",
+          "0.1.29-1build1"
+        ],
+        [
+          "Ubuntu",
+          "libtinfo6:amd64",
+          "6.3-2ubuntu0.3"
+        ],
+        [
+          "Ubuntu",
+          "libuuid1:amd64",
+          "2.37.2-4ubuntu3.6"
+        ],
+        [
+          "Ubuntu",
+          "libx11-6:amd64",
+          "2:1.7.5-1ubuntu0.4"
+        ],
+        [
+          "Ubuntu",
+          "libx11-xcb1:amd64",
+          "2:1.7.5-1ubuntu0.4"
+        ],
+        [
+          "Ubuntu",
+          "libxau6:amd64",
+          "1:1.0.9-1build5"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-cursor0:amd64",
+          "0.1.1-4ubuntu1"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-glx0:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-icccm4:amd64",
+          "0.4.1-1.1build2"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-image0:amd64",
+          "0.4.0-2"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-keysyms1:amd64",
+          "0.4.0-1build3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-randr0:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-render-util0:amd64",
+          "0.3.9-1build3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-render0:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-shape0:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-shm0:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-sync1:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-util1:amd64",
+          "0.4.0-1build2"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-xfixes0:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcb-xkb1:amd64",
+          "1.14-3ubuntu3"
+        ],
+        [
+          "Ubuntu",
+          "libxcomposite1:amd64",
+          "1:0.4.5-1build2"
+        ],
+        [
+          "Ubuntu",
+          "libxcursor1:amd64",
+          "1:1.2.0-2build4"
+        ],
+        [
+          "Ubuntu",
+          "libxdamage1:amd64",
+          "1:1.1.5-2build2"
+        ],
+        [
+          "Ubuntu",
+          "libxdmcp6:amd64",
+          "1:1.1.3-0ubuntu5"
+        ],
+        [
+          "Ubuntu",
+          "libxext6:amd64",
+          "2:1.3.4-1build1"
+        ],
+        [
+          "Ubuntu",
+          "libxfixes3:amd64",
+          "1:6.0.0-1"
+        ],
+        [
+          "Ubuntu",
+          "libxi6:amd64",
+          "2:1.8-1build1"
+        ],
+        [
+          "Ubuntu",
+          "libxinerama1:amd64",
+          "2:1.1.4-3"
+        ],
+        [
+          "Ubuntu",
+          "libxkbcommon-x11-0:amd64",
+          "1.4.0-1"
+        ],
+        [
+          "Ubuntu",
+          "libxkbcommon0:amd64",
+          "1.4.0-1"
+        ],
+        [
+          "Ubuntu",
+          "libxrandr2:amd64",
+          "2:1.5.2-1build1"
+        ],
+        [
+          "Ubuntu",
+          "libxrender1:amd64",
+          "1:0.9.10-1build4"
+        ],
+        [
+          "Ubuntu",
+          "libzstd1:amd64",
+          "1.4.8+dfsg-3build1"
+        ],
+        [
+          "Ubuntu",
+          "zlib1g:amd64",
+          "1:1.2.11.dfsg-2ubuntu9.2"
+        ]
+      ],
+      "native_python_notice_check": [
+        {
+          "package": "CPython",
+          "version": "3.14.10",
+          "license_expression": "PSF-2.0",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/Python/LICENSE.txt": "935cf13e19f8c31b497d20b05d73623431a226b230c3599bc30fa3348979bc68"
+          }
+        },
+        {
+          "package": "PySide6_Essentials",
+          "version": "6.12.0",
+          "license_expression": null,
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/PySide6_Essentials/pyside6_essentials-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+          }
+        },
+        {
+          "package": "cffi",
+          "version": "2.1.1",
+          "license_expression": "MIT-0",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/cffi/cffi-2.1.1.dist-info/licenses/LICENSE": "6b0fa4a0249011c398c67fc8138d7cd9f264d816d60f2c26bb169900f24d0617"
+          }
+        },
+        {
+          "package": "contourpy",
+          "version": "1.4.0",
+          "license_expression": "BSD-3-Clause",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/contourpy/contourpy-1.4.0.dist-info/licenses/LICENSE": "0e55e86a8fbf3e9b482ae8dc9e111e1b0dc09a7d300e7f480dda68c1125ed614"
+          }
+        },
+        {
+          "package": "cryptography",
+          "version": "50.0.2",
+          "license_expression": "Apache-2.0 OR BSD-3-Clause",
+          "notice_count": 3,
+          "notice_sha256": {
+            "LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE": "089d2e6abab324bda36cc4b032b9c39954b39b488ec92973f314ffe922dce4bc",
+            "LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE.APACHE": "e8de1a7393457e9c88768b78e6ba790622fbefb040ce48194c2cb0f1b6d4e9ff",
+            "LICENSES/cryptography/cryptography-50.0.2.dist-info/licenses/LICENSE.BSD": "661d18932dd84bb263a8ee418ab7774ed94eec33c83fd1db5b533f78eb774ca4"
+          }
+        },
+        {
+          "package": "h5py",
+          "version": "3.16.0",
+          "license_expression": "BSD-3-Clause",
+          "notice_count": 7,
+          "notice_sha256": {
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/LICENSE": "b773bc7cf038637a7fd8087648cc28e05f0f24d53770d1827147a40a1d268ab5",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/hdf5.txt": "d7c1924744336633bbaac5626107ab55c961715abc9f71744443e43a4db3f194",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/license.txt": "9a6333afbf5c391994fe3e9f5241accb8c22a23eb50b2e7e9b00ea57dccf29d0",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/pytables.txt": "635a613f100d7ee01946fa52413f612cfe402b01f5cc139c221898f25d04b057",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/python.txt": "f44efbbdac3232645854843bec8e8a206621aab6c5d5cc3e4c3e838a2aa6d0cb",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/licenses/stdint.txt": "30b76942adcfe2517aa56e7a81644b412a2a29d14ac5f0d299a567ec54a295e5",
+            "LICENSES/h5py/h5py-3.16.0.dist-info/licenses/lzf/LICENSE.txt": "d7b37a2bda245d5199b84a04cf4d91b899b4ad687076c8e0a92d792b521fd464"
+          }
+        },
+        {
+          "package": "kiwisolver",
+          "version": "1.5.1",
+          "license_expression": null,
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/kiwisolver/kiwisolver-1.5.1.dist-info/licenses/LICENSE": "b24c2bf6185f31a124ad6bacccae3071bdc7ad7882de00b00110aa62abb76a15"
+          }
+        },
+        {
+          "package": "matplotlib",
+          "version": "3.11.2",
+          "license_expression": null,
+          "notice_count": 3,
+          "notice_sha256": {
+            "LICENSES/matplotlib/matplotlib-3.11.2.dist-info/LICENSE": "8727104bcd93313371a7ea8a6798c2eadd5fac36b52f5aaa7a613f65dc69e90b",
+            "LICENSES/matplotlib/matplotlib/mpl-data/fonts/ttf/LICENSE_DEJAVU": "c61ba9e8668a511cbd0bcfdee8329e02ca6ca4048abda6ca7ee8ac68a059776a",
+            "LICENSES/matplotlib/matplotlib/mpl-data/fonts/ttf/LICENSE_STIX": "20742462c1dc14913b39f00ca1e06a2e9885b64b593a06de4209066988dbdb8e"
+          }
+        },
+        {
+          "package": "numpy",
+          "version": "2.5.0",
+          "license_expression": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+          "notice_count": 20,
+          "notice_sha256": {
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/LICENSE.txt": "9a7c3fddd888d6dd3a9e20361910c01eb5e00c92513bf159c2cee48e8a853a06",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/include/numpy/libdivide/LICENSE.txt": "d544761558b510866c21f7e8a2d5716fca76e0b98117e3b6b86314db7244d150",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/common/pythoncapi-compat/COPYING": "aea41976c720f91bd19725c16916a1ace40eb1ea42620d340e587a5de4bbcea0",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/highway/LICENSE": "d208152e2777ffd0126eacc1bd21c0320d69e4e6b622d21a2a12a47e8ef73763",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/multiarray/dragon4_LICENSE.txt": "b0fd592d4ead563148e3977e7b589169d46a5ef2ff133c755a81af880a3fc919",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md": "211e7d737d6179a08f791ebb0a99897ce7cd2457410c542876d125576edfe910",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/_core/src/umath/svml/LICENSE": "585483905b13d4b42f800c55ba99e89d6e2e33ccd5f503e201c07531d148ff41",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/fft/pocketfft/LICENSE.md": "a85ca13fdf90160b64a0698215868c13b74d835ad0a4e2ba44713b8c5058a056",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/linalg/lapack_lite/LICENSE.txt": "19060ef465e1797d682ee0fc3081bd25ab1395e995e43d25c9d13c95d9a3cd6b",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/ma/LICENSE": "d78dbb208b80d92b4d333e41a4baae50d12444f46e53199fa7726a91de6e2da7",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/LICENSE.md": "103166b62b80443afb9eb3488e052ea06be0cff566b908f199e561fde49af19f",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/distributions/LICENSE.md": "469778be8f33d54e1bcaab28c281cc472916d2d273f835e55bc487d30503face",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/mt19937/LICENSE.md": "0e111337b25494a773106695f0e799f642b8567aaacca4f116a74a8177179156",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/pcg64/LICENSE.md": "e7d4f4fb20358f314210a892ae17351e04993813646f697ec387385ca2a36918",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/philox/LICENSE.md": "6f5828a57223d4cc7f8ea505a2623e7b978b242752c1515e355f46ba2cec1800",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/sfc64/LICENSE.md": "9d4098846018319cd68e228ee6220361787f73bccbf00237a85e4fc9621b998f",
+            "LICENSES/numpy/numpy-2.5.0.dist-info/licenses/numpy/random/src/splitmix64/LICENSE.md": "268b0ca06759d31ea3ca68dd35f20e877916e927b1c2a835e4592a3c4354b1f9",
+            "LICENSES/numpy/numpy/_core/include/numpy/random/LICENSE.txt": "d544761558b510866c21f7e8a2d5716fca76e0b98117e3b6b86314db7244d150",
+            "LICENSES/numpy/numpy/ma/LICENSE": "d78dbb208b80d92b4d333e41a4baae50d12444f46e53199fa7726a91de6e2da7",
+            "LICENSES/numpy/numpy/random/LICENSE.md": "103166b62b80443afb9eb3488e052ea06be0cff566b908f199e561fde49af19f"
+          }
+        },
+        {
+          "package": "pillow",
+          "version": "13.0.0",
+          "license_expression": "MIT-CMU",
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/pillow/pillow-13.0.0.dist-info/licenses/LICENSE": "58a804e817de2d02bb1776d4ac8a2cffdc7b10056a411a154bdae36297b13365"
+          }
+        },
+        {
+          "package": "scipy",
+          "version": "1.18.0",
+          "license_expression": null,
+          "notice_count": 5,
+          "notice_sha256": {
+            "LICENSES/scipy/scipy-1.18.0.dist-info/LICENSE.txt": "9336855f8367bffb4bc45de4ca752683deb750412166f8c0e9993f61687e81d9",
+            "LICENSES/scipy/scipy/_lib/_uarray/LICENSE": "e4c4acc31e8287066d7c995d26e3ef902ca1977ee187b260b11c278366503811",
+            "LICENSES/scipy/scipy/fft/_duccfft/LICENSE.md": "c254b2b5fd30ae3c89d36ba061730563b9760fca04f1b746a1b2c3157da2c789",
+            "LICENSES/scipy/scipy/integrate/LICENSE_DOP": "6cc2ed6e35b8f376ff3d8f86aeef4e0c34c2309bd6f4a0565936d577839ba023",
+            "LICENSES/scipy/scipy/spatial/qhull_src/COPYING_QHULL.txt": "2a6ebb495e26dd5f88cbc40c593733da6edb27b64936f70409cd5a1acafb1c32"
+          }
+        },
+        {
+          "package": "shiboken6",
+          "version": "6.12.0",
+          "license_expression": null,
+          "notice_count": 1,
+          "notice_sha256": {
+            "LICENSES/shiboken6/shiboken6-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt": "4f54763ac0fe2abd8f7f8d8fe370a94a08ebf84786aa0b91045bd6628deb08a3"
+          }
+        }
+      ],
+      "installer_checks": [
+        "real_run_payload",
+        "installed_packaged_self_check",
+        "repair_in_place",
+        "uninstall_preserves_data"
+      ],
+      "disposable_manifest": true,
+      "benchmark": {
+        "candidate": "459b9fc505c0a6a4d20bb6c5e898a5ae3f3cb281",
+        "clean_checkout": true,
+        "profiles": 57,
+        "cpu": "x86_64",
+        "selected": [
+          {
+            "operation": "dft",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9119322880001164,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 12796030976,
+            "peak_before_bytes": 122699776,
+            "peak_after_bytes": 133246976,
+            "files_bytes": {},
+            "wall_samples": [
+              0.025651076000031026,
+              0.02596864900010587,
+              0.025943141999960062
+            ],
+            "cpu_samples": [
+              0.02565186999999991,
+              0.02597165800000001,
+              0.025946231000000042
+            ],
+            "wall_median_seconds": 0.025943141999960062,
+            "cpu_median_seconds": 0.025946231000000042
+          },
+          {
+            "operation": "dft",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.9245703629999298,
+            "work_estimate_bytes": 134217728,
+            "available_bytes": 12681576448,
+            "peak_before_bytes": 153874432,
+            "peak_after_bytes": 195772416,
+            "files_bytes": {},
+            "wall_samples": [
+              0.09287844700020287,
+              0.09327877400005491,
+              0.09328085799984365
+            ],
+            "cpu_samples": [
+              0.09287976799999997,
+              0.09328163899999997,
+              0.0932831919999999
+            ],
+            "wall_median_seconds": 0.09327877400005491,
+            "cpu_median_seconds": 0.09328163899999997
+          },
+          {
+            "operation": "idft",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9240344889999506,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 12681277440,
+            "peak_before_bytes": 128856064,
+            "peak_after_bytes": 129019904,
+            "files_bytes": {},
+            "wall_samples": [
+              0.018741702999932386,
+              0.018754848000071433,
+              0.01886155800002598
+            ],
+            "cpu_samples": [
+              0.018740594999999916,
+              0.018756756000000152,
+              0.01886362500000005
+            ],
+            "wall_median_seconds": 0.018754848000071433,
+            "cpu_median_seconds": 0.018756756000000152
+          },
+          {
+            "operation": "idft",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.977531947999978,
+            "work_estimate_bytes": 134217728,
+            "available_bytes": 12640956416,
+            "peak_before_bytes": 179355648,
+            "peak_after_bytes": 179507200,
+            "files_bytes": {},
+            "wall_samples": [
+              0.07857895699999062,
+              0.07799703999990015,
+              0.07728847800012772
+            ],
+            "cpu_samples": [
+              0.0785794259999999,
+              0.07800050400000003,
+              0.07729296200000002
+            ],
+            "wall_median_seconds": 0.07799703999990015,
+            "cpu_median_seconds": 0.07800050400000003
+          },
+          {
+            "operation": "fir",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9051051310000275,
+            "work_estimate_bytes": 33558400,
+            "available_bytes": 12717531136,
+            "peak_before_bytes": 122597376,
+            "peak_after_bytes": 124895232,
+            "files_bytes": {},
+            "wall_samples": [
+              0.020475127999816323,
+              0.020358170000008613,
+              0.020379500999979427
+            ],
+            "cpu_samples": [
+              0.02047495399999999,
+              0.020360288999999865,
+              0.02037016799999991
+            ],
+            "wall_median_seconds": 0.020379500999979427,
+            "cpu_median_seconds": 0.02037016799999991
+          },
+          {
+            "operation": "fir",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.9227339080000547,
+            "work_estimate_bytes": 134221696,
+            "available_bytes": 12773023744,
+            "peak_before_bytes": 154255360,
+            "peak_after_bytes": 163475456,
+            "files_bytes": {},
+            "wall_samples": [
+              0.07644091099996331,
+              0.07653083799982596,
+              0.07649966100007077
+            ],
+            "cpu_samples": [
+              0.0764424250000002,
+              0.07652049999999999,
+              0.07650244599999989
+            ],
+            "wall_median_seconds": 0.07649966100007077,
+            "cpu_median_seconds": 0.07650244599999989
+          },
+          {
+            "operation": "resample",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9105857930001093,
+            "work_estimate_bytes": 111863808,
+            "available_bytes": 12746551296,
+            "peak_before_bytes": 122646528,
+            "peak_after_bytes": 122646528,
+            "files_bytes": {},
+            "wall_samples": [
+              0.030611249000003227,
+              0.030584809000174573,
+              0.030514847999938866
+            ],
+            "cpu_samples": [
+              0.030611632000000055,
+              0.03058832899999997,
+              0.03051682500000008
+            ],
+            "wall_median_seconds": 0.030584809000174573,
+            "cpu_median_seconds": 0.03058832899999997
+          },
+          {
+            "operation": "resample",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.9184326609999971,
+            "work_estimate_bytes": 447408128,
+            "available_bytes": 12701650944,
+            "peak_before_bytes": 154288128,
+            "peak_after_bytes": 154288128,
+            "files_bytes": {},
+            "wall_samples": [
+              0.12077205299988236,
+              0.12052119600002698,
+              0.12130666699999892
+            ],
+            "cpu_samples": [
+              0.12077349599999998,
+              0.12052673499999988,
+              0.12131066899999987
+            ],
+            "wall_median_seconds": 0.12077205299988236,
+            "cpu_median_seconds": 0.12077349599999998
+          },
+          {
+            "operation": "psd",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9006544050000684,
+            "work_estimate_bytes": 65536,
+            "available_bytes": 12741918720,
+            "peak_before_bytes": 122585088,
+            "peak_after_bytes": 122585088,
+            "files_bytes": {},
+            "wall_samples": [
+              0.11147497299998577,
+              0.11119235499995739,
+              0.1122071990000677
+            ],
+            "cpu_samples": [
+              0.11147560299999992,
+              0.11119556099999994,
+              0.11221046599999984
+            ],
+            "wall_median_seconds": 0.11147497299998577,
+            "cpu_median_seconds": 0.11147560299999992
+          },
+          {
+            "operation": "psd",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.9241063199999644,
+            "work_estimate_bytes": 65536,
+            "available_bytes": 12745625600,
+            "peak_before_bytes": 154161152,
+            "peak_after_bytes": 154161152,
+            "files_bytes": {},
+            "wall_samples": [
+              0.43966681799997787,
+              0.43867579900006604,
+              0.43781098399995244
+            ],
+            "cpu_samples": [
+              0.43966779199999984,
+              0.43866041199999994,
+              0.4377390809999997
+            ],
+            "wall_median_seconds": 0.43867579900006604,
+            "cpu_median_seconds": 0.43866041199999994
+          },
+          {
+            "operation": "pipeline",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9053148099999362,
+            "work_estimate_bytes": 124451328,
+            "available_bytes": 12777857024,
+            "peak_before_bytes": 122527744,
+            "peak_after_bytes": 148094976,
+            "files_bytes": {},
+            "wall_samples": [
+              0.16308016600009978,
+              0.16270428400002857,
+              0.1627503339998384
+            ],
+            "cpu_samples": [
+              0.1630712609999998,
+              0.16270691999999998,
+              0.1627424959999999
+            ],
+            "wall_median_seconds": 0.1627503339998384,
+            "cpu_median_seconds": 0.1627424959999999
+          },
+          {
+            "operation": "pipeline",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.9243197509999845,
+            "work_estimate_bytes": 497744384,
+            "available_bytes": 12778115072,
+            "peak_before_bytes": 154198016,
+            "peak_after_bytes": 253247488,
+            "files_bytes": {},
+            "wall_samples": [
+              0.6581939590000729,
+              0.6560630890000994,
+              0.6607732969998779
+            ],
+            "cpu_samples": [
+              0.6581491129999999,
+              0.6560412470000001,
+              0.6606995950000001
+            ],
+            "wall_median_seconds": 0.6581939590000729,
+            "cpu_median_seconds": 0.6581491129999999
+          },
+          {
+            "operation": "slbin_read",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9053029469998819,
+            "work_estimate_bytes": 16777216,
+            "available_bytes": 12712894464,
+            "peak_before_bytes": 122351616,
+            "peak_after_bytes": 122351616,
+            "files_bytes": {
+              "samples.slbin": 4194481
+            },
+            "wall_samples": [
+              0.00765321199992286,
+              0.007870799000102124,
+              0.007695021000017732
+            ],
+            "cpu_samples": [
+              0.007652750000000097,
+              0.007871849000000042,
+              0.007695980999999907
+            ],
+            "wall_median_seconds": 0.007695021000017732,
+            "cpu_median_seconds": 0.007695980999999907
+          },
+          {
+            "operation": "slbin_read",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.948698911000065,
+            "work_estimate_bytes": 67108864,
+            "available_bytes": 12729569280,
+            "peak_before_bytes": 154214400,
+            "peak_after_bytes": 154214400,
+            "files_bytes": {
+              "samples.slbin": 16777394
+            },
+            "wall_samples": [
+              0.0312888909998037,
+              0.0312131700000009,
+              0.031127048999906037
+            ],
+            "cpu_samples": [
+              0.03128946900000007,
+              0.031169223999999884,
+              0.03112998
+            ],
+            "wall_median_seconds": 0.0312131700000009,
+            "cpu_median_seconds": 0.031169223999999884
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9158030110002073,
+            "work_estimate_bytes": 8388608,
+            "available_bytes": 12763480064,
+            "peak_before_bytes": 122789888,
+            "peak_after_bytes": 122789888,
+            "files_bytes": {
+              "samples.slbin": 4194481
+            },
+            "wall_samples": [
+              0.009100703000058274,
+              0.008968296000148257,
+              0.010326089999807664
+            ],
+            "cpu_samples": [
+              0.007502601999999969,
+              0.007420229000000056,
+              0.007465808999999934
+            ],
+            "wall_median_seconds": 0.009100703000058274,
+            "cpu_median_seconds": 0.007465808999999934
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 1048576,
+            "status": "measured",
+            "seconds_setup": 0.920074282999849,
+            "work_estimate_bytes": 33554432,
+            "available_bytes": 12760031232,
+            "peak_before_bytes": 154030080,
+            "peak_after_bytes": 154030080,
+            "files_bytes": {
+              "samples.slbin": 16777394
+            },
+            "wall_samples": [
+              0.03630600900009995,
+              0.03246970199984389,
+              0.032531446999882974
+            ],
+            "cpu_samples": [
+              0.03296866900000017,
+              0.03023043099999989,
+              0.030402204000000044
+            ],
+            "wall_median_seconds": 0.032531446999882974,
+            "cpu_median_seconds": 0.030402204000000044
+          },
+          {
+            "operation": "publish",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.948226355000088,
+            "work_estimate_bytes": null,
+            "available_bytes": 12756393984,
+            "peak_before_bytes": 133050368,
+            "peak_after_bytes": 223342592,
+            "files_bytes": {},
+            "wall_samples": [
+              1.2972214240000994,
+              1.2970957390000422,
+              1.2966543249999631
+            ],
+            "cpu_samples": [
+              1.296896378,
+              1.2970660720000002,
+              1.2966294859999996
+            ],
+            "wall_median_seconds": 1.2970957390000422,
+            "cpu_median_seconds": 1.296896378
+          },
+          {
+            "operation": "session_save",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 2.182248642999866,
+            "work_estimate_bytes": null,
+            "available_bytes": 12662759424,
+            "peak_before_bytes": 223281152,
+            "peak_after_bytes": 277164032,
+            "files_bytes": {
+              "session.json": 46493969
+            },
+            "wall_samples": [
+              3.9620413600000575,
+              3.932107260000066,
+              3.9508439789999557
+            ],
+            "cpu_samples": [
+              3.9533038330000005,
+              3.929440391,
+              3.9463420609999993
+            ],
+            "wall_median_seconds": 3.9508439789999557,
+            "cpu_median_seconds": 3.9463420609999993
+          },
+          {
+            "operation": "session_load",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 5.801311070000111,
+            "work_estimate_bytes": null,
+            "available_bytes": 12611379200,
+            "peak_before_bytes": 279486464,
+            "peak_after_bytes": 307167232,
+            "files_bytes": {
+              "session.json": 46493969
+            },
+            "wall_samples": [
+              3.3934261639999477,
+              3.4098585349997848,
+              3.3454465899999377
+            ],
+            "cpu_samples": [
+              3.3898934149999995,
+              3.4069580429999977,
+              3.3450357590000017
+            ],
+            "wall_median_seconds": 3.3934261639999477,
+            "cpu_median_seconds": 3.3898934149999995
+          },
+          {
+            "operation": "json_write",
+            "samples": 262144,
+            "status": "measured",
+            "seconds_setup": 0.9162148020000132,
+            "work_estimate_bytes": null,
+            "available_bytes": 12754251776,
+            "peak_before_bytes": 126644224,
+            "peak_after_bytes": 126644224,
+            "files_bytes": {
+              "data.json": 5932825
+            },
+            "wall_samples": [
+              0.4376839270000801,
+              0.4374700870000652,
+              0.43592318899982274
+            ],
+            "cpu_samples": [
+              0.435967097,
+              0.4345868679999998,
+              0.4340210649999996
+            ],
+            "wall_median_seconds": 0.4374700870000652,
+            "cpu_median_seconds": 0.4345868679999998
+          },
+          {
+            "operation": "symbolic",
+            "samples": 1,
+            "status": "measured",
+            "seconds_setup": 0.900239350999982,
+            "work_estimate_bytes": null,
+            "available_bytes": 12763082752,
+            "peak_before_bytes": 112250880,
+            "peak_after_bytes": 112250880,
+            "files_bytes": {},
+            "wall_samples": [
+              0.8660964979999335,
+              0.8659835070000099,
+              0.9024909509998906
+            ],
+            "cpu_samples": [
+              0.003326112999999964,
+              0.0034085939999999315,
+              0.003280044999999898
+            ],
+            "wall_median_seconds": 0.8660964979999335,
+            "cpu_median_seconds": 0.003326112999999964
+          }
+        ],
+        "cancellation": [
+          {
+            "operation": "dft",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.002967580999893471,
+            "latency_seconds": 0.01670198800002254,
+            "files_preserved": true
+          },
+          {
+            "operation": "idft",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0012846019999415148,
+            "latency_seconds": 0.01142462699999669,
+            "files_preserved": true
+          },
+          {
+            "operation": "fir",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.001719433000062054,
+            "latency_seconds": 0.01761877699982506,
+            "files_preserved": true
+          },
+          {
+            "operation": "resample",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0013361610001538793,
+            "latency_seconds": 0.023453624000012496,
+            "files_preserved": true
+          },
+          {
+            "operation": "psd",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.002995524999960253,
+            "latency_seconds": 0.016288877000079083,
+            "files_preserved": true
+          },
+          {
+            "operation": "pipeline",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.001358249999839245,
+            "latency_seconds": 0.00014396400001714937,
+            "files_preserved": true
+          },
+          {
+            "operation": "json_write",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.006446657999958916,
+            "latency_seconds": 0.0011091439998835995,
+            "files_preserved": true
+          },
+          {
+            "operation": "slbin_write",
+            "samples": 262144,
+            "status": "cancelled",
+            "trigger_after_seconds": 0.0013108630000715493,
+            "latency_seconds": 0.0009680099999513914,
+            "files_preserved": true
+          }
+        ],
+        "symbolic_cancellation": {
+          "dtft_seconds_after_signal": 2.4415000098088058e-05,
+          "symbolic_seconds_after_signal": 0.05361643999981425,
+          "worker_exit": -15,
+          "symbolic_temporary_removed": true,
+          "symbolic_cancel_from_launch_seconds": 0.15
+        }
+      },
+      "captured_ui_profiles": {
+        "1366x768-1": {
+          "qt_platform": "xcb",
+          "window": [
+            1366,
+            768
+          ],
+          "requested_window": [
+            1366,
+            768
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            4096,
+            2304
+          ],
+          "scale": 1.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1366,
+              768
+            ],
+            "dft": [
+              1366,
+              768
+            ],
+            "idft": [
+              1366,
+              768
+            ],
+            "fir": [
+              1366,
+              768
+            ],
+            "iir": [
+              1366,
+              768
+            ],
+            "muestreo": [
+              1366,
+              768
+            ],
+            "resampling": [
+              1366,
+              768
+            ],
+            "psd": [
+              1366,
+              768
+            ],
+            "resultados": [
+              1366,
+              768
+            ],
+            "cas": [
+              1366,
+              768
+            ]
+          }
+        },
+        "1366x768-1.25": {
+          "qt_platform": "xcb",
+          "window": [
+            1366,
+            768
+          ],
+          "requested_window": [
+            1366,
+            768
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            3277,
+            1843
+          ],
+          "scale": 1.25,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1708,
+              960
+            ],
+            "dft": [
+              1708,
+              960
+            ],
+            "idft": [
+              1708,
+              960
+            ],
+            "fir": [
+              1708,
+              960
+            ],
+            "iir": [
+              1708,
+              960
+            ],
+            "muestreo": [
+              1708,
+              960
+            ],
+            "resampling": [
+              1708,
+              960
+            ],
+            "psd": [
+              1708,
+              960
+            ],
+            "resultados": [
+              1708,
+              960
+            ],
+            "cas": [
+              1708,
+              960
+            ]
+          }
+        },
+        "1366x768-1.5": {
+          "qt_platform": "xcb",
+          "window": [
+            1366,
+            768
+          ],
+          "requested_window": [
+            1366,
+            768
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            2731,
+            1536
+          ],
+          "scale": 1.5,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              2049,
+              1152
+            ],
+            "dft": [
+              2049,
+              1152
+            ],
+            "idft": [
+              2049,
+              1152
+            ],
+            "fir": [
+              2049,
+              1152
+            ],
+            "iir": [
+              2049,
+              1152
+            ],
+            "muestreo": [
+              2049,
+              1152
+            ],
+            "resampling": [
+              2049,
+              1152
+            ],
+            "psd": [
+              2049,
+              1152
+            ],
+            "resultados": [
+              2049,
+              1152
+            ],
+            "cas": [
+              2049,
+              1152
+            ]
+          }
+        },
+        "1920x1080-1": {
+          "qt_platform": "xcb",
+          "window": [
+            1920,
+            1080
+          ],
+          "requested_window": [
+            1920,
+            1080
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            4096,
+            2304
+          ],
+          "scale": 1.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1920,
+              1080
+            ],
+            "dft": [
+              1920,
+              1080
+            ],
+            "idft": [
+              1920,
+              1080
+            ],
+            "fir": [
+              1920,
+              1080
+            ],
+            "iir": [
+              1920,
+              1080
+            ],
+            "muestreo": [
+              1920,
+              1080
+            ],
+            "resampling": [
+              1920,
+              1080
+            ],
+            "psd": [
+              1920,
+              1080
+            ],
+            "resultados": [
+              1920,
+              1080
+            ],
+            "cas": [
+              1920,
+              1080
+            ]
+          }
+        },
+        "1920x1080-2": {
+          "qt_platform": "xcb",
+          "window": [
+            1920,
+            1080
+          ],
+          "requested_window": [
+            1920,
+            1080
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            2048,
+            1152
+          ],
+          "scale": 2.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              3840,
+              2160
+            ],
+            "dft": [
+              3840,
+              2160
+            ],
+            "idft": [
+              3840,
+              2160
+            ],
+            "fir": [
+              3840,
+              2160
+            ],
+            "iir": [
+              3840,
+              2160
+            ],
+            "muestreo": [
+              3840,
+              2160
+            ],
+            "resampling": [
+              3840,
+              2160
+            ],
+            "psd": [
+              3840,
+              2160
+            ],
+            "resultados": [
+              3840,
+              2160
+            ],
+            "cas": [
+              3840,
+              2160
+            ]
+          }
+        },
+        "640x420-1": {
+          "qt_platform": "xcb",
+          "window": [
+            640,
+            420
+          ],
+          "requested_window": [
+            640,
+            420
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            4096,
+            2304
+          ],
+          "scale": 1.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              640,
+              420
+            ],
+            "dft": [
+              640,
+              420
+            ],
+            "idft": [
+              640,
+              420
+            ],
+            "fir": [
+              640,
+              420
+            ],
+            "iir": [
+              640,
+              420
+            ],
+            "muestreo": [
+              640,
+              420
+            ],
+            "resampling": [
+              640,
+              420
+            ],
+            "psd": [
+              640,
+              420
+            ],
+            "resultados": [
+              640,
+              420
+            ],
+            "cas": [
+              640,
+              420
+            ]
+          }
+        },
+        "960x540-2": {
+          "qt_platform": "xcb",
+          "window": [
+            960,
+            540
+          ],
+          "requested_window": [
+            960,
+            540
+          ],
+          "minimum_window": [
+            640,
+            420
+          ],
+          "screen": [
+            2048,
+            1152
+          ],
+          "scale": 2.0,
+          "dpi": 96.0,
+          "captures_pixels": {
+            "inicio": [
+              1920,
+              1080
+            ],
+            "dft": [
+              1920,
+              1080
+            ],
+            "idft": [
+              1920,
+              1080
+            ],
+            "fir": [
+              1920,
+              1080
+            ],
+            "iir": [
+              1920,
+              1080
+            ],
+            "muestreo": [
+              1920,
+              1080
+            ],
+            "resampling": [
+              1920,
+              1080
+            ],
+            "psd": [
+              1920,
+              1080
+            ],
+            "resultados": [
+              1920,
+              1080
+            ],
+            "cas": [
+              1920,
+              1080
+            ]
+          }
+        }
+      },
+      "baseline_stages": {
+        "coverage_combine": 0,
+        "coverage_json": 0,
+        "integral": 0,
+        "static": 0
+      },
+      "scientific_families": {
+        "transforms": {
+          "tests": 74,
+          "minimum": 73,
+          "passed": true
+        },
+        "transform_properties": {
+          "tests": 20,
+          "minimum": 18,
+          "passed": true
+        },
+        "preventive_regressions": {
+          "tests": 28,
+          "minimum": 28,
+          "passed": true
+        },
+        "health_exchange": {
+          "tests": 36,
+          "minimum": 20,
+          "passed": true
+        },
+        "expression_systems": {
+          "tests": 8,
+          "minimum": 8,
+          "passed": true
+        },
+        "scalar_input": {
+          "tests": 7,
+          "minimum": 7,
+          "passed": true
+        },
+        "systems_filters": {
+          "tests": 10,
+          "minimum": 10,
+          "passed": true
+        },
+        "diagram_realizations": {
+          "tests": 11,
+          "minimum": 10,
+          "passed": true
+        },
+        "equations": {
+          "tests": 5,
+          "minimum": 5,
+          "passed": true
+        },
+        "fourier_measures": {
+          "tests": 8,
+          "minimum": 5,
+          "passed": true
+        },
+        "symbolic_fourier": {
+          "tests": 22,
+          "minimum": 22,
+          "passed": true
+        },
+        "global_energy_power": {
+          "tests": 24,
+          "minimum": 23,
+          "passed": true
+        },
+        "signals_windows": {
+          "tests": 5,
+          "minimum": 5,
+          "passed": true
+        },
+        "state_space": {
+          "tests": 2,
+          "minimum": 2,
+          "passed": true
+        },
+        "sampling_precision": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "sampling_analytic_references": {
+          "tests": 10,
+          "minimum": 10,
+          "passed": true
+        },
+        "fourier_analytic_references": {
+          "tests": 7,
+          "minimum": 7,
+          "passed": true
+        },
+        "historical_projects": {
+          "tests": 5,
+          "minimum": 5,
+          "passed": true
+        },
+        "scientific_paths": {
+          "tests": 2,
+          "minimum": 2,
+          "passed": true
+        },
+        "dft_application_boundary": {
+          "tests": 6,
+          "minimum": 6,
+          "passed": true
+        },
+        "execution_context": {
+          "tests": 4,
+          "minimum": 4,
+          "passed": true
+        },
+        "dsp_application": {
+          "tests": 7,
+          "minimum": 7,
+          "passed": true
+        },
+        "dsp_pipeline": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "scientific_storage": {
+          "tests": 6,
+          "minimum": 6,
+          "passed": true
+        },
+        "core_robustness": {
+          "tests": 6,
+          "minimum": 6,
+          "passed": true
+        },
+        "core_cli": {
+          "tests": 4,
+          "minimum": 4,
+          "passed": true
+        },
+        "input_integrity": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "verified_provenance": {
+          "tests": 7,
+          "minimum": 7,
+          "passed": true
+        },
+        "random_signals": {
+          "tests": 1,
+          "minimum": 1,
+          "passed": true
+        },
+        "representable_scales": {
+          "tests": 4,
+          "minimum": 4,
+          "passed": true
+        },
+        "axis_and_sampling_clock": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "clock_reuse_and_sinc_scale": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "sample_coordinates_and_reindexing": {
+          "tests": 8,
+          "minimum": 8,
+          "passed": true
+        },
+        "independent_algebra_references": {
+          "tests": 5,
+          "minimum": 5,
+          "passed": true
+        },
+        "algebra_support_and_boundaries": {
+          "tests": 11,
+          "minimum": 11,
+          "passed": true
+        }
+      },
+      "previous_global_coverage": {
+        "lines": 77.9363520988482,
+        "branches": 63.59561752988048
+      },
+      "raw_coverage_totals": {
+        "covered_lines": 32780,
+        "num_statements": 41991,
+        "percent_covered": 74.10298289349265,
+        "percent_covered_display": "74.10",
+        "missing_lines": 9211,
+        "excluded_lines": 0,
+        "percent_statements_covered": 78.06434712200233,
+        "percent_statements_covered_display": "78.06",
+        "num_branches": 16174,
+        "num_partial_branches": 2934,
+        "covered_branches": 10322,
+        "missing_branches": 5852,
+        "percent_branches_covered": 63.8184740942253,
+        "percent_branches_covered_display": "63.82"
+      },
+      "source_snapshot": {
+        "mathematics": "664ba517e3ab0e443c71c7bf134f346f9eaf77088373963f1dc4d2bfabc1329e",
+        "application": "672249a8bd85ce6b3b904ac9deb7384eb8b3b1336bce1434f4af8600727dfe72",
+        "tests_and_tools": "db7094db715f927105f09953fb3dd8374767119a79ba09e02437316cfb9d6312"
+      },
+      "suite_seconds": 744.318,
+      "gui_workflow_tests": {
+        "tests": 58,
+        "passed": true
+      },
+      "uncovered_line_leaders": [
+        [
+          "toolbox.py",
+          494
+        ],
+        [
+          "course_tools_panel.py",
+          253
+        ],
+        [
+          "ui.py",
+          241
+        ],
+        [
+          "workbench.py",
+          219
+        ],
+        [
+          "pole_zero_editor.py",
+          200
+        ],
+        [
+          "course_tools.py",
+          195
+        ]
+      ]
+    }
+  }
+}

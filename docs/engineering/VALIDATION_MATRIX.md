@@ -35,3 +35,5 @@
 [Informe de cierre](PHASE_01_CLOSEOUT.md) · [Evidencia de distribución](evidence/phase-01-distribution-853bd67.json)
 
 La validación de Engineering Core se registra en la [matriz de Fase 02B](phase_02b/PHASE_02B_TRACEABILITY_MATRIX.md) y conserva por separado la evidencia histórica de estabilización.
+
+La [matriz del candidato 02C](phase_02c/validation/FINAL_VALIDATION_MATRIX.md) incorpora pruebas de procedencia y escala, cancelación de persistencia, instaladores, SBOM, recursos y evidencia visual por entorno.

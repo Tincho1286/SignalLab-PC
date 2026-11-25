@@ -1,0 +1,149 @@
+{
+  "roots": [
+    "cli_session",
+    "dft_application",
+    "dft_cli",
+    "dsp_application",
+    "dsp_cli",
+    "dsp_pipeline",
+    "dsp_pipeline_cli",
+    "execution",
+    "operation_provenance",
+    "scientific_storage",
+    "session"
+  ],
+  "eager_graph": {
+    "cli_session": [
+      "execution",
+      "jobs",
+      "model",
+      "project",
+      "session",
+      "storage"
+    ],
+    "execution": [
+      "jobs",
+      "resources"
+    ],
+    "jobs": [],
+    "resources": [],
+    "model": [],
+    "project": [
+      "atomic_file",
+      "filters",
+      "model",
+      "operation_provenance",
+      "state_space"
+    ],
+    "atomic_file": [],
+    "filters": [
+      "model",
+      "resources"
+    ],
+    "operation_provenance": [
+      "filters",
+      "model"
+    ],
+    "state_space": [
+      "filters",
+      "jobs",
+      "resources"
+    ],
+    "session": [
+      "atomic_file",
+      "project"
+    ],
+    "storage": [
+      "atomic_file",
+      "model"
+    ],
+    "dft_application": [
+      "execution",
+      "model",
+      "operation_provenance",
+      "operations",
+      "project"
+    ],
+    "operations": [
+      "model",
+      "resources",
+      "spectral_scaling"
+    ],
+    "spectral_scaling": [],
+    "dft_cli": [
+      "cli_session",
+      "dft_application",
+      "session"
+    ],
+    "dsp_application": [
+      "execution",
+      "filters",
+      "fourier",
+      "model",
+      "operation_provenance",
+      "operations",
+      "project",
+      "sampling"
+    ],
+    "fourier": [
+      "engine",
+      "jobs",
+      "model",
+      "operations",
+      "resources",
+      "sampling",
+      "spectral_scaling"
+    ],
+    "engine": [
+      "hyperbolic",
+      "model",
+      "resources"
+    ],
+    "hyperbolic": [],
+    "sampling": [
+      "engine",
+      "model",
+      "operations",
+      "resources"
+    ],
+    "dsp_cli": [
+      "cli_session",
+      "dsp_application",
+      "filters",
+      "project",
+      "session"
+    ],
+    "dsp_pipeline": [
+      "dft_application",
+      "dsp_application",
+      "execution",
+      "filters",
+      "model",
+      "operation_provenance",
+      "operations",
+      "project",
+      "resources",
+      "sampling"
+    ],
+    "dsp_pipeline_cli": [
+      "cli_session",
+      "dsp_application",
+      "dsp_pipeline",
+      "filters",
+      "session"
+    ],
+    "scientific_storage": [
+      "atomic_file",
+      "execution",
+      "input_files",
+      "model",
+      "resources"
+    ],
+    "input_files": [
+      "resources"
+    ]
+  },
+  "qt_blocked": true,
+  "pipeline_records": 6,
+  "commit_at_probe": "37ac1d4"
+}

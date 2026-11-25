@@ -1,5 +1,7 @@
 # Cambios de Fase 02C
 
+- WP11. Mantener separados los dictámenes del Core, de arquitectura y de distribución y solicitar la aceptación de cada excepción.
+
 - WP10. Mantener motores y fronteras actuales sin introducir una reorganización transversal.
 
 - WP09. Separar el transporte verificado del candidato de la distribución pública y del salto por versión.

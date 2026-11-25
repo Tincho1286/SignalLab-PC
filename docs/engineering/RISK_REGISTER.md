@@ -58,3 +58,7 @@ La [línea base de seguridad](SECURITY_BASELINE.md), la [matriz](VALIDATION_MATR
 | R14 · Publicación de flujos | Media | Project conserva resultados completos con referencias. Coordinar un único escritor por archivo de sesión. La concurrencia entre procesos necesita un contrato adicional. |
 
 [Cierre de Fase 02B](phase_02b/closeout/PHASE_02B_CLOSEOUT.md)
+
+## Seguimiento de Fase 02C
+
+La Fase 02C verifica el contenido publicado y preserva asociaciones de origen al reabrir. Se mantienen en seguimiento las ruedas Qt, los componentes nativos MAT, el límite cooperativo, el uso intensivo de JSON, la cobertura y las condiciones de escritorio y distribución. [Riesgos y responsables](phase_02c/validation/RESIDUAL_RISK_REGISTER.md) · [Aprobaciones](phase_02c/validation/EXCEPTION_APPROVAL_REGISTER.md)
