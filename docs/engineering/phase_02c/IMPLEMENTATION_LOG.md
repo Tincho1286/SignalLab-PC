@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-07 · Sistemas LTI y diseño polar
+
+**Flujos.** Se verificó la importación de un proyecto con varios resultados, la conservación de ROC y reloj del sistema elegido, y el rechazo de archivos sin un sistema compatible. El análisis muestra módulo cero y fase indefinida cuando corresponde. Los cruces de lazo abierto se comparan con las soluciones exactas de un sistema cúbico y se exporta la respuesta completa. Se probó también la reutilización del plano de raíces y la edición polar de un cero negativo y un par conjugado.
+
+**Evidencia focal.** Pasaron 35 pruebas de superficies, intercambio y cálculo LTI. La proyección llega a 36 987/42 953 líneas (86,11 %) y 12 097/16 528 ramas (73,19 %). Quedan 299 ramas para el objetivo.
+
 ## 25 de noviembre de 2026 · C-06 y C-07 · Reapertura y procedencia
 
 **Flujos.** Se verificó que una sesión restaura pestañas de Biblioteca y Resultados, una Z inversa y sus condiciones. Se volvió a calcular y se comprobaron las muestras y la referencia al resultado original. Se probaron también borradores de expresiones temporales, bancos MIMO, matrices y guardado manual en SLPROJ. Los archivos con condiciones, matrices o canales inválidos dejan activa la sesión previa.
