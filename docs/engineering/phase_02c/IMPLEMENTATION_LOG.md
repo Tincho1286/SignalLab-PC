@@ -1,5 +1,9 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-06 y C-07 · Edición de fórmulas y matrices
+
+**Evidencia focal.** Pasaron las tres pruebas de `test_workbench_formula_entry`. El asistente de condiciones y el menú de funciones se verificaron calculando las muestras, incluida la prioridad entre `n = 0` y `n ≥ 0`. Cancelar el reemplazo preservó la definición por tramos. El pegado de matrices conservó expresiones científicas y coeficientes complejos. Un bloque irregular preservó la matriz anterior y permitió corregir el pegado. Se compararon los coeficientes parseados y las celdas recuperadas tras cambiar dimensiones.
+
 ## 25 de noviembre de 2026 · C-06 y C-07 · Entradas compartidas entre variantes
 
 **Evidencia focal.** Pasaron 12 pruebas de transferencia de borradores, importación y reutilización. Se compararon suma y producto con sus índices y valores esperados, incluidas las referencias tras intercambiar entradas. Se comprobó que la serie discreta use la definición periódica completa aunque el gráfico muestre sólo dos muestras, y que el informe de medidas separe la energía por período de la total. El análisis LTI conservó el reloj de un sistema causal y evitó sobrescribir la entrada temporal con un modelo de avance. Los borradores de archivo y de Resultados se conservaron de modo independiente.
