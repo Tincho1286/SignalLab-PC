@@ -1,0 +1,32 @@
+{
+  "candidate": "ce6846bc3e6bc3d56e80bda06eda6edd1e4e2557",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python": "3.14.10",
+  "numpy": "2.5.0",
+  "seed": 20261125,
+  "warm_repetitions": 11,
+  "persistence_repetitions": 3,
+  "samples": [
+    {
+      "N": 1024,
+      "estimated_work_bytes": 131072,
+      "engine_ms": 0.2393,
+      "api_ms": 0.2732
+    },
+    {
+      "N": 65536,
+      "estimated_work_bytes": 8388608,
+      "engine_ms": 4.692,
+      "api_ms": 4.713,
+      "store_and_save_ms": 1902.3163,
+      "cli_cold_process_ms": 4742.725,
+      "session_bytes": 13181821
+    },
+    {
+      "N": 262144,
+      "estimated_work_bytes": 33554432,
+      "engine_ms": 21.2566,
+      "api_ms": 22.6987
+    }
+  ]
+}

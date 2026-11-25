@@ -1,6 +1,6 @@
 # ADR 001 · DFT como piloto de la frontera de aplicación
 
-**Estado** propuesto para revisión al cierre de estabilización. La Fase 01 conserva el diseño actual.
+**Estado** autorizado como piloto de Fase 02 e implementado en `develop`. La decisión se limita a DFT directa e IDFT como consumidora. [Contrato y ejemplos](DFT_PILOT_API.md)
 
 ## Contexto
 
@@ -8,15 +8,17 @@
 
 La DFT permite ensayar una frontera completa con parámetros discretos, cálculo cancelable, relojes opcionales y compatibilidad histórica. Un flujo simbólico guardaría condiciones de validez y un estado no evaluado, y uno de filtros incorporaría la ROC y causalidad. Esas diferencias quedarían para cuando exista evidencia de que el primer contrato funciona.
 
-## Decisión propuesta
+## Decisión
 
-Usar como primer flujo la DFT discreta directa con IDFT como consumidor de su salida. Adaptar las configuraciones actuales de UI a parámetros de operación explícitos. Reutilizar `Signal`, el motor y el registro de `Project`. Mantener los valores de referencia de fase y opciones que entienden los archivos existentes. La primera implementación separaría la preparación y ejecución de los controles, y pasaría el resultado a la presentación y a la persistencia.
+La frontera recibe `DFTRequest` y `DFTExecution`, usa el motor `operations.dft` y devuelve `DFTResult` con un espectro `Signal` y `DFTProvenance`. Qt, el consumidor Python y la CLI llaman a la misma función. `store_dft` entrega la salida y su fuente a `Project` en una sola operación. La CLI escribe con `session.save` y comprueba la cancelación antes del reemplazo atómico.
 
 ```mermaid
 flowchart LR
     Qt[ToolPage Qt] --> Request[Solicitud DFT con parámetros]
     Python[Consumidor Python] --> Request
-    Request --> Engine[operations.dft]
+    CLI[CLI] --> Request
+    Request --> Boundary[Frontera de aplicación]
+    Boundary --> Engine[operations.dft]
     Engine --> Signal[Signal con reloj y fase]
     Signal --> View[Informe y gráfico]
     Signal --> Project[Proyecto y sesión]
@@ -35,4 +37,4 @@ flowchart LR
 
 El resultado y las condiciones deben coincidir desde Qt y Python para las pruebas analíticas y archivos históricos. Una cancelación no agrega registros. Una importación directa del motor no requiere Qt. El informe y gráfico conservan unidades y referencia. Cualquier parámetro nuevo tiene un valor histórico explícito para la carga de sesiones anteriores.
 
-Se limita el primer cambio a este flujo. Una reorganización de carpetas o una clase universal de resultado afectarían más rutas y requerirían evidencia adicional.
+La frontera aplica presupuesto y plazo cooperativos. La FFT nativa entrega el control al terminar el bloque. La persistencia se comprueba antes de publicar el proyecto o reemplazar el archivo de sesión. Una generalización a otros motores requiere evidencia de sus propios contratos de datos y ejecución.

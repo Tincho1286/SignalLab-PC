@@ -1,0 +1,220 @@
+{
+  "candidate": "ce6846bc3e6bc3d56e80bda06eda6edd1e4e2557",
+  "run": 45628542049,
+  "conclusion": "success",
+  "platforms": {
+    "windows": {
+      "runner": "Windows-2022Server-10.0.20348-SP0",
+      "python": "3.14.10",
+      "suite": {
+        "passed": true,
+        "tests": 829,
+        "seconds": 546.889,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "source_snapshot": {
+          "mathematics": "528faebd57de3b144aecc686c2a93a1b572aa0bcff6fb67fb3af169c7728b81d",
+          "application": "a28dd9f4b5b1397ff37224ba227302195a8750c5e8b3179e1a28bfa67d165275",
+          "tests_and_tools": "35e3ffe8535f4ff4d4a5341c16660b4abc76aa0c4ee8e74571e7970c57423ff4"
+        },
+        "preventive": {
+          "passed": true,
+          "completed_cases": 150,
+          "failed_cases": 0,
+          "seeds": [
+            20261103,
+            1385148093
+          ]
+        }
+      },
+      "coverage": {
+        "covered_branches": 10138,
+        "covered_lines": 32016,
+        "excluded_lines": 0,
+        "missing_branches": 5822,
+        "missing_lines": 9168,
+        "num_branches": 15960,
+        "num_partial_branches": 2910,
+        "num_statements": 41184,
+        "percent_branches_covered": 63.521303258145366,
+        "percent_branches_covered_display": "63.52",
+        "percent_covered": 73.7680246395072,
+        "percent_covered_display": "73.77",
+        "percent_statements_covered": 77.73892773892774,
+        "percent_statements_covered_display": "77.74"
+      },
+      "pilot_cases": [
+        {
+          "id": "test_desktop_session.DesktopSessionTests.test_cancelling_dft_before_handoff_keeps_the_project_free_of_partial_records",
+          "passed": true,
+          "seconds": 3.263
+        },
+        {
+          "id": "test_desktop_session.DesktopSessionTests.test_dft_workspace_uses_the_pilot_and_retains_the_input_and_output",
+          "passed": true,
+          "seconds": 3.189
+        },
+        {
+          "id": "test_math_dft_pilot.DFTPilotTests.test_budget_timeout_and_cancellation_are_checked_before_and_after_native_work",
+          "passed": true,
+          "seconds": 0.001
+        },
+        {
+          "id": "test_math_dft_pilot.DFTPilotTests.test_cancel_before_project_commit_and_file_replace_keeps_existing_data",
+          "passed": true,
+          "seconds": 0.015
+        },
+        {
+          "id": "test_math_dft_pilot.DFTPilotTests.test_cli_appends_to_historical_sessions_and_keeps_existing_spectra",
+          "passed": true,
+          "seconds": 3.618
+        },
+        {
+          "id": "test_math_dft_pilot.DFTPilotTests.test_cli_rejected_budget_keeps_destination_bytes",
+          "passed": true,
+          "seconds": 1.184
+        },
+        {
+          "id": "test_math_dft_pilot.DFTPilotTests.test_headless_cli_signal_matches_api_and_preserves_lineage",
+          "passed": true,
+          "seconds": 1.201
+        },
+        {
+          "id": "test_math_dft_pilot.DFTPilotTests.test_oracle_and_inverse_for_odd_even_padded_truncated_and_signed_origins",
+          "passed": true,
+          "seconds": 0.007
+        }
+      ],
+      "workflow_tests": 318,
+      "packaged_checks": [
+        "fft_roundtrip",
+        "lti_recurrence",
+        "bilinear",
+        "symbolic_runtime",
+        "packaged_update_verification",
+        "state_space_simulation_and_project",
+        "digital_delay_transfer_roundtrip",
+        "toolbox_menu_and_matplotlib",
+        "sampling_plot_and_report_layout",
+        "project_picker_search_and_selection",
+        "formatted_report_preserves_text",
+        "packaged_symbolic_measures_and_window",
+        "expression_measure_menu"
+      ],
+      "native_checks": [
+        "native_upgrade_same_installation",
+        "per_user_registration",
+        "uninstall_preserves_untracked_files",
+        "real_installed_application_self_check",
+        "native_downgrade_rejected"
+      ]
+    },
+    "linux": {
+      "runner": "Linux-6.8.0-1070-azure-x86_64-with-glibc2.35",
+      "python": "3.14.10",
+      "suite": {
+        "passed": true,
+        "tests": 829,
+        "seconds": 720.065,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "source_snapshot": {
+          "mathematics": "528faebd57de3b144aecc686c2a93a1b572aa0bcff6fb67fb3af169c7728b81d",
+          "application": "a28dd9f4b5b1397ff37224ba227302195a8750c5e8b3179e1a28bfa67d165275",
+          "tests_and_tools": "35e3ffe8535f4ff4d4a5341c16660b4abc76aa0c4ee8e74571e7970c57423ff4"
+        },
+        "preventive": {
+          "passed": true,
+          "completed_cases": 150,
+          "failed_cases": 0,
+          "seeds": [
+            20261103,
+            1385148093
+          ]
+        }
+      },
+      "coverage": {
+        "covered_branches": 10135,
+        "covered_lines": 32006,
+        "excluded_lines": 0,
+        "missing_branches": 5825,
+        "missing_lines": 9178,
+        "num_branches": 15960,
+        "num_partial_branches": 2909,
+        "num_statements": 41184,
+        "percent_branches_covered": 63.50250626566416,
+        "percent_branches_covered_display": "63.50",
+        "percent_covered": 73.74527509449811,
+        "percent_covered_display": "73.75",
+        "percent_statements_covered": 77.71464646464646,
+        "percent_statements_covered_display": "77.71"
+      },
+      "pilot_cases": [
+        {
+          "id": "test_desktop_session.DesktopSessionTests.test_cancelling_dft_before_handoff_keeps_the_project_free_of_partial_records",
+          "passed": true,
+          "seconds": 3.617
+        },
+        {
+          "id": "test_desktop_session.DesktopSessionTests.test_dft_workspace_uses_the_pilot_and_retains_the_input_and_output",
+          "passed": true,
+          "seconds": 3.722
+        },
+        {
+          "id": "test_math_dft_pilot.DFTPilotTests.test_budget_timeout_and_cancellation_are_checked_before_and_after_native_work",
+          "passed": true,
+          "seconds": 0.001
+        },
+        {
+          "id": "test_math_dft_pilot.DFTPilotTests.test_cancel_before_project_commit_and_file_replace_keeps_existing_data",
+          "passed": true,
+          "seconds": 0.003
+        },
+        {
+          "id": "test_math_dft_pilot.DFTPilotTests.test_cli_appends_to_historical_sessions_and_keeps_existing_spectra",
+          "passed": true,
+          "seconds": 4.152
+        },
+        {
+          "id": "test_math_dft_pilot.DFTPilotTests.test_cli_rejected_budget_keeps_destination_bytes",
+          "passed": true,
+          "seconds": 1.351
+        },
+        {
+          "id": "test_math_dft_pilot.DFTPilotTests.test_headless_cli_signal_matches_api_and_preserves_lineage",
+          "passed": true,
+          "seconds": 1.381
+        },
+        {
+          "id": "test_math_dft_pilot.DFTPilotTests.test_oracle_and_inverse_for_odd_even_padded_truncated_and_signed_origins",
+          "passed": true,
+          "seconds": 0.01
+        }
+      ],
+      "workflow_tests": 318,
+      "packaged_checks": [
+        "fft_roundtrip",
+        "lti_recurrence",
+        "bilinear",
+        "symbolic_runtime",
+        "packaged_update_verification",
+        "state_space_simulation_and_project",
+        "digital_delay_transfer_roundtrip",
+        "toolbox_menu_and_matplotlib",
+        "sampling_plot_and_report_layout",
+        "project_picker_search_and_selection",
+        "formatted_report_preserves_text",
+        "packaged_symbolic_measures_and_window",
+        "expression_measure_menu"
+      ],
+      "native_checks": [
+        "real_run_payload",
+        "installed_packaged_self_check",
+        "repair_in_place",
+        "uninstall_preserves_data"
+      ]
+    }
+  }
+}

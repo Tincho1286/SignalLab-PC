@@ -33,3 +33,14 @@
 | R10 · Dependencias de instalación | Los archivos de requisitos coinciden para Qt Essentials. Falta consolidar el alcance de los perfiles de instalación y verificar hashes de cada wheel. |
 
 La [línea base de seguridad](SECURITY_BASELINE.md), la [matriz](VALIDATION_MATRIX.md) y el [informe de cierre](PHASE_01_CLOSEOUT.md) detallan el alcance del candidato y las limitaciones que llevan a revisión. R11 y R12 siguen abiertos como condiciones futuras.
+
+## Seguimiento durante el piloto DFT
+
+| Riesgo | Evidencia y límite |
+| --- | --- |
+| R06 · Acoplamiento | El cálculo y la persistencia del piloto se ejecutaron con las importaciones de Qt bloqueadas. La presentación conserva sus adaptadores de escritorio. |
+| R07 · Recursos | El piloto define presupuesto estimado y plazo cooperativo. El bloque FFT nativo devuelve el control al terminar. La carga de un proyecto y su serialización en JSON tienen costes propios. |
+| R08 · Procedencia | La DFT publica de forma atómica su entrada nueva y el resultado. Las referencias existentes se mantienen en el proyecto. La CLI asume un escritor por archivo. |
+| R02, R03, R05 y R09 · Distribución y escritorio | Continúa el seguimiento de Qt, dependencias y avisos, confianza del actualizador por el canal público y DPI en escritorios reales. |
+
+[Informe del piloto DFT](PHASE_02_DFT_PILOT.md)

@@ -14,4 +14,8 @@
 
 La cobertura de Muestreo y Fourier supera el objetivo del 90 % de líneas. La cobertura global continúa por debajo del objetivo orientativo del 85 %. Las excepciones incluyen la disponibilidad de Qt 6.12.1, la UI Linux en un escritorio de uso real, el DPI del sistema y la entrega remota por el canal público.
 
-El [informe de línea base](BASELINE_REPORT.md), la [matriz de validación](VALIDATION_MATRIX.md) y el [registro de riesgos](RISK_REGISTER.md) recogen el alcance de las verificaciones. El piloto DFT es una propuesta y la Fase 02 requiere autorización específica.
+El [informe de línea base](BASELINE_REPORT.md), la [matriz de validación](VALIDATION_MATRIX.md) y el [registro de riesgos](RISK_REGISTER.md) recogen el alcance de las verificaciones de estabilización.
+
+## Fase 02 · Piloto DFT
+
+El cierre técnico de Fase 01 aprobó el inicio controlado del piloto definido en ADR-001. El candidato `ce6846b` incorpora un contrato compartido por Qt, Python y CLI para la DFT directa. La IDFT y los archivos históricos conservan sus convenciones. La matriz pasó 829 pruebas y 150 casos preventivos por plataforma. Los riesgos de Fase 01 continúan en seguimiento. El alcance de la autorización termina con este piloto. [Informe del piloto](PHASE_02_DFT_PILOT.md) · [API y ejemplos](DFT_PILOT_API.md)

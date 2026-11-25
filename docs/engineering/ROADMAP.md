@@ -35,7 +35,7 @@ flowchart LR
 
 Mantener formatos antiguos legibles. Las migraciones crean una copia versionada y validan invariantes antes de reemplazar datos. Preferir adaptadores y contratos extensibles en el mismo proceso. Mantener procesos aislados para cálculo simbólico costoso y componentes externos que lo justifiquen. Documentar alternativas, política de compatibilidad, código de referencia y evidencia con ADR al implementar.
 
-La preparación de estabilización elige una sola frontera para evaluar ese diseño. El [ADR 001](ADR-001-DFT-PILOT.md) propone reutilizar el motor DFT, `Signal` y la biblioteca de resultados. Su implementación queda sujeta a la decisión de cierre y a autorización específica.
+La autorización de Fase 02 se limita a la frontera de la DFT directa definida en ADR-001. El piloto reutiliza el motor, `Signal` y la biblioteca de resultados, y agrega los accesos por Python y CLI. El alcance general propuesto para Fase 02 y las fases posteriores requiere una autorización futura. [ADR 001](ADR-001-DFT-PILOT.md) · [Informe del piloto](PHASE_02_DFT_PILOT.md)
 
 ## Secuencia y criterios de salida
 
