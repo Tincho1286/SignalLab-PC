@@ -111,6 +111,33 @@ class DesktopSessionTests(unittest.TestCase):
         self.assertEqual(window.pages[route].dft_phase_reference.currentData(), 'sample_indices')
         np.testing.assert_array_equal(window.project.get(spectrum['id']).values, stored.values)
 
+    def test_historical_sessions_migrate_to_schema_three_without_changing_results(self):
+        from signallab_pc.operations import idft
+
+        expected = [1+2j, -1, 3j]
+        route = ROUTES['basic','dft']
+        for schema, version in ((1, '1.9.3'), (2, '1.9.4')):
+            with self.subTest(schema=schema):
+                fixture = Path(__file__).parent/'fixtures'/f'session-v{schema}-draft-{version}.json'
+                migrated = self.path/f'migrated-v{schema}.json'
+                window = self.window()
+                self.assertTrue(window.sessions.open_path(fixture))
+                self.assertEqual(window.current_operation, route)
+                self.assertEqual(window.pages[route].dft_phase_reference.currentData(), 'record_offset')
+                source, spectrum = window.project.headers()
+                self.assertEqual(spectrum['parents'], [source['id']])
+                session.save(migrated, window.project, capture(window))
+                self.assertEqual(json.loads(migrated.read_text(encoding='utf-8'))['schema_version'], 3)
+                self.assertTrue(window.sessions.open_path(migrated))
+                self.assertEqual(window.project.headers(), [source, spectrum])
+                signal = window.project.get(source['id'])
+                np.testing.assert_array_equal(signal.values, expected)
+                restored = idft(window.project.get(spectrum['id']), restore_origin=True)
+                np.testing.assert_allclose(restored.values, expected, atol=1e-14)
+                self.assertEqual(restored.origin, -2)
+                self.assertEqual(restored.metadata['sample_rate_hz'], 4)
+                self.assertEqual(restored.metadata['time_start_s'], -.5)
+
     def test_real_workspace_restores_reference_clock_tool_order_and_inactive_input(self):
         window = self.window()
         root = window.project.add(Signal([1,2], -1, metadata={'sample_rate_hz':8,'time_start_s':.25}))

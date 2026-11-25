@@ -51,6 +51,25 @@ def run_stage(output, name, env, *arguments):
     return result.returncode
 
 
+def coverage_parts(output):
+    from coverage import CoverageData
+    from inspect import getsourcelines
+    from signallab_pc.symbolic_process import worker
+
+    source_lines, first_line = getsourcelines(worker)
+    worker_lines = set(range(first_line+1, first_line+len(source_lines)))
+    parts = list(output.glob('.coverage.*'))
+    instrumented = 0
+    for path in parts:
+        part = CoverageData(basename=str(path))
+        part.read()
+        for name in part.measured_files():
+            if Path(name).name == 'symbolic_process.py' and worker_lines.intersection(part.lines(name) or []):
+                instrumented += 1
+                break
+    return {'data_files_before_combine': len(parts), 'data_files_executing_symbolic_worker': instrumented}
+
+
 def run(output):
     revision = clean_revision()
     output.mkdir(parents=True, exist_ok=False)
@@ -63,14 +82,16 @@ def run(output):
         'static': run_stage(output, 'static', env, 'tools/check_static.py'),
         'integral': run_stage(output, 'integral', env, '-m', 'coverage', 'run',
                               'tools/check_engineering_baseline.py', '--integral', str(output)),
-        'coverage_combine': run_stage(output, 'coverage-combine', env, '-m', 'coverage', 'combine'),
-        'coverage_json': run_stage(output, 'coverage-json', env, '-m', 'coverage', 'json',
-                                   '-o', str(output/'coverage.json')),
     }
+    sys.path.insert(0, str(ROOT))
+    parts = coverage_parts(output)
+    stages['coverage_combine'] = run_stage(output, 'coverage-combine', env, '-m', 'coverage', 'combine')
+    stages['coverage_json'] = run_stage(output, 'coverage-json', env, '-m', 'coverage', 'json',
+                                       '-o', str(output/'coverage.json'))
     line_and_branch_coverage = None
     if not stages['coverage_json']:
         data = json.loads((output/'coverage.json').read_text(encoding='utf-8'))
-        selected = {'sampling.py', 'fourier.py', 'filters.py', 'model.py', 'session.py'}
+        selected = {'sampling.py', 'fourier.py', 'filters.py', 'model.py', 'session.py', 'symbolic_process.py'}
         line_and_branch_coverage = {
             'total': data['totals'],
             'modules': {Path(name).name: row['summary'] for name, row in data['files'].items()
@@ -81,7 +102,7 @@ def run(output):
                   machine=platform.machine(), python=platform.python_version(),
                   coverage_version=version('coverage'), profile='Qt offscreen, BLAS/OMP 1 thread',
                   packages={dist.metadata['Name']: dist.version for dist in distributions()},
-                  stages=stages, coverage=line_and_branch_coverage,
+                  stages=stages, coverage=line_and_branch_coverage, coverage_parts=parts,
                   passed=revision == fingerprint_end and all(code == 0 for code in stages.values()))
     (output/'baseline.json').write_text(json.dumps(report, indent=2, sort_keys=True)+'\n', encoding='utf-8')
     print('Engineering baseline:', 'PASS' if report['passed'] else 'FAIL', revision, flush=True)

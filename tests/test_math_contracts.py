@@ -252,6 +252,22 @@ class FourierContracts(unittest.TestCase):
                         self.assertEqual(inverse.origin, x.origin)
 
 
+    def test_window_study_exports_both_phase_references_for_inverse(self):
+        from signallab_pc.course_tools import window_fft
+        from signallab_pc.operations import idft
+
+        signal = Signal([1j, 2, -3, 20], -2, metadata={'sample_rate_hz': 8, 'time_start_s': -.25})
+        for size in (5, 6):
+            with self.subTest(size=size):
+                views = window_fft(signal, 3, size, 'boxcar', 0, 17)['signals']
+                for view, reference in ((views[0], 'sample_indices'), (views[-1], 'record_offset')):
+                    self.assertEqual(view.metadata['dft_phase_reference'], reference)
+                    restored = idft(view, restore_origin=True)
+                    assert_allclose(restored.values, [1j, 2, -3] + [0]*(size-3), atol=2e-14)
+                    self.assertEqual(restored.origin, -2)
+                    self.assertEqual(restored.metadata['time_start_s'], -.25)
+                    self.assertEqual(restored.metadata['sample_rate_hz'], 8)
+
     def test_continuous_fourier_quadrature_scaling_and_inverse(self):
         from signallab_pc.fourier import ctft,ictft
         x=Signal([1,2,3],-.25,.25,'s','x','continuous');s=ctft(x,-2,2,5)

@@ -37,7 +37,8 @@ def main():
         args.output.write_text(json.dumps({'executable_check': diagnostics, 'runtime': inventory['runtime'],
                                           'sha256': inventory['sha256']}, indent=2)+'\n', encoding='utf-8')
         return int(check.returncode != 0 or not diagnostics.get('ok') or not diagnostics.get('frozen')
-                   or inventory['runtime']['qt']['version'] != '6.12.0')
+                   or inventory['runtime']['qt']['version'] != '6.12.0'
+                   or 'qt_svg' not in inventory['runtime'])
 
 
 if __name__ == '__main__':
