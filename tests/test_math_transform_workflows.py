@@ -5,8 +5,9 @@ import numpy as np
 import sympy as sp
 
 from signallab_pc.cas_engine import encode, restore
+from signallab_pc.analytic_frequency import analyze_expression
 from signallab_pc.measures_symbolic import measure_expression
-from signallab_pc.symbolic import N, S, T, W, execute, parse
+from signallab_pc.symbolic import N, S, T, TAU, W, Z, execute, parse
 
 
 class DistributionTransformContracts(unittest.TestCase):
@@ -127,3 +128,128 @@ class ExpressionGridContracts(unittest.TestCase):
         result = execute(base)
         self.assertEqual(result['step'],.25)
         np.testing.assert_allclose([complex(*p) for p in result['samples']], 1/(1+np.linspace(-1,1,9)**2))
+
+
+class ContinuousCombinationContracts(unittest.TestCase):
+    def test_convolving_a_shifted_delta_derivative_produces_the_pulse_edges(self):
+        spec = dict(operation='continuous_convolution',causal=False,
+                    left='DiracDelta(t-1,1)',right='Piecewise((1,0<=t<2),(0,True))')
+        response=execute(spec)
+        self.assertTrue(response['evaluated'])
+        expected=sp.DiracDelta(T-1)-sp.DiracDelta(T-3)
+        self.assertEqual(sp.simplify(parse(response['result'])-expected),0)
+        response=execute({**spec,'causal':True, 'left':'DiracDelta(t+1)+DiracDelta(t)',
+                          'right':'exp(-2*t)'})
+        value=parse(response['result'])
+        for p in [-2,-1,0,1,2]:
+            target=sp.exp(-2*p) if p>=0 else 0
+            self.assertEqual(sp.simplify(value.subs(T,p)-target),0)
+
+    def test_complex_bilateral_correlation_conjugates_the_weight_and_flips_lag(self):
+        request=dict(operation='continuous_correlation',
+                     left='(1+2*i)*DiracDelta(t-2)',right='(3+i)*DiracDelta(t+1,1)')
+        result=execute(request)
+        self.assertTrue(result['evaluated'])
+        self.assertEqual(result['output_variable'],'tau')
+        self.assertIsNone(result['period'])
+        expected=-(1+2*sp.I)*(3-sp.I)*sp.DiracDelta(TAU-3,1)
+        self.assertEqual(sp.simplify(parse(result['result'])-expected),0)
+
+    def test_periodic_correlation_uses_the_declared_interval_and_complex_gain(self):
+        request=dict(operation='continuous_correlation',left='1+i*sin(t)',right='cos(t)',period='2*pi')
+        result=execute(request)
+        self.assertTrue(result['evaluated'])
+        self.assertEqual(parse(result['period']).simplify(),2*sp.pi)
+        self.assertEqual(sp.simplify(parse(result['result'])-sp.I*sp.pi*sp.sin(TAU)),0)
+        for change,reason in [
+            ({'period':'-1'}, 'positiva'),
+            ({'period':'p'}, 'constante'),
+            ({'left':'tau*cos(t)'},'retardo tau'),
+        ]:
+            with self.subTest(change=change), self.assertRaisesRegex(ValueError,reason):
+                execute({**request, **change})
+
+
+class SystemFormulaContracts(unittest.TestCase):
+    def test_hz_and_hs_reject_infinite_values_and_nonordinary_distributions(self):
+        for domain,variable in [('analog',S),('digital',Z)]:
+            request=dict(operation='system_formula',domain=domain)
+            for expression,reason in [
+                ('-oo','no finito'), ('+oo','no finito'), ('1/(2-2)','no finito'),
+                (f'2+DiracDelta({variable}-1)','distribución'), ('exp(-t)','sin variables temporales'),
+            ]:
+                with self.subTest(expression=expression, domain=domain),self.assertRaisesRegex(ValueError,reason):
+                    execute({**request,'expression':expression})
+            defined=execute({**request,'expression':f'exp(-2*{variable})'})
+            self.assertTrue(defined['evaluated'])
+            self.assertEqual(defined['model_kind'],'expression')
+            self.assertEqual(sp.simplify(parse(defined['transfer'])-sp.exp(-2*variable)),0)
+
+    def test_expression_frequency_reports_removable_values_and_preserves_phase_and_delay(self):
+        from signallab_pc.frequency_measurements import readings
+
+        request=dict(operation='system_frequency_expression',domain='digital',
+                     expression='exp(-2*i*w)*sin(w)/w')
+        declared=execute(request)
+        omega=np.array([-.6,-.1,0.,.1,.6])
+        exact,data=analyze_expression(declared,request,omega,period=.01,margins=True)
+        self.assertEqual(data.phase_kind,'principal')
+        np.testing.assert_allclose(data.response,np.exp(-2j*omega)*np.sinc(omega/np.pi),atol=1e-14)
+        np.testing.assert_allclose(data.delay,2,atol=1e-13)
+        self.assertEqual(data.system.sample_period_s,.01)
+        self.assertFalse(data.margins['available'])
+        self.assertIn('no racional',data.margins['reason'])
+        self.assertEqual(exact['group_delay_jump_samples'],0)
+        self.assertNotIn('frequency_limit_extensions',declared)
+        rows,_=readings(data,[0.])
+        self.assertEqual(rows[0]['real'],1.)
+        self.assertAlmostEqual(rows[0]['delay'],2.)
+
+    def test_pointwise_assignments_need_a_common_derivative_for_group_delay(self):
+        omega=np.array([np.pi-.1,np.pi,np.pi+.1])
+        regular='exp(-3*i*(w-pi))'
+        for condition,pair,measurable in [
+            ('Eq(w,pi)', f'(1,Eq(w,pi)),({regular},True)', True),
+            ('Ne(w,pi)', f'({regular},Ne(w,pi)),(3,True)', False),
+        ]:
+            with self.subTest(condition=condition):
+                request=dict(operation='system_frequency_expression', domain='digital',
+                             expression=f'Piecewise({pair})')
+                exact,data=analyze_expression(execute(request),request,omega)
+                np.testing.assert_allclose(data.delay[[0,2]],3.,atol=1e-13)
+                if measurable:
+                    self.assertAlmostEqual(data.delay[1],3.)
+                    self.assertEqual(exact['group_delay_jump_samples'],0)
+                else:
+                    self.assertEqual(data.response[1],3.)
+                    self.assertTrue(np.isnan(data.delay[1]))
+                    self.assertEqual(exact['group_delay_jump_samples'],1)
+
+    def test_frequency_jump_masks_delay_and_periodic_equal_limits_preserve_it(self):
+        omega=np.array([-.1,0.,.1,.9,1.,1.1])
+        for expression,junctions,expected in [
+            ('exp(-i*Mod(w,1))',[1,4],1.),
+            ('exp(-2*pi*i*Mod(w,1))',[],2*np.pi),
+            ('exp(-2*i*w)*Step(w)',[0,1],2.),
+        ]:
+            with self.subTest(expression=expression):
+                request=dict(operation='system_frequency_expression',domain='digital',expression=expression)
+                exact,data=analyze_expression(execute(request),request,omega)
+                self.assertEqual(np.flatnonzero(~np.isfinite(data.delay)).tolist(),junctions)
+                np.testing.assert_allclose(data.delay[np.isfinite(data.delay)],expected,atol=1e-13)
+                self.assertGreaterEqual(exact['group_delay_jump_samples'],len(junctions)-(1 if expression.endswith('Step(w)') else 0))
+
+    def test_cas_frequency_context_excludes_exact_resonance_without_masking_nearby_samples(self):
+        omega=np.array([-np.pi,-1e-30,0.,1e-30,np.pi,2*np.pi])
+        request=dict(operation='system_frequency_expression',domain='digital',expression='exp(-i*w)')
+        imported={'cas_answer':{'frequency_units':'rad/muestra','frequency_condition':'Ne(cos(w)-1,0)'}}
+        exact,data=analyze_expression(execute(request),{**request,'source_calculation':imported},omega)
+        self.assertEqual(exact['masked_frequency_samples'],2)
+        expected=np.exp(-1j*omega)
+        mask=np.array([True,True,False,True,True,False])
+        np.testing.assert_array_equal(np.isfinite(data.response),mask)
+        np.testing.assert_allclose(data.response[mask],expected[mask],atol=1e-14)
+        np.testing.assert_allclose(data.delay[mask],1.,atol=1e-14)
+        incompatible={'cas_answer':{**imported['cas_answer'],'frequency_units':'rad/s'}}
+        with self.assertRaisesRegex(ValueError,'unidad de frecuencia'):
+            analyze_expression(execute(request),{**request,'source_calculation':incompatible},omega)

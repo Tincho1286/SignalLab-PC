@@ -18,10 +18,12 @@ def frequency_response(system,count=2049):
 
 def window_fft(x,length,nfft,window,beta,points):
     if x.domain!='discrete':raise ValueError('Se requiere una secuencia discreta.')
+    from .signal_semantics import require_temporal
+    require_temporal(x)
     if not 1<=length<=x.values.size:raise ValueError('La longitud de ventana debe estar entre 1 y la cantidad de muestras de entrada.')
     if nfft<length:raise ValueError('NFFT debe ser al menos la longitud de ventana; no se recorta la señal silenciosamente.')
     if points<2:raise ValueError('Usá al menos dos frecuencias para la DTFT.')
-    if beta<0:raise ValueError('β debe ser no negativo.')
+    if beta<0 or window=='kaiser' and not np.isfinite(beta):raise ValueError('β debe ser finito y no negativo.')
     ensure_working_set(int(nfft+points+length),live_arrays=14)
     weights=sp.get_window(('kaiser',beta) if window=='kaiser' else window,length,fftbins=False)
     w=Signal(weights,x.origin,1,'n','Ventana '+window,'discrete')

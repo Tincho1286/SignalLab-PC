@@ -39,9 +39,24 @@ class FilterStudyContracts(unittest.TestCase):
                               ((source,4,4,'hann',0,5), 'longitud'),
                               ((source,3,2,'hann',0,5), 'NFFT'),
                               ((source,3,4,'hann',0,1), 'dos frecuencias'),
-                              ((source,3,4,'kaiser',-1,5), 'β')]:
+                              ((source,3,4,'kaiser',-1,5), 'β'),
+                              ((source,3,4,'kaiser',np.nan,5), 'β'),
+                              ((Signal([1,2,3], units='bin k'),3,4,'hann',0,5), 'temporal')]:
             with self.subTest(message=message), self.assertRaisesRegex(ValueError,message):
                 course.window_fft(*args)
+
+    def test_fft_and_dtft_retain_index_phase_beyond_exact_float_integers(self):
+        from signallab_pc.model import Signal
+
+        n0=2**53+11
+        source=Signal([2+1j,-2,1j],n0)
+        spectrum,dtft,*_=course.window_fft(source,3,8,'boxcar',0,17)['signals']
+        for data,width in [(spectrum,8),(dtft,16)]:
+            for position,value in enumerate(data.values):
+                k=position-width//2
+                exact=sum(x*np.exp(-2j*np.pi*((n0+step)*k%width)/width)
+                          for step,x in enumerate(source.values))
+                self.assertAlmostEqual(value,exact,places=13)
 
     def test_legacy_explicit_fir_length_preserves_the_selected_ideal_and_taper(self):
         for p,s,band in [([.7],[1.4],'lowpass'), ([1.4],[.7],'highpass'),

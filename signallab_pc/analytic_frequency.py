@@ -134,6 +134,46 @@ def _condition_mask(condition,omega):
     with np.errstate(all='ignore'):return np.broadcast_to(np.asarray(function(omega),dtype=bool),omega.shape).copy()
 
 
+def _isolated_branch_derivative(frequency, derivative, omega, jumps):
+    from .jobs import checkpoint
+    from .singularities import finite_extension
+    from .symbolic import W
+
+    points = {}
+    for piece in frequency.atoms(sp.Piecewise):
+        for _, condition in piece.args:
+            for equality in condition.atoms(sp.Equality, sp.Unequality):
+                point = equality.rhs if equality.lhs == W else equality.lhs if equality.rhs == W else None
+                if (point is not None and not point.free_symbols and point.is_real is True
+                        and point.is_finite is True):
+                    points.setdefault(point, {})[equality] = sp.true if equality.func == sp.Ne else sp.false
+
+    patches = []
+    for point, away in points.items():
+        try:
+            coordinate = float(point)
+        except (ValueError, TypeError, OverflowError):
+            continue
+        sampled = omega == coordinate
+        if not sampled.any():
+            continue
+        checkpoint()
+        # An assigned point, including a completed 0/0, is not a constant
+        # branch on any open interval. Differentiate on its neighbourhood.
+        center = frequency.subs(W, point)
+        value = sp.nan
+        if center.is_finite is True:
+            quotient = (frequency.xreplace(away)-center)/(W-point)
+            try:
+                value = finite_extension(quotient, W, point)
+            except (ValueError, TypeError, NotImplementedError):
+                pass
+        if value is sp.nan:
+            jumps[sampled] = True
+        patches.append((value, sp.Eq(W, point)))
+    return sp.Piecewise(*patches, (derivative, True)) if patches else derivative
+
+
 def smooth_frequency_derivative(frequency,omega):
     """Mark points where the ordinary phase derivative has no common limit."""
     from .symbolic import W
@@ -173,7 +213,7 @@ def smooth_frequency_derivative(frequency,omega):
                              | (abs(a-b)>1e-8*np.maximum(abs(a),abs(b)))
                              | ~np.isfinite(da) | ~np.isfinite(db)
                              | ~np.isclose(da,db,rtol=1e-7,atol=1e-12))
-    return derivative,jumps
+    return _isolated_branch_derivative(frequency,derivative,omega,jumps),jumps
 
 
 def analyze_expression(exact,request,omega,*,period=None,logarithmic=False,margins=False):

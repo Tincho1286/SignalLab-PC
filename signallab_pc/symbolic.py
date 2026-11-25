@@ -473,13 +473,14 @@ def _execute(request):
         return dict(operation=operation,domain=domain,model_kind='frequency',transfer=str(expr),factored=str(expr),evaluated=not pending,output_variable='w',frequency_units='rad/muestra' if domain=='digital' else 'rad/s',
             parameters=sorted(map(str,expr.free_symbols-{W})),scope='Respuesta en frecuencia definida directamente en w. No implica una transformada Z o Laplace en una región abierta ni una realización finita con coeficientes b/a.')
     if operation == "system_formula":
-        from .periodic_signals import PVCot
+        from .periodic_signals import ImpulseTrain, PVCot
         domain=request['domain']
         if domain not in ('analog','digital'):raise ValueError('Dominio de sistema inválido.')
         variable=S if domain=='analog' else Z
         expr=sp.cancel(parse(expression))
-        if expr.has(PVCot):raise ValueError('El valor principal pertenece a una distribución espectral. Usá Fourier algebraica.')
-        if expr.has(T,N,W,Z if domain=='analog' else S,sp.zoo,sp.nan,sp.oo):raise ValueError('Usá s para H(s) o z para H(z), sin variables temporales ni la variable del otro dominio.')
+        if expr.has(sp.DiracDelta,ImpulseTrain,PVCot):raise ValueError('Una distribución corresponde a Fourier algebraica. H(s) y H(z) requieren valores ordinarios.')
+        if expr.has(sp.zoo,sp.nan,sp.oo,-sp.oo):raise ValueError('La fórmula del sistema contiene un valor no finito.')
+        if expr.has(T,N,W,Z if domain=='analog' else S):raise ValueError('Usá s para H(s) o z para H(z), sin variables temporales ni la variable del otro dominio.')
         if not expr.is_rational_function(variable):
             pending=expr.has(sp.Sum,sp.Integral,sp.Derivative,sp.Limit)
             return dict(operation='system_formula',domain=domain,model_kind='expression',transfer=str(expr),factored=str(expr),evaluated=not pending,output_variable=str(variable),

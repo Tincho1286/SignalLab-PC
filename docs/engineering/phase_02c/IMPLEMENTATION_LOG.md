@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-04, C-06 y C-07 · Derivación en frecuencia y borradores
+
+**Retardo de grupo.** La fórmula de `exp(-2*i*w)*sin(w)/w` conserva el valor 1 en ω = 0 mediante un tramo aislado. La derivación por tramos usaba la constante de ese punto y mostraba 0 muestras. El motor calcula ahora el límite bilateral del cociente incremental para un punto aislado identificado de forma exacta. Si la asignación difiere del límite, el retardo se marca como no definido. El gráfico y la lectura directa comparten la derivación. Se contrastaron el valor de 2 muestras, las uniones periódicas y los puntos con discontinuidad intencional.
+
+**Definiciones y reapertura.** Se rechazan H(s) y H(z) no finitas y distribuciones en una función de transferencia ordinaria. El análisis de ventanas exige muestras temporales y valida el parámetro de Kaiser. Las pruebas comparan convolución y correlación con oráculos distribucionales, verifican la fase FFT/DTFT con índices mayores a 2⁵³ y restauran condiciones de una fórmula en SLPROJ. Los borradores de muestras con referencias, páginas o ediciones incompatibles se rechazan antes de cambiar la sesión activa.
+
+**Comprobación local.** Pasaron 30 pruebas de transformadas y mediciones, 44 de intercambio y análisis de expresiones, 21 de estudios de filtros y MATLAB y 2 de integridad de borradores. [Cobertura proyectada](testing/FINAL_COVERAGE_REPORT.md#medición-focal-de-la-siguiente-revisión)
+
 ## 25 de noviembre de 2026 · C-04 y C-07 · Ventanas de Fourier y continuidad de resultados
 
 **Causas.** La vista de Fourier expandía productos en una suma, pero dejaba adiciones anidadas por el analizador de fórmulas. Una rama podía contener varias deltas ordinariamente separadas y llegar como si fuera un producto de distribuciones. El contrato de rejilla convertía la cantidad a entero sin validar y permitía un intervalo cuya diferencia excedía el rango de representación. La reconstrucción por invarianza del sistema nulo entraba en el descomponedor de residuos aun sin polos.
