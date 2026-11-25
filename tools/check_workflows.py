@@ -24,8 +24,9 @@ def worker(destination):
 def main():
     if len(sys.argv)==3 and sys.argv[1]=='--worker':return worker(sys.argv[2])
     folder=ROOT/'work';folder.mkdir(exist_ok=True);destination=folder/'workflow-checks.json';temporary=folder/'workflow-checks.pending.json';temporary.unlink(missing_ok=True)
-    # Bound the complete Qt suite without cutting off the final groups on slower runners.
-    begin=time.monotonic();budget=420
+    # The expanded desktop suite reached 420 s on a shared Linux runner.
+    # Leave two minutes of headroom while retaining the process-tree deadline.
+    begin=time.monotonic();budget=540
     command=[sys.executable,'-B','-X','utf8',str(Path(__file__).resolve()),'--worker',str(temporary)]
     env = dict(os.environ, OPENBLAS_NUM_THREADS='1', OMP_NUM_THREADS='1')
     options=dict(cwd=ROOT,stdin=subprocess.DEVNULL,env=env)
@@ -40,11 +41,16 @@ def main():
         try:process.wait(timeout=3)
         except subprocess.TimeoutExpired:process.kill();process.wait(timeout=3)
         code=1
-    record=json.loads(temporary.read_text(encoding='utf-8')) if temporary.exists() else dict(contract='system-expression-workflows-v1',passed=False,tests=0,error='Workflow worker did not complete.')
+    if temporary.exists():
+        record=json.loads(temporary.read_text(encoding='utf-8'))
+    else:
+        detail=f'Workflow worker exceeded the {budget} s deadline.' if timed_out else 'Workflow worker did not complete.'
+        record=dict(contract='system-expression-workflows-v1',passed=False,tests=0,error=detail)
     record.update(passed=record['passed'] and code==0 and not timed_out,timed_out=timed_out,deadline_seconds=budget,seconds=round(time.monotonic()-begin,3),platform=sys.platform,python=platform.python_version())
     sys.path.insert(0,str(ROOT/'tools'));from audit_mathematics import fingerprint
     record['source_fingerprint']=fingerprint();destination.write_text(json.dumps(record,indent=2),encoding='utf-8');temporary.unlink(missing_ok=True)
-    print('System-expression UI workflows: '+('PASS' if record['passed'] else 'FAIL'),flush=True)
+    outcome='PASS' if record['passed'] else 'FAIL'
+    print(f"System-expression UI workflows: {outcome} ({record['seconds']} s / {budget} s)",flush=True)
     return 0 if record['passed'] else 1
 
 
