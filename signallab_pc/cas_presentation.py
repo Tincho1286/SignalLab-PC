@@ -7,12 +7,12 @@ def math_formula(latex,size=17):
     if len(latex)>1600:raise ValueError('Vista matemática extensa')
     return render_latex(latex,size=size,color=C['text'])
 
-def presentation_html(view,value,width,size=17):
+def presentation_html(view,value,width,size=17,*,use_source_preview=True):
     def present(value,width):
         kind=value['kind']
         if kind=='scalar':
             text=value.get('text','')
-            if 'piecewise' in text.lower():
+            if use_source_preview and 'piecewise' in text.lower():
                 structured=view._render_formula(text,math_size=size)
                 if structured:return structured
             try:

@@ -12,6 +12,7 @@ import struct
 import numpy as np
 
 from .atomic_file import atomic_binary_file
+from .execution import ExecutionContext
 from .input_files import decode_json
 from .jobs import checkpoint as check_job
 from .project import Project, _record_without_samples
@@ -50,7 +51,7 @@ def save(path, project, workspace=None, *, before_commit=None, checkpoint=None):
             before_commit()
 
     digest = sha256(prefix + header)
-    with atomic_binary_file(path, before_commit=commit_check) as file:
+    with ExecutionContext().reserve(8*len(header) + _CHUNK), atomic_binary_file(path, before_commit=commit_check) as file:
         file.write(prefix)
         file.write(header)
         for row, count in zip(records, counts, strict=True):
@@ -94,8 +95,25 @@ def _read_manifest(file, size):
     data_bytes = _DTYPE.itemsize * sum(counts)
     if len(prefix) + length + data_bytes + 32 != size:
         raise ValueError('El tamaño de las muestras no coincide con el manifiesto.')
-    ensure_working_set(3 * data_bytes + 8 * length, bytes_per_sample=1, live_arrays=1)
-    return document, workspace, counts, sha256(prefix + header)
+    return document, workspace, counts, sha256(prefix + header), 3*data_bytes + 8*length
+
+
+def _read_samples(file, document, counts, digest, check):
+    for row, count in zip(document['records'], counts, strict=True):
+        if not count:
+            continue
+        check()
+        data = np.empty(count, dtype=_DTYPE)
+        payload = memoryview(data).cast('B')
+        for offset in range(0, len(payload), _CHUNK):
+            check()
+            block = payload[offset:offset+_CHUNK]
+            if file.readinto(block) != len(block):
+                raise ValueError('Muestras incompletas en el proyecto científico.')
+            digest.update(block)
+        row['data']['values'] = data
+    if not compare_digest(file.read(32), digest.digest()) or file.read(1):
+        raise ValueError('Falló la integridad del proyecto científico.')
 
 
 def load(path, *, checkpoint=None):
@@ -104,24 +122,15 @@ def load(path, *, checkpoint=None):
     path = Path(path)
     if not path.is_file():
         raise ValueError('El proyecto científico requiere un archivo regular.')
-    with path.open('rb') as file:
+    flags = os.O_RDONLY | getattr(os, 'O_BINARY', 0) | getattr(os, 'O_NONBLOCK', 0)
+    with open(path, 'rb', opener=lambda name, _: os.open(name, flags)) as file:
         info = os.fstat(file.fileno())
         if not stat.S_ISREG(info.st_mode):
             raise ValueError('El proyecto científico requiere un archivo regular.')
-        document, workspace, counts, digest = _read_manifest(file, info.st_size)
-        for row, count in zip(document['records'], counts, strict=True):
-            if count:
-                check()
-                data = np.empty(count, dtype=_DTYPE)
-                payload = memoryview(data).cast('B')
-                for offset in range(0, len(payload), _CHUNK):
-                    check()
-                    block = payload[offset:offset+_CHUNK]
-                    if file.readinto(block) != len(block):
-                        raise ValueError('Muestras incompletas en el proyecto científico.')
-                    digest.update(block)
-                row['data']['values'] = data
-        if not compare_digest(file.read(32), digest.digest()) or file.read(1):
-            raise ValueError('Falló la integridad del proyecto científico.')
+        document, workspace, counts, digest, footprint = _read_manifest(file, info.st_size)
+        with ExecutionContext().reserve(footprint):
+            _read_samples(file, document, counts, digest, check)
+            check()
+            project = Project.from_document(document, checkpoint=check)
     check()
-    return Project.from_document(document), workspace
+    return project, workspace

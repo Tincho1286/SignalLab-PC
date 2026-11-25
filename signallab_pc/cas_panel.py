@@ -1,5 +1,6 @@
 """An independent, sequential mathematical worksheet in the existing desktop."""
 import ast,html,re
+from copy import deepcopy
 from PySide6.QtCore import Qt,Signal,QTimer,QUrl
 from PySide6.QtGui import QTextCursor
 from PySide6.QtWidgets import (QWidget,QVBoxLayout,QLabel,QPlainTextEdit,QComboBox,QPushButton,
@@ -101,6 +102,39 @@ class CasWorksheet(QWidget):
     @staticmethod
     def _empty():return {'version':1,'variables':{},'functions':{},'results':{},'ans':None,'assumptions':{}}
 
+    def session_snapshot(self):
+        entries = [{key: value for key, value in row.items() if key not in ('answer', 'restored')}
+                   for row in self.entries if row['status'] != 'pending']
+        bindings = [[item.text(0), item.toolTip(1) or item.text(1)]
+                    for index in range(self.variables.topLevelItemCount())
+                    if (item := self.variables.topLevelItem(index)) is not None]
+        return dict(version=1, state=deepcopy(self.state), entries=entries, input=self.input.toPlainText(),
+                    commands=list(self.commands), draft=self.draft, command_position=self.command_position,
+                    selected=self.selected, math_size=self.math_size, digits=self.result_digits.text(),
+                    bindings=bindings)
+
+    def restore_session(self, saved):
+        self.state = saved['state']
+        self.entries = [dict(row, restored=True) for row in saved['entries']]
+        self._serial = self.entries[-1]['cell'] if self.entries else 0
+        self.selected = saved['selected']
+        self.commands = saved['commands']
+        self.command_position = saved['command_position']
+        self.draft = saved['draft']
+        self.math_size = saved['math_size']
+        self.result_digits.setText(saved['digits'])
+        self.input.setPlainText(saved['input'])
+        self.set_bindings(saved['bindings'])
+        self.render()
+
+    def set_bindings(self, bindings):
+        self.variables.clear()
+        for name, value in bindings:
+            node = QTreeWidgetItem([name, value[:200]])
+            node.setToolTip(1,value)
+            self.variables.addTopLevelItem(node)
+        self.variables.resizeColumnToContents(0)
+
     def insert_template(self,template):
         cursor = self.input.textCursor()
         selection = cursor.selectedText().replace('\u2029', '\n')
@@ -180,14 +214,20 @@ class CasWorksheet(QWidget):
             self.pending=None
             if 'error' in answer:entry.update(status='error',error=answer['error'])
             else:
-                self.state=answer.pop('state');entry.update(status='done',answer=answer);self.selected=cell
+                new_state=answer.pop('state')
                 saved={name:answer[name] for name in ('text','presentation','notices','expression','symbols','assumptions','calculation_notes','provenance','frequency_units','frequency_condition','coordinate_variable','origin_conditions','context_rewrite','system_context','domain_condition','domain_symbols','domain_condition_implicit','domain_condition_analysis') if name in answer}
-                saved['encoded_value']=self.state['results'][str(cell)]
-                entry['result_id']=self.window.publish({'cas_answer':saved,'source':source},title='CAS · '+source,operation='Resultado CAS',parents=parents)
-                self.variables.clear()
-                for name,value in answer['variables']+answer['functions']+[(name,'Supuesto: '+description) for name,description in answer.get('assumptions',[])]:
-                    node=QTreeWidgetItem([name,value[:200]]);node.setToolTip(1,value);self.variables.addTopLevelItem(node)
-                self.variables.resizeColumnToContents(0)
+                saved['encoded_value']=new_state['results'][str(cell)]
+                try:
+                    record=self.window.publish({'cas_answer':saved,'source':source},title='CAS · '+source,operation='Resultado CAS',parents=parents)
+                except Exception as failure:
+                    entry.update(status='error',error=str(failure))
+                    self.render()
+                    raise
+                self.state=new_state
+                entry.update(status='done',answer=answer,result_id=record)
+                self.selected=cell
+                self.set_bindings(answer['variables']+answer['functions']+
+                                  [(name,'Supuesto: '+description) for name,description in answer.get('assumptions',[])])
                 if imported:
                     current=self.input.toPlainText().strip()
                     if not current or current==self._automatic_reference:
@@ -265,7 +305,7 @@ class CasWorksheet(QWidget):
             parts.append(f'<table width="100%" cellspacing="0" cellpadding="5"><tr><td width="55" valign="top"><a name="cas-cell-{cell}"></a><a href="cas-input:{cell}" title="Editar entrada">[{cell}]</a></td><td style="font-family:Consolas">'+self.wrapped(source)+'</td></tr>')
             if entry['status']=='pending':parts.append('<tr><td></td><td style="color:'+C['muted']+'">Calculando…</td></tr></table>');continue
             if entry['status']=='error':parts.append('<tr><td></td><td style="color:'+C['amber']+'">'+html.escape(entry['error'])+'</td></tr></table>');raw.append('No aplicado: '+entry['error']);continue
-            answer=entry['answer'];parts.append(f'<tr><td valign="top"><a href="cas-result:{cell}" title="Reutilizar resultado">r{cell}</a></td><td>'+self.present(answer['presentation'],width-65)+f'<p><a href="cas-view:{cell}">Ampliar resultado</a></p></td></tr>')
+            answer=entry['answer'];parts.append(f'<tr><td valign="top"><a href="cas-result:{cell}" title="Reutilizar resultado">r{cell}</a></td><td>'+self.present_entry(entry,width-65)+f'<p><a href="cas-view:{cell}">Ampliar resultado</a></p></td></tr>')
             for notice in answer['notices']:
                 if not notice.startswith('Definición guardada:'):parts.append('<tr><td></td><td style="color:'+C['muted']+'">'+html.escape(notice)+'</td></tr>')
             parts.append('</table><p style="margin:0;color:'+C['rule']+'">────────────────────────</p>')
@@ -289,9 +329,18 @@ class CasWorksheet(QWidget):
     def wrapped(text):
         shown=str(text)[:12000];return '<br>'.join(html.escape(line[start:start+85]) for line in shown.splitlines() for start in range(0,max(1,len(line)),85))+('… (texto completo en Exportar hoja)' if len(str(text))>12000 else '')
 
-    def present(self,value,width):
+    def present(self,value,width,*,use_source_preview=True):
         from .cas_presentation import presentation_html
-        return presentation_html(self.report,value,width,self.math_size)
+        return presentation_html(self.report,value,width,self.math_size,use_source_preview=use_source_preview)
+
+    def present_entry(self,entry,width):
+        answer=entry['answer']
+        if entry.get('restored'):
+            try:
+                return self.present(answer['presentation'],width,use_source_preview=False)
+            except (KeyError,TypeError,ValueError,RecursionError):
+                return '<pre>'+self.wrapped(answer['text'])+'</pre>'
+        return self.present(answer['presentation'],width)
 
     def change_math_size(self,delta):
         self.math_size=max(13,min(31,self.math_size+delta));self.render(scroll=False)
@@ -303,7 +352,7 @@ class CasWorksheet(QWidget):
         root=QVBoxLayout(dialog);view=ReportView();root.addWidget(view)
         # present() registers mathematical images on the owning document.
         original=self.report;self.report=view
-        try:view.setHtml(self.present(entry['answer']['presentation'],800).replace('Fórmula extensa · desplazamiento horizontal disponible; Ampliar resultado abre una vista aparte.','Fórmula extensa · usá la barra horizontal para recorrerla.'));view._raw=entry['answer']['text']
+        try:view.setHtml(self.present_entry(entry,800).replace('Fórmula extensa · desplazamiento horizontal disponible; Ampliar resultado abre una vista aparte.','Fórmula extensa · usá la barra horizontal para recorrerla.'));view._raw=entry['answer']['text']
         finally:self.report=original
         from PySide6.QtWidgets import QPushButton
         copy=QPushButton('Copiar resultado completo');copy.clicked.connect(lambda:QApplication.clipboard().setText(entry['answer']['text']));root.addWidget(copy)

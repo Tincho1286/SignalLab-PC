@@ -94,6 +94,15 @@ class DesktopSessionTests(unittest.TestCase):
             QTest.qWait(15)
         self.assertFalse(window._workers)
 
+    def wait_for_recovery(self, window):
+        from PySide6.QtCore import QDeadlineTimer
+        from PySide6.QtTest import QTest
+
+        timeout = QDeadlineTimer(5000)
+        while window.sessions.writing is not None and not timeout.hasExpired():
+            QTest.qWait(15)
+        self.assertIsNone(window.sessions.writing)
+
     def test_compact_psd_keeps_visible_action_and_produces_calibrated_power(self):
         window = self.window()
         route = ROUTES['fourier', 7]
@@ -374,12 +383,14 @@ class DesktopSessionTests(unittest.TestCase):
         window.open_tool(route)
         window.pages[route].first.expression.setText('n^2')
         window.sessions.autosave()
+        self.wait_for_recovery(window)
         checkpoint = window.sessions.path
         self.assertTrue(checkpoint.is_file())
         original = checkpoint.read_bytes()
         window.pages[route].first.expression.setText('n^3')
         with patch('signallab_pc.atomic_file.os.replace', side_effect=OSError('Interrumpido')):
             window.sessions.autosave()
+            self.wait_for_recovery(window)
         self.assertEqual(original,checkpoint.read_bytes())
         # Release only the process lock, as it would be released by termination.
         window.sessions.lock.unlock()
@@ -390,6 +401,105 @@ class DesktopSessionTests(unittest.TestCase):
         self.assertTrue(restored.project.dirty)
         self.info.assert_called_once()
         self.question.return_value = QMessageBox.StandardButton.Discard
+
+    def test_recovery_writes_a_snapshot_and_remains_responsive_during_io(self):
+        from threading import Event
+        from PySide6.QtCore import QTimer
+        from PySide6.QtTest import QTest
+
+        window = self.window()
+        window.show()
+        route = ROUTES['basic','generate']
+        window.open_tool(route)
+        panel = window.pages[route]
+        panel.first.expression.setText('n^2')
+        original = window.publish(Signal([2]), operation='Entrada')
+        window.sessions.autosave()
+        self.wait_for_recovery(window)
+        path = window.sessions.path
+        before = path.read_bytes()
+        entered, release, pulse = Event(), Event(), []
+        self.addCleanup(release.set)
+        real_save = session.save
+
+        def blocked_save(*args, **kwargs):
+            entered.set()
+            if not release.wait(5):
+                raise TimeoutError('El test no liberó la escritura.')
+            return real_save(*args, **kwargs)
+
+        panel.first.expression.setText('n^3')
+        with patch('signallab_pc.session_desktop.session.save', side_effect=blocked_save) as save:
+            try:
+                window.sessions.autosave()
+                self.assertTrue(entered.wait(2))
+                QTimer.singleShot(0, window, lambda: pulse.append(True))
+                QTest.qWait(30)
+                self.assertEqual(pulse, [True])
+                second = window.publish(Signal([4]), parents=[original], operation='Edición')
+                panel.first.expression.setText('n^4')
+                window.sessions.autosave()
+                self.assertEqual(save.call_count, 1)
+                self.assertEqual(path.read_bytes(), before)
+            finally:
+                release.set()
+                self.wait_for_recovery(window)
+        snapshot, _ = session.load(path)
+        self.assertEqual([row['id'] for row in snapshot.headers()], [original])
+        self.assertIn(b'n^3', path.read_bytes())
+        window.sessions.autosave()
+        self.wait_for_recovery(window)
+        snapshot, _ = session.load(path)
+        self.assertEqual([row['id'] for row in snapshot.headers()], [original, second])
+        self.assertIn(b'n^4', path.read_bytes())
+
+    def test_cas_session_reopens_exact_bindings_published_parents_and_draft_without_evaluation(self):
+        from signallab_pc.cas_reference import CAS_ROUTE
+        from signallab_pc.cas_engine import restore as decode
+
+        window = self.window()
+        window.open_cas()
+        worksheet = window.pages[CAS_ROUTE]
+        for source in ('a := 2 + 3*i', 'f(x) := a*x', 'assume(y>0)', '2*r1'):
+            worksheet.input.setPlainText(source)
+            worksheet.calculate()
+            self.wait_for_calculation(window)
+        self.assertEqual(worksheet.selected, 4)
+        worksheet.input.setPlainText('sqrt(')
+        worksheet.change_math_size(4)
+        worksheet.result_digits.setText('24')
+        source_id = worksheet.entries[0]['result_id']
+        last_id = worksheet.entries[-1]['result_id']
+        for extension in ('json', 'slproj'):
+            with self.subTest(extension=extension):
+                path = self.path/f'cas.{extension}'
+                session.save(path, window.project, capture(window))
+                reopened = self.window()
+                with patch('signallab_pc.cas_panel.run_request', side_effect=AssertionError('Unexpected evaluation')) as worker:
+                    self.assertTrue(reopened.sessions.open_path(path))
+                    worker.assert_not_called()
+                restored = reopened.pages[CAS_ROUTE]
+                self.assertEqual(restored.input.toPlainText(), 'sqrt(')
+                self.assertEqual((restored.selected, restored.math_size, restored.result_digits.text()), (4, 21, '24'))
+                self.assertEqual(restored.state, worksheet.state)
+                self.assertEqual(restored.variables.topLevelItemCount(), 3)
+                records = {row['id']: row for row in reopened.project.headers()}
+                self.assertEqual(records[last_id]['parents'], [source_id])
+                self.assertEqual(reopened.current_operation, CAS_ROUTE)
+                restored.input.setPlainText('f(2) + r1')
+                restored.calculate()
+                self.wait_for_calculation(reopened)
+                self.assertEqual(complex(decode(restored.state['results']['5'])), 6+9j)
+                self.assertEqual(reopened.project.headers()[-1]['parents'], [source_id])
+
+        corrupt = capture(window)
+        corrupt['cas']['entries'][0]['result_id'] = 'missing'
+        path = self.path/'missing-cas.json'
+        session.save(path, window.project, corrupt)
+        self.assertFalse(window.sessions.open_path(path))
+        self.assertIs(window.pages[CAS_ROUTE], worksheet)
+        self.assertEqual(worksheet.input.toPlainText(), 'sqrt(')
+        self.warning.assert_called_once()
 
     def test_change_rate_clears_the_previously_copied_unrelated_start(self):
         window = self.window()

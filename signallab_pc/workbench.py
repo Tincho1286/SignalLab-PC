@@ -432,11 +432,14 @@ class WorkbenchWindow(ToolboxWindow):
         self._remember_tool(key, entry)
         if workspace is not None:
             view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded);view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-    def open_cas(self,*_):
+    def ensure_cas(self):
         from .cas_panel import CasWorksheet
         if CAS_ROUTE not in self.pages:
             page=CasWorksheet(self);self.pages[CAS_ROUTE]=page;self._add_auxiliary_view(CAS_ROUTE,page,scroll=False)
-        page=self.pages[CAS_ROUTE];self.active_route=CAS_ROUTE;self.current_operation=CAS_ROUTE;self.current_entry=None;self.category='CAS';self.navigation_area=None
+        return self.pages[CAS_ROUTE]
+
+    def open_cas(self,*_):
+        page=self.ensure_cas();self.active_route=CAS_ROUTE;self.current_operation=CAS_ROUTE;self.current_entry=None;self.category='CAS';self.navigation_area=None
         self.variant_strip.hide();self.operation_menu.hide();self.back.hide();self.help.show();self.activate_view(CAS_ROUTE,'Calculadora CAS',self.views[CAS_ROUTE])
         self._render_tools(self.search.text());self._configure_readable_layouts();self._refresh_primary_action();page.input.setFocus()
 
@@ -698,6 +701,8 @@ class WorkbenchWindow(ToolboxWindow):
         return self.sessions.changed()
 
     def closeEvent(self,event):
+        if not self.sessions.prepare_close():
+            event.ignore();return
         if hasattr(self,'updates') and not self.updates.prepare_close():
             event.ignore();return
         super().closeEvent(event)

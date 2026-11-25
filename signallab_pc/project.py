@@ -157,6 +157,13 @@ class Project:
         """Take a shallow snapshot of the internally owned, immutable records."""
         with self._records_lock:
             return tuple(self._records.values())
+
+    def snapshot(self):
+        """Capture the catalog under its lock and share immutable record samples."""
+        snapshot = Project()
+        with self._records_lock:
+            snapshot._records = self._records.copy()
+        return snapshot
     def headers(self,kind=None):
         return [deepcopy({k:v for k,v in r.items() if k!="data"}) for r in self._records.values() if kind is None or r["kind"]==kind or kind=='expression' and self.expression(r['id']) is not None]
     def describe(self,key):
@@ -231,7 +238,7 @@ class Project:
         return dict(format='signallab-project',schema_version=2,records=self.records())
 
     @classmethod
-    def from_document(cls, document):
+    def from_document(cls, document, *, checkpoint=None):
         if not isinstance(document,dict):raise ValueError('El archivo de proyecto debe contener un objeto JSON.')
         version = document.get('schema_version')
         if document.get('format')!='signallab-project' or type(version) is not int or version not in (1,2):raise ValueError('Proyecto SignalLab incompatible.')
@@ -239,9 +246,13 @@ class Project:
         if not isinstance(records,list):raise ValueError('El proyecto no contiene una lista de objetos.')
         staging={};ids=set()
         for record in records:
+            if checkpoint is not None:
+                checkpoint()
             if not isinstance(record,dict) or not isinstance(record.get('id'),str) or not record['id'] or record['id'] in ids:raise ValueError('Identificadores de proyecto inválidos o repetidos.')
             ids.add(record['id'])
         for number,record in enumerate(records,1):
+            if checkpoint is not None:
+                checkpoint()
             if record.get('kind') not in ('signal','system','state_space','calculation') or not isinstance(record.get('data'),dict):raise ValueError('Registro '+str(number)+': tipo o datos de resultado inválidos.')
             try:value=decode(record['kind'],record['data'])
             except (KeyError,TypeError,ValueError,IndexError,OverflowError) as exc:raise ValueError('Registro '+str(number)+' ('+record['id']+'): definición incompleta o inválida. '+str(exc)) from exc
@@ -268,7 +279,7 @@ class Project:
         digests = {}
         for record in staging.values():
             if 'verified_provenance' in record:
-                project._verify_record(record, lambda: None, digests)
+                project._verify_record(record, checkpoint or (lambda: None), digests)
         return project
 
     def merge(self,path):

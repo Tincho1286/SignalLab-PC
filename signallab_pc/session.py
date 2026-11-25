@@ -12,7 +12,7 @@ def save(path, project, workspace, *, before_commit=None, checkpoint=None):
         return
     if checkpoint is not None:
         checkpoint()
-    document = dict(format='signallab-session', schema_version=3,
+    document = dict(format='signallab-session', schema_version=4 if 'cas' in workspace else 3,
                     project=project.document(), workspace=workspace)
     write_json(Path(path), document, before_commit=before_commit, checkpoint=checkpoint)
 
@@ -26,14 +26,15 @@ def load(path, *, checkpoint=None):
     if isinstance(document, dict) and document.get('format') == 'signallab-project':
         return Project.from_document(document), empty_workspace()
     if (not isinstance(document, dict) or document.get('format') != 'signallab-session'
-            or type(document.get('schema_version')) is not int or document['schema_version'] not in (1,2,3)):
+            or type(document.get('schema_version')) is not int or document['schema_version'] not in (1, 2, 3, 4)):
         raise ValueError('Formato o versión de sesión SignalLab incompatible.')
-    project = Project.from_document(document.get('project'))
+    project = Project.from_document(document.get('project'), checkpoint=checkpoint)
     return project, _validate_workspace(document.get('workspace'))
 
 
 def _validate_workspace(workspace):
-    if not isinstance(workspace, dict) or set(workspace) != {'tools', 'tabs', 'active'}:
+    keys = {'tools', 'tabs', 'active'}
+    if not isinstance(workspace, dict) or set(workspace) not in (keys, keys | {'cas'}):
         raise ValueError('El archivo no contiene un escritorio válido.')
     if not isinstance(workspace['tools'], list) or not isinstance(workspace['tabs'], list):
         raise ValueError('Las herramientas y pestañas de la sesión deben ser listas.')

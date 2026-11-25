@@ -1,11 +1,15 @@
 """Session commands and periodic recovery for the production workbench."""
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from threading import Event
 
 from PySide6.QtCore import QLockFile, QObject, QStandardPaths, QTimer
 from PySide6.QtWidgets import QFileDialog, QMessageBox
 
 from . import session
 from .cas_reference import CAS_ROUTE
+from .execution import ExecutionContext
+from .jobs import OperationCancelled
 from .problem_document import document_route
 from .session_fields import restore_page, snapshot_page
 from .tool_catalog import AREA_BY_ID, locate, normalized_key
@@ -32,7 +36,7 @@ def capture(window):
         if key == ('browser',):
             tab = ['browser', window._browser_location]
         elif key == CAS_ROUTE:
-            continue
+            tab = ['cas', 'worksheet']
         elif key[0] == 'menu':
             tab = list(key)
         elif key[1] == 'workspace':
@@ -43,8 +47,11 @@ def capture(window):
         if index == window.documents.currentIndex():
             active = len(tabs)
         tabs.append(tab)
-    return dict(tools=[dict(route=list(key), inputs=state) for key,state in tools.items()],
-                tabs=tabs, active=active)
+    workspace = dict(tools=[dict(route=list(key), inputs=state) for key,state in tools.items()],
+                     tabs=tabs, active=active)
+    if CAS_ROUTE in window.pages:
+        workspace['cas'] = window.pages[CAS_ROUTE].session_snapshot()
+    return workspace
 
 
 def _route(key):
@@ -55,7 +62,7 @@ def _route(key):
     return ROUTES[tuple(key)]
 
 
-def _tab_keys(tabs, pages):
+def _tab_keys(tabs, pages, has_cas):
     keys = set()
     for tab in tabs:
         if not isinstance(tab, list) or len(tab) < 2:
@@ -69,6 +76,8 @@ def _tab_keys(tabs, pages):
             key = ('browser',)
         elif tab in (['menu','Proyecto'], ['menu','Biblioteca']):
             key = tuple(tab)
+        elif tab == ['cas', 'worksheet'] and has_cas:
+            key = CAS_ROUTE
         else:
             raise ValueError('La sesión contiene una pestaña desconocida.')
         if key in keys:
@@ -89,7 +98,7 @@ def prepare(window, project, state):
             page = ToolPage(window, route)
             pages[route] = page
             restore_page(page, tool['inputs'], project)
-        _tab_keys(state['tabs'], pages)
+        _tab_keys(state['tabs'], pages, 'cas' in state)
     except (KeyError, TypeError, IndexError, AttributeError, ArithmeticError) as exc:
         for page in pages.values():
             page.deleteLater()
@@ -101,7 +110,7 @@ def prepare(window, project, state):
     return pages
 
 
-def restore(window, project, state, pages):
+def restore(window, project, state, pages, worksheet):
     # Keep the navigation widget and make all previous result panes unreachable.
     window.show_home()
     window.documents.blockSignals(True)
@@ -119,6 +128,8 @@ def restore(window, project, state, pages):
         page.deleteLater()
     window.pages = {('browser',): window.pages[('browser',)], **auxiliary, **pages}
     window.project = project
+    if worksheet is not None:
+        window.ensure_cas().restore_session(worksheet)
     window._published_signals.clear()
     getattr(window, '_published_values', {}).clear()
     for page in pages.values():
@@ -129,6 +140,8 @@ def restore(window, project, state, pages):
             window.open_tool(_route(tab[1:]))
         elif tab[0] == 'menu':
             window.show_menu(tab[1])
+        elif tab[0] == 'cas':
+            window.open_cas()
         else:
             window.show_area(tab[1])
     if state['active'] >= 0:
@@ -144,15 +157,24 @@ class SessionController(QObject):
         self.window = window
         base = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.GenericDataLocation)
         self.directory = Path(directory) if directory is not None else (Path(base) / 'SignalLab' / 'PC' if base else None)
-        self.path = self.directory / 'recovery.signallab.json' if self.directory is not None else None
+        self.path = self.directory / 'recovery.slproj' if self.directory is not None else None
+        self.legacy_path = self.directory / 'recovery.signallab.json' if self.directory is not None else None
         self.lock = QLockFile(str(self.directory / 'recovery.lock')) if self.directory is not None else None
         if self.lock is not None:
             self.lock.setStaleLockTime(0)
-        self.protected = bool(self.path and self.path.exists())
+        self.protected = self.recovery_path() is not None
         self.owns_checkpoint = False
+        self.recovered_legacy = False
         self.saved = capture(window)
         self.checkpoint = None
+        self.generation = 0
         self.recovery_error = None
+        self.writer = ThreadPoolExecutor(max_workers=1, thread_name_prefix='signallab-recovery')
+        self.writing = None
+        self.closing = False
+        self.writer_timer = QTimer(self)
+        self.writer_timer.setInterval(50)
+        self.writer_timer.timeout.connect(self.collect_checkpoint)
         self.timer = QTimer(self)
         self.timer.setInterval(30_000)
         self.timer.timeout.connect(self.autosave)
@@ -173,6 +195,10 @@ class SessionController(QObject):
             self.window.statusBar().showMessage('Esperá a que termine el cálculo antes de cambiar de sesión.')
             return True
         return False
+
+    def recovery_path(self):
+        return next((path for path in (self.path, self.legacy_path)
+                     if path is not None and path.is_file()), None)
 
     def changed(self):
         return self.window.project.dirty or capture(self.window) != self.saved
@@ -197,7 +223,7 @@ class SessionController(QObject):
 
     @staticmethod
     def scope():
-        return 'Los informes y resultados CAS publicados quedan en Resultados. La hoja CAS activa, sus variables y borradores y los gráficos abiertos pertenecen al escritorio actual.'
+        return 'La hoja CAS, sus variables y el borrador se guardan con la sesión. Los gráficos abiertos se pueden volver a generar desde sus herramientas.'
 
     def can_replace(self):
         if self.busy():
@@ -220,21 +246,27 @@ class SessionController(QObject):
             return False
         try:
             project, workspace = session.load(path)
+            from .cas_worksheet import prepare as prepare_cas
+            worksheet = prepare_cas(workspace['cas'], project) if 'cas' in workspace else None
             pages = prepare(self.window, project, workspace)
             if not self.can_replace():
                 for page in pages.values():
                     page.deleteLater()
                 return False
-            restore(self.window, project, workspace, pages)
+            restore(self.window, project, workspace, pages, worksheet)
         except (OSError, ValueError, TypeError, MemoryError, RecursionError) as exc:
             QMessageBox.warning(self.window, 'No se pudo abrir la sesión', str(exc))
             return False
         self.saved = capture(self.window)
         project.dirty = recovery
+        self.generation += 1
+        if self.writing is not None:
+            self.writing[2].set()
         self.checkpoint = None
         if recovery:
             self.protected = False
             self.owns_checkpoint = True
+            self.recovered_legacy = Path(path) == self.legacy_path
         verb = 'Recuperaste' if recovery else 'Abriste'
         records = len(project.headers())
         tools = len(workspace['tools'])
@@ -245,8 +277,12 @@ class SessionController(QObject):
         return True
 
     def offer_recovery(self):
+        if self.writing is not None:
+            self.window.statusBar().showMessage('Esperá a que termine el guardado de recuperación.')
+            return
         try:
-            if self.path is None or not self.path.exists():
+            path = self.recovery_path()
+            if path is None:
                 self.protected = False
                 return
             if not self.take_lock():
@@ -258,43 +294,81 @@ class SessionController(QObject):
                 QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No | QMessageBox.StandardButton.Discard,
                 QMessageBox.StandardButton.Yes)
             if answer == QMessageBox.StandardButton.Yes:
-                self.open_path(self.path, recovery=True)
+                self.open_path(path, recovery=True)
             elif answer == QMessageBox.StandardButton.Discard:
-                self.path.unlink(missing_ok=True)
+                for target in (self.path, self.legacy_path):
+                    target.unlink(missing_ok=True)
                 self.protected = False
         except OSError as exc:
             self.window.statusBar().showMessage('No se pudo abrir la recuperación. '+str(exc))
 
     def autosave(self):
-        if self.protected or self.window._workers or not self.window.isVisible():
+        if self.protected or self.writing is not None or self.window._workers or not self.window.isVisible():
             return
         try:
             current = capture(self.window)
             project = self.window.project
-            key = (id(project), len(project.headers()), current)
+            key = (self.generation, len(project._stable_records()), current)
             if key == self.checkpoint or (not project.dirty and current == self.saved):
                 return
             if self.take_lock():
-                if self.path.exists() and not self.owns_checkpoint:
+                if self.recovery_path() is not None and not self.owns_checkpoint:
                     self.protected = True
                     self.window.statusBar().showMessage('Hay una sesión anterior disponible en Archivo → Sesiones → Recuperar sesión anterior.')
                     return
-                session.save(self.path, project, current)
-                self.owns_checkpoint = True
-                self.checkpoint = key
-                self.recovery_error = None
+                cancel = Event()
+                execution = ExecutionContext(cancel=cancel)
+                future = self.writer.submit(session.save, self.path, project.snapshot(), current,
+                                            checkpoint=execution.checkpoint)
+                self.writing = future, key, cancel
+                self.writer_timer.start()
         except (ValueError, OSError, TypeError, MemoryError, RecursionError) as exc:
-            message = 'No se pudo actualizar la recuperación local. '+str(exc)
-            if message != self.recovery_error:
-                self.recovery_error = message
-                self.window.statusBar().showMessage(message)
+            self.report_recovery_error(exc)
+
+    def report_recovery_error(self, exc):
+        message = 'No se pudo actualizar la recuperación local. '+str(exc)
+        if message != self.recovery_error:
+            self.recovery_error = message
+            self.window.statusBar().showMessage(message)
+
+    def collect_checkpoint(self):
+        future, key, _ = self.writing
+        if not future.done():
+            return
+        self.writing = None
+        self.writer_timer.stop()
+        try:
+            future.result()
+        except OperationCancelled:
+            pass
+        except (ValueError, OSError, TypeError, MemoryError, RecursionError) as exc:
+            self.report_recovery_error(exc)
+        else:
+            self.owns_checkpoint = True
+            self.checkpoint = key
+            self.recovery_error = None
+        if self.closing:
+            self.closing = False
+            QTimer.singleShot(0, self.window, self.window.close)
+
+    def prepare_close(self):
+        if self.writing is None:
+            return True
+        self.closing = True
+        self.writing[2].set()
+        self.window.statusBar().showMessage('Terminando el guardado de recuperación antes de cerrar…')
+        return False
 
     def finish(self):
         self.timer.stop()
+        self.writer_timer.stop()
+        self.writer.shutdown(wait=False)
         if self.lock is not None and self.lock.isLocked():
             try:
                 if not self.protected and self.owns_checkpoint:
                     self.path.unlink(missing_ok=True)
+                    if self.recovered_legacy:
+                        self.legacy_path.unlink(missing_ok=True)
             except OSError as exc:
                 QMessageBox.warning(self.window, 'Recuperación local', 'El punto anterior sigue disponible. '+str(exc))
             finally:

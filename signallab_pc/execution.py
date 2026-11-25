@@ -2,20 +2,20 @@
 
 from collections.abc import Callable
 from contextlib import contextmanager, nullcontext
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import math
 from threading import Event, Lock
 from time import monotonic
 
 from . import jobs
-from .resources import ResourceLimitError
+from .resources import ResourceLimitError, available_physical_memory
 
 
 class ResourcePool:
     """Shared admission budget for estimates of concurrent working memory."""
 
-    def __init__(self, capacity_bytes: int):
-        if type(capacity_bytes) is not int or capacity_bytes < 1:
+    def __init__(self, capacity_bytes: int | Callable[[], int]):
+        if not callable(capacity_bytes) and (type(capacity_bytes) is not int or capacity_bytes < 1):
             raise ValueError('La capacidad debe ser positiva y expresada en bytes enteros.')
         self._capacity = capacity_bytes
         self._used = 0
@@ -26,7 +26,8 @@ class ResourcePool:
         if type(amount) is not int or amount < 0:
             raise ValueError('La reserva requiere bytes enteros no negativos.')
         with self._lock:
-            if amount > self._capacity - self._used:
+            capacity = self._capacity() if callable(self._capacity) else self._capacity
+            if amount > max(0, capacity - self._used):
                 raise ResourceLimitError('La reserva compartida está ocupada o es insuficiente.')
             self._used += amount
         try:
@@ -36,13 +37,16 @@ class ResourcePool:
                 self._used -= amount
 
 
+_PROCESS_POOL = ResourcePool(lambda: int(.35 * available_physical_memory()))
+
+
 @dataclass(frozen=True, slots=True)
 class ExecutionContext:
     max_work_bytes: int | None = None
     deadline: float | None = None
     cancel: Event | None = None
     progress: Callable[[int], None] | None = None
-    pool: ResourcePool | None = None
+    pool: ResourcePool | None = field(default_factory=lambda: _PROCESS_POOL)
 
     def __post_init__(self):
         if self.max_work_bytes is not None and (
@@ -76,7 +80,7 @@ class ExecutionContext:
 
     def reserve(self, estimate):
         self.require(estimate)
-        return self.pool.reserve(estimate) if self.pool is not None else nullcontext()
+        return self.pool.reserve(estimate) if self.pool is not None and estimate else nullcontext()
 
     def run(self, function, *, work_bytes=0):
         def observe(fraction):
