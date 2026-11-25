@@ -104,3 +104,21 @@ class VerifiedProvenanceTests(unittest.TestCase):
             store_signal(project, out, parents=(source_id,))
         store_signal(project, out, parents=(source_id, model_id))
         self.assertEqual(len(project.headers()), 4)
+
+    def test_complex_normalization_and_legacy_pivot_are_reusable(self):
+        project = Project()
+        source = Signal([1, -2, 3])
+        source_id = project.add(source)
+        model = Transfer([1], [-90.1 + 33.2j])
+        self.assertEqual(complex(model.a[0]), 1 + 0j)
+        model_id = project.add(model)
+        stored = project.document()
+        for previous_pivot in ([1.0, -0.0], [1.0000000000000002, 0.0]):
+            with self.subTest(pivot=previous_pivot):
+                stored['records'][1]['data']['a'][0] = previous_pivot
+                restored = Project.from_document(stored)
+                loaded = restored.get(model_id)
+                result = apply_fir(FIRRequest(source, loaded))
+                result_id = store_signal(restored, result, parents=(source_id, model_id))
+                reopened = Project.from_document(restored.document())
+                assert_array_equal(reopened.get(result_id).values, result.values)

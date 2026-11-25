@@ -76,13 +76,16 @@ class Transfer:
         if not self.a.size or self.a[0] == 0:
             raise ValueError("El primer coeficiente de a debe ser distinto de cero.")
         a0 = self.a[0]
-        original_b,original_a=self.b,self.a
-        with np.errstate(over='ignore',under='ignore',invalid='ignore'):
-            self.b, self.a = self.b / a0, self.a / a0
-        if np.any((original_b!=0)&(self.b==0)) or np.any((original_a!=0)&(self.a==0)):
-            raise ValueError('Normalizar por a0 elimina coeficientes no nulos por falta de rango numérico. Reescalá los coeficientes.')
-        if not np.all(np.isfinite(self.b)) or not np.all(np.isfinite(self.a)):
-            raise ValueError("Normalizar por a0 excede el rango numérico finito.")
+        if a0 != 1:
+            original_b,original_a=self.b,self.a
+            with np.errstate(over='ignore',under='ignore',invalid='ignore'):
+                self.b, self.a = self.b / a0, self.a / a0
+            if np.any((original_b!=0)&(self.b==0)) or np.any((original_a!=0)&(self.a==0)):
+                raise ValueError('Normalizar por a0 elimina coeficientes no nulos por falta de rango numérico. Reescalá los coeficientes.')
+            if not np.all(np.isfinite(self.b)) or not np.all(np.isfinite(self.a)):
+                raise ValueError("Normalizar por a0 excede el rango numérico finito.")
+        # a0 / a0 has an exact value. Retain it across serialization and reuse.
+        self.a[0] = 1
         if self.advance and self.sos is not None:
             changed=False
             for row in self.sos:

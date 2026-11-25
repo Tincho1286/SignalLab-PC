@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · Revisión de WP-02C.03 · C03 · C-03
+
+**Estado inicial y causa.** Una transferencia aceptada por el motor se podía volver a normalizar al abrirla. Se reprodujo con un FIR de coeficiente a₀ = −90,1 + 33,2j. La huella del registro y la del objeto diferían en el cero con signo.
+
+**Decisión y comprobación.** `filters.py` conserva el uno exacto y `project.py` usa la representación de cálculo en los casos históricos de pivote redondeado. Se agregó una regresión de publicación y reapertura y se ejecutaron 23 casos de procedencia, sistemas y proyectos. Se conserva la normalización previa para entradas con a₀ no unitario.
+
 ## 25 de noviembre de 2026 · WP-02C.10 · C10 · C-10
 
 **Estado inicial.** `37ac1d4`. Se inspeccionaron las interfaces, el proyecto, la sesión y el costo de persistencia, con foco en las dependencias importadas del Core.

@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from threading import RLock
 from uuid import uuid4
 import json
+from math import copysign
 from .model import Signal
 from .atomic_file import write_json
 from .filters import Transfer
@@ -99,8 +100,11 @@ class Project:
 
     def _record_digest(self, record, checkpoint):
         data = record['data']
-        if record['kind'] == 'system' and not {'advance', 'sample_period_s', 'roc'} <= data.keys():
-            return content_digest(self.get(record['id']), checkpoint)
+        if record['kind'] == 'system' and record['id'] in self._records:
+            pivot = data['a'][0]
+            if (pivot != [1, 0] or copysign(1, pivot[1]) < 0
+                    or not {'advance', 'sample_period_s', 'roc'} <= data.keys()):
+                return content_digest(self.get(record['id']), checkpoint)
         return encoded_digest(record['kind'], data, checkpoint)
 
     def _verify_record(self, record, checkpoint, cache):
