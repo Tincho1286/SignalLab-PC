@@ -1,0 +1,40 @@
+{
+  "kind": "signallab-realization",
+  "version": 1,
+  "domain": "digital",
+  "blocks": [
+    {
+      "id": 1,
+      "kind": "input",
+      "x": 0,
+      "y": 0,
+      "gain": "1"
+    },
+    {
+      "id": 2,
+      "kind": "output",
+      "x": 500,
+      "y": 0,
+      "gain": "1"
+    },
+    {
+      "id": 3,
+      "kind": "gain",
+      "x": 200,
+      "y": 0,
+      "gain": "2"
+    }
+  ],
+  "wires": [
+    {
+      "source": 1,
+      "target": 3,
+      "sign": 1
+    },
+    {
+      "source": 3,
+      "target": 2,
+      "sign": 1
+    }
+  ]
+}

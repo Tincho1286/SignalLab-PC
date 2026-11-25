@@ -1,0 +1,42 @@
+{
+  "kind": "signallab-realization",
+  "version": 2,
+  "domain": "digital",
+  "blocks": [
+    {
+      "id": 1,
+      "kind": "input",
+      "x": 0,
+      "y": 0,
+      "gain": "1"
+    },
+    {
+      "id": 2,
+      "kind": "output",
+      "x": 500,
+      "y": 0,
+      "gain": "1"
+    },
+    {
+      "id": 3,
+      "kind": "transfer",
+      "x": 200,
+      "y": 0,
+      "gain": "1",
+      "formula": "1/(1-z^(-1)/2)",
+      "sample_period_s": 0.125
+    }
+  ],
+  "wires": [
+    {
+      "source": 1,
+      "target": 3,
+      "sign": 1
+    },
+    {
+      "source": 3,
+      "target": 2,
+      "sign": 1
+    }
+  ]
+}

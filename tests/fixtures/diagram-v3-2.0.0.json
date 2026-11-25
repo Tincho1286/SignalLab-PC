@@ -1,0 +1,59 @@
+{
+  "kind": "signallab-realization",
+  "version": 3,
+  "domain": "digital",
+  "blocks": [
+    {
+      "id": 1,
+      "kind": "input",
+      "x": 0,
+      "y": 0,
+      "gain": "1"
+    },
+    {
+      "id": 2,
+      "kind": "output",
+      "x": 500,
+      "y": 0,
+      "gain": "1"
+    },
+    {
+      "id": 3,
+      "kind": "sum",
+      "x": 220,
+      "y": 0,
+      "gain": "1"
+    },
+    {
+      "id": 4,
+      "kind": "gain",
+      "x": 210,
+      "y": 150,
+      "gain": "1/2"
+    }
+  ],
+  "wires": [
+    {
+      "source": 1,
+      "target": 3,
+      "sign": 1,
+      "target_port": 1
+    },
+    {
+      "source": 3,
+      "target": 2,
+      "sign": 1
+    },
+    {
+      "source": 3,
+      "target": 4,
+      "sign": 1
+    },
+    {
+      "source": 4,
+      "target": 3,
+      "sign": 1,
+      "target_port": 2
+    }
+  ]
+}

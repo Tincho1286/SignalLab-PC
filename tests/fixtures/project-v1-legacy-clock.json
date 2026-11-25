@@ -1,0 +1,134 @@
+{
+  "format": "signallab-project",
+  "schema_version": 1,
+  "records": [
+    {
+      "id": "bd1dbad3f1e548ad815c13ecfee89bef",
+      "kind": "signal",
+      "title": "x",
+      "operation": "Muestreo",
+      "parents": [],
+      "created": "2026-11-25T13:05:15.170736+00:00",
+      "data": {
+        "values": [
+          [
+            1.0,
+            2.0
+          ],
+          [
+            -0.0,
+            -3.0
+          ],
+          [
+            2.0,
+            0.0
+          ]
+        ],
+        "origin": -3,
+        "step": 1.0,
+        "units": "n",
+        "name": "x",
+        "domain": "discrete",
+        "expression": "",
+        "metadata": {
+          "sample_rate_hz": 8,
+          "time_start_s": -0.25
+        }
+      },
+      "tool": null
+    },
+    {
+      "id": "c93ffa1ee7074f229d86eef65b495933",
+      "kind": "system",
+      "title": "Sistema con ROC interior",
+      "operation": "Sistema",
+      "parents": [
+        "bd1dbad3f1e548ad815c13ecfee89bef"
+      ],
+      "created": "2026-11-25T13:05:15.189730+00:00",
+      "data": {
+        "b": [
+          [
+            1.0,
+            0.0
+          ]
+        ],
+        "a": [
+          [
+            1.0,
+            0.0
+          ],
+          [
+            -0.5,
+            0.0
+          ]
+        ],
+        "domain": "digital",
+        "name": "Sistema con ROC interior",
+        "sos": null,
+        "advance": 0
+      },
+      "tool": null
+    },
+    {
+      "id": "c1da42a52b9240829dc46043b08f1206",
+      "kind": "calculation",
+      "title": "CAS · a:=2",
+      "operation": "Resultado CAS",
+      "parents": [
+        "c93ffa1ee7074f229d86eef65b495933"
+      ],
+      "created": "2026-11-25T13:05:15.264400+00:00",
+      "data": {
+        "cas_answer": {
+          "text": "2",
+          "presentation": {
+            "kind": "scalar",
+            "latex": "2",
+            "text": "2",
+            "pretty": "2"
+          },
+          "notices": [
+            "Definición guardada: a."
+          ],
+          "expression": "2",
+          "symbols": [],
+          "assumptions": [],
+          "encoded_value": "Integer(2)"
+        },
+        "source": "a:=2"
+      },
+      "tool": null
+    },
+    {
+      "id": "5ba51b5518ac48b397c6980289a56669",
+      "kind": "calculation",
+      "title": "CAS · diff(a*x^3,x)",
+      "operation": "Resultado CAS",
+      "parents": [
+        "c1da42a52b9240829dc46043b08f1206"
+      ],
+      "created": "2026-11-25T13:05:15.541692+00:00",
+      "data": {
+        "cas_answer": {
+          "text": "6*x**2",
+          "presentation": {
+            "kind": "scalar",
+            "latex": "6 x^{2}",
+            "text": "6*x**2",
+            "pretty": "   2\n6⋅x "
+          },
+          "notices": [],
+          "expression": "6*x**2",
+          "symbols": [
+            "x"
+          ],
+          "assumptions": [],
+          "encoded_value": "Mul(Integer(6), Pow(Symbol('x'), Integer(2)))"
+        },
+        "source": "diff(a*x^3,x)"
+      },
+      "tool": null
+    }
+  ]
+}

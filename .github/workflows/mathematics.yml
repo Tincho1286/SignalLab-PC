@@ -34,6 +34,10 @@ on:
       - '.python-version'
       - 'tools/check_engineering_baseline.py'
       - 'tools/check_engineering_package.py'
+      - 'tools/native_sbom.py'
+      - 'tools/check_candidate_update.py'
+      - 'tools/check_resource_limits.py'
+      - 'tools/capture_candidate_ui.py'
       - 'tools/check_static.py'
       - '.github/workflows/mathematics.yml'
   pull_request:
@@ -198,5 +202,72 @@ jobs:
           path: |
             work/engineering-baseline/*.json
             work/engineering-baseline/*.log
+          if-no-files-found: error
+          retention-days: 14
+
+  engineering-distribution:
+    if: ${{ github.ref == 'refs/heads/develop' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    env:
+      QT_QPA_PLATFORM: offscreen
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version-file: '.python-version'
+      - name: Refresh Ubuntu runtime and install graphical dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --only-upgrade libssl3 openssl
+          sudo apt-get install -y --no-install-recommends libgl1 libegl1 libxkbcommon0 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 libxcb-shape0 libxcb-sync1 libdbus-1-3 libfontconfig1 libfreetype6 libglib2.0-0 patchelf xvfb xauth
+      - name: Audit candidate Windows distribution
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          python -m venv .venv
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $python = '.\.venv\Scripts\python.exe'
+          & $python -m pip install --only-binary=:all: -r requirements-lock.txt -r requirements-quality.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & .\build_portable.ps1
+          $version = & $python -B -c 'from signallab_pc import __version__; print(__version__)'
+          & $python -B tools/native_sbom.py "outputs/SignalLab-PC-$version.exe" --output work/distribution-audit
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
+          & $python -B tools/build_installers.py windows --iscc $iscc
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $python -B tools/check_candidate_update.py "outputs/SignalLab-PC-$version-setup.exe" --iscc $iscc --output work/distribution-audit/update.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $python -B tools/check_resource_limits.py --output work/distribution-audit/resources.json
+      - name: Audit candidate Linux distribution
+        if: runner.os == 'Linux'
+        run: |
+          python -m venv .venv
+          .venv/bin/python -m pip install --only-binary=:all: -r requirements-lock.txt -r requirements-quality.txt
+          bash build_portable_linux.sh
+          version=$(.venv/bin/python -B -c 'from signallab_pc import __version__; print(__version__)')
+          .venv/bin/python -B tools/native_sbom.py "outputs/SignalLab-PC-$version-linux-x86_64.tar.gz" --output work/distribution-audit
+          .venv/bin/python -B tools/build_installers.py linux
+          .venv/bin/python -B tests/linux_installation_contract.py
+          .venv/bin/python -B tools/check_candidate_update.py "outputs/SignalLab-PC-$version-linux-x86_64.run" --output work/distribution-audit/update.json
+          .venv/bin/python -B tools/check_resource_limits.py --output work/distribution-audit/resources.json
+          xvfb-run -a -s '-screen 0 1920x1080x24' .venv/bin/python -B tools/capture_candidate_ui.py --output work/distribution-audit/ui
+      - name: Preserve reports only
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: engineering-distribution-${{ matrix.os }}-${{ github.run_id }}
+          path: work/distribution-audit/
           if-no-files-found: error
           retention-days: 14

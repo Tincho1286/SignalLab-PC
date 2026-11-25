@@ -1,6 +1,7 @@
 """Inventory the actual libraries in SignalLab PyInstaller portables without executing them."""
 
 import argparse
+from contextlib import contextmanager
 import hashlib
 import json
 from pathlib import Path, PurePosixPath
@@ -42,7 +43,8 @@ def inspect_binary(path):
     return {'runtime': runtime, 'native_members_uncompressed_bytes': native}
 
 
-def inspect_portable(path):
+@contextmanager
+def portable_executable(path):
     if path.name.endswith('.tar.gz'):
         with TemporaryDirectory(prefix='signallab-linux-package-') as folder:
             binary = Path(folder)/'SignalLab-PC'
@@ -53,9 +55,14 @@ def inspect_portable(path):
                     raise ValueError('Se esperaba un único binario portable de Linux.')
                 with archive.extractfile(members[0]) as source, binary.open('wb') as target:
                     shutil.copyfileobj(source, target, 4*1024**2)
-            result = inspect_binary(binary)
+            yield binary
     else:
-        result = inspect_binary(path)
+        yield path
+
+
+def inspect_portable(path):
+    with portable_executable(path) as binary:
+        result = inspect_binary(binary)
     with path.open('rb') as stream:
         checksum = hashlib.file_digest(stream, 'sha256').hexdigest()
     return {'filename': path.name, 'sha256': checksum, **result}

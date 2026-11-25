@@ -23,6 +23,8 @@ FAMILIES={
     'sampling_precision':('test_math_contracts.SamplingContracts',3),
     'sampling_analytic_references':('test_math_sampling_fourier.SamplingReferences',10),
     'fourier_analytic_references':('test_math_sampling_fourier.FourierReferences',7),
+    'historical_projects':('test_math_historical_project.HistoricalProjects',5),
+    'scientific_paths':('test_math_historical_project.ScientificPaths',2),
     'random_signals':('test_math_contracts.RandomContracts',1),
     'representable_scales':('test_audit_numeric_clocks.CalculationScaleTests',4),
     'axis_and_sampling_clock':('test_audit_numeric_clocks.AxisAndClockTests',3),
