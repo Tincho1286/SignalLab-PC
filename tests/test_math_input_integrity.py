@@ -32,6 +32,28 @@ class InputIntegrityTests(unittest.TestCase):
                 project.merge(path)
             self.assertEqual(project.get(existing),{'report':'preservado'})
 
+    def test_text_and_json_release_shared_admission_after_contention_or_invalid_data(self):
+        from signallab_pc.execution import ExecutionContext, ResourcePool
+        from signallab_pc.input_files import read_text
+
+        with TemporaryDirectory() as directory:
+            path = Path(directory)/'doc.json'
+            source = '{"name":"signal","count":8}'
+            path.write_text(source, encoding='utf-8')
+            pool = ResourcePool(8*path.stat().st_size)
+            with patch('signallab_pc.execution._PROCESS_POOL', pool):
+                with ExecutionContext().reserve(1):
+                    with self.assertRaisesRegex(ResourceLimitError, 'compartida'):
+                        read_text(path)
+                    with self.assertRaisesRegex(ResourceLimitError, 'compartida'):
+                        read_json(path)
+                self.assertEqual(read_json(path), {'name': 'signal', 'count': 8})
+                path.write_text('{"broken":}', encoding='utf-8')
+                with self.assertRaises(ValueError):
+                    read_json(path)
+                path.write_text(source, encoding='utf-8')
+                self.assertEqual(read_text(path), source)
+
     def test_mat_v73_nested_dataset_and_changed_shape(self):
         with TemporaryDirectory() as directory:
             path=Path(directory)/'fixture.mat'

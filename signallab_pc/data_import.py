@@ -45,10 +45,10 @@ def load_results(parent,kind,constraints):
         document=read_json(path,live_arrays=10)
         if not isinstance(document,dict):raise ValueError('El JSON debe contener un objeto SignalLab.')
         format_=document.get('format')
-        if format_=='signallab-project':staged.merge(path)
+        if format_=='signallab-project':staged=Project.from_document(document)
         elif format_=='signallab-signal':
-            from .storage import load_json
-            staged.add(load_json(path),operation='Importación de señal JSON')
+            from .storage import signal_from_document
+            staged.add(signal_from_document(document),operation='Importación de señal JSON')
         elif format_=='signallab-transfer':staged.add(Transfer.from_document(document),operation='Importación de sistema JSON')
         elif 'request' in document and 'result' in document:
             staged.add(document,title=path.stem,operation='Importación de expresión')
@@ -63,17 +63,7 @@ def load_results(parent,kind,constraints):
         if not ok:return None
         chosen=candidates[labels.index(selection)]
     else:chosen=candidates[0]
-    # Copy ancestry in order, retaining mathematical definitions and clocks.
-    parents={};required=set()
-    records={r['id']:r for r in staged.records()}
-    def visit(key):
-        if key in required:return
-        for predecessor in records[key]['parents']:visit(predecessor)
-        required.add(key)
-    visit(chosen['id'])
     window=parent.parentWidget()
-    for record in staged.records():
-        key=record['id']
-        if key not in required:continue
-        parents[key]=window.publish(staged.get(key),title=record['title'],operation='Archivo '+path.name+' · '+record['operation'],parents=[parents[p] for p in record['parents']])
-    return parents[chosen['id']]
+    mapping = window.project.incorporate(staged, root=chosen['id'], operation_prefix='Archivo '+path.name+' · ')
+    window.refresh_project()
+    return mapping[chosen['id']]

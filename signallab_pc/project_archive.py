@@ -70,11 +70,12 @@ def _read_manifest(file, size):
     length = struct.unpack('<I', prefix[len(MAGIC):])[0]
     if not 0 < length <= _MAX_HEADER or len(prefix) + length + 32 > size:
         raise ValueError('Tamaño de manifiesto de proyecto inválido.')
-    ensure_working_set(length, bytes_per_sample=1, live_arrays=8)
-    header = file.read(length)
-    if len(header) != length:
-        raise ValueError('El manifiesto del proyecto científico está incompleto.')
-    manifest = decode_finite_json(header.decode('utf-8'))
+    budget = ensure_working_set(length, bytes_per_sample=1, live_arrays=8)
+    with ExecutionContext().reserve(budget):
+        header = file.read(length)
+        if len(header) != length:
+            raise ValueError('El manifiesto del proyecto científico está incompleto.')
+        manifest = decode_finite_json(header.decode('utf-8'))
     if not isinstance(manifest, dict) or set(manifest) != {'project', 'workspace', 'counts'}:
         raise ValueError('Manifiesto de proyecto científico inválido.')
     document, workspace, counts = (manifest[key] for key in ('project', 'workspace', 'counts'))

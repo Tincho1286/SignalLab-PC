@@ -188,19 +188,25 @@ class Project:
         from .result_expressions import expression_result
         record=self._records[key]
         return expression_result(record['data']) if record['kind']=='calculation' else None
-    def export_record(self,key,path):
+    @staticmethod
+    def _required_records(key, records):
         selected = set()
         pending = [key]
         while pending:
             current = pending.pop()
             if current not in selected:
                 selected.add(current)
-                record = self._records[current]
+                record = records[current]
                 pending.extend(record['parents'])
                 if record['kind'] == 'calculation':
                     pending.extend(ref for _, _, ref in _calculated_references(record['data'].get('calculated_data'))
-                                   if ref in self._records)
-        document=dict(format='signallab-project',schema_version=2,records=[_export_record(r) for k,r in self._records.items() if k in selected])
+                                   if ref in records)
+        return selected
+
+    def export_record(self,key,path):
+        records = {record['id']: record for record in self._stable_records()}
+        selected = self._required_records(key, records)
+        document=dict(format='signallab-project',schema_version=2,records=[_export_record(r) for k,r in records.items() if k in selected])
         write_json(path,document)
     def get(self,key):
         record=self._records[key];value=decode(record['kind'],record['data'])
@@ -285,21 +291,34 @@ class Project:
     def merge(self,path):
         if str(path).lower().endswith('.slproj'):
             from .project_archive import load
-            staging = load(path)[0]._records
+            source = load(path)[0]
         else:
-            staging = self.from_document(read_document(path))._records
-        mapping={old:uuid4().hex for old in staging}
-        imported={}
-        for old,record in staging.items():
-            record['id']=mapping[old];record['parents']=[mapping[p] for p in record['parents']]
-            if record['kind']=='calculation' and 'calculated_data' in record['data']:
-                for node, field, identifier in _calculated_references(record['data']['calculated_data']):
+            source = self.from_document(read_document(path))
+        return len(self.incorporate(source))
+
+    def incorporate(self, source, *, root=None, operation_prefix=''):
+        """Copy a validated project or one result and its provenance with new IDs."""
+        records = {record['id']: record for record in source._stable_records()}
+        selected = records.keys() if root is None else self._required_records(root, records)
+        mapping = {key: uuid4().hex for key in records if key in selected}
+        imported = {}
+        for key, new_key in mapping.items():
+            record = records[key]
+            copied = deepcopy(_record_without_samples(record))
+            copied['id'] = new_key
+            copied['parents'] = [mapping[parent] for parent in record['parents']]
+            if operation_prefix:
+                copied['operation'] = operation_prefix + record['operation']
+            if copied['kind'] == 'signal':
+                copied['data']['values'] = record['data']['values']
+            elif copied['kind'] == 'calculation':
+                for node, field, identifier in _calculated_references(copied['data'].get('calculated_data')):
                     if identifier in mapping:
                         node[field] = mapping[identifier]
-            imported[record['id']]=record
+            imported[new_key] = copied
         with self._records_lock:
             self._records.update(imported);self.dirty=self.dirty or bool(imported)
-        return len(imported)
+        return mapping
 
 
 def _record_period(record):

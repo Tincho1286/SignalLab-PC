@@ -1279,6 +1279,60 @@ class DesktopSessionTests(unittest.TestCase):
         self.assertEqual(window.pages[route].panel.selector.currentIndex(),-1)
         self.warning.assert_not_called()
 
+    def test_result_picker_imports_compact_ancestry_and_preserves_calculated_references(self):
+        from PySide6.QtWidgets import QFileDialog
+        from signallab_pc.project_picker import ProjectPicker
+        from signallab_pc.storage import save_json
+
+        window = self.window()
+        external = Project()
+        reference = external.add(Signal([3+2j, -1], -7, metadata={'sample_rate_hz': 40}),
+                                 title='Señal original', operation='Medición')
+        unrelated = external.add({'report': 'Estudio ajeno'})
+        expression = external.add({
+            'request': {'operation': 'z_expression', 'expression': '2**(-n)'},
+            'result': {'result': '1/(1-1/(2*z))', 'evaluated': True, 'output_variable': 'z'},
+            'calculated_data': {'spectrum': {'result_id': reference}},
+        }, title='Expresión en z')
+        source_path = self.path/'study.json'
+        external.save(source_path)
+        picker = ProjectPicker(window, 'expression', variables=('z',))
+        self.addCleanup(picker.deleteLater)
+        with patch.object(QFileDialog, 'getOpenFileName', return_value=(str(source_path), 'JSON')):
+            picker.import_button.click()
+        self.warning.assert_not_called()
+        parent, imported = window.project.headers()
+        self.assertNotIn(unrelated, [row['id'] for row in window.project.headers()])
+        self.assertNotEqual(picker.selected_id, expression)
+        self.assertEqual(picker.selected_id, imported['id'])
+        current = window.project.get(imported['id'])
+        self.assertEqual(current['calculated_data'], {'spectrum': {'result_id': parent['id']}})
+        actual = window.project.get(parent['id'])
+        self.assertEqual(actual.origin, -7)
+        self.assertEqual(actual.metadata['sample_rate_hz'], 40)
+        np.testing.assert_array_equal(actual.values, [3+2j, -1])
+        self.assertEqual(window.project.expression(imported['id']).variable, 'z')
+
+        signal_picker = ProjectPicker(window, 'signal', domains=['discrete'])
+        self.addCleanup(signal_picker.deleteLater)
+        self.assertEqual(signal_picker.selected_id, parent['id'])
+        signal_picker.search.setText('señal original')
+        self.assertTrue(signal_picker.use.isEnabled())
+        self.assertIn('Medición', signal_picker.signal_preview.info.toPlainText())
+        signal_picker.search.setText('otra señal')
+        self.assertFalse(signal_picker.use.isEnabled())
+        with patch.object(QFileDialog, 'getOpenFileName', return_value=('', '')):
+            signal_picker.import_button.click()
+        self.assertEqual(len(window.project.headers()), 2)
+
+        signal_path = self.path/'standalone.json'
+        save_json(actual, signal_path)
+        with patch.object(QFileDialog, 'getOpenFileName', return_value=(str(signal_path), 'JSON')):
+            signal_picker.import_button.click()
+        self.assertTrue(signal_picker.selected_id)
+        self.assertNotEqual(signal_picker.selected_id, parent['id'])
+        np.testing.assert_array_equal(window.project.get(signal_picker.selected_id).values, actual.values)
+
     def test_result_export_can_include_dependencies_of_a_signal(self):
         window = self.window()
         source = window.project.add(Signal([1,2]))
