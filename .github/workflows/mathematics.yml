@@ -7,6 +7,7 @@ on:
       - 'signallab_pc/**.py'
       - 'tests/test_math_*.py'
       - 'tests/test_health_exchange.py'
+      - 'tests/test_desktop_session.py'
       - 'tests/test_interactive_analysis.py'
       - 'tests/test_window_convolution_analysis.py'
       - 'tests/test_measurement_views.py'
@@ -45,6 +46,7 @@ on:
       - 'signallab_pc/**.py'
       - 'tests/test_math_*.py'
       - 'tests/test_health_exchange.py'
+      - 'tests/test_desktop_session.py'
       - 'tests/test_interactive_analysis.py'
       - 'tests/test_window_convolution_analysis.py'
       - 'tests/test_measurement_views.py'
@@ -240,6 +242,8 @@ jobs:
           $python = '.\.venv\Scripts\python.exe'
           & $python -m pip install --only-binary=:all: -r requirements-lock.txt -r requirements-quality.txt
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          & $python -B tools/check_resource_limits.py --output work/distribution-audit/resources.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & .\build_portable.ps1
           $version = & $python -B -c 'from signallab_pc import __version__; print(__version__)'
           & $python -B tools/native_sbom.py "outputs/SignalLab-PC-$version.exe" --output work/distribution-audit
@@ -248,26 +252,26 @@ jobs:
           & $python -B tools/build_installers.py windows --iscc $iscc
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & $python -B tools/check_candidate_update.py "outputs/SignalLab-PC-$version-setup.exe" --iscc $iscc --output work/distribution-audit/update.json
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & $python -B tools/check_resource_limits.py --output work/distribution-audit/resources.json
       - name: Audit candidate Linux distribution
         if: runner.os == 'Linux'
         run: |
           python -m venv .venv
           .venv/bin/python -m pip install --only-binary=:all: -r requirements-lock.txt -r requirements-quality.txt
+          .venv/bin/python -B tools/check_resource_limits.py --output work/distribution-audit/resources.json
+          xvfb-run -a -s '-screen 0 1920x1080x24' .venv/bin/python -B tools/capture_candidate_ui.py --output work/distribution-audit/ui
           bash build_portable_linux.sh
           version=$(.venv/bin/python -B -c 'from signallab_pc import __version__; print(__version__)')
           .venv/bin/python -B tools/native_sbom.py "outputs/SignalLab-PC-$version-linux-x86_64.tar.gz" --output work/distribution-audit
           .venv/bin/python -B tools/build_installers.py linux
           .venv/bin/python -B tests/linux_installation_contract.py
           .venv/bin/python -B tools/check_candidate_update.py "outputs/SignalLab-PC-$version-linux-x86_64.run" --output work/distribution-audit/update.json
-          .venv/bin/python -B tools/check_resource_limits.py --output work/distribution-audit/resources.json
-          xvfb-run -a -s '-screen 0 1920x1080x24' .venv/bin/python -B tools/capture_candidate_ui.py --output work/distribution-audit/ui
       - name: Preserve reports only
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: engineering-distribution-${{ matrix.os }}-${{ github.run_id }}
-          path: work/distribution-audit/
+          path: |
+            work/distribution-audit/
+            work/workflow-checks.json
           if-no-files-found: error
           retention-days: 14

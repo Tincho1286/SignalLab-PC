@@ -101,6 +101,18 @@ def inspect(path):
         if member in versions:
             row['embedded_version'] = versions[member]
         entries.append(row)
+    for entry in entries:
+        name = PurePosixPath(entry['path'].replace('\\', '/')).name
+        if name not in {'_rust.pyd', '_rust.abi3.so'}:
+            continue
+        if any(match['package']=='cryptography' and match['source']=='PyPI'
+               for match in entry['sources']):
+            from cryptography.hazmat.backends.openssl.backend import backend
+            runtime['cryptography_openssl'] = {
+                'version_text': backend.openssl_version_text(),
+                'matched_file': entry['path'],
+                'sha256': entry['sha256'],
+            }
     return dict(artifact=path.name, artifact_sha256=digest(path), executable_sha256=binary_sha,
                 runtime=runtime, native_files=entries, symbolic_links=links, platform=platform.platform())
 

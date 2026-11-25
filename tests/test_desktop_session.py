@@ -8,7 +8,7 @@ from unittest.mock import patch
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 
 import numpy as np
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QCoreApplication, QEvent, QSettings
 from PySide6.QtWidgets import QApplication, QMessageBox
 
 from signallab_pc import session
@@ -81,6 +81,8 @@ class DesktopSessionTests(unittest.TestCase):
         for window in self.windows:
             window.close()
             window.deleteLater()
+        # The offscreen suite has no application exec() loop to deliver these.
+        QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
         self.app.processEvents()
 
     def test_released_dft_session_reopens_with_its_original_phase_reference(self):
