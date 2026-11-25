@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02C.07 · C07 · C-05
+
+**Estado inicial.** `c1bc5b2`, con perfiles previos que medían núcleos y almacenamiento por separado. El banco nuevo cubre 57 perfiles y conserva los efectos de memoria, cache y archivos.
+
+**Evidencia.** La corrida exploratoria Windows fue satisfactoria en todos los tamaños admitidos y los ocho ensayos de cancelación. La matriz medirá los perfiles finales en Windows y Linux, dentro de un checkout limpio.
+
+**Riesgo residual.** Las mediciones no definen cuotas ni tiempos máximos bajo carga coexistente.
+
 ## 25 de noviembre de 2026 · WP-02C.06 · C06 · C-07
 
 **Estado inicial.** `924154a`. Se revisó la matriz de oráculos y la cobertura heredada. Se priorizaron admisión, plazos, CLI y el caso IIR de alto condicionamiento.

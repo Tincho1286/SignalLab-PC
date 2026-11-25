@@ -1,5 +1,7 @@
 # Cambios de Fase 02C
 
+- WP07. Registrar medianas y RSS sin introducir umbrales temporales frágiles en runners compartidos.
+
 - WP06. Conservar pruebas con efectos observables y registrar cada déficit de cobertura por componente.
 
 - WP05. Mantener JSON para proyectos y SLBIN experimental con especificación formal.

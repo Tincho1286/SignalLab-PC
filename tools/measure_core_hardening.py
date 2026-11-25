@@ -167,6 +167,11 @@ def main():
         parser.error('Specify --output.')
     from importlib.metadata import version
 
+    def git(*arguments):
+        return subprocess.check_output(['git', *arguments], cwd=ROOT, text=True).strip()
+
+    revision = git('rev-parse', 'HEAD')
+    clean = not git('status', '--porcelain')
     sizes = (1024, 16384, 65536, 262144, 1048576)
     operations = {
         **dict.fromkeys(('dft', 'idft', 'fir', 'resample', 'psd', 'pipeline', 'slbin_read', 'slbin_write'), sizes),
@@ -181,13 +186,15 @@ def main():
     rows = [isolate(op, size) for op, lengths in operations.items() for size in lengths]
     cancelled = [isolate(op, 'cancel') for op in ('dft', 'idft', 'fir', 'resample', 'psd', 'pipeline',
                                                   'json_write', 'slbin_write')]
-    report = dict(commit=subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
+    symbolic = cancellation()
+    report = dict(commit=revision, clean_checkout=clean and git('rev-parse', 'HEAD') == revision
+                  and not git('status', '--porcelain'),
                   platform=platform.platform(), machine=platform.machine(), processor=platform.processor(),
                   logical_cpus=os.cpu_count(), python=platform.python_version(),
                   versions={name: version(name) for name in ('numpy', 'scipy', 'sympy')},
                   openblas_threads=1, omp_threads=1, seed=20261125, repeats=args.repeats,
                   cold_process_each_case=True, one_warmup_per_case=True, filesystem_cache='warm',
-                  cancellation=cancelled, symbolic_cancellation=cancellation(), measurements=rows)
+                  cancellation=cancelled, symbolic_cancellation=symbolic, measurements=rows)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')
 

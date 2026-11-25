@@ -39,6 +39,7 @@ on:
       - 'tools/native_sbom.py'
       - 'tools/check_candidate_update.py'
       - 'tools/check_resource_limits.py'
+      - 'tools/measure_core_hardening.py'
       - 'tools/capture_candidate_ui.py'
       - 'tools/check_static.py'
       - '.github/workflows/mathematics.yml'
@@ -267,6 +268,15 @@ jobs:
           .venv/bin/python -B tools/build_installers.py linux
           .venv/bin/python -B tests/linux_installation_contract.py
           .venv/bin/python -B tools/check_candidate_update.py "outputs/SignalLab-PC-$version-linux-x86_64.run" --output work/distribution-audit/update.json
+      - name: Measure Core on Windows
+        if: ${{ !cancelled() && runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          & '.\.venv\Scripts\python.exe' -B -X utf8 tools/measure_core_hardening.py --output work/distribution-audit/core-performance.json
+      - name: Measure Core on Linux
+        if: ${{ !cancelled() && runner.os == 'Linux' }}
+        run: |
+          .venv/bin/python -B -X utf8 tools/measure_core_hardening.py --output work/distribution-audit/core-performance.json
       - name: Preserve reports only
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
