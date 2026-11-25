@@ -23,14 +23,12 @@ Qt/PySide6 ofrece alternativas de licencia: SignalLab utiliza la distribución d
 | pyinstaller | 6.22.3 | Ver el texto original | [Aviso 1](LICENSES/pyinstaller/pyinstaller-6.22.3.dist-info/licenses/COPYING.txt) |
 | pyinstaller-hooks-contrib | 2026.9 | Ver el texto original | [Aviso 1](LICENSES/pyinstaller-hooks-contrib/pyinstaller_hooks_contrib-2026.9.dist-info/licenses/LICENSE) |
 | pyparsing | 3.3.3 | MIT | [Aviso 1](LICENSES/pyparsing/pyparsing-3.3.3.dist-info/licenses/LICENSE) |
-| PySide6 | 6.10.0 | Ver el texto original | [Aviso 1](LICENSES/PySide6/pyside6-6.10.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt) |
-| PySide6_Addons | 6.10.0 | Ver el texto original | [Aviso 1](LICENSES/PySide6_Addons/pyside6_addons-6.10.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt) |
-| PySide6_Essentials | 6.10.0 | Ver el texto original | [Aviso 1](LICENSES/PySide6_Essentials/pyside6_essentials-6.10.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt) |
+| PySide6_Essentials | 6.12.0 | Ver el texto original | [Aviso 1](LICENSES/PySide6_Essentials/pyside6_essentials-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt) |
 | python-dateutil | 2.9.0.post0 | Ver el texto original | [Aviso 1](LICENSES/python-dateutil/python_dateutil-2.9.0.post0.dist-info/LICENSE) |
 | pywin32-ctypes | 0.2.3 | Ver el texto original | [Aviso 1](LICENSES/pywin32-ctypes/pywin32_ctypes-0.2.3.dist-info/LICENSE.txt) |
 | scipy | 1.18.0 | Ver el texto original | [Aviso 1](LICENSES/scipy/scipy-1.18.0.dist-info/LICENSE.txt) · [Aviso 2](LICENSES/scipy/scipy/_lib/_uarray/LICENSE) · [Aviso 3](LICENSES/scipy/scipy/fft/_duccfft/LICENSE.md) · [Aviso 4](LICENSES/scipy/scipy/integrate/LICENSE_DOP) · [Aviso 5](LICENSES/scipy/scipy/spatial/qhull_src/COPYING_QHULL.txt) |
 | setuptools | 84.2.1 | MIT | [Aviso 1](LICENSES/setuptools/setuptools-84.2.1.dist-info/licenses/LICENSE) · [Aviso 2](LICENSES/setuptools/setuptools/_vendor/autocommand-2.2.2.dist-info/LICENSE) · [Aviso 3](LICENSES/setuptools/setuptools/_vendor/backports.tarfile-1.2.0.dist-info/LICENSE) · [Aviso 4](LICENSES/setuptools/setuptools/_vendor/importlib_metadata-8.7.1.dist-info/licenses/LICENSE) · [Aviso 5](LICENSES/setuptools/setuptools/_vendor/jaraco.text-4.0.0.dist-info/LICENSE) · [Aviso 6](LICENSES/setuptools/setuptools/_vendor/jaraco_context-6.1.0.dist-info/licenses/LICENSE) · [Aviso 7](LICENSES/setuptools/setuptools/_vendor/jaraco_functools-4.4.0.dist-info/licenses/LICENSE) · [Aviso 8](LICENSES/setuptools/setuptools/_vendor/more_itertools-10.8.0.dist-info/licenses/LICENSE) · [Aviso 9](LICENSES/setuptools/setuptools/_vendor/packaging-26.3.dist-info/licenses/LICENSE) · [Aviso 10](LICENSES/setuptools/setuptools/_vendor/packaging-26.3.dist-info/licenses/LICENSE.APACHE) · [Aviso 11](LICENSES/setuptools/setuptools/_vendor/packaging-26.3.dist-info/licenses/LICENSE.BSD) · [Aviso 12](LICENSES/setuptools/setuptools/_vendor/platformdirs-4.4.0.dist-info/licenses/LICENSE) · [Aviso 13](LICENSES/setuptools/setuptools/_vendor/tomli-2.4.0.dist-info/licenses/LICENSE) · [Aviso 14](LICENSES/setuptools/setuptools/_vendor/wheel-0.46.3.dist-info/licenses/LICENSE.txt) · [Aviso 15](LICENSES/setuptools/setuptools/_vendor/zipp-3.23.0.dist-info/licenses/LICENSE) · [Aviso 16](LICENSES/setuptools/setuptools/config/NOTICE) · [Aviso 17](LICENSES/setuptools/setuptools/config/_validate_pyproject/NOTICE) |
-| shiboken6 | 6.10.0 | Ver el texto original | [Aviso 1](LICENSES/shiboken6/shiboken6-6.10.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt) |
+| shiboken6 | 6.12.0 | Ver el texto original | [Aviso 1](LICENSES/shiboken6/shiboken6-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt) |
 | six | 1.17.0 | Ver el texto original | [Aviso 1](LICENSES/six/six-1.17.0.dist-info/LICENSE) |
 | sympy | 1.14.0 | Ver el texto original | [Aviso 1](LICENSES/sympy/sympy-1.14.0.dist-info/licenses/AUTHORS) · [Aviso 2](LICENSES/sympy/sympy-1.14.0.dist-info/licenses/LICENSE) · [Aviso 3](LICENSES/sympy/sympy/parsing/latex/LICENSE.txt) |
 | Python | 3.12.10 | PSF-2.0 | [Aviso 1](LICENSES/Python/LICENSE.txt) |
@@ -43,9 +41,9 @@ Los archivos de licencia remiten a sus titulares y proyectos originales. Las con
 
 ## Qt y PySide6: alternativa de código abierto
 
-La distribución instalada de PySide6 6.10.0 declara LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only. Para SignalLab bajo GPLv3 se utiliza la alternativa GPLv3, sin licencia comercial. Se conservan los textos comunes [GPLv3](LICENSES/Qt/GPL-3.0-only.txt), [LGPLv3](LICENSES/Qt/LGPL-3.0-only.txt) y [GPLv2](LICENSES/Qt/GPL-2.0-only.txt), además de los avisos originales del paquete.
+La distribución instalada de PySide6 Essentials 6.12.0 declara LGPL-3.0-only OR GPL-2.0-only OR GPL-3.0-only. Para SignalLab bajo GPLv3 se utiliza la alternativa GPLv3, sin licencia comercial. Se conservan los textos comunes [GPLv3](LICENSES/Qt/GPL-3.0-only.txt), [LGPLv3](LICENSES/Qt/LGPL-3.0-only.txt) y [GPLv2](LICENSES/Qt/GPL-2.0-only.txt), además de los avisos originales del paquete.
 
-Fuentes oficiales de la versión: [Qt 6.10.0](https://download.qt.io/archive/qt/6.10/6.10.0/single/) y [PySide6 6.10.0](https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-6.10.0-src/). Los archivos de terceros en estas fuentes conservan sus propias licencias. Estas referencias complementan el código de SignalLab y sus instrucciones de construcción.
+Fuentes oficiales de la versión: [Qt 6.12.0](https://download.qt.io/archive/qt/6.12/6.12.0/single/) y [PySide6 6.12.0](https://download.qt.io/official_releases/QtForPython/pyside6/PySide6-6.12.0-src/). Los archivos de terceros en estas fuentes conservan sus propias licencias. Estas referencias complementan el código de SignalLab y sus instrucciones de construcción.
 
 ## Verificación de actualizaciones
 

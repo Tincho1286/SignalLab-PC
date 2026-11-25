@@ -221,7 +221,9 @@ def expression(text,variables):
     with np.errstate(all='raise'):return run(tree)
 
 def read_script(path):
-    text=Path(path).read_text(encoding='utf-8-sig');text=re.sub(r'%[^\n]*','',text);text=re.sub(r'\.\.\.\s*\n',' ',text)
+    path = Path(path)
+    ensure_working_set(path.stat().st_size, bytes_per_sample=1, live_arrays=8)
+    text=path.read_text(encoding='utf-8-sig');text=re.sub(r'%[^\n]*','',text);text=re.sub(r'\.\.\.\s*\n',' ',text)
     variables={}
     for statement in split_top(text,';\n'):
         if not statement:continue

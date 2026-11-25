@@ -152,27 +152,11 @@
       ]
     },
     {
-      "name": "PySide6",
-      "version": "6.10.0",
-      "license_expression": null,
-      "notices": [
-        "LICENSES/PySide6/pyside6-6.10.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt"
-      ]
-    },
-    {
-      "name": "PySide6_Addons",
-      "version": "6.10.0",
-      "license_expression": null,
-      "notices": [
-        "LICENSES/PySide6_Addons/pyside6_addons-6.10.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt"
-      ]
-    },
-    {
       "name": "PySide6_Essentials",
-      "version": "6.10.0",
+      "version": "6.12.0",
       "license_expression": null,
       "notices": [
-        "LICENSES/PySide6_Essentials/pyside6_essentials-6.10.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt"
+        "LICENSES/PySide6_Essentials/pyside6_essentials-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt"
       ]
     },
     {
@@ -229,10 +213,10 @@
     },
     {
       "name": "shiboken6",
-      "version": "6.10.0",
+      "version": "6.12.0",
       "license_expression": null,
       "notices": [
-        "LICENSES/shiboken6/shiboken6-6.10.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt"
+        "LICENSES/shiboken6/shiboken6-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt"
       ]
     },
     {

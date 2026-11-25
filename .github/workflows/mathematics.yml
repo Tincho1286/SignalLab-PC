@@ -177,11 +177,14 @@ jobs:
           python-version: '3.12.10'
       - name: Install offscreen runtime libraries
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0
+        run: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0 libgl1 libxkbcommon0 libfontconfig1
       - name: Install the locked baseline environment
         run: python -m pip install --disable-pip-version-check -r requirements-lock.txt -r requirements-quality.txt -r requirements-engineering.txt
       - name: Verify the clean revision and measure coverage
         run: python -B -X utf8 tools/check_engineering_baseline.py --output work/engineering-baseline
+      - name: Verify a disposable portable with the fixed Qt runtime
+        if: ${{ !cancelled() }}
+        run: python -B -X utf8 tools/check_engineering_package.py --output work/engineering-baseline/packaged-smoke.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:

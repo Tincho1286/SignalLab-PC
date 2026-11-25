@@ -31,7 +31,7 @@ El signo de correlación discreta es `rₓₕ[ℓ]=Σₙ x[n]·conj(h[n−ℓ])`
 
 ### Intercambio de fase en DFT
 
-El cálculo nuevo desde **DFT → Transformada directa** usa **Índices de la señal (n)** por defecto. El usuario puede elegir **Primera muestra del registro (m=0)**. La depuración del motor conserva `operations.dft(x)` con fase respecto a la primera muestra como valor predeterminado para que scripts anteriores produzcan los mismos coeficientes. La opción se expresa con `phase_reference='sample_indices'` o `phase_reference='record_offset'`.
+El cálculo nuevo desde **DFT → Transformada directa** usa **Índices de la señal (n)** por defecto. El usuario puede elegir **Primera muestra del registro (m=0)**. Para mantener los resultados de scripts existentes, `operations.dft(x)` sigue usando la primera muestra como referencia por defecto. La opción se expresa con `phase_reference='sample_indices'` o `phase_reference='record_offset'`.
 
 Los resultados conservan `dft_phase_reference`, el índice inicial y la cantidad `N`. Guardar, reutilizar o abrir un archivo JSON/CSV conserva esos campos. Un resultado antiguo de DFT directa sin la marca se lee con referencia a `m=0`. Un documento de DFT de una sesión histórica también recupera `m=0` para recalcular con la misma convención. Una DFT enventanada angular histórica ya usaba los índices `n`. Sus coeficientes no centrados siguen disponibles para invertirla.
 

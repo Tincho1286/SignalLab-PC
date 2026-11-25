@@ -1,5 +1,6 @@
 """Exchange reliability: independent exchange and convergence invariants."""
 import json,tempfile,unittest
+from unittest.mock import patch
 from pathlib import Path
 from types import SimpleNamespace
 import numpy as np
@@ -44,6 +45,18 @@ class HealthExchangeContracts(unittest.TestCase):
         assert_allclose(variables['stop'],[[0,.1,.2]],rtol=0,atol=1e-15)
         assert_allclose(variables['exact'],[[0,.1,.2,.3]],rtol=0,atol=1e-15)
         assert_allclose(variables['inside'],[[0,1,0]],rtol=0,atol=1e-15)
+
+    def test_matlab_script_budget_is_checked_before_reading_source(self):
+        from signallab_pc.resources import ResourceLimitError
+
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)/'source.m'
+            path.write_text('x = 1:4;', encoding='utf-8')
+            with patch('signallab_pc.resources.available_physical_memory', return_value=64):
+                with patch.object(Path, 'read_text') as read:
+                    with self.assertRaises(ResourceLimitError):
+                        MatlabFile(path)
+                    read.assert_not_called()
 
     def test_mat_axis_is_never_rounded_to_consecutive_indices(self):
         for axis in (np.array([0.,1.0000000001,2.]),np.array([2**53,2**53+1,2**53+2],dtype=float)):
