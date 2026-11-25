@@ -233,7 +233,7 @@ def quantize(x, bits, low, high, method="round", align_zero=False, first=0, last
         low, high = -kzero*step, (levels-1-kzero)*step
     if low+step == low or high-step == high:
         raise ValueError("Los niveles no se distinguen en float64 con ese rango y cantidad de bits.")
-    ensure_working_set(int(x.values.size), live_arrays=14)
+    ensure_working_set(int(x.values.size), live_arrays=18 if method == 'round' else 14)
     original = x.values.real
     clipped = np.clip(original, low, high)
     if align_zero:
@@ -257,10 +257,26 @@ def quantize(x, bits, low, high, method="round", align_zero=False, first=0, last
     if method == 'round':
         upper = np.minimum(levels-1, codes+1)
         lower_value, upper_value = code_values(codes), code_values(upper)
-        midpoint = lower_value + (upper_value-lower_value)/2
-        # Only an input on the rounded midpoint needs the distance tie check.
-        ties_up = (clipped == midpoint) & (clipped-lower_value >= upper_value-clipped)
-        codes = np.where((clipped > midpoint) | ties_up, upper, codes)
+        with np.errstate(over='ignore'):
+            twice_sample = 2*clipped
+            level_sum = lower_value+upper_value
+        overflow = ~np.isfinite(level_sum)
+        if np.any(overflow):
+            # Both same-sign terms can be halved exactly if their sum overflowed.
+            lower_value[overflow] *= .5
+            upper_value[overflow] *= .5
+            level_sum[overflow] = lower_value[overflow]+upper_value[overflow]
+            twice_sample[overflow] = clipped[overflow]
+        choose_upper = twice_sample > level_sum
+        ambiguous = twice_sample == level_sum
+        if np.any(ambiguous):
+            a, b, total = lower_value[ambiguous], upper_value[ambiguous], level_sum[ambiguous]
+            # FastTwoSum recovers the tail of the rounded sum at a decision boundary.
+            a_is_larger = abs(a) >= abs(b)
+            large, small = np.where(a_is_larger,a,b), np.where(a_is_larger,b,a)
+            tail = small-(total-large)
+            choose_upper[ambiguous] = tail <= 0
+        codes = np.where(choose_upper, upper, codes)
     values=code_values(codes)
     error = _finite_output(values-original, "El error de cuantización")
     last = x.values.size-1 if last is None else last

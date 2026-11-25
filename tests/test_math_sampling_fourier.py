@@ -1,6 +1,7 @@
 """Independent numerical references for sampling and Fourier."""
 
 from cmath import exp
+from fractions import Fraction
 import math
 import unittest
 
@@ -125,12 +126,17 @@ class SamplingReferences(unittest.TestCase):
                 self.assertAlmostEqual(result.snr_db, expected_snr)
 
     def test_rounding_distinguishes_values_on_both_sides_of_a_midpoint(self):
-        for low, high, threshold in ((0, 3, .5), (-2, 1, -.5)):
+        cases = ((2, 0., 3., 0., 1.), (2, -2., 1., -1., 0.),
+                 (1, 1e-300, 1., 1e-300, 1.), (1, -1., 1e-300, -1., 1e-300),
+                 (1, 8.5e307, 1.7e308, 8.5e307, 1.7e308))
+        for bits, low, high, lower_level, upper_level in cases:
             with self.subTest(low=low, high=high):
-                signal = Signal([math.nextafter(threshold, -math.inf), threshold,
-                                 math.nextafter(threshold, math.inf)])
-                result = sampling.quantize(signal, 2, low, high)
-                assert_array_equal(result.signal.values, [threshold-.5, threshold+.5, threshold+.5])
+                threshold = (Fraction(lower_level)+Fraction(upper_level))/2
+                midpoint = float(threshold)
+                samples = [math.nextafter(midpoint, -math.inf), midpoint, math.nextafter(midpoint, math.inf)]
+                expected = [upper_level if Fraction(x)>=threshold else lower_level for x in samples]
+                result = sampling.quantize(Signal(samples), bits, low, high)
+                assert_array_equal(result.signal.values, expected)
 
     def test_large_range_quantization_keeps_intermediate_levels_representable(self):
         result = sampling.quantize(Signal([-1e308, -3e307, 0, 3e307, 1e308]), 2, -1e308, 1e308)
