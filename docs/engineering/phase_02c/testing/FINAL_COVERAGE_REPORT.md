@@ -14,6 +14,14 @@ La medición usa el mismo alcance de instrumentación y las mismas exclusiones. 
 
 Tras la medición integral se instrumentaron 57 pruebas de entrega de resultados, CAS, observación de espectros y filtro FIR en `6c90aeb`. La proyección sobre `8793c48` conserva los arcos compatibles con las líneas sin cambios y agrega los ejecutados por ese lote. El resultado proyectado es 36 669/42 890 líneas (85,50 %) y 11 908/16 496 ramas (72,19 %). Quedan 464 ramas para el 75 % según esta proyección.
 
+La continuación incorporó tres lotes focales sobre la base de Windows. La cobertura del candidato todavía requiere la misma ejecución integral en Windows y Linux.
+
+| Lote acumulado | Líneas proyectadas | Ramas proyectadas | Ramas adicionales para 75 % |
+| --- | ---: | ---: | ---: |
+| Laplace y dominios del CAS | 36 763/42 953 (85,59 %) | 11 964/16 528 (72,39 %) | 432 |
+| Cursores, extremos y tabla de valores | 36 816/42 953 (85,71 %) | 12 011/16 528 (72,67 %) | 385 |
+| Reapertura, matrices y procedencia | 36 882/42 953 (85,87 %) | 12 054/16 528 (72,93 %) | 342 |
+
 ## Medición focal de la siguiente revisión
 
 Se combinaron las líneas y arcos del último candidato integral `eb50895` con ocho grupos de pruebas focales ejecutados en Windows con CPython 3.14.10. En los archivos de cálculo modificados se trasladaron sólo las líneas históricas que se conservan y los arcos cuyos extremos permanecen en el código. Se mantuvo el alcance de instrumentación de la aplicación. Esta proyección sirve para priorizar pruebas adicionales. La cobertura definitiva requiere la suite integral sobre el candidato limpio.

@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-06 y C-07 · Reapertura y procedencia
+
+**Flujos.** Se verificó que una sesión restaura pestañas de Biblioteca y Resultados, una Z inversa y sus condiciones. Se volvió a calcular y se comprobaron las muestras y la referencia al resultado original. Se probaron también borradores de expresiones temporales, bancos MIMO, matrices y guardado manual en SLPROJ. Los archivos con condiciones, matrices o canales inválidos dejan activa la sesión previa.
+
+**Evidencia focal.** Pasaron 15 pruebas de documentos, borradores, CAS y SLPROJ. La proyección global quedó en 36 882/42 953 líneas (85,87 %) y 12 054/16 528 ramas (72,93 %), con 342 ramas para el objetivo. El control matemático local de la revisión anterior pasó 393 pruebas y 150 casos preventivos. El código de cálculo es el mismo en los dos lotes.
+
 ## 25 de noviembre de 2026 · C-07 · Lecturas de figuras y tablas
 
 **Flujos.** Las pruebas abren Curvas y medidas, eligen una traza, fijan y arrastran ambos cursores y verifican los extremos entre A y B. El CSV conserva la meseta medida. También se comprueban el desplazamiento en un eje logarítmico invertido, la actualización de las lecturas al cambiar de curva, el rechazo de extremos sobre un mapa y la tabla con coordenadas muy cercanas.
