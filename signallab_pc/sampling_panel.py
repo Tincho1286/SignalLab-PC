@@ -100,12 +100,15 @@ class SamplingPanel(QWidget):
         button.clicked.connect(invoke); form.addRow(button)
 
     def _source(self):
-        if self.owner.signal is None:
+        read = getattr(self.owner,'capture_signal',None)
+        value, register = read() if read else (self.owner.signal,None)
+        if value is None:
             raise ValueError("Primero creá o importá una señal.")
-        return self.owner.signal
+        return value,register
 
-    def _job(self, title, calculation, callback):
-        self.owner._run_operation(title, calculation, callback)
+    def _job(self, title, calculation, callback, register=None):
+        options = {'register_source':register} if register is not None else {}
+        self.owner._run_operation(title,calculation,callback,**options)
 
     def _accept_signal(self, result):
         from .result_summary import signal_summary
@@ -117,7 +120,7 @@ class SamplingPanel(QWidget):
         self._job("Muestreando expresión…", lambda: sampling.sample_expression(*args), self._accept_signal)
 
     def read_clock(self):
-        source = self._source()
+        source,_ = self._source()
         if "sample_rate_hz" not in source.metadata:
             raise ValueError("Esta señal no tiene Fs registrada. Indicá Fs y el tiempo inicial para reconstruirla.")
         self.rate.setText(str(source.metadata["sample_rate_hz"]))
@@ -133,20 +136,22 @@ class SamplingPanel(QWidget):
         self.report.set_readable(alias_summary(result))
 
     def change_rate(self):
-        source, factor = self._source(), integer_field(self.factor)
+        source, register = self._source()
+        factor = integer_field(self.factor)
         method = ["decimate", "expand", "linear", "zoh", "sinc"][self.rate_method.currentIndex()]
         phase = integer_field(self.phase) if method == 'decimate' else 0
-        self._job("Cambiando tasa…", lambda: sampling.resample(source, factor, method, phase), self._accept_signal)
+        self._job("Cambiando tasa…", lambda: sampling.resample(source, factor, method, phase), self._accept_signal, register)
 
     def reconstruct(self):
-        source=self._source();override=self.clock_override.isChecked()
+        source,register=self._source();override=self.clock_override.isChecked()
         rate=real_field(self.rate) if override or source.metadata.get('sample_rate_hz') is None else None
         start=real_field(self.start) if override or source.metadata.get('time_start_s') is None else None
         factor=integer_field(self.factor);method=["zoh", "linear", "sinc"][self.reconstruction.currentIndex()]
-        self._job("Reconstruyendo registro…", lambda: sampling.reconstruct(source,rate,start,factor,method,override_clock=override), self._accept_signal)
+        self._job("Reconstruyendo registro…", lambda: sampling.reconstruct(source,rate,start,factor,method,override_clock=override), self._accept_signal, register)
 
     def quantize(self):
-        args = (self._source(), integer_field(self.bits), real_field(self.low), real_field(self.high),
+        source,register = self._source()
+        args = (source, integer_field(self.bits), real_field(self.low), real_field(self.high),
                 ["round", "floor"][self.quant_method.currentIndex()], self.zero.isChecked(),
                 integer_field(self.first), integer_field(self.last) if self.last.text().strip() else None)
         def accept(result):
@@ -158,7 +163,7 @@ class SamplingPanel(QWidget):
             else: snr = f"{result.snr_db:.12g} dB"
             self.report.setPlainText(f"Cuantización completada\nPaso Δ: {result.step:.17g}\nNiveles: {result.levels}\nRango efectivo: {result.effective_min:.17g} … {result.effective_max:.17g}\nMuestras saturadas: {result.clipped_samples}\nSNR: {snr}\nFilas incluidas en SNR: {result.selected_samples}\n\nSNR usa energía de señal / energía del error sobre el mismo intervalo, sin restar la media. Incluye saturación. Se conserva también el error firmado xq−x durante esta sesión.")
             self.owner.tabs.setCurrentIndex(self.owner.sampling_tab)
-        self._job("Cuantizando…", lambda: sampling.quantize(*args), accept)
+        self._job("Cuantizando…", lambda: sampling.quantize(*args), accept, register)
 
     def fixed(self):
         args = self.fixed_value.text(), integer_field(self.integer_bits), integer_field(self.fractional_bits), ["round", "truncate"][self.fixed_method.currentIndex()]

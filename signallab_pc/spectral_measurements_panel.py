@@ -92,9 +92,12 @@ class SpectralMeasurePanel(QWidget):
 
     def calculate(self):
         try:
-            original=self.source.read();source=original.copy_with(metadata=deepcopy(original.metadata));parents=[self.source.reference_id] if self.source.reference_id else []
             bands=self.bands.read();options=dict(interpretation=self.interpretation.currentData(),level_db=real_field(self.level,maximum=0),prominence_percent=real_field(self.prominence,minimum=0,maximum=100),interpolate=self.interpolate.isChecked());snapshot=self.state.snapshot()
+            original,register_source=self.source.capture_input()
+            source=original.copy_with(metadata=deepcopy(original.metadata))
             def accept(data):
+                parent=register_source()
+                parents=[parent] if parent else []
                 self.result=data;self._source=source;self.units.setText('Bandas en '+data['units']+' · '+data['quantity'])
                 cdf_key=self.window.publish(data['cumulative'],operation='Fracción espectral acumulada',parents=parents) if data['cumulative'] is not None else None
                 payload=dict(report=data['report'],bands=data['bands'],peaks=data['peaks'],moments=data['moments'],rule=data['rule'],total=data['total'],units=data['units'],quantity=data['quantity'])

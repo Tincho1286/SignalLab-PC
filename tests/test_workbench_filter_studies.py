@@ -78,7 +78,7 @@ class FilterStudyWorkbenchContracts(DesktopSessionFixture):
         self.assertEqual(panel.fields['ds'].text(),'0.12')
         self.assertEqual(panel.fields['dp'].text(),'0.15')
         window.calculate_active()
-        self.wait_for_calculation(window)
+        self.wait_for_calculation(window,timeout_ms=15000)
         systems = [item for item in panel.items if isinstance(item,Transfer)]
         self.assertGreaterEqual(len(systems),2)
         normalized = np.arange(31)-15

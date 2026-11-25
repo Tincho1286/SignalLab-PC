@@ -325,6 +325,25 @@ class LocalInput(QGroupBox):
         parents = (origin[1],) if self.mode.currentIndex()==0 and origin and origin[1] and origin[0]==self.expression.text() else ()
         return None, signature, parents
 
+    def capture_input(self):
+        """Read a draft now and register it only on successful calculation."""
+        value = self.read(register=False)
+        if self.project_window is None:
+            return value, lambda: None
+        key, signature, parents = self.input_registration(value)
+        operation = 'Entrada: ' + self.title()
+        view = self.entry_modes.view
+        revision = getattr(self, 'source_revision', 0)
+        publish = getattr(self.project_window, 'publish_input', self.project_window.publish)
+
+        def register():
+            recorded = key if key is not None else publish(value, operation=operation, parents=parents)
+            if self.entry_modes.view == view and getattr(self, 'source_revision', 0) == revision:
+                self.remember_registration(recorded, signature)
+            return recorded
+
+        return value, register
+
     def remember_registration(self, key, signature):
         self.reference_id, self.fingerprint = key, signature
         if self.mode.currentIndex()==2:
@@ -569,12 +588,18 @@ class LocalContext:
         self.tabs=self;self.sampling_tab=0;self.prepare_system=lambda panel:None
     @property
     def signal(self):return self.source.read() if self.source else None
+    def capture_signal(self):
+        return self.source.capture_input() if self.source else (None, None)
     def setCurrentIndex(self,index):pass  # Los paneles antiguos no cambian la navegación del menú.
-    def _run_operation(self,message,function,callback):
-        parents=[self.source.reference_id] if self.source and self.source.reference_id else []
+    def _run_operation(self,message,function,callback,*,register_source=None):
+        parents=[self.source.reference_id] if register_source is None and self.source and self.source.reference_id else []
         if self.system_id:parents.append(self.system_id)
         state=getattr(self,'result_state',None);snapshot=state.snapshot() if state is not None else None
         def accept(result):
+            if register_source is not None:
+                parent = register_source()
+                if parent is not None:
+                    parents.insert(0,parent)
             self.parents=parents;self._receiving=True
             try:callback(result)
             finally:self._receiving=False
@@ -1065,7 +1090,8 @@ class ToolPage(QWidget):
                 if operation == 'dft':
                     self.calculate_dft(window, result)
                     return
-                x=self.first.read();h=self.second.read() if self.second else None
+                x, register_x = self.first.capture_input()
+                h, register_h = self.second.capture_input() if self.second else (None, None)
                 parameter=constant_value(self.parameter.text()) if operation=='scale' else integer_field(self.parameter) if operation=='shift' else None
                 restore_origin=operation=='idft' and self.restore_dft_origin.isChecked()
                 from .dsp_application import IDFTRequest, calculate_idft
@@ -1086,9 +1112,10 @@ class ToolPage(QWidget):
                     'continuous_normalized': lambda: continuous.correlation(x, h, normalized=True),
                     'continuous_auto': lambda: continuous.correlation(x),
                 }
-                parents=[entry.reference_id for entry in (self.first,self.second) if entry and entry.reference_id]
                 calculated_inputs=self.result_state.snapshot()
                 def accept(value):
+                    inputs = (register_x, register_h) if register_h else (register_x,)
+                    parents = [key for register in inputs if (key := register()) is not None]
                     if operation=='convolve':
                         value,trace,error=value
                         self.convolution_inspector.set_trace(trace,error);result.views.setTabVisible(self.convolution_step_index,True)
@@ -1269,9 +1296,13 @@ class ToolboxWindow(SignalLabWindow):
         self.documents.blockSignals(False)
         self.title.setText(item[0]);self.subtitle.setText(describe_tool(item));self.back.setText('← Volver al menú');self.back.show();self.stack.setCurrentWidget(self.pages[key])
 
-    def publish(self,value,*,title=None,operation='',parents=()):
+    def publish_input(self, value, *, operation, parents):
+        """Record an accepted input with its original metadata."""
+        return self.publish(value, operation=operation, parents=parents, input_record=True)
+
+    def publish(self,value,*,title=None,operation='',parents=(),input_record=False):
         journal=getattr(self,'_result_journal',None)
-        if journal:
+        if journal and not input_record:
             value=journal.enrich(value)
             if isinstance(value,dict) and 'calculated_data' in value:parents=list(dict.fromkeys([*parents,*journal.references,*journal.records]))
         route=getattr(self,'current_operation',None)

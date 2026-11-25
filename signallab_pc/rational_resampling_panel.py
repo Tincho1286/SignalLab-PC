@@ -47,7 +47,7 @@ class RationalResamplingPanel(QWidget):
         self.result_state=ResultState([self.rate,self.start,self.up,self.down,self.width,self.beta,self.boundary,self.override,self.mode,self.target],self.calculate_button,[self.source]);layout.insertWidget(1,self.result_state)
     def read_clock(self):
         try:
-            source=self.source.read()
+            source=self.source.read(register=False)
             clock=source.metadata
             if 'sample_rate_hz' not in clock and 'time_start_s' not in clock:raise ValueError('La entrada no tiene reloj registrado.')
             self.override.setChecked(False)
@@ -56,7 +56,7 @@ class RationalResamplingPanel(QWidget):
         except Exception as exc:QMessageBox.warning(self,'Reloj de entrada',str(exc))
     def calculate(self):
         try:
-            source=self.source.read();parent=self.source.reference_id
+            source,register_source=self.source.capture_input()
             override=self.override.isChecked()
             rate=real_field(self.rate) if override or source.metadata.get('sample_rate_hz') is None else None
             start=real_field(self.start) if self.start.text().strip() and (override or source.metadata.get('time_start_s') is None) else None
@@ -64,6 +64,7 @@ class RationalResamplingPanel(QWidget):
             target=self.target.text() if self.mode.currentIndex()==1 else None
             up,down=(1,1) if target is not None else (integer_field(self.up),integer_field(self.down));calculated_inputs=self.result_state.snapshot()
             def accept(calculated):
+                parent=register_source()
                 result=calculated['signal'];system=calculated['filter'];parents=[parent] if parent else []
                 filter_key=self.window.publish(system,operation='Filtro antialias de conversión',parents=parents) if system is not None else None
                 key=self.window.publish(result,operation='Cambio racional de tasa con antialias',parents=parents+([filter_key] if filter_key else []))

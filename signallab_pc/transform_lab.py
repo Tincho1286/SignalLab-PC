@@ -314,12 +314,13 @@ class TransformLab(QWidget):
             elif index==1:
                 samples=self.include_samples.isChecked();request.update(operation='z_inverse_expression',complete_finite=samples and self.sample_scope.currentIndex()==1,roc=['right','left','radius'][self.roc.currentIndex()],radius=self.radius.text(),include_samples=samples,start=self.start.text() if samples else 0,count=self.count.text() if samples else 1)
             else:
-                source=self.source.read();request.pop('expression',None);request.update(operation='z_finite',origin=int(source.origin),samples=[[v.real,v.imag] for v in source.values]);parents=[self.source.reference_id] if self.source.reference_id else []
+                source,register_source=self.source.capture_input();request.pop('expression',None);request.update(operation='z_finite',origin=int(source.origin),samples=[[v.real,v.imag] for v in source.values])
             source=getattr(self,'_library_source',None)
             if source and source[0]==request.get('expression'):request['input_conditions']=list(getattr(self,'_library_conditions',()))
             snapshot=self.result_state.snapshot()
             def accept(result):
-                key=self.window.publish({'request':request,'result':result},title=('Z' if self.kind=='z' else 'Laplace')+(' inversa' if index==1 else ' directa')+' · '+request.get('expression','registro finito')[:120],operation=result['operation'],parents=parents)
+                accepted_parents=[key for key in (register_source(),) if key is not None] if finite else parents
+                key=self.window.publish({'request':request,'result':result},title=('Z' if self.kind=='z' else 'Laplace')+(' inversa' if index==1 else ' directa')+' · '+request.get('expression','registro finito')[:120],operation=result['operation'],parents=accepted_parents)
                 signal=None;values=result.get('numeric_samples')
                 previous = self.records.get(record_key)
                 if previous is not None:self._sample_ids.pop(previous[2],None)

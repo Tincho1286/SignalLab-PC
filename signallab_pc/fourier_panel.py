@@ -123,24 +123,31 @@ class FourierPanel(QWidget):
         button.clicked.connect(invoke); form.addRow(button)
 
     def _source(self):
-        if self.owner.signal is None: raise ValueError("Creá o importá una señal primero.")
-        return self.owner.signal
+        read = getattr(self.owner,'capture_signal',None)
+        value, register = read() if read else (self.owner.signal,None)
+        if value is None: raise ValueError("Creá o importá una señal primero.")
+        return value,register
 
     def _frequency_args(self): return real_field(self.w0), real_field(self.w1), integer_field(self.nw)
     def _time_args(self): return real_field(self.t0), real_field(self.t1), integer_field(self.nt)
-    def _job(self, calculation): self.owner._run_operation("Calculando Fourier…", calculation, self._accept)
+    def _job(self, calculation, register=None, *, title="Calculando Fourier…", accept=None):
+        options = {'register_source':register} if register is not None else {}
+        self.owner._run_operation(title,calculation,accept or self._accept,**options)
 
     def dtft(self):
-        args = self._source(), *self._frequency_args()
-        self._job(lambda: fourier.dtft(*args))
+        source,register = self._source()
+        args = source, *self._frequency_args()
+        self._job(lambda: fourier.dtft(*args),register)
 
     def ctft(self):
-        args = self._source(), *self._frequency_args()
-        self._job(lambda: fourier.ctft(*args))
+        source,register = self._source()
+        args = source, *self._frequency_args()
+        self._job(lambda: fourier.ctft(*args),register)
 
     def inverse(self):
-        args = self._source(), *self._time_args()
-        self._job(lambda: fourier.ictft(*args))
+        source,register = self._source()
+        args = source, *self._time_args()
+        self._job(lambda: fourier.ictft(*args),register)
 
     def temporal(self):
         expression = self.expression.text(); start, stop, count = self._time_args()
@@ -164,7 +171,7 @@ class FourierPanel(QWidget):
         return None
 
     def continuous_synthesis(self):
-        source=self._source()
+        source,register=self._source()
         recorded = source.metadata.get('period_s')
         entered = self.coefficient_period.text(required=False)
         if entered or recorded is None:
@@ -174,24 +181,26 @@ class FourierPanel(QWidget):
             period=recorded
         source=source.copy_with(metadata={**source.metadata,'operation':'continuous_fourier_series','period_s':period})
         args=source,*self._time_args()
-        self._job(lambda: fourier.synthesize_continuous(*args))
+        self._job(lambda: fourier.synthesize_continuous(*args),register)
 
     def discrete_series(self):
-        source = self._source(); self._job(lambda: fourier.discrete_series(source))
+        source,register = self._source()
+        self._job(lambda: fourier.discrete_series(source),register)
 
     def discrete_synthesis(self):
-        source=self._source()
+        source,register=self._source()
         if source.metadata.get('operation')!='discrete_fourier_series':
             if source.origin!=0:raise ValueError('Para síntesis discreta manual, ingresá c[0]…c[N−1] con inicio 0.')
             source=source.copy_with(metadata={**source.metadata,'operation':'discrete_fourier_series','period_samples':len(source.values),'input_origin':0})
-        self._job(lambda: fourier.synthesize_discrete(source))
+        self._job(lambda: fourier.synthesize_discrete(source),register)
 
     def energy_density(self):
-        source = self._source(); self._job(lambda: fourier.energy_density(source))
+        source,register = self._source()
+        self._job(lambda: fourier.energy_density(source),register)
 
     def psd(self):
         from .dsp_application import PSDRequest, estimate_psd
-        source = self._source()
+        source,register = self._source()
         rate=source.metadata.get('sample_rate_hz')
         if rate is None:rate=real_field(self.rate)
         method=["welch", "periodogram", "legacy"][self.estimator.currentIndex()]
@@ -209,15 +218,16 @@ class FourierPanel(QWidget):
                 invalid(self.overlap, f'el solape debe ser menor que {segment}.')
             kwargs.update(segment=segment, overlap=overlap)
         request = PSDRequest(source, rate, **kwargs)
-        self._job(lambda: estimate_psd(request))
+        self._job(lambda: estimate_psd(request),register)
 
     def compare(self):
-        args=self._source(),*self._frequency_args()
+        source,register=self._source()
+        args=source,*self._frequency_args()
         def accept(pair):
             spectrum,samples=pair;self._accept(spectrum)
             self.comparison=samples;self.draw_result()
             self.report.setPlainText('DTFT y DFT superpuestas\n\nLa curva es la misma DTFT del cálculo individual, con el intervalo y la cantidad de puntos elegidos. Los tallos muestran la DFT de la misma señal, sin unir sus muestras ni modificar la curva.\n\nAmbas respetan el índice inicial de la señal y usan rad/muestra. Las muestras de DFT se repiten cada 2π si el intervalo abarca varios períodos. Exportar conserva la DTFT mostrada. En el análisis ampliado, la fase desenrollada y el retardo corresponden a la DTFT.')
-        self.owner._run_operation('Superponiendo DFT y DTFT…',lambda:fourier.dtft_with_dft(*args),accept)
+        self._job(lambda:fourier.dtft_with_dft(*args),register,title='Superponiendo DFT y DTFT…',accept=accept)
 
     def _accept(self, result):
         self.result = result; self.comparison=None;self.owner._remember_signal(result)

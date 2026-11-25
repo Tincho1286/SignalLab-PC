@@ -47,4 +47,10 @@ class ReconstructionControls(QWidget):
         self.scope.setText('La fase debe estar desenrollada. Indicá d si contiene un retardo/avance: se quita antes de reconstruir el módulo. La escala se fija con el módulo conocido en frecuencia cero.' if phase else 'Se elige fase mínima para el modelo base. d y la fase constante se agregan después; no se obtienen del módulo. El piso, si se aplica, cambia los datos y se informa.')
     def request(self):
         phase=self.kind.currentData()=='phase'
-        return self.source.read(),self.kind.currentData(),dict(delay=integer_field(self.delay),constant_phase=0. if phase else real_field(self.constant_phase),reference_gain=real_field(self.reference_gain) if phase else 1.,floor=0. if phase else real_field(self.floor),real_half_period=self.real_half.isChecked())
+        options = dict(delay=integer_field(self.delay),
+                       constant_phase=0. if phase else real_field(self.constant_phase),
+                       reference_gain=real_field(self.reference_gain) if phase else 1.,
+                       floor=0. if phase else real_field(self.floor),
+                       real_half_period=self.real_half.isChecked())
+        source, register = self.source.capture_input()
+        return source, self.kind.currentData(), options, register

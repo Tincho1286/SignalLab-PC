@@ -37,7 +37,9 @@ class InverseDtftPanel(QWidget):
         self.output=ResultView();root.addWidget(self.output,2);self.report=self.output.text
     def calculate(self):
         try:
-            source=self.source.read();start=integer_field(self.start);count=integer_field(self.count);parents=[self.source.reference_id] if self.source.reference_id else [];snapshot=self.state.snapshot()
+            start=integer_field(self.start);count=integer_field(self.count)
+            source,register_source=self.source.capture_input()
+            snapshot=self.state.snapshot()
             from .inverse_fourier_report import from_signal,exact_section,numeric_section
             def compute():
                 return inverse_dtft(source,start,count),from_signal(source)
@@ -47,7 +49,8 @@ class InverseDtftPanel(QWidget):
                 if exact:
                     from .temporal_formula import attach_temporal_formula
                     attach_temporal_formula(result,exact)
-                self.result=result;key=self.window.publish(result,operation='DTFT inversa numérica',parents=parents)
+                parent=register_source()
+                self.result=result;key=self.window.publish(result,operation='DTFT inversa numérica',parents=[parent] if parent else [])
                 self.output.show_result(result);self.output.result_ids=[key]
                 sections=[]
                 if exact:

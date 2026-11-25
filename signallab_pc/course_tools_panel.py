@@ -324,8 +324,9 @@ class CourseToolsPanel(QWidget):
     def calculate(self):
         try:
             parents=[];action=self.action
+            register_source=None
             if hasattr(self,'source'):
-                source=self.source.read();parents=[self.source.reference_id] if self.source.reference_id else []
+                source, register_source = self.source.capture_input()
             ideal_conversion=action=='convert' and self.fields['definition'].currentData()=='response'
             reconstructing=action=='phase' and self.fields['phase_mode'].currentData()=='reconstruct'
             has_local_system = hasattr(self, 'b') and not ideal_conversion and not reconstructing
@@ -370,7 +371,7 @@ class CourseToolsPanel(QWidget):
             elif action=='phase':
                 if reconstructing:
                     from .phase_reconstruction import reconstruct
-                    source,kind,options=self.reconstruction_controls.request();parent=self.reconstruction_controls.source.reference_id;parents=[parent] if parent else [];system=None
+                    source,kind,options,register_source=self.reconstruction_controls.request();system=None
                     job=lambda:reconstruct(source,kind,**options)
                 elif self.fields['phase_mode'].currentData()=='factor':job=lambda:calc.phase_structure(system)
                 elif self.fields['phase_mode'].currentData()=='linear':
@@ -406,6 +407,10 @@ class CourseToolsPanel(QWidget):
             calculated_inputs=self.result_state.snapshot()
             def accept(result):
                 result_parents = parents
+                if register_source is not None:
+                    parent = register_source()
+                    if parent is not None:
+                        result_parents = [*parents, parent]
                 if has_local_system:
                     result_parents = [self.window.publish(system, operation='Definición local de '+TITLES[action], parents=parents)]
                 self.view.show_content();self.view.actions.setVisible(bool(result['systems']+result['signals']) or action=='bandpass_sampling')

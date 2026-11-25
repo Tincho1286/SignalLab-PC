@@ -468,6 +468,12 @@ class Calculator:
                 try:result=sp.solve_univariate_inequality(expression,variables,relational=False).intersect(domain)
                 except NotImplementedError:result=sp.ConditionSet(variables,expression,domain)
                 return with_domain(result,variables,condition)
+            if name=='linsolve':
+                from sympy.solvers.solveset import NonlinearError
+                try:
+                    sp.linear_eq_to_matrix([expression],[variables])
+                except NonlinearError as exc:
+                    raise ValueError('Linsolve requiere ecuaciones lineales. Para una ecuación no lineal usá solve o solve_real.') from exc
             from .cas_assumptions import solution_domain
             domain=solution_domain(variables,self.assumptions)
             if name=='solve_real':domain=domain.intersect(sp.S.Reals)

@@ -56,9 +56,13 @@ class RecordMeasurePanel(QWidget):
 
     def calculate(self):
         try:
-            original=self.source.read();source=original.copy_with(metadata=deepcopy(original.metadata));parents=[self.source.reference_id] if self.source.reference_id else []
             options=dict(low=self.low.text().strip() or None,high=self.high.text().strip() or None,fraction=real_field(self.fraction,minimum=0,maximum=100)/100,level=real_field(self.level),component=self.component.currentData());snapshot=self.state.snapshot()
-            self.window._run_operation('Midiendo intervalo, energía y cruces…',lambda:calc.analyze(source,**options),lambda data:self.accept(data,parents,snapshot))
+            original,register_source=self.source.capture_input()
+            source=original.copy_with(metadata=deepcopy(original.metadata))
+            def accept(data):
+                parent=register_source()
+                self.accept(data,[parent] if parent else [],snapshot)
+            self.window._run_operation('Midiendo intervalo, energía y cruces…',lambda:calc.analyze(source,**options),accept)
         except Exception as exc:QMessageBox.warning(self,'Medir un registro',str(exc))
 
     def accept(self,data,parents,snapshot):

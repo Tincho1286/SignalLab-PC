@@ -52,8 +52,11 @@ class SignalTransformPanel(QWidget):
             self.original.show_result(self.input_result);self.original.result_ids=[self.input_key];self._original_shown=self.input_result
     def calculate(self):
         try:
-            source=self.source.read();parent=self.source.reference_id;amplitude,scale,delay,offset=self.parameters();snapshot=self.result_state.snapshot();operation=self.operation;discrete=self.domain_name=='discrete';explanation=self.explanation.text()
+            amplitude,scale,delay,offset=self.parameters()
+            source,register_source=self.source.capture_input()
+            snapshot=self.result_state.snapshot();operation=self.operation;discrete=self.domain_name=='discrete';explanation=self.explanation.text()
             def accept(result):
+                parent=register_source()
                 self.result=result;self.input_result=source;self.input_key=parent;self._original_shown=None
                 values=result if isinstance(result,tuple) else (result,)
                 keys=[self.window.publish(value,operation=TITLES[operation],parents=[parent] if parent else []) for value in values]

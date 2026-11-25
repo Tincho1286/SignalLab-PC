@@ -54,7 +54,9 @@ class SignalProductPanel(QWidget):
             if field in pair:self.domain.setCurrentIndex(domain_index);self.input_tabs[domain_index].setCurrentIndex(pair.index(field));return
     def calculate(self):
         try:
-            x=self.first.read();other=self.second.read();snapshot=self.state.snapshot();parents=[field.reference_id for field in (self.first,self.second) if field.reference_id];product=self.operation=='product'
+            x,register_x=self.first.capture_input()
+            other,register_other=self.second.capture_input()
+            snapshot=self.state.snapshot();product=self.operation=='product'
             title='Multiplicación punto a punto' if product else 'Suma de señales';compute=multiply_signals if product else sum_signals
             def run():
                 value=compute(x,other)
@@ -64,6 +66,7 @@ class SignalProductPanel(QWidget):
                 except (ValueError,MemoryError) as exc:return value,None,'El cálculo está completo; no se pudo preparar la tabla: '+str(exc)
             def accept(pack):
                 value,trace,error=pack
+                parents=[key for key in (register_x(),register_other()) if key is not None]
                 self.result=value;key=self.window.publish(value,operation=title,parents=parents);self.output.show_result(value);self.output.result_ids=[key]
                 symbol='n' if value.domain=='discrete' else 't';left='y[n]' if symbol=='n' else 'y(t)';a='x[n]' if symbol=='n' else 'x(t)';b=('w[n]' if symbol=='n' else 'w(t)') if product else ('v[n]' if symbol=='n' else 'v(t)');relation=left+' = '+a+('*' if product else '+')+b
                 summary=signal_summary(value,title);summary.sections.insert(0,Section('Producto' if product else 'Suma',paragraphs=[value.metadata['scope']],formulas=[Formula(relation,relation)]));self.report.set_readable(summary);self.state.accept(snapshot);self.alignment.set_trace(trace,error)
