@@ -15,7 +15,9 @@ Enviá una [propuesta](https://github.com/Tincho1286/SignalLab-PC/issues/new?tem
 
 ## Preparar un cambio de código
 
-1. Configurá el entorno con la [guía de desarrollo](docs/development/README.md) y trabajá en una rama.
+`main` reúne el código de la versión estable. Las correcciones y mejoras se integran en `develop`. Los cambios pasan a `main` cuando se aprueba su promoción después de comprobarlos en Windows y Linux.
+
+1. Partí de `develop` y configurá el entorno con la [guía de desarrollo](docs/development/README.md).
 2. Respetá las [convenciones matemáticas](docs/conventions.md) y conservá las condiciones junto con el resultado. Para una corrección de cálculo, incluí un caso que reproduzca el error y cubra la regla que se modificó.
 3. Si cambia el uso o el significado de un resultado, actualizá la ayuda y la guía correspondiente.
 4. En el pull request, describí el efecto en la aplicación y las comprobaciones que ejecutaste.

@@ -45,4 +45,8 @@ Las muestras se guardan como complejos de doble precisión. Al exportarlas se co
 
 La DFT de un registro conserva energía por Parseval con factor `1/N` del lado espectral. Densidad espectral de potencia y densidad de energía representan cantidades diferentes. Las unidades del eje deben acompañar el resultado para interpretar una densidad integrada. Una salida numérica finita no demuestra por sí sola una propiedad sobre todo el eje.
 
+El informe de densidad de energía integra sólo el intervalo mostrado mediante trapecios y divide por `2π`. Si recibe todos los bins de una DFT, informa además la suma de Parseval sobre el período completo. La escala de trabajo de las sumas preserva resultados representables cuando el cuadrado de la amplitud o una suma intermedia sola excede float64.
+
+En la cuantización uniforme de `sampling`, los `2^b` niveles incluyen los extremos efectivos. El redondeo elige el nivel representable más cercano y en un empate elige el superior. El método de nivel inferior elige el mayor valor que no supera la muestra recortada. El error es `xq−x` y el SNR usa la energía de las filas seleccionadas, con ambos extremos incluidos. El formato fijo Q firmado tiene su propia regla de empate alejándose de cero.
+
 Una respuesta racional de Laplace o Z se lee como transformada de Fourier cuando su ROC contiene el eje imaginario o el círculo unitario correspondiente. La estabilidad interna de una realización se verifica sobre sus modos. La estabilidad BIBO corresponde a la transferencia y a su ROC. Conservar las condiciones simbólicas evita tratar singularidades o valores excluidos como puntos válidos por redondeo.

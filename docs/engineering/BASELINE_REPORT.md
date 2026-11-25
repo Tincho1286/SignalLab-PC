@@ -9,7 +9,7 @@ La Fase 01 se apoya en revisiones identificables y pruebas con el perfil Qt offs
 | Primera estable 2.0.0 | `adfad5c093a236b0565f00f5e97845acf040ec96` | Jobs nativos de distribución e instaladores en ambos sistemas y manifiesto firmado. Versiones reales CPython 3.12.10 y Qt 6.10.0. [Ejecución de la estable](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45534937561) |
 | Candidato de estabilización | `1aac7930c503fee33acf6ac65a611ab7822fd2ff` | Referencia limpia de código, pruebas y herramientas. Qt Essentials 6.12.0 y CPython 3.12.10. [Matriz Windows/Linux](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45544630297) |
 
-## Reproducción
+## Reproducción de la referencia inicial
 
 Usar un checkout limpio del SHA del candidato. Los jobs de referencia usan Windows Server 2022 y Ubuntu 22.04 x86-64. Instalar GL y el runtime gráfico offscreen en Linux como declara el workflow. Python 3.12.10 en ambos sistemas.
 
@@ -45,6 +45,24 @@ Una corrida posterior sobre `e6d0ebc` completó 797 pruebas y 150 casos preventi
 
 Los dos jobs verificaron el SHA antes y después de ejecutar la suite. Las huellas de código, pruebas y herramientas coincidieron. Una ejecución local de Windows sobre el mismo código pasó 797 pruebas y 150 casos preventivos sin instrumentación. La excepción nativa inicial no reapareció en la matriz final. [Evidencias de la referencia](evidence/final-matrix-1aac793.json) · [Matriz de validación](VALIDATION_MATRIX.md)
 
-## Dictamen
+## Dictamen de la primera referencia
 
 **NO-GO para iniciar Engineering Core.** La referencia matemática, de sesiones y de portables de prueba está verificada en ambos sistemas. Sigue abierto el mantenimiento de seguridad del runtime, la cobertura está por debajo de los objetivos globales y por motor, y falta ampliar las pruebas de compatibilidad y de recursos. El piloto DFT queda documentado para revisión y la Fase 02 requiere autorización específica. [Estado del proyecto](PROJECT_STATE.md) · [Seguridad](SECURITY_BASELINE.md) · [ADR 001](ADR-001-DFT-PILOT.md)
+
+## Segunda referencia de la Fase 01
+
+La referencia de `develop` es `ccb6a861aa836c5ddd455306a9e6ec7177881a82`. Fija CPython 3.14.10 para el desarrollo, la matriz y la construcción. Para repetir los comandos de la referencia inicial se usa la versión de `.python-version` del SHA que se está midiendo. Las dependencias del lock se instalan por wheel, con validación de `pip check`. El diagnóstico comprueba el CPython real del portable y registra los runtimes de TLS y XML. [Matriz de GitHub Actions](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45613503980)
+
+Se agregaron 17 pruebas matemáticas independientes a la suite integral y al gate de matemática. Cubren alias firmado y borde de Nyquist, fase inicial, reloj y reconstrucción, conversión racional, cuantización y punto fijo, series continuas, impulsos, CTFT inversa, PSD por Welch y energía en frecuencia. Detectaron dos defectos reproducibles. El cuantizador podía elegir el nivel superior para una muestra inmediatamente inferior al punto medio, incluida la pérdida de precisión con extremos muy dispares. La integración de energía podía desbordar en el cuadrado o en la suma antes de aplicar su factor de escala. Ambas correcciones conservan los oráculos en `tests/test_math_sampling_fourier.py`. El gate local Windows de la primera actualización a 3.14 pasó 314 pruebas y el barrido de 150 casos. La matriz de `develop` cubre también la comparación compensada de puntos medios.
+
+| Control en `ccb6a86` | Windows Server 2022 x64 | Ubuntu 22.04 x86-64 |
+| --- | ---: | ---: |
+| Guarda estática | 375 archivos aprobados | 375 archivos aprobados |
+| Suite integral | 814/814 | 814/814 |
+| Casos preventivos con dos semillas | 150/150 | 150/150 |
+| Diagnóstico del portable descartable | 13/13 | 13/13 |
+| CPython del ejecutable | 3.14.10 | 3.14.10 |
+| Cobertura de líneas de Muestreo | 92,11 % | 92,11 % |
+| Cobertura de líneas de Fourier | 91,44 % | 91,44 % |
+
+Las huellas de fuente, pruebas y herramientas coincidieron entre los dos sistemas. En Windows también se verificó que el script de desarrollo migre un entorno 3.12 a 3.14, conserve un respaldo utilizable y deje las dependencias instaladas sin conflictos. `main` contiene la versión estable 2.0.0. El candidato y sus verificaciones quedan en `develop`. [Evidencia del candidato](evidence/cpython-31410-ccb6a86.json) · [Cobertura](COVERAGE_REPORT.md)

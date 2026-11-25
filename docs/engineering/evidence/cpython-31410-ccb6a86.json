@@ -1,0 +1,740 @@
+{
+  "reference_commit": "ccb6a861aa836c5ddd455306a9e6ec7177881a82",
+  "action_run": 45613503980,
+  "branch": "develop",
+  "windows_runtime_vendor_package": {
+    "file": "python.3.14.10.nupkg",
+    "sha256": "f54ba67c9951c3d773ea47d2bb095150c037c399f0423a968bcda22809241784",
+    "python_exe_authenticode": "Valid",
+    "publisher": "Python Software Foundation",
+    "setup_migration_preserved_legacy_venv": "3.12.10"
+  },
+  "platforms": [
+    {
+      "baseline": {
+        "commit": "ccb6a861aa836c5ddd455306a9e6ec7177881a82",
+        "commit_after": "ccb6a861aa836c5ddd455306a9e6ec7177881a82",
+        "coverage": {
+          "modules": {
+            "filters.py": {
+              "covered_branches": 122,
+              "covered_lines": 297,
+              "excluded_lines": 0,
+              "missing_branches": 60,
+              "missing_lines": 40,
+              "num_branches": 182,
+              "num_partial_branches": 52,
+              "num_statements": 337,
+              "percent_branches_covered": 67.03296703296704,
+              "percent_branches_covered_display": "67.03",
+              "percent_covered": 80.73217726396918,
+              "percent_covered_display": "80.73",
+              "percent_statements_covered": 88.13056379821958,
+              "percent_statements_covered_display": "88.13"
+            },
+            "fourier.py": {
+              "covered_branches": 51,
+              "covered_lines": 235,
+              "excluded_lines": 0,
+              "missing_branches": 33,
+              "missing_lines": 22,
+              "num_branches": 84,
+              "num_partial_branches": 33,
+              "num_statements": 257,
+              "percent_branches_covered": 60.714285714285715,
+              "percent_branches_covered_display": "60.71",
+              "percent_covered": 83.87096774193549,
+              "percent_covered_display": "83.87",
+              "percent_statements_covered": 91.43968871595331,
+              "percent_statements_covered_display": "91.44"
+            },
+            "model.py": {
+              "covered_branches": 25,
+              "covered_lines": 67,
+              "excluded_lines": 0,
+              "missing_branches": 7,
+              "missing_lines": 8,
+              "num_branches": 32,
+              "num_partial_branches": 7,
+              "num_statements": 75,
+              "percent_branches_covered": 78.125,
+              "percent_branches_covered_display": "78.12",
+              "percent_covered": 85.98130841121495,
+              "percent_covered_display": "85.98",
+              "percent_statements_covered": 89.33333333333333,
+              "percent_statements_covered_display": "89.33"
+            },
+            "sampling.py": {
+              "covered_branches": 98,
+              "covered_lines": 280,
+              "excluded_lines": 0,
+              "missing_branches": 32,
+              "missing_lines": 24,
+              "num_branches": 130,
+              "num_partial_branches": 32,
+              "num_statements": 304,
+              "percent_branches_covered": 75.38461538461539,
+              "percent_branches_covered_display": "75.38",
+              "percent_covered": 87.09677419354838,
+              "percent_covered_display": "87.10",
+              "percent_statements_covered": 92.10526315789474,
+              "percent_statements_covered_display": "92.11"
+            },
+            "session.py": {
+              "covered_branches": 6,
+              "covered_lines": 20,
+              "excluded_lines": 0,
+              "missing_branches": 4,
+              "missing_lines": 4,
+              "num_branches": 10,
+              "num_partial_branches": 4,
+              "num_statements": 24,
+              "percent_branches_covered": 60.0,
+              "percent_branches_covered_display": "60.00",
+              "percent_covered": 76.47058823529412,
+              "percent_covered_display": "76.47",
+              "percent_statements_covered": 83.33333333333333,
+              "percent_statements_covered_display": "83.33"
+            },
+            "symbolic_process.py": {
+              "covered_branches": 16,
+              "covered_lines": 63,
+              "excluded_lines": 0,
+              "missing_branches": 6,
+              "missing_lines": 15,
+              "num_branches": 22,
+              "num_partial_branches": 6,
+              "num_statements": 78,
+              "percent_branches_covered": 72.72727272727273,
+              "percent_branches_covered_display": "72.73",
+              "percent_covered": 79.0,
+              "percent_covered_display": "79.00",
+              "percent_statements_covered": 80.76923076923077,
+              "percent_statements_covered_display": "80.77"
+            }
+          },
+          "total": {
+            "covered_branches": 10075,
+            "covered_lines": 31763,
+            "excluded_lines": 0,
+            "missing_branches": 5833,
+            "missing_lines": 9217,
+            "num_branches": 15908,
+            "num_partial_branches": 2893,
+            "num_statements": 40980,
+            "percent_branches_covered": 63.332914256977624,
+            "percent_branches_covered_display": "63.33",
+            "percent_covered": 73.54450850794544,
+            "percent_covered_display": "73.54",
+            "percent_statements_covered": 77.50854075158614,
+            "percent_statements_covered_display": "77.51"
+          }
+        },
+        "coverage_parts": {
+          "data_files_before_combine": 124,
+          "data_files_executing_symbolic_worker": 122
+        },
+        "coverage_version": "7.17.5",
+        "machine": "x86_64",
+        "os": "Linux-6.8.0-1070-azure-x86_64-with-glibc2.35",
+        "packages": {
+          "PySide6_Essentials": "6.12.0",
+          "altgraph": "0.17.5",
+          "cffi": "2.1.1",
+          "contourpy": "1.4.0",
+          "coverage": "7.17.5",
+          "cryptography": "50.0.2",
+          "cycler": "0.12.1",
+          "fonttools": "4.67.0",
+          "h5py": "3.16.0",
+          "kiwisolver": "1.5.1",
+          "matplotlib": "3.11.2",
+          "mpmath": "1.3.0",
+          "numpy": "2.5.0",
+          "packaging": "26.3",
+          "pillow": "13.0.0",
+          "pip": "26.3",
+          "pycparser": "3.12",
+          "pyflakes": "3.4.0",
+          "pyinstaller": "6.22.3",
+          "pyinstaller-hooks-contrib": "2026.9",
+          "pyparsing": "3.3.3",
+          "python-dateutil": "2.9.0.post0",
+          "scipy": "1.18.0",
+          "setuptools": "84.2.1",
+          "shiboken6": "6.12.0",
+          "six": "1.17.0",
+          "sympy": "1.14.0"
+        },
+        "passed": true,
+        "profile": "Qt offscreen, BLAS/OMP 1 thread",
+        "python": "3.14.10",
+        "stages": {
+          "coverage_combine": 0,
+          "coverage_json": 0,
+          "integral": 0,
+          "static": 0
+        }
+      },
+      "suite": {
+        "tests": 814,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": true,
+        "preventive": {
+          "passed": true,
+          "completed_cases": 150,
+          "failed_cases": 0,
+          "seeds": [
+            20261103,
+            1281293507
+          ]
+        },
+        "families": {
+          "transforms": {
+            "tests": 74,
+            "minimum": 73,
+            "passed": true
+          },
+          "transform_properties": {
+            "tests": 20,
+            "minimum": 18,
+            "passed": true
+          },
+          "preventive_regressions": {
+            "tests": 28,
+            "minimum": 28,
+            "passed": true
+          },
+          "health_exchange": {
+            "tests": 36,
+            "minimum": 20,
+            "passed": true
+          },
+          "expression_systems": {
+            "tests": 8,
+            "minimum": 8,
+            "passed": true
+          },
+          "scalar_input": {
+            "tests": 7,
+            "minimum": 7,
+            "passed": true
+          },
+          "systems_filters": {
+            "tests": 9,
+            "minimum": 9,
+            "passed": true
+          },
+          "diagram_realizations": {
+            "tests": 11,
+            "minimum": 10,
+            "passed": true
+          },
+          "equations": {
+            "tests": 5,
+            "minimum": 5,
+            "passed": true
+          },
+          "fourier_measures": {
+            "tests": 8,
+            "minimum": 5,
+            "passed": true
+          },
+          "symbolic_fourier": {
+            "tests": 22,
+            "minimum": 22,
+            "passed": true
+          },
+          "global_energy_power": {
+            "tests": 24,
+            "minimum": 23,
+            "passed": true
+          },
+          "signals_windows": {
+            "tests": 5,
+            "minimum": 5,
+            "passed": true
+          },
+          "state_space": {
+            "tests": 2,
+            "minimum": 2,
+            "passed": true
+          },
+          "sampling_precision": {
+            "tests": 3,
+            "minimum": 3,
+            "passed": true
+          },
+          "sampling_analytic_references": {
+            "tests": 10,
+            "minimum": 10,
+            "passed": true
+          },
+          "fourier_analytic_references": {
+            "tests": 7,
+            "minimum": 7,
+            "passed": true
+          },
+          "random_signals": {
+            "tests": 1,
+            "minimum": 1,
+            "passed": true
+          },
+          "representable_scales": {
+            "tests": 4,
+            "minimum": 4,
+            "passed": true
+          },
+          "axis_and_sampling_clock": {
+            "tests": 3,
+            "minimum": 3,
+            "passed": true
+          },
+          "clock_reuse_and_sinc_scale": {
+            "tests": 3,
+            "minimum": 3,
+            "passed": true
+          },
+          "sample_coordinates_and_reindexing": {
+            "tests": 8,
+            "minimum": 8,
+            "passed": true
+          },
+          "independent_algebra_references": {
+            "tests": 5,
+            "minimum": 5,
+            "passed": true
+          },
+          "algebra_support_and_boundaries": {
+            "tests": 11,
+            "minimum": 11,
+            "passed": true
+          }
+        },
+        "workflows": {
+          "tests": 58,
+          "passed": true
+        },
+        "source_snapshot": {
+          "mathematics": "4c5efcc31ccee5fbfc5b7b21253683ce6a94a03155a243c4f7e2145a3f75209b",
+          "application": "7fea1e895d1def4bb94e95dd51d554d8d8ef1016b4f2ff98a86b42668a3aa062",
+          "tests_and_tools": "d41367d4105163050aa7c1697c5735dbaa366c9e7203b9f6ebea91110b77145f"
+        },
+        "seconds": 1039.26
+      },
+      "package": {
+        "executable_check": {
+          "frozen": true,
+          "migration_complete": false,
+          "checks": {
+            "fft_roundtrip": true,
+            "lti_recurrence": true,
+            "bilinear": true,
+            "symbolic_runtime": true,
+            "packaged_update_verification": true,
+            "state_space_simulation_and_project": true,
+            "digital_delay_transfer_roundtrip": true,
+            "toolbox_menu_and_matplotlib": true,
+            "sampling_plot_and_report_layout": true,
+            "project_picker_search_and_selection": true,
+            "formatted_report_preserves_text": true,
+            "packaged_symbolic_measures_and_window": true,
+            "expression_measure_menu": true
+          },
+          "runtime": {
+            "python": "3.14.10",
+            "openssl": "OpenSSL 3.0.2 15 Mar 2022",
+            "expat": "expat_2.9.0"
+          },
+          "versions": {
+            "numpy": "2.5.0",
+            "scipy": "1.18.0",
+            "sympy": "1.14.0",
+            "matplotlib": "3.11.2"
+          },
+          "ok": true
+        },
+        "runtime": {
+          "qt": {
+            "file": "PySide6/Qt/lib/libQt6Core.so.6",
+            "version": "6.12.0"
+          },
+          "qt_svg": {
+            "file": "PySide6/Qt/lib/libQt6Svg.so.6"
+          },
+          "python": {
+            "file": "libpython3.14.so.1.0",
+            "version": "3.14.10"
+          }
+        },
+        "sha256": "3e9fc86e479b33f73de996b48183117936e9bccf750778d9af3aae1afef4ba84"
+      }
+    },
+    {
+      "baseline": {
+        "commit": "ccb6a861aa836c5ddd455306a9e6ec7177881a82",
+        "commit_after": "ccb6a861aa836c5ddd455306a9e6ec7177881a82",
+        "coverage": {
+          "modules": {
+            "filters.py": {
+              "covered_branches": 122,
+              "covered_lines": 297,
+              "excluded_lines": 0,
+              "missing_branches": 60,
+              "missing_lines": 40,
+              "num_branches": 182,
+              "num_partial_branches": 52,
+              "num_statements": 337,
+              "percent_branches_covered": 67.03296703296704,
+              "percent_branches_covered_display": "67.03",
+              "percent_covered": 80.73217726396918,
+              "percent_covered_display": "80.73",
+              "percent_statements_covered": 88.13056379821958,
+              "percent_statements_covered_display": "88.13"
+            },
+            "fourier.py": {
+              "covered_branches": 51,
+              "covered_lines": 235,
+              "excluded_lines": 0,
+              "missing_branches": 33,
+              "missing_lines": 22,
+              "num_branches": 84,
+              "num_partial_branches": 33,
+              "num_statements": 257,
+              "percent_branches_covered": 60.714285714285715,
+              "percent_branches_covered_display": "60.71",
+              "percent_covered": 83.87096774193549,
+              "percent_covered_display": "83.87",
+              "percent_statements_covered": 91.43968871595331,
+              "percent_statements_covered_display": "91.44"
+            },
+            "model.py": {
+              "covered_branches": 25,
+              "covered_lines": 67,
+              "excluded_lines": 0,
+              "missing_branches": 7,
+              "missing_lines": 8,
+              "num_branches": 32,
+              "num_partial_branches": 7,
+              "num_statements": 75,
+              "percent_branches_covered": 78.125,
+              "percent_branches_covered_display": "78.12",
+              "percent_covered": 85.98130841121495,
+              "percent_covered_display": "85.98",
+              "percent_statements_covered": 89.33333333333333,
+              "percent_statements_covered_display": "89.33"
+            },
+            "sampling.py": {
+              "covered_branches": 98,
+              "covered_lines": 280,
+              "excluded_lines": 0,
+              "missing_branches": 32,
+              "missing_lines": 24,
+              "num_branches": 130,
+              "num_partial_branches": 32,
+              "num_statements": 304,
+              "percent_branches_covered": 75.38461538461539,
+              "percent_branches_covered_display": "75.38",
+              "percent_covered": 87.09677419354838,
+              "percent_covered_display": "87.10",
+              "percent_statements_covered": 92.10526315789474,
+              "percent_statements_covered_display": "92.11"
+            },
+            "session.py": {
+              "covered_branches": 6,
+              "covered_lines": 20,
+              "excluded_lines": 0,
+              "missing_branches": 4,
+              "missing_lines": 4,
+              "num_branches": 10,
+              "num_partial_branches": 4,
+              "num_statements": 24,
+              "percent_branches_covered": 60.0,
+              "percent_branches_covered_display": "60.00",
+              "percent_covered": 76.47058823529412,
+              "percent_covered_display": "76.47",
+              "percent_statements_covered": 83.33333333333333,
+              "percent_statements_covered_display": "83.33"
+            },
+            "symbolic_process.py": {
+              "covered_branches": 16,
+              "covered_lines": 63,
+              "excluded_lines": 0,
+              "missing_branches": 6,
+              "missing_lines": 15,
+              "num_branches": 22,
+              "num_partial_branches": 6,
+              "num_statements": 78,
+              "percent_branches_covered": 72.72727272727273,
+              "percent_branches_covered_display": "72.73",
+              "percent_covered": 79.0,
+              "percent_covered_display": "79.00",
+              "percent_statements_covered": 80.76923076923077,
+              "percent_statements_covered_display": "80.77"
+            }
+          },
+          "total": {
+            "covered_branches": 10078,
+            "covered_lines": 31773,
+            "excluded_lines": 0,
+            "missing_branches": 5830,
+            "missing_lines": 9207,
+            "num_branches": 15908,
+            "num_partial_branches": 2894,
+            "num_statements": 40980,
+            "percent_branches_covered": 63.35177269298466,
+            "percent_branches_covered_display": "63.35",
+            "percent_covered": 73.56736042750669,
+            "percent_covered_display": "73.57",
+            "percent_statements_covered": 77.53294289897511,
+            "percent_statements_covered_display": "77.53"
+          }
+        },
+        "coverage_parts": {
+          "data_files_before_combine": 124,
+          "data_files_executing_symbolic_worker": 122
+        },
+        "coverage_version": "7.17.5",
+        "machine": "AMD64",
+        "os": "Windows-2022Server-10.0.20348-SP0",
+        "packages": {
+          "PySide6_Essentials": "6.12.0",
+          "altgraph": "0.17.5",
+          "cffi": "2.1.1",
+          "contourpy": "1.4.0",
+          "coverage": "7.17.5",
+          "cryptography": "50.0.2",
+          "cycler": "0.12.1",
+          "fonttools": "4.67.0",
+          "h5py": "3.16.0",
+          "kiwisolver": "1.5.1",
+          "matplotlib": "3.11.2",
+          "mpmath": "1.3.0",
+          "numpy": "2.5.0",
+          "packaging": "26.3",
+          "pefile": "2024.8.26",
+          "pillow": "13.0.0",
+          "pip": "26.3",
+          "pycparser": "3.12",
+          "pyflakes": "3.4.0",
+          "pyinstaller": "6.22.3",
+          "pyinstaller-hooks-contrib": "2026.9",
+          "pyparsing": "3.3.3",
+          "python-dateutil": "2.9.0.post0",
+          "pywin32-ctypes": "0.2.3",
+          "scipy": "1.18.0",
+          "setuptools": "84.2.1",
+          "shiboken6": "6.12.0",
+          "six": "1.17.0",
+          "sympy": "1.14.0"
+        },
+        "passed": true,
+        "profile": "Qt offscreen, BLAS/OMP 1 thread",
+        "python": "3.14.10",
+        "stages": {
+          "coverage_combine": 0,
+          "coverage_json": 0,
+          "integral": 0,
+          "static": 0
+        }
+      },
+      "suite": {
+        "tests": 814,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": true,
+        "preventive": {
+          "passed": true,
+          "completed_cases": 150,
+          "failed_cases": 0,
+          "seeds": [
+            20261103,
+            1281293507
+          ]
+        },
+        "families": {
+          "transforms": {
+            "tests": 74,
+            "minimum": 73,
+            "passed": true
+          },
+          "transform_properties": {
+            "tests": 20,
+            "minimum": 18,
+            "passed": true
+          },
+          "preventive_regressions": {
+            "tests": 28,
+            "minimum": 28,
+            "passed": true
+          },
+          "health_exchange": {
+            "tests": 36,
+            "minimum": 20,
+            "passed": true
+          },
+          "expression_systems": {
+            "tests": 8,
+            "minimum": 8,
+            "passed": true
+          },
+          "scalar_input": {
+            "tests": 7,
+            "minimum": 7,
+            "passed": true
+          },
+          "systems_filters": {
+            "tests": 9,
+            "minimum": 9,
+            "passed": true
+          },
+          "diagram_realizations": {
+            "tests": 11,
+            "minimum": 10,
+            "passed": true
+          },
+          "equations": {
+            "tests": 5,
+            "minimum": 5,
+            "passed": true
+          },
+          "fourier_measures": {
+            "tests": 8,
+            "minimum": 5,
+            "passed": true
+          },
+          "symbolic_fourier": {
+            "tests": 22,
+            "minimum": 22,
+            "passed": true
+          },
+          "global_energy_power": {
+            "tests": 24,
+            "minimum": 23,
+            "passed": true
+          },
+          "signals_windows": {
+            "tests": 5,
+            "minimum": 5,
+            "passed": true
+          },
+          "state_space": {
+            "tests": 2,
+            "minimum": 2,
+            "passed": true
+          },
+          "sampling_precision": {
+            "tests": 3,
+            "minimum": 3,
+            "passed": true
+          },
+          "sampling_analytic_references": {
+            "tests": 10,
+            "minimum": 10,
+            "passed": true
+          },
+          "fourier_analytic_references": {
+            "tests": 7,
+            "minimum": 7,
+            "passed": true
+          },
+          "random_signals": {
+            "tests": 1,
+            "minimum": 1,
+            "passed": true
+          },
+          "representable_scales": {
+            "tests": 4,
+            "minimum": 4,
+            "passed": true
+          },
+          "axis_and_sampling_clock": {
+            "tests": 3,
+            "minimum": 3,
+            "passed": true
+          },
+          "clock_reuse_and_sinc_scale": {
+            "tests": 3,
+            "minimum": 3,
+            "passed": true
+          },
+          "sample_coordinates_and_reindexing": {
+            "tests": 8,
+            "minimum": 8,
+            "passed": true
+          },
+          "independent_algebra_references": {
+            "tests": 5,
+            "minimum": 5,
+            "passed": true
+          },
+          "algebra_support_and_boundaries": {
+            "tests": 11,
+            "minimum": 11,
+            "passed": true
+          }
+        },
+        "workflows": {
+          "tests": 58,
+          "passed": true
+        },
+        "source_snapshot": {
+          "mathematics": "4c5efcc31ccee5fbfc5b7b21253683ce6a94a03155a243c4f7e2145a3f75209b",
+          "application": "7fea1e895d1def4bb94e95dd51d554d8d8ef1016b4f2ff98a86b42668a3aa062",
+          "tests_and_tools": "d41367d4105163050aa7c1697c5735dbaa366c9e7203b9f6ebea91110b77145f"
+        },
+        "seconds": 1179.664
+      },
+      "package": {
+        "executable_check": {
+          "frozen": true,
+          "migration_complete": false,
+          "checks": {
+            "fft_roundtrip": true,
+            "lti_recurrence": true,
+            "bilinear": true,
+            "symbolic_runtime": true,
+            "packaged_update_verification": true,
+            "state_space_simulation_and_project": true,
+            "digital_delay_transfer_roundtrip": true,
+            "toolbox_menu_and_matplotlib": true,
+            "sampling_plot_and_report_layout": true,
+            "project_picker_search_and_selection": true,
+            "formatted_report_preserves_text": true,
+            "packaged_symbolic_measures_and_window": true,
+            "expression_measure_menu": true
+          },
+          "runtime": {
+            "python": "3.14.10",
+            "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+            "expat": "expat_2.9.0"
+          },
+          "versions": {
+            "numpy": "2.5.0",
+            "scipy": "1.18.0",
+            "sympy": "1.14.0",
+            "matplotlib": "3.11.2"
+          },
+          "ok": true
+        },
+        "runtime": {
+          "qt": {
+            "file": "PySide6\\Qt6Core.dll",
+            "version": "6.12.0"
+          },
+          "qt_svg": {
+            "file": "PySide6\\Qt6Svg.dll"
+          },
+          "python": {
+            "file": "python314.dll",
+            "version": "3.14.10"
+          }
+        },
+        "sha256": "defa1ae6337e0ccd3b49631d5335bdf6a7c0ba2e3b7608e8e8d4a2f4df527377"
+      }
+    }
+  ]
+}

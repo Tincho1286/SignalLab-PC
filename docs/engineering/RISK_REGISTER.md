@@ -23,13 +23,13 @@
 | --- | --- |
 | R01 · Manejo de error de filtros | Corregido y verificado en 2.0.0. La guarda del candidato vuelve a pasar. |
 | R02 · Qt SVG | Mitigado parcialmente en la publicación. La rama actualiza de Qt 6.10.0 a 6.12.0. Los resultados por plataforma y el resto de los avisos tienen seguimiento propio. |
-| R03 · CPython y bibliotecas nativas | Runtimes principales verificados en ambos portables. Continúan pendientes CPython parcheado, inventario nativo transitivo y análisis completo de exposición. |
+| R03 · CPython y bibliotecas nativas | CPython 3.14.10 y Expat 2.9.0 verificados en los dos portables descartables de `develop`. Continúan pendientes la revisión de OpenSSL del paquete Linux, el inventario nativo transitivo y el análisis completo de exposición. |
 | R04 · Fase DFT/DTFT | Corregido y verificado con oráculos, round trips y sesiones de tres escritores históricos. |
 | R05 · Canal y procedencia | Verificado para la estable 2.0.0. Mantener la verificación integrada en toda futura distribución. |
 | R06 · Acoplamiento | Verificado con el grafo del candidato. El componente mayor se conserva y el ADR delimita un futuro piloto. |
 | R07 · Tamaños y cancelación | Mitigado parcialmente con presupuesto previo para scripts MATLAB. Quedan plazos y estrés por entorno. |
 | R08 · Sesiones | Verificado para DFT de los tres esquemas con restauración y guardado. Pendiente ampliar representatividad y compatibilidad de proyectos heredados. |
-| R09 · Evidencia de pruebas | Medición de línea y rama verificada en ambos sistemas. Cobertura por debajo de los objetivos orientativos. Pendiente verificar UI con pantallas y DPI reales. |
+| R09 · Evidencia de pruebas | Medición de línea y rama verificada en ambos sistemas. Muestreo y Fourier superan el objetivo de líneas. Siguen abiertos el objetivo global y la verificación de UI con pantallas y DPI reales. |
 | R10 · Dependencias de instalación | Los archivos de requisitos coinciden para Qt Essentials. Falta consolidar el alcance de los perfiles de instalación y verificar hashes de cada wheel. |
 
 La [línea base de seguridad](SECURITY_BASELINE.md) y la [matriz](VALIDATION_MATRIX.md) distinguen mitigaciones vigentes y correcciones del candidato. R11 y R12 siguen abiertos como condiciones futuras.

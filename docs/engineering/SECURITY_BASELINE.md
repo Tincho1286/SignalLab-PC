@@ -40,7 +40,20 @@ La [consulta OSV](evidence/pypi-osv.json) reportó cero coincidencias para 30 co
 
 El Qt 6.12.1 ya tiene una publicación oficial de Qt. Al hacer la revisión, PyPI aún no ofrecía sus ruedas de Essentials, Addons y shiboken6. Se usó 6.12.0, con ruedas Windows x64 y Linux x86-64 glibc 2.34+, y quedan por revisar avisos posteriores al parche que afectan módulos presentes. [Qt 6.12.1](https://www.qt.io/blog/qt-6.12.1-released) · [Ruedas PySide6 Essentials](https://pypi.org/project/PySide6-Essentials/6.12.0/)
 
-**CPython pendiente.** `setup-python` lista 3.12.16 para Ubuntu 22.04 x64. La edición 3.12.16 de CPython sólo publica fuentes y no estuvo disponible en el canal NuGet Windows que usa SignalLab. La línea base comparativa fija 3.12.10 para ambos sistemas. Antes de una entrega nueva hay que validar Linux 3.12.16 y elegir para Windows entre construir y verificar CPython desde fuentes o migrar a una serie compatible con binarios corregidos. [Manifiesto de GitHub Actions](https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json) · [Publicación de CPython](https://www.python.org/downloads/release/python-31216/)
+### Actualización del candidato a CPython 3.14.10
+
+La primera línea base de Fase 01 usó 3.12.10. La serie 3.12 publica sus parches como fuentes, y el paquete 3.12.16 del canal NuGet Windows no está disponible. Se eligió 3.14.10 porque GitHub Actions ofrece compilaciones x64 para Windows y Ubuntu 22.04 y existe un paquete oficial para la preparación local de Windows. Se mantiene el lock de dependencias científicas. [Publicación de 3.12.16](https://www.python.org/downloads/release/python-31216/) · [Paquete oficial de Windows](https://www.nuget.org/packages/python/3.14.10) · [Manifiesto de GitHub Actions](https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json)
+
+CPython 3.14.10 incluye las correcciones para CVE-2026-115557 y CVE-2026-114583. La serie actualiza también el Expat incluido a 2.9.0. El diagnóstico del portable registra las versiones cargadas de CPython, OpenSSL y Expat. La auditoría verifica además la biblioteca de CPython contenida en el ejecutable. [Publicación de 3.14.10](https://www.python.org/downloads/release/python-31410/) · [Historial de cambios de CPython](https://docs.python.org/3.14/whatsnew/changelog.html)
+
+Se verificó la firma Authenticode válida de Python Software Foundation para el `python.exe` del paquete NuGet y se fijó el SHA-256 del paquete en `setup_windows.ps1`. La firma pertenece al runtime del proveedor. El trabajo de estabilización usa portables descartables y la publicación 2.0.0 conserva sus runtimes originales. Los avisos posteriores de Qt y los componentes nativos transitivos siguen bajo revisión.
+
+| Portable de prueba en `ccb6a86` | CPython | Expat cargado | OpenSSL de Python cargado |
+| --- | --- | --- | --- |
+| Windows x64 | 3.14.10 | 2.9.0 | 3.5.9 |
+| Linux x86-64 | 3.14.10 | 2.9.0 | 3.0.2 |
+
+Ambos portables pasaron los 13 controles y la inspección del CPython empaquetado. En Linux, la versión base que informa OpenSSL se mantiene en 3.0.2. Aún hay que vincular el binario a la revisión del paquete de Ubuntu y a sus parches. [Evidencia de los ejecutables](evidence/cpython-31410-ccb6a86.json)
 
 ## Recursos y cancelación
 

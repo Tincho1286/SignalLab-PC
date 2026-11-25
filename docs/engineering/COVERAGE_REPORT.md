@@ -43,3 +43,17 @@ En el commit intermedio `e6d0ebc`, ambos sistemas guardaron 124 archivos de cobe
 | Proceso simbólico | 80,77 % | 72,73 % | 80,77 % | 72,73 % |
 
 Cada runner guardó 122 archivos con ejecución del worker simbólico de 124 archivos de cobertura en total. La matriz completó todos los controles. Los objetivos de cobertura global, Sampling y Fourier siguen abiertos. [Evidencias de la referencia](evidence/final-matrix-1aac793.json)
+
+## Referencia de `develop` con CPython 3.14.10
+
+| Módulo | Windows · líneas | Windows · ramas | Ubuntu · líneas | Ubuntu · ramas |
+| --- | ---: | ---: | ---: | ---: |
+| Aplicación | 31.773/40.980 · 77,53 % | 10.078/15.908 · 63,35 % | 31.763/40.980 · 77,51 % | 10.075/15.908 · 63,33 % |
+| Muestreo | 280/304 · 92,11 % | 98/130 · 75,38 % | 280/304 · 92,11 % | 98/130 · 75,38 % |
+| Fourier | 235/257 · 91,44 % | 51/84 · 60,71 % | 235/257 · 91,44 % | 51/84 · 60,71 % |
+| Filters | 88,13 % | 67,03 % | 88,13 % | 67,03 % |
+| Signal Model | 89,33 % | 78,12 % | 89,33 % | 78,12 % |
+| Session | 83,33 % | 60,00 % | 83,33 % | 60,00 % |
+| Proceso simbólico | 80,77 % | 72,73 % | 80,77 % | 72,73 % |
+
+Muestreo y Fourier alcanzaron el 90 % orientativo de líneas con nuevas referencias independientes. La cobertura global sigue por debajo del 85 % orientativo. La actualización del intérprete y los cambios de código alteraron los denominadores de la medición. Cada runner guardó 122 archivos con ejecución del worker simbólico. [Evidencias de `ccb6a86`](evidence/cpython-31410-ccb6a86.json)

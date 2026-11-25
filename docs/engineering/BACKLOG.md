@@ -18,10 +18,10 @@ Prioridades de Fase 01 y condiciones de continuidad. El estado de los controles 
 ### Seguimiento de Fase 01
 
 - E01 se corrigió en la primera estable y la guarda estática del candidato pasa con 375 archivos.
-- E02 verificó los runtimes publicados y añadió una actualización de Qt al candidato. Continúan abiertos el runtime CPython y el inventario de versiones transitivas.
+- E02 verificó los runtimes publicados. El candidato de `develop` incorpora Qt 6.12.0 y CPython 3.14.10 verificados en los portables de prueba. Continúan abiertos el inventario de versiones transitivas y la revisión de OpenSSL del paquete Linux.
 - E03 se verificó para la distribución 2.0.0. El candidato se valida como rama de trabajo.
 - E04 incorpora la convención explícita, comparaciones analíticas y round trips con las versiones históricas.
-- E05 conserva el perfil offscreen en ambos sistemas e instrumenta líneas, ramas y el worker simbólico. La validación interactiva con distintas pantallas permanece abierta.
+- E05 conserva el perfil offscreen en ambos sistemas e instrumenta líneas, ramas y el worker simbólico. Las nuevas pruebas alcanzan el objetivo de líneas de Muestreo y Fourier. La cobertura global y la validación interactiva con distintas pantallas siguen abiertas.
 - E06 agrega tres fixtures históricos de sesión. Ampliar la muestra a proyectos antiguos, diagramas, ROC y hojas CAS.
 - E07 cubre el presupuesto previo a leer un script MATLAB. Quedan perfiles de estrés y política común de plazos y recursos del cálculo simbólico.
 - E08 adopta las ruedas Qt Essentials de versión fija que contienen los módulos utilizados. Contrastar bibliotecas nativas empaquetadas y dependencias de sistema.

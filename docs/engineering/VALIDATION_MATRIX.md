@@ -9,10 +9,11 @@
 | WP-02 · Estudio de ventanas | Inversión de ambos formatos de salida para N=5 y N=6, con ceros agregados | Corregido y verificado en Windows/Linux. |
 | WP-03 · Inventario de portables 2.0.0 | CArchive y SHA-256 reales para Windows y Linux, correlación con CPython y Qt | Verificado para los dos runtimes. Versiones de demás DLL/SO pendientes. |
 | WP-03 · Qt SVG | Códec acotado en 2.0.0 y migración Qt candidata. Portables descartables de Windows y Linux | Mitigado parcialmente en 2.0.0. Versión corregida para este aviso y verificada en los portables candidatos. |
-| WP-03 · CPython | Avisos oficiales, consulta NuGet y manifiesto de GitHub Actions | Pendiente en Linux. Bloqueado en el canal NuGet Windows actual. |
+| WP-03 · CPython | Paquete Windows oficial con firma y hash, verificación de la biblioteca incluida y del runtime cargado en ambos binarios | Actualizado y verificado a 3.14.10 en Windows/Linux sobre `ccb6a86`. El paquete Linux conserva la versión base de OpenSSL 3.0.2. |
 | WP-03 · Tamaño de MATLAB | El archivo `.m` se rechaza antes de la lectura si requiere más memoria que la estimada disponible | Corregido y verificado en Windows/Linux. |
 | WP-03 · Plazos y escalas | Cancelación cooperativa y terminación del worker auditadas. Límites y exposición documentados | Mitigado parcialmente. Presupuesto común y perfiles de estrés pendientes. |
-| WP-04 · Líneas y ramas | `coverage.py` sobre suite completa. Datos de proceso y métricas por motor | Medición verificada en ambos sistemas. Los porcentajes quedan por debajo de los objetivos orientativos. |
+| WP-04 · Líneas y ramas | `coverage.py` sobre suite completa. Datos de proceso y métricas por motor | Medición verificada en ambos sistemas. Muestreo y Fourier alcanzan el 90 % orientativo de líneas. El objetivo global sigue abierto. |
+| WP-02/WP-04 · Referencias nuevas | 17 pruebas de Muestreo y Fourier. Incluyen puntos medios de cuantización y energía con escala extrema | Corregido y verificado en Windows/Linux. |
 | WP-05 · Apertura, migración y guardado | Sesiones creadas con los escritores 1.9.3, 1.9.4 y 2.0.0. Resultados, relaciones y relojes comprobados | Verificado en Windows/Linux para esas rutas históricas. |
 | WP-05 · Recuperación y corrupción | Pruebas de escritura interrumpida y rechazo de referencias inválidas | Verificado en Windows/Linux en el perfil offscreen. |
 | WP-06 · Grafo y ADR | AST, componentes cíclicos y evaluación de las representaciones. Un flujo piloto definido | Verificado para el grafo. ADR propuesto. |
