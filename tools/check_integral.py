@@ -38,6 +38,7 @@ def source_snapshot():
 def main(argv=None):
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--list',action='store_true',help='Show test count without executing calculations.')
+    parser.add_argument('--verbose',action='store_true',help='Print each test before it starts.')
     parser.add_argument('--report',type=Path,default=ROOT/'work/integral-checks.json')
     args=parser.parse_args(argv)
     sys.path[:0]=[str(ROOT),str(ROOT/'tools'),str(ROOT/'tests')]
@@ -48,7 +49,7 @@ def main(argv=None):
     suite=unittest.defaultTestLoader.discover(str(ROOT/'tests'));expected=list(identifiers(suite))
     print('Complete test discovery:',len(expected),flush=True)
     if args.list:return 0
-    result=unittest.TextTestRunner(verbosity=1,resultclass=RecordedResult).run(suite)
+    result=unittest.TextTestRunner(verbosity=2 if args.verbose else 1,resultclass=RecordedResult).run(suite)
     families={}
     for name,(prefix,minimum) in FAMILIES.items():
         rows=[row for row in result.records if row['id'].startswith(prefix+'.')]

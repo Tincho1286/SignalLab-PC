@@ -39,7 +39,7 @@ def isolated_integral(output):
         QSettings.setDefaultFormat(QSettings.Format.IniFormat)
         QSettings.setPath(QSettings.Format.IniFormat, QSettings.Scope.UserScope, profile)
         with patch.object(QStandardPaths, 'writableLocation', side_effect=scratch):
-            return main(['--report', str(output/'integral-checks.json')])
+            return main(['--verbose', '--report', str(output/'integral-checks.json')])
 
 
 def run_stage(output, name, env, *arguments):
@@ -75,6 +75,7 @@ def run(output):
     output.mkdir(parents=True, exist_ok=False)
     env = os.environ | {'QT_QPA_PLATFORM': 'offscreen', 'OPENBLAS_NUM_THREADS': '1',
                         'OMP_NUM_THREADS': '1', 'PYTHONDONTWRITEBYTECODE': '1',
+                        'PYTHONFAULTHANDLER': '1',
                         'MPLCONFIGDIR': str(output/'matplotlib'),
                         'COVERAGE_RCFILE': str(ROOT/'tools/engineering.coveragerc'),
                         'COVERAGE_FILE': str(output/'.coverage')}

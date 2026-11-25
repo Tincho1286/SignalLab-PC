@@ -152,7 +152,7 @@ class PracticalUi(unittest.TestCase):
     def test_plot_button_reserves_a_separate_menu_zone_and_opens_the_chosen_figure(self):
         from PySide6.QtWidgets import QWidget,QVBoxLayout,QStyleOptionToolButton,QStyle
         from PySide6.QtCore import Qt,QTimer,QPoint
-        from PySide6.QtTest import QTest
+        from PySide6.QtTest import QSignalSpy,QTest
         from signallab_pc.plot_actions import PlotLauncher
         from signallab_pc.desktop_theme import desktop_style
         host=QWidget();self.widgets.append(host);host.setStyleSheet(desktop_style());layout=QVBoxLayout(host);button=PlotLauncher(host);layout.addWidget(button)
@@ -165,7 +165,9 @@ class PracticalUi(unittest.TestCase):
             QTest.mouseClick(button,Qt.MouseButton.LeftButton,pos=button.rect().topLeft()+QPoint(12,button.height()//2));self.assertEqual(opened.call_count,1)
             opened.reset_mock()
             def select():button.menu.actions()[1].trigger();button.menu.close()
+            selected=QSignalSpy(button.menu.triggered)
             QTimer.singleShot(50,select);QTest.mouseClick(button,Qt.MouseButton.LeftButton,pos=menu.center())
+            if not selected.count():self.assertTrue(selected.wait(1500))
             self.assertEqual(opened.call_count,1);self.assertIs(opened.call_args.args[0][0](),canvases[1])
 
     def test_checkbox_indicator_distinguishes_states_in_dark_and_light_themes(self):
