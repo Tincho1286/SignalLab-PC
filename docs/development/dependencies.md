@@ -2,7 +2,7 @@
 
 [← Desarrollo](README.md)
 
-El entorno de desarrollo y construcción utiliza Python 3.12 de 64 bits. Las versiones directas se declaran en `pyproject.toml`; `requirements-lock.txt` fija las dependencias del entorno de distribución y `requirements-quality.txt` las herramientas de comprobación. Los instaladores y portables incluyen su propio entorno de ejecución.
+El entorno de desarrollo y construcción utiliza el CPython de 64 bits fijado en [`.python-version`](../../.python-version). `pyproject.toml` declara la compatibilidad de la aplicación. `requirements-lock.txt` fija las dependencias del entorno de distribución y `requirements-quality.txt` las herramientas de comprobación. Los instaladores y portables incluyen su propio entorno de ejecución.
 
 | Componente | Función en el proyecto |
 | --- | --- |

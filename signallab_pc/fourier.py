@@ -9,7 +9,7 @@ from .operations import _discrete, _finite_output
 from .resources import ensure_working_set
 from .sampling import positive_integer, positive_finite
 from .jobs import checkpoint
-from .spectral_scaling import bounded, restore_scale
+from .spectral_scaling import bounded, restore_scalar, restore_scale
 
 
 def grid(start, stop, count):
@@ -290,8 +290,9 @@ def energy_report(spectrum, source=None, density=None):
     if density is None:density=energy_density(spectrum)
     if density.step<=0:raise ValueError('La integración requiere un eje creciente con paso positivo.')
     count=density.values.size;start=density.origin;stop=start+(count-1)*density.step
-    power=density.values.real
-    area=float(np.trapezoid(power,dx=density.step)/(2*np.pi))
+    scaled_power, exponent = bounded(density.values)
+    power = scaled_power.real
+    area = restore_scalar(np.trapezoid(power), exponent, density.step, 1/math.tau)
     if not np.isfinite(area):raise ValueError('La integral de energía excede el rango numérico.')
     lines=['Densidad espectral de energía','D(ω) = |X(ω)|²','E = integral D(ω) dω / (2π)',
            '',f'Intervalo representado: [{start:.12g}, {stop:.12g}] {spectrum.units}',
@@ -299,7 +300,7 @@ def energy_report(spectrum, source=None, density=None):
            f'Energía integrada en ese intervalo: {area:.12g}']
     if count<2:lines+=['Un solo punto da un intervalo de ancho cero.']
     if is_complete_dft(spectrum):
-        energy=float(np.sum(power/count))
+        energy = restore_scalar(np.sum(power), exponent, 1/count)
         if not np.isfinite(energy):raise ValueError('La suma de Parseval excede el rango numérico.')
         lines+=['','Parseval de la DFT',f'Suma |X[k]|²/N = {energy:.12g}',
                 'La suma de Parseval cubre todo el período. La integral de arriba cubre el intervalo dibujado.']
@@ -319,7 +320,8 @@ def energy_report(spectrum, source=None, density=None):
         if dirac_terms(source):
             lines+=['','Entrada con impulso ideal','La entrada tiene impulsos Dirac. La integral describe la banda mostrada. La energía ordinaria total de la señal no está definida.']
             return '\n'.join(lines)
-        energy=float(np.sum(abs(source.values)**2)*source.step)
+        values, exponent = bounded(source.values)
+        energy = restore_scalar(np.sum(values.real**2+values.imag**2), 2*exponent, source.step)
         if not np.isfinite(energy):raise ValueError('La energía temporal excede el rango numérico.')
         lines+=['','Referencia temporal',f'Suma rectangular Δt·Σ|x(tk)|² = {energy:.12g}',
                 'La integral de frecuencia es parcial. Una banda mayor que 2π/Δt puede incluir réplicas del registro muestreado.']

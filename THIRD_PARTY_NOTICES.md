@@ -31,7 +31,7 @@ Qt/PySide6 ofrece alternativas de licencia: SignalLab utiliza la distribución d
 | shiboken6 | 6.12.0 | Ver el texto original | [Aviso 1](LICENSES/shiboken6/shiboken6-6.12.0.dist-info/licenses/LicenseRef-Qt-Commercial.txt) |
 | six | 1.17.0 | Ver el texto original | [Aviso 1](LICENSES/six/six-1.17.0.dist-info/LICENSE) |
 | sympy | 1.14.0 | Ver el texto original | [Aviso 1](LICENSES/sympy/sympy-1.14.0.dist-info/licenses/AUTHORS) · [Aviso 2](LICENSES/sympy/sympy-1.14.0.dist-info/licenses/LICENSE) · [Aviso 3](LICENSES/sympy/sympy/parsing/latex/LICENSE.txt) |
-| Python | 3.12.10 | PSF-2.0 | [Aviso 1](LICENSES/Python/LICENSE.txt) |
+| Python | 3.14.10 | PSF-2.0 | [Aviso 1](LICENSES/Python/LICENSE.txt) |
 
 ## Fuentes y sustitución de bibliotecas
 

@@ -212,7 +212,7 @@ class UpdateContracts(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder)
             names=['signallab_pc/a.py','signallab_pc/Z.py','LICENSES/z/LICENSE','LICENSES/A/NOTICE',
-                   'main.py','requirements-lock.txt','pyproject.toml','LICENSE','NOTICE.md','THIRD_PARTY_NOTICES.md']
+                   'main.py','.python-version','requirements-lock.txt','pyproject.toml','LICENSE','NOTICE.md','THIRD_PARTY_NOTICES.md']
             expected=hashlib.sha256()
             for name in names:
                 path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(b'line\r\n')

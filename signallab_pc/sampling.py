@@ -243,20 +243,24 @@ def quantize(x, bits, low, high, method="round", align_zero=False, first=0, last
         codes=(clipped/scale-low/scale)/(step/scale)
     else:
         codes=(clipped-low)/step
-    codes = np.floor(codes+.5) if method == "round" else np.floor(codes)
-    codes = np.clip(codes, 0, levels-1)
+    codes = np.clip(np.floor(codes), 0, levels-1)
     def code_values(code):
         if align_zero:values=(code-kzero)*step
         elif wide:
             fraction=code/(levels-1);values=(1-fraction)*low+fraction*high
         else:values=low+code*step
         return np.where(code==0,low,np.where(code==levels-1,high,values))
-    if method=='floor':
-        # Division can land a few ulps to either side of an exact level.
-        # Check the neighboring actual levels without promoting lower inputs.
-        codes=np.where(code_values(codes)>clipped,np.maximum(0,codes-1),codes)
-        upper=np.minimum(levels-1,codes+1)
-        codes=np.where(code_values(upper)<=clipped,upper,codes)
+    # Repair the lower bracket on the represented levels before choosing a rule.
+    codes = np.where(code_values(codes)>clipped, np.maximum(0,codes-1), codes)
+    upper = np.minimum(levels-1, codes+1)
+    codes = np.where(code_values(upper)<=clipped, upper, codes)
+    if method == 'round':
+        upper = np.minimum(levels-1, codes+1)
+        lower_value, upper_value = code_values(codes), code_values(upper)
+        midpoint = lower_value + (upper_value-lower_value)/2
+        # Only an input on the rounded midpoint needs the distance tie check.
+        ties_up = (clipped == midpoint) & (clipped-lower_value >= upper_value-clipped)
+        codes = np.where((clipped > midpoint) | ties_up, upper, codes)
     values=code_values(codes)
     error = _finite_output(values-original, "El error de cuantización")
     last = x.values.size-1 if last is None else last

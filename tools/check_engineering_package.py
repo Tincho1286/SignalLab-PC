@@ -9,12 +9,14 @@ import sys
 from tempfile import TemporaryDirectory
 
 from inspect_packaged_runtimes import inspect_portable
+from check_python_runtime import require_pinned_python
 
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def main():
+    expected_python = require_pinned_python()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
@@ -38,6 +40,9 @@ def main():
         args.output.write_text(json.dumps({'executable_check': diagnostics, 'runtime': inventory['runtime'],
                                           'sha256': inventory['sha256']}, indent=2)+'\n', encoding='utf-8')
         return int(check.returncode != 0 or not diagnostics.get('ok') or not diagnostics.get('frozen')
+                   or not diagnostics.get('checks') or not all(diagnostics['checks'].values())
+                   or inventory['runtime']['python']['version'] != expected_python
+                   or diagnostics.get('runtime', {}).get('python') != expected_python
                    or inventory['runtime']['qt']['version'] != '6.12.0'
                    or 'qt_svg' not in inventory['runtime'])
 

@@ -2,6 +2,7 @@
 from pathlib import Path
 from importlib import metadata
 import ast,hashlib,json,os,platform,re,shutil,subprocess,sys,tarfile
+from check_python_runtime import require_pinned_python
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -40,6 +41,7 @@ def sha256(path):
     return result.hexdigest()
 
 def main():
+    require_pinned_python()
     if sys.platform!='linux' or platform.machine().lower() not in ('x86_64','amd64'):raise SystemExit('Build this portable on Linux x86_64.')
     subprocess.run([sys.executable,'-B',str(ROOT/'tools/check_static.py')],cwd=ROOT,check=True)
     subprocess.run([sys.executable,'-B',str(ROOT/'tools/check_math.py')],cwd=ROOT,check=True)

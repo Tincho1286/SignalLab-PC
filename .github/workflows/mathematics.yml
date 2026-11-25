@@ -31,6 +31,9 @@ on:
       - 'tests/test_workflow_contracts.py'
       - 'requirements-lock.txt'
       - 'requirements-quality.txt'
+      - '.python-version'
+      - 'tools/check_engineering_baseline.py'
+      - 'tools/check_engineering_package.py'
       - 'tools/check_static.py'
       - '.github/workflows/mathematics.yml'
   pull_request:
@@ -62,6 +65,7 @@ on:
       - 'tests/test_workflow_contracts.py'
       - 'requirements-lock.txt'
       - 'requirements-quality.txt'
+      - '.python-version'
       - 'tools/check_static.py'
       - '.github/workflows/mathematics.yml'
   workflow_dispatch:
@@ -89,7 +93,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          python-version: '3.12.10'
+          python-version-file: '.python-version'
       - name: Install locked mathematical dependencies
         run: python -m pip install --disable-pip-version-check -c requirements-lock.txt numpy scipy sympy mpmath h5py
       - name: Check independent reference cases and result transport
@@ -122,7 +126,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          python-version: '3.12.10'
+          python-version-file: '.python-version'
       - name: Install offscreen runtime libraries
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0
@@ -149,7 +153,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          python-version: '3.12.10'
+          python-version-file: '.python-version'
       - run: python -m pip install --disable-pip-version-check -r requirements-quality.txt
       - run: python -B -X utf8 tools/check_static.py
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
@@ -174,12 +178,14 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
-          python-version: '3.12.10'
+          python-version-file: '.python-version'
       - name: Install offscreen runtime libraries
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0 libgl1 libxkbcommon0 libfontconfig1
       - name: Install the locked baseline environment
-        run: python -m pip install --disable-pip-version-check -r requirements-lock.txt -r requirements-quality.txt -r requirements-engineering.txt
+        run: |
+          python -m pip install --disable-pip-version-check --only-binary=:all: -r requirements-lock.txt -r requirements-quality.txt -r requirements-engineering.txt
+          python -m pip check
       - name: Verify the clean revision and measure coverage
         run: python -B -X utf8 tools/check_engineering_baseline.py --output work/engineering-baseline
       - name: Verify a disposable portable with the fixed Qt runtime

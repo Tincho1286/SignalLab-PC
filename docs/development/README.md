@@ -4,14 +4,14 @@
 
 ## Preparar el entorno
 
-El proyecto usa Python 3.12 de 64 bits. Desde la raíz, en PowerShell:
+El proyecto usa el CPython de 64 bits fijado en [`.python-version`](../../.python-version). Desde la raíz, en PowerShell:
 
 ```powershell
 .\setup_windows.ps1 -NoLaunch
 .\.venv\Scripts\python.exe -B main.py
 ```
 
-El primer comando prepara el entorno y las dependencias fijadas; el segundo abre la aplicación. También se puede crear un entorno Python 3.12 e instalar `requirements-lock.txt` manualmente.
+El primer comando prepara el entorno y las dependencias fijadas. Si hay un entorno de otra versión, lo guarda en `work/` antes de migrarlo. El segundo abre la aplicación. También se puede crear `.venv` con el CPython fijado e instalar `requirements-lock.txt` manualmente.
 
 ## Control matemático
 
@@ -88,7 +88,7 @@ un editor de diagramas que sigue abierto sin aplicar quedan fuera del esquema.
 
 ## Distribución y cálculos reproducibles
 
-Python 3.12 y `requirements-lock.txt` definen el entorno de prueba. Al validar
+El CPython fijado en `.python-version` y `requirements-lock.txt` definen el entorno de prueba. Al validar
 una distribución, compará la lista de recursos del wheel o el portable con
 `signallab_pc/assets`, incluidos los artículos anidados en `assets/library`.
 Los constructores PyInstaller de Windows y Linux incluyen el directorio de

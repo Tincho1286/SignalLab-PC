@@ -11,6 +11,11 @@ def run(destination):
               "migration_complete": False, "checks": {}}
     try:
         os.environ["QT_QPA_PLATFORM"] = "offscreen"
+        import platform
+        import pyexpat
+        import ssl
+        report['runtime'] = dict(python=platform.python_version(), openssl=ssl.OPENSSL_VERSION,
+                                 expat=pyexpat.EXPAT_VERSION)
         import numpy as np
         import scipy
         import sympy

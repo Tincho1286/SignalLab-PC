@@ -11,7 +11,7 @@ sys.path.insert(0, str(ROOT))
 def source_fingerprint():
     digest = hashlib.sha256()
     paths = [p for p in (ROOT / 'signallab_pc').rglob('*') if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc']
-    paths += [ROOT / name for name in ('main.py', 'requirements-lock.txt', 'pyproject.toml', 'LICENSE', 'NOTICE.md', 'THIRD_PARTY_NOTICES.md')]
+    paths += [ROOT / name for name in ('main.py', '.python-version', 'requirements-lock.txt', 'pyproject.toml', 'LICENSE', 'NOTICE.md', 'THIRD_PARTY_NOTICES.md')]
     paths += [p for p in (ROOT / 'LICENSES').rglob('*') if p.is_file()]
     # pathlib ordering differs on Windows (case-insensitive) and Linux.
     # Sort the original relative components explicitly so one commit has one digest.

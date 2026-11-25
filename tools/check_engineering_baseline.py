@@ -10,6 +10,7 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
+from check_python_runtime import require_pinned_python
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -71,6 +72,7 @@ def coverage_parts(output):
 
 
 def run(output):
+    require_pinned_python()
     revision = clean_revision()
     output.mkdir(parents=True, exist_ok=False)
     env = os.environ | {'QT_QPA_PLATFORM': 'offscreen', 'OPENBLAS_NUM_THREADS': '1',

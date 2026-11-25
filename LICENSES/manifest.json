@@ -239,7 +239,7 @@
     },
     {
       "name": "Python",
-      "version": "3.12.10",
+      "version": "3.14.10",
       "license_expression": "PSF-2.0",
       "notices": [
         "LICENSES/Python/LICENSE.txt"
