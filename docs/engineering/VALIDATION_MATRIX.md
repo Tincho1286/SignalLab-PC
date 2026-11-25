@@ -33,3 +33,5 @@
 | UI y DPI | Cuatro tamaños y tres escalas Qt revisados visualmente. Interacción de Muestreo y CAS en Windows. Capturas X11 sobre Xvfb en Ubuntu. Migración entre monitores y escritorio Linux interactivo pendientes. |
 
 [Informe de cierre](PHASE_01_CLOSEOUT.md) · [Evidencia de distribución](evidence/phase-01-distribution-853bd67.json)
+
+La validación de Engineering Core se registra en la [matriz de Fase 02B](phase_02b/PHASE_02B_TRACEABILITY_MATRIX.md) y conserva por separado la evidencia histórica de estabilización.

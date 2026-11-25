@@ -1,0 +1,78 @@
+{
+  "candidate": "8ad3066a2f91f8758c32ab422cd63d6868dec5df",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python": "3.14.10",
+  "graph": {
+    "execution": [],
+    "operation_provenance": [],
+    "cli_session": [
+      "execution",
+      "scientific_storage"
+    ],
+    "dft_application": [
+      "execution",
+      "operation_provenance"
+    ],
+    "dsp_application": [
+      "execution",
+      "operation_provenance"
+    ],
+    "dsp_pipeline": [
+      "dft_application",
+      "dsp_application",
+      "execution"
+    ],
+    "dsp_cli": [
+      "cli_session",
+      "dsp_application"
+    ],
+    "dsp_pipeline_cli": [
+      "cli_session",
+      "dsp_application",
+      "dsp_pipeline"
+    ],
+    "dft_cli": [
+      "cli_session",
+      "dft_application"
+    ],
+    "scientific_storage": [
+      "execution"
+    ]
+  },
+  "repetitions": 5,
+  "size": 65536,
+  "formats": {
+    "json": {
+      "write": {
+        "median_s": 0.6433893999928841,
+        "min_s": 0.6105997999984538,
+        "max_s": 0.6724611000099685
+      },
+      "read": {
+        "median_s": 0.13749229999666568,
+        "min_s": 0.1354676000046311,
+        "max_s": 0.15088850000756793
+      },
+      "bytes": 4539263
+    },
+    "slbin": {
+      "write": {
+        "median_s": 0.013599199999589473,
+        "min_s": 0.012614499995834194,
+        "max_s": 0.014482099999440834
+      },
+      "read": {
+        "median_s": 0.004103900006157346,
+        "min_s": 0.003921399998944253,
+        "max_s": 0.004697600001236424
+      },
+      "bytes": 1048796
+    }
+  },
+  "pipeline": {
+    "median_s": 0.0463166999979876,
+    "min_s": 0.04555199999595061,
+    "max_s": 0.04869640000106301
+  },
+  "pipeline_estimated_bytes": 31128064
+}

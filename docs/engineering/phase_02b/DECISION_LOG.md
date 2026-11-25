@@ -2,6 +2,7 @@
 
 | Paquete | Decisión |
 | --- | --- |
+| WP-02B.07 | Cerrar la Fase 02B con evidencia del mismo SHA y decisión evaluativa para la Fase 03. |
 | WP-02B.06 | Mantener API Python por motor y una CLI con carga y ejecución compartidas. |
 | WP-02B.05 | Compartir una reserva optativa con plazos y verificaciones cooperativas. |
 | WP-02B.04 | Híbrido de una señal por archivo, JSON histórico como formato de proyecto y sesión. |

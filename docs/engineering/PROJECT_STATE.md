@@ -18,4 +18,8 @@ El [informe de línea base](BASELINE_REPORT.md), la [matriz de validación](VALI
 
 ## Fase 02 · Piloto DFT
 
-El cierre técnico de Fase 01 aprobó el inicio controlado del piloto definido en ADR-001. El candidato `ce6846b` incorpora un contrato compartido por Qt, Python y CLI para la DFT directa. La IDFT y los archivos históricos conservan sus convenciones. La matriz pasó 829 pruebas y 150 casos preventivos por plataforma. Los riesgos de Fase 01 continúan en seguimiento. El alcance de la autorización termina con este piloto. [Informe del piloto](PHASE_02_DFT_PILOT.md) · [API y ejemplos](DFT_PILOT_API.md)
+El cierre técnico de Fase 01 aprobó el inicio controlado del piloto definido en ADR-001. El candidato `ce6846b` incorpora un contrato compartido por Qt, Python y CLI para la DFT directa. La IDFT y los archivos históricos conservan sus convenciones. La matriz pasó 829 pruebas y 150 casos preventivos por plataforma. Los riesgos de Fase 01 continúan en seguimiento. Esa primera autorización abarcó el piloto. [Informe del piloto](PHASE_02_DFT_PILOT.md) · [API y ejemplos](DFT_PILOT_API.md)
+
+## Fase 02B · Engineering Core
+
+El candidato `8ad3066` consolidó el contexto común, las cinco operaciones DSP, el flujo secuencial y el almacenamiento experimental. Pasó 850 pruebas y 150 casos preventivos por plataforma. El informe registra el alcance, cobertura, memoria estimada y las excepciones de distribución. La recomendación para Fase 03 es GO condicionado y su implementación requiere autorización específica. [Cierre de Fase 02B](phase_02b/closeout/PHASE_02B_CLOSEOUT.md)

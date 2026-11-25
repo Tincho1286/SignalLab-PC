@@ -9,4 +9,4 @@
 | CORE-04 | [ADR 003](architecture/ADR-003-SCIENTIFIC-STORAGE.md) · [Benchmark](storage/STORAGE_BENCHMARK_REPORT.md) | 48 combinaciones por plataforma y 4 pruebas locales | Verificado |
 | CORE-05 | [Política](contracts/RESOURCE_MANAGEMENT_POLICY.md) · [Límites](contracts/EXECUTION_LIMITS.md) | [Pruebas de robustez](validation/PIPELINE_ROBUSTNESS_REPORT.md) · 5 + 3 pruebas en Windows | Verificado |
 | CORE-06 | [API](ENGINEERING_CORE_API.md) · [Guía](ENGINEERING_CORE_DEVELOPER_GUIDE.md) | [Ejemplos](ENGINEERING_CORE_EXAMPLES.md) y 2 pruebas headless | Verificado |
-| CORE-07 | Matriz multiplataforma reproducible. | Pendiente | Propuesto |
+| CORE-07 | [Cierre](closeout/PHASE_02B_CLOSEOUT.md) | [Validación](validation/PHASE_02B_VALIDATION_REPORT.md) · [Resultados de CI](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45638606172) | Verificado |

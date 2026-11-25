@@ -1,0 +1,919 @@
+{
+  "candidate": "8ad3066a2f91f8758c32ab422cd63d6868dec5df",
+  "action_run": 45638606172,
+  "status": "success",
+  "platforms": {
+    "windows": {
+      "runner": "Windows-2022Server-10.0.20348-SP0",
+      "python": "3.14.10",
+      "packages": {
+        "PySide6_Essentials": "6.12.0",
+        "altgraph": "0.17.5",
+        "cffi": "2.1.1",
+        "contourpy": "1.4.0",
+        "coverage": "7.17.5",
+        "cryptography": "50.0.2",
+        "cycler": "0.12.1",
+        "fonttools": "4.67.0",
+        "h5py": "3.16.0",
+        "kiwisolver": "1.5.1",
+        "matplotlib": "3.11.2",
+        "mpmath": "1.3.0",
+        "numpy": "2.5.0",
+        "packaging": "26.3",
+        "pefile": "2024.8.26",
+        "pillow": "13.0.0",
+        "pip": "26.3",
+        "pycparser": "3.12",
+        "pyflakes": "3.4.0",
+        "pyinstaller": "6.22.3",
+        "pyinstaller-hooks-contrib": "2026.9",
+        "pyparsing": "3.3.3",
+        "python-dateutil": "2.9.0.post0",
+        "pywin32-ctypes": "0.2.3",
+        "scipy": "1.18.0",
+        "setuptools": "84.2.1",
+        "shiboken6": "6.12.0",
+        "six": "1.17.0",
+        "sympy": "1.14.0"
+      },
+      "suite": {
+        "passed": true,
+        "tests": 850,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "source_snapshot": {
+          "mathematics": "ed6897aaf830f6a606894a19731efe248525726e1c998009b1d852fa0676d54a",
+          "application": "a58912d573b8414b4e99c2a26f6c02aed19cfefe060b0a3b9215b964d79e261c",
+          "tests_and_tools": "793dd82fe429eaae3ad419976c3f2169b6fea5dedc69e9aeeb12b0c0226f3fcd"
+        },
+        "preventive": {
+          "passed": true,
+          "completed_cases": 150,
+          "failed_cases": 0,
+          "seeds": [
+            20261103,
+            3983054762
+          ]
+        },
+        "seconds": 546.504
+      },
+      "new_families": {
+        "execution_context": {
+          "tests": 2,
+          "minimum": 2,
+          "passed": true
+        },
+        "dsp_application": {
+          "tests": 6,
+          "minimum": 6,
+          "passed": true
+        },
+        "dsp_pipeline": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "scientific_storage": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "core_robustness": {
+          "tests": 5,
+          "minimum": 5,
+          "passed": true
+        },
+        "core_cli": {
+          "tests": 2,
+          "minimum": 2,
+          "passed": true
+        }
+      },
+      "coverage": {
+        "modules": {
+          "filters.py": {
+            "covered_branches": 122,
+            "covered_lines": 297,
+            "excluded_lines": 0,
+            "missing_branches": 60,
+            "missing_lines": 40,
+            "num_branches": 182,
+            "num_partial_branches": 52,
+            "num_statements": 337,
+            "percent_branches_covered": 67.03296703296704,
+            "percent_branches_covered_display": "67.03",
+            "percent_covered": 80.73217726396918,
+            "percent_covered_display": "80.73",
+            "percent_statements_covered": 88.13056379821958,
+            "percent_statements_covered_display": "88.13"
+          },
+          "fourier.py": {
+            "covered_branches": 51,
+            "covered_lines": 235,
+            "excluded_lines": 0,
+            "missing_branches": 33,
+            "missing_lines": 22,
+            "num_branches": 84,
+            "num_partial_branches": 33,
+            "num_statements": 257,
+            "percent_branches_covered": 60.714285714285715,
+            "percent_branches_covered_display": "60.71",
+            "percent_covered": 83.87096774193549,
+            "percent_covered_display": "83.87",
+            "percent_statements_covered": 91.43968871595331,
+            "percent_statements_covered_display": "91.44"
+          },
+          "model.py": {
+            "covered_branches": 25,
+            "covered_lines": 67,
+            "excluded_lines": 0,
+            "missing_branches": 7,
+            "missing_lines": 8,
+            "num_branches": 32,
+            "num_partial_branches": 7,
+            "num_statements": 75,
+            "percent_branches_covered": 78.125,
+            "percent_branches_covered_display": "78.12",
+            "percent_covered": 85.98130841121495,
+            "percent_covered_display": "85.98",
+            "percent_statements_covered": 89.33333333333333,
+            "percent_statements_covered_display": "89.33"
+          },
+          "sampling.py": {
+            "covered_branches": 98,
+            "covered_lines": 280,
+            "excluded_lines": 0,
+            "missing_branches": 32,
+            "missing_lines": 24,
+            "num_branches": 130,
+            "num_partial_branches": 32,
+            "num_statements": 304,
+            "percent_branches_covered": 75.38461538461539,
+            "percent_branches_covered_display": "75.38",
+            "percent_covered": 87.09677419354838,
+            "percent_covered_display": "87.10",
+            "percent_statements_covered": 92.10526315789474,
+            "percent_statements_covered_display": "92.11"
+          },
+          "session.py": {
+            "covered_branches": 6,
+            "covered_lines": 20,
+            "excluded_lines": 0,
+            "missing_branches": 4,
+            "missing_lines": 4,
+            "num_branches": 10,
+            "num_partial_branches": 4,
+            "num_statements": 24,
+            "percent_branches_covered": 60.0,
+            "percent_branches_covered_display": "60.00",
+            "percent_covered": 76.47058823529412,
+            "percent_covered_display": "76.47",
+            "percent_statements_covered": 83.33333333333333,
+            "percent_statements_covered_display": "83.33"
+          },
+          "symbolic_process.py": {
+            "covered_branches": 16,
+            "covered_lines": 63,
+            "excluded_lines": 0,
+            "missing_branches": 6,
+            "missing_lines": 15,
+            "num_branches": 22,
+            "num_partial_branches": 6,
+            "num_statements": 78,
+            "percent_branches_covered": 72.72727272727273,
+            "percent_branches_covered_display": "72.73",
+            "percent_covered": 79.0,
+            "percent_covered_display": "79.00",
+            "percent_statements_covered": 80.76923076923077,
+            "percent_statements_covered_display": "80.77"
+          }
+        },
+        "total": {
+          "covered_branches": 10219,
+          "covered_lines": 32557,
+          "excluded_lines": 0,
+          "missing_branches": 5845,
+          "missing_lines": 9204,
+          "num_branches": 16064,
+          "num_partial_branches": 2933,
+          "num_statements": 41761,
+          "percent_branches_covered": 63.61429282868526,
+          "percent_branches_covered_display": "63.61",
+          "percent_covered": 73.97492434068309,
+          "percent_covered_display": "73.97",
+          "percent_statements_covered": 77.96029788558702,
+          "percent_statements_covered_display": "77.96"
+        }
+      },
+      "coverage_processes": {
+        "data_files_before_combine": 137,
+        "data_files_executing_symbolic_worker": 122
+      },
+      "core_coverage": {
+        "cli_session.py": {
+          "covered_lines": 55,
+          "num_statements": 64,
+          "percent_covered": 81.57894736842105,
+          "percent_covered_display": "81.58",
+          "missing_lines": 9,
+          "excluded_lines": 0,
+          "percent_statements_covered": 85.9375,
+          "percent_statements_covered_display": "85.94",
+          "num_branches": 12,
+          "num_partial_branches": 3,
+          "covered_branches": 7,
+          "missing_branches": 5,
+          "percent_branches_covered": 58.333333333333336,
+          "percent_branches_covered_display": "58.33"
+        },
+        "dsp_application.py": {
+          "covered_lines": 166,
+          "num_statements": 171,
+          "percent_covered": 95.02487562189054,
+          "percent_covered_display": "95.02",
+          "missing_lines": 5,
+          "excluded_lines": 0,
+          "percent_statements_covered": 97.07602339181287,
+          "percent_statements_covered_display": "97.08",
+          "num_branches": 30,
+          "num_partial_branches": 5,
+          "covered_branches": 25,
+          "missing_branches": 5,
+          "percent_branches_covered": 83.33333333333333,
+          "percent_branches_covered_display": "83.33"
+        },
+        "dsp_cli.py": {
+          "covered_lines": 75,
+          "num_statements": 76,
+          "percent_covered": 97.72727272727273,
+          "percent_covered_display": "97.73",
+          "missing_lines": 1,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.6842105263158,
+          "percent_statements_covered_display": "98.68",
+          "num_branches": 12,
+          "num_partial_branches": 1,
+          "covered_branches": 11,
+          "missing_branches": 1,
+          "percent_branches_covered": 91.66666666666667,
+          "percent_branches_covered_display": "91.67"
+        },
+        "dsp_pipeline.py": {
+          "covered_lines": 99,
+          "num_statements": 107,
+          "percent_covered": 89.07563025210084,
+          "percent_covered_display": "89.08",
+          "missing_lines": 8,
+          "excluded_lines": 0,
+          "percent_statements_covered": 92.5233644859813,
+          "percent_statements_covered_display": "92.52",
+          "num_branches": 12,
+          "num_partial_branches": 5,
+          "covered_branches": 7,
+          "missing_branches": 5,
+          "percent_branches_covered": 58.333333333333336,
+          "percent_branches_covered_display": "58.33"
+        },
+        "dsp_pipeline_cli.py": {
+          "covered_lines": 29,
+          "num_statements": 29,
+          "percent_covered": 100.0,
+          "percent_covered_display": "100.00",
+          "missing_lines": 0,
+          "excluded_lines": 0,
+          "percent_statements_covered": 100.0,
+          "percent_statements_covered_display": "100.00",
+          "num_branches": 0,
+          "num_partial_branches": 0,
+          "covered_branches": 0,
+          "missing_branches": 0,
+          "percent_branches_covered": 100.0,
+          "percent_branches_covered_display": "100.00"
+        },
+        "execution.py": {
+          "covered_lines": 65,
+          "num_statements": 70,
+          "percent_covered": 89.1304347826087,
+          "percent_covered_display": "89.13",
+          "missing_lines": 5,
+          "excluded_lines": 0,
+          "percent_statements_covered": 92.85714285714286,
+          "percent_statements_covered_display": "92.86",
+          "num_branches": 22,
+          "num_partial_branches": 5,
+          "covered_branches": 17,
+          "missing_branches": 5,
+          "percent_branches_covered": 77.27272727272727,
+          "percent_branches_covered_display": "77.27"
+        },
+        "operation_provenance.py": {
+          "covered_lines": 3,
+          "num_statements": 3,
+          "percent_covered": 100.0,
+          "percent_covered_display": "100.00",
+          "missing_lines": 0,
+          "excluded_lines": 0,
+          "percent_statements_covered": 100.0,
+          "percent_statements_covered_display": "100.00",
+          "num_branches": 0,
+          "num_partial_branches": 0,
+          "covered_branches": 0,
+          "missing_branches": 0,
+          "percent_branches_covered": 100.0,
+          "percent_branches_covered_display": "100.00"
+        },
+        "scientific_storage.py": {
+          "covered_lines": 80,
+          "num_statements": 94,
+          "percent_covered": 81.14754098360656,
+          "percent_covered_display": "81.15",
+          "missing_lines": 14,
+          "excluded_lines": 0,
+          "percent_statements_covered": 85.1063829787234,
+          "percent_statements_covered_display": "85.11",
+          "num_branches": 28,
+          "num_partial_branches": 9,
+          "covered_branches": 19,
+          "missing_branches": 9,
+          "percent_branches_covered": 67.85714285714286,
+          "percent_branches_covered_display": "67.86"
+        }
+      },
+      "workflows": 318,
+      "native_count": 219,
+      "native_tls": [],
+      "installed_checks": [
+        "native_upgrade_same_installation",
+        "per_user_registration",
+        "uninstall_preserves_untracked_files",
+        "real_installed_application_self_check",
+        "native_downgrade_rejected"
+      ],
+      "packaged_checks": [
+        "fft_roundtrip",
+        "lti_recurrence",
+        "bilinear",
+        "symbolic_runtime",
+        "packaged_update_verification",
+        "state_space_simulation_and_project",
+        "digital_delay_transfer_roundtrip",
+        "toolbox_menu_and_matplotlib",
+        "sampling_plot_and_report_layout",
+        "project_picker_search_and_selection",
+        "formatted_report_preserves_text",
+        "packaged_symbolic_measures_and_window",
+        "expression_measure_menu"
+      ],
+      "runtime": {
+        "python": "3.14.10",
+        "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+        "expat": "expat_2.9.0"
+      },
+      "resources": {
+        "platform": "Windows-2022Server-10.0.20348-SP0",
+        "python": "3.14.10",
+        "commit": "8ad3066a2f91f8758c32ab422cd63d6868dec5df",
+        "budget": {
+          "available_bytes": 102400,
+          "fraction": 0.35,
+          "bytes_per_sample": 16,
+          "live_arrays": 4,
+          "accepted_samples": 560,
+          "accepted_bytes": 35840,
+          "rejected_samples": 561
+        },
+        "cancellation": {
+          "dtft_seconds_after_signal": 3.229999992981902e-05,
+          "symbolic_seconds_after_signal": 0.06416560000002391,
+          "worker_exit": 1,
+          "symbolic_temporary_removed": true,
+          "symbolic_cancel_from_launch_seconds": 0.15
+        },
+        "numeric": [
+          {
+            "operation": "dft",
+            "samples": 16384,
+            "output_values": 16384,
+            "seconds": 0.003024399999958405,
+            "peak_before_bytes": 101916672,
+            "peak_after_bytes": 102010880,
+            "available_before_bytes": 14203183104
+          },
+          {
+            "operation": "dft",
+            "samples": 262144,
+            "output_values": 262144,
+            "seconds": 0.013411700000006022,
+            "peak_before_bytes": 111968256,
+            "peak_after_bytes": 118403072,
+            "available_before_bytes": 14224560128
+          },
+          {
+            "operation": "dtft",
+            "samples": 1024,
+            "output_values": 1025,
+            "seconds": 0.06595070000003034,
+            "peak_before_bytes": 102047744,
+            "peak_after_bytes": 107372544,
+            "available_before_bytes": 14270873600
+          },
+          {
+            "operation": "dtft",
+            "samples": 8192,
+            "output_values": 1025,
+            "seconds": 0.4992323999999826,
+            "peak_before_bytes": 102379520,
+            "peak_after_bytes": 112943104,
+            "available_before_bytes": 14296313856
+          },
+          {
+            "operation": "resample",
+            "samples": 16384,
+            "output_values": 10923,
+            "seconds": 0.004554899999902773,
+            "peak_before_bytes": 101654528,
+            "peak_after_bytes": 101756928,
+            "available_before_bytes": 14318387200
+          },
+          {
+            "operation": "resample",
+            "samples": 262144,
+            "output_values": 174763,
+            "seconds": 0.015822400000160997,
+            "peak_before_bytes": 112279552,
+            "peak_after_bytes": 112279552,
+            "available_before_bytes": 14327545856
+          }
+        ]
+      }
+    },
+    "ubuntu": {
+      "runner": "Linux-6.8.0-1070-azure-x86_64-with-glibc2.35",
+      "python": "3.14.10",
+      "packages": {
+        "PySide6_Essentials": "6.12.0",
+        "altgraph": "0.17.5",
+        "cffi": "2.1.1",
+        "contourpy": "1.4.0",
+        "coverage": "7.17.5",
+        "cryptography": "50.0.2",
+        "cycler": "0.12.1",
+        "fonttools": "4.67.0",
+        "h5py": "3.16.0",
+        "kiwisolver": "1.5.1",
+        "matplotlib": "3.11.2",
+        "mpmath": "1.3.0",
+        "numpy": "2.5.0",
+        "packaging": "26.3",
+        "pillow": "13.0.0",
+        "pip": "26.3",
+        "pycparser": "3.12",
+        "pyflakes": "3.4.0",
+        "pyinstaller": "6.22.3",
+        "pyinstaller-hooks-contrib": "2026.9",
+        "pyparsing": "3.3.3",
+        "python-dateutil": "2.9.0.post0",
+        "scipy": "1.18.0",
+        "setuptools": "84.2.1",
+        "shiboken6": "6.12.0",
+        "six": "1.17.0",
+        "sympy": "1.14.0"
+      },
+      "suite": {
+        "passed": true,
+        "tests": 850,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "source_snapshot": {
+          "mathematics": "ed6897aaf830f6a606894a19731efe248525726e1c998009b1d852fa0676d54a",
+          "application": "a58912d573b8414b4e99c2a26f6c02aed19cfefe060b0a3b9215b964d79e261c",
+          "tests_and_tools": "793dd82fe429eaae3ad419976c3f2169b6fea5dedc69e9aeeb12b0c0226f3fcd"
+        },
+        "preventive": {
+          "passed": true,
+          "completed_cases": 150,
+          "failed_cases": 0,
+          "seeds": [
+            20261103,
+            3983054762
+          ]
+        },
+        "seconds": 677.818
+      },
+      "new_families": {
+        "execution_context": {
+          "tests": 2,
+          "minimum": 2,
+          "passed": true
+        },
+        "dsp_application": {
+          "tests": 6,
+          "minimum": 6,
+          "passed": true
+        },
+        "dsp_pipeline": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "scientific_storage": {
+          "tests": 3,
+          "minimum": 3,
+          "passed": true
+        },
+        "core_robustness": {
+          "tests": 5,
+          "minimum": 5,
+          "passed": true
+        },
+        "core_cli": {
+          "tests": 2,
+          "minimum": 2,
+          "passed": true
+        }
+      },
+      "coverage": {
+        "modules": {
+          "filters.py": {
+            "covered_branches": 122,
+            "covered_lines": 297,
+            "excluded_lines": 0,
+            "missing_branches": 60,
+            "missing_lines": 40,
+            "num_branches": 182,
+            "num_partial_branches": 52,
+            "num_statements": 337,
+            "percent_branches_covered": 67.03296703296704,
+            "percent_branches_covered_display": "67.03",
+            "percent_covered": 80.73217726396918,
+            "percent_covered_display": "80.73",
+            "percent_statements_covered": 88.13056379821958,
+            "percent_statements_covered_display": "88.13"
+          },
+          "fourier.py": {
+            "covered_branches": 51,
+            "covered_lines": 235,
+            "excluded_lines": 0,
+            "missing_branches": 33,
+            "missing_lines": 22,
+            "num_branches": 84,
+            "num_partial_branches": 33,
+            "num_statements": 257,
+            "percent_branches_covered": 60.714285714285715,
+            "percent_branches_covered_display": "60.71",
+            "percent_covered": 83.87096774193549,
+            "percent_covered_display": "83.87",
+            "percent_statements_covered": 91.43968871595331,
+            "percent_statements_covered_display": "91.44"
+          },
+          "model.py": {
+            "covered_branches": 25,
+            "covered_lines": 67,
+            "excluded_lines": 0,
+            "missing_branches": 7,
+            "missing_lines": 8,
+            "num_branches": 32,
+            "num_partial_branches": 7,
+            "num_statements": 75,
+            "percent_branches_covered": 78.125,
+            "percent_branches_covered_display": "78.12",
+            "percent_covered": 85.98130841121495,
+            "percent_covered_display": "85.98",
+            "percent_statements_covered": 89.33333333333333,
+            "percent_statements_covered_display": "89.33"
+          },
+          "sampling.py": {
+            "covered_branches": 98,
+            "covered_lines": 280,
+            "excluded_lines": 0,
+            "missing_branches": 32,
+            "missing_lines": 24,
+            "num_branches": 130,
+            "num_partial_branches": 32,
+            "num_statements": 304,
+            "percent_branches_covered": 75.38461538461539,
+            "percent_branches_covered_display": "75.38",
+            "percent_covered": 87.09677419354838,
+            "percent_covered_display": "87.10",
+            "percent_statements_covered": 92.10526315789474,
+            "percent_statements_covered_display": "92.11"
+          },
+          "session.py": {
+            "covered_branches": 6,
+            "covered_lines": 20,
+            "excluded_lines": 0,
+            "missing_branches": 4,
+            "missing_lines": 4,
+            "num_branches": 10,
+            "num_partial_branches": 4,
+            "num_statements": 24,
+            "percent_branches_covered": 60.0,
+            "percent_branches_covered_display": "60.00",
+            "percent_covered": 76.47058823529412,
+            "percent_covered_display": "76.47",
+            "percent_statements_covered": 83.33333333333333,
+            "percent_statements_covered_display": "83.33"
+          },
+          "symbolic_process.py": {
+            "covered_branches": 16,
+            "covered_lines": 63,
+            "excluded_lines": 0,
+            "missing_branches": 6,
+            "missing_lines": 15,
+            "num_branches": 22,
+            "num_partial_branches": 6,
+            "num_statements": 78,
+            "percent_branches_covered": 72.72727272727273,
+            "percent_branches_covered_display": "72.73",
+            "percent_covered": 79.0,
+            "percent_covered_display": "79.00",
+            "percent_statements_covered": 80.76923076923077,
+            "percent_statements_covered_display": "80.77"
+          }
+        },
+        "total": {
+          "covered_branches": 10216,
+          "covered_lines": 32547,
+          "excluded_lines": 0,
+          "missing_branches": 5848,
+          "missing_lines": 9214,
+          "num_branches": 16064,
+          "num_partial_branches": 2932,
+          "num_statements": 41761,
+          "percent_branches_covered": 63.59561752988048,
+          "percent_branches_covered_display": "63.60",
+          "percent_covered": 73.95244271508862,
+          "percent_covered_display": "73.95",
+          "percent_statements_covered": 77.9363520988482,
+          "percent_statements_covered_display": "77.94"
+        }
+      },
+      "coverage_processes": {
+        "data_files_before_combine": 137,
+        "data_files_executing_symbolic_worker": 122
+      },
+      "core_coverage": {
+        "cli_session.py": {
+          "covered_lines": 55,
+          "num_statements": 64,
+          "percent_covered": 81.57894736842105,
+          "percent_covered_display": "81.58",
+          "missing_lines": 9,
+          "excluded_lines": 0,
+          "percent_statements_covered": 85.9375,
+          "percent_statements_covered_display": "85.94",
+          "num_branches": 12,
+          "num_partial_branches": 3,
+          "covered_branches": 7,
+          "missing_branches": 5,
+          "percent_branches_covered": 58.333333333333336,
+          "percent_branches_covered_display": "58.33"
+        },
+        "dsp_application.py": {
+          "covered_lines": 166,
+          "num_statements": 171,
+          "percent_covered": 95.02487562189054,
+          "percent_covered_display": "95.02",
+          "missing_lines": 5,
+          "excluded_lines": 0,
+          "percent_statements_covered": 97.07602339181287,
+          "percent_statements_covered_display": "97.08",
+          "num_branches": 30,
+          "num_partial_branches": 5,
+          "covered_branches": 25,
+          "missing_branches": 5,
+          "percent_branches_covered": 83.33333333333333,
+          "percent_branches_covered_display": "83.33"
+        },
+        "dsp_cli.py": {
+          "covered_lines": 75,
+          "num_statements": 76,
+          "percent_covered": 97.72727272727273,
+          "percent_covered_display": "97.73",
+          "missing_lines": 1,
+          "excluded_lines": 0,
+          "percent_statements_covered": 98.6842105263158,
+          "percent_statements_covered_display": "98.68",
+          "num_branches": 12,
+          "num_partial_branches": 1,
+          "covered_branches": 11,
+          "missing_branches": 1,
+          "percent_branches_covered": 91.66666666666667,
+          "percent_branches_covered_display": "91.67"
+        },
+        "dsp_pipeline.py": {
+          "covered_lines": 99,
+          "num_statements": 107,
+          "percent_covered": 89.07563025210084,
+          "percent_covered_display": "89.08",
+          "missing_lines": 8,
+          "excluded_lines": 0,
+          "percent_statements_covered": 92.5233644859813,
+          "percent_statements_covered_display": "92.52",
+          "num_branches": 12,
+          "num_partial_branches": 5,
+          "covered_branches": 7,
+          "missing_branches": 5,
+          "percent_branches_covered": 58.333333333333336,
+          "percent_branches_covered_display": "58.33"
+        },
+        "dsp_pipeline_cli.py": {
+          "covered_lines": 29,
+          "num_statements": 29,
+          "percent_covered": 100.0,
+          "percent_covered_display": "100.00",
+          "missing_lines": 0,
+          "excluded_lines": 0,
+          "percent_statements_covered": 100.0,
+          "percent_statements_covered_display": "100.00",
+          "num_branches": 0,
+          "num_partial_branches": 0,
+          "covered_branches": 0,
+          "missing_branches": 0,
+          "percent_branches_covered": 100.0,
+          "percent_branches_covered_display": "100.00"
+        },
+        "execution.py": {
+          "covered_lines": 65,
+          "num_statements": 70,
+          "percent_covered": 89.1304347826087,
+          "percent_covered_display": "89.13",
+          "missing_lines": 5,
+          "excluded_lines": 0,
+          "percent_statements_covered": 92.85714285714286,
+          "percent_statements_covered_display": "92.86",
+          "num_branches": 22,
+          "num_partial_branches": 5,
+          "covered_branches": 17,
+          "missing_branches": 5,
+          "percent_branches_covered": 77.27272727272727,
+          "percent_branches_covered_display": "77.27"
+        },
+        "operation_provenance.py": {
+          "covered_lines": 3,
+          "num_statements": 3,
+          "percent_covered": 100.0,
+          "percent_covered_display": "100.00",
+          "missing_lines": 0,
+          "excluded_lines": 0,
+          "percent_statements_covered": 100.0,
+          "percent_statements_covered_display": "100.00",
+          "num_branches": 0,
+          "num_partial_branches": 0,
+          "covered_branches": 0,
+          "missing_branches": 0,
+          "percent_branches_covered": 100.0,
+          "percent_branches_covered_display": "100.00"
+        },
+        "scientific_storage.py": {
+          "covered_lines": 80,
+          "num_statements": 94,
+          "percent_covered": 81.14754098360656,
+          "percent_covered_display": "81.15",
+          "missing_lines": 14,
+          "excluded_lines": 0,
+          "percent_statements_covered": 85.1063829787234,
+          "percent_statements_covered_display": "85.11",
+          "num_branches": 28,
+          "num_partial_branches": 9,
+          "covered_branches": 19,
+          "missing_branches": 9,
+          "percent_branches_covered": 67.85714285714286,
+          "percent_branches_covered_display": "67.86"
+        }
+      },
+      "workflows": 318,
+      "native_count": 391,
+      "native_tls": [
+        {
+          "path": "libcrypto.so.3",
+          "sha256": "7cc817ff1841b59516d684f357bc0c3fc2cc52c3fa9b4ffb8ce8bdc215f02915",
+          "sources": [
+            {
+              "source": "Ubuntu",
+              "package": "libssl3:amd64",
+              "version": "3.0.2-0ubuntu1.30"
+            }
+          ]
+        },
+        {
+          "path": "libssl.so.3",
+          "sha256": "51fc92556f11ddce62f3f988d3fe973fab8fb4742032e61a713688581c924262",
+          "sources": [
+            {
+              "source": "Ubuntu",
+              "package": "libssl3:amd64",
+              "version": "3.0.2-0ubuntu1.30"
+            }
+          ]
+        }
+      ],
+      "installed_checks": [
+        "real_run_payload",
+        "installed_packaged_self_check",
+        "repair_in_place",
+        "uninstall_preserves_data"
+      ],
+      "packaged_checks": [
+        "fft_roundtrip",
+        "lti_recurrence",
+        "bilinear",
+        "symbolic_runtime",
+        "packaged_update_verification",
+        "state_space_simulation_and_project",
+        "digital_delay_transfer_roundtrip",
+        "toolbox_menu_and_matplotlib",
+        "sampling_plot_and_report_layout",
+        "project_picker_search_and_selection",
+        "formatted_report_preserves_text",
+        "packaged_symbolic_measures_and_window",
+        "expression_measure_menu"
+      ],
+      "runtime": {
+        "python": "3.14.10",
+        "openssl": "OpenSSL 3.0.2 15 Mar 2022",
+        "expat": "expat_2.9.0"
+      },
+      "resources": {
+        "platform": "Linux-6.8.0-1070-azure-x86_64-with-glibc2.35",
+        "python": "3.14.10",
+        "commit": "8ad3066a2f91f8758c32ab422cd63d6868dec5df",
+        "budget": {
+          "available_bytes": 102400,
+          "fraction": 0.35,
+          "bytes_per_sample": 16,
+          "live_arrays": 4,
+          "accepted_samples": 560,
+          "accepted_bytes": 35840,
+          "rejected_samples": 561
+        },
+        "cancellation": {
+          "dtft_seconds_after_signal": 2.3594000140292337e-05,
+          "symbolic_seconds_after_signal": 0.05357645800017963,
+          "worker_exit": -15,
+          "symbolic_temporary_removed": true,
+          "symbolic_cancel_from_launch_seconds": 0.15
+        },
+        "numeric": [
+          {
+            "operation": "dft",
+            "samples": 16384,
+            "output_values": 16384,
+            "seconds": 0.004234441000107836,
+            "peak_before_bytes": 111132672,
+            "peak_after_bytes": 111919104,
+            "available_before_bytes": 13190762496
+          },
+          {
+            "operation": "dft",
+            "samples": 262144,
+            "output_values": 262144,
+            "seconds": 0.01682132099995215,
+            "peak_before_bytes": 121303040,
+            "peak_after_bytes": 127328256,
+            "available_before_bytes": 13190438912
+          },
+          {
+            "operation": "dtft",
+            "samples": 1024,
+            "output_values": 1025,
+            "seconds": 0.05659503899983065,
+            "peak_before_bytes": 111149056,
+            "peak_after_bytes": 117211136,
+            "available_before_bytes": 13207756800
+          },
+          {
+            "operation": "dtft",
+            "samples": 8192,
+            "output_values": 1025,
+            "seconds": 0.3329201030001059,
+            "peak_before_bytes": 111140864,
+            "peak_after_bytes": 123379712,
+            "available_before_bytes": 13132148736
+          },
+          {
+            "operation": "resample",
+            "samples": 16384,
+            "output_values": 10923,
+            "seconds": 0.0064760239999941405,
+            "peak_before_bytes": 111144960,
+            "peak_after_bytes": 111407104,
+            "available_before_bytes": 13119696896
+          },
+          {
+            "operation": "resample",
+            "samples": 262144,
+            "output_values": 174763,
+            "seconds": 0.030735577000086778,
+            "peak_before_bytes": 121675776,
+            "peak_after_bytes": 121675776,
+            "available_before_bytes": 13151952896
+          }
+        ]
+      }
+    }
+  }
+}

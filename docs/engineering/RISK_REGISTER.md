@@ -44,3 +44,17 @@ La [línea base de seguridad](SECURITY_BASELINE.md), la [matriz](VALIDATION_MATR
 | R02, R03, R05 y R09 · Distribución y escritorio | Continúa el seguimiento de Qt, dependencias y avisos, confianza del actualizador por el canal público y DPI en escritorios reales. |
 
 [Informe del piloto DFT](PHASE_02_DFT_PILOT.md)
+
+## Seguimiento de Fase 02B
+
+| Riesgo | Prioridad | Evidencia, mitigación y criterio pendiente |
+| --- | --- | --- |
+| R02 · Qt | Alta antes de publicar | La línea base de esta fase conservó Qt 6.12.0. Los índices de las ruedas 6.12.1 devolvieron 404 en la revisión. Revalidar ambos portables con el parche al existir las ruedas. |
+| R03 y R05 · Dependencias y distribución | Alta antes de publicar | SBOM y procedencia de OpenSSL forman parte del control de portables. Verificar la entrega real, confianza Windows y actualización por el canal público antes de promover una versión. |
+| R07 · Recursos y concurrencia | Alta con datos grandes | El presupuesto del flujo considera resultados retenidos y temporales. El pool coordina los consumidores que comparten instancia. Quedan por cubrir contención entre procesos, trabajos simbólicos y plazos forzosos. |
+| R08 · Hojas CAS | Media | Historias completas de CAS requieren un contrato propio de persistencia. Project y session conservan los esquemas ya verificados. |
+| R09 · Escritorios y DPI | Media | Continúa la excepción de DPI del sistema y monitores reales de Linux. La matriz de GUI usa pruebas offscreen y el perfil X11 reproducible. |
+| R13 · Persistencia científica | Media | El formato experimental verifica integridad y límites en una señal. Autenticación de productor, lectura parcial verificada y rendimiento de sesiones completas se revisan antes de una adopción general. |
+| R14 · Publicación de flujos | Media | Project conserva resultados completos con referencias. Coordinar un único escritor por archivo de sesión. La concurrencia entre procesos necesita un contrato adicional. |
+
+[Cierre de Fase 02B](phase_02b/closeout/PHASE_02B_CLOSEOUT.md)

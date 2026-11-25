@@ -24,3 +24,7 @@ Con 1.048.576 complejas, el híbrido prototipo tomó 0,121 s de escritura y 0,03
 ## Comparación en CI
 
 Ambos runners completaron 48 combinaciones con equivalencia exacta. Para 1.048.576 muestras complejas, JSON de señal necesitó 5,376 s de escritura en Windows y 3,299 s en Linux. El híbrido prototipo necesitó 0,108 s y 0,062 s respectivamente. El híbrido midió 16,78 MB en ambos. JSON midió 72,63 MB en Windows y 68,43 MB en Linux por diferencias de saltos de línea. Los picos residentes del híbrido fueron 111 MiB y 125 MiB. Los del JSON fueron 343 MiB y 383 MiB. El perfil distingue el prototipo medido de la implementación experimental, que agrega controles de cabecera y un digest de todo el archivo. [Corrida de almacenamiento](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45636393425) · [Datos de Windows](../benchmarks/storage-windows-ci-6997142.json) · [Datos de Linux](../benchmarks/storage-linux-ci-6997142.json)
+
+## Interrupción
+
+En una prueba local se inyectó un error antes del reemplazo sobre los seis prototipos. Los formatos de archivo único conservaron las muestras anteriores. NPY, NPZ, HDF5 y el híbrido de benchmark dejaron un temporal dentro del directorio descartable. En SigMF se permitió sustituir las muestras y se interrumpió el reemplazo de metadatos, lo que evidencia dos puntos de entrega. La API experimental `.slbin` reutiliza el escritor con limpieza verificada y conserva el archivo anterior ante cancelación. [Resultados de la interrupción](../benchmarks/storage-interruption-windows-8ad3066.json)

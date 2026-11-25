@@ -1,0 +1,36 @@
+{
+  "candidate": "8ad3066a2f91f8758c32ab422cd63d6868dec5df",
+  "scope": "synthetic benchmark prototypes; SIGMF interrupted at metadata replacement",
+  "formats": {
+    "json": {
+      "previous_data_preserved": true,
+      "separate_metadata_commit": false,
+      "temporary_files_after_failure": 0
+    },
+    "npy": {
+      "previous_data_preserved": true,
+      "separate_metadata_commit": false,
+      "temporary_files_after_failure": 1
+    },
+    "npz": {
+      "previous_data_preserved": true,
+      "separate_metadata_commit": false,
+      "temporary_files_after_failure": 1
+    },
+    "hdf5": {
+      "previous_data_preserved": true,
+      "separate_metadata_commit": false,
+      "temporary_files_after_failure": 1
+    },
+    "sigmf": {
+      "previous_data_preserved": false,
+      "separate_metadata_commit": true,
+      "temporary_files_after_failure": 0
+    },
+    "hybrid": {
+      "previous_data_preserved": true,
+      "separate_metadata_commit": false,
+      "temporary_files_after_failure": 1
+    }
+  }
+}

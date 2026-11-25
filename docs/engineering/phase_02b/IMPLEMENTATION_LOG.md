@@ -1,5 +1,19 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02B.07
+
+Sobre `8ad3066` limpio se ejecutaron la suite y empaquetados con `mathematics.yml`, y una comparación local de rendimiento con importaciones inspeccionadas. Se conservó la matriz separada de almacenamiento `6997142`. Pasaron 850 pruebas integrales, 150 casos preventivos, 21 casos nuevos, 318 controles GUI y 13 diagnósticos por plataforma. Los instaladores y el OpenSSL de Linux pasaron sus controles. Se guardaron informes, riesgos y excepciones. El 85 % global sigue como objetivo orientativo. La recomendación técnica es GO condicionado. Commit `phase02b(wp07): record verified closeout`. La siguiente fase queda pendiente de autorización.
+
+| Punto de control | SHA |
+| --- | --- |
+| WP-02B.00 · Línea base | `cb23d43` |
+| WP-02B.01 · Contratos | `c9cca2c` |
+| WP-02B.02 · Operaciones | `c77efab` |
+| WP-02B.03 · Flujo | `9c1366b` |
+| WP-02B.04 · Benchmark y backend | `a3b6254`, `6997142`, `faa190b` |
+| WP-02B.05 · Recursos | `872bcf0` |
+| WP-02B.06 · API | `8ad3066` |
+
 ## 25 de noviembre de 2026 · WP-02B.06
 
 Desde `872bcf0` se revisaron las firmas, dependencias de consola y documentación DFT. Se extrajo `cli_session.py` para compartir carga, presupuesto, cancelación y sesión y se agregó el despacho `dsp` con subcomandos. Se añadieron guías y un ejemplo que incluye uso desde Jupyter sin instalarlo. Pasaron dos pruebas de consola con importación Qt prohibida, la guarda estática de 385 archivos y el ejemplo reproducible. El formato binario sigue optativo. Commit `phase02b(wp06): consolidate the experimental core API`. Se inicia la matriz final sobre ese SHA.
