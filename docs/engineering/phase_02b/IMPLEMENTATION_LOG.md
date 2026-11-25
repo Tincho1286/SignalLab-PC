@@ -1,5 +1,9 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02B.04
+
+Desde `9c1366b` se contrastó JSON, NPY, NPZ, HDF5, SigMF y un híbrido. Se agregó el script y se registraron las 48 medidas locales de Windows antes de seleccionar el híbrido. El primer workflow fue rechazado por un valor YAML con dos puntos en un comando de pip. Se corrigió en `6997142`. Tres controles del lector experimental y la regresión de escritura de sesión pasaron en Windows. La verificación de mediciones en runners de ambos sistemas quedó en curso en la corrida `45636393425`. El backend es opcional y los 10 millones de muestras exceden el tope de ensayo. Commit `phase02b(wp04): add optional scientific signal storage`. Continúa la política de recursos mientras finaliza esa verificación externa.
+
 ## 25 de noviembre de 2026 · WP-02B.03
 
 Se revisaron los servicios y la frontera de Project en `c77efab`. Se eligió una secuencia tipada en lugar de un grafo. Se añadieron `dsp_pipeline.py`, la CLI compartida y referencias de GUI a las herramientas existentes. Tres pruebas en Windows confirmaron oráculo de flujo, publicación, CLI sin Qt, incompatibilidades y cancelación. El tamaño retenido del flujo se tratará en WP-02B.05. Commit `phase02b(wp03): implement sequential DSP pipeline`. Sigue el benchmark de almacenamiento.

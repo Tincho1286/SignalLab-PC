@@ -6,11 +6,11 @@ import tempfile
 import json
 
 @contextmanager
-def atomic_text_file(path,*,encoding='utf-8',newline=None,before_commit=None):
+def _atomic_stream(path,mode,*,before_commit=None,**options):
     target=Path(path)
     descriptor,temporary=tempfile.mkstemp(prefix=target.name+'.',suffix='.tmp',dir=target.parent)
     try:
-        try:stream=os.fdopen(descriptor,'w',encoding=encoding,newline=newline)
+        try:stream=os.fdopen(descriptor,mode,**options)
         except BaseException:
             os.close(descriptor)
             raise
@@ -22,6 +22,12 @@ def atomic_text_file(path,*,encoding='utf-8',newline=None,before_commit=None):
         os.replace(temporary,target)
     finally:
         if os.path.exists(temporary):os.unlink(temporary)
+
+def atomic_text_file(path,*,encoding='utf-8',newline=None,before_commit=None):
+    return _atomic_stream(path,'w',encoding=encoding,newline=newline,before_commit=before_commit)
+
+def atomic_binary_file(path,*,before_commit=None):
+    return _atomic_stream(path,'wb',before_commit=before_commit)
 
 def write_json(path,document,*,before_commit=None):
     with atomic_text_file(path,before_commit=before_commit) as stream:
