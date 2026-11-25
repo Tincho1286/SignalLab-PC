@@ -298,7 +298,7 @@ class LocalInput(QGroupBox):
     def choose_project(self):
         key=self.project_window.choose_record('signal',**self.source_constraints())
         if key:self.set_source(self.project_window.project.get(key),key)
-    def read(self):
+    def read(self, *, register=True):
         value=self._read()
         origin=getattr(self,'_expression_origin',None)
         if self.mode.currentIndex()==0 and origin and origin[0]==self.expression.text():
@@ -307,18 +307,28 @@ class LocalInput(QGroupBox):
             condition=getattr(self,'_expression_frequency_condition','True')
             if condition!='True':
                 value.metadata['source_frequency_condition']=condition
-        if self.project_window:
-            if self.mode.currentIndex()==2 and self.loaded_reference_id:
-                self.reference_id=self.loaded_reference_id;return value
-            header=json.dumps(dict(origin=value.origin,step=value.step,units=value.units,name=value.name,domain=value.domain,expression=value.expression,metadata=value.metadata),sort_keys=True,allow_nan=False)
-            signature=(header,hashlib.sha256(value.values.tobytes()).digest())
-            if signature!=self.fingerprint:
-                origin=getattr(self,'_expression_origin',None)
-                parents=[origin[1]] if self.mode.currentIndex()==0 and origin and origin[1] and origin[0]==self.expression.text() else []
-                self.reference_id=self.project_window.publish(value,operation='Entrada: '+self.title(),parents=parents)
-                self.fingerprint=signature
-                if self.mode.currentIndex()==2:self.loaded_reference_id=self.reference_id
+        if register and self.project_window:
+            key, signature, parents = self.input_registration(value)
+            if key is None:
+                key = self.project_window.publish(value, operation='Entrada: '+self.title(), parents=parents)
+            self.remember_registration(key, signature)
         return value
+
+    def input_registration(self, value):
+        if self.mode.currentIndex()==2 and self.loaded_reference_id:
+            return self.loaded_reference_id, self.fingerprint, ()
+        header=json.dumps(dict(origin=value.origin,step=value.step,units=value.units,name=value.name,domain=value.domain,expression=value.expression,metadata=value.metadata),sort_keys=True,allow_nan=False)
+        signature = (header, hashlib.sha256(memoryview(value.values)).digest())
+        if signature == self.fingerprint:
+            return self.reference_id, signature, ()
+        origin = getattr(self, '_expression_origin', None)
+        parents = (origin[1],) if self.mode.currentIndex()==0 and origin and origin[1] and origin[0]==self.expression.text() else ()
+        return None, signature, parents
+
+    def remember_registration(self, key, signature):
+        self.reference_id, self.fingerprint = key, signature
+        if self.mode.currentIndex()==2:
+            self.loaded_reference_id = key
     def _read(self):
         mode=self.mode.currentIndex()
         if mode==2:
@@ -1052,10 +1062,12 @@ class ToolPage(QWidget):
         self.result_state=ResultState(tracked,button,sources);box.insertWidget(1,self.result_state)
         def calculate():
             try:
+                if operation == 'dft':
+                    self.calculate_dft(window, result)
+                    return
                 x=self.first.read();h=self.second.read() if self.second else None
                 parameter=constant_value(self.parameter.text()) if operation=='scale' else integer_field(self.parameter) if operation=='shift' else None
                 restore_origin=operation=='idft' and self.restore_dft_origin.isChecked()
-                phase_reference = self.dft_phase_reference.currentData() if operation == 'dft' else None
                 functions = {
                     'generate': lambda: x,
                     'measures': lambda: ops.finite_measures(x),
@@ -1067,7 +1079,6 @@ class ToolPage(QWidget):
                     'convolve': lambda: ops.linear_convolution(x, h),
                     'correlate': lambda: ops.linear_correlation(x, h),
                     'circular': lambda: ops.circular_convolution(x, h),
-                    'dft': lambda: ops.dft(x, centered=True, phase_reference=phase_reference),
                     'idft': lambda: ops.idft(x, restore_origin=restore_origin),
                     'continuous_convolve': lambda: continuous.convolution(x, h),
                     'continuous_correlate': lambda: continuous.correlation(x, h),
@@ -1096,6 +1107,37 @@ class ToolPage(QWidget):
         button.clicked.connect(calculate)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(300)
         split=QSplitter(Qt.Orientation.Horizontal);split.setChildrenCollapsible(False);split.addWidget(scroll);split.addWidget(result);split.setSizes([350,740]);split.setStretchFactor(1,1);root.addWidget(split,1)
+
+    def calculate_dft(self, window, view):
+        from .dft_application import DFTRequest, calculate_dft, store_dft
+
+        source = self.first.read(register=False)
+        source_id, signature, parents = self.first.input_registration(source)
+        inputs = self.result_state.snapshot()
+        project = window.project
+        request = DFTRequest(source, phase_reference=self.dft_phase_reference.currentData())
+
+        def accept(result):
+            journal = getattr(window, '_result_journal', None)
+            if journal:
+                # This route owns publication. The journal must not retry a rejected commit.
+                journal.reported(result, outputs_registered=True)
+            if window.project is not project:
+                return
+            tool = journal.origin if journal else {'title':self.tool_item[0], 'route':list(self.tool_item)}
+            input_key, result_key = store_dft(
+                project, result, source_id=source_id, source=source if source_id is None else None,
+                source_parents=parents, source_operation='Entrada: '+self.first.title(),
+                operation=operation_label('dft'), tool=tool)
+            if source_id is None:
+                window.register_publication(input_key, source)
+            if self.result_state.snapshot() == inputs:
+                self.first.remember_registration(input_key, signature)
+            window.register_publication(result_key, result.spectrum)
+            view.show_result(result.spectrum, source=source, operation='dft')
+            self.result_state.accept(inputs)
+
+        window._run_operation('Calculando…', lambda: calculate_dft(request), accept)
 
 class ToolboxWindow(SignalLabWindow):
     def __init__(self):
@@ -1234,6 +1276,11 @@ class ToolboxWindow(SignalLabWindow):
         route=getattr(self,'current_operation',None)
         tool=journal.origin if journal else {'title':route[0],'route':list(route)} if route else None
         key=self.project.add(value,title=title,operation=operation,parents=parents,tool=tool)
+        self.register_publication(key, value)
+        return key
+
+    def register_publication(self, key, value):
+        journal = getattr(self, '_result_journal', None)
         if journal:journal.published(key,value)
         if isinstance(value,(Signal,Transfer,StateModel)):
             objects=getattr(self,'_published_values',{})
@@ -1243,7 +1290,6 @@ class ToolboxWindow(SignalLabWindow):
             self._published_signals={identity:entry for identity,entry in self._published_signals.items() if entry[0]() is not None}
             self._published_signals[id(value)]=(weakref.ref(value),key)
         if journal is None:self.refresh_project()
-        return key
     def published_value_id(self,value):
         entry=getattr(self,'_published_values',{}).get(id(value))
         return entry[1] if entry and entry[0]() is value else None

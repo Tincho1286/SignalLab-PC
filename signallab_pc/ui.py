@@ -17,7 +17,7 @@ from PySide6.QtWidgets import (QApplication, QComboBox, QFileDialog,
 from .catalog import FUTURE_MENU_MAP, IMPLEMENTED, MODULES
 from .engine import sequence_from_expression, sequence_from_values, replace_sample
 from .model import Signal
-from .operations import (add_sequences, dft, even_odd_parts, finite_measures, idft,
+from .operations import (add_sequences, even_odd_parts, finite_measures, idft,
                          linear_convolution, linear_correlation, circular_convolution, correlation, reverse, scale_amplitude, shift)
 from .storage import load_json, save_csv, save_json
 from .systems_panel import SystemsPanel
@@ -602,9 +602,11 @@ class SignalLabWindow(QMainWindow):
         n_text, ok = QInputDialog.getText(self, "DFT", "N (vacío = longitud natural; otro N trunca o rellena con ceros):", text=str(self.signal.values.size))
         if not ok: return
         try:
+            from .dft_application import DFTRequest, calculate_dft
             n = int(n_text) if n_text.strip() else None
             source = self.signal
-            self._run_operation("Calculando DFT…", lambda: dft(source, n, centered=True),
+            request = DFTRequest(source, n, phase_reference='record_offset')
+            self._run_operation("Calculando DFT…", lambda: calculate_dft(request).spectrum,
                 lambda result: self._operation_succeeded(result, "DFT sin normalizar · frecuencias de −π a π rad/muestra."))
         except Exception as exc: QMessageBox.warning(self, "No se pudo calcular DFT", str(exc))
 

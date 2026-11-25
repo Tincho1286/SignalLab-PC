@@ -5,6 +5,7 @@ on:
     branches: [main, develop]
     paths:
       - 'signallab_pc/**.py'
+      - 'main.py'
       - 'tests/test_math_*.py'
       - 'tests/test_health_exchange.py'
       - 'tests/test_desktop_session.py'
@@ -44,6 +45,7 @@ on:
   pull_request:
     paths:
       - 'signallab_pc/**.py'
+      - 'main.py'
       - 'tests/test_math_*.py'
       - 'tests/test_health_exchange.py'
       - 'tests/test_desktop_session.py'

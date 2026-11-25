@@ -232,6 +232,16 @@ def linear_correlation(x: Signal, h: Signal) -> Signal:
                    "convention": "r[l]=sum_n x[n] conjugate(h[n-l]); zero outside support"})
 
 
+DFT_WORK_BYTES_PER_BIN = 16 * 8
+
+
+def dft_length(x: Signal, length: int | None) -> int:
+    n = x.values.size if length is None else length
+    if isinstance(n, bool) or not isinstance(n, (int, np.integer)) or int(n) < 1:
+        raise ValueError("N debe ser un entero positivo.")
+    return int(n)
+
+
 def dft(x: Signal, length: int | None = None, *, centered: bool = False,
         phase_reference: str = 'record_offset') -> Signal:
     """DFT sin normalizar, con fase según los índices o las posiciones del registro."""
@@ -240,11 +250,8 @@ def dft(x: Signal, length: int | None = None, *, centered: bool = False,
     _discrete(x)
     if not isinstance(phase_reference, str) or phase_reference not in DFT_REFERENCES:
         raise ValueError('Elegí una referencia de fase válida para la DFT.')
-    n = x.values.size if length is None else length
-    if isinstance(n, bool) or not isinstance(n, (int, np.integer)) or int(n) < 1:
-        raise ValueError("N debe ser un entero positivo.")
-    n = int(n)
-    ensure_working_set(n, bytes_per_sample=16, live_arrays=8)
+    n = dft_length(x, length)
+    ensure_working_set(n, bytes_per_sample=DFT_WORK_BYTES_PER_BIN, live_arrays=1)
     use_indices = phase_reference == 'sample_indices'
     values = dft_values(x.values, n, x.origin if use_indices else 0)
     values = _finite_output(values, "La DFT")

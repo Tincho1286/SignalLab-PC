@@ -85,6 +85,74 @@ class DesktopSessionTests(unittest.TestCase):
         QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
         self.app.processEvents()
 
+    def wait_for_calculation(self, window):
+        from PySide6.QtCore import QDeadlineTimer
+        from PySide6.QtTest import QTest
+
+        timeout = QDeadlineTimer(5000)
+        while window._workers and not timeout.hasExpired():
+            QTest.qWait(15)
+        self.assertFalse(window._workers)
+
+    def test_dft_workspace_uses_the_pilot_and_retains_the_input_and_output(self):
+        from signallab_pc.dft_application import DFTRequest, calculate_dft
+        from signallab_pc.operations import idft
+        from test_math_dft_pilot import direct_sum
+
+        window = self.window()
+        route = ROUTES['basic','dft']
+        window.open_tool(route)
+        page = window.pages[route]
+        signal = Signal([1+1j, 2j, -3], -2, metadata={'sample_rate_hz': 8, 'time_start_s': -.125})
+        page.first.set_source(signal)
+        for reference in ('sample_indices', 'record_offset'):
+            with self.subTest(reference=reference):
+                page.dft_phase_reference.setCurrentIndex(page.dft_phase_reference.findData(reference))
+                page.result_state.button.click()
+                self.wait_for_calculation(window)
+                parent, *results = window.project.headers()
+                output = window.project.get(results[-1]['id'])
+                self.assertEqual(results[-1]['parents'], [parent['id']])
+                self.assertEqual(page.basic_result.result_ids, [results[-1]['id']])
+                self.assertEqual(results[-1]['tool']['route'], list(route))
+                expected = calculate_dft(DFTRequest(signal, phase_reference=reference)).spectrum
+                np.testing.assert_allclose(output.values, expected.values, atol=1e-14)
+                np.testing.assert_allclose(output.values, direct_sum(signal, 3, True, reference), atol=1e-13)
+                self.assertEqual(output.metadata, expected.metadata)
+                recovered = idft(output, restore_origin=True)
+                np.testing.assert_allclose(recovered.values, signal.values, atol=1e-13)
+                self.assertEqual(recovered.origin, -2)
+        self.assertEqual(len(window.project.headers()), 3)
+
+    def test_cancelling_dft_before_handoff_keeps_the_project_free_of_partial_records(self):
+        from threading import Event
+        from signallab_pc.operations import dft
+
+        window = self.window()
+        route = ROUTES['basic','dft']
+        window.open_tool(route)
+        page = window.pages[route]
+        page.first.set_source(Signal([1, 2, 3], 1))
+        started, release = Event(), Event()
+
+        def delayed(*args, **kwargs):
+            started.set()
+            if not release.wait(5):
+                raise TimeoutError('Test did not release the DFT worker.')
+            return dft(*args, **kwargs)
+
+        with patch('signallab_pc.operations.dft', side_effect=delayed):
+            page.result_state.button.click()
+            try:
+                self.assertTrue(started.wait(4))
+                self.assertEqual(window.project.headers(), [])
+                window._cancel_operations()
+            finally:
+                release.set()
+            self.wait_for_calculation(window)
+        self.assertEqual(window.project.headers(), [])
+        self.assertEqual(page.basic_result.result_ids, [])
+
     def test_released_dft_session_reopens_with_its_original_phase_reference(self):
         from signallab_pc.operations import idft
 

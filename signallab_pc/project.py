@@ -1,7 +1,9 @@
 """Proyecto compartido: instantáneas tipadas, procedencia y persistencia atómica."""
 from copy import deepcopy
+from contextlib import contextmanager
 from datetime import datetime, timezone
 from pathlib import Path
+from threading import RLock
 from uuid import uuid4
 import json
 from .model import Signal
@@ -63,15 +65,29 @@ def _calculated_references(value):
 class Project:
     def __init__(self):
         self._records={};self.dirty=False
+        self._records_lock=RLock()
+
+    @contextmanager
+    def stage_records(self, *, before_commit):
+        """Stage additions together and serialize writers during the commit."""
+        with self._records_lock:
+            staged = Project()
+            staged._records = self._records.copy()
+            yield staged
+            before_commit()
+            self._records = staged._records
+            self.dirty = self.dirty or staged.dirty
+
     def add(self,value,*,title=None,operation='',parents=(),tool=None):
         kind,data=encode(value)
         parents=list(dict.fromkeys(parents))
-        if any(parent not in self._records for parent in parents):raise ValueError('Origen no registrado en el proyecto.')
         record=dict(id=uuid4().hex,kind=kind,title=title or getattr(value,'name','Cálculo'),
                     operation=operation,parents=parents,created=datetime.now(timezone.utc).isoformat(),data=data)
         record['tool']=deepcopy(tool) if tool else None
         json.dumps(record,allow_nan=False)
-        self._records[record['id']]=record;self.dirty=True
+        with self._records_lock:
+            if any(parent not in self._records for parent in parents):raise ValueError('Origen no registrado en el proyecto.')
+            self._records[record['id']]=record;self.dirty=True
         return record['id']
     def records(self,kind=None):
         return [deepcopy(r) for r in self._records.values() if kind is None or r['kind']==kind or kind=='expression' and self.expression(r['id']) is not None]
@@ -137,8 +153,9 @@ class Project:
         periods = sorted(periods)
         return periods[0] if periods and all(math.isclose(period,periods[0],rel_tol=1e-12,abs_tol=0) for period in periods) else None
     def save(self,path):
-        write_json(path,self.document())
-        self.dirty=False
+        with self._records_lock:
+            write_json(path,self.document())
+            self.dirty=False
 
     def document(self):
         return dict(format='signallab-project',schema_version=2,records=self.records())
@@ -189,7 +206,8 @@ class Project:
                     if identifier in mapping:
                         node[field] = mapping[identifier]
             imported[record['id']]=record
-        self._records.update(imported);self.dirty=self.dirty or bool(imported)
+        with self._records_lock:
+            self._records.update(imported);self.dirty=self.dirty or bool(imported)
         return len(imported)
 
 

@@ -5,10 +5,10 @@ from .atomic_file import write_json
 from .project import Project, read_document
 
 
-def save(path, project, workspace):
+def save(path, project, workspace, *, before_commit=None):
     document = dict(format='signallab-session', schema_version=3,
                     project=project.document(), workspace=workspace)
-    write_json(Path(path), document)
+    write_json(Path(path), document, before_commit=before_commit)
 
 
 def load(path):
