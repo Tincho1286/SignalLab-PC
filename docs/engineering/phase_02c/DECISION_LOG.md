@@ -1,5 +1,7 @@
 # Decisiones
 
+- WP09. Separar el transporte verificado del candidato de la distribución pública y del salto por versión.
+
 - WP08. Distinguir inspección en escritorio y evidencia automatizada de tamaño y escala.
 
 - WP07. Registrar medianas y RSS sin introducir umbrales temporales frágiles en runners compartidos.

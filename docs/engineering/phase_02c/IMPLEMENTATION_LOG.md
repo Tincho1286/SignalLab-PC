@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · WP-02C.09 · C09 · C-09
+
+**Estado inicial.** `b036fd9`. La estable y el candidato declaran 2.0.0. El instalador nativo y el verificador de transporte se auditaron junto con la prueba que rechaza una actualización a igual número.
+
+**Evidencia.** La corrida intermedia 45646503672 aprobó los candidatos nativos de ambos sistemas. Los instaladores y SBOM definitivos corresponden al SHA candidato. Se conserva pendiente el salto real desde 2.0.0 con una futura versión y canal autorizados.
+
+**Decisión.** Mantener la numeración y conservar las pruebas con claves y perfiles descartables.
+
 ## 25 de noviembre de 2026 · WP-02C.08 · C08 · C-08
 
 **Estado inicial.** `825ecfb`. El capturador heredado abría tres vistas con tamaños y escalas parciales. Se amplió a diez vistas y siete perfiles. Se inspeccionó el escritorio Windows real en modo compacto desde el buscador hasta el gráfico DFT.
