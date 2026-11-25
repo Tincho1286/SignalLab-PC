@@ -1,0 +1,587 @@
+{
+  "candidate": "853bd67f7005e893ea6ddaeb37122a764e10b2ea",
+  "action_run": 45622588882,
+  "platforms": {
+    "windows": {
+      "artifact": "SignalLab-PC-2.0.0.exe",
+      "portable_sha256": "fb8fc058ac6ef3d93d03875a928bb75e2c92d2ea07588a6a9a0183bdcec84877",
+      "executable_sha256": "fb8fc058ac6ef3d93d03875a928bb75e2c92d2ea07588a6a9a0183bdcec84877",
+      "runtime": {
+        "qt": {
+          "file": "PySide6\\Qt6Core.dll",
+          "version": "6.12.0"
+        },
+        "qt_svg": {
+          "file": "PySide6\\Qt6Svg.dll"
+        },
+        "python": {
+          "file": "python314.dll",
+          "version": "3.14.10"
+        },
+        "cryptography_openssl": {
+          "version_text": "OpenSSL 4.0.3 29 Sep 2026",
+          "matched_file": "cryptography\\hazmat\\bindings\\_rust.pyd",
+          "sha256": "1d4332a447cab13dec8e3a533ad579e0e562b79e40822c931f33769758fc7156"
+        }
+      },
+      "native_files": 219,
+      "by_exact_source": {
+        "PyPI": 194,
+        "CPython": 25
+      },
+      "symbolic_links": {},
+      "sbom": "native-windows-853bd67.cdx.json",
+      "python_tls_files": [
+        {
+          "path": "libcrypto-3.dll",
+          "sha256": "75495fe0e079ab00d49be740d3c710a0b94e3f74f9648cb7cc9f768fc7f52319",
+          "sources": [
+            {
+              "source": "CPython",
+              "package": "CPython",
+              "version": "3.14.10"
+            }
+          ],
+          "embedded_version": "3.5.9.0"
+        },
+        {
+          "path": "libssl-3.dll",
+          "sha256": "8957182a9c385bfd9f3f790921de2ddc614cf91f99edbed4e9e5446a46504e32",
+          "sources": [
+            {
+              "source": "CPython",
+              "package": "CPython",
+              "version": "3.14.10"
+            }
+          ],
+          "embedded_version": "3.5.9.0"
+        }
+      ],
+      "installer_update": {
+        "platform": "windows-x86_64",
+        "sha256": "44680d70661d54297d4e92ebb3837fb680941277dffda2ddbff9c990ad5f5a46",
+        "temporary_signature_verified": true,
+        "production_key_rejected_test_signature": true,
+        "download_verified": true,
+        "native_installation": {
+          "passed": true,
+          "checks": [
+            "native_upgrade_same_installation",
+            "per_user_registration",
+            "uninstall_preserves_untracked_files",
+            "real_installed_application_self_check",
+            "native_downgrade_rejected"
+          ],
+          "packaged": {
+            "frozen": true,
+            "migration_complete": false,
+            "checks": {
+              "fft_roundtrip": true,
+              "lti_recurrence": true,
+              "bilinear": true,
+              "symbolic_runtime": true,
+              "packaged_update_verification": true,
+              "state_space_simulation_and_project": true,
+              "digital_delay_transfer_roundtrip": true,
+              "toolbox_menu_and_matplotlib": true,
+              "sampling_plot_and_report_layout": true,
+              "project_picker_search_and_selection": true,
+              "formatted_report_preserves_text": true,
+              "packaged_symbolic_measures_and_window": true,
+              "expression_measure_menu": true
+            },
+            "runtime": {
+              "python": "3.14.10",
+              "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+              "expat": "expat_2.9.0"
+            },
+            "versions": {
+              "numpy": "2.5.0",
+              "scipy": "1.18.0",
+              "sympy": "1.14.0",
+              "matplotlib": "3.11.2"
+            },
+            "ok": true
+          }
+        }
+      },
+      "resources": {
+        "platform": "Windows-2022Server-10.0.20348-SP0",
+        "python": "3.14.10",
+        "commit": "853bd67f7005e893ea6ddaeb37122a764e10b2ea",
+        "budget": {
+          "available_bytes": 102400,
+          "fraction": 0.35,
+          "bytes_per_sample": 16,
+          "live_arrays": 4,
+          "accepted_samples": 560,
+          "accepted_bytes": 35840,
+          "rejected_samples": 561
+        },
+        "cancellation": {
+          "dtft_seconds_after_signal": 2.0699999822682003e-05,
+          "symbolic_seconds_after_signal": 0.06393190000017057,
+          "worker_exit": 1,
+          "symbolic_temporary_removed": true,
+          "symbolic_cancel_from_launch_seconds": 0.15
+        },
+        "numeric": [
+          {
+            "operation": "dft",
+            "samples": 16384,
+            "output_values": 16384,
+            "seconds": 0.002443599999878643,
+            "peak_before_bytes": 102068224,
+            "peak_after_bytes": 102338560,
+            "available_before_bytes": 14131720192
+          },
+          {
+            "operation": "dft",
+            "samples": 262144,
+            "output_values": 262144,
+            "seconds": 0.010357900000144582,
+            "peak_before_bytes": 112373760,
+            "peak_after_bytes": 118775808,
+            "available_before_bytes": 14160510976
+          },
+          {
+            "operation": "dtft",
+            "samples": 1024,
+            "output_values": 1025,
+            "seconds": 0.052766300000257615,
+            "peak_before_bytes": 101474304,
+            "peak_after_bytes": 106811392,
+            "available_before_bytes": 14219493376
+          },
+          {
+            "operation": "dtft",
+            "samples": 8192,
+            "output_values": 1025,
+            "seconds": 0.3834762999999839,
+            "peak_before_bytes": 101580800,
+            "peak_after_bytes": 112148480,
+            "available_before_bytes": 14245376000
+          },
+          {
+            "operation": "resample",
+            "samples": 16384,
+            "output_values": 10923,
+            "seconds": 0.003616199999669334,
+            "peak_before_bytes": 101806080,
+            "peak_after_bytes": 101908480,
+            "available_before_bytes": 14282063872
+          },
+          {
+            "operation": "resample",
+            "samples": 262144,
+            "output_values": 174763,
+            "seconds": 0.011302999999770691,
+            "peak_before_bytes": 112332800,
+            "peak_after_bytes": 112332800,
+            "available_before_bytes": 14287347712
+          }
+        ]
+      },
+      "workflow_tests": 316,
+      "gui_profiles": {
+        "commit": "da226a573741725d4ce175e475bc61af0fbde748",
+        "profiles": [
+          {
+            "qt_platform": "windows",
+            "window": [
+              1280,
+              749
+            ],
+            "screen": [
+              1366,
+              768
+            ],
+            "scale": 1.0,
+            "dpi": 96.0,
+            "views": [
+              "inicio",
+              "muestreo",
+              "cas"
+            ],
+            "profile": "1280x800-1"
+          },
+          {
+            "qt_platform": "windows",
+            "window": [
+              640,
+              480
+            ],
+            "screen": [
+              1366,
+              768
+            ],
+            "scale": 1.0,
+            "dpi": 96.0,
+            "views": [
+              "inicio",
+              "muestreo",
+              "cas"
+            ],
+            "profile": "640x480-1"
+          },
+          {
+            "qt_platform": "windows",
+            "window": [
+              800,
+              599
+            ],
+            "screen": [
+              1093,
+              614
+            ],
+            "scale": 1.25,
+            "dpi": 96.0,
+            "views": [
+              "inicio",
+              "muestreo",
+              "cas"
+            ],
+            "profile": "800x600-1.25"
+          },
+          {
+            "qt_platform": "windows",
+            "window": [
+              913,
+              499
+            ],
+            "screen": [
+              911,
+              512
+            ],
+            "scale": 1.5,
+            "dpi": 96.0,
+            "views": [
+              "inicio",
+              "muestreo",
+              "cas"
+            ],
+            "profile": "960x640-1.5"
+          }
+        ],
+        "notes": "Windows native Qt widget capture; desktop has one 1366×768 monitor. Process scaling is independent of OS DPI.",
+        "backend": "Windows desktop and recorded Qt windows",
+        "manual_flows": [
+          {
+            "width": 640,
+            "height": 480,
+            "scale": 1,
+            "workflow": "navigation, sampling, scroll, separate figure",
+            "output_values": 101
+          },
+          {
+            "width": 800,
+            "height": 450,
+            "scale": 1.5,
+            "workflow": "CAS exact derivative",
+            "result": "3*(x+1)^2"
+          }
+        ]
+      }
+    },
+    "linux": {
+      "artifact": "SignalLab-PC-2.0.0-linux-x86_64.tar.gz",
+      "portable_sha256": "f81325d6214258e7aacc713d9ea23c72afd380de6287b844a57f170bb7137c64",
+      "executable_sha256": "8927b252e39e292a47406a546312c6b2973e58638514d82019f4e70f4bbe0d7c",
+      "runtime": {
+        "qt": {
+          "file": "PySide6/Qt/lib/libQt6Core.so.6",
+          "version": "6.12.0"
+        },
+        "qt_svg": {
+          "file": "PySide6/Qt/lib/libQt6Svg.so.6"
+        },
+        "python": {
+          "file": "libpython3.14.so.1.0",
+          "version": "3.14.10"
+        },
+        "cryptography_openssl": {
+          "version_text": "OpenSSL 4.0.3 29 Sep 2026",
+          "matched_file": "cryptography/hazmat/bindings/_rust.abi3.so",
+          "sha256": "1e5d23fa66915204b9b67202a46993844d81cda56f6ad52cead2def37617ee29"
+        }
+      },
+      "native_files": 391,
+      "by_exact_source": {
+        "PyPI": 245,
+        "Ubuntu": 90,
+        "CPython": 56
+      },
+      "symbolic_links": {
+        "libQt6Core.so.6": "PySide6/Qt/lib/libQt6Core.so.6",
+        "libQt6DBus.so.6": "PySide6/Qt/lib/libQt6DBus.so.6",
+        "libQt6EglFSDeviceIntegration.so.6": "PySide6/Qt/lib/libQt6EglFSDeviceIntegration.so.6",
+        "libQt6EglFsKmsSupport.so.6": "PySide6/Qt/lib/libQt6EglFsKmsSupport.so.6",
+        "libQt6Gui.so.6": "PySide6/Qt/lib/libQt6Gui.so.6",
+        "libQt6Network.so.6": "PySide6/Qt/lib/libQt6Network.so.6",
+        "libQt6OpenGL.so.6": "PySide6/Qt/lib/libQt6OpenGL.so.6",
+        "libQt6Svg.so.6": "PySide6/Qt/lib/libQt6Svg.so.6",
+        "libQt6WaylandClient.so.6": "PySide6/Qt/lib/libQt6WaylandClient.so.6",
+        "libQt6Widgets.so.6": "PySide6/Qt/lib/libQt6Widgets.so.6",
+        "libQt6WlShellIntegration.so.6": "PySide6/Qt/lib/libQt6WlShellIntegration.so.6",
+        "libQt6XcbQpa.so.6": "PySide6/Qt/lib/libQt6XcbQpa.so.6",
+        "libXau-154567c4.so.6.0.0": "pillow.libs/libXau-154567c4.so.6.0.0",
+        "libaec-a27cf049.so.0.1.4": "h5py.libs/libaec-a27cf049.so.0.1.4",
+        "libavif-c6062d5f.so.16.4.2": "pillow.libs/libavif-c6062d5f.so.16.4.2",
+        "libgfortran-040039e1-0352e75f.so.5.0.0": "scipy.libs/libgfortran-040039e1-0352e75f.so.5.0.0",
+        "libgfortran-83c28eba-b4027c22.so.5.0.0": "numpy.libs/libgfortran-83c28eba-b4027c22.so.5.0.0",
+        "libgfortran-83c28eba.so.5.0.0": "scipy.libs/libgfortran-83c28eba.so.5.0.0",
+        "libhdf5-9e18f0c6.so.320.0.0": "h5py.libs/libhdf5-9e18f0c6.so.320.0.0",
+        "libhdf5_hl-69da89c9.so.320.0.0": "h5py.libs/libhdf5_hl-69da89c9.so.320.0.0",
+        "libicudata.so.73": "PySide6/Qt/lib/libicudata.so.73",
+        "libicui18n.so.73": "PySide6/Qt/lib/libicui18n.so.73",
+        "libicuuc.so.73": "PySide6/Qt/lib/libicuuc.so.73",
+        "libjpeg-6dc8d115.so.62.4.0": "pillow.libs/libjpeg-6dc8d115.so.62.4.0",
+        "liblcms2-88eaba2f.so.2.0.19": "pillow.libs/liblcms2-88eaba2f.so.2.0.19",
+        "liblzma-de26b416.so.5.8.4": "pillow.libs/liblzma-de26b416.so.5.8.4",
+        "libopenjp2-e530e1bf.so.2.5.4": "pillow.libs/libopenjp2-e530e1bf.so.2.5.4",
+        "libpyside6.abi3.so.6.12": "PySide6/libpyside6.abi3.so.6.12",
+        "libquadmath-2284e583-a9307bba.so.0.0.0": "numpy.libs/libquadmath-2284e583-a9307bba.so.0.0.0",
+        "libquadmath-2284e583.so.0.0.0": "scipy.libs/libquadmath-2284e583.so.0.0.0",
+        "libquadmath-96973f99-934c22de.so.0.0.0": "scipy.libs/libquadmath-96973f99-934c22de.so.0.0.0",
+        "libscipy_openblas-5f890258.so": "scipy.libs/libscipy_openblas-5f890258.so",
+        "libscipy_openblas64_-017048f4.so": "numpy.libs/libscipy_openblas64_-017048f4.so",
+        "libsharpyuv-0066295b.so.0.1.2": "pillow.libs/libsharpyuv-0066295b.so.0.1.2",
+        "libshiboken6.abi3.so.6.12": "shiboken6/libshiboken6.abi3.so.6.12",
+        "libsz-c6be10dd.so.2.0.1": "h5py.libs/libsz-c6be10dd.so.2.0.1",
+        "libtiff-20b7e810.so.6.3.0": "pillow.libs/libtiff-20b7e810.so.6.3.0",
+        "libwebp-51b0b3f7.so.7.2.0": "pillow.libs/libwebp-51b0b3f7.so.7.2.0",
+        "libwebpdemux-9fe2abcc.so.2.0.17": "pillow.libs/libwebpdemux-9fe2abcc.so.2.0.17",
+        "libwebpmux-8fb1c9f6.so.3.1.2": "pillow.libs/libwebpmux-8fb1c9f6.so.3.1.2",
+        "libxcb-9065bb12.so.1.1.0": "pillow.libs/libxcb-9065bb12.so.1.1.0",
+        "libzstd-40ad5e7e.so.1.5.7": "pillow.libs/libzstd-40ad5e7e.so.1.5.7"
+      },
+      "sbom": "native-linux-853bd67.cdx.json",
+      "python_tls_files": [
+        {
+          "path": "libcrypto.so.3",
+          "sha256": "7cc817ff1841b59516d684f357bc0c3fc2cc52c3fa9b4ffb8ce8bdc215f02915",
+          "sources": [
+            {
+              "source": "Ubuntu",
+              "package": "libssl3:amd64",
+              "version": "3.0.2-0ubuntu1.30"
+            }
+          ]
+        },
+        {
+          "path": "libssl.so.3",
+          "sha256": "51fc92556f11ddce62f3f988d3fe973fab8fb4742032e61a713688581c924262",
+          "sources": [
+            {
+              "source": "Ubuntu",
+              "package": "libssl3:amd64",
+              "version": "3.0.2-0ubuntu1.30"
+            }
+          ]
+        }
+      ],
+      "installer_update": {
+        "platform": "linux-x86_64",
+        "sha256": "5bd0517642d1c932225c78049c3360fc2890f9bfc82fdcab7c18687f86a2eace",
+        "temporary_signature_verified": true,
+        "production_key_rejected_test_signature": true,
+        "download_verified": true,
+        "native_installation": {
+          "passed": true,
+          "checks": [
+            "real_run_payload",
+            "installed_packaged_self_check",
+            "repair_in_place",
+            "uninstall_preserves_data"
+          ],
+          "packaged": {
+            "frozen": true,
+            "migration_complete": false,
+            "checks": {
+              "fft_roundtrip": true,
+              "lti_recurrence": true,
+              "bilinear": true,
+              "symbolic_runtime": true,
+              "packaged_update_verification": true,
+              "state_space_simulation_and_project": true,
+              "digital_delay_transfer_roundtrip": true,
+              "toolbox_menu_and_matplotlib": true,
+              "sampling_plot_and_report_layout": true,
+              "project_picker_search_and_selection": true,
+              "formatted_report_preserves_text": true,
+              "packaged_symbolic_measures_and_window": true,
+              "expression_measure_menu": true
+            },
+            "runtime": {
+              "python": "3.14.10",
+              "openssl": "OpenSSL 3.0.2 15 Mar 2022",
+              "expat": "expat_2.9.0"
+            },
+            "versions": {
+              "numpy": "2.5.0",
+              "scipy": "1.18.0",
+              "sympy": "1.14.0",
+              "matplotlib": "3.11.2"
+            },
+            "ok": true
+          }
+        }
+      },
+      "resources": {
+        "platform": "Linux-6.8.0-1070-azure-x86_64-with-glibc2.35",
+        "python": "3.14.10",
+        "commit": "853bd67f7005e893ea6ddaeb37122a764e10b2ea",
+        "budget": {
+          "available_bytes": 102400,
+          "fraction": 0.35,
+          "bytes_per_sample": 16,
+          "live_arrays": 4,
+          "accepted_samples": 560,
+          "accepted_bytes": 35840,
+          "rejected_samples": 561
+        },
+        "cancellation": {
+          "dtft_seconds_after_signal": 2.5066999995715378e-05,
+          "symbolic_seconds_after_signal": 0.05353439299999252,
+          "worker_exit": -15,
+          "symbolic_temporary_removed": true,
+          "symbolic_cancel_from_launch_seconds": 0.15
+        },
+        "numeric": [
+          {
+            "operation": "dft",
+            "samples": 16384,
+            "output_values": 16384,
+            "seconds": 0.003103546000005508,
+            "peak_before_bytes": 111661056,
+            "peak_after_bytes": 112447488,
+            "available_before_bytes": 11708358656
+          },
+          {
+            "operation": "dft",
+            "samples": 262144,
+            "output_values": 262144,
+            "seconds": 0.013550009999988788,
+            "peak_before_bytes": 121720832,
+            "peak_after_bytes": 127729664,
+            "available_before_bytes": 11695906816
+          },
+          {
+            "operation": "dtft",
+            "samples": 1024,
+            "output_values": 1025,
+            "seconds": 0.046458565999998314,
+            "peak_before_bytes": 111394816,
+            "peak_after_bytes": 117342208,
+            "available_before_bytes": 11707777024
+          },
+          {
+            "operation": "dtft",
+            "samples": 8192,
+            "output_values": 1025,
+            "seconds": 0.2690624250000013,
+            "peak_before_bytes": 111407104,
+            "peak_after_bytes": 123887616,
+            "available_before_bytes": 11707703296
+          },
+          {
+            "operation": "resample",
+            "samples": 16384,
+            "output_values": 10923,
+            "seconds": 0.005107055999999943,
+            "peak_before_bytes": 111546368,
+            "peak_after_bytes": 111677440,
+            "available_before_bytes": 11707703296
+          },
+          {
+            "operation": "resample",
+            "samples": 262144,
+            "output_values": 174763,
+            "seconds": 0.024425183999994715,
+            "peak_before_bytes": 121798656,
+            "peak_after_bytes": 121798656,
+            "available_before_bytes": 11699458048
+          }
+        ]
+      },
+      "workflow_tests": 316,
+      "gui_profiles": {
+        "backend": "xcb on Xvfb",
+        "variants": {
+          "1280x800-1": {
+            "qt_platform": "xcb",
+            "window": [
+              1280,
+              800
+            ],
+            "screen": [
+              1920,
+              1080
+            ],
+            "scale": 1.0,
+            "dpi": 96.0,
+            "views": [
+              "inicio",
+              "muestreo",
+              "cas"
+            ]
+          },
+          "640x480-1": {
+            "qt_platform": "xcb",
+            "window": [
+              640,
+              480
+            ],
+            "screen": [
+              1920,
+              1080
+            ],
+            "scale": 1.0,
+            "dpi": 96.0,
+            "views": [
+              "inicio",
+              "muestreo",
+              "cas"
+            ]
+          },
+          "800x600-1.25": {
+            "qt_platform": "xcb",
+            "window": [
+              800,
+              600
+            ],
+            "screen": [
+              1536,
+              864
+            ],
+            "scale": 1.25,
+            "dpi": 96.0,
+            "views": [
+              "inicio",
+              "muestreo",
+              "cas"
+            ]
+          },
+          "960x640-1.5": {
+            "qt_platform": "xcb",
+            "window": [
+              960,
+              640
+            ],
+            "screen": [
+              1280,
+              720
+            ],
+            "scale": 1.5,
+            "dpi": 96.0,
+            "views": [
+              "inicio",
+              "muestreo",
+              "cas"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

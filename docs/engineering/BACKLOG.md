@@ -18,13 +18,13 @@ Prioridades de Fase 01 y condiciones de continuidad. El estado de los controles 
 ### Seguimiento de Fase 01
 
 - E01 se corrigió en la primera estable y la guarda estática del candidato pasa con 375 archivos.
-- E02 verificó los runtimes publicados. El candidato de `develop` incorpora Qt 6.12.0 y CPython 3.14.10 verificados en los portables de prueba. Continúan abiertos el inventario de versiones transitivas y la revisión de OpenSSL del paquete Linux.
+- E02 verificó los runtimes publicados y completó el inventario de archivos nativos del candidato. Se acreditó la revisión de OpenSSL de Ubuntu. Continúan abiertos Qt 6.12.1, los componentes embebidos y el seguimiento de avisos.
 - E03 se verificó para la distribución 2.0.0. El candidato se valida como rama de trabajo.
 - E04 incorpora la convención explícita, comparaciones analíticas y round trips con las versiones históricas.
-- E05 conserva el perfil offscreen en ambos sistemas e instrumenta líneas, ramas y el worker simbólico. Las nuevas pruebas alcanzan el objetivo de líneas de Muestreo y Fourier. La cobertura global y la validación interactiva con distintas pantallas siguen abiertas.
-- E06 agrega tres fixtures históricos de sesión. Ampliar la muestra a proyectos antiguos, diagramas, ROC y hojas CAS.
-- E07 cubre el presupuesto previo a leer un script MATLAB. Quedan perfiles de estrés y política común de plazos y recursos del cálculo simbólico.
-- E08 adopta las ruedas Qt Essentials de versión fija que contienen los módulos utilizados. Contrastar bibliotecas nativas empaquetadas y dependencias de sistema.
+- E05 instrumenta líneas, ramas y el worker simbólico. Muestreo y Fourier superan el objetivo de líneas. La cobertura global y la interacción en escritorios con DPI del sistema heterogéneo siguen abiertas.
+- E06 verifica tres formatos de sesiones, dos de proyectos, tres de diagramas, ROC y reutilización de un resultado de la hoja CAS. Se conserva el historial ya publicado en la biblioteca.
+- E07 mide cálculos representativos y cancelación con limpieza en Windows/Linux. Quedan perfiles de estrés, concurrencia y una política común de plazos y memoria.
+- E08 usa ruedas Qt Essentials fijadas. Se contrastaron las bibliotecas nativas empaquetadas con los archivos de sus proveedores. El inventario de dependencias aportadas por el anfitrión queda abierto.
 - E09 mantiene los controles de diseño y precisión del gate. Falta ampliar referencias independientes de extremos en banda y orden mínimo.
 - E10 actualiza el grafo y propone la DFT como el único piloto mediante ADR.
 

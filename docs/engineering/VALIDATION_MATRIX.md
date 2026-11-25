@@ -18,5 +18,18 @@
 | WP-05 · Recuperación y corrupción | Pruebas de escritura interrumpida y rechazo de referencias inválidas | Verificado en Windows/Linux en el perfil offscreen. |
 | WP-06 · Grafo y ADR | AST, componentes cíclicos y evaluación de las representaciones. Un flujo piloto definido | Verificado para el grafo. ADR propuesto. |
 | Distribución 2.0.0 | Validación nativa de instaladores y manifiestos de la estable | Verificado para el SHA del release. |
-| Distribución del candidato | Instalador, actualización, firma y publicación | No aplicable a los portables descartables de auditoría. |
+| Distribución del candidato | Instaladores reales y descarga verificada con manifiesto descartable en `853bd67` | Verificado en Windows y Ubuntu en CI. La actualización desde el canal público y la confianza Authenticode requieren validación de entrega. |
 | Fase 02 y laboratorios nuevos | Implementación de la arquitectura objetivo | No aplicable a la autorización de Fase 01. |
+
+## Controles del candidato de cierre
+
+| Control | Resultado y alcance |
+| --- | --- |
+| SBOM nativo | 219 archivos PE de Windows y 391 ELF de Linux identificados por huella y origen. Se registraron 42 enlaces de Linux. |
+| OpenSSL Linux | `libssl.so.3` y `libcrypto.so.3` coinciden con la revisión corregida de Ubuntu `3.0.2-0ubuntu1.30`. |
+| Qt | 6.12.0 verificado en ambos portables. Evaluación de 6.12.1 pendiente de las ruedas compatibles de PySide6 Essentials y shiboken6. |
+| Recursos | DFT, DTFT y cambio de tasa medidos en ambos sistemas. La guarda de memoria cruza el límite previsto y tanto la DTFT como el worker simbólico cancelan. Plazos y cuotas universales pendientes. |
+| Proyectos, diagramas, ROC y CAS | Se amplió la suite con oráculos, reutilización y compatibilidad de esquemas. El estado completo de una hoja CAS queda fuera de la persistencia de sesión. |
+| UI y DPI | Cuatro tamaños y tres escalas Qt revisados visualmente. Interacción de Muestreo y CAS en Windows. Capturas X11 sobre Xvfb en Ubuntu. Migración entre monitores y escritorio Linux interactivo pendientes. |
+
+[Informe de cierre](PHASE_01_CLOSEOUT.md) · [Evidencia de distribución](evidence/phase-01-distribution-853bd67.json)

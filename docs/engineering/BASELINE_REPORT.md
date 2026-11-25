@@ -66,3 +66,7 @@ Se agregaron 17 pruebas matemáticas independientes a la suite integral y al gat
 | Cobertura de líneas de Fourier | 91,44 % | 91,44 % |
 
 Las huellas de fuente, pruebas y herramientas coincidieron entre los dos sistemas. En Windows también se verificó que el script de desarrollo migre un entorno 3.12 a 3.14, conserve un respaldo utilizable y deje las dependencias instaladas sin conflictos. `main` contiene la versión estable 2.0.0. El candidato y sus verificaciones quedan en `develop`. [Evidencia del candidato](evidence/cpython-31410-ccb6a86.json) · [Cobertura](COVERAGE_REPORT.md)
+
+## Referencia de cierre de Fase 01
+
+El candidato `853bd67f7005e893ea6ddaeb37122a764e10b2ea` amplía la compatibilidad de proyectos y pruebas científicas y registra los controles de distribución sobre Windows Server 2022 y Ubuntu 22.04. El informe de cierre conserva las mediciones, el SBOM y las excepciones que afectan a una futura entrega. [Informe de cierre](PHASE_01_CLOSEOUT.md)

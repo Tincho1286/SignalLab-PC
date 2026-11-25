@@ -34,8 +34,10 @@ def candidates(names):
                 by_path.setdefault(path, ('PyPI', dist.metadata['Name'], dist.version))
     python_dirs = (Path(sysconfig.get_path('platstdlib'))/'lib-dynload',
                    Path(sys.base_prefix)/'DLLs', Path(sys.base_prefix))
-    if sysconfig.get_config_var('LIBDIR'):
-        python_dirs += (Path(sysconfig.get_config_var('LIBDIR')),)
+    # platstdlib can point to the venv rather than the interpreter that owns lib-dynload.
+    for variable in ('DESTSHARED', 'LIBDIR'):
+        if value := sysconfig.get_config_var(variable):
+            python_dirs += (Path(value),)
     for directory in python_dirs:
         for name in names:
             path = directory/name

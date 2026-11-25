@@ -18,4 +18,13 @@ Cada archivo se generó desde el código del escritor indicado con una señal pr
 
 La suite también ejercita errores de lectura y escritura, recuperación automática, referencias inexistentes, conclusiones simbólicas con condiciones y edición histórica de muestras. En una sesión v2, el resultado editado se conserva al migrar aunque la información de deshacer no exista en el formato original. Para esos registros se mantiene la invalidación de la fórmula. Los resultados DFT previos se identifican como referencia a `m=0`, con la excepción de los espectros angulares del estudio de ventanas, que ya aplicaban el índice `n`. [Convenciones](MATHEMATICAL_CONVENTIONS.md)
 
-La muestra de sesiones históricas se limita a rutas, datos y controles concretos. Sigue pendiente ampliar con proyectos v1/v2 archivados externamente, ROC y sistemas con avances, diagramas y hojas CAS de cada época. La migración no garantiza que una versión anterior pueda interpretar la opción de fase agregada en el formato de controles.
+## Proyectos, diagramas y CAS
+
+| Archivo | Origen | Comprobaciones |
+| --- | --- | --- |
+| [Proyecto v1](../../tests/fixtures/project-v1-legacy-clock.json) | Reconstrucción del esquema legado a partir del escritor v2 | Recupera el período de muestreo heredado de 0,125 s y conserva la cadena de resultados al volver a guardar. |
+| [Proyecto v2](../../tests/fixtures/project-v2-roc-cas-2.0.0.json) | Escritor de 2.0.0 | Preserva la ROC izquierda, el reloj y los resultados derivados. Verifica rechazo atómico con ROC o referencias inválidas, exportación transitiva y fusión con identificadores nuevos. |
+| Diagramas [v1](../../tests/fixtures/diagram-v1-2.0.0.json), [v2](../../tests/fixtures/diagram-v2-2.0.0.json), [v3](../../tests/fixtures/diagram-v3-2.0.0.json) | Escritor de diagramas de 2.0.0 | Reapertura con ganancia continua, bloque discreto con reloj y realimentación negativa. Las funciones de transferencia se comparan con expresiones independientes. |
+| Resultado CAS del proyecto v2 | Dos celdas ejecutadas en 2.0.0 | Importa el resultado publicado como `r1` en una hoja nueva y obtiene exactamente `12*x` al derivarlo. |
+
+La muestra cubre los esquemas indicados y sus rutas de entrada. El v1 reconstruido verifica el lector y carece de un archivo de usuario contemporáneo como referencia. La persistencia de sesión conserva los resultados CAS publicados. La restauración de la hoja activa, las variables locales y los borradores del CAS sigue fuera de ese contrato. Las versiones anteriores pueden desconocer la opción de fase agregada al formato de controles. [Cierre de Fase 01](PHASE_01_CLOSEOUT.md)

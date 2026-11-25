@@ -23,13 +23,13 @@
 | --- | --- |
 | R01 · Manejo de error de filtros | Corregido y verificado en 2.0.0. La guarda del candidato vuelve a pasar. |
 | R02 · Qt SVG | Mitigado parcialmente en la publicación. La rama actualiza de Qt 6.10.0 a 6.12.0. Los resultados por plataforma y el resto de los avisos tienen seguimiento propio. |
-| R03 · CPython y bibliotecas nativas | CPython 3.14.10 y Expat 2.9.0 verificados en los dos portables descartables de `develop`. Continúan pendientes la revisión de OpenSSL del paquete Linux, el inventario nativo transitivo y el análisis completo de exposición. |
+| R03 · CPython y bibliotecas nativas | CPython 3.14.10 y Expat 2.9.0 verificados en los dos instaladores candidatos. OpenSSL de Ubuntu 22.04 coincide con `3.0.2-0ubuntu1.30`. Se identificaron las dependencias nativas distribuidas como archivos. Queda abierta la revisión periódica de avisos, componentes embebidos y dependencias del anfitrión. |
 | R04 · Fase DFT/DTFT | Corregido y verificado con oráculos, round trips y sesiones de tres escritores históricos. |
 | R05 · Canal y procedencia | Verificado para la estable 2.0.0. Mantener la verificación integrada en toda futura distribución. |
 | R06 · Acoplamiento | Verificado con el grafo del candidato. El componente mayor se conserva y el ADR delimita un futuro piloto. |
-| R07 · Tamaños y cancelación | Mitigado parcialmente con presupuesto previo para scripts MATLAB. Quedan plazos y estrés por entorno. |
-| R08 · Sesiones | Verificado para DFT de los tres esquemas con restauración y guardado. Pendiente ampliar representatividad y compatibilidad de proyectos heredados. |
-| R09 · Evidencia de pruebas | Medición de línea y rama verificada en ambos sistemas. Muestreo y Fourier superan el objetivo de líneas. Siguen abiertos el objetivo global y la verificación de UI con pantallas y DPI reales. |
+| R07 · Tamaños y cancelación | Mitigado parcialmente. Se midieron escalas numéricas, frontera de la estimación de RAM y cancelación con limpieza. Quedan por cubrir concurrencia, cargas grandes de archivos y una política de plazos y cuotas para cálculos simbólicos. |
+| R08 · Sesiones | Verificadas sesiones de tres escritores, proyectos de dos esquemas, ROC y tres formatos de diagramas. El CAS conserva resultados publicados. El estado activo de sus hojas requiere un contrato propio de persistencia. |
+| R09 · Evidencia de pruebas | Muestreo y Fourier superan el objetivo de líneas. La brecha global y la prueba en escritorios reales con varios DPI quedan registradas como excepciones. La revisión visual cubrió cuatro perfiles Qt y hubo interacción en Windows. |
 | R10 · Dependencias de instalación | Los archivos de requisitos coinciden para Qt Essentials. Falta consolidar el alcance de los perfiles de instalación y verificar hashes de cada wheel. |
 
-La [línea base de seguridad](SECURITY_BASELINE.md) y la [matriz](VALIDATION_MATRIX.md) distinguen mitigaciones vigentes y correcciones del candidato. R11 y R12 siguen abiertos como condiciones futuras.
+La [línea base de seguridad](SECURITY_BASELINE.md), la [matriz](VALIDATION_MATRIX.md) y el [informe de cierre](PHASE_01_CLOSEOUT.md) detallan el alcance del candidato y las limitaciones que llevan a revisión. R11 y R12 siguen abiertos como condiciones futuras.

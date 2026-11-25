@@ -1,17 +1,17 @@
 # Estado de SignalLab Engineering
 
-**Fase 01 autorizada con condiciones.** El trabajo de estabilización está en `develop`. `main` apunta a `acb9e38`, que incorpora el código y el índice de descargas de la estable 2.0.0. La etiqueta de distribución `v2.0.0` sigue en `adfad5c`. Los controles del candidato se ejecutan por SHA en `develop`.
+**Línea base de Fase 01 cerrada con excepciones documentadas.** El trabajo de estabilización está en `develop`. El candidato auditado es `853bd67`. `main` apunta a `acb9e38`, que incorpora el código y el índice de descargas de la estable 2.0.0. La etiqueta de distribución `v2.0.0` está en `adfad5c`. [Informe de cierre](PHASE_01_CLOSEOUT.md)
 
 | Área | Estado |
 | --- | --- |
 | Convención de fase | Corregida. La DFT directa de escritorio toma por defecto el índice `n` y conserva un modo con referencia a la primera muestra. Las pruebas cubren inversión, exportación y procedencia. |
-| Sesiones históricas | Comprobadas en tres formatos con los escritores originales. Se preserva fase, reloj, identidad y dependencia entre resultados. |
-| Seguridad | El candidato incluye CPython 3.14.10, Expat 2.9.0 y Qt Essentials 6.12.0. Sigue abierto el inventario de versiones nativas restantes y el seguimiento de avisos posteriores. |
-| Validación | `ccb6a86` pasó 814 pruebas, 150 casos preventivos y el diagnóstico de ambos portables descartables. Muestreo llegó al 92,11 % de líneas y Fourier al 91,44 %. |
+| Sesiones históricas | Comprobados tres formatos de sesión, dos de proyecto y tres de diagramas. Se preservan la fase, el reloj, la ROC y las relaciones de procedencia en los casos verificados. |
+| Seguridad | SBOM de los archivos nativos distribuibles con CPython 3.14.10, Expat 2.9.0 y Qt Essentials 6.12.0. OpenSSL del portable Linux vinculado a la revisión corregida de Ubuntu. Pendiente la rueda de Qt 6.12.1. |
+| Validación | 821 pruebas integrales y 150 casos preventivos por sistema. Instaladores y descarga comprobados con un manifiesto de prueba. Medidos los recursos y la cancelación. La matriz visual cubre cuatro tamaños con tres escalas de Qt. |
 | Arquitectura | El grafo reproduce el acoplamiento de Qt con los motores. La DFT es el único piloto propuesto al evaluar una futura extracción. [ADR 001](ADR-001-DFT-PILOT.md) |
 
 ## Dictamen de estabilización
 
-**Fase 01 en estabilización.** El candidato tiene una referencia reproducible, actualiza CPython, corrige el contrato de fase y conserva los datos de las sesiones históricas comprobadas. La cobertura global sigue por debajo del objetivo orientativo. Quedan abiertos el seguimiento de dependencias nativas, la ampliación de formatos históricos comprobados y la caracterización de los límites de recursos.
+La cobertura de Muestreo y Fourier supera el objetivo del 90 % de líneas. La cobertura global continúa por debajo del objetivo orientativo del 85 %. Las excepciones incluyen la disponibilidad de Qt 6.12.1, la UI Linux en un escritorio de uso real, el DPI del sistema y la entrega remota por el canal público.
 
 El [informe de línea base](BASELINE_REPORT.md), la [matriz de validación](VALIDATION_MATRIX.md) y el [registro de riesgos](RISK_REGISTER.md) recogen el alcance de las verificaciones. El piloto DFT es una propuesta y la Fase 02 requiere autorización específica.

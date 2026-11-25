@@ -1,0 +1,288 @@
+{
+  "candidate": "853bd67f7005e893ea6ddaeb37122a764e10b2ea",
+  "portable_sha256": "f81325d6214258e7aacc713d9ea23c72afd380de6287b844a57f170bb7137c64",
+  "origin": "actions/python-versions",
+  "version": "3.14.10",
+  "archive": "https://github.com/actions/python-versions/releases/download/3.14.10-40336797752/python-3.14.10-linux-22.04-x64.tar.gz",
+  "archive_sha256": "c48e486fadd9f91d76c2b48db591821c147933b3492a3994f8f59b83f9881b82",
+  "compared": 55,
+  "matches": [
+    {
+      "path": "python3.14/lib-dynload/resource.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "75930e32f410d52ad89a1e81f2c51e2b94686ea456388a44115e2878ab5e1fc4",
+      "provider_member": "./lib/python3.14/lib-dynload/resource.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_uuid.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "1805afb61070fed6f76c1869cf548131b26110771e2fc91895f5004dbb4e495d",
+      "provider_member": "./lib/python3.14/lib-dynload/_uuid.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_heapq.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "9b4ab7b311fde5113baf01eaa0a741c1373fe492c8cc480553d3a653637e4474",
+      "provider_member": "./lib/python3.14/lib-dynload/_heapq.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_elementtree.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "d6b7cdd2e29c551058d6599bdd6e590e4edb072507d2cfd35bd1f8f77ef99929",
+      "provider_member": "./lib/python3.14/lib-dynload/_elementtree.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_zstd.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "9983db5a64778afe477267bc720c88e5768d35e5ce81fabafc783ff10e8fa514",
+      "provider_member": "./lib/python3.14/lib-dynload/_zstd.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_md5.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "b9fc183c12b459f379945d46429061477e280e8c363f5ed1e59c26a503faf6f2",
+      "provider_member": "./lib/python3.14/lib-dynload/_md5.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/cmath.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "76d43bfea533a49a59650b43b9b0bc51dc43c87d9e1b0e4eb3750b5494a25bfd",
+      "provider_member": "./lib/python3.14/lib-dynload/cmath.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_statistics.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "14cb7bcde788e236b8c0a1676c81301ca29a343d516c276fbfa2a115cea916c4",
+      "provider_member": "./lib/python3.14/lib-dynload/_statistics.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_pickle.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "821ec6fe5a624d50f0839f4f2cfe5f06624fc59c3f15f9e977382f2fd3dd82ee",
+      "provider_member": "./lib/python3.14/lib-dynload/_pickle.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/readline.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "dfae01e5fd3dd0eab0ae7a4d7be54cdc31f60b1229f4e4ee18032eb253ec9e7a",
+      "provider_member": "./lib/python3.14/lib-dynload/readline.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_queue.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "c80c3b2c96468b0e1f65d21261e4890536b4cfc5206d741bf11b608bf4494b46",
+      "provider_member": "./lib/python3.14/lib-dynload/_queue.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_posixshmem.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "6c718bbee61f0384f0d4ba20175d6c9118bc1ea34d5090ac953cf64344174604",
+      "provider_member": "./lib/python3.14/lib-dynload/_posixshmem.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_struct.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "9278875012ec100489fcae5e40691793e4bd0fa1663a1f44663adb27715309a1",
+      "provider_member": "./lib/python3.14/lib-dynload/_struct.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_codecs_cn.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "66407a74a4ddb4f9eb51bb90b0aa16dfcca2b7b0337f2ce325c9cc894cd88b65",
+      "provider_member": "./lib/python3.14/lib-dynload/_codecs_cn.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_codecs_kr.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "f6bfa6b691b1bf1e665dc4e69d4d2c9a270e9bc7eaca4c52c0666c3287ec3273",
+      "provider_member": "./lib/python3.14/lib-dynload/_codecs_kr.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/math.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "60c2d9947a4794755528ec2fb04574177425cda62baa23e7be74d5a4d018e720",
+      "provider_member": "./lib/python3.14/lib-dynload/math.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_ssl.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "808f6ecd5004335f116a5dd737f7b849daac30e4b007ad3897630e5e0f212a6a",
+      "provider_member": "./lib/python3.14/lib-dynload/_ssl.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_interpreters.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "8dbe238b1499cd1df691ff1622d6db984c92229f597a1b0234a0db3b738d46f2",
+      "provider_member": "./lib/python3.14/lib-dynload/_interpreters.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_blake2.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "5a09cbffcff8155eafba54dea8c685ed93ff7c116e94ddad48d77cf02b2171de",
+      "provider_member": "./lib/python3.14/lib-dynload/_blake2.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_codecs_hk.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "4a0e030d814f27390d2f1e58995fe90106d66f2c9a4b726fbff1c446734a50cb",
+      "provider_member": "./lib/python3.14/lib-dynload/_codecs_hk.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/grp.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "4c684547953adac8c6317348eb1eb8d63497daf6ff46c5b28066df60944a8477",
+      "provider_member": "./lib/python3.14/lib-dynload/grp.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_sha2.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "f2dd4644e74e4d7f4531643377cbd524f6ccf54eac87799de20c11a2b93697f8",
+      "provider_member": "./lib/python3.14/lib-dynload/_sha2.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/array.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "6ac1e34e0f3a30f5ab54756d69b927695098a28ddd051cc156f3f0bfb6ee6795",
+      "provider_member": "./lib/python3.14/lib-dynload/array.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_interpqueues.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "bc80609f39e4193e3b399837d47e03084a7f6ae7e752e58e54669fef49d77c76",
+      "provider_member": "./lib/python3.14/lib-dynload/_interpqueues.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_random.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "65c4336fbde1ec620834d2a0285d29ba1a331ba76e0bae9debaeba7f2bea1730",
+      "provider_member": "./lib/python3.14/lib-dynload/_random.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_lsprof.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "998e25963848cde148c89c9bb734165c9c9a111a4507d4eb95eac504f0605f9e",
+      "provider_member": "./lib/python3.14/lib-dynload/_lsprof.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/termios.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "d23ea1ca73de053ef08581c891fa17f229aef0747c9d4e0c2b329dbdc58af41a",
+      "provider_member": "./lib/python3.14/lib-dynload/termios.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_decimal.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "2a99852109a9482af4708a71246af1103db0b541f393db07d70164eec36d8f6d",
+      "provider_member": "./lib/python3.14/lib-dynload/_decimal.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/xxsubtype.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "2e97f0b5011eaf7d11ebcb0e901c07b432bd1d9f675820f48e3688b170c30bd6",
+      "provider_member": "./lib/python3.14/lib-dynload/xxsubtype.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_multibytecodec.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "1fe753761b5e2a48758aa218f710a27b59fbfff31a34597e42a5cef790ee5e04",
+      "provider_member": "./lib/python3.14/lib-dynload/_multibytecodec.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_lzma.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "8b55873d6c2f1b12d9ada8f375707b279905b0934ebe6a8efc96265d061b14d0",
+      "provider_member": "./lib/python3.14/lib-dynload/_lzma.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_sha1.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "aab7b7014aea3b9a37db1ba8076646bc982a6ae101039ab2675ad6b89763380c",
+      "provider_member": "./lib/python3.14/lib-dynload/_sha1.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_posixsubprocess.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "346ffb697d2b08f77c5a6a38cbdcffe46867dce6413366323659a4c86b38b881",
+      "provider_member": "./lib/python3.14/lib-dynload/_posixsubprocess.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_hashlib.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "2bd79db5603fa47638fe45b9ca111bac2867e6d594e07ec0f460f1178d3cfd90",
+      "provider_member": "./lib/python3.14/lib-dynload/_hashlib.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/zlib.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "e1c6bc6fe547c67da8d362151bccd1bfe40f13fca9260a32c07edc8dbbf93f25",
+      "provider_member": "./lib/python3.14/lib-dynload/zlib.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/mmap.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "e5b6e0149ed8d382bad5f2713c70786f7041cf0bfcd34a0153fe026413c756ff",
+      "provider_member": "./lib/python3.14/lib-dynload/mmap.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/syslog.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "ad2ba24bb63959d32b04901a8ae2635b8b077187c59257fd6e617cd7fed9094b",
+      "provider_member": "./lib/python3.14/lib-dynload/syslog.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_ctypes.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "db4770d311ac2e7166638629a1b1f9b9de551a5f40452a45ccc7cf7b10c579ed",
+      "provider_member": "./lib/python3.14/lib-dynload/_ctypes.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_codecs_jp.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "784b21eb91a8e0534a8a0525518bfe0925560edb32a0f1d390485ce5c9778aca",
+      "provider_member": "./lib/python3.14/lib-dynload/_codecs_jp.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_multiprocessing.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "40af7a0f7cc0901b6056c4008bfa4a7b885d51b9e6953e4c46ee4d4c30013f88",
+      "provider_member": "./lib/python3.14/lib-dynload/_multiprocessing.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/unicodedata.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "2b1cb3c7dffcd698db9a8c756af70f2789cf7c2713815222403a5977496fd1f9",
+      "provider_member": "./lib/python3.14/lib-dynload/unicodedata.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/binascii.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "4b109e0a1040e186d850522c31767094aed6fe61215b01f2ce1d91c11acac90b",
+      "provider_member": "./lib/python3.14/lib-dynload/binascii.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_json.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "d4e5a45d7148f633cabf42256c159355a700b0e1eea5028633a5e3c427abfcb9",
+      "provider_member": "./lib/python3.14/lib-dynload/_json.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_bz2.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "7716ccfdb97d07f94afb4c20c573cb8894512b3cba87ab49f9a6f3b95e76e094",
+      "provider_member": "./lib/python3.14/lib-dynload/_bz2.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/select.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "2a8cf8fcd4b7cda26975b6e1fbe6f1267c3f477c8a3da8cccef115ba593d163a",
+      "provider_member": "./lib/python3.14/lib-dynload/select.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_asyncio.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "dbedff90501da2264cfcad1b8267ea797cf008259146065a52d5c73bcd9130d7",
+      "provider_member": "./lib/python3.14/lib-dynload/_asyncio.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_socket.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "c2c9ed91a33a7ddb6460943ce0707696eea47dd2393926a300328fd8378aebd9",
+      "provider_member": "./lib/python3.14/lib-dynload/_socket.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_hmac.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "5d54141f530adba55f54d6b6894754195615b858c354960bfe638d09df28c492",
+      "provider_member": "./lib/python3.14/lib-dynload/_hmac.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_codecs_tw.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "9706025f98410ab7d45ea7539a627bea7b876b7052f0e62cf8fc004c97efd2f9",
+      "provider_member": "./lib/python3.14/lib-dynload/_codecs_tw.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/pyexpat.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "f4e2974fcb0155990e2dbc6e9cc7c059a12aea2b923bb42afb798f662902636c",
+      "provider_member": "./lib/python3.14/lib-dynload/pyexpat.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_bisect.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "9dc02c6af368b909fc488bd1f23e0aff5c1d010cc0224d014500503e94b0e888",
+      "provider_member": "./lib/python3.14/lib-dynload/_bisect.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_codecs_iso2022.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "6f2fafe05854cc63483a0baadf0b39c59154c4ca201b17a33ea93c6184d6c856",
+      "provider_member": "./lib/python3.14/lib-dynload/_codecs_iso2022.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/fcntl.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "67d715e00eb3a622bdd8f2d5c41f5cbd83d446f87119b31e873ecd1063218f50",
+      "provider_member": "./lib/python3.14/lib-dynload/fcntl.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_sha3.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "8493f08eb37b52817bfc72799f5fd3c31045d93ffe1b5c9787c8c02bcb29415c",
+      "provider_member": "./lib/python3.14/lib-dynload/_sha3.cpython-314-x86_64-linux-gnu.so"
+    },
+    {
+      "path": "python3.14/lib-dynload/_csv.cpython-314-x86_64-linux-gnu.so",
+      "sha256": "5b41546031c8a0e73d64bf22b3ebd889bb8e6327227df266824d466c276f8368",
+      "provider_member": "./lib/python3.14/lib-dynload/_csv.cpython-314-x86_64-linux-gnu.so"
+    }
+  ],
+  "mismatches": [],
+  "missing": []
+}

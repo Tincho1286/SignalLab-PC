@@ -57,3 +57,23 @@ Cada runner guardó 122 archivos con ejecución del worker simbólico de 124 arc
 | Proceso simbólico | 80,77 % | 72,73 % | 80,77 % | 72,73 % |
 
 Muestreo y Fourier alcanzaron el 90 % orientativo de líneas con nuevas referencias independientes. La cobertura global sigue por debajo del 85 % orientativo. La actualización del intérprete y los cambios de código alteraron los denominadores de la medición. Cada runner guardó 122 archivos con ejecución del worker simbólico. [Evidencias de `ccb6a86`](evidence/cpython-31410-ccb6a86.json)
+
+## Candidato de cierre `853bd67`
+
+| Módulo | Windows · líneas | Windows · ramas | Ubuntu · líneas | Ubuntu · ramas |
+| --- | ---: | ---: | ---: | ---: |
+| Aplicación | 31.784/40.980 · 77,56 % | 10.084/15.908 · 63,39 % | 31.772/40.980 · 77,53 % | 10.079/15.908 · 63,36 % |
+| Muestreo | 92,11 % | 75,38 % | 92,11 % | 75,38 % |
+| Fourier | 91,44 % | 60,71 % | 91,44 % | 60,71 % |
+| Filtros | 88,13 % | 67,03 % | 88,13 % | 67,03 % |
+| Modelo de señal | 89,33 % | 78,12 % | 89,33 % | 78,12 % |
+| Sesión | 83,33 % | 60,00 % | 83,33 % | 60,00 % |
+| Proyectos | 95,41 % | 83,33 % | 95,41 % | 83,33 % |
+| Diagramas | 92,17 % | 82,56 % | 92,17 % | 82,56 % |
+| Motor CAS | 93,35 % | 74,85 % | 93,35 % | 74,85 % |
+| Importación al CAS | 85,37 % | 79,55 % | 85,37 % | 79,55 % |
+| Condiciones de sistemas | 97,30 % | 92,86 % | 97,30 % | 92,86 % |
+
+Los dos sistemas pasaron 821 pruebas y 150 casos preventivos. En cada sistema, 122 de los 124 archivos de cobertura contienen ejecución del proceso simbólico. Las huellas de fuente coinciden y el candidato usa el mismo denominador que `ccb6a86`. Se cubrieron 11 líneas y 6 ramas adicionales en Windows, y 9 líneas y 4 ramas adicionales en Ubuntu. [Evidencia de cobertura](evidence/phase-01-coverage-853bd67.json)
+
+La excepción al objetivo orientativo del 85 % global representa 3.049 líneas en Windows y 3.061 en Ubuntu. Entre las brechas mayores por archivo están `toolbox.py` con 493 líneas, `course_tools_panel.py` con 250–253, `ui.py` con 249, `workbench.py` con 235 y `pole_zero_editor.py` con 200. Las nuevas pruebas priorizan la semántica de la ROC, la preservación de relojes, el rechazo atómico de proyectos inválidos, la respuesta de sistemas con avances y la reutilización matemática del CAS. La matriz conserva las ramas de interfaz en el denominador. Las pruebas nativas de instaladores y la inspección visual aportan evidencia de integración fuera de la corrida instrumentada. El objetivo global queda abierto sin cambiar el denominador ni los criterios numéricos. [Cierre de Fase 01](PHASE_01_CLOSEOUT.md)
