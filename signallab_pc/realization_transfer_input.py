@@ -14,6 +14,7 @@ class TransferBlockDialog(QDialog):
         self.domain = domain
         self.variable = 'z' if domain == 'digital' else 's'
         self.sample_period_s = block.sample_period_s
+        self._clock_source = block.formula.strip()
         self.setWindowTitle(f'Transferencia del bloque {block.id}')
         self.resize(480, 160)
         layout = QVBoxLayout(self)
@@ -61,6 +62,7 @@ class TransferBlockDialog(QDialog):
             expression = formula(system)
         self.formula.setText(expression)
         self.sample_period_s = system.sample_period_s
+        self._clock_source = self.formula.text().strip()
 
     def load_expression(self, expression, key=None, record=None):
         from .transform_context import result_period, result_roc
@@ -72,6 +74,9 @@ class TransferBlockDialog(QDialog):
             raise ValueError('La región de convergencia guardada no es derecha. Usá un bloque causal en el diagrama.')
         self.sample_period_s = result_period(record)
         self.formula.setText(expression.source)
+        self._clock_source = self.formula.text().strip()
 
     def definition(self):
-        return replace(self.block, formula=self.formula.text().strip(), sample_period_s=self.sample_period_s)
+        formula = self.formula.text().strip()
+        period = self.sample_period_s if formula == self._clock_source else None
+        return replace(self.block, formula=formula, sample_period_s=period)

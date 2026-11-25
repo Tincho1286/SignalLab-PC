@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-06 y C-07 · Diagramas y reloj heredado
+
+**Causa y corrección.** El editor de un bloque retenía el período importado aunque se reemplazara la expresión. El período ahora queda ligado a la fórmula que lo recibió. Con la fórmula original se conserva al guardar y reabrir el diagrama. Se verificaron las dos situaciones con una cascada SOS y un oráculo de respuesta en frecuencia.
+
+**Evidencia focal.** Pasaron 21 pruebas de editor, navegación y realización. Incluyen cancelar un cable, restablecer un enlace con signo y comprobar que SVG, PNG y JSON representan la misma cascada. La proyección queda en 37 047/42 958 líneas (86,24 %) y 12 127/16 528 ramas (73,37 %), con 269 ramas pendientes.
+
 ## 25 de noviembre de 2026 · C-07 · Sistemas LTI y diseño polar
 
 **Flujos.** Se verificó la importación de un proyecto con varios resultados, la conservación de ROC y reloj del sistema elegido, y el rechazo de archivos sin un sistema compatible. El análisis muestra módulo cero y fase indefinida cuando corresponde. Los cruces de lazo abierto se comparan con las soluciones exactas de un sistema cúbico y se exporta la respuesta completa. Se probó también la reutilización del plano de raíces y la edición polar de un cero negativo y un par conjugado.
