@@ -26,7 +26,8 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1
         with:
           python-version-file: '.python-version'
-      - run: python -m pip install --only-binary=:all: -c requirements-lock.txt numpy scipy sympy mpmath h5py
+      - run: |
+          python -m pip install --only-binary=:all: -c requirements-lock.txt numpy scipy sympy mpmath h5py
       - run: python -B -X utf8 tools/benchmark_scientific_storage.py --output work/storage.json
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         with:
