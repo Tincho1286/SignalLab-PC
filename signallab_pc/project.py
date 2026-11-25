@@ -2,7 +2,6 @@
 from copy import deepcopy
 from contextlib import contextmanager
 from datetime import datetime, timezone
-from pathlib import Path
 from threading import RLock
 from uuid import uuid4
 import json
@@ -237,7 +236,5 @@ def _record_period(record):
 
 
 def read_document(path):
-    from .resources import ensure_working_set
-    path=Path(path)
-    ensure_working_set(path.stat().st_size,bytes_per_sample=1,live_arrays=8)
-    return json.loads(path.read_text(encoding='utf-8-sig'))
+    from .input_files import read_json
+    return read_json(path)

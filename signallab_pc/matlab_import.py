@@ -221,9 +221,8 @@ def expression(text,variables):
     with np.errstate(all='raise'):return run(tree)
 
 def read_script(path):
-    path = Path(path)
-    ensure_working_set(path.stat().st_size, bytes_per_sample=1, live_arrays=8)
-    text=path.read_text(encoding='utf-8-sig');text=re.sub(r'%[^\n]*','',text);text=re.sub(r'\.\.\.\s*\n',' ',text)
+    from .input_files import read_text
+    text=read_text(path);text=re.sub(r'%[^\n]*','',text);text=re.sub(r'\.\.\.\s*\n',' ',text)
     variables={}
     for statement in split_top(text,';\n'):
         if not statement:continue
@@ -239,6 +238,28 @@ def read_script(path):
         variables[name]=array
     return variables
 
+def _local_numeric_dataset(node, h5):
+    if not isinstance(node,h5.Dataset) or node.ndim>2 or not node.size:
+        return False
+    if node.is_virtual or node.external:
+        return False
+    dtype=node.dtype
+    if dtype.kind in 'biufc':
+        return True
+    return dtype.names==('real','imag') and all(dtype.fields[k][0].kind in 'iuf' for k in dtype.names)
+
+
+def _local_dataset(file, name, h5):
+    node=file
+    for part in name.split('/'):
+        if not isinstance(node,h5.Group) or not isinstance(node.get(part,getlink=True),h5.HardLink):
+            raise ValueError('La variable MAT debe estar almacenada en el mismo archivo.')
+        node=node[part]
+    if not _local_numeric_dataset(node,h5):
+        raise ValueError('La variable MAT debe ser numérica y contener datos locales.')
+    return node
+
+
 class MatlabFile:
     def __init__(self,path):
         self.path=Path(path);self.script=None;self.hdf=False;self.entries={}
@@ -247,14 +268,15 @@ class MatlabFile:
             if not self.entries:raise ValueError('El archivo .m no define variables numéricas importables.')
             return
         import h5py
+        ensure_working_set(self.path.stat().st_size,bytes_per_sample=1,live_arrays=4)
         self.hdf=h5py.is_hdf5(path)
         if self.hdf:
             with h5py.File(path,'r') as f:
                 def visit(name,node):
-                    if name.startswith('#') or not isinstance(node,h5py.Dataset) or node.ndim>2 or not node.size:return
+                    if name.startswith('#') or not _local_numeric_dataset(node,h5py):return
                     cls=node.attrs.get('MATLAB_class',b'')
                     if cls in (b'char',b'cell',b'struct',b'opaque'):return
-                    if node.dtype.kind in 'biufc' or node.dtype.names==('real','imag'):self.entries[name]=tuple(reversed(node.shape))
+                    self.entries[name]=tuple(reversed(node.shape))
                 f.visititems(visit)
         else:
             from scipy.io import whosmat
@@ -266,7 +288,12 @@ class MatlabFile:
         if self.script is not None:return self.script[name]
         if self.hdf:
             import h5py
-            with h5py.File(self.path,'r') as f:result=f[name][()]
+            with h5py.File(self.path,'r') as f:
+                dataset=_local_dataset(f,name,h5py)
+                if tuple(reversed(dataset.shape))!=self.entries[name]:
+                    raise ValueError('La variable MAT cambió de dimensiones. Volvé a abrir el archivo.')
+                ensure_working_set(int(dataset.size),bytes_per_sample=max(16,dataset.dtype.itemsize),live_arrays=6)
+                result=dataset[()]
             if result.dtype.names:result=result['real']+1j*result['imag']
             return result.T
         from scipy.io import loadmat

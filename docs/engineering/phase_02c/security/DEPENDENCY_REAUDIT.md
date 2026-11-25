@@ -1,0 +1,3 @@
+# Dependencias
+
+La consulta a OSV del 25 de noviembre respondió sin avisos para las 28 combinaciones PyPI del lock y requisitos de calidad. OSV cubre los paquetes consultados y la información publicada en su índice. El código nativo empaquetado requiere verificación propia. El inventario previo acredita CPython 3.14.10, OpenSSL de Windows 3.5.9 y Ubuntu `3.0.2-0ubuntu1.30`. Qt, HDF5, Expat, OpenBLAS y códecs deben relacionarse con los binarios y dependencias de cada candidato. [Datos OSV](osv-lock.json) · [Procedencia histórica](../../SECURITY_BASELINE.md) · [Aviso OpenSSL Ubuntu](https://ubuntu.com/security/notices/USN-8847-1)

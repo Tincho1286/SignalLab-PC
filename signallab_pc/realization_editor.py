@@ -894,9 +894,8 @@ class RealizationEditor(QDialog):
         if not path:
             return
         try:
-            source = Path(path)
-            ensure_working_set(source.stat().st_size, bytes_per_sample=1, live_arrays=8)
-            graph = RealizationGraph.from_document(json.loads(source.read_text(encoding='utf-8-sig')))
+            from .input_files import read_json
+            graph = RealizationGraph.from_document(read_json(path))
         except (OSError, ValueError, MemoryError) as exc:
             QMessageBox.warning(self, 'No se pudo abrir el diagrama', str(exc))
             return

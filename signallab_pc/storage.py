@@ -36,9 +36,8 @@ def save_json(signal: Signal, path: str | Path) -> None:
 
 
 def load_json(path: str | Path) -> Signal:
-    from .resources import ensure_working_set
-    ensure_working_set(Path(path).stat().st_size,bytes_per_sample=1,live_arrays=8)
-    doc = json.loads(Path(path).read_text(encoding="utf-8-sig"))
+    from .input_files import read_json
+    doc = read_json(path)
     if not isinstance(doc,dict) or doc.get("format") != "signallab-signal" or doc.get("schema_version") != 1:
         raise ValueError("El JSON no tiene un formato SignalLab compatible.")
     missing=[key for key in ('samples','origin','step','units','name','domain') if key not in doc]

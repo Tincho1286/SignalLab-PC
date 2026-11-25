@@ -1,7 +1,7 @@
 """Shared local wallpaper behind optional translucent navigation surfaces."""
 from pathlib import Path
 import os,shutil,tempfile,hashlib,re
-from PySide6.QtCore import Qt,QRectF,QSize,QStandardPaths
+from PySide6.QtCore import QFile,QIODevice,Qt,QRectF,QSize,QStandardPaths
 from PySide6.QtGui import QImageReader,QPixmap,QPainter,QColor
 from PySide6.QtWidgets import QWidget,QApplication
 
@@ -16,13 +16,29 @@ def appearance_folder():
     return Path(QStandardPaths.writableLocation(QStandardPaths.StandardLocation.GenericDataLocation)) / 'SignalLab' / 'appearance'
 
 
+def _raster_format(header):
+    for signature, format_ in ((b'\x89PNG\r\n\x1a\n','png'),(b'\xff\xd8\xff','jpeg'),(b'BM','bmp')):
+        if header.startswith(signature):
+            return format_
+    if header[:4]==b'RIFF' and header[8:12]==b'WEBP':
+        return 'webp'
+    raise ValueError('Elegí una imagen PNG, JPEG, WebP o BMP válida.')
+
+
 def read_photo(path):
-    reader=QImageReader(str(path));reader.setAutoTransform(True)
-    allowed = (b'png', b'jpeg', b'webp', b'bmp')
-    detected = bytes(reader.format()).lower()
-    if detected not in allowed:
-        raise ValueError('Elegí una imagen PNG, JPEG, WebP o BMP válida.')
-    reader.setFormat(detected)
+    file=QFile(str(path))
+    if not file.open(QIODevice.OpenModeFlag.ReadOnly):
+        raise OSError(file.errorString())
+    try:
+        format_=_raster_format(bytes(file.peek(12)))
+        reader=QImageReader(file,format_.encode('ascii'))
+        reader.setAutoTransform(True)
+        return _decode_photo(reader)
+    finally:
+        file.close()
+
+
+def _decode_photo(reader):
     reader.setAutoDetectImageFormat(False)
     if not reader.canRead():raise ValueError('No se pudo leer la foto. Elegí una imagen PNG, JPEG, WebP o BMP válida.')
     size=reader.size()

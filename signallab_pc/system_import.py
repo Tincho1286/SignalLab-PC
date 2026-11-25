@@ -4,12 +4,11 @@ import warnings
 from pathlib import Path
 from PySide6.QtWidgets import QMenu,QFileDialog,QMessageBox
 from .filters import Transfer
-from .resources import ensure_working_set
+from .input_files import read_json
 
 
 def load_transfer(path):
-    path=Path(path);ensure_working_set(path.stat().st_size,bytes_per_sample=1,live_arrays=8)
-    try:document=json.loads(path.read_text(encoding='utf-8-sig'))
+    try:document=read_json(path)
     except json.JSONDecodeError as exc:raise ValueError(f'JSON inválido en línea {exc.lineno}, columna {exc.colno}.') from exc
     return Transfer.from_document(document)
 
@@ -77,8 +76,8 @@ class SystemImporter:
         if path is None:path,_=QFileDialog.getOpenFileName(self.button,'Abrir sistema','','Sistema SignalLab (*.json)')
         if not path:return
         try:
-            path=Path(path);ensure_working_set(path.stat().st_size,bytes_per_sample=1,live_arrays=8)
-            document=json.loads(path.read_text(encoding='utf-8-sig'))
+            path=Path(path)
+            document=read_json(path)
             if not isinstance(document,dict):raise ValueError('El archivo de sistema debe contener un objeto JSON.')
             if document.get('format')=='signallab-project':
                 editor=getattr(self.receive,'__self__',None)

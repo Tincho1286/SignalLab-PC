@@ -1,5 +1,4 @@
 """One typed file loader for local inputs and the result picker."""
-import json
 from pathlib import Path
 from PySide6.QtWidgets import QFileDialog,QInputDialog
 from .resources import ensure_working_set
@@ -42,8 +41,8 @@ def load_results(parent,kind,constraints):
         if value is None:return None
         staged.add(value,operation='Importación de '+path.name)
     else:
-        ensure_working_set(path.stat().st_size,bytes_per_sample=1,live_arrays=10)
-        document=json.loads(path.read_text(encoding='utf-8-sig'))
+        from .input_files import read_json
+        document=read_json(path,live_arrays=10)
         if not isinstance(document,dict):raise ValueError('El JSON debe contener un objeto SignalLab.')
         format_=document.get('format')
         if format_=='signallab-project':staged.merge(path)
