@@ -94,6 +94,117 @@ class DesktopSessionTests(unittest.TestCase):
             QTest.qWait(15)
         self.assertFalse(window._workers)
 
+    def test_compact_psd_keeps_visible_action_and_produces_calibrated_power(self):
+        window = self.window()
+        route = ROUTES['fourier', 7]
+        window.open_tool(route)
+        window.resize(640, 420)
+        window.show()
+        self.app.processEvents()
+        page = window.pages[route]
+        panel = page.panel
+        samples = Signal([2, -2, 2, -2], metadata={'sample_rate_hz': 8})
+        source = window.publish(samples, operation='Entrada PSD de prueba')
+        page.context.source.set_source(samples, source)
+        panel.window.setCurrentIndex(0)
+        self.assertEqual(window.calculate_action.text(), 'Calcular')
+        self.assertIn('densidad espectral', window.calculate_action.accessibleName())
+        window.resize(1200, 768)
+        self.app.processEvents()
+        self.assertEqual(window.calculate_action.text(), 'Calcular densidad espectral')
+        window.resize(640, 420)
+        self.app.processEvents()
+        window.calculate_action.click()
+        self.wait_for_calculation(window)
+        self.warning.assert_not_called()
+        result = window.project.get(window.project.headers('signal')[-1]['id'])
+        np.testing.assert_allclose(result.values, [2, 0, 0, 0], rtol=2e-15, atol=0)
+        self.assertEqual((result.origin, result.step, result.units), (-4, 2, 'Hz'))
+        self.assertEqual((result.metadata['segment'], result.metadata['overlap']), (4, 2))
+        self.assertEqual(window.project.headers('signal')[-1]['parents'], [source])
+        panel.segment.setText('5')
+        before = window.project.headers()
+        window.calculate_action.click()
+        self.assertEqual(window.project.headers(), before)
+        self.assertIs(page.workspace.input_issue.field(), panel.segment)
+        window.resize(1200, 768)
+        self.app.processEvents()
+        self.assertEqual(window.calculate_action.text(), 'Recalcular')
+
+    def test_scientific_session_chooser_roundtrips_tabs_and_result(self):
+        from PySide6.QtWidgets import QFileDialog
+        from signallab_pc.session_desktop import _BINARY_SESSION
+
+        window = self.window()
+        window.open_tool(ROUTES['basic', 'dft'])
+        record = window.publish(Signal([3.25, -1j], -4), operation='Entrada')
+        with patch.object(QFileDialog, 'getSaveFileName', return_value=(str(self.path/'session.json'), _BINARY_SESSION)):
+            self.assertTrue(window.sessions.save_dialog())
+        binary = self.path/'session.slproj'
+        self.assertFalse((self.path/'session.json').exists())
+        loaded, workspace = session.load(binary)
+        self.assertEqual(workspace, capture(window))
+        np.testing.assert_array_equal(loaded.get(record).values, [3.25, -1j])
+        other = self.window()
+        self.assertTrue(other.sessions.open_path(binary))
+        self.assertEqual(other.current_operation, ROUTES['basic', 'dft'])
+        self.assertEqual(other.project.get(record).origin, -4)
+
+    def test_analog_bilinear_conversion_preserves_clock_and_dc_gain_in_results(self):
+        from signallab_pc.filters import Transfer
+
+        window = self.window()
+        route = ROUTES['course_tools', 'convert']
+        window.open_tool(route)
+        panel = window.pages[route].panel
+        model = Transfer([1], [1, 2], 'analog')
+        parent = window.publish(model, operation='H(s) de prueba')
+        panel.set_system(model, parent)
+        panel.fields['method'].setCurrentIndex(panel.fields['method'].findData('bilinear'))
+        panel.fields['period'].setText('0.25')
+        panel.fields['analog_cutoffs'].setText('2')
+        panel.calculate()
+        self.wait_for_calculation(window)
+        self.warning.assert_not_called()
+        digital = [item for item in panel.items if isinstance(item, Transfer) and item.domain == 'digital']
+        self.assertTrue(digital)
+        self.assertAlmostEqual(digital[0].sample_period_s, .25)
+        theta = np.array([0.0, .3, .9])
+        np.testing.assert_allclose(digital[0].response(theta), 1/(2+8j*np.tan(theta/2)), rtol=1e-13)
+        self.assertIn('Conversión', panel.report.toPlainText())
+
+    def test_bandpass_clock_handoff_and_csv_agree_with_nonoverlap_bounds(self):
+        import csv
+        from PySide6.QtWidgets import QFileDialog
+
+        window = self.window()
+        route = ROUTES['course_tools', 'bandpass_sampling']
+        window.open_tool(route)
+        panel = window.pages[route].panel
+        for key, value in {'low': '4', 'high': '5', 'candidate': '5'}.items():
+            panel.fields[key].setText(value)
+        panel.calculate()
+        self.wait_for_calculation(window)
+        self.warning.assert_not_called()
+        self.assertTrue(panel.export_bands_button.isEnabled())
+        self.assertFalse(panel.use_rate_button.isEnabled())
+
+        panel.fields['candidate'].setText('6')
+        panel.calculate()
+        self.wait_for_calculation(window)
+        self.assertTrue(panel.use_rate_button.isEnabled())
+        path = self.path/'bandpass.csv'
+        with patch.object(QFileDialog, 'getSaveFileName', return_value=(str(path), 'CSV')):
+            panel.export_bands_button.click()
+        with path.open(encoding='utf-8', newline='') as stream:
+            rows = list(csv.reader(stream))
+        self.assertEqual(rows[0], ['omega_low_rad_s', '4.0', 'omega_high_rad_s', '5.0'])
+        self.assertEqual(rows[3][:3], ['2', '5.0', '8.0'])
+        panel.use_rate_button.click()
+        sample = ROUTES['sampling', 0]
+        self.assertEqual(window.current_operation, sample)
+        self.assertAlmostEqual(float(window.pages[sample].panel.rate.text()), 3/np.pi, places=14)
+
     def test_dft_workspace_uses_the_pilot_and_retains_the_input_and_output(self):
         from signallab_pc.dft_application import DFTRequest, calculate_dft
         from signallab_pc.operations import idft

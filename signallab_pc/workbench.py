@@ -118,6 +118,8 @@ class WorkbenchWindow(ToolboxWindow):
         if hasattr(self,'studio_toolbar'):
             from .studio_shell import adapt_shell
             adapt_shell(self)
+        if hasattr(self, '_primary_timer'):
+            self._refresh_primary_action()
     def import_matlab(self):
         from PySide6.QtWidgets import QFileDialog,QMessageBox
         from .matlab_import_dialog import MatlabImportDialog
@@ -333,7 +335,14 @@ class WorkbenchWindow(ToolboxWindow):
         if button is not None:
             state=getattr(page,'result_state',None) or getattr(getattr(page,'panel',None),'result_state',None)
             if state is not None:state.set_button(button)
-            button.setProperty('commandBarAction',True);button.hide();self.calculate_action.setText(button.text() if len(button.text())<=27 else 'Calcular');self.calculate_action.setToolTip(button.text()+' · Ctrl+Enter');self.calculate_action.setEnabled(button.isEnabled())
+            label = button.text()
+            compact = self.width() < 850
+            button.setProperty('commandBarAction', True)
+            button.hide()
+            self.calculate_action.setText(label if len(label) <= (12 if compact else 27) else 'Calcular')
+            self.calculate_action.setAccessibleName(label)
+            self.calculate_action.setToolTip(label + ' · Ctrl+Enter')
+            self.calculate_action.setEnabled(button.isEnabled())
     def calculate_active(self):
         self._refresh_primary_action();button=self.current_calculate
         if button is not None and button.isEnabled():button.click();self._refresh_primary_action()

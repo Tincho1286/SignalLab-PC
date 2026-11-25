@@ -27,7 +27,7 @@ def timeout_seconds(value):
 def load_input(args, execution):
     execution.checkpoint()
     if args.session is not None:
-        project, workspace = session.load(args.session)
+        project, workspace = session.load(args.session, checkpoint=execution.checkpoint)
         source = project.get(args.record)
     else:
         if args.signal.resolve() == args.output.resolve():

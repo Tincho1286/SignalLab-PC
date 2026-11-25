@@ -112,12 +112,11 @@ def measure(operation, size, repeats):
                     cpu_median_seconds=median(row[1] for row in rows))
 
 
-def timed_cancellation(operation):
+def timed_cancellation(operation, size):
     from signallab_pc.execution import ExecutionContext
     from signallab_pc.jobs import OperationCancelled
 
     numeric = operation in {'dft', 'idft', 'fir', 'resample', 'psd'}
-    size = 262144
     with TemporaryDirectory(prefix='signallab-cancel-') as folder:
         directory = Path(folder)
         task, _, _ = workload(operation, size, directory)
@@ -166,7 +165,8 @@ def main():
         parser.error('--repeats debe ser positivo')
     if args.probe:
         op, value = args.probe
-        data = timed_cancellation(op) if value == 'cancel' else measure(op, int(value), args.repeats)
+        data = (timed_cancellation(op, int(value.split(':')[1])) if value.startswith('cancel:')
+                else measure(op, int(value), args.repeats))
         print(json.dumps(data))
         return
     if args.output is None:
@@ -191,8 +191,9 @@ def main():
         return json.loads(subprocess.check_output(cmd, cwd=ROOT, env=env, timeout=100, text=True))
 
     rows = [isolate(op, size) for op, lengths in operations.items() for size in lengths]
-    cancelled = [isolate(op, 'cancel') for op in ('dft', 'idft', 'fir', 'resample', 'psd', 'pipeline',
-                                                  'json_write', 'slbin_write')]
+    numerical = ('dft', 'idft', 'fir', 'resample', 'psd', 'pipeline', 'slbin_write', 'archive_save')
+    cancelled = [isolate(op, f'cancel:{size}') for size in (262144, 1048576) for op in numerical]
+    cancelled.append(isolate('json_write', 'cancel:262144'))
     symbolic = cancellation()
     report = dict(commit=revision, clean_checkout=clean and git('rev-parse', 'HEAD') == revision
                   and not git('status', '--porcelain'),

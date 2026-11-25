@@ -17,10 +17,10 @@ def save(path, project, workspace, *, before_commit=None, checkpoint=None):
     write_json(Path(path), document, before_commit=before_commit, checkpoint=checkpoint)
 
 
-def load(path):
+def load(path, *, checkpoint=None):
     if Path(path).suffix.lower() == '.slproj':
         from .project_archive import load as load_archive
-        project, workspace = load_archive(path)
+        project, workspace = load_archive(path, checkpoint=checkpoint)
         return project, _validate_workspace(workspace) if workspace is not None else empty_workspace()
     document = read_document(path)
     if isinstance(document, dict) and document.get('format') == 'signallab-project':

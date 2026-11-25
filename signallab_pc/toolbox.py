@@ -1554,7 +1554,7 @@ class ToolboxWindow(SignalLabWindow):
             QMessageBox.warning(self,'No se pudo guardar',str(exc))
             return False
     def import_project(self):
-        path,_=QFileDialog.getOpenFileName(self,'Incorporar resultados a la biblioteca','','Resultados SignalLab (*.json)')
+        path,_=QFileDialog.getOpenFileName(self,'Incorporar resultados a la biblioteca','','Resultados SignalLab (*.json *.slproj)')
         if path:
             try:
                 count=self.project.merge(path);self.refresh_project();self.statusBar().showMessage(f'{count} elementos incorporados a esta sesión.')

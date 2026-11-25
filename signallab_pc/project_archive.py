@@ -71,7 +71,10 @@ def _read_manifest(file, size):
     length = struct.unpack('<I', prefix[len(MAGIC):])[0]
     if not 0 < length <= _MAX_HEADER or len(prefix) + length + 32 > size:
         raise ValueError('Tamaño de manifiesto de proyecto inválido.')
+    ensure_working_set(length, bytes_per_sample=1, live_arrays=8)
     header = file.read(length)
+    if len(header) != length:
+        raise ValueError('El manifiesto del proyecto científico está incompleto.')
     manifest = decode_json(header.decode('utf-8'))
     if not isinstance(manifest, dict) or set(manifest) != {'project', 'workspace', 'counts'}:
         raise ValueError('Manifiesto de proyecto científico inválido.')
@@ -91,7 +94,7 @@ def _read_manifest(file, size):
     data_bytes = _DTYPE.itemsize * sum(counts)
     if len(prefix) + length + data_bytes + 32 != size:
         raise ValueError('El tamaño de las muestras no coincide con el manifiesto.')
-    ensure_working_set(data_bytes + length, bytes_per_sample=1, live_arrays=3)
+    ensure_working_set(3 * data_bytes + 8 * length, bytes_per_sample=1, live_arrays=1)
     return document, workspace, counts, sha256(prefix + header)
 
 

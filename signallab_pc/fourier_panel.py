@@ -73,8 +73,10 @@ class FourierPanel(QWidget):
         self.rate = self._field(form, "Fs para señales sin reloj (Hz)", "100")
         self.estimator = QComboBox(); self.estimator.addItems(["Welch calibrado", "Un segmento calibrado", "Periodograma sin calibración: |DFT|²/N"])
         form.addRow("Estimador", self.estimator)
-        self.segment = self._field(form, "Muestras por segmento Welch", "256")
-        self.overlap = self._field(form, "Solape Welch", "128")
+        self.segment = self._field(form, "Muestras por segmento Welch", "")
+        self.segment.setPlaceholderText('Automático · hasta 256 muestras')
+        self.overlap = self._field(form, "Solape Welch", "")
+        self.overlap.setPlaceholderText('Automático · mitad del segmento')
         self.window = QComboBox(); self.window.addItems(["Rectangular", "Hann", "Hamming", "Blackman", "Kaiser"])
         form.addRow("Ventana simétrica", self.window)
         self.beta = self._field(form, "Beta Kaiser", "5")
@@ -197,7 +199,15 @@ class FourierPanel(QWidget):
         kwargs=dict(method=method,window=window,beta=real_field(self.beta) if window=='kaiser' else 0.,
                     remove_mean=self.demean.isChecked())
         if method=='welch':
-            kwargs.update(segment=integer_field(self.segment),overlap=integer_field(self.overlap))
+            from .validation import invalid
+            count = source.values.size
+            segment = integer_field(self.segment, minimum=1) if self.segment.text().strip() else min(256, count)
+            if segment > count:
+                invalid(self.segment, f'el segmento debe tener como máximo {count} muestras.')
+            overlap = integer_field(self.overlap, minimum=0) if self.overlap.text().strip() else segment // 2
+            if overlap >= segment:
+                invalid(self.overlap, f'el solape debe ser menor que {segment}.')
+            kwargs.update(segment=segment, overlap=overlap)
         request = PSDRequest(source, rate, **kwargs)
         self._job(lambda: estimate_psd(request))
 
