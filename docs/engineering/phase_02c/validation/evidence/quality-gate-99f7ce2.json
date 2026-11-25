@@ -1,0 +1,768 @@
+{
+  "commit": "99f7ce2ce48b1c36c7653d9c234d0e491cac8a1f",
+  "platforms": {
+    "windows-2022": {
+      "checks": {
+        "clean_revision": "pass",
+        "integral": "pass",
+        "static": "pass",
+        "preventive": "pass",
+        "coverage_matches": "pass",
+        "performance": "pass",
+        "cancellation_profiles": "pass",
+        "campaign": "pass",
+        "recovery_responsiveness_measured": "pass",
+        "portable": "pass",
+        "sbom": "missing",
+        "isolated_upgrade": "missing"
+      },
+      "tests": 922,
+      "coverage": {
+        "lines": {
+          "goal": 85,
+          "covered": 34701,
+          "total": 42656,
+          "state": "fail",
+          "additional_required": 1557
+        },
+        "branches": {
+          "goal": 75,
+          "covered": 10957,
+          "total": 16418,
+          "state": "fail",
+          "additional_required": 1357
+        }
+      },
+      "components": {
+        "sampling.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 303,
+            "total": 304,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 122,
+            "total": 130,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "fourier.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 256,
+            "total": 257,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 72,
+            "total": 84,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "execution.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 72,
+            "total": 72,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 22,
+            "total": 22,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "dft_application.py": {
+          "branches": {
+            "goal": 85,
+            "covered": 12,
+            "total": 12,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "dsp_application.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 198,
+            "total": 201,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 36,
+            "total": 40,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "dsp_pipeline.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 129,
+            "total": 134,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 21,
+            "total": 22,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "scientific_storage.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 75,
+            "total": 78,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 23,
+            "total": 24,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "project_archive.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 101,
+            "total": 106,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 41,
+            "total": 46,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "cas_worksheet.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 59,
+            "total": 59,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 42,
+            "total": 42,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "session_desktop.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 328,
+            "total": 348,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 133,
+            "total": 154,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "cli_session.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 62,
+            "total": 64,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 12,
+            "total": 12,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "operation_provenance.py": {
+          "branches": {
+            "goal": 85,
+            "covered": 17,
+            "total": 20,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "project.py": {
+          "branches": {
+            "goal": 85,
+            "covered": 122,
+            "total": 142,
+            "state": "pass",
+            "additional_required": 0
+          }
+        }
+      },
+      "coverage_priority": {
+        "lines": [
+          {
+            "file": "signallab_pc/toolbox.py",
+            "lines": 415,
+            "branches": 225
+          },
+          {
+            "file": "signallab_pc/ui.py",
+            "lines": 238,
+            "branches": 120
+          },
+          {
+            "file": "signallab_pc/workbench.py",
+            "lines": 196,
+            "branches": 109
+          },
+          {
+            "file": "signallab_pc/linux_installation.py",
+            "lines": 195,
+            "branches": 94
+          },
+          {
+            "file": "signallab_pc/course_tools.py",
+            "lines": 170,
+            "branches": 132
+          },
+          {
+            "file": "signallab_pc/course_tools_panel.py",
+            "lines": 139,
+            "branches": 71
+          },
+          {
+            "file": "signallab_pc/systems_panel.py",
+            "lines": 130,
+            "branches": 34
+          },
+          {
+            "file": "signallab_pc/self_check.py",
+            "lines": 127,
+            "branches": 0
+          },
+          {
+            "file": "signallab_pc/plot_probe.py",
+            "lines": 119,
+            "branches": 78
+          },
+          {
+            "file": "signallab_pc/realization_editor.py",
+            "lines": 118,
+            "branches": 78
+          },
+          {
+            "file": "signallab_pc/system_analysis_panel.py",
+            "lines": 117,
+            "branches": 67
+          },
+          {
+            "file": "signallab_pc/project_picker.py",
+            "lines": 108,
+            "branches": 38
+          },
+          {
+            "file": "signallab_pc/signal_inspector.py",
+            "lines": 93,
+            "branches": 18
+          },
+          {
+            "file": "signallab_pc/cas_panel.py",
+            "lines": 92,
+            "branches": 66
+          },
+          {
+            "file": "signallab_pc/workflow_inputs.py",
+            "lines": 88,
+            "branches": 49
+          }
+        ],
+        "branches": [
+          {
+            "file": "signallab_pc/toolbox.py",
+            "lines": 415,
+            "branches": 225
+          },
+          {
+            "file": "signallab_pc/course_tools.py",
+            "lines": 170,
+            "branches": 132
+          },
+          {
+            "file": "signallab_pc/ui.py",
+            "lines": 238,
+            "branches": 120
+          },
+          {
+            "file": "signallab_pc/workbench.py",
+            "lines": 196,
+            "branches": 109
+          },
+          {
+            "file": "signallab_pc/linux_installation.py",
+            "lines": 195,
+            "branches": 94
+          },
+          {
+            "file": "signallab_pc/cas_engine.py",
+            "lines": 33,
+            "branches": 86
+          },
+          {
+            "file": "signallab_pc/matlab_import.py",
+            "lines": 43,
+            "branches": 80
+          },
+          {
+            "file": "signallab_pc/plot_probe.py",
+            "lines": 119,
+            "branches": 78
+          },
+          {
+            "file": "signallab_pc/realization_editor.py",
+            "lines": 118,
+            "branches": 78
+          },
+          {
+            "file": "signallab_pc/continuous_expression.py",
+            "lines": 67,
+            "branches": 75
+          },
+          {
+            "file": "signallab_pc/symbolic.py",
+            "lines": 50,
+            "branches": 75
+          },
+          {
+            "file": "signallab_pc/course_tools_panel.py",
+            "lines": 139,
+            "branches": 71
+          },
+          {
+            "file": "signallab_pc/session_fields.py",
+            "lines": 77,
+            "branches": 71
+          },
+          {
+            "file": "signallab_pc/system_analysis_panel.py",
+            "lines": 117,
+            "branches": 67
+          },
+          {
+            "file": "signallab_pc/cas_panel.py",
+            "lines": 92,
+            "branches": 66
+          }
+        ]
+      }
+    },
+    "ubuntu-22.04": {
+      "checks": {
+        "clean_revision": "pass",
+        "integral": "pass",
+        "static": "pass",
+        "preventive": "pass",
+        "coverage_matches": "pass",
+        "performance": "pass",
+        "cancellation_profiles": "pass",
+        "campaign": "pass",
+        "recovery_responsiveness_measured": "pass",
+        "portable": "pass",
+        "sbom": "missing",
+        "isolated_upgrade": "missing"
+      },
+      "tests": 922,
+      "coverage": {
+        "lines": {
+          "goal": 85,
+          "covered": 34676,
+          "total": 42656,
+          "state": "fail",
+          "additional_required": 1582
+        },
+        "branches": {
+          "goal": 75,
+          "covered": 10954,
+          "total": 16418,
+          "state": "fail",
+          "additional_required": 1360
+        }
+      },
+      "components": {
+        "sampling.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 303,
+            "total": 304,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 122,
+            "total": 130,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "fourier.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 256,
+            "total": 257,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 72,
+            "total": 84,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "execution.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 72,
+            "total": 72,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 22,
+            "total": 22,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "dft_application.py": {
+          "branches": {
+            "goal": 85,
+            "covered": 12,
+            "total": 12,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "dsp_application.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 198,
+            "total": 201,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 36,
+            "total": 40,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "dsp_pipeline.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 129,
+            "total": 134,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 21,
+            "total": 22,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "scientific_storage.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 75,
+            "total": 78,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 23,
+            "total": 24,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "project_archive.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 101,
+            "total": 106,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 41,
+            "total": 46,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "cas_worksheet.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 59,
+            "total": 59,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 42,
+            "total": 42,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "session_desktop.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 328,
+            "total": 348,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 133,
+            "total": 154,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "cli_session.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 62,
+            "total": 64,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 12,
+            "total": 12,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "operation_provenance.py": {
+          "branches": {
+            "goal": 85,
+            "covered": 17,
+            "total": 20,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "project.py": {
+          "branches": {
+            "goal": 85,
+            "covered": 122,
+            "total": 142,
+            "state": "pass",
+            "additional_required": 0
+          }
+        }
+      },
+      "coverage_priority": {
+        "lines": [
+          {
+            "file": "signallab_pc/toolbox.py",
+            "lines": 415,
+            "branches": 225
+          },
+          {
+            "file": "signallab_pc/ui.py",
+            "lines": 238,
+            "branches": 120
+          },
+          {
+            "file": "signallab_pc/workbench.py",
+            "lines": 196,
+            "branches": 109
+          },
+          {
+            "file": "signallab_pc/linux_installation.py",
+            "lines": 195,
+            "branches": 94
+          },
+          {
+            "file": "signallab_pc/course_tools.py",
+            "lines": 170,
+            "branches": 132
+          },
+          {
+            "file": "signallab_pc/course_tools_panel.py",
+            "lines": 142,
+            "branches": 72
+          },
+          {
+            "file": "signallab_pc/systems_panel.py",
+            "lines": 130,
+            "branches": 34
+          },
+          {
+            "file": "signallab_pc/self_check.py",
+            "lines": 127,
+            "branches": 0
+          },
+          {
+            "file": "signallab_pc/plot_probe.py",
+            "lines": 119,
+            "branches": 78
+          },
+          {
+            "file": "signallab_pc/realization_editor.py",
+            "lines": 118,
+            "branches": 78
+          },
+          {
+            "file": "signallab_pc/system_analysis_panel.py",
+            "lines": 117,
+            "branches": 67
+          },
+          {
+            "file": "signallab_pc/project_picker.py",
+            "lines": 108,
+            "branches": 38
+          },
+          {
+            "file": "signallab_pc/signal_inspector.py",
+            "lines": 93,
+            "branches": 18
+          },
+          {
+            "file": "signallab_pc/cas_panel.py",
+            "lines": 92,
+            "branches": 66
+          },
+          {
+            "file": "signallab_pc/workflow_inputs.py",
+            "lines": 88,
+            "branches": 49
+          }
+        ],
+        "branches": [
+          {
+            "file": "signallab_pc/toolbox.py",
+            "lines": 415,
+            "branches": 225
+          },
+          {
+            "file": "signallab_pc/course_tools.py",
+            "lines": 170,
+            "branches": 132
+          },
+          {
+            "file": "signallab_pc/ui.py",
+            "lines": 238,
+            "branches": 120
+          },
+          {
+            "file": "signallab_pc/workbench.py",
+            "lines": 196,
+            "branches": 109
+          },
+          {
+            "file": "signallab_pc/linux_installation.py",
+            "lines": 195,
+            "branches": 94
+          },
+          {
+            "file": "signallab_pc/cas_engine.py",
+            "lines": 33,
+            "branches": 86
+          },
+          {
+            "file": "signallab_pc/matlab_import.py",
+            "lines": 43,
+            "branches": 80
+          },
+          {
+            "file": "signallab_pc/plot_probe.py",
+            "lines": 119,
+            "branches": 78
+          },
+          {
+            "file": "signallab_pc/realization_editor.py",
+            "lines": 118,
+            "branches": 78
+          },
+          {
+            "file": "signallab_pc/continuous_expression.py",
+            "lines": 67,
+            "branches": 75
+          },
+          {
+            "file": "signallab_pc/symbolic.py",
+            "lines": 50,
+            "branches": 75
+          },
+          {
+            "file": "signallab_pc/course_tools_panel.py",
+            "lines": 142,
+            "branches": 72
+          },
+          {
+            "file": "signallab_pc/session_fields.py",
+            "lines": 77,
+            "branches": 71
+          },
+          {
+            "file": "signallab_pc/system_analysis_panel.py",
+            "lines": 117,
+            "branches": 67
+          },
+          {
+            "file": "signallab_pc/cas_panel.py",
+            "lines": 92,
+            "branches": 66
+          }
+        ]
+      }
+    }
+  },
+  "automated_passed": false,
+  "external": {
+    "escritorio f\u00edsico y DPI": "review_required",
+    "avisos nativos y mitigaciones": "review_required",
+    "firma y canal p\u00fablico": "review_required",
+    "hallazgos y decisiones de cierre": "review_required"
+  }
+}

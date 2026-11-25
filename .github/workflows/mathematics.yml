@@ -84,22 +84,30 @@ on:
   workflow_dispatch:
     inputs:
       engineering_baseline:
-        description: Run the complete engineering baseline with line and branch coverage
+        description: Audit one candidate with the complete Windows and Linux matrix
         type: boolean
         default: false
 
 permissions:
   contents: read
 
+concurrency:
+  group: "${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}"
+  cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
+
 jobs:
   core-mathematics:
-    if: ${{ !inputs.engineering_baseline && github.ref != 'refs/heads/develop' }}
+    if: ${{ !inputs.engineering_baseline }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, windows-2022]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 8
+    env:
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -108,7 +116,8 @@ jobs:
         with:
           python-version-file: '.python-version'
       - name: Install locked mathematical dependencies
-        run: python -m pip install --disable-pip-version-check -c requirements-lock.txt numpy scipy sympy mpmath h5py
+        run: |
+          python -m pip install --disable-pip-version-check --only-binary=:all: -c requirements-lock.txt numpy scipy sympy mpmath h5py
       - name: Check independent reference cases and result transport
         run: python -B -X utf8 tools/check_math.py
       - name: Preserve mathematical audit reports
@@ -157,7 +166,7 @@ jobs:
           retention-days: 7
 
   static-actions:
-    if: ${{ !inputs.engineering_baseline && github.ref != 'refs/heads/develop' }}
+    if: ${{ !inputs.engineering_baseline }}
     runs-on: ubuntu-22.04
     timeout-minutes: 3
     steps:
@@ -178,7 +187,7 @@ jobs:
           retention-days: 7
 
   engineering-baseline:
-    if: ${{ inputs.engineering_baseline || github.ref == 'refs/heads/develop' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.engineering_baseline }}
     strategy:
       fail-fast: false
       matrix:
@@ -215,7 +224,7 @@ jobs:
           retention-days: 14
 
   engineering-distribution:
-    if: ${{ github.ref == 'refs/heads/develop' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.engineering_baseline && github.ref == 'refs/heads/develop' }}
     strategy:
       fail-fast: false
       matrix:
@@ -304,7 +313,7 @@ jobs:
           retention-days: 14
 
   engineering-quality-gate:
-    if: ${{ !cancelled() && github.ref == 'refs/heads/develop' }}
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && inputs.engineering_baseline && github.ref == 'refs/heads/develop' }}
     needs: [engineering-baseline, engineering-distribution]
     runs-on: ubuntu-22.04
     timeout-minutes: 8

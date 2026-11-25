@@ -67,3 +67,7 @@ La matriz de `54adaa0` es evidencia histórica para la continuación. Las prueba
 Las suites de ambos sistemas finalizaron con 917 pruebas integrales y 150 casos preventivos. El trabajo de empaquetado Windows tuvo un timeout separado. La cobertura de líneas subió a 81,09 % (34 587/42 651) en Windows y 81,03 % (34 562/42 651) en Linux. La de ramas llegó a 66,61 % (10 934/16 416) y 66,59 % (10 931/16 416). Para alcanzar los objetivos faltaron 1 667 líneas y 1 378 ramas en Windows y 1 692 líneas y 1 381 ramas en Linux.
 
 El controlador de sesión alcanzó 318/348 líneas y 128/154 ramas en ambos sistemas. Las pruebas de recuperación posteriores alcanzaron localmente 328/348 líneas y 133/154 ramas en Windows. Ésta es una medición focal. Debe confirmarse en la matriz de aplicación. [Corrida 45685956523](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45685956523) · [Matriz vigente](../validation/FINAL_VALIDATION_MATRIX.md#continuación-autónoma)
+
+## Medición integral de 99f7ce2
+
+Las dos suites de 922 pruebas y 150 casos preventivos alcanzaron los mínimos de todos los componentes críticos controlados. El total global quedó en 81,35 % de líneas y 66,74 % de ramas en Windows y en 81,29 % / 66,72 % en Linux. El déficit fue de 1 557 líneas y 1 357 ramas en Windows y 1 582 líneas y 1 360 ramas en Linux. Los procesos de CI de distribución agotaron el plazo previo y sus artefactos de portables auditados, SBOM e instalación están incompletos para este SHA. [Resultado por condición](../validation/evidence/quality-gate-99f7ce2.json)
