@@ -24,6 +24,13 @@ def substitute(value, pairs):
         value=value.as_dummy()
         canonical={s for s in value.atoms(sp.Symbol) if s.name.startswith('_') and s.name[1:].isdigit()}
         value=value.xreplace({s:sp.Dummy('bound') for s in canonical})
+    if isinstance(value, sp.ConditionSet):
+        bound = set(value.bound_symbols)
+        condition_pairs = [(old, new) for old, new in pairs if not old.free_symbols & bound]
+        return sp.ConditionSet(value.sym, substitute(value.condition, condition_pairs),
+                               substitute(value.base_set, pairs))
+    if isinstance(value, (sp.Union, sp.Intersection, sp.Complement)) and value.has(sp.ConditionSet):
+        return value.func(*(substitute(part, pairs) for part in value.args))
     return value.subs(pairs, simultaneous=True)
 
 

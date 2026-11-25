@@ -17,7 +17,7 @@ CONSTANTS={'pi':sp.pi,'e':sp.E,'i':sp.I,'j':sp.I,'oo':sp.oo,'infinity':sp.oo,
     'naturals':sp.S.Naturals,'naturals0':sp.S.Naturals0,'emptyset':sp.S.EmptySet,
     **{name.lower():value for name,value in SERIALIZED_CONSTANTS.items()}}
 FUNCTIONS={name:getattr(sp,name) for name in ('sin','cos','tan','asin','acos','atan','atan2',
-    'sinh','cosh','tanh','asinh','acosh','atanh','exp','log','polylog','lerchphi','sqrt','factorial','binomial','gamma','erf','erfc',
+    'sinh','cosh','tanh','asinh','acosh','atanh','exp','expint','log','polylog','lerchphi','sqrt','factorial','binomial','gamma','erf','erfc',
     'simplify','expand','factor','cancel','together','apart','trigsimp','expand_trig','powsimp',
     'diff','integrate','limit','series','summation','product','dsolve','nsolve','laplace_transform','inverse_laplace_transform',
     'gcd','lcm','div','rem','factorint','floor','ceiling','sign','conjugate')}
@@ -35,6 +35,7 @@ FUNCTIONS.update({'int':sp.integrate,'derive':sp.diff,
     'exp2trig':lambda value:value.replace(lambda v:v.func==sp.exp,lambda v:sp.cos(v.args[0]/sp.I)+sp.I*sp.sin(v.args[0]/sp.I))})
 from .hyperbolic import symbolic_functions
 FUNCTIONS.update(symbolic_functions())
+FUNCTIONS.update({name.lower():getattr(sp,name) for name in ('Ei','Si','Ci')})
 from .periodic_signals import ImpulseTrain, PVCot, SYMBOLIC_FUNCTIONS as periodic_functions
 FUNCTIONS.update(periodic_functions)
 SPECIAL={'assume','solve','solve_real','linsolve','approx','evalf','exact','subst','purge','ans'}
@@ -428,6 +429,8 @@ class Calculator:
                     if len(result)!=len(value):raise ValueError('Esa precisión hace coincidir soluciones distintas. Usá más dígitos.')
                     return result
                 if isinstance(value,Relational):return value.func(approximate(value.lhs),approximate(value.rhs),evaluate=False)
+                if value is sp.true or value is sp.false:
+                    return value
                 if hasattr(value,'evalf'):return value.evalf(int(digits))
                 raise ValueError('Esta estructura no admite aproximación directa. Elegí una expresión numérica o una lista, conjunto o matriz de valores.')
             return approximate(args[0])

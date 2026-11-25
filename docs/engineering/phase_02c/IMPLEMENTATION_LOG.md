@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-04 y C-07 · Laplace y dominios del CAS
+
+**Causas y cambios.** La regla del integrador simbólico producía un factor exponencial incorrecto para recíprocos desplazados, por ejemplo `1/(t+1)`. Se incorporó la integral exponencial generalizada para fracciones parciales con desplazamientos en su rama principal, incluidos polos repetidos. Se agrupan términos que comparten un desplazamiento exponencial antes de determinar si persiste un polo en el intervalo. La salida mantiene explícitas las condiciones del desplazamiento y conserva una integral pendiente cuando la continuación no está resuelta.
+
+**CAS.** Se sustituyen parámetros libres en conjuntos de soluciones condicionados, preservando las incógnitas ligadas. La aproximación numérica de un resultado compuesto conserva sus condiciones booleanas. Las funciones integrales que pueden aparecer en una transformada se leen también al reutilizar la fórmula.
+
+**Evidencia focal.** Pasaron 128 pruebas de Laplace, otras transformadas, CAS y energía. Los nuevos casos comparan con cuadratura independiente en puntos reales y complejos, comprueban ROC, polos removibles y divergentes, y evalúan con y sin los parámetros admitidos. La proyección local queda en 36 763/42 953 líneas (85,59 %) y 11 964/16 528 ramas (72,39 %). Faltan 432 ramas según esta medición focal.
+
 ## 25 de noviembre de 2026 · C-04, C-06 y C-07 · Entrega de resultados y CAS
 
 **Publicación de entradas.** La lectura de un borrador registraba la señal inmediatamente. Un segundo cálculo rechazado por concurrencia, dos relojes incompatibles o una cancelación podían dejar entradas sueltas en Resultados. Se separó la lectura del registro para los flujos modificados. La entrada y sus referencias se publican cuando se acepta el cálculo. Restaurar el reloj de remuestreo sólo actualiza el formulario. Las regresiones conservan el resultado anterior, comprueban la cancelación tardía y verifican procedencia, fase, reloj y potencia en los reintentos.

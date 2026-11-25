@@ -303,6 +303,55 @@ def fourier_pairs(value,variable,output,*,inverse=False):
     return sp.Add(*known),sp.Add(*remaining)
 
 
+def _rational_laplace(value, variable, output):
+    """Integrate translated reciprocal powers on the principal branch."""
+    if not value.is_rational_function(variable) or value.is_polynomial(variable):
+        return None
+    from .resources import ensure_working_set
+
+    checkpoint()
+    try:
+        numerator, denominator = sp.fraction(sp.cancel(value))
+        degree = sp.Poly(denominator, variable).degree()
+        ensure_working_set(max(1, int(degree))**2, bytes_per_sample=1024, live_arrays=8)
+        scale, polynomial, fractions = sp.apart_list(numerator/denominator, variable)
+    except (sp.PolynomialError, NotImplementedError):
+        return None
+    terms = []
+    conditions = []
+    unresolved = sp.LaplaceTransform(value, variable, output)
+    for factor, coefficient, divisor, order in fractions:
+        checkpoint()
+        if factor.degree() < 1 or coefficient.expr == 0:
+            continue
+        roots = sp.roots(factor)
+        if sum(roots.values()) != factor.degree():
+            return None
+        local = divisor.variables[0]
+        if sp.expand(divisor.expr-(variable-local)) != 0:
+            return None
+        for root in roots:
+            weight = coefficient(root)
+            if weight.is_zero is True:
+                continue
+            if root.is_nonnegative is True:
+                if weight.is_zero is not False:
+                    return unresolved, -sp.oo, sp.true
+                return unresolved, -sp.oo, sp.false
+            a = -root
+            # Re(s)>0 and Re(a)>=0 keep a*s off the exponential-integral cut
+            # when a is nonzero. Other complex offsets need a continuation.
+            condition = sp.And(sp.re(a)>=0, sp.Ne(a,0))
+            if condition is sp.false:
+                return unresolved, -sp.oo, sp.true
+            conditions.append(condition)
+            terms.append(weight*a**(1-order)*sp.exp(a*output)*sp.expint(order,a*output))
+    polynomial_result = sum(c * sp.factorial(k) / output**(k+1)
+                            for (k,), c in polynomial.terms())
+    result = scale*(polynomial_result+sp.Add(*terms))
+    return result, sp.S.Zero if result != 0 else -sp.oo, sp.And(*conditions)
+
+
 def ordinary_laplace(value, variable, output, *, split_support=True):
     """Apply an exponential translation after the base transform is evaluated."""
     from .jobs import checkpoint
@@ -333,11 +382,12 @@ def ordinary_laplace(value, variable, output, *, split_support=True):
                     conditions.append(condition)
             return sp.Add(*pieces), sp.Max(-sp.oo,*planes), sp.And(*conditions)
 
-    results, planes, conditions = [], [], []
+    components = {}
     for term in sp.Add.make_args(sp.expand_mul(value)):
         if term == 0:
             continue
         checkpoint()
+        term = sp.factor_terms(term)
         shift = sp.S.Zero
         factors = []
         for factor in sp.Mul.make_args(term):
@@ -352,7 +402,17 @@ def ordinary_laplace(value, variable, output, *, split_support=True):
             factors.append(factor)
         # Keeping the kernel argument symbolic also lets the t**k table
         # differentiate it before the frequency translation.
-        result, plane, condition = sp.laplace_transform(sp.Mul(*factors),variable,output)
+        components.setdefault(shift, []).append(sp.Mul(*factors))
+
+    results, planes, conditions = [], [], []
+    for shift, terms in components.items():
+        checkpoint()
+        unshifted = sp.Add(*terms)
+        if unshifted == 0:
+            continue
+        rational = _rational_laplace(unshifted,variable,output)
+        result, plane, condition = (rational if rational is not None else
+                                    sp.laplace_transform(unshifted,variable,output))
         at = output-shift
         results.append(result.subs(output,at))
         planes.append(plane+sp.re(shift))
@@ -399,5 +459,8 @@ def unilateral_laplace(value,variable,output):
     periodic=sp.simplify(sp.Add(*periodic))
     if periodic!=0:plane=sp.Max(plane,0)
     combined = sp.Add(*known)+result+periodic
-    combined = sp.factor_terms(combined) if combined.has(sp.Piecewise) else sp.simplify(combined)
+    if combined.has(sp.Piecewise, sp.LaplaceTransform, sp.Integral):
+        combined = sp.factor_terms(combined)
+    else:
+        combined = sp.simplify(combined)
     return combined,sp.Max(plane,train_plane),condition

@@ -22,6 +22,7 @@ FUNCTIONS = {"sinc": lambda x:sp.Piecewise((sp.S.One,sp.Eq(x,0)),(sp.sin(sp.pi*x
 
 from .hyperbolic import symbolic_functions
 FUNCTIONS.update(symbolic_functions())
+FUNCTIONS.update({name.lower():getattr(sp,name) for name in ('expint','Ei','Si','Ci')})
 from .periodic_signals import SYMBOLIC_FUNCTIONS as periodic_functions
 FUNCTIONS.update(periodic_functions)
 
