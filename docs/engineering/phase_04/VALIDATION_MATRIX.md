@@ -1,14 +1,16 @@
 # Validación de Fase 04
 
-| Control | Evidencia disponible | Pendiente para el candidato |
+Windows Server 2022 y Ubuntu 22.04 aprobaron la suite integral, cobertura y paquetes sobre `a3026d2`. La tabla identifica la evidencia de cada control y la comprobación pendiente de escritorio. [Matriz aprobada](QUALITY_GATE_REPORT.md)
+
+| Control | Evidencia disponible | Estado |
 | --- | --- | --- |
-| Canales deterministas | Impulso y DFT directas, desplazamientos exactos, tono analítico, proyección de I/Q, Friis y calibración de potencia. [Oráculos](MATHEMATICAL_AUDIT.md) | Repetir en ambos sistemas sobre el SHA de calificación |
-| Modelos estocásticos | Marginales Rayleigh/Rice, cuadratura polar de fase, autocorrelación Clarke y masa espectral, ruido Wiener y sombra log-normal. | Suite integral y casos preventivos en ambos sistemas |
-| Consistencia de interfaces | El experimento del escritorio Windows reprodujo las mismas muestras, relojes, unidades, métricas y huellas desde Python y CLI con Qt bloqueado. [Contraste de interfaces](evidence/candidate-2a0a3fd/windows-interface-parity.json) | Suite del candidato y comprobación desde ambos portables |
-| Compatibilidad y recuperación | Los ensayos abren registros históricos y proyectos compuestos. Comparan reloj, señales y huellas, reanudan barridos y conservan el archivo previo si se cancela la entrega. | Repetir y archivar resultados sobre el candidato |
-| Cobertura global | `2644391` en Windows registró 89,21 % de líneas y 76,17 % de ramas. El informe local conserva una falla de espera en CAS. [Línea base local](IMPLEMENTATION_LOG.md#calificación-local-y-corrección-de-la-escala-doppler) | Resultados integrales aprobados y todos los componentes críticos por encima de sus umbrales |
-| Recursos | Los perfiles de seis etapas y 128, 2 048 y 65 536 símbolos se verificaron en ambos runners sobre `2a0a3fd`. Se comprobaron memoria, archivo previo, cancelación, concurrencia y respuesta offscreen. [Mediciones](PERFORMANCE_REPORT.md) | Consolidar con el resultado integral |
-| Escritorio y distribución | La sesión real de Windows verificó enlace, exportación, cierre de pestaña y distribuciones. Ambos sistemas aprobaron instalador y actualización aislada desde 2.0.0. Se comprobaron los hashes de ambos portables, instaladores y fuente. [Distribución](QUALITY_GATE_REPORT.md#paquetes-de-revisión) | Verificación nativa adicional de Windows y Linux y resultado integral de la matriz |
+| Canales deterministas | Impulso y DFT directas, desplazamientos exactos, tono analítico, proyección de I/Q, Friis y calibración de potencia. [Oráculos](MATHEMATICAL_AUDIT.md) | Matriz aprobada |
+| Modelos estocásticos | Marginales Rayleigh/Rice, cuadratura polar de fase, autocorrelación Clarke y masa espectral, ruido Wiener y sombra log-normal. | Suite integral y casos preventivos aprobados |
+| Consistencia de interfaces | El experimento del escritorio Windows reprodujo las mismas muestras, relojes, unidades, métricas y huellas desde Python y CLI con Qt bloqueado. [Contraste de interfaces](evidence/candidate-2a0a3fd/windows-interface-parity.json) | Matriz y enlace empaquetado aprobados |
+| Compatibilidad y recuperación | Los ensayos abren registros históricos y proyectos compuestos. Comparan reloj, señales y huellas, reanudan barridos y conservan el archivo previo si se cancela la entrega. | Matriz aprobada |
+| Cobertura global y crítica | Ambas plataformas alcanzaron los umbrales de líneas y ramas con conteos exactos. [Cobertura](QUALITY_GATE_REPORT.md) | Matriz aprobada |
+| Recursos | Los perfiles de seis etapas y 128, 2 048 y 65 536 símbolos se verificaron en ambos runners sobre `a3026d2`. Se comprobaron memoria, archivo previo, cancelación, concurrencia y respuesta offscreen. [Mediciones](PERFORMANCE_REPORT.md#repetición-sobre-a3026d2) | Perfiles medidos aprobados |
+| Escritorio y distribución | La sesión real de Windows verificó enlace, exportación, cierre de pestaña y distribuciones. Ambos sistemas aprobaron instalador y actualización aislada desde 2.0.0. Se comprobaron los hashes de ambos portables, instaladores y fuente. [Distribución](QUALITY_GATE_REPORT.md#paquetes-de-revisión-de-a3026d2) | Clarke en escritorio real, Windows a 150 % o 200 % y Linux nativo |
 
 ## Observación de escritorio Windows
 

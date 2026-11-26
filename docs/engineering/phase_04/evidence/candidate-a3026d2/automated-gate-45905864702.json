@@ -1,0 +1,2421 @@
+{
+  "phase": "04",
+  "commit": "a3026d288fe2371aace308b403071cf457b89123",
+  "automated_passed": true,
+  "platforms": {
+    "windows-2022": {
+      "checks": {
+        "phase_03_controls": true,
+        "critical_coverage": true,
+        "preview_2_2_0": true,
+        "packaged_channel_chain": true,
+        "channel_performance": true,
+        "channel_cancellation": true,
+        "channel_concurrency": true,
+        "channel_offscreen_heartbeat": true
+      },
+      "critical": {
+        "sampling.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 303,
+            "total": 304,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 122,
+            "total": 130,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "fourier.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 256,
+            "total": 257,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 72,
+            "total": 84,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "execution.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 83,
+            "total": 83,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 26,
+            "total": 26,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "dft_application.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 56,
+            "total": 56,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 12,
+            "total": 12,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "dsp_application.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 206,
+            "total": 210,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 40,
+            "total": 46,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "dsp_pipeline.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 129,
+            "total": 134,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 21,
+            "total": 22,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "scientific_storage.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 75,
+            "total": 78,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 23,
+            "total": 24,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "project_archive.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 102,
+            "total": 107,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 41,
+            "total": 46,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "cas_worksheet.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 59,
+            "total": 59,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 42,
+            "total": 42,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "session_desktop.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 334,
+            "total": 348,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 138,
+            "total": 154,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "cli_session.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 68,
+            "total": 71,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 13,
+            "total": 14,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "operation_provenance.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 50,
+            "total": 53,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 17,
+            "total": 20,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "project.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 287,
+            "total": 299,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 127,
+            "total": 146,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_data.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 167,
+            "total": 167,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 64,
+            "total": 64,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_modulation.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 206,
+            "total": 206,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 59,
+            "total": 60,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_pulses.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 180,
+            "total": 180,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 36,
+            "total": 36,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_channel.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 284,
+            "total": 296,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 80,
+            "total": 88,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_receiver.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 176,
+            "total": 176,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 46,
+            "total": 46,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_metrics.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 188,
+            "total": 188,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 66,
+            "total": 66,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_experiment.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 238,
+            "total": 245,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 74,
+            "total": 80,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_storage.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 179,
+            "total": 183,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 52,
+            "total": 56,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_sweep.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 396,
+            "total": 411,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 151,
+            "total": 166,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_cli.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 489,
+            "total": 493,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 75,
+            "total": 82,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_fading.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 135,
+            "total": 140,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 24,
+            "total": 28,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_fading_distributions.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 87,
+            "total": 88,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 15,
+            "total": 16,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_doppler.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 153,
+            "total": 157,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 26,
+            "total": 30,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_impairments.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 189,
+            "total": 199,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 40,
+            "total": 46,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_interference.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 246,
+            "total": 260,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 70,
+            "total": 82,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_pipeline.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 286,
+            "total": 304,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 97,
+            "total": 114,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_propagation.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 115,
+            "total": 120,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 29,
+            "total": 32,
+            "state": "pass",
+            "additional_required": 0
+          }
+        }
+      },
+      "historical": {
+        "checks": {
+          "core": true,
+          "scientific_suite": true,
+          "critical_coverage": true,
+          "performance": true,
+          "cancellation": true,
+          "sweep_and_archive": true,
+          "desktop_responsiveness": true,
+          "packaged_link": true,
+          "fixed_native_runtime": true,
+          "isolated_preview": true,
+          "candidate_bundle": true
+        },
+        "coverage": {
+          "lines": {
+            "goal": 85,
+            "covered": 43178,
+            "total": 48393,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 75,
+            "covered": 13741,
+            "total": 18012,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "critical": {
+          "communications_data.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 167,
+              "total": 167,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 64,
+              "total": 64,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_modulation.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 206,
+              "total": 206,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 59,
+              "total": 60,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_pulses.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 180,
+              "total": 180,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 36,
+              "total": 36,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_channel.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 284,
+              "total": 296,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 80,
+              "total": 88,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_receiver.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 176,
+              "total": 176,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 46,
+              "total": 46,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_metrics.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 188,
+              "total": 188,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 66,
+              "total": 66,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_experiment.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 238,
+              "total": 245,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 74,
+              "total": 80,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_storage.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 179,
+              "total": 183,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 52,
+              "total": 56,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_sweep.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 396,
+              "total": 411,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 151,
+              "total": 166,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_cli.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 489,
+              "total": 493,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 75,
+              "total": 82,
+              "state": "pass",
+              "additional_required": 0
+            }
+          }
+        },
+        "communications_tests": 137,
+        "integral_tests": 1254,
+        "portable_version": "2.2.0",
+        "candidate_bundle": {
+          "schema": 1,
+          "commit": "a3026d288fe2371aace308b403071cf457b89123",
+          "version": "2.2.0",
+          "channel": "preview",
+          "source_fingerprint": "8d97427c823ec510eff0331d9a2fcc9a869a11763a2b5475323dd3c13e12d52d",
+          "platform": "windows",
+          "files": {
+            "SignalLab-PC-2.2.0.exe": {
+              "sha256": "e4d1c8935048aa01c56e0ee4635d992c9421503d1bb9626608fa853f7110af24",
+              "size": 113389617
+            },
+            "SignalLab-PC-2.2.0-setup.exe": {
+              "sha256": "5baafb89b84d67ee2ec6848d4f0f8b42f816ea109d823eec3eb2b3c57b5451c7",
+              "size": 114589858
+            },
+            "installer-windows.json": {
+              "sha256": "749a3067e3d3cf9499c6c2953542d891e44a48ad39940a91d9860090d5f3c769",
+              "size": 402
+            },
+            "SignalLab-PC-2.2.0-source.zip": {
+              "sha256": "b729d27841ce23b5648e7d222ac21996275a02dfa33cff98cfc754096f5fed22",
+              "size": 5165557
+            }
+          },
+          "installer_sha256": "5baafb89b84d67ee2ec6848d4f0f8b42f816ea109d823eec3eb2b3c57b5451c7",
+          "portable_sha256": "e4d1c8935048aa01c56e0ee4635d992c9421503d1bb9626608fa853f7110af24"
+        }
+      },
+      "performance": {
+        "commit": "a3026d288fe2371aace308b403071cf457b89123",
+        "clean_checkout": true,
+        "platform": "Windows-2022Server-10.0.20348-SP0",
+        "python": "3.14.10",
+        "numpy": "2.5.5",
+        "scipy": "1.18.1",
+        "threads": 1,
+        "profiles": [
+          {
+            "symbols": 128,
+            "samples_per_symbol": 8,
+            "sample_rate_hz": 96000.0,
+            "pulse_taps": 81,
+            "source_samples": 1097,
+            "received_samples": 1190,
+            "model_stages": 6,
+            "parameters": {
+              "bit_count": 256,
+              "seed": 20261126,
+              "symbol_rate_hz": 12000.0,
+              "constellation": {
+                "family": "psk",
+                "order": 4,
+                "labeling": "gray",
+                "rotation_rad": 0.7853981633974483,
+                "normalization": "unit_energy"
+              },
+              "pulse": {
+                "family": "rrc",
+                "samples_per_symbol": 8,
+                "span_symbols": 10,
+                "rolloff": 0.35,
+                "normalization": "unit_energy"
+              },
+              "eb_n0_db": 10.0,
+              "synchronization": {
+                "mode": "ideal",
+                "sample_offset": 0,
+                "phase_rad": 0.0,
+                "search_first": 0,
+                "search_last": null,
+                "minimum_score": 0.7,
+                "minimum_margin": 0.01
+              },
+              "pilot_symbols": 24,
+              "allow_padding": true,
+              "channel_pipeline": {
+                "schema": 1,
+                "seed": 421555,
+                "stages": [
+                  {
+                    "kind": "multipath",
+                    "parameters": {
+                      "paths": [
+                        {
+                          "delay_samples": 0,
+                          "gain_real": 1.0,
+                          "gain_imag": 0.0
+                        },
+                        {
+                          "delay_samples": 5,
+                          "gain_real": 0.08,
+                          "gain_imag": 0.06
+                        },
+                        {
+                          "delay_samples": 9,
+                          "gain_real": 0.0,
+                          "gain_imag": -0.04
+                        }
+                      ],
+                      "normalize_power": false
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "fading",
+                    "parameters": {
+                      "paths": [
+                        {
+                          "delay_samples": 0,
+                          "average_power": 1.0,
+                          "k_linear": 8.0,
+                          "los_phase_rad": 0.2
+                        },
+                        {
+                          "delay_samples": 4,
+                          "average_power": 0.12,
+                          "k_linear": 0.0,
+                          "los_phase_rad": 0.0
+                        }
+                      ],
+                      "seed": 2026,
+                      "max_doppler_hz": 64.0
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "carrier",
+                    "parameters": {
+                      "frequency_hz": 19.0,
+                      "phase_rad": 0.06
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "phase_noise",
+                    "parameters": {
+                      "linewidth_hz": 2.0,
+                      "seed": 2026
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "iq_imbalance",
+                    "parameters": {
+                      "q_gain_db": 0.3,
+                      "q_phase_rad": 0.043,
+                      "dc_i": 0.006,
+                      "dc_q": -0.002
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "interference",
+                    "parameters": {
+                      "model": {
+                        "bandwidth_hz": 4800.0,
+                        "center_hz": 12000.0,
+                        "seed": 2026,
+                        "kind": "band"
+                      },
+                      "power": null,
+                      "sir_db": 18.0,
+                      "noise_snr_db": null,
+                      "noise_seed": 2026
+                    },
+                    "external_input": null
+                  }
+                ]
+              }
+            },
+            "baseline_peak_rss_bytes": 104374272,
+            "compute_peak_rss_bytes": 105107456,
+            "save_peak_rss_bytes": 105541632,
+            "peak_rss_bytes": 105795584,
+            "archive_bytes": 345081,
+            "verified_records": 24,
+            "archive_verified": true,
+            "estimated_link_retention_bytes": 476864,
+            "retained_channel_bytes": 177408,
+            "seconds": {
+              "compute": 0.015336800000113726,
+              "save": 0.017743500000051426,
+              "load": 0.007077300000219111,
+              "verify": 0.002396600000338367
+            }
+          },
+          {
+            "symbols": 2048,
+            "samples_per_symbol": 8,
+            "sample_rate_hz": 96000.0,
+            "pulse_taps": 81,
+            "source_samples": 16457,
+            "received_samples": 16550,
+            "model_stages": 6,
+            "parameters": {
+              "bit_count": 4096,
+              "seed": 20261126,
+              "symbol_rate_hz": 12000.0,
+              "constellation": {
+                "family": "psk",
+                "order": 4,
+                "labeling": "gray",
+                "rotation_rad": 0.7853981633974483,
+                "normalization": "unit_energy"
+              },
+              "pulse": {
+                "family": "rrc",
+                "samples_per_symbol": 8,
+                "span_symbols": 10,
+                "rolloff": 0.35,
+                "normalization": "unit_energy"
+              },
+              "eb_n0_db": 10.0,
+              "synchronization": {
+                "mode": "ideal",
+                "sample_offset": 0,
+                "phase_rad": 0.0,
+                "search_first": 0,
+                "search_last": null,
+                "minimum_score": 0.7,
+                "minimum_margin": 0.01
+              },
+              "pilot_symbols": 24,
+              "allow_padding": true,
+              "channel_pipeline": {
+                "schema": 1,
+                "seed": 421555,
+                "stages": [
+                  {
+                    "kind": "multipath",
+                    "parameters": {
+                      "paths": [
+                        {
+                          "delay_samples": 0,
+                          "gain_real": 1.0,
+                          "gain_imag": 0.0
+                        },
+                        {
+                          "delay_samples": 5,
+                          "gain_real": 0.08,
+                          "gain_imag": 0.06
+                        },
+                        {
+                          "delay_samples": 9,
+                          "gain_real": 0.0,
+                          "gain_imag": -0.04
+                        }
+                      ],
+                      "normalize_power": false
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "fading",
+                    "parameters": {
+                      "paths": [
+                        {
+                          "delay_samples": 0,
+                          "average_power": 1.0,
+                          "k_linear": 8.0,
+                          "los_phase_rad": 0.2
+                        },
+                        {
+                          "delay_samples": 4,
+                          "average_power": 0.12,
+                          "k_linear": 0.0,
+                          "los_phase_rad": 0.0
+                        }
+                      ],
+                      "seed": 2026,
+                      "max_doppler_hz": 64.0
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "carrier",
+                    "parameters": {
+                      "frequency_hz": 19.0,
+                      "phase_rad": 0.06
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "phase_noise",
+                    "parameters": {
+                      "linewidth_hz": 2.0,
+                      "seed": 2026
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "iq_imbalance",
+                    "parameters": {
+                      "q_gain_db": 0.3,
+                      "q_phase_rad": 0.043,
+                      "dc_i": 0.006,
+                      "dc_q": -0.002
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "interference",
+                    "parameters": {
+                      "model": {
+                        "bandwidth_hz": 4800.0,
+                        "center_hz": 12000.0,
+                        "seed": 2026,
+                        "kind": "band"
+                      },
+                      "power": null,
+                      "sir_db": 18.0,
+                      "noise_snr_db": null,
+                      "noise_seed": 2026
+                    },
+                    "external_input": null
+                  }
+                ]
+              }
+            },
+            "baseline_peak_rss_bytes": 105263104,
+            "compute_peak_rss_bytes": 110088192,
+            "save_peak_rss_bytes": 113434624,
+            "peak_rss_bytes": 117080064,
+            "archive_bytes": 3853874,
+            "verified_records": 24,
+            "archive_verified": true,
+            "estimated_link_retention_bytes": 6213824,
+            "retained_channel_bytes": 2635008,
+            "seconds": {
+              "compute": 0.02883430000019871,
+              "save": 0.05074629999990066,
+              "load": 0.013741600000230392,
+              "verify": 0.004068499999902997
+            }
+          },
+          {
+            "symbols": 65536,
+            "samples_per_symbol": 8,
+            "sample_rate_hz": 96000.0,
+            "pulse_taps": 81,
+            "source_samples": 524361,
+            "received_samples": 524454,
+            "model_stages": 6,
+            "parameters": {
+              "bit_count": 131072,
+              "seed": 20261126,
+              "symbol_rate_hz": 12000.0,
+              "constellation": {
+                "family": "psk",
+                "order": 4,
+                "labeling": "gray",
+                "rotation_rad": 0.7853981633974483,
+                "normalization": "unit_energy"
+              },
+              "pulse": {
+                "family": "rrc",
+                "samples_per_symbol": 8,
+                "span_symbols": 10,
+                "rolloff": 0.35,
+                "normalization": "unit_energy"
+              },
+              "eb_n0_db": 10.0,
+              "synchronization": {
+                "mode": "ideal",
+                "sample_offset": 0,
+                "phase_rad": 0.0,
+                "search_first": 0,
+                "search_last": null,
+                "minimum_score": 0.7,
+                "minimum_margin": 0.01
+              },
+              "pilot_symbols": 24,
+              "allow_padding": true,
+              "channel_pipeline": {
+                "schema": 1,
+                "seed": 421555,
+                "stages": [
+                  {
+                    "kind": "multipath",
+                    "parameters": {
+                      "paths": [
+                        {
+                          "delay_samples": 0,
+                          "gain_real": 1.0,
+                          "gain_imag": 0.0
+                        },
+                        {
+                          "delay_samples": 5,
+                          "gain_real": 0.08,
+                          "gain_imag": 0.06
+                        },
+                        {
+                          "delay_samples": 9,
+                          "gain_real": 0.0,
+                          "gain_imag": -0.04
+                        }
+                      ],
+                      "normalize_power": false
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "fading",
+                    "parameters": {
+                      "paths": [
+                        {
+                          "delay_samples": 0,
+                          "average_power": 1.0,
+                          "k_linear": 8.0,
+                          "los_phase_rad": 0.2
+                        },
+                        {
+                          "delay_samples": 4,
+                          "average_power": 0.12,
+                          "k_linear": 0.0,
+                          "los_phase_rad": 0.0
+                        }
+                      ],
+                      "seed": 2026,
+                      "max_doppler_hz": 64.0
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "carrier",
+                    "parameters": {
+                      "frequency_hz": 19.0,
+                      "phase_rad": 0.06
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "phase_noise",
+                    "parameters": {
+                      "linewidth_hz": 2.0,
+                      "seed": 2026
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "iq_imbalance",
+                    "parameters": {
+                      "q_gain_db": 0.3,
+                      "q_phase_rad": 0.043,
+                      "dc_i": 0.006,
+                      "dc_q": -0.002
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "interference",
+                    "parameters": {
+                      "model": {
+                        "bandwidth_hz": 4800.0,
+                        "center_hz": 12000.0,
+                        "seed": 2026,
+                        "kind": "band"
+                      },
+                      "power": null,
+                      "sir_db": 18.0,
+                      "noise_snr_db": null,
+                      "noise_seed": 2026
+                    },
+                    "external_input": null
+                  }
+                ]
+              }
+            },
+            "baseline_peak_rss_bytes": 105062400,
+            "compute_peak_rss_bytes": 242139136,
+            "save_peak_rss_bytes": 347000832,
+            "peak_rss_bytes": 466841600,
+            "archive_bytes": 119867599,
+            "verified_records": 24,
+            "archive_verified": true,
+            "estimated_link_retention_bytes": 195915968,
+            "retained_channel_bytes": 83899648,
+            "seconds": {
+              "compute": 0.5200644999999895,
+              "save": 0.8168964000001324,
+              "load": 0.17198929999995016,
+              "verify": 0.0620096000002377
+            }
+          }
+        ],
+        "cancellation": {
+          "clarke_transform": {
+            "discarded": true,
+            "seconds_after_request": 0.0193570000001273
+          },
+          "atomic_archive": {
+            "discarded": true,
+            "seconds_after_request": 0.007173499999680644
+          }
+        },
+        "archive_rejected_without_changes": true,
+        "concurrency": {
+          "budget_bytes": 367001600,
+          "estimate_bytes": 112016320,
+          "competing_request_rejected": true,
+          "retry_verified": true
+        },
+        "desktop": {
+          "qt_platform": "offscreen",
+          "window": [
+            940,
+            700
+          ],
+          "bit_count": 131072,
+          "heartbeat_period_ms": 10,
+          "heartbeat_count": 3038,
+          "median_gap_seconds": 0.011905599999863625,
+          "maximum_gap_seconds": 0.09623050000027433,
+          "seconds": 30.485812599999917,
+          "peak_rss_bytes": 599207936,
+          "model_stages": 6,
+          "passed": true
+        }
+      }
+    },
+    "ubuntu-22.04": {
+      "checks": {
+        "phase_03_controls": true,
+        "critical_coverage": true,
+        "preview_2_2_0": true,
+        "packaged_channel_chain": true,
+        "channel_performance": true,
+        "channel_cancellation": true,
+        "channel_concurrency": true,
+        "channel_offscreen_heartbeat": true
+      },
+      "critical": {
+        "sampling.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 303,
+            "total": 304,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 122,
+            "total": 130,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "fourier.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 256,
+            "total": 257,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 72,
+            "total": 84,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "execution.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 83,
+            "total": 83,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 26,
+            "total": 26,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "dft_application.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 56,
+            "total": 56,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 12,
+            "total": 12,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "dsp_application.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 206,
+            "total": 210,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 40,
+            "total": 46,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "dsp_pipeline.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 129,
+            "total": 134,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 21,
+            "total": 22,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "scientific_storage.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 75,
+            "total": 78,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 23,
+            "total": 24,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "project_archive.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 102,
+            "total": 107,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 41,
+            "total": 46,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "cas_worksheet.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 59,
+            "total": 59,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 42,
+            "total": 42,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "session_desktop.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 334,
+            "total": 348,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 138,
+            "total": 154,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "cli_session.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 68,
+            "total": 71,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 13,
+            "total": 14,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "operation_provenance.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 50,
+            "total": 53,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 17,
+            "total": 20,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "project.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 287,
+            "total": 299,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 127,
+            "total": 146,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_data.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 167,
+            "total": 167,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 64,
+            "total": 64,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_modulation.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 206,
+            "total": 206,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 59,
+            "total": 60,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_pulses.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 180,
+            "total": 180,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 36,
+            "total": 36,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_channel.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 284,
+            "total": 296,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 80,
+            "total": 88,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_receiver.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 176,
+            "total": 176,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 46,
+            "total": 46,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_metrics.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 188,
+            "total": 188,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 66,
+            "total": 66,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_experiment.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 238,
+            "total": 245,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 74,
+            "total": 80,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_storage.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 179,
+            "total": 183,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 52,
+            "total": 56,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_sweep.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 392,
+            "total": 411,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 149,
+            "total": 166,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_cli.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 489,
+            "total": 493,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 75,
+            "total": 82,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_fading.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 135,
+            "total": 140,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 24,
+            "total": 28,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_fading_distributions.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 87,
+            "total": 88,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 15,
+            "total": 16,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_doppler.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 153,
+            "total": 157,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 26,
+            "total": 30,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_impairments.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 189,
+            "total": 199,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 40,
+            "total": 46,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_interference.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 246,
+            "total": 260,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 70,
+            "total": 82,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_pipeline.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 286,
+            "total": 304,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 97,
+            "total": 114,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_propagation.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 115,
+            "total": 120,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 29,
+            "total": 32,
+            "state": "pass",
+            "additional_required": 0
+          }
+        }
+      },
+      "historical": {
+        "checks": {
+          "core": true,
+          "scientific_suite": true,
+          "critical_coverage": true,
+          "performance": true,
+          "cancellation": true,
+          "sweep_and_archive": true,
+          "desktop_responsiveness": true,
+          "packaged_link": true,
+          "fixed_native_runtime": true,
+          "isolated_preview": true,
+          "candidate_bundle": true
+        },
+        "coverage": {
+          "lines": {
+            "goal": 85,
+            "covered": 43149,
+            "total": 48393,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 75,
+            "covered": 13735,
+            "total": 18012,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "critical": {
+          "communications_data.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 167,
+              "total": 167,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 64,
+              "total": 64,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_modulation.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 206,
+              "total": 206,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 59,
+              "total": 60,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_pulses.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 180,
+              "total": 180,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 36,
+              "total": 36,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_channel.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 284,
+              "total": 296,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 80,
+              "total": 88,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_receiver.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 176,
+              "total": 176,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 46,
+              "total": 46,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_metrics.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 188,
+              "total": 188,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 66,
+              "total": 66,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_experiment.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 238,
+              "total": 245,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 74,
+              "total": 80,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_storage.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 179,
+              "total": 183,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 52,
+              "total": 56,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_sweep.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 392,
+              "total": 411,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 149,
+              "total": 166,
+              "state": "pass",
+              "additional_required": 0
+            }
+          },
+          "communications_cli.py": {
+            "lines": {
+              "goal": 90,
+              "covered": 489,
+              "total": 493,
+              "state": "pass",
+              "additional_required": 0
+            },
+            "branches": {
+              "goal": 85,
+              "covered": 75,
+              "total": 82,
+              "state": "pass",
+              "additional_required": 0
+            }
+          }
+        },
+        "communications_tests": 137,
+        "integral_tests": 1254,
+        "portable_version": "2.2.0",
+        "candidate_bundle": {
+          "schema": 1,
+          "commit": "a3026d288fe2371aace308b403071cf457b89123",
+          "version": "2.2.0",
+          "channel": "preview",
+          "source_fingerprint": "8d97427c823ec510eff0331d9a2fcc9a869a11763a2b5475323dd3c13e12d52d",
+          "platform": "linux",
+          "files": {
+            "SignalLab-PC-2.2.0-linux-x86_64.tar.gz": {
+              "sha256": "9c3106c25c0dac816e25afa2f6921f8391aef30bdea21a6a33c60399bbd566b2",
+              "size": 160698239
+            },
+            "SignalLab-PC-2.2.0-linux-x86_64.run": {
+              "sha256": "48462301a4d7491cfd448c9135c7b79c607cbc23c3495330d3666f9257ea26c4",
+              "size": 160647372
+            },
+            "installer-linux.json": {
+              "sha256": "47a0221d7d5372b2e35308aedf47fe084ca046365ec30fba97714a60558834e5",
+              "size": 396
+            }
+          },
+          "installer_sha256": "48462301a4d7491cfd448c9135c7b79c607cbc23c3495330d3666f9257ea26c4",
+          "portable_sha256": "9c3106c25c0dac816e25afa2f6921f8391aef30bdea21a6a33c60399bbd566b2"
+        }
+      },
+      "performance": {
+        "commit": "a3026d288fe2371aace308b403071cf457b89123",
+        "clean_checkout": true,
+        "platform": "Linux-6.8.0-1073-azure-x86_64-with-glibc2.35",
+        "python": "3.14.10",
+        "numpy": "2.5.5",
+        "scipy": "1.18.1",
+        "threads": 1,
+        "profiles": [
+          {
+            "symbols": 128,
+            "samples_per_symbol": 8,
+            "sample_rate_hz": 96000.0,
+            "pulse_taps": 81,
+            "source_samples": 1097,
+            "received_samples": 1190,
+            "model_stages": 6,
+            "parameters": {
+              "bit_count": 256,
+              "seed": 20261126,
+              "symbol_rate_hz": 12000.0,
+              "constellation": {
+                "family": "psk",
+                "order": 4,
+                "labeling": "gray",
+                "rotation_rad": 0.7853981633974483,
+                "normalization": "unit_energy"
+              },
+              "pulse": {
+                "family": "rrc",
+                "samples_per_symbol": 8,
+                "span_symbols": 10,
+                "rolloff": 0.35,
+                "normalization": "unit_energy"
+              },
+              "eb_n0_db": 10.0,
+              "synchronization": {
+                "mode": "ideal",
+                "sample_offset": 0,
+                "phase_rad": 0.0,
+                "search_first": 0,
+                "search_last": null,
+                "minimum_score": 0.7,
+                "minimum_margin": 0.01
+              },
+              "pilot_symbols": 24,
+              "allow_padding": true,
+              "channel_pipeline": {
+                "schema": 1,
+                "seed": 421555,
+                "stages": [
+                  {
+                    "kind": "multipath",
+                    "parameters": {
+                      "paths": [
+                        {
+                          "delay_samples": 0,
+                          "gain_real": 1.0,
+                          "gain_imag": 0.0
+                        },
+                        {
+                          "delay_samples": 5,
+                          "gain_real": 0.08,
+                          "gain_imag": 0.06
+                        },
+                        {
+                          "delay_samples": 9,
+                          "gain_real": 0.0,
+                          "gain_imag": -0.04
+                        }
+                      ],
+                      "normalize_power": false
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "fading",
+                    "parameters": {
+                      "paths": [
+                        {
+                          "delay_samples": 0,
+                          "average_power": 1.0,
+                          "k_linear": 8.0,
+                          "los_phase_rad": 0.2
+                        },
+                        {
+                          "delay_samples": 4,
+                          "average_power": 0.12,
+                          "k_linear": 0.0,
+                          "los_phase_rad": 0.0
+                        }
+                      ],
+                      "seed": 2026,
+                      "max_doppler_hz": 64.0
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "carrier",
+                    "parameters": {
+                      "frequency_hz": 19.0,
+                      "phase_rad": 0.06
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "phase_noise",
+                    "parameters": {
+                      "linewidth_hz": 2.0,
+                      "seed": 2026
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "iq_imbalance",
+                    "parameters": {
+                      "q_gain_db": 0.3,
+                      "q_phase_rad": 0.043,
+                      "dc_i": 0.006,
+                      "dc_q": -0.002
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "interference",
+                    "parameters": {
+                      "model": {
+                        "bandwidth_hz": 4800.0,
+                        "center_hz": 12000.0,
+                        "seed": 2026,
+                        "kind": "band"
+                      },
+                      "power": null,
+                      "sir_db": 18.0,
+                      "noise_snr_db": null,
+                      "noise_seed": 2026
+                    },
+                    "external_input": null
+                  }
+                ]
+              }
+            },
+            "baseline_peak_rss_bytes": 112791552,
+            "compute_peak_rss_bytes": 114364416,
+            "save_peak_rss_bytes": 114626560,
+            "peak_rss_bytes": 115019776,
+            "archive_bytes": 345087,
+            "verified_records": 24,
+            "archive_verified": true,
+            "estimated_link_retention_bytes": 476864,
+            "retained_channel_bytes": 177408,
+            "seconds": {
+              "compute": 0.019415630999901623,
+              "save": 0.01013832300031936,
+              "load": 0.007763393000004726,
+              "verify": 0.0024385460001212778
+            }
+          },
+          {
+            "symbols": 2048,
+            "samples_per_symbol": 8,
+            "sample_rate_hz": 96000.0,
+            "pulse_taps": 81,
+            "source_samples": 16457,
+            "received_samples": 16550,
+            "model_stages": 6,
+            "parameters": {
+              "bit_count": 4096,
+              "seed": 20261126,
+              "symbol_rate_hz": 12000.0,
+              "constellation": {
+                "family": "psk",
+                "order": 4,
+                "labeling": "gray",
+                "rotation_rad": 0.7853981633974483,
+                "normalization": "unit_energy"
+              },
+              "pulse": {
+                "family": "rrc",
+                "samples_per_symbol": 8,
+                "span_symbols": 10,
+                "rolloff": 0.35,
+                "normalization": "unit_energy"
+              },
+              "eb_n0_db": 10.0,
+              "synchronization": {
+                "mode": "ideal",
+                "sample_offset": 0,
+                "phase_rad": 0.0,
+                "search_first": 0,
+                "search_last": null,
+                "minimum_score": 0.7,
+                "minimum_margin": 0.01
+              },
+              "pilot_symbols": 24,
+              "allow_padding": true,
+              "channel_pipeline": {
+                "schema": 1,
+                "seed": 421555,
+                "stages": [
+                  {
+                    "kind": "multipath",
+                    "parameters": {
+                      "paths": [
+                        {
+                          "delay_samples": 0,
+                          "gain_real": 1.0,
+                          "gain_imag": 0.0
+                        },
+                        {
+                          "delay_samples": 5,
+                          "gain_real": 0.08,
+                          "gain_imag": 0.06
+                        },
+                        {
+                          "delay_samples": 9,
+                          "gain_real": 0.0,
+                          "gain_imag": -0.04
+                        }
+                      ],
+                      "normalize_power": false
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "fading",
+                    "parameters": {
+                      "paths": [
+                        {
+                          "delay_samples": 0,
+                          "average_power": 1.0,
+                          "k_linear": 8.0,
+                          "los_phase_rad": 0.2
+                        },
+                        {
+                          "delay_samples": 4,
+                          "average_power": 0.12,
+                          "k_linear": 0.0,
+                          "los_phase_rad": 0.0
+                        }
+                      ],
+                      "seed": 2026,
+                      "max_doppler_hz": 64.0
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "carrier",
+                    "parameters": {
+                      "frequency_hz": 19.0,
+                      "phase_rad": 0.06
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "phase_noise",
+                    "parameters": {
+                      "linewidth_hz": 2.0,
+                      "seed": 2026
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "iq_imbalance",
+                    "parameters": {
+                      "q_gain_db": 0.3,
+                      "q_phase_rad": 0.043,
+                      "dc_i": 0.006,
+                      "dc_q": -0.002
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "interference",
+                    "parameters": {
+                      "model": {
+                        "bandwidth_hz": 4800.0,
+                        "center_hz": 12000.0,
+                        "seed": 2026,
+                        "kind": "band"
+                      },
+                      "power": null,
+                      "sir_db": 18.0,
+                      "noise_snr_db": null,
+                      "noise_seed": 2026
+                    },
+                    "external_input": null
+                  }
+                ]
+              }
+            },
+            "baseline_peak_rss_bytes": 112926720,
+            "compute_peak_rss_bytes": 119873536,
+            "save_peak_rss_bytes": 122626048,
+            "peak_rss_bytes": 126361600,
+            "archive_bytes": 3853686,
+            "verified_records": 24,
+            "archive_verified": true,
+            "estimated_link_retention_bytes": 6213824,
+            "retained_channel_bytes": 2635008,
+            "seconds": {
+              "compute": 0.03021676100024706,
+              "save": 0.022243894999974145,
+              "load": 0.01234796600010668,
+              "verify": 0.0038869340000928787
+            }
+          },
+          {
+            "symbols": 65536,
+            "samples_per_symbol": 8,
+            "sample_rate_hz": 96000.0,
+            "pulse_taps": 81,
+            "source_samples": 524361,
+            "received_samples": 524454,
+            "model_stages": 6,
+            "parameters": {
+              "bit_count": 131072,
+              "seed": 20261126,
+              "symbol_rate_hz": 12000.0,
+              "constellation": {
+                "family": "psk",
+                "order": 4,
+                "labeling": "gray",
+                "rotation_rad": 0.7853981633974483,
+                "normalization": "unit_energy"
+              },
+              "pulse": {
+                "family": "rrc",
+                "samples_per_symbol": 8,
+                "span_symbols": 10,
+                "rolloff": 0.35,
+                "normalization": "unit_energy"
+              },
+              "eb_n0_db": 10.0,
+              "synchronization": {
+                "mode": "ideal",
+                "sample_offset": 0,
+                "phase_rad": 0.0,
+                "search_first": 0,
+                "search_last": null,
+                "minimum_score": 0.7,
+                "minimum_margin": 0.01
+              },
+              "pilot_symbols": 24,
+              "allow_padding": true,
+              "channel_pipeline": {
+                "schema": 1,
+                "seed": 421555,
+                "stages": [
+                  {
+                    "kind": "multipath",
+                    "parameters": {
+                      "paths": [
+                        {
+                          "delay_samples": 0,
+                          "gain_real": 1.0,
+                          "gain_imag": 0.0
+                        },
+                        {
+                          "delay_samples": 5,
+                          "gain_real": 0.08,
+                          "gain_imag": 0.06
+                        },
+                        {
+                          "delay_samples": 9,
+                          "gain_real": 0.0,
+                          "gain_imag": -0.04
+                        }
+                      ],
+                      "normalize_power": false
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "fading",
+                    "parameters": {
+                      "paths": [
+                        {
+                          "delay_samples": 0,
+                          "average_power": 1.0,
+                          "k_linear": 8.0,
+                          "los_phase_rad": 0.2
+                        },
+                        {
+                          "delay_samples": 4,
+                          "average_power": 0.12,
+                          "k_linear": 0.0,
+                          "los_phase_rad": 0.0
+                        }
+                      ],
+                      "seed": 2026,
+                      "max_doppler_hz": 64.0
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "carrier",
+                    "parameters": {
+                      "frequency_hz": 19.0,
+                      "phase_rad": 0.06
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "phase_noise",
+                    "parameters": {
+                      "linewidth_hz": 2.0,
+                      "seed": 2026
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "iq_imbalance",
+                    "parameters": {
+                      "q_gain_db": 0.3,
+                      "q_phase_rad": 0.043,
+                      "dc_i": 0.006,
+                      "dc_q": -0.002
+                    },
+                    "external_input": null
+                  },
+                  {
+                    "kind": "interference",
+                    "parameters": {
+                      "model": {
+                        "bandwidth_hz": 4800.0,
+                        "center_hz": 12000.0,
+                        "seed": 2026,
+                        "kind": "band"
+                      },
+                      "power": null,
+                      "sir_db": 18.0,
+                      "noise_snr_db": null,
+                      "noise_seed": 2026
+                    },
+                    "external_input": null
+                  }
+                ]
+              }
+            },
+            "baseline_peak_rss_bytes": 112926720,
+            "compute_peak_rss_bytes": 288698368,
+            "save_peak_rss_bytes": 356306944,
+            "peak_rss_bytes": 475922432,
+            "archive_bytes": 119867582,
+            "verified_records": 24,
+            "archive_verified": true,
+            "estimated_link_retention_bytes": 195915968,
+            "retained_channel_bytes": 83899648,
+            "seconds": {
+              "compute": 0.41178264300015144,
+              "save": 0.6091344840001511,
+              "load": 0.15279410999983156,
+              "verify": 0.052333584999814775
+            }
+          }
+        ],
+        "cancellation": {
+          "clarke_transform": {
+            "discarded": true,
+            "seconds_after_request": 0.013245515000107844
+          },
+          "atomic_archive": {
+            "discarded": true,
+            "seconds_after_request": 0.006288155999754963
+          }
+        },
+        "archive_rejected_without_changes": true,
+        "concurrency": {
+          "budget_bytes": 367001600,
+          "estimate_bytes": 112016320,
+          "competing_request_rejected": true,
+          "retry_verified": true
+        },
+        "desktop": {
+          "qt_platform": "offscreen",
+          "window": [
+            940,
+            700
+          ],
+          "bit_count": 131072,
+          "heartbeat_period_ms": 10,
+          "heartbeat_count": 3652,
+          "median_gap_seconds": 0.010174627999731456,
+          "maximum_gap_seconds": 0.09372557200003939,
+          "seconds": 36.63662325899986,
+          "peak_rss_bytes": 629686272,
+          "model_stages": 6,
+          "passed": true
+        }
+      }
+    }
+  }
+}
