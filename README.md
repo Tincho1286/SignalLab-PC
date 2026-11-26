@@ -28,7 +28,9 @@ python -B tools/example_engineering_core.py work/ejemplos-core
 python -m signallab_pc dsp-pipeline --signal work/ejemplos-core/entrada.json --output work/ejemplos-core/flujo.json --up 2 --down 3 --fir .25 .5 .25 --psd-method periodogram --window boxcar
 ```
 
-Los ejemplos reproducibles cubren DFT, IDFT y el flujo DSP. El informe de Fase 02B conserva la línea base de **850 pruebas integrales y 150 casos preventivos por plataforma** en Windows y Ubuntu. [Ejemplos de Python y CLI](docs/engineering/phase_02b/ENGINEERING_CORE_EXAMPLES.md) · [Informe de Fase 02B](docs/engineering/phase_02b/closeout/PHASE_02B_CLOSEOUT.md)
+Los ejemplos reproducibles cubren DFT, IDFT y el flujo DSP. El expediente de Fase 02C documenta la cobertura, la compatibilidad de proyectos y los instaladores comprobados en Windows y Ubuntu. [Ejemplos de Python y CLI](docs/engineering/phase_02b/ENGINEERING_CORE_EXAMPLES.md) · [Validación de 02C](docs/engineering/phase_02c/validation/FINAL_VALIDATION_MATRIX.md)
+
+El laboratorio de comunicaciones digitales se desarrolla en `develop` sobre estos servicios. Su expediente reúne las convenciones para PSK, QAM, pulsos, ruido y mediciones, con referencias matemáticas reproducibles. [Fase 03](docs/engineering/phase_03/README.md)
 
 ## Descargar la versión estable
 

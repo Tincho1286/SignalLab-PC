@@ -2,7 +2,7 @@
 
 ## Consolidación de 02C
 
-Un único despacho de Mathematical reliability, sobre `a5eafa9a1e98116e84b57d3bb0e8881ea02b2931`. La matriz verifica por separado la suite, el portable descartable y la distribución en Windows x64 y Ubuntu x86-64. El verificador reúne la evidencia de ambos sistemas para el mismo SHA. [Corrida e informes](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45812233593)
+Un único despacho de Mathematical reliability, sobre `a5eafa9a1e98116e84b57d3bb0e8881ea02b2931`. La suite completa, los portables descartables, la auditoría de instaladores y la consolidación de CI aprobaron. Los recibos conservan las huellas SHA-256 de los informes, incluidos los inventarios y las pruebas de actualización. El informe de CI coincide con la verificación local. [Corrida e informes](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45812233593) · [Recibos](evidence/baseline-a5eafa9-receipt.json) · [Resultados](PHASE_03_BASELINE.md)
 
 ## Verificación inicial de comunicaciones
 

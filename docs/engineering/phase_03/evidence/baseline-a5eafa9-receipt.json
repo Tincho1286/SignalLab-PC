@@ -1,0 +1,149 @@
+{
+  "head_sha": "a5eafa9a1e98116e84b57d3bb0e8881ea02b2931",
+  "event": "workflow_dispatch",
+  "status": "completed",
+  "conclusion": "success",
+  "run_id": 45812233593,
+  "run_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45812233593",
+  "jobs": [
+    {
+      "id": 139882747186,
+      "name": "engineering-baseline (windows-2022)",
+      "conclusion": "success",
+      "started_at": "2026-11-26T11:37:23Z",
+      "completed_at": "2026-11-26T12:13:39Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45812233593/job/139882747186"
+    },
+    {
+      "id": 139882747481,
+      "name": "engineering-distribution (windows-2022)",
+      "conclusion": "success",
+      "started_at": "2026-11-26T11:37:20Z",
+      "completed_at": "2026-11-26T11:57:26Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45812233593/job/139882747481"
+    },
+    {
+      "id": 139882747581,
+      "name": "engineering-distribution (ubuntu-22.04)",
+      "conclusion": "success",
+      "started_at": "2026-11-26T11:37:20Z",
+      "completed_at": "2026-11-26T11:53:40Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45812233593/job/139882747581"
+    },
+    {
+      "id": 139882747737,
+      "name": "engineering-baseline (ubuntu-22.04)",
+      "conclusion": "success",
+      "started_at": "2026-11-26T11:37:21Z",
+      "completed_at": "2026-11-26T12:08:02Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45812233593/job/139882747737"
+    },
+    {
+      "id": 139882749384,
+      "name": "desktop-regressions",
+      "conclusion": "skipped",
+      "started_at": "2026-11-26T11:37:18Z",
+      "completed_at": "2026-11-26T11:37:17Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45812233593/job/139882749384"
+    },
+    {
+      "id": 139882750046,
+      "name": "static-actions",
+      "conclusion": "skipped",
+      "started_at": "2026-11-26T11:37:18Z",
+      "completed_at": "2026-11-26T11:37:17Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45812233593/job/139882750046"
+    },
+    {
+      "id": 139882792826,
+      "name": "workflow-integration",
+      "conclusion": "skipped",
+      "started_at": "2026-11-26T11:37:23Z",
+      "completed_at": "2026-11-26T11:37:17Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45812233593/job/139882792826"
+    },
+    {
+      "id": 139882819520,
+      "name": "core-mathematics",
+      "conclusion": "skipped",
+      "started_at": "2026-11-26T11:37:26Z",
+      "completed_at": "2026-11-26T11:37:17Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45812233593/job/139882819520"
+    },
+    {
+      "id": 139901499429,
+      "name": "engineering-quality-gate",
+      "conclusion": "success",
+      "started_at": "2026-11-26T12:13:42Z",
+      "completed_at": "2026-11-26T12:13:52Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45812233593/job/139901499429"
+    }
+  ],
+  "artifacts": {
+    "engineering-baseline-ubuntu-22.04-45812233593": {
+      "id": 15116406428,
+      "size_bytes": 391676,
+      "digest": "sha256:9fea8fe638e1086d92bfbbfff2afbf2763f2878a3c19272c30fefd4fba33dec7",
+      "reports_sha256": {
+        "baseline.json": "3e2aeace1bb8e1446d93f031ba9464d09b5da28a29c5c30f0fe147d9b3f813ae",
+        "coverage.json": "f6e0abf94e4b753a6f310de42df10d2f6e5d335bb5314ec5a2c87c7648c1b9c2",
+        "integral-checks-preventive.json": "38d6ea7274d2101d5873bb656407ae5e0d67318fdd70f590ee6d67aaec841e6c",
+        "integral-checks.json": "6cc23fce09d3969dddb8785d22aa5cc03715473c86c4a878b877d839905a50e5",
+        "integral.log": "f1788640509440d31dbff40b7f8057303685758c29030210d4f97dbafa371dbf",
+        "packaged-smoke.json": "b62723ef7ee2aaf55fe39ab8c5f5ea6dbe7ad0988d7ad03ddc1ea5b568a3ac16"
+      }
+    },
+    "engineering-distribution-windows-2022-45812233593": {
+      "id": 15115790599,
+      "size_bytes": 3391644,
+      "digest": "sha256:fd9d5140a99c4ab6854ffbf3e9ed4adc1c65b7bc51c0c5f850dc84b4d728aeb5",
+      "reports_sha256": {
+        "native.cdx.json": "8913f0cca52997f53b7b0e4e186d04fff2d3ee4f6692c23ba4876b9b002765e0",
+        "core-performance.json": "1cd87206a4d154a71c08abf41aeef2a9c99630f4037dd024c555c1757a812dbc",
+        "native-inventory.json": "a869e35dd1931077334569abeaeec16e8f59df200f56aab5732f8c4b8d4b282b",
+        "recovery-responsiveness.json": "097e812d9c8b7f6541522d39d039d8b2744a730cf0fb65aa553fb05061ad4b0c",
+        "resources.json": "0f700dcd1b50aa67b15c1d4e4b6a1140f04b4fba33e02f48095517d8156ebe21",
+        "scientific-campaign.json": "312b4d5b9c718b3fc38169ab7d8b21c4d7e091602757e659643f50084c1d3884",
+        "workflow-checks.json": "d71e7918fb1e3a8a3913bf00df30d538740cee231112358c4654ce0187808666",
+        "update.json": "c50f058fb1d3132497096b4c0f56d3b0df8f99f63bbc1471e1c2aadac067cb4e"
+      }
+    },
+    "quality-gate-45812233593": {
+      "id": 15115394407,
+      "size_bytes": 2708,
+      "digest": "sha256:5b38735f5d9430eced56e5be4ce3817387e010e8f80ddbb07da7590f1347b2c2",
+      "reports_sha256": {
+        "quality-gate.json": "0e4aa347dcd2b5086b38075a38f5946d5c9429e482160ce8286ad0d4fad63ad6",
+        "quality-gate.md": "5b8d47ddf0eaf06f270bb5a1a3ca7957ee7ade4d869f18d264952f7373500d32"
+      }
+    },
+    "engineering-distribution-ubuntu-22.04-45812233593": {
+      "id": 15115066151,
+      "size_bytes": 12052370,
+      "digest": "sha256:edd4cd5032d22ef47f7e7a03ed6019a3d7fc2fdbea8a2b30fd3fcb3d8e020db0",
+      "reports_sha256": {
+        "core-performance.json": "6c59b41ed81e62d8be0785b07bd73f08b49c2458b3f555f803e1f5ff70efd1bb",
+        "native.cdx.json": "5caed11a9d00e4b8cf924dce42ae23f6ce383a13b5ee12f41d5fdb6d4bba6e9c",
+        "native-inventory.json": "924e64cebfabd0822d78546a3031258198eac46871aa16cd23f47cc85b4acbc2",
+        "recovery-responsiveness.json": "1d5e27349fd079f909adb83b2078729f41d7f428558700a65f7dc71450aa1e0c",
+        "resources.json": "bad6be0c9c69acc8107b148bbc31dd25d612d529e194cbe9ce6560a5e0c7f32d",
+        "scientific-campaign.json": "72562f4ef123ee0a87f40ecb40975dda4e1eb7ac9e452a1045c7ecdc9a3ae3d8",
+        "update.json": "7e5726b0a43364f8bb69c2fb2a708bb9d99610d107f808ceb1cd32d458e457cb",
+        "workflow-checks.json": "df8050b9b507bd4eaa0844c06623ca710c58ffa299b4d5b2b85a0201e3cbb41d"
+      }
+    },
+    "engineering-baseline-windows-2022-45812233593": {
+      "id": 15115004220,
+      "size_bytes": 391192,
+      "digest": "sha256:85f6323ab18eea81f23c78f203f721d42b19ac2288863bc683b59a94e6af4dd8",
+      "reports_sha256": {
+        "baseline.json": "48d03d4a5324e94189c230c4043997f0398e3c6d883b25f0849e84e5e8b36c97",
+        "coverage.json": "6246455483eb56459273b567bc2b80cb31c21d392e15bbaa3bbc8859345bdb75",
+        "integral-checks-preventive.json": "30fe0d9d2114d552e089f71205de6d432f7aa8143ad08ae906ac6ea402b89cda",
+        "integral-checks.json": "e13ce8ebe36c8473674fa65e7a47b1e8a4e8ae6f59db60e80e66a3e1ef6e5c6c",
+        "integral.log": "bad106f876aa242768fc83efed9f261a0f816e79d1ac31aeaf55a347d053b578",
+        "packaged-smoke.json": "cdfa196c40e60620c038ab88d32d90be63a3c249a16f7348fdc891e5749e72e8"
+      }
+    }
+  }
+}

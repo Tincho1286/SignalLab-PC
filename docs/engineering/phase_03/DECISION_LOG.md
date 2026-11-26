@@ -2,7 +2,7 @@
 
 ## ADR 002 · Cadenas de comunicaciones sobre el Core
 
-**Estado.** Diseño de WP-00, sujeto a la matriz de consolidación y a la validación de los primeros contratos.
+**Estado.** Aprobado para implementación tras la matriz de consolidación. Los contratos se acreditan mediante las pruebas de sus paquetes. [SHA de referencia](PHASE_03_BASELINE.md)
 
 El laboratorio necesita operaciones independientes y un demostrador con reloj, ruido reproducible y entrega atómica. El flujo DSP vigente acredita la reserva común, el cálculo sin Qt, las huellas por contenido y la entrega en proyecto. Se extiende ese enfoque manteniendo tipos distintos para bits, etiquetas de constelación y muestras I/Q.
 

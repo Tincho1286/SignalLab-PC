@@ -1,6 +1,6 @@
 # Estado de SignalLab Engineering
 
-**Engineering Core cerrado técnicamente. Fase 03 autorizada en `develop`.** La consolidación verifica en un mismo SHA las correcciones definitivas de 02C antes de implementar el laboratorio. La rama `main` mantiene la distribución estable 2.0.0. [Dictamen 02C](phase_02c/validation/QUALITY_GATE_REPORT.md#cierre-técnico-de-fase-02c) · [Línea base de Fase 03](phase_03/PHASE_03_BASELINE.md)
+**Engineering Core cerrado técnicamente. Fase 03 en marcha en `develop`.** La consolidación de 02C aprobó el mismo SHA en Windows y Ubuntu. La rama `main` mantiene la distribución estable 2.0.0. [Dictamen 02C](phase_02c/validation/QUALITY_GATE_REPORT.md#cierre-técnico-de-fase-02c) · [Línea base validada](phase_03/PHASE_03_BASELINE.md)
 
 ## Línea base histórica de Fase 01
 
@@ -14,7 +14,7 @@ La Fase 01 cerró con excepciones documentadas sobre `853bd67`. [Informe de cier
 | Validación | 821 pruebas integrales y 150 casos preventivos por sistema. Instaladores y descarga comprobados con un manifiesto de prueba. Medidos los recursos y la cancelación. La matriz visual cubre cuatro tamaños con tres escalas de Qt. |
 | Arquitectura | El grafo reproduce el acoplamiento de Qt con los motores. La DFT es el único piloto propuesto al evaluar una futura extracción. [ADR 001](ADR-001-DFT-PILOT.md) |
 
-## Dictamen de estabilización
+## Dictamen histórico de estabilización de Fase 01
 
 La cobertura de Muestreo y Fourier supera el objetivo del 90 % de líneas. La cobertura global continúa por debajo del objetivo orientativo del 85 %. Las excepciones incluyen la disponibilidad de Qt 6.12.1, la UI Linux en un escritorio de uso real, el DPI del sistema y la entrega remota por el canal público.
 
