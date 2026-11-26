@@ -20,3 +20,23 @@ Las configuraciones distinguen la tasa de bits útil, cuando corresponde, de la 
 Las etiquetas de símbolo se guardan con su orden de modulación y número de bits útiles. Los I/Q exportados como `Signal` temporal conservan el índice `n` y documentan el reloj físico. El Core interpreta la unidad `k` como armónicos de Fourier y la reserva para ese uso. Una amplitud de símbolo exportada como señal discreta registra una muestra por símbolo. Un registro sobremuestreado indica el cociente entero entre la tasa de muestras y la de símbolos.
 
 Para persistir entradas compactas, el diseño inicial usa longitud y orden de bits explícitos junto a los bytes codificados. La lectura verifica la longitud esperada antes de decodificar y comprueba que el relleno externo a la secuencia sea cero. Las etiquetas usan un ancho y orden de bytes explícitos. Las relaciones con señales se expresan mediante los padres del proyecto, de modo que importar un subconjunto pueda conservar y verificar su procedencia.
+
+## Bits, reloj y constelaciones en Python
+
+`communications_data` define `BitSequence`, `SymbolSequence`, `SymbolClock` y `ConstellationSpec`. `communications_modulation` genera bits con PCG64 y semilla entera de 0 a 2¹²⁸−1, agrupa y desagrupa palabras MSB primero y produce puntos I/Q. La reproducción usa la versión fijada de NumPy. La rotación se expresa en radianes y la escala geométrica de PSK ya tiene energía unitaria. El contrato de etiqueta usa 32 bits, con reserva de memoria independiente para construir la constelación completa.
+
+```python
+from signallab_pc.communications_data import ConstellationSpec, SymbolClock
+from signallab_pc.communications_modulation import (
+    decide_symbols, group_bits, modulate, parse_bits, ungroup_symbols,
+)
+
+spec = ConstellationSpec("psk", 4, rotation_rad=0.7853981633974483)
+bits = parse_bits("10 01 11")
+symbols = group_bits(bits, spec, clock=SymbolClock(2400))
+iq = modulate(symbols, spec)
+decoded = ungroup_symbols(decide_symbols(iq, spec))
+assert decoded.values.tolist() == bits.values.tolist()
+```
+
+La decisión recibe observaciones alineadas, a una muestra por símbolo. En la frontera de sectores PSK selecciona la posición siguiente en sentido antihorario. En cero usa la posición geométrica 0. QAM resuelve el empate hacia el nivel superior de cada eje. Las etiquetas de entrada y los resultados binarios tienen buffers de sólo lectura.

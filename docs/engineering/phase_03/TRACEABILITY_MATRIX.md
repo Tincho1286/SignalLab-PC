@@ -2,8 +2,8 @@
 
 | Requisito | Paquete | Evidencia inicial | Evidencia de implementación a incorporar |
 | --- | --- | --- | --- |
-| DC-01 | WP-01 y WP-02 | Contratos de bits, símbolos y reloj. | Validación y round trip por interfaz, semillas y metadatos. |
-| DC-02 | WP-02 | Gray por reflexión y energía QAM por suma independiente. | Vectores del modulador, decisión euclídea y comparaciones externas. |
+| DC-01 | WP-01 y WP-02 | Contratos de bits, símbolos y reloj implementados y probados en Python. | Paridad de interfaces y contratos de recepción, métricas y experimentos. |
+| DC-02 | WP-02 | Geometrías y energía independientes, etiquetas por reflexión y decisión verificada por búsqueda exhaustiva. | Publicación y reutilización en Workbench, Python y CLI. |
 | DC-03 | WP-03 | Cuadratura RC/RRC en el espectro ideal. | Pruebas de coeficientes, retardo, respuesta y truncamiento. |
 | DC-04 | WP-04 | Derivación para ruido real y complejo y perfiles de sincronización. | Contrastes de varianza, fase, tiempo y casos ambiguos. |
 | DC-05 | WP-05 | Integral de probabilidad BPSK y QPSK Gray. | BER, SER, EVM y Monte Carlo con incertidumbre. |
