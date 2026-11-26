@@ -19,6 +19,9 @@ from .communications_data import ConstellationSpec, SymbolClock, SymbolSequence,
 from .communications_doppler import CarrierShift, apply_carrier_shift
 from .communications_experiment import ExperimentSpec, run_experiment
 from .communications_fading import FadingSpec, apply_fading, parse_fading_path
+from .communications_impairments import (
+    IQImbalance, PhaseNoiseSpec, TimingOffset, apply_iq_imbalance, apply_phase_noise, apply_timing_offset,
+)
 from .communications_metrics import QualitySpec, measure_quality
 from .communications_modulation import build_constellation, decide_symbols, generate_bits, group_bits, modulate, parse_bits, ungroup_symbols
 from .communications_pulses import PulseSpec, apply_pulse, design_pulse, matched_pulse_isi, upsample_symbols
@@ -41,6 +44,7 @@ _LABELS = {
     'awgn': 'Aplicar AWGN', 'multipath': 'Aplicar canal', 'receive': 'Recuperar símbolos', 'decide': 'Decidir símbolos',
     'fading': 'Aplicar fading',
     'carrier': 'Aplicar frecuencia y fase',
+    'impairments': 'Aplicar imperfección',
     'measure': 'Medir calidad', 'sweep': 'Ejecutar barrido',
 }
 _CONSTE = 'Constelación'
@@ -54,6 +58,7 @@ _CHANNEL_FREQUENCY = 'Respuesta del canal'
 _CHANNEL_TAPS = 'Impulso y perfil de potencia'
 _FADING = 'Evolución del fading'
 _DOPPLER = 'Autocorrelación y PSD Doppler'
+_PHASE_PATH = 'Trayectoria de fase'
 _ERRORS = 'Tasas de error'
 _COMPARISON = 'Comparación de corridas'
 _VIEWS = {
@@ -61,6 +66,7 @@ _VIEWS = {
     'modulate': (_CONSTE, _IQ), 'pulse': (_IMPULSE, _FREQUENCY, _IQ), 'awgn': (_IQ, _PSD),
     'multipath': (_IQ, _SPECTRUM, _CHANNEL_TAPS, _CHANNEL_FREQUENCY),
     'fading': (_IQ, _SPECTRUM, _FADING, _DOPPLER), 'carrier': (_IQ, _SPECTRUM),
+    'impairments': (_IQ, _SPECTRUM, _PHASE_PATH),
     'receive': (_IQ,), 'decide': (_CONSTE,), 'measure': (), 'sweep': (_COMPARISON,),
 }
 
@@ -407,6 +413,37 @@ class CommunicationsPanel(QWidget):
         self._line('frequency_hz', 'Desplazamiento de frecuencia (Hz)', 0,
                    'Un desplazamiento positivo sube la frecuencia. La entrada requiere Fs para usar esta opción.')
         self._line('phase_rad', 'Fase en la primera muestra (rad)', 0)
+
+    def _build_impairments(self):
+        self.source = self._source('Señal de entrada')
+        mode = self._combo('impairment', 'Modelo', (
+            ('Retardo y reloj de muestreo (SFO)', 'timing'), ('Ruido de fase Wiener', 'phase_noise'),
+            ('Desequilibrio I/Q y DC', 'iq'),
+        ))
+        fields = {
+            'timing': (
+                self._line('delay_samples', 'Retardo (muestras de entrada)', 0),
+                self._line('sfo_ppm', 'Desajuste del reloj (ppm)', 0),
+            ),
+            'phase_noise': (
+                self._line('linewidth_hz', 'Ancho de línea completo (Hz)', 10),
+                self._line('seed', 'Semilla', 2026),
+            ),
+            'iq': (
+                self._line('q_gain_db', 'Ganancia de Q respecto de I (dB)', 0),
+                self._line('q_phase_rad', 'Error angular de Q (rad)', 0),
+                self._line('dc_i', 'DC en I', 0), self._line('dc_q', 'DC en Q', 0),
+            ),
+        }
+
+        def update_fields(*_):
+            selected = mode.currentData()
+            for key, inputs in fields.items():
+                for widget in inputs:
+                    self._visible(widget, key == selected)
+
+        mode.currentIndexChanged.connect(update_fields)
+        update_fields()
 
     def _build_receive(self):
         self.source = self._source('Registro después del filtro adaptado')
@@ -839,6 +876,58 @@ class CommunicationsPanel(QWidget):
             self._display(summary, axes, {signal.name: (signal, key)})
 
         return lambda: apply_carrier_shift(source, spec), accept
+
+    def _run_impairments(self):
+        mode = self._choice('impairment')
+        source, register = self.source.capture_input()
+        if mode == 'timing':
+            spec = TimingOffset(self._real('delay_samples', 0), self._real('sfo_ppm', 0))
+            calculate = apply_timing_offset
+        elif mode == 'phase_noise':
+            spec = PhaseNoiseSpec(self._real('linewidth_hz'), self._int('seed'))
+            calculate = apply_phase_noise
+        else:
+            spec = IQImbalance(self._real('q_gain_db', 0), self._real('q_phase_rad', 0),
+                               self._real('dc_i', 0), self._real('dc_q', 0))
+            calculate = apply_iq_imbalance
+
+        def accept(result):
+            signal = result if mode == 'timing' else result.signal
+            key = store_signal(self.window.project, signal, parents=(register(),))
+            self.window.register_publication(key, signal)
+            records = {signal.name: (signal, key)}
+            axes = {_IQ: (partial(figures.iq_figure, signal=signal), None)}
+            if signal.values.size >= 2:
+                axes[_SPECTRUM] = self._spectral_plot(signal)
+            paragraphs = []
+            if mode == 'timing':
+                title = 'Retardo y reloj de muestreo'
+                rows = [('Retardo (muestras)', number(spec.delay_samples)), ('Error (ppm)', number(spec.sfo_ppm))]
+                if 'sample_rate_hz' in signal.metadata:
+                    rows.append(('Fs de salida (Hz)', number(signal.metadata['sample_rate_hz'])))
+                if spec.sfo_ppm and 'symbol_rate_hz' in signal.metadata and 'samples_per_symbol' not in signal.metadata:
+                    paragraphs.append('El reloj quedó con una cantidad fraccionaria de muestras por símbolo.')
+            elif mode == 'phase_noise':
+                title = 'Ruido de fase Wiener'
+                rows = [('Ancho de línea (Hz)', number(spec.linewidth_hz)), ('Semilla', spec.seed),
+                        ('Varianza del incremento (rad²)', number(result.step_variance_rad2))]
+                path = self.window.publish(result.phase, operation='Trayectoria de fase Wiener', parents=(key,))
+                records[result.phase.name] = result.phase, path
+                axes[_PHASE_PATH] = (partial(figures.phase_path_figure, signal=result.phase), None)
+            else:
+                title = 'Desequilibrio I/Q y DC'
+                stats = result.statistics
+                irr = number(stats.image_rejection_db) if stats.image_rejection_db is not None else (
+                    'Sin componente imagen' if stats.image_rejection_state == 'no_image' else 'Sin componente deseada'
+                )
+                rows = [
+                    ('Coeficiente directo', number(complex(stats.desired_real, stats.desired_imag))),
+                    ('Coeficiente de imagen', number(complex(stats.image_real, stats.image_imag))),
+                    ('Rechazo de imagen (dB)', irr), ('DC', number(complex(spec.dc_i, spec.dc_q))),
+                ]
+            self._display(Summary(title, [Section('', paragraphs=paragraphs, rows=rows)]), axes, records)
+
+        return lambda: calculate(source, spec), accept
 
     def _run_receive(self):
         source, register = self.source.capture_input()

@@ -75,6 +75,15 @@
       ]
     },
     {
+      "key": ["communications", "impairments"],
+      "blocks": [
+        ["Qué podés hacer", "Simulá tres imperfecciones sobre un registro I/Q. Retardo y SFO cambian qué instantes observa el receptor. Wiener introduce una fase que se acumula. Desequilibrio I/Q mezcla una imagen conjugada y puede agregar DC."],
+        ["Cómo cargar retardo y reloj", "Un retardo positivo demora la señal. Se conserva la ventana de observación, con muestras de entrada nulas fuera del registro. Un SFO positivo aumenta Fs. Cargá la tasa original de muestreo antes de ingresar un error en ppm. Si el reloj queda con muestras fraccionarias por símbolo, la herramienta de recuperación a intervalos enteros requiere alinear el reloj primero."],
+        ["Cómo cargar ruido de fase", "Usá el ancho completo a media altura de la línea lorentziana, en Hz, y una semilla. El modelo empieza con fase cero en la primera muestra. Podés guardar la trayectoria de fase en radianes y reutilizarla."],
+        ["Cómo cargar desequilibrio I/Q", "Q usa la ganancia indicada con respecto a I. Un error angular positivo lleva Q hacia −I. DC en I y Q se expresa en las mismas unidades de amplitud que la señal. El informe indica el coeficiente de imagen y el rechazo en dB."]
+      ]
+    },
+    {
       "key": ["communications", "receive"],
       "blocks": [
         ["Qué podés hacer", "Elegí una muestra por símbolo en un registro filtrado y corregí la fase."],
@@ -150,6 +159,12 @@
       "flow": ["Reloj, frecuencia y fase", "Giro complejo por muestra", "Señal desplazada"],
       "parameters": [["Desplazamiento", "Frecuencia en Hz. Debe quedar entre −Fs/2 y Fs/2."], ["Fase inicial", "Ángulo aplicado a la primera muestra, en radianes."]],
       "reading": "La fase progresiva cambia la frecuencia. Usá el espectro para comprobar su sentido."
+    },
+    {
+      "key": ["communications", "impairments"],
+      "flow": ["Modelo y registro", "Alterar reloj, fase o I/Q", "Salida e informe del modelo"],
+      "parameters": [["SFO", "Partes por millón relativas a la Fs de entrada. Para conservarla, usá cero."], ["Ancho de línea", "Controla la varianza de los incrementos de fase. A mayor ancho, más variación."], ["Ganancia de Q", "Relación de amplitud en dB. Usá 0 dB para conservar la ganancia de Q."], ["DC", "Nivel constante agregado a cada componente."]],
+      "reading": "Los resultados de fase e I/Q conservan el reloj. El modelo de SFO registra el reloj de salida y mantiene el número de muestras."
     },
     {
       "key": ["communications", "receive"],

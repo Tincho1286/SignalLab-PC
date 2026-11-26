@@ -15,6 +15,9 @@ from .communications_data import ConstellationSpec, SymbolClock, iq_signal
 from .communications_doppler import CarrierShift, apply_carrier_shift
 from .communications_experiment import ExperimentSpec, coherent_monte_carlo, run_experiment
 from .communications_fading import FadingSpec, apply_fading, parse_fading_path
+from .communications_impairments import (
+    IQImbalance, PhaseNoiseSpec, TimingOffset, apply_iq_imbalance, apply_phase_noise, apply_timing_offset,
+)
 from .communications_metrics import QualitySpec, measure_quality
 from .communications_modulation import decide_symbols, generate_bits, group_bits, modulate, parse_bits
 from .communications_pulses import PulseSpec, apply_pulse, design_pulse, upsample_symbols
@@ -215,6 +218,27 @@ def _shift_carrier(args, ctx):
     return {'record': record, 'sample_count': signal.values.size}
 
 
+def _impairment(args, ctx):
+    project, workspace, source = load_input(args, ctx)
+    receipt = {}
+    phase = None
+    if args.operation == 'timing-offset':
+        signal = apply_timing_offset(source, TimingOffset(args.delay_samples, args.sfo_ppm), ctx)
+    elif args.operation == 'phase-noise':
+        result = apply_phase_noise(source, PhaseNoiseSpec(args.linewidth_hz, args.seed), ctx)
+        signal, phase = result.signal, result.phase
+        receipt['step_variance_rad2'] = result.step_variance_rad2
+    else:
+        result = apply_iq_imbalance(source, IQImbalance(args.gain_db, args.phase_rad, args.dc_i, args.dc_q), ctx)
+        signal = result.signal
+        receipt['statistics'] = asdict(result.statistics)
+    record = store_signal(project, signal, parents=(_source_id(project, args, source),), execution=ctx)
+    if phase is not None:
+        receipt['phase_record'] = project.add(phase, operation='Trayectoria de fase Wiener', parents=(record,))
+    _save(args.output, project, workspace, ctx)
+    return {**receipt, 'record': record, 'sample_count': signal.values.size}
+
+
 def _receive(args, ctx):
     project, workspace, source = load_input(args, ctx)
     pilot = None if args.pilot_record is None else project.get(args.pilot_record)
@@ -358,6 +382,26 @@ def main(argv=None):
     shift.add_argument('--phase-rad', type=float, default=0.0)
     add_session_arguments(shift)
     shift.set_defaults(execute=_shift_carrier)
+
+    timing = commands.add_parser('timing-offset', help='Simulá retardo y desajuste del reloj de muestreo.')
+    timing.add_argument('--delay-samples', type=float, default=0.0)
+    timing.add_argument('--sfo-ppm', type=float, default=0.0)
+    add_session_arguments(timing)
+    timing.set_defaults(execute=_impairment)
+
+    phase = commands.add_parser('phase-noise', help='Aplicá una trayectoria de fase Wiener reproducible.')
+    phase.add_argument('--linewidth-hz', type=float, required=True, help='Ancho lorentziano completo a media altura.')
+    phase.add_argument('--seed', type=int, default=2026)
+    add_session_arguments(phase)
+    phase.set_defaults(execute=_impairment)
+
+    iq = commands.add_parser('iq-imbalance', help='Modificá la ganancia, fase y nivel DC de la señal I/Q.')
+    iq.add_argument('--gain-db', type=float, default=0.0, help='Ganancia de Q relativa a I.')
+    iq.add_argument('--phase-rad', type=float, default=0.0, help='Error de ángulo de Q en radianes.')
+    iq.add_argument('--dc-i', type=float, default=0.0)
+    iq.add_argument('--dc-q', type=float, default=0.0)
+    add_session_arguments(iq)
+    iq.set_defaults(execute=_impairment)
 
     receiver = commands.add_parser('receive', help='Sincronizá y recuperá muestras de símbolo.')
     _synchronization_arguments(receiver)

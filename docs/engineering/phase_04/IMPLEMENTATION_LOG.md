@@ -33,3 +33,11 @@ El commit `dad7625` aprobó los controles matemáticos de Windows y Ubuntu. [Res
 `CarrierShift` separa el giro coherente de frecuencia y fase de la dispersión de Clarke. El motor Clarke integra la masa de cada banda de cuadratura y registra la grilla, la semilla, la huella de origen y las versiones numéricas. Workbench abre la autocorrelación y la PSD de la primera trayectoria activa. CLI exporta los diagnósticos por camino. Se midieron autocorrelación, fracción de potencia y coherencia sin cargar Qt. [Oráculos y resultados](MATHEMATICAL_AUDIT.md#mediciones-de-doppler-en-windows).
 
 La suite de comunicaciones aprobó 87 pruebas en Windows con `python -B -X utf8 -m unittest discover -s tests -p "test_communications_*.py"`. Incluye los contrastes de Clarke, el caso límite de Doppler cero, presupuesto y cancelación, salidas de CLI archivadas y apertura de las nuevas figuras. `python -B -X utf8 tools/check_static.py` aprobó 405 archivos Python.
+
+El commit `e6c2e62` aprobó los controles matemáticos de Windows y Ubuntu. [Resultados](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45883992749).
+
+## Retardo, SFO, ruido de fase e I/Q
+
+Los modelos de reloj, fase e I/Q ejecutan desde Python, Workbench y los comandos `timing-offset`, `phase-noise` e `iq-imbalance`. El resultado conserva la procedencia y la fase Wiener se archiva como señal auxiliar. El reloj de salida distingue muestras fraccionarias por símbolo de los intervalos enteros del receptor actual.
+
+`python -B -X utf8 -m unittest discover -s tests -p "test_communications_*.py"` aprobó 94 pruebas en Windows. `python -B -X utf8 tools/check_static.py` aprobó 406 archivos. El contraste directo con Qt bloqueado midió error de SFO, varianza Wiener e IRR, y delimitó el error de los perfiles ensayados. [Mediciones](MATHEMATICAL_AUDIT.md#mediciones-de-reloj-fase-e-iq-en-windows).

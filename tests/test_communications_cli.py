@@ -175,6 +175,27 @@ raise SystemExit(main())
             np.testing.assert_allclose(result.values, np.exp(1j*(0.25-np.pi/4*np.arange(512))), atol=1e-13)
             self.assertEqual(result.origin, -3)
 
+    def test_impairment_commands_keep_the_clock_and_phase_records(self):
+        with TemporaryDirectory() as folder:
+            source, output = Path(folder)/'input.slbin', Path(folder)/'impairments.slproj'
+            x = Signal([1, 2j, 3, -4j], origin=-4, metadata={'sample_rate_hz': 4000, 'time_start_s': 0.1})
+            save_binary_signal(x, source)
+            timing = self.invoke('timing-offset', '--signal', source, '--delay-samples=-1', '--output', output)
+            project, _ = session.load(output)
+            delayed = project.get(timing['record'])
+            np.testing.assert_array_equal(delayed.values, [2j, 3, -4j, 0])
+            self.assertEqual(delayed.metadata['time_start_s'], 0.1)
+            phase = self.invoke('phase-noise', '--session', output, '--record', timing['record'],
+                                '--linewidth-hz', 25, '--seed', 90, '--output', output)
+            project, _ = session.load(output)
+            phase_path = project.get(phase['phase_record'])
+            self.assertEqual(phase_path.metadata['amplitude_units'], 'rad')
+            np.testing.assert_allclose(project.get(phase['record']).values, delayed.values*np.exp(1j*phase_path.values))
+            imbalance = self.invoke('iq-imbalance', '--signal', source, '--dc-q', -0.25, '--output', output)
+            project, _ = session.load(output)
+            self.assertIsNone(imbalance['statistics']['image_rejection_db'])
+            np.testing.assert_array_equal(project.get(imbalance['record']).values, x.values - 0.25j)
+
     def test_sweep_cli_runs_and_verifies_a_reproducible_grid(self):
         with TemporaryDirectory() as folder:
             root = Path(folder)

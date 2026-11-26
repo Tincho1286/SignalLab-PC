@@ -145,7 +145,8 @@ class CommunicationsDesktopTests(unittest.TestCase):
 
     def test_independent_routes_show_help_and_exchange_clocked_iq(self):
         articles, guides, _ = default_content()
-        for name in ('modulate', 'pulse', 'awgn', 'multipath', 'fading', 'carrier', 'receive', 'decide', 'measure'):
+        for name in ('modulate', 'pulse', 'awgn', 'multipath', 'fading', 'carrier', 'impairments',
+                     'receive', 'decide', 'measure'):
             with self.subTest(name=name):
                 self.assertIn(('communications', name), articles)
                 self.assertIn(('communications', name), guides)
@@ -240,6 +241,33 @@ class CommunicationsDesktopTests(unittest.TestCase):
         shifted, _ = next(iter(carrier.records.values()))
         np.testing.assert_allclose(shifted.values, signal.values*np.exp(-1j*math.pi/4*np.arange(signal.values.size)),
                                    atol=1e-14)
+
+    def test_impairments_select_models_and_publish_phase_trajectory(self):
+        source = iq_signal([1, 1j, -2, 3j], SymbolClock(4000, 2, -0.25), origin=-3)
+        key = self.window.publish(source, operation='Entrada de prueba')
+        route = ROUTES['communications', 'impairments']
+        self.window.send_signal(source, key, route)
+        page, panel = self.open('impairments')
+        panel.fields['delay_samples'].setText('1')
+        self.calculate()
+        signal, _ = next(iter(panel.records.values()))
+        np.testing.assert_array_equal(signal.values, [0, 1, 1j, -2])
+        panel.fields['impairment'].setCurrentIndex(1)
+        self.assertFalse(panel.fields['delay_samples'].isVisible())
+        self.calculate()
+        output, _ = panel.records['Salida con ruido de fase']
+        phase, _ = panel.records['Trayectoria de fase']
+        np.testing.assert_allclose(output.values, source.values*np.exp(1j*phase.values))
+        launcher = page.workspace.results.graph_launcher
+        entry = next(item for item in launcher.available() if item[2] == 'Trayectoria de fase')
+        launcher.open_entry(entry)
+        self.wait()
+        panel.fields['impairment'].setCurrentIndex(2)
+        panel.fields['dc_i'].setText('1/4')
+        self.calculate()
+        altered, _ = next(iter(panel.records.values()))
+        np.testing.assert_array_equal(altered.values, source.values + .25)
+        self.assertIn('Sin componente imagen', panel.result.text.toPlainText())
 
     def test_receive_and_decide_publish_labels_that_metrics_can_load(self):
         _, mapper = self.open('modulate')

@@ -30,6 +30,7 @@ MENUS['Comunicaciones'] = [
     ('Canal multitrayecto','communications','multipath','discrete'),
     ('Fading Rayleigh y Rician','communications','fading','discrete'),
     ('Doppler y fase','communications','carrier','discrete'),
+    ('Imperfecciones de reloj, fase e I/Q','communications','impairments','discrete'),
     ('Recuperar símbolos','communications','receive','discrete'),
     ('Decisión de constelación','communications','decide','discrete'),
     ('Medir BER, SER y EVM','communications','measure',None),

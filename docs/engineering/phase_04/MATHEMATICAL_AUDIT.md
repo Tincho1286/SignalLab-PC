@@ -45,3 +45,19 @@ Se usaron semillas 2014, 3121, 4919 y 7547, Fs = 4 096 Hz y fD = 64 Hz. Las impo
 | Tiempo de coherencia a 0,5 | 0,003782775 s | El primer cruce teórico verifica J₀ = 0,5 |
 
 El ensayo exploratorio de dos caminos sobre 524 288 muestras a Fs = 96 kHz y fD = 250 Hz tardó 0,264 s en esta máquina. La calificación requiere volver a medir latencia, memoria, persistencia y cancelación sobre los perfiles del candidato.
+
+## Protocolo previo para errores de reloj, fase e I/Q
+
+- Comparar retardos enteros positivos y negativos con un registro desplazado a mano y extensión nula. Para retardos fraccionarios y cambios de tasa, contrastar un tono complejo de frecuencia normalizada $\omega=0,2\pi$ con su valor analítico en los nuevos instantes. Medir error máximo <0,002 en el interior, excluidos 64 puntos de cada borde, con offsets de ±250 ppm y 0,1 ppm. Verificar por separado la longitud, la tasa y el tiempo inicial.
+- Para ruido de fase Wiener, estimar la varianza de 65 535 incrementos con semilla fija. Exigir error relativo <3 % frente a $2\pi\Delta\nu/F_s$ y conservar el módulo de cada muestra dentro de 3 × 10⁻¹⁵ en valores unitarios. Comprobar la reproducción de la trayectoria y el caso de linewidth cero.
+- Para desequilibrio I/Q, usar un tono ubicado en un bin exacto. Contrastar las componentes del tono, su imagen y DC con proyecciones complejas independientes y la relación de potencias teórica. Verificar identidad e imagen nula sin producir JSON con infinitos.
+
+[Modelo Wiener](https://re.public.polimi.it/retrieve/e0c31c09-3f0b-4599-e053-1705fe0aef77/ELS2015_Revised_OSN354.pdf) · [Modelo de desbalance I/Q](https://escholarship.org/uc/item/5zn8g5c9)
+
+### Mediciones de reloj, fase e I/Q en Windows
+
+Con Qt bloqueado, un tono de ω = 0,2π y un retardo de 0,375 muestras dio errores máximos de 6,54 × 10⁻⁵, 5,94 × 10⁻⁵ y 5,72 × 10⁻⁵ para 250, −250 y 0,1 ppm, respectivamente. En una prueba adicional con Fs de salida igual a la mitad de la original, el acceso a instantes fraccionarios suprimió el tono fuera de banda dentro de la tolerancia de 0,002.
+
+Con Fs = 8 kHz, ancho de línea de 16 Hz y semilla 673, la varianza medida fue 0,0127514 rad² frente a 0,0125664 rad² teóricos. El error relativo fue 1,47 %. La proyección compleja del tono con desbalance de amplitud 1,25, ángulo de 0,23 rad y DC de 0,025 − j0,07 dio 15,90338546 dB de rechazo de imagen, de acuerdo con la relación de coeficientes.
+
+Una ejecución exploratoria de retardo y SFO sobre 524 288 muestras a 96 kHz tardó 2,83 s. El coste de memoria y la respuesta de escritorio se medirán en los perfiles del candidato.

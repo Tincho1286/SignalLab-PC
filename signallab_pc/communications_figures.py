@@ -169,6 +169,20 @@ def doppler_diagnostics_figure(figure, data, *, path_number, fd):
         axis.legend()
 
 
+def phase_path_figure(figure, *, signal):
+    axis = figure.add_subplot(111)
+    points = np.linspace(0, signal.values.size-1, min(signal.values.size, 4096), dtype=np.int64)
+    rate = signal.metadata.get('sample_rate_hz')
+    if rate is None:
+        plot_samples(axis, points, signal.values.real[points], discrete=True, color=COLORS['blue'])
+        configure_axis(axis, discrete_index=True, label='Muestras desde el comienzo del registro')
+    else:
+        plot_samples(axis, points/rate, signal.values.real[points], discrete=True, color=COLORS['blue'])
+        axis.set_xlabel('Tiempo desde el comienzo del registro (s)')
+    axis.set_ylabel('Fase (rad)')
+    axis.grid(alpha=.22)
+
+
 def filter_frequency_figure(figure, pulse):
     frequency, response = freqz(pulse.taps, worN=2048, include_nyquist=True)
     axes = figure.subplots(2, 1, sharex=True)

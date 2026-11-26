@@ -35,3 +35,19 @@ La API y CLI generan la autocorrelación observada normalizada por la potencia d
 ## Desplazamiento determinista de frecuencia y fase
 
 `CarrierShift` multiplica cada muestra por $\exp(j(2\pi\Delta f\,k/F_s + \phi))$, con k contado desde cero a partir de la primera muestra. El signo positivo aumenta la frecuencia. Un desplazamiento no nulo exige el reloj y $|\Delta f|<F_s/2$. En tiempo discreto el espectro se desplaza con periodicidad Fs. Se conservan magnitud, índices, reloj y unidades. El modelo sirve para Doppler determinista o CFO y mantiene una fase de referencia explícita. El resultado registra los dos parámetros en SI y la huella del origen.
+
+## Retardo y desajuste del reloj
+
+`TimingOffset` conserva la ventana del receptor de N muestras. Con retardo $d$ medido en muestras de entrada y error $p$ en ppm, cada salida se evalúa en la coordenada $k/(1+p\,10^{-6})-d$. Un retardo positivo demora la entrada dentro de la ventana y un error positivo aumenta la tasa de salida. Los índices externos al registro de entrada se tratan como muestras nulas. El número de muestras y el primer instante del receptor se conservan, por lo que la duración física cambia con Fs. Con retardo entero y SFO cero, el desplazamiento se calcula mediante índices exactos.
+
+Los instantes no enteros se aproximan con sinc de ventana Lanczos. La frecuencia de corte relativa a la Nyquist de entrada es $\min(1, F_{s,\text{salida}}/F_{s,\text{entrada}})$. Se escala la semilongitud de 32 muestras al reducir la tasa. El núcleo se normaliza para reproducir una constante lejos de los bordes. El FIR tiene transición finita y su error crece cerca de Nyquist y de los bordes del registro. El informe de auditoría documenta el error para el perfil y los tonos efectivamente probados.
+
+El reloj de símbolos físico se conserva. Si la nueva tasa implica un intervalo fraccionario por símbolo, se retira el campo entero `samples_per_symbol`. El receptor de Fase 03 detecta que la tasa del registro es incompatible con su captura a paso entero. Este modelo introduce el deterioro, con recuperación pendiente de integración.
+
+## Ruido de fase Wiener
+
+`PhaseNoiseSpec.linewidth_hz` fija el ancho completo a media altura de una línea lorentziana en el modelo continuo. En discreto, la fase inicial es cero y los incrementos por muestra son gaussianos independientes con varianza $2\pi\Delta\nu/F_s$ en rad². Se guarda tanto la señal rotada como una realización de la fase sin envolver. La amplitud y el reloj se conservan. Ancho cero conserva la señal y no requiere una Fs. El esquema registra semilla, generador PCG64, versión NumPy y varianza del incremento. [Proceso de Wiener](https://re.public.polimi.it/retrieve/e0c31c09-3f0b-4599-e053-1705fe0aef77/ELS2015_Revised_OSN354.pdf).
+
+## Desequilibrio I/Q
+
+`IQImbalance` conserva I como referencia. La rama Q se multiplica por ganancia de amplitud $g=10^{G_{dB}/20}$ y gira según $e^{j\epsilon}$. Con $c=g e^{j\epsilon}$ y DC complejo $b$, la salida es $y=I+jcQ+b=\alpha x+\beta x^*+b$, donde $\alpha=(1+c)/2$ y $\beta=(1-c)/2$. Un ángulo positivo de Q aporta una componente a −I. El DC usa las unidades de amplitud de entrada. El rechazo de imagen es $20\log_{10}(|\alpha|/|\beta|)$ en dB y se guarda con un estado explícito si alguna de las componentes desaparece. [Desbalance y componente imagen](https://escholarship.org/uc/item/5zn8g5c9).

@@ -63,6 +63,18 @@ python -m signallab_pc communications shift-carrier --signal entrada.slbin --fre
 
 La entrada debe tener Fs registrada. En Workbench, **Doppler y fase** aplica el desplazamiento constante y la fase inicial de la segunda orden. [Modelo y condiciones](SCIENTIFIC_CONTRACTS.md#dispersión-doppler-de-clarke)
 
+## Imperfecciones de reloj, fase e I/Q
+
+En **Comunicaciones → Reloj, fase e I/Q**, elegí retardo y SFO, fase Wiener o desequilibrio I/Q. Cada modelo trabaja sobre la señal cargada. El informe registra el reloj resultante, la varianza del incremento de fase o el rechazo de imagen, según el cálculo. La trayectoria de fase queda disponible como una señal en radianes.
+
+```sh
+python -m signallab_pc communications timing-offset --signal entrada.slbin --delay-samples 0.375 --sfo-ppm 250 --output reloj.slproj
+python -m signallab_pc communications phase-noise --signal entrada.slbin --linewidth-hz 16 --seed 673 --output fase.slproj
+python -m signallab_pc communications iq-imbalance --signal entrada.slbin --gain-db 1.94 --phase-rad 0.23 --dc-i 0.025 --dc-q -0.07 --output iq.slproj
+```
+
+Python expone las mismas operaciones en `signallab_pc.communications_impairments`. Los retardos fraccionarios y SFO usan interpolación aproximada. [Convenciones y alcance](SCIENTIFIC_CONTRACTS.md#retardo-y-desajuste-del-reloj)
+
 ## Alcance siguiente
 
-Quedan los offsets temporales, el ruido de fase, la interferencia, el desequilibrio I/Q, las pérdidas de propagación y la integración de los modelos al enlace y los barridos. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.
+Quedan los modelos de interferencia, las pérdidas de propagación y la integración de los modelos al enlace y a los barridos. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.
