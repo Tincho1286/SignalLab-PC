@@ -1,5 +1,9 @@
 # Decisiones
 
+## 25 de noviembre de 2026 · Despacho focalizado en Windows
+
+La verificación de correcciones posteriores a `623c9dd` usa `desktop_regressions` en el flujo Mathematical reliability. Esta opción ejecuta en `develop` los tres casos de escritorio identificados. Un reintento del trabajo histórico usaría el SHA original. El despacho focalizado registra el SHA corregido y conserva la matriz integral y sus controles como evidencia independiente. [Ejecución focalizada](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45744295852)
+
 ## 25 de noviembre de 2026 · Un candidato y evidencia de escritorio separada
 
 La proyección focal orientó la selección de `623c9dd`. La medición integral local de ese SHA en Windows confirmó 88,39 % de líneas y 75,20 % de ramas y habilitó un único despacho de la matriz. El hallazgo posterior de cambio de tamaño se corrige en un commit separado de `develop`. La corrida y sus artefactos siguen correspondiendo al candidato inmutable. [Matriz](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45739704501) · [Acta de escritorio](gui/DESKTOP_CONTINUATION.md#medidas-de-frecuencia-en-el-candidato-623c9dd)

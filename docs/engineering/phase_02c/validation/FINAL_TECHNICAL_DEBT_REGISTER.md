@@ -42,3 +42,5 @@ SLPROJ superó su objetivo en `54adaa0` y el almacenamiento por lotes verificó 
 | C-09 · Distribución | Actualización aislada y portables verificados. | Resolver firma y canal público por separado. |
 
 [Quality Gate actual](QUALITY_GATE_REPORT.md#evaluación-del-candidato-623c9dd)
+
+En `8e274e7` se verificó en el runner Windows la corrección C-11 de identidad de rutas y la regresión C-08 de figuras. El seguimiento restante separa la evidencia integral sobre un único SHA, el escritorio físico y las condiciones de proveedor y distribución. [Regresiones verificadas](FINAL_VALIDATION_MATRIX.md#regresiones-focalizadas-en-windows-sobre-8e274e7)

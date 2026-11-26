@@ -91,3 +91,9 @@ La única matriz de continuación se despachó después de comprobar ambos objet
 | Controles de Quality Gate | 36/37 | 37/37 |
 
 El verificador ejecutó `tools/check_quality_gate_02c.py --require-automated` contra los artefactos de la corrida. Produjo el mismo JSON que GitHub y devolvió código 1 por el control integral de Windows. El caso de fondos falló al comparar el alias 8.3 con la ruta larga. `b6bcb85` corrige esa aserción y la regresión pasó en Windows local. `87b74ed` corrige el hallazgo posterior de figuras al maximizar y tiene evidencia local independiente. [Recibos de los cinco artefactos](evidence/ci-623c9dd.json) · [Quality Gate](QUALITY_GATE_REPORT.md#evaluación-del-candidato-623c9dd)
+
+## Regresiones focalizadas en Windows sobre 8e274e7
+
+El trabajo `desktop-regressions` aprobó 3/3 pruebas en Windows 2022 con CPython 3.14.10 y Qt offscreen. Incluye identidad de la carpeta gestionada, rechazo de contenido no raster y reapertura de una figura tras cambiar entre disposición compacta y amplia. El checkout registró `8e274e72bc0d5bbec1ca3766e2522def3214f3ce`, que contiene `b6bcb85` y `87b74ed`. El despacho omitió matemáticas, cobertura integral y distribución. La matriz integral sigue referida a `623c9dd`. [Log del trabajo](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45744295852/job/139656507132)
+
+El push del mismo SHA también aprobó el flujo habitual de `develop`, con matemática en Windows y Ubuntu y el análisis estático. [Corrida rápida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45744279375)

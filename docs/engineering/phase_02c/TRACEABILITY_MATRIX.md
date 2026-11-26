@@ -52,5 +52,6 @@
 | C-04 y C-06 · Derivación y borradores | Los tramos definidos en un punto se comprueban con el cociente incremental bilateral antes de calcular retardo. Pruebas en `test_math_transform_workflows` y `test_workbench_session_integrity`. |
 | C-04, C-06 y C-07 · Candidato `623c9dd` | Se verificaron linealidad de Fourier con Dirac, ejes CSV importados, medidas por modo y reloj de transferencias exactas. Los oráculos y la evidencia se registran por lote. [Implementación](IMPLEMENTATION_LOG.md) · [Cobertura](testing/FINAL_COVERAGE_REPORT.md) |
 | C-08 · Figuras y disposición del escritorio | `test_figure_launcher_keeps_calculated_views_after_switching_workspace_layout` verifica el cambio compacto–amplio con una figura de frecuencia y otra de medidas ya calculadas. El acta registra la reproducción en Windows real previa a la corrección. |
+| C-11 y C-08 · Verificación focalizada de Windows | La corrida 45744295852 confirma en `8e274e7` la identidad de rutas de fondos y la reapertura de figuras tras redimensionar. [Alcance y log](validation/FINAL_VALIDATION_MATRIX.md#regresiones-focalizadas-en-windows-sobre-8e274e7). |
 
 [Registro de causas y pruebas](IMPLEMENTATION_LOG.md) · [Evidencia y SHA](validation/FINAL_VALIDATION_MATRIX.md)

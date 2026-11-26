@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-11 · Regresiones de escritorio en el runner Windows
+
+Se agregó la opción manual `desktop_regressions` al flujo Mathematical reliability. En `develop` ejecuta únicamente las dos pruebas de fondos y la regresión del selector de figuras al cambiar de tamaño. El primer push, `936d48d`, fue rechazado al interpretar el último `:` de `--only-binary=:all:` como sintaxis YAML. `8e274e7` usa bloques literales para los comandos. Se comprobó el YAML local con PyYAML y se cotejaron las tres definiciones de la matriz integral con el flujo anterior.
+
+En `8e274e72bc0d5bbec1ca3766e2522def3214f3ce` pasaron 3/3 pruebas en Windows 2022 en 3,853 s. El log confirma el SHA, la prueba de identidad de rutas que falló en la matriz anterior y la apertura de figuras después de cambiar de disposición. El despacho manual omitió los restantes trabajos del flujo. [Despacho](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45744295852) · [Log de pruebas](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45744295852/job/139656507132)
+
 ## 25 de noviembre de 2026 · C-11 · Identidad de rutas en la prueba de fondos
 
 **Causa.** En el trabajo Windows de `623c9dd`, la prueba comparaba `Path` por texto. El runner expuso el directorio temporal con el alias 8.3 `RUNNER~1` y el importador resolvió la misma carpeta como `runneradmin`. Esta diferencia provocó la única aserción fallida del trabajo integral. La aplicación ya normalizaba las rutas para copiar y limpiar fondos.

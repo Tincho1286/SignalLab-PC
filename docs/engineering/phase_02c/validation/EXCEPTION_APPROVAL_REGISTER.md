@@ -52,3 +52,5 @@ El [Quality Gate](QUALITY_GATE_REPORT.md#continuación-autónoma-de-fase-02c) re
 | E-06a–j | Objetivos medidos alcanzados en `623c9dd` en los dos sistemas. | Conservar los umbrales. La aserción de rutas del trabajo integral se corrigió en `b6bcb85` y requiere confirmación sobre ese código. |
 
 Ninguna excepción fue aprobada por este expediente. [Quality Gate](QUALITY_GATE_REPORT.md#evaluación-del-candidato-623c9dd)
+
+El despacho focalizado de `8e274e7` confirmó en Windows 2022 la corrección de la prueba de fondos y el comportamiento de figuras al redimensionar. Los objetivos E-06 siguen acreditados por la matriz de `623c9dd`. El control integral del SHA corregido y las actas físicas restantes de E-05 conservan sus propios criterios. [Regresiones en Windows](FINAL_VALIDATION_MATRIX.md#regresiones-focalizadas-en-windows-sobre-8e274e7)
