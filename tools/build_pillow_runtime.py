@@ -28,7 +28,8 @@ PILLOW_PROBE = (
 )
 WHEEL_OPTIONS = (
     '--no-deps --no-build-isolation '
-    '-C jpeg2000=disable -C jpeg=enable -C zlib=enable -C tiff=enable -C webp=enable'
+    '-C jpeg2000=disable -C avif=disable '
+    '-C jpeg=enable -C zlib=enable -C tiff=enable -C webp=enable'
 )
 
 
@@ -62,7 +63,7 @@ def windows_wheel(directory, source):
         "recipe['main']()"
     )
     subprocess.run(
-        [sys.executable, '-B', '-c', configure, '--no-imagequant',
+        [sys.executable, '-B', '-c', configure, '--no-imagequant', '--no-avif',
          '--build-dir', str(directory/'native')],
         cwd=source, check=True,
     )

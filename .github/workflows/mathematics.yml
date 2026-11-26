@@ -92,17 +92,21 @@ on:
         description: Check the wallpaper and figure regressions on Windows only
         type: boolean
         default: false
+      native_packaging:
+        description: Audit the two native packages and installers without repeating the Core matrix
+        type: boolean
+        default: false
 
 permissions:
   contents: read
 
 concurrency:
-  group: "${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}"
+  group: "${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}-${{ inputs.native_packaging && 'native-packaging' || 'default' }}"
   cancel-in-progress: ${{ github.event_name != 'workflow_dispatch' }}
 
 jobs:
   core-mathematics:
-    if: ${{ !inputs.engineering_baseline && !inputs.desktop_regressions }}
+    if: ${{ !inputs.engineering_baseline && !inputs.desktop_regressions && !inputs.native_packaging }}
     strategy:
       fail-fast: false
       matrix:
@@ -137,7 +141,7 @@ jobs:
           retention-days: 7
 
   workflow-integration:
-    if: ${{ !inputs.engineering_baseline && !inputs.desktop_regressions && github.ref != 'refs/heads/develop' }}
+    if: ${{ !inputs.engineering_baseline && !inputs.desktop_regressions && !inputs.native_packaging && github.ref != 'refs/heads/develop' }}
     strategy:
       fail-fast: false
       matrix:
@@ -171,7 +175,7 @@ jobs:
           retention-days: 7
 
   static-actions:
-    if: ${{ !inputs.engineering_baseline && !inputs.desktop_regressions }}
+    if: ${{ !inputs.engineering_baseline && !inputs.desktop_regressions && !inputs.native_packaging }}
     runs-on: ubuntu-22.04
     timeout-minutes: 3
     steps:
@@ -192,7 +196,7 @@ jobs:
           retention-days: 7
 
   desktop-regressions:
-    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/develop' && inputs.desktop_regressions && !inputs.engineering_baseline }}
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/develop' && inputs.desktop_regressions && !inputs.engineering_baseline && !inputs.native_packaging }}
     runs-on: windows-2022
     timeout-minutes: 8
     env:
@@ -261,7 +265,7 @@ jobs:
           retention-days: 14
 
   engineering-distribution:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.engineering_baseline && github.ref == 'refs/heads/develop' }}
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.engineering_baseline || inputs.native_packaging) && github.ref == 'refs/heads/develop' }}
     strategy:
       fail-fast: false
       matrix:
@@ -327,7 +331,7 @@ jobs:
           .venv/bin/python -B tests/linux_installation_contract.py
           .venv/bin/python -B tools/check_candidate_update.py "outputs/SignalLab-PC-$version-linux-x86_64.run" --from-stable --output work/distribution-audit/update.json
       - name: Measure Core on Windows
-        if: ${{ !cancelled() && runner.os == 'Windows' }}
+        if: ${{ !cancelled() && inputs.engineering_baseline && runner.os == 'Windows' }}
         shell: pwsh
         run: |
           & '.\.venv\Scripts\python.exe' -B -X utf8 tools/measure_core_hardening.py --output work/distribution-audit/core-performance.json
@@ -336,12 +340,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & '.\.venv\Scripts\python.exe' -B -X utf8 tools/measure_recovery_responsiveness.py --output work/distribution-audit/recovery-responsiveness.json
       - name: Capture Windows audit views
-        if: ${{ !cancelled() && runner.os == 'Windows' }}
+        if: ${{ !cancelled() && inputs.engineering_baseline && runner.os == 'Windows' }}
         shell: pwsh
         run: |
           & '.\.venv\Scripts\python.exe' -B -X utf8 tools/capture_candidate_ui.py --output work/distribution-audit/ui
       - name: Measure Core on Linux
-        if: ${{ !cancelled() && runner.os == 'Linux' }}
+        if: ${{ !cancelled() && inputs.engineering_baseline && runner.os == 'Linux' }}
         run: |
           .venv/bin/python -B -X utf8 tools/measure_core_hardening.py --output work/distribution-audit/core-performance.json
           .venv/bin/python -B -X utf8 tools/measure_scientific_campaign.py --output work/distribution-audit/scientific-campaign.json
