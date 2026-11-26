@@ -54,3 +54,9 @@ La entrada capturada para una operación LTI se publica al aceptar su resultado.
 - C-06. Recuperar de forma automática con un escritor y una instantánea de catálogo en SLPROJ. Mantener el diálogo y el formato predeterminado JSON para guardado explícito. Mantener lectura de checkpoints JSON anteriores.
 - C-06. Verificar el volumen de comunicaciones con proyectos independientes y catálogo. El banco usa señales sintéticas y vuelve a cargar cada proyecto. Controlar el consumo al retener una ejecución a la vez.
 - C-11. Calcular el gate desde las evidencias de dos sistemas con la misma revisión. La aceptación de riesgos y las actas externas requieren revisión explícita. El comando con `--require-automated` devuelve error cuando falte un requisito automático.
+
+## Revisión de a80508c
+
+- C-01 y C-02. Conservar los pines de la matriz. La revisión de proveedores identifica cuándo actualizar las dependencias y volver a cotejar los binarios que las contienen. [Consulta e inventario](security/DEPENDENCY_CONTINUATION.md#consulta-de-proveedores-para-a80508c)
+- C-08. Acreditar los perfiles realmente ejecutados en Windows a 100 % y 125 %. Los perfiles de Xvfb siguen siendo evidencia automatizada. E-05 queda abierto para los perfiles restantes. [Acta](gui/DESKTOP_CONTINUATION.md#acta-windows-del-candidato-a80508c)
+- C-11. Usar la corrida 45745729541 para el candidato y un commit documental posterior para el expediente. Los resultados acreditan el gate automático. El cierre del Core, la preparación de Fase 03 y la distribución pública se evalúan por separado. [Dictámenes](validation/QUALITY_GATE_REPORT.md#evaluación-del-candidato-a80508c)

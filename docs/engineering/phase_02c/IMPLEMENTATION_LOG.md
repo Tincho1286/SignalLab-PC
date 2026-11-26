@@ -1,5 +1,13 @@
 # Registro de implementación
 
+## 26 de noviembre de 2026 · C-08 y C-11 · Candidato a80508c
+
+`a80508c224d902ce225c6b6cc66fd090210c52b2` incorpora `b6bcb85` y `87b74ed`. El despacho manual de Mathematical reliability en `develop` con `engineering_baseline=true` y `desktop_regressions=false` ejecutó una sola matriz. La suite Windows confirmó la identidad de rutas del directorio de fondos. Ambas suites verificaron el resultado y la figura después de cambiar de disposición. Pasaron 1 110 pruebas integrales, 150 casos preventivos y 37 controles por plataforma. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45745729541) · [Recibos](validation/evidence/ci-a80508c.json)
+
+Se cotejaron los digests de cinco artefactos y se reprodujo el informe con `python -B -X utf8 tools/check_quality_gate_02c.py --input work/phase02c-ci-a80508c --output work/phase02c-ci-a80508c/verified --candidate a80508c224d902ce225c6b6cc66fd090210c52b2 --require-automated`. El proceso devolvió 0. Se guardaron los SBOM, los recibos de actualización y el resultado por control. [Matriz y comando](validation/FINAL_VALIDATION_MATRIX.md#resultado-de-a80508c)
+
+E-05 incorpora el ensayo nativo Windows a 120 DPI y la reapertura CAS a 96 DPI. Se restauró la escala original. Se consultaron índices y avisos de Qt, OpenJPEG, HDF5 y OpenSSL y se verificaron los binarios del candidato. Los pines pertenecen al mismo árbol validado. El commit de este expediente sólo agrega documentación y evidencia. [Acta](gui/DESKTOP_CONTINUATION.md#acta-windows-del-candidato-a80508c) · [Dependencias](security/DEPENDENCY_CONTINUATION.md#inventario-del-candidato-a80508c)
+
 ## 25 de noviembre de 2026 · C-11 · Regresiones de escritorio en el runner Windows
 
 Se agregó la opción manual `desktop_regressions` al flujo Mathematical reliability. En `develop` ejecuta únicamente las dos pruebas de fondos y la regresión del selector de figuras al cambiar de tamaño. El primer push, `936d48d`, fue rechazado al interpretar el último `:` de `--only-binary=:all:` como sintaxis YAML. `8e274e7` usa bloques literales para los comandos. Se comprobó el YAML local con PyYAML y se cotejaron las tres definiciones de la matriz integral con el flujo anterior.

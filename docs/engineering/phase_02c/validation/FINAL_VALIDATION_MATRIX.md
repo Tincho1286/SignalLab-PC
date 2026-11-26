@@ -1,5 +1,7 @@
 # Matriz final del candidato 459b9fc
 
+La matriz vigente está en [Resultado de a80508c](#resultado-de-a80508c).
+
 La corrida 45650373957 terminó correctamente en 18 min 28 s. Los artefactos de líneas base, instaladores, inventarios y rendimiento corresponden a `459b9fc505c0a6a4d20bb6c5e898a5ae3f3cb281`. Se comprobó el SHA antes y después de la suite. [Corrida y artefactos](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45650373957) · [Evidencia estructurada](evidence/ci-459b9fc.json)
 
 | Control | Windows x64 | Ubuntu x86-64 |
@@ -97,3 +99,38 @@ El verificador ejecutó `tools/check_quality_gate_02c.py --require-automated` co
 El trabajo `desktop-regressions` aprobó 3/3 pruebas en Windows 2022 con CPython 3.14.10 y Qt offscreen. Incluye identidad de la carpeta gestionada, rechazo de contenido no raster y reapertura de una figura tras cambiar entre disposición compacta y amplia. El checkout registró `8e274e72bc0d5bbec1ca3766e2522def3214f3ce`, que contiene `b6bcb85` y `87b74ed`. El despacho omitió matemáticas, cobertura integral y distribución. La matriz integral sigue referida a `623c9dd`. [Log del trabajo](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45744295852/job/139656507132)
 
 El push del mismo SHA también aprobó el flujo habitual de `develop`, con matemática en Windows y Ubuntu y el análisis estático. [Corrida rápida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45744279375)
+
+## Distribución, recursos y almacenamiento de a80508c
+
+Los trabajos de distribución de la corrida 45745729541 terminaron correctamente en Windows 2022 y Ubuntu 22.04. Los recibos se descargaron con verificación del digest publicado por GitHub. El salto aislado de 2.0.0 a 2.0.1 conservó la sesión y el destino, rechazó una descarga corrupta y ejecutó el diagnóstico del programa instalado. El verificador de producción rechazó la clave temporal usada para el ensayo. [Recibo Windows](evidence/windows-installer-a80508c.json) · [Recibo Linux](evidence/linux-installer-a80508c.json) · [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45745729541)
+
+| Control | Windows x64 | Linux x86-64 |
+| --- | --- | --- |
+| Verificador de interfaz del empaquetado | 347 pruebas en 321,18 s | 347 pruebas en 339,09 s |
+| Diagnósticos del portable instalado | 15 aprobados | 15 aprobados |
+| Archivos nativos cotejados con el SBOM | 219 | 389 |
+| Perfiles de rendimiento y cancelaciones solicitadas | 71 y 22 | 71 y 22 |
+| Mayor latencia observada de cancelación en esos perfiles | 47,98 ms | 55,72 ms |
+| DFT con 1 048 576 muestras, mediana y pico de RSS | 59,62 ms y 178,49 MiB | 55,45 ms y 186,34 MiB |
+| Guardar SLPROJ con 1 048 576 muestras por registro, mediana y tamaño | 192,62 ms y 33 555 971 bytes | 140,75 ms y 33 555 971 bytes |
+| Campaña de 48 proyectos, duración y pico de RSS | 11,99 s y 169,52 MiB | 10,44 s y 177,23 MiB |
+| Mayor pausa de interfaz durante la escritura SLPROJ en segundo plano | 10,69 ms | 10,63 ms |
+
+La referencia `faef335` tenía 67 perfiles y 17 intentos de cancelación por plataforma. El mismo perfil DFT de 1 048 576 muestras medía 62,13 ms y 178,23 MiB de RSS en Windows y 77,17 ms y 187,43 MiB en Linux. Los tiempos corresponden a runners compartidos. Las 22 cancelaciones del candidato preservaron los destinos y la campaña verificó 288 registros, 75 497 472 muestras y 1 208 085 276 bytes. Se comprobó la reanudación desde el catálogo al cancelar la octava corrida. [Banco y alcance](../resources/OPERATIONAL_ENVELOPE.md) · [Dimensionamiento](../persistence/COMMUNICATIONS_STORAGE_SIZING.md)
+
+## Resultado de a80508c
+
+La corrida 45745729541 se despachó una vez en `develop` con `engineering_baseline=true` el 25/11/2026 a las 23:56, hora argentina. Terminó 25 min 34 s después. Los cuatro trabajos de plataforma y el verificador de CI aprobaron el mismo SHA `a80508c224d902ce225c6b6cc66fd090210c52b2`. Los dos informes de línea base lo registraron antes y después de la suite con las fuentes intactas. [Corrida y logs](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45745729541) · [Recibos](evidence/ci-a80508c.json)
+
+| Control | Windows x64 | Linux x86-64 |
+| --- | ---: | ---: |
+| Pruebas integrales aprobadas, cero omisiones | 1 110 | 1 110 |
+| Casos preventivos aprobados | 150 | 150 |
+| Líneas globales | 37 993/42 982 (88,39 %) | 37 968/42 982 (88,33 %) |
+| Ramas globales | 12 437/16 538 (75,20 %) | 12 434/16 538 (75,18 %) |
+| Controles de umbral en componentes | 23/23 | 23/23 |
+| Quality Gate automático | 37/37 | 37/37 |
+
+En las dos suites pasaron `test_managed_copies_keep_source_and_clean_only_matching_old_files`, el rechazo de imágenes fuera de los formatos admitidos y `test_figure_launcher_keeps_calculated_views_after_switching_workspace_layout`. La auditoría integral verificó las familias de proyectos históricos, diagramas, Fourier, muestreo, archivo científico y CAS. Las actas Windows a 100 % y 125 % complementan los perfiles automatizados. [Windows](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45745729541/job/139661196421) · [Linux](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45745729541/job/139661196526) · [Acta](../gui/DESKTOP_CONTINUATION.md#acta-windows-del-candidato-a80508c)
+
+Con los artefactos de plataforma descomprimidos en `work/phase02c-ci-a80508c`, la comprobación `python -B -X utf8 tools/check_quality_gate_02c.py --input work/phase02c-ci-a80508c --output work/phase02c-ci-a80508c/verified --candidate a80508c224d902ce225c6b6cc66fd090210c52b2 --require-automated` devolvió código 0. El contenido JSON coincidió con el informe de GitHub. El índice distingue las huellas de los artefactos y reportes originales de las copias versionadas con fin de línea normalizado. [Resultado automático](evidence/quality-gate-a80508c.json) · [Dictámenes](QUALITY_GATE_REPORT.md#evaluación-del-candidato-a80508c)

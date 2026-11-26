@@ -43,3 +43,14 @@
 La brecha global de cobertura quedó satisfecha en los dos sistemas. El riesgo de entorno se materializó en una aserción del test de fondos de Windows y se corrigió localmente con una comparación de identidad. La condición integral permanece abierta para el SHA corregido. El ensayo de escritorio descubrió y aisló el fallo de cambio de disposición. Se verificó su corrección en Windows a 96 DPI. [Quality Gate](QUALITY_GATE_REPORT.md#evaluación-del-candidato-623c9dd) · [Acta](../gui/DESKTOP_CONTINUATION.md#medidas-de-frecuencia-en-el-candidato-623c9dd)
 
 Los controles de presupuesto y cancelación pasaron en los tamaños y operaciones del banco. La admisión estimada y la cancelación cooperativa mantienen su alcance. El importador MAT conserva su cuota de proceso y plazo. Las condiciones nativas de Qt, OpenJPEG y HDF5, la validación física de Linux y DPI y la distribución pública siguen abiertas por sus criterios específicos. [Envolvente](../resources/OPERATIONAL_ENVELOPE.md) · [Decisiones individuales](EXCEPTION_APPROVAL_REGISTER.md#revisión-sobre-623c9dd)
+
+## Alcance residual de a80508c
+
+| Riesgo | Evidencia nueva | Alcance y responsable |
+| --- | --- | --- |
+| C-01 y C-02 · Dependencias | Ambos SBOM y OpenSSL de Ubuntu verificados. La revisión de proveedores mantiene abiertas las condiciones de Qt, OpenJPEG y HDF5. | Empaquetado debe volver a revisar los avisos de noviembre cuando lleguen las correcciones. El responsable de MAT debe mantener cuota, plazo y alcance de archivos seleccionados localmente. |
+| C-05 · Recursos | Las 22 cancelaciones de cada plataforma conservaron el estado observado en los tamaños ensayados. La campaña recuperó el catálogo y reintentó la corrida cancelada. | Engineering Core debe acordar la envolvente. Las llamadas nativas del motor numérico conservan límites cooperativos, con cuota efectiva del SO sólo en MAT. |
+| C-08 · Escritorio | Windows a 100 % y 125 % confirmó CAS, informe y figura independiente. | El responsable de validación debe registrar Linux de escritorio y perfiles físicos de mayor DPI o delimitar expresamente el alcance que acepta. |
+| C-09 · Distribución | El actualizador aislado conservó el destino y la sesión en los dos instaladores. | Distribución debe evaluar la firma de producción y el canal público por separado. |
+
+[Matriz](FINAL_VALIDATION_MATRIX.md#distribución-recursos-y-almacenamiento-de-a80508c) · [Decisiones individuales](EXCEPTION_APPROVAL_REGISTER.md#decisiones-del-candidato-a80508c)

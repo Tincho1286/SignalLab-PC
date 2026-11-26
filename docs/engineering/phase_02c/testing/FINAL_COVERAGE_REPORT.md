@@ -170,3 +170,16 @@ Las dos suites de 922 pruebas y 150 casos preventivos alcanzaron los mínimos de
 | Hoja CAS headless, líneas / ramas | 100 % / 100 % | 100 % / 100 % | 90 % / 85 % |
 
 Cada componente crítico alcanzó sus objetivos en los dos sistemas. Linux concentra líneas pendientes en `toolbox.py` (415), `ui.py` (238), `workbench.py` (196), `linux_installation.py` (195) y `course_tools.py` (170). El índice incluye las 15 prioridades de líneas y ramas por sistema. [Datos reproducibles](../validation/evidence/ci-eb50895.json)
+
+## Cobertura del candidato a80508c
+
+La corrida única 45745729541 midió la aplicación sobre el mismo SHA limpio en los dos sistemas. Pasaron 1 110 pruebas integrales y 150 casos preventivos por plataforma. Los 23 controles de los componentes designados alcanzaron 90 % de líneas y 85 % de ramas allí donde aplica cada objetivo. E-06a–j se acreditan con la medición siguiente y con el detalle de componentes del gate. [Matriz](../validation/FINAL_VALIDATION_MATRIX.md#resultado-de-a80508c) · [Celdas por componente](../validation/evidence/quality-gate-a80508c.json)
+
+| Métrica | Windows 2022 | Ubuntu 22.04 | Objetivo |
+| --- | ---: | ---: | ---: |
+| Líneas globales | 37 993/42 982 (88,39 %) | 37 968/42 982 (88,33 %) | 85 % |
+| Ramas globales | 12 437/16 538 (75,20 %) | 12 434/16 538 (75,18 %) | 75 % |
+| Margen de líneas respecto del mínimo entero | 1 458 | 1 433 | 36 535 líneas |
+| Margen de ramas respecto del mínimo entero | 33 | 30 | 12 404 ramas |
+
+La referencia `faef335` tenía 890 pruebas por sistema. En Windows midió 78,67 % de líneas y 64,60 % de ramas. En Ubuntu midió 78,61 % y 64,59 %. El denominador de la matriz vigente incluye las líneas añadidas a las fuentes y coincide en ambas plataformas. [Referencia inicial](../validation/evidence/ci-faef335.json) · [Huellas de la medición vigente](../validation/evidence/ci-a80508c.json)

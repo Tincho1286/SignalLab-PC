@@ -1,6 +1,6 @@
 # Puerta de calidad de Engineering Core
 
-Dictamen vigente en [Evaluación del candidato 623c9dd](#evaluación-del-candidato-623c9dd). Los apartados de versiones anteriores conservan sus dictámenes históricos.
+Dictamen vigente en [Evaluación del candidato a80508c](#evaluación-del-candidato-a80508c). Los apartados de versiones anteriores conservan sus dictámenes históricos.
 
 **NO-GO de cierre definitivo.** El candidato supera la matriz técnica en Windows y Linux. El criterio de cobertura global y varios objetivos de ramas del Core siguen pendientes. Los riesgos P1 que permanecen requieren resolución o aceptación individual, junto con la evidencia manual pendiente.
 
@@ -100,3 +100,22 @@ El cotejo del inventario confirmó 219 archivos nativos de Windows y 389 de Linu
 ### Confirmación focalizada de las correcciones posteriores
 
 Las tres regresiones se aprobaron en el runner Windows 2022 sobre `8e274e7`. La prueba que falló por el alias de ruta pasó con la corrección de identidad del sistema de archivos. También pasó la apertura de figuras tras cambiar de disposición. El dictamen integral conserva la corrida única de `623c9dd`. La evidencia focalizada confirma ambas correcciones y los dictámenes de cierre, preparación y distribución permanecen pendientes por sus criterios. [Pruebas del runner](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45744295852/job/139656507132) · [Alcance](FINAL_VALIDATION_MATRIX.md#regresiones-focalizadas-en-windows-sobre-8e274e7)
+
+## Evaluación del candidato a80508c
+
+**Quality Gate automatizado aprobado.** La única matriz para `a80508c224d902ce225c6b6cc66fd090210c52b2` en `develop` pasó en el primer intento. Windows y Linux aprobaron 37/37 controles cada uno, con 1 110 pruebas integrales y 150 casos preventivos por sistema. El verificador local cotejó los cinco artefactos y reprodujo la evaluación de CI. [Matriz](FINAL_VALIDATION_MATRIX.md#resultado-de-a80508c) · [Resultado por control](evidence/quality-gate-a80508c.json) · [Recibos y SHA-256](evidence/ci-a80508c.json)
+
+| Dictamen | Resultado | Evidencia y condición |
+| --- | --- | --- |
+| Cierre de Engineering Core | **NO-GO de cierre formal** | Los objetivos E-06a–j están acreditados. Las decisiones de alcance de MAT y recursos y las actas de escritorio siguen pendientes. La exposición de dependencias permanece en seguimiento. |
+| Preparación técnica para Fase 03 | **GO condicionado** | La campaña acotada recuperó y verificó 48 corridas. La preparación exige cerrar el Core y acordar la envolvente para el alcance futuro. El inicio de la fase requiere autorización específica. |
+| Distribución pública | **NO-GO** | El salto aislado desde 2.0.0, los portables, los instaladores y los SBOM están verificados. La firma de producción, el canal público y las condiciones de dependencias siguen pendientes. |
+
+### Cambios respecto de la referencia
+
+- Las pruebas integrales aumentaron de 890 a 1 110 por sistema. La cobertura pasó de 78,67 % a 88,39 % de líneas y de 64,60 % a 75,20 % de ramas en Windows. En Linux pasó de 78,61 % a 88,33 % de líneas y de 64,59 % a 75,18 % de ramas. Pasaron los 23 controles de cobertura de los componentes designados en cada plataforma. Se conservaron los objetivos y la configuración de cobertura. [Medición](../testing/FINAL_COVERAGE_REPORT.md#cobertura-del-candidato-a80508c)
+- Se confirmó la corrección `b6bcb85` de identidad de carpetas en el runner Windows. Pasó la regresión de `87b74ed` que conserva la figura al cambiar la disposición. En Windows real el flujo de figura pasó al 125 % y la recuperación CAS al 100 %. [Causas y pruebas](../IMPLEMENTATION_LOG.md#26-de-noviembre-de-2026--c-08-y-c-11--candidato-a80508c) · [Acta y protocolo](../gui/DESKTOP_CONTINUATION.md#acta-windows-del-candidato-a80508c)
+- Los 71 perfiles por sistema incluyen el costo de DFT y de persistencia. Se acreditaron 22 cancelaciones por plataforma, verificación de 288 registros en 48 proyectos y preservación de la sesión al actualizar. Pasaron las familias de sesiones históricas, diagramas, muestreo, Fourier y CAS de la suite. [Recursos y almacenamiento](FINAL_VALIDATION_MATRIX.md#distribución-recursos-y-almacenamiento-de-a80508c)
+- Los SBOM coinciden con 219 y 389 archivos nativos. Linux usa OpenSSL de Ubuntu `3.0.2-0ubuntu1.30`. Qt, OpenJPEG y HDF5 conservan mitigaciones y seguimiento de proveedor. El importador MAT tiene cuota del SO. Los motores numéricos mantienen admisión estimada y cancelación cooperativa en la envolvente ensayada. [Inventario y avisos](../security/DEPENDENCY_CONTINUATION.md#inventario-del-candidato-a80508c) · [Riesgos](RESIDUAL_RISK_REGISTER.md#alcance-residual-de-a80508c)
+
+El registro de decisiones reúne las condiciones E-01 a E-05 y sus alternativas. Queda pendiente aportar el acta de Linux de escritorio y los perfiles físicos de mayor DPI, o delimitar los perfiles que se aceptan. La aceptación del alcance MAT y de los límites operativos requiere una decisión individual. La firma y el canal público se evalúan por separado. [Decisiones pendientes](EXCEPTION_APPROVAL_REGISTER.md#decisiones-del-candidato-a80508c)

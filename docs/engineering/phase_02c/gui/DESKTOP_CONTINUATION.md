@@ -37,3 +37,16 @@ El 25/11/2026 se ejecutó `623c9ddcc2460485b549e864fa86ddc6b7cba407` desde el c�
 En `87b74ed`, volver a calcular `H(s)=1/(s+1)` en modo compacto y maximizar conservó habilitada la acción de cabecera. Abrir gráfico mostró la figura de frecuencia y cerrarla devolvió el foco al informe. Se usó el mismo monitor a 96 DPI. [Corrección y regresión](../IMPLEMENTATION_LOG.md#25-de-noviembre-de-2026--c-08--figuras-al-cambiar-de-ancho-de-ventana)
 
 El entorno no dispone de un escritorio Linux ni de un segundo monitor con otro DPI. Las pruebas con Linux real y escalados físicos adicionales siguen pendientes.
+
+## Acta Windows del candidato a80508c
+
+El 26/11/2026 se ejecutó `a80508c224d902ce225c6b6cc66fd090210c52b2` desde su árbol limpio con Qt `windows`, sin factores de escala de prueba y con un perfil descartable. Se usó un monitor físico de 1366 × 768.
+
+| Escala nativa | Tamaño lógico | Flujo | Resultado observado |
+| --- | --- | --- | --- |
+| 125 % · 120 DPI Win32 · DPR 1,25 | Ventana de 720 × 450, luego maximizada en pantalla lógica de 1093 × 614 | Análisis LTI, calcular con los coeficientes iniciales, maximizar, abrir Frecuencia desde la cabecera y cerrar la figura | El informe conservó el resultado y la acción Abrir gráfico. Se vieron módulo, fase y retardo con eje en rad/s. Al cerrar la figura volvió el informe y la acción siguió habilitada. |
+| 100 % · 96 DPI Win32 · DPR 1,0 | Ventana de 800 × 600 | CAS, evaluar `a := 2+3*i`, guardar `a+` como borrador en SLPROJ, cambiarlo a `b+` y reabrir el proyecto | Se recuperó `a+`. La siguiente evaluación `a+1` dio exactamente `3 + 3i`. |
+
+Se leyó `GetDpiForWindow` y el DPR de Qt al arrancar cada instancia. El selector estándar de Windows ofreció 100 % y 125 %. Se restauró el 100 % original al terminar la prueba de 125 %. El 150 %, 200 %, el paso entre monitores de distinto DPI y el escritorio Linux nativo requieren otro entorno. Los perfiles automatizados de Linux siguen documentados aparte.
+
+Para completar E-05, usá este mismo SHA en Linux instalado con escritorio a 100 % y en los escalados nativos más altos que ofrezca el entorno. Repetí el cambio compacto a maximizado de Análisis LTI con `H(s)=1/(s+1)` y la reapertura de CAS de la tabla. En Windows quedan los perfiles físicos de 150 % y 200 %, y el traslado de la ventana y la figura entre dos monitores con escalas distintas. Registrá los tamaños físicos y lógicos, si los controles se pueden alcanzar y el valor posterior a reabrir CAS. Para probar 720 × 450 lógicos al 200 %, el área utilizable del monitor debe ser de al menos 1440 × 900 píxeles físicos.

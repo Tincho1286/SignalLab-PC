@@ -44,3 +44,7 @@ SLPROJ superó su objetivo en `54adaa0` y el almacenamiento por lotes verificó 
 [Quality Gate actual](QUALITY_GATE_REPORT.md#evaluación-del-candidato-623c9dd)
 
 En `8e274e7` se verificó en el runner Windows la corrección C-11 de identidad de rutas y la regresión C-08 de figuras. El seguimiento restante separa la evidencia integral sobre un único SHA, el escritorio físico y las condiciones de proveedor y distribución. [Regresiones verificadas](FINAL_VALIDATION_MATRIX.md#regresiones-focalizadas-en-windows-sobre-8e274e7)
+
+## Saldo del candidato a80508c
+
+La matriz única verificó las correcciones C-11 de identidad de rutas y C-08 de figuras, y acreditó las condiciones de cobertura C-07 y E-06a–j. C-08 conserva E-05 para el escritorio Linux y los escalados físicos adicionales. Los pendientes de C-01, C-02 y C-05 corresponden a disponibilidad de proveedores, aceptación del alcance MAT y aceptación de la envolvente operativa. C-09 conserva firma y canal público como condiciones independientes. [Dictámenes vigentes](QUALITY_GATE_REPORT.md#evaluación-del-candidato-a80508c) · [Decisiones individuales](EXCEPTION_APPROVAL_REGISTER.md#decisiones-del-candidato-a80508c)
