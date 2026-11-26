@@ -53,7 +53,7 @@ def windows_wheel(directory, source):
         'call "native\\build_dep_all.cmd" || exit /b 1\n'
         'call "native\\build_env.cmd" || exit /b 1\n'
         f'"%~1" -m pip wheel {WHEEL_OPTIONS} -C raqm=vendor -C fribidi=vendor '
-        f'--wheel-dir wheels "{source.name}"\n',
+        f'--wheel-dir wheels ".\\{source.name}"\n',
         encoding='ascii',
     )
     configure = (

@@ -11,6 +11,14 @@ from .theme_tokens import COLORS as C
 def action_title(button):return button.property('actionTitle') or button.text()
 
 def configure_theme():
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+    from PIL import features
+
+    if not features.check_module('avif') and 'avif' in FigureCanvasQTAgg.filetypes:
+        FigureCanvasQTAgg.filetypes = {
+            extension: label for extension, label in FigureCanvasQTAgg.filetypes.items()
+            if extension != 'avif'
+        }
     app = QApplication.instance()
     app.setStyle('Fusion')
     palette = QPalette()

@@ -63,6 +63,7 @@ def run(destination):
         restored=window.project.get(key)
         np.testing.assert_allclose(restored.A,model.A)
         panel.figure.clear();axis=panel.figure.add_subplot(111);axis.plot(time,output.real);panel.canvas.draw();app.processEvents()
+        assert ('avif' in panel.canvas.get_supported_filetypes()) == features.check_module('avif')
         from io import BytesIO
         from PIL import Image
         for image_format in ('png', 'jpeg', 'tiff', 'webp'):
