@@ -1,4 +1,6 @@
-# Backlog priorizado de estabilización
+# Backlog de SignalLab Engineering
+
+La Fase 03 comienza con la consolidación del Core. El cierre técnico de 02C acredita E-01 y E-06a–j y registra las aprobaciones E-02, E-03 y E-05. E-04 sigue como seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Plan de Fase 03](phase_03/PHASE_03_PLAN.md)
 
 La [matriz de Fase 02B](phase_02b/PHASE_02B_TRACEABILITY_MATRIX.md) registra los nuevos paquetes y sus criterios. Los controles y riesgos de estabilización siguen debajo como referencia.
 
@@ -36,6 +38,6 @@ El criterio para empezar Fase 02 es la salida de estabilización de [ROADMAP](RO
 
 Los hallazgos y acciones pendientes de 02C se gestionan con su prioridad, condición de salida y evidencia. La procedencia verificada y el error de escala de PSD tienen regresiones dedicadas. La cobertura, el escritorio real y la distribución tienen criterios de revisión propios. [Deuda de Fase 02C](phase_02c/validation/FINAL_TECHNICAL_DEBT_REGISTER.md)
 
-## Pendientes vigentes de 02C
+## Riesgos y evidencia de 02C
 
-Priorizar pruebas de integración de traspaso de señales y sistemas, diseño y comparación de filtros, tabla y sonda, recuperación y errores. El informe automático indica la brecha por archivo y por rama. El registro maestro mantiene estados, requisitos y responsables de los asuntos externos y de compatibilidad. [Cobertura](phase_02c/testing/FINAL_COVERAGE_REPORT.md) · [Registro maestro](phase_02c/audit/MASTER_TECHNICAL_DEBT_REGISTER.md)
+La cobertura global y los controles críticos se alcanzaron en las dos plataformas de la matriz integral. Se conserva la revisión de HDF5 y el alcance aprobado para MAT y los recursos. La matriz de arranque de Fase 03 comprueba en conjunto el motor y el empaquetado definitivos. [Cobertura](phase_02c/testing/FINAL_COVERAGE_REPORT.md) · [Riesgos residuales](phase_02c/validation/RESIDUAL_RISK_REGISTER.md)
