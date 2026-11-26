@@ -242,7 +242,8 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0
       - name: Install locked application dependencies
         run: |
-          python -m pip install --disable-pip-version-check --only-binary=:all: -r requirements-lock.txt -r requirements-quality.txt
+          python -m pip install --disable-pip-version-check --only-binary=:all: -r requirements-lock.txt -r requirements-engineering.txt
+          python -m pip check
       - name: Check managed image paths and figures after resizing
         if: runner.os == 'Windows'
         run: |
