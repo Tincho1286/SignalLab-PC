@@ -8,8 +8,9 @@ import subprocess
 import sys
 from tempfile import TemporaryDirectory
 
-from inspect_packaged_runtimes import inspect_portable
+from inspect_packaged_runtimes import PINNED_QT_VERSION, inspect_portable, require_pinned_qt
 from check_python_runtime import require_pinned_python
+from build_pillow_runtime import prepare_pillow
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -17,10 +18,12 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     expected_python = require_pinned_python()
+    require_pinned_qt()
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     args = parser.parse_args()
     args.output.parent.mkdir(parents=True, exist_ok=True)
+    prepare_pillow()
     with TemporaryDirectory(prefix='signallab-package-') as directory:
         temp = Path(directory)
         subprocess.run(
@@ -43,7 +46,8 @@ def main():
                    or not diagnostics.get('checks') or not all(diagnostics['checks'].values())
                    or inventory['runtime']['python']['version'] != expected_python
                    or diagnostics.get('runtime', {}).get('python') != expected_python
-                   or inventory['runtime']['qt']['version'] != '6.12.0'
+                   or diagnostics.get('runtime', {}).get('pillow_jpeg2000') is not False
+                   or inventory['runtime']['qt']['version'] != PINNED_QT_VERSION
                    or 'qt_svg' not in inventory['runtime'])
 
 

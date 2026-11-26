@@ -20,6 +20,8 @@ def run(destination):
         import scipy
         import sympy
         import matplotlib
+        from PIL import features
+        from PySide6.QtCore import qVersion
         from PySide6.QtWidgets import QApplication
         from .workbench import WorkbenchWindow as ToolboxWindow
         from .workspaces import ROUTES
@@ -27,6 +29,9 @@ def run(destination):
         from .model import Signal
         from .operations import dft, idft
         from .filters import Transfer, bilinear
+        report['runtime'].update(qt=qVersion(), pillow_jpeg2000=features.check_codec('jpg_2000'))
+        if report['frozen'] and report['runtime']['pillow_jpeg2000']:
+            raise RuntimeError('El portable contiene el decodificador JPEG 2000.')
         x = Signal([1, 2, 3, 4])
         np.testing.assert_allclose(idft(dft(x)).values, x.values)
         report["checks"]["fft_roundtrip"] = True
@@ -58,6 +63,15 @@ def run(destination):
         restored=window.project.get(key)
         np.testing.assert_allclose(restored.A,model.A)
         panel.figure.clear();axis=panel.figure.add_subplot(111);axis.plot(time,output.real);panel.canvas.draw();app.processEvents()
+        from io import BytesIO
+        from PIL import Image
+        for image_format in ('png', 'jpeg', 'tiff', 'webp'):
+            with BytesIO() as output_image:
+                panel.figure.savefig(output_image, format=image_format)
+                output_image.seek(0)
+                with Image.open(output_image) as image:
+                    image.load()
+                    assert image.format == image_format.upper() and min(image.size) > 0
         delay=StateModel.from_transfer(Transfer([0,1],[1]),.1)
         np.testing.assert_allclose(delay.simulate([1,2,3])[1][:,0],[0,1,2])
         np.testing.assert_allclose(delay.to_transfer().response([.2,1]),np.exp(-1j*np.array([.2,1])),atol=1e-13)

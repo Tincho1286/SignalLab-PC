@@ -13,7 +13,8 @@ import sysconfig
 
 from PyInstaller.archive.readers import CArchiveReader
 
-from inspect_packaged_runtimes import inspect_binary, portable_executable
+from build_pillow_runtime import PILLOW_SHA256
+from inspect_packaged_runtimes import PINNED_QT_VERSION, inspect_binary, portable_executable
 
 
 OPENSSL = {'libssl.so.3', 'libcrypto.so.3'}
@@ -25,13 +26,27 @@ def digest(path):
         return hashlib.file_digest(stream, 'sha256').hexdigest()
 
 
+def distribution_source(dist):
+    name = dist.metadata['Name']
+    result = dict(source='PyPI', package=name, version=dist.version)
+    direct = json.loads(dist.read_text('direct_url.json') or '{}')
+    checksum = direct.get('archive_info', {}).get('hashes', {}).get('sha256')
+    if direct.get('url', '').startswith('https://download.qt.io/snapshots/ci/pyside/'):
+        result.update(source='Qt', wheel_sha256=checksum, wheel_url=direct['url'])
+    elif name.casefold() == 'pillow' and direct.get('url', '').startswith('file:'):
+        result.update(source='SignalLab source build', wheel_sha256=checksum,
+                      sdist_sha256=PILLOW_SHA256)
+    return result
+
+
 def candidates(names):
     by_path = {}
     for dist in distributions():
+        origin = distribution_source(dist)
         for file in dist.files or ():
             path = Path(dist.locate_file(file))
             if path.name.casefold() in names:
-                by_path.setdefault(path, ('PyPI', dist.metadata['Name'], dist.version))
+                by_path.setdefault(path, origin)
     python_dirs = (Path(sysconfig.get_path('platstdlib'))/'lib-dynload',
                    Path(sys.base_prefix)/'DLLs', Path(sys.base_prefix))
     # platstdlib can point to the venv rather than the interpreter that owns lib-dynload.
@@ -42,7 +57,8 @@ def candidates(names):
         for name in names:
             path = directory/name
             if path.is_file():
-                by_path.setdefault(path, ('CPython', 'CPython', platform.python_version()))
+                by_path.setdefault(path, dict(source='CPython', package='CPython',
+                                              version=platform.python_version()))
     if sys.platform == 'linux':
         for package in sorted(Path('/var/lib/dpkg/info').glob('*.list')):
             paths = [Path(line) for line in package.read_text(errors='replace').splitlines()
@@ -53,11 +69,11 @@ def candidates(names):
             name, version, architecture = subprocess.check_output(query, text=True).split('\t')
             for path in paths:
                 if path.is_file():
-                    by_path.setdefault(path, ('Ubuntu', f'{name}:{architecture}', version))
+                    by_path.setdefault(path, dict(source='Ubuntu', package=f'{name}:{architecture}',
+                                                  version=version))
     index = defaultdict(list)
-    for path, (source, name, version) in by_path.items():
+    for path, match in by_path.items():
         if path.is_file():
-            match = dict(source=source, package=name, version=version)
             bucket = index[digest(path)]
             if match not in bucket:
                 bucket.append(match)
@@ -134,6 +150,10 @@ def cyclonedx(inventory, source):
              'value':f"{match['source']}:{match['package']}@{match['version']}"}
             for match in matches
         ]
+        for match in matches:
+            for key in ('wheel_sha256', 'wheel_url', 'sdist_sha256'):
+                if value := match.get(key):
+                    properties.append({'name': f'signallab:{key}', 'value': value})
         component['properties'] = properties or [{'name':'signallab:attribution','value':'unconfirmed'}]
         files.append(component)
     return {
@@ -177,6 +197,11 @@ def main():
     for name, data in (('native-inventory.json', inventory), ('native.cdx.json', cyclonedx(inventory, source))):
         (args.output/name).write_text(json.dumps(data, indent=2)+'\n', encoding='utf-8')
     print('Native files:', len(inventory['native_files']), flush=True)
+    if inventory['runtime']['qt']['version'] != PINNED_QT_VERSION:
+        raise SystemExit('El inventario no corresponde a la versión de Qt fijada.')
+    if any('openjp' in item['path'].casefold() or 'qjp2' in item['path'].casefold()
+           for item in inventory['native_files']):
+        raise SystemExit('El portable incluyó un componente JPEG 2000.')
     if sys.platform == 'linux':
         verify_linux_tls(inventory['native_files'])
 

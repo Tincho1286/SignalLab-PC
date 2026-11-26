@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import platform
+import sys
 
 
 def require_pinned_python():
@@ -14,3 +15,6 @@ def require_pinned_python():
 
 if __name__ == '__main__':
     print('CPython', require_pinned_python())
+    if sys.argv[1:] == ['--packaging']:
+        from inspect_packaged_runtimes import require_pinned_qt
+        print('Qt', require_pinned_qt())

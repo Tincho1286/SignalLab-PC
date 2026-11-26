@@ -14,8 +14,10 @@ try {
     if (-not (Test-Path -LiteralPath $pythonExe)) {
         throw 'Primero ejecutá setup_windows.ps1 para preparar el entorno del proyecto.'
     }
-    & $pythonExe -B tools/check_python_runtime.py
+    & $pythonExe -B tools/check_python_runtime.py --packaging
     if ($LASTEXITCODE -ne 0) { throw 'Ejecutá setup_windows.ps1 para actualizar el entorno de construcción.' }
+    & $pythonExe -B tools/build_pillow_runtime.py
+    if ($LASTEXITCODE -ne 0) { throw 'No se pudo preparar Pillow sin JPEG 2000.' }
     if ([string]::IsNullOrWhiteSpace($Name)) {
         $Name = & $pythonExe -B -c 'from tools.windows_version import version_metadata; print(version_metadata()[1]["filename"][:-4])'
         if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($Name)) { throw 'No se pudo obtener el nombre portable de la versión de origen.' }

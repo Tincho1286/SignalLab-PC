@@ -40,12 +40,12 @@ Los datos se guardan donde elijas al exportarlos y la configuración permanece e
 
 ## Construir desde el código
 
-Con Python 3.12 de 64 bits y los requisitos gráficos disponibles:
+Usá la versión de CPython x86-64 de `.python-version`. En Ubuntu, la construcción de Pillow requiere un compilador de C y C++ y las cabeceras de zlib, JPEG, TIFF y WebP. GitHub Actions prepara esas dependencias para el empaquetado.
 
 ```sh
-python3.12 -m venv .venv
+python3.14 -m venv .venv
 .venv/bin/python -m pip install -r requirements-lock.txt -r requirements-quality.txt
 bash build_portable_linux.sh
 ```
 
-La construcción ejecuta los controles matemáticos, de código y de reutilización exigidos por el proyecto. Las salidas quedan en `outputs/`. El [flujo de GitHub Actions](https://github.com/Tincho1286/SignalLab-PC/actions/workflows/portable.yml) construye también el instalador y comprueba la instalación real con la aplicación empaquetada. [Guía de publicación](development/releases.md).
+La construcción genera Pillow sin JPEG 2000 y ejecuta los controles matemáticos, de código y de reutilización del proyecto. Las salidas quedan en `outputs/`. El [flujo de GitHub Actions](https://github.com/Tincho1286/SignalLab-PC/actions/workflows/portable.yml) construye también el instalador y comprueba la instalación real con la aplicación empaquetada. [Guía de publicación](development/releases.md).

@@ -13,12 +13,15 @@ pillow==13.0.0
 pyinstaller==6.22.3
 pyinstaller-hooks-contrib==2026.9
 pyparsing==3.3.3
-PySide6_Essentials==6.12.0
+# Qt's 6.12.1 desktop builds, pinned until the corresponding PyPI wheels are available.
+PySide6_Essentials @ https://download.qt.io/snapshots/ci/pyside/6.12.1/592558ac336742a93200f55e15c09e8e17eb13a5/pyside6/pyside6_essentials-6.12.1-cp310-abi3-win_amd64.whl#sha256=f51cfdaa6196b49c661d443e3d13feaa2f4fd74dc93e64128a7f6b09bf37be30 ; sys_platform == "win32" and platform_machine == "AMD64"
+PySide6_Essentials @ https://download.qt.io/snapshots/ci/pyside/6.12.1/592558ac336742a93200f55e15c09e8e17eb13a5/pyside6/pyside6_essentials-6.12.1-cp310-abi3-manylinux_2_34_x86_64.whl#sha256=498211aa910e3867d9ec2d0f707c7b176a1bd84486eb9e05d3f39c0e86abb2dd ; sys_platform == "linux" and platform_machine == "x86_64"
 python-dateutil==2.9.0.post0
 pywin32-ctypes==0.2.3; sys_platform == "win32"
 scipy==1.18.1
 setuptools==84.2.1
-shiboken6==6.12.0
+shiboken6 @ https://download.qt.io/snapshots/ci/pyside/6.12.1/592558ac336742a93200f55e15c09e8e17eb13a5/pyside6/shiboken6-6.12.1-cp310-abi3-win_amd64.whl#sha256=14cabdf77542608ce1df6d7d5e65bf2c18cfe7d5b905cd49997401c1cb76ffc4 ; sys_platform == "win32" and platform_machine == "AMD64"
+shiboken6 @ https://download.qt.io/snapshots/ci/pyside/6.12.1/592558ac336742a93200f55e15c09e8e17eb13a5/pyside6/shiboken6-6.12.1-cp310-abi3-manylinux_2_34_x86_64.whl#sha256=e46b1a7cdfe054a047f713ee01e19b5777ab7d06c27aa2842808c0b27f8050a2 ; sys_platform == "linux" and platform_machine == "x86_64"
 six==1.17.0
 sympy==1.14.0
 

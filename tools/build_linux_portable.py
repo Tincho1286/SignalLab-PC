@@ -3,6 +3,9 @@ from pathlib import Path
 from importlib import metadata
 import ast,hashlib,json,os,platform,re,shutil,subprocess,sys,tarfile
 from check_python_runtime import require_pinned_python
+from build_pillow_runtime import prepare_pillow
+from inspect_packaged_runtimes import require_pinned_qt
+from packaging.requirements import Requirement
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -17,8 +20,11 @@ def collect_notices(destination):
     records=[]
     names=[]
     for line in (ROOT/'requirements-lock.txt').read_text(encoding='utf-8').splitlines():
-        if '==' not in line:continue
-        name=line.split('==',1)[0]
+        line=line.strip()
+        if not line or line.startswith('#'):continue
+        requirement=Requirement(line)
+        if requirement.marker and not requirement.marker.evaluate():continue
+        name=requirement.name
         try:dist=metadata.distribution(name)
         except metadata.PackageNotFoundError:continue  # Windows-only markers.
         if dist.metadata['Name'] in names:continue
@@ -43,6 +49,8 @@ def sha256(path):
 def main():
     require_pinned_python()
     if sys.platform!='linux' or platform.machine().lower() not in ('x86_64','amd64'):raise SystemExit('Build this portable on Linux x86_64.')
+    require_pinned_qt()
+    prepare_pillow()
     subprocess.run([sys.executable,'-B',str(ROOT/'tools/check_static.py')],cwd=ROOT,check=True)
     subprocess.run([sys.executable,'-B',str(ROOT/'tools/check_math.py')],cwd=ROOT,check=True)
     subprocess.run([sys.executable,'-B',str(ROOT/'tools/check_workflows.py')],cwd=ROOT,check=True)

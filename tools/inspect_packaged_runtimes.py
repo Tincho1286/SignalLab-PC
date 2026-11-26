@@ -13,6 +13,21 @@ from tempfile import TemporaryDirectory
 from PyInstaller.archive.readers import CArchiveReader
 
 
+PINNED_QT_VERSION = '6.12.1'
+
+
+def require_pinned_qt():
+    from PySide6 import __version__ as pyside_version
+    from PySide6.QtCore import qVersion
+    from shiboken6 import __version__ as shiboken_version
+
+    versions = qVersion(), pyside_version, shiboken_version
+    if any(version != PINNED_QT_VERSION for version in versions):
+        raise SystemExit(f'Se requiere Qt, PySide6 y shiboken6 {PINNED_QT_VERSION}. '
+                         f'El entorno contiene {", ".join(versions)}. Instalá requirements-lock.txt.')
+    return PINNED_QT_VERSION
+
+
 def inspect_binary(path):
     archive = CArchiveReader(str(path))
     native = {}
