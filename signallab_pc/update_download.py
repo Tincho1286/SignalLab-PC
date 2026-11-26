@@ -9,7 +9,8 @@ import time
 import urllib.error
 import urllib.parse
 import urllib.request
-from .update_manifest import FEED_URL, MAX_MANIFEST, UpdateError, verify_manifest
+from .release_policy import LTS_FAMILY
+from .update_manifest import FEED_URL, MAX_MANIFEST, UpdateError, verify_manifest, version_tuple
 
 HOSTS = {'github.com', 'release-assets.githubusercontent.com', 'objects.githubusercontent.com'}
 
@@ -75,7 +76,11 @@ def _fetch_manifest(url, *, cancel=None, opener=open_url, key=None, now=None, ex
                     raise UpdateError('El manifiesto supera el tamaño permitido.')
             data = bytes(data)
         checkpoint(cancel)
-        return verify_manifest(data, key=key, now=now,expected_channel=expected_channel,expected_version=expected_version)
+        release = verify_manifest(data, key=key, now=now, expected_channel=expected_channel,
+                                  expected_version=expected_version)
+        if expected_channel == 'stable' and version_tuple(release.version)[:2] != LTS_FAMILY:
+            raise UpdateError('El canal estable requiere una actualización de la familia LTS 2.0.x.')
+        return release
     except urllib.error.HTTPError as exc:
         if exc.code == 404:
             raise UpdateError('Todavía no hay un canal de actualizaciones firmado publicado. Podés consultar las versiones en GitHub.') from exc

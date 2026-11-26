@@ -38,7 +38,7 @@ class UpdateDialog(QDialog):
         self.setWindowTitle('Actualizaciones de SignalLab PC'); self.resize(540, 380)
         layout = QVBoxLayout(self)
         self.heading = QLabel('Versión instalada: ' + __version__ + (' · Preliminar' if __release_channel__=='preview' else '')); layout.addWidget(self.heading)
-        self.channel=QComboBox();self.channel.addItem('Sólo versiones estables','stable');self.channel.addItem('Estables y preliminares (Pre-releases)','preview')
+        self.channel=QComboBox();self.channel.addItem('Stable/LTS 2.0.x','stable');self.channel.addItem('Incluir preliminares de Engineering','preview')
         self.channel.setCurrentIndex(self.channel.findData(controller.channel));self.channel.setAccessibleName('Canal de actualización')
         layout.addWidget(QLabel('Versiones que querés recibir'));layout.addWidget(self.channel);self.channel.currentIndexChanged.connect(controller.channel_changed)
         self.status = QLabel('Comprobá si hay una versión nueva en el canal elegido.'); self.status.setWordWrap(True)

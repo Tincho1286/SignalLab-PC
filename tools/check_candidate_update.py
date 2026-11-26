@@ -14,7 +14,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from signallab_pc import __version__
+from signallab_pc import __release_channel__, __version__
 from signallab_pc.update_download import download, file_hash
 from signallab_pc.update_manifest import FILENAMES, REPOSITORY, UpdateError, verify_manifest
 
@@ -60,7 +60,8 @@ def main():
     now = datetime.now(timezone.utc).replace(microsecond=0)
     url = f'https://github.com/{REPOSITORY}/releases/download/v{__version__}/{name}'
     checksum = file_hash(args.installer)
-    payload = dict(schema=1, channel='stable', version=__version__,
+    channel = __release_channel__
+    payload = dict(schema=1, channel=channel, version=__version__,
                    published_at=now.isoformat().replace('+00:00','Z'),
                    expires_at=(now+timedelta(days=1)).isoformat().replace('+00:00','Z'),
                    notes='Instalador descartable del candidato', assets={target:dict(
@@ -68,13 +69,20 @@ def main():
     key = Ed25519PrivateKey.generate()
     signed = envelope(payload,key)
     try:
-        verify_manifest(signed, expected_version=__version__, now=now)
+        verify_manifest(signed, expected_channel=channel, expected_version=__version__, now=now)
     except UpdateError:
         pass
     else:
         raise ValueError('La clave de producción no debe aceptar la firma de prueba.')
-    source = verify_manifest(signed, key=key.public_key().public_bytes_raw(),
-                             expected_version=__version__, now=now)
+    public = key.public_key().public_bytes_raw()
+    source = verify_manifest(signed, key=public, expected_channel=channel, expected_version=__version__, now=now)
+    isolated_channel = 'stable' if channel == 'preview' else 'preview'
+    try:
+        verify_manifest(signed, key=public, expected_channel=isolated_channel, now=now)
+    except UpdateError:
+        pass
+    else:
+        raise ValueError('El manifiesto de prueba no puede cruzar entre Stable/LTS y Preview.')
     if source.newer_than(__version__) or not source.newer_than('0.0.1'):
         raise ValueError('El actualizador no interpretó correctamente la versión.')
     with TemporaryDirectory(prefix='signallab-update-audit-') as folder:
@@ -99,7 +107,8 @@ def main():
     args.output.parent.mkdir(parents=True,exist_ok=True)
     args.output.write_text(json.dumps(dict(platform=target, sha256=checksum,
         temporary_signature_verified=True, production_key_rejected_test_signature=True,
-        download_verified=True, native_installation=proof, upgrade_from_stable=upgrade), indent=2)+'\n', encoding='utf-8')
+        channel=channel, other_channel_rejected=True, download_verified=True,
+        native_installation=proof, upgrade_from_stable=upgrade), indent=2)+'\n', encoding='utf-8')
 
 
 if __name__ == '__main__':

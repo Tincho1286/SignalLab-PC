@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><strong>Descargar estable</strong></a> ·
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><strong>Descargar Stable/LTS</strong></a> ·
   <a href="#engineering-core-en-develop">Engineering Core</a> ·
   <a href="docs/getting-started.md">Primeros pasos</a> ·
   <a href="docs/tools.md">Herramientas</a> ·
@@ -30,7 +30,9 @@ python -m signallab_pc dsp-pipeline --signal work/ejemplos-core/entrada.json --o
 
 Los ejemplos reproducibles cubren DFT, IDFT y el flujo DSP. El expediente de Fase 02C documenta la cobertura, la compatibilidad de proyectos y los instaladores comprobados en Windows y Ubuntu. [Ejemplos de Python y CLI](docs/engineering/phase_02b/ENGINEERING_CORE_EXAMPLES.md) · [Validación de 02C](docs/engineering/phase_02c/validation/FINAL_VALIDATION_MATRIX.md)
 
-En `develop`, el área **Comunicaciones digitales** permite modular bits, diseñar pulsos, aplicar AWGN, recuperar símbolos y medir BER, SER y EVM. El enlace integrado reúne las etapas en un experimento que conserva muestras, reloj y procedencia. Incluye figuras de constelación, I/Q, ojo y espectro. [Fase 03 y auditoría matemática](docs/engineering/phase_03/README.md)
+### Laboratorio de comunicaciones digitales en develop
+
+La Fase 03 incorpora modulación PSK y QAM, diseño de pulsos RC/RRC, ruido AWGN calibrado, recuperación asistida o con piloto y mediciones BER, SER y EVM. El enlace integrado guarda las muestras, el reloj y la procedencia del experimento. Podés comparar constelaciones, señales I/Q, diagramas de ojo y espectros, o ejecutar un barrido y retomarlo desde la última corrida verificada. [Expediente y ejemplos](docs/engineering/phase_03/README.md)
 
 ```bash
 python -m signallab_pc communications link --bits 4096 --seed 2026 --eb-n0 6 --output enlace.slproj
@@ -38,7 +40,7 @@ python -m signallab_pc communications link --bits 4096 --seed 2026 --eb-n0 6 --o
 
 ## Descargar la versión estable
 
-**2.0.0** corresponde a la distribución estable de la rama `main`. [Notas de la versión](docs/releases/v2.0.0.md) · [Código fuente y sumas SHA‑256](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.0.0)
+**2.0.0** es la base de la familia **Stable/LTS 2.0.x**. Las entregas Preview de Engineering siguen un canal independiente que se activa explícitamente en el actualizador. [Notas de la versión](docs/releases/v2.0.0.md) · [Código fuente y sumas SHA‑256](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.0.0) · [Política de ramas y publicaciones](docs/engineering/RELEASE_POLICY.md)
 
 | Plataforma | Instalable | Portable |
 | --- | --- | --- |

@@ -53,6 +53,7 @@ La [Fase 02B](phase_02b/README.md) consolida la frontera de aplicación después
 | 07 · Punto fijo y FPGA | Formatos Q, palabra/fracción, redondeo, saturación/wraparound, acumuladores, sensibilidad, exportación y vectores. | Vectores bit a bit contra referencia bajo modo y escala documentados. Comparación con flotante sin perder los casos especiales. |
 | 08 · Simulación de sistemas | Evolución del editor a grafos con puertos tipados, relojes, multitasa y bloques LTI/no lineales/variantes. | Detectar ciclos algebraicos, errores de unidades y relojes incompatibles. Guardar y volver a ejecutar con la misma semilla y tolerancia. |
 | 09 · Plataforma integrada | Plugins opcionales, SoapySDR, RTL-SDR, PlutoSDR, USRP, SCPI/PyVISA, instrumentos de RF, reportes y notebooks. | Smoke sin hardware, pruebas en dispositivos representativos y documentación de los límites. El núcleo no necesita drivers ni GNU Radio para iniciar. |
+| 10 · Final Engineering Consolidation & Qualification | Consolidar arquitectura, matemática, seguridad, rendimiento, almacenamiento e interoperabilidad. Auditar integralmente el producto y calificar la distribución y el mantenimiento a largo plazo. | Cobertura global ≥99 % de líneas, ramas y funciones. Componentes críticos ≥99 % de líneas y ramas. Oráculos independientes, matriz del mismo SHA, artefactos verificados y dictámenes de calificación y mantenimiento. |
 
 La primera validación de AWGN se necesita en Fase 03 para el demostrador. La Fase 04 amplía el mismo contrato y su implementación. Las dependencias recomendadas para pruebas de concepto y sus condicionantes están en [DEPENDENCY_AUDIT](DEPENDENCY_AUDIT.md).
 
@@ -60,4 +61,6 @@ La [Fase 02C](phase_02c/README.md) evalúa la solidez del Core antes de ese camb
 
 ## Estado de continuidad
 
-La Fase 02C tiene cierre técnico. La Fase 03 está autorizada y comienza con la matriz de consolidación del Core y la auditoría científica. La distribución sigue el flujo de `main`, con E-04 abierto como seguimiento. [Quality Gate de 02C](phase_02c/validation/QUALITY_GATE_REPORT.md#cierre-técnico-de-fase-02c) · [Fase 03](phase_03/README.md)
+La Fase 02C tiene cierre técnico y la Fase 03 está autorizada en `develop`. E-04 permanece como seguimiento independiente. Cada fase de la 03 a la 09 requiere su Quality Gate, una prerelease autorizada, validación funcional del propietario y aprobación expresa para integrar. Stable/LTS mantiene una línea de distribución independiente sobre la familia 2.0.x. [Política de ramas y entregas](RELEASE_POLICY.md) · [Fase 03](phase_03/README.md)
+
+La Fase 10 sigue a la Fase 09 y requiere autorización específica. La cobertura de funciones contará entradas que ejecuten el cuerpo de cada función instrumentada dentro del mismo universo que las métricas de líneas y ramas. El protocolo fijará el inventario, las categorías y la reconciliación con el informe de cobertura antes de medir. El objetivo conserva denominadores y exclusiones auditables. Cada fase anterior debe resolver su deuda y sus riesgos en el alcance que le corresponde.

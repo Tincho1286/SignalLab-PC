@@ -6,7 +6,7 @@ El proceso actual construye instaladores y portables en Windows y Linux, y firma
 
 ## Construcción identificada
 
-El [flujo de distribuciones](../../.github/workflows/portable.yml) se inicia manualmente sobre `main` o una etiqueta `v…`. Construye ambas plataformas por defecto, utiliza el commit seleccionado y las dependencias fijadas, y ejecuta los controles matemáticos, estáticos y de reutilización. Después genera y comprueba los instaladores nativos.
+El [flujo de distribuciones](../../.github/workflows/portable.yml) se inicia manualmente con el canal y el SHA de construcción. Preview parte de `develop`. Stable/LTS parte del código de la familia 2.0.x. Se compilan ambas plataformas por defecto con las dependencias fijadas y se comprueban los instaladores nativos. [Guía de publicación](releases.md)
 
 Cada salida conserva versión, hash y procedencia. Los comprobantes de instalador incluyen el commit y una huella del código relevante normalizada para que la misma fuente tenga la misma identidad en ambos sistemas. No se acepta un portable antiguo sin actualizador como base de un nuevo instalador.
 
@@ -32,7 +32,7 @@ La vigencia predeterminada es de 90 días. Para renovarla hay que volver a verif
 
 ## Firmar una preliminar compatible con el actualizador
 
-La versión de la aplicación y la etiqueta conservan tres componentes numéricos: por ejemplo, `1.8.4` y `v1.8.4`. Para una entrega preliminar agregá `--channel preview` al comando de firma y publicala en GitHub con `prerelease=true`. Para una estable usá `--channel stable` (predeterminado) y `prerelease=false`. El canal forma parte de los datos firmados; cambiarlo requiere generar un manifiesto nuevo a partir de los mismos instaladores verificados. No basta con editar el JSON o el estado de la Release.
+La versión de la aplicación y la etiqueta conservan tres componentes numéricos. Las entregas Preview usan `2.1.0` o posterior, `--channel preview` y `prerelease=true`. Las entregas de la familia 2.0.x usan `--channel stable` (predeterminado) y `prerelease=false`. El canal forma parte de los datos firmados. Cualquier cambio de canal requiere volver a verificar los instaladores y firmar el manifiesto correspondiente.
 
 El cliente estable no acepta manifiestos del canal preliminar. El cliente que incluye preliminares verifica además que la versión firmada coincida con la etiqueta consultada. Las etiquetas históricas con sufijos como `-preview` siguen disponibles en GitHub, pero no se incorporan a este protocolo de actualización.
 

@@ -12,7 +12,8 @@ sys.path.insert(0, str(ROOT))
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives import serialization
 from signallab_pc.update_download import file_hash
-from signallab_pc.update_manifest import FILENAMES, REPOSITORY, public_key, verify_manifest, version_tuple
+from signallab_pc.update_manifest import FILENAMES, REPOSITORY, public_key, verify_manifest
+from signallab_pc.release_policy import publication_version
 from signallab_pc import __version__ as APP_VERSION
 
 
@@ -35,8 +36,7 @@ def generate(private_path, public_path):
 
 
 def sign(version, paths, key_bytes, notes, days=90, now=None, channel='stable'):
-    version_tuple(version)
-    if channel not in ('stable','preview'):raise ValueError('El canal debe ser stable o preview.')
+    publication_version(version, channel)
     if not 1 <= days <= 366:
         raise ValueError('La vigencia debe estar entre 1 y 366 días.')
     private = serialization.load_pem_private_key(key_bytes, password=None)

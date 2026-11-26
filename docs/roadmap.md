@@ -25,3 +25,5 @@ Consolidar las herramientas de Sistemas y Señales I/II y Señales Aleatorias, r
 ## Seguimiento de los avances
 
 El [historial de cambios](../CHANGELOG.md) y las [notas de versiones](releases/README.md) describen las mejoras ya publicadas. Los [alcances de Sistemas y Señales I/II](scope/sys-i-ii.md) y [Señales Aleatorias](scope/random-signals.md) permiten contrastar estas líneas de trabajo con los contenidos de cada área.
+
+SignalLab Engineering tiene una [hoja de ruta por fases](engineering/ROADMAP.md) con criterios de validación científica, cobertura y distribución. Las entregas de esas fases se preparan en `develop` y se prueban en Preview. La familia Stable/LTS 2.0.x sigue su [política de mantenimiento independiente](engineering/RELEASE_POLICY.md).

@@ -2,17 +2,19 @@
 
 [← Desarrollo](README.md)
 
-Las entregas actuales ofrecen instaladores y portables para Windows x64 y Linux x86_64. Una publicación reúne los archivos construidos, su fuente correspondiente, las licencias y los checksums; el canal estable añade el manifiesto firmado de actualización. Compilar un artefacto y publicar una Release son etapas diferentes.
+Las entregas ofrecen instaladores y portables para Windows x64 y Linux x86_64. Stable/LTS mantiene la familia 2.0.x. Preview reúne los avances acumulativos de SignalLab Engineering desde 2.1.0. Ambos canales requieren manifiesto firmado y archivos identificados por sus checksums. [Política de publicación y mantenimiento](../engineering/RELEASE_POLICY.md)
 
 ## Preparar la entrega
 
 Actualizá la versión en `signallab_pc/__init__.py`, redactá `docs/releases/vVERSION.md` y revisá las descargas del README, el changelog y los índices de versiones. Las notas deben explicar el problema o capacidad que cambia, el comportamiento resultante y sus límites, agrupando las áreas relacionadas en párrafos conectados. Los objetivos pendientes pertenecen a la hoja de ruta, sin prometer una versión futura.
 
-Guardá todo en un commit y subilo a `main` antes de construir. La versión de los archivos, los metadatos del ejecutable y el código deben coincidir. Las etiquetas de una entrega existente no se mueven para acomodar una construcción nueva.
+Para Preview, prepará el commit limpio en `develop` y verificá el mismo SHA en Windows y Linux. Para mantenimiento LTS, trabajá desde la última etiqueta estable en un checkout desacoplado. El commit de mantenimiento puede incorporar las adaptaciones de infraestructura necesarias para repetir los controles. La versión de los archivos, los metadatos y el código deben coincidir. El propietario autoriza la publicación y la creación de su etiqueta después de revisar el candidato.
 
 ## Construir portables e instaladores
 
-El [flujo de distribuciones](../../.github/workflows/portable.yml) permite elegir `both`, `windows` o `linux`, con ambas plataformas como opción predeterminada. Utilizá `request_signing=false` mientras no exista un servicio Authenticode aprobado. El flujo ejecuta los controles requeridos, genera los portables, construye los instaladores por usuario y comprueba instalación, actualización y desinstalación en los sistemas nativos.
+El [flujo de distribuciones](../../.github/workflows/portable.yml) recibe el canal, el SHA completo y las plataformas. Preview se ejecuta sobre `develop`. Stable/LTS admite `main` cuando contiene código de esa familia o una etiqueta LTS coincidente con el código. Un candidato LTS desacoplado que todavía no tiene etiqueta se compila y valida desde ese mismo commit en cada sistema. Usá `request_signing=false` mientras no haya un servicio Authenticode aprobado.
+
+El Quality Gate de Fase 03 produce directamente los adjuntos del candidato para ambos sistemas. Guardá los comprobantes `candidate-windows.json` y `candidate-linux.json` con sus paquetes y el informe de la misma ejecución. Así se puede preparar la entrega a partir de lo que se probó. Los artefactos de Actions tienen retención temporal.
 
 Para construir localmente un portable Windows con el entorno preparado:
 
@@ -49,15 +51,15 @@ Firmá localmente `SignalLab-updates.json` con los dos instaladores verificados 
 | `SignalLab-updates.json` | Metadatos firmados para el canal de actualización. |
 | `SHA256SUMS-VERSION.txt` | Integridad de los adjuntos; no incluye su propio hash. |
 
-Si las plataformas se construyeron desde commits distintos, conservá sus fuentes y procedencias diferenciadas. No atribuyas a ambas un único archivo de fuentes que no corresponda a una de ellas.
+Las entregas nuevas requieren un único SHA validado en las dos plataformas. La fuente y los comprobantes deben identificar el mismo SHA.
 
 ## Publicar en GitHub
 
-La herramienta `tools/github_release.py` comprueba el checkout y la correspondencia con `origin/main`. Se le pasan las notas mediante un archivo y cada adjunto mediante `--file`. La opción `--stable` publica una estable; sin ella se publica una preliminar. `--allow-public` habilita expresamente el repositorio público configurado.
+Con la autorización del propietario, usá `tools/github_release.py` con `--candidate SHA_COMPLETO`, `--quality-gate INFORME.json`, el archivo de notas y un `--file` por adjunto. `--allow-public` habilita el repositorio público configurado. Preview comprueba que el SHA pertenezca a `develop`. Para Stable/LTS usá `--stable --lts-base v2.0.X` desde el checkout desacoplado que contiene el candidato.
 
 Las entregas con instaladores necesitan un manifiesto firmado entre sus adjuntos. El publicador comprueba el canal, la coincidencia entre versión y etiqueta y los tamaños y hashes de todos los instaladores declarados antes de crear la publicación. Para preliminares compatibles se utilizan etiquetas numéricas y `--channel preview` al firmar, como explica la [guía de firma](signing.md).
 
-El publicador crea un borrador, sube y verifica los archivos y luego activa la publicación. Conserva el commit exacto de construcción y fecha las etiquetas nuevas con la hora de GitHub. Una etiqueta existente que apunte a otro commit provoca un error y no se reemplaza.
+El publicador crea un borrador, sube y verifica los archivos y luego activa la publicación. Conserva el commit exacto de construcción y rechaza una etiqueta que apunte a otro commit. También conserva las entregas que ya están públicas.
 
 Después de publicar una estable, comprobá que sea la descarga principal y que `releases/latest/download/SignalLab-updates.json` entregue el manifiesto esperado con una firma válida. Las preliminares no deben reemplazar ese canal. Revisá también que todos los enlaces del README apunten a adjuntos realmente disponibles.
 

@@ -18,7 +18,7 @@ Con **Comprobar actualizaciones al iniciar** activado en la edición instalada, 
 
 La edición portable permite consultar las versiones y abrir las descargas oficiales. Su archivo no se reemplaza mediante la instalación automática; si elegís otro portable, seguís utilizando el formato independiente.
 
-Las preliminares permiten probar cambios antes de su entrega estable. Se ofrecen únicamente si son posteriores a la versión instalada, tienen instalador compatible y un manifiesto firmado válido del canal preliminar. El diálogo identifica ese canal y mantiene también las estables como candidatas. Las preliminares históricas sin ese manifiesto se pueden consultar en GitHub, pero no se instalan desde el actualizador.
+Stable/LTS entrega las actualizaciones de mantenimiento de la familia 2.0.x. Preview permite probar los avances de Engineering mediante la opción explícita del diálogo. Una preliminar se ofrece si es posterior a la versión instalada, tiene un instalador compatible y presenta un manifiesto firmado válido de su canal. El diálogo identifica Preview y conserva las estables compatibles como candidatas. Las preliminares históricas sin manifiesto están disponibles para descarga manual en GitHub. [Política de los canales](engineering/RELEASE_POLICY.md)
 
 Volver a **Sólo versiones estables** no instala una versión anterior: si tu preliminar es más nueva, se esperará a una estable posterior. Cambiar el canal descarta la selección de descarga anterior y realiza una consulta nueva. Si no puede completarse la consulta de preliminares, el diálogo lo informa y conserva únicamente las versiones que logró verificar.
 
