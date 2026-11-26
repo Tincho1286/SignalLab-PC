@@ -75,3 +75,7 @@ Se adoptó Qt 6.12.1 desde el lote oficial fijado y se excluyó el decodificador
 ## Aprobación de E-05 y cierre del Core
 
 El mantenedor informó sus pruebas manuales en otro escritorio Linux y aprobó E-05 en Linux el 26/11/2026. La aceptación completa los requisitos de escritorio del cierre técnico. La repetición independiente queda disponible con acceso al escritorio Linux. El inicio de Fase 03 y la distribución conservan decisiones propias. [Aprobación](validation/EXCEPTION_APPROVAL_REGISTER.md#resolución-de-e-05) · [Dictamen](validation/QUALITY_GATE_REPORT.md#cierre-técnico-de-fase-02c)
+
+## Política de distribución y E-04
+
+El 26/11/2026 el mantenedor ratificó el flujo de distribución vigente de `main` y dejó E-04 abierto como seguimiento sin bloqueo de entregas. La guía de publicación establece los controles de cada entrega, incluido el manifiesto firmado para instaladores. [Registro de E-04](validation/EXCEPTION_APPROVAL_REGISTER.md#seguimiento-de-e-04) · [Guía de publicación](../../development/releases.md)

@@ -134,6 +134,8 @@ El 26/11/2026 el mantenedor aprobó E-05 en Linux tras realizar las pruebas manu
 | --- | --- | --- |
 | Cierre de Engineering Core | **GO** | La matriz integral de `a80508c` aprobó los 37 controles por plataforma y acreditó E-06a–j. La auditoría focalizada de `64dc3c4` resolvió E-01. E-02, E-03 y E-05 cuentan con aprobación explícita para los alcances registrados. |
 | Preparación técnica para Fase 03 | **GO dentro de los perfiles validados** | La campaña de 48 corridas y la envolvente aprobada permiten planificar el trabajo siguiente. Su inicio requiere autorización específica del mantenedor. |
-| Distribución pública | **NO-GO** | E-04 sigue abierto para la firma de producción y el canal público. |
+| Distribución pública | **GO por el flujo vigente de `main`** | El mantenedor autorizó que E-04 quede abierto como seguimiento sin bloquear las entregas. Cada publicación requiere su autorización específica. |
 
 Cada verificación automatizada conserva la revisión que se ejecutó en los dos sistemas. La aceptación del escritorio Linux procede de las pruebas manuales informadas por el mantenedor. [Matriz integral](FINAL_VALIDATION_MATRIX.md#resultado-de-a80508c) · [Auditoría de empaquetado](FINAL_VALIDATION_MATRIX.md#verificación-de-empaquetado-e-01) · [Aprobaciones](EXCEPTION_APPROVAL_REGISTER.md)
+
+La distribución sigue el procedimiento vigente de `main`. El publicador verifica el manifiesto firmado de las entregas con instaladores. E-04 registra el seguimiento de Authenticode y de la validación adicional del canal público. [Decisión de distribución](EXCEPTION_APPROVAL_REGISTER.md#seguimiento-de-e-04) · [Procedimiento de publicación](../../../development/releases.md)

@@ -62,3 +62,5 @@ La auditoría de `64dc3c4` acreditó Qt 6.12.1 y la retirada de OpenJPEG en los 
 ## Aceptación de escritorio al cierre
 
 E-05 queda aprobada por las pruebas manuales de Linux informadas por el mantenedor y por el acta de Windows. Una reproducción independiente en Linux conserva el protocolo de escalado y los flujos de interfaz. La firma de producción y el canal público permanecen bajo E-04. [Acta](../gui/DESKTOP_CONTINUATION.md#aprobación-de-linux-de-escritorio) · [Dictamen](QUALITY_GATE_REPORT.md#cierre-técnico-de-fase-02c)
+
+E-04 registra el seguimiento de Authenticode y del canal público. El mantenedor aprobó continuar la distribución por el flujo de `main` con ese seguimiento abierto. [Decisión de distribución](EXCEPTION_APPROVAL_REGISTER.md#seguimiento-de-e-04)

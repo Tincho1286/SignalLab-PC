@@ -51,4 +51,4 @@ La matriz única verificó las correcciones C-11 de identidad de rutas y C-08 de
 
 C-01 resuelve E-01 con los binarios de `64dc3c4` en las dos plataformas. El seguimiento de HDF5 corresponde a C-02 y al alcance ya aprobado de MAT. La firma y el canal público conservan E-04. [Resolución técnica](EXCEPTION_APPROVAL_REGISTER.md#resolución-técnica-de-e-01)
 
-La aprobación del mantenedor de sus pruebas manuales de Linux completa E-05. El saldo de distribución pública corresponde a E-04. [Resolución de E-05](EXCEPTION_APPROVAL_REGISTER.md#resolución-de-e-05) · [Cierre del Core](QUALITY_GATE_REPORT.md#cierre-técnico-de-fase-02c)
+La aprobación del mantenedor de sus pruebas manuales de Linux completa E-05. E-04 conserva el seguimiento de firma y canal. La distribución pública sigue el flujo habitual de `main` con E-04 fuera de los criterios de bloqueo. [Resolución de E-05](EXCEPTION_APPROVAL_REGISTER.md#resolución-de-e-05) · [Seguimiento de E-04](EXCEPTION_APPROVAL_REGISTER.md#seguimiento-de-e-04)

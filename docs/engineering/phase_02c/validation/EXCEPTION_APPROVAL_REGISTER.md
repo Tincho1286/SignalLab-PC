@@ -1,6 +1,8 @@
 # Aprobación de excepciones
 
-Estado vigente en las [aprobaciones de E-02 y E-03](#aprobaciones-del-mantenedor-del-26-de-noviembre-de-2026), la [resolución técnica de E-01](#resolución-técnica-de-e-01) y la [resolución de E-05](#resolución-de-e-05). E-04 corresponde al dictamen de distribución pública.
+Estado vigente en las [aprobaciones de E-02 y E-03](#aprobaciones-del-mantenedor-del-26-de-noviembre-de-2026), la [resolución técnica de E-01](#resolución-técnica-de-e-01), la [resolución de E-05](#resolución-de-e-05) y el [seguimiento de E-04](#seguimiento-de-e-04).
+
+## Estado inicial
 
 | ID | Excepción | Estado |
 | --- | --- | --- |
@@ -90,3 +92,7 @@ Las decisiones expresas del mantenedor se registran para el expediente del candi
 ## Resolución de E-05
 
 **E-05 aprobada en Windows y Linux.** El 26/11/2026 el mantenedor aprobó expresamente Linux tras realizar sus pruebas manuales en otro escritorio. La aprobación completa el alcance de escritorio de la fase y se suma a la aprobación de Windows ya registrada. La declaración del mantenedor es la evidencia de aceptación de Linux. [Acta de Linux](../gui/DESKTOP_CONTINUATION.md#aprobación-de-linux-de-escritorio) · [Acta de Windows](../gui/DESKTOP_CONTINUATION.md#aceptación-de-los-escalados-de-windows)
+
+## Seguimiento de E-04
+
+**E-04 abierto como seguimiento.** El mantenedor confirmó el 26/11/2026 que las distribuciones públicas siguen el flujo habitual de `main`, con E-04 fuera de los criterios que bloquean una entrega. Quedan registrados el seguimiento de la firma Authenticode de Windows y la validación adicional del canal público. La verificación del manifiesto firmado para los instaladores forma parte del flujo de publicación vigente. Cada publicación requiere su propia autorización. [Dictamen vigente](QUALITY_GATE_REPORT.md#cierre-técnico-de-fase-02c) · [Procedimiento de publicación](../../../development/releases.md)
