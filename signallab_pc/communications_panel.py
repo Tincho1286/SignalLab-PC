@@ -16,6 +16,7 @@ from .communications_channel import (
     AWGNSpec, MultipathSpec, add_awgn, analyze_multipath, apply_multipath, multipath_frequency, parse_channel_path,
 )
 from .communications_data import ConstellationSpec, SymbolClock, SymbolSequence, iq_signal
+from .communications_doppler import CarrierShift, apply_carrier_shift
 from .communications_experiment import ExperimentSpec, run_experiment
 from .communications_fading import FadingSpec, apply_fading, parse_fading_path
 from .communications_metrics import QualitySpec, measure_quality
@@ -39,6 +40,7 @@ _LABELS = {
     'link': 'Ejecutar enlace', 'modulate': 'Modular bits', 'pulse': 'Calcular pulso',
     'awgn': 'Aplicar AWGN', 'multipath': 'Aplicar canal', 'receive': 'Recuperar símbolos', 'decide': 'Decidir símbolos',
     'fading': 'Aplicar fading',
+    'carrier': 'Aplicar frecuencia y fase',
     'measure': 'Medir calidad', 'sweep': 'Ejecutar barrido',
 }
 _CONSTE = 'Constelación'
@@ -51,13 +53,14 @@ _FREQUENCY = 'Respuesta del filtro'
 _CHANNEL_FREQUENCY = 'Respuesta del canal'
 _CHANNEL_TAPS = 'Impulso y perfil de potencia'
 _FADING = 'Evolución del fading'
+_DOPPLER = 'Autocorrelación y PSD Doppler'
 _ERRORS = 'Tasas de error'
 _COMPARISON = 'Comparación de corridas'
 _VIEWS = {
     'link': (_CONSTE, _IQ, _EYE, _SPECTRUM, _PSD, _IMPULSE, _FREQUENCY, _ERRORS),
     'modulate': (_CONSTE, _IQ), 'pulse': (_IMPULSE, _FREQUENCY, _IQ), 'awgn': (_IQ, _PSD),
     'multipath': (_IQ, _SPECTRUM, _CHANNEL_TAPS, _CHANNEL_FREQUENCY),
-    'fading': (_IQ, _SPECTRUM, _FADING),
+    'fading': (_IQ, _SPECTRUM, _FADING, _DOPPLER), 'carrier': (_IQ, _SPECTRUM),
     'receive': (_IQ,), 'decide': (_CONSTE,), 'measure': (), 'sweep': (_COMPARISON,),
 }
 
@@ -388,6 +391,22 @@ class CommunicationsPanel(QWidget):
                   'Retardo = potencia media, K, fase LOS en radianes. Omití K y fase para Rayleigh.')
         self._combo('k_scale', 'Escala de K', (('Lineal', 'linear'), ('dB', 'db')))
         self._line('seed', 'Semilla', 2026)
+        process = self._combo('process', 'Variación temporal', (
+            ('Independiente por muestra', 'iid'), ('Correlacionada · Clarke', 'clarke'),
+        ))
+        doppler = self._line('max_doppler_hz', 'Doppler máximo (Hz)', 20)
+
+        def update_doppler(*_):
+            self._visible(doppler, process.currentData() == 'clarke')
+
+        process.currentIndexChanged.connect(update_doppler)
+        update_doppler()
+
+    def _build_carrier(self):
+        self.source = self._source('Señal de entrada')
+        self._line('frequency_hz', 'Desplazamiento de frecuencia (Hz)', 0,
+                   'Un desplazamiento positivo sube la frecuencia. La entrada requiere Fs para usar esta opción.')
+        self._line('phase_rad', 'Fase en la primera muestra (rad)', 0)
 
     def _build_receive(self):
         self.source = self._source('Registro después del filtro adaptado')
@@ -754,7 +773,10 @@ class CommunicationsPanel(QWidget):
         scale = self._choice('k_scale')
         paths = tuple(parse_fading_path(line, k_scale=scale)
                       for line in self.fields['paths'].toPlainText().splitlines() if line.strip())
-        spec = FadingSpec(paths, self._int('seed'))
+        fd = self._real('max_doppler_hz') if self._choice('process') == 'clarke' else None
+        if self._choice('process') == 'clarke' and fd is None:
+            raise ValueError('Ingresá el Doppler máximo en Hz. Usá cero para un canal fijo durante el registro.')
+        spec = FadingSpec(paths, self._int('seed'), fd)
         source, register = self.source.capture_input()
 
         def accept(result):
@@ -762,7 +784,15 @@ class CommunicationsPanel(QWidget):
             key = store_signal(self.window.project, signal, parents=(register(),))
             self.window.register_publication(key, signal)
             records = {signal.name: (signal, key)}
-            sections = [Section('Proceso independiente por muestra', rows=[('Semilla', spec.seed)])]
+            rows = [('Semilla', spec.seed)]
+            title = 'Proceso independiente por muestra' if fd is None else 'Dispersión Doppler de Clarke'
+            if fd is not None:
+                coherence = signal.metadata['communications_fading']['coherence_seconds']
+                rows.extend([
+                    ('Doppler máximo (Hz)', number(fd)),
+                    ('Coherencia teórica a 0,5 (s)', 'Infinita' if coherence is None else number(coherence)),
+                ])
+            sections = [Section(title, rows=rows)]
             for index, item in enumerate(result.realizations, 1):
                 coefficients = item.coefficients
                 record = self.window.publish(coefficients, operation='Realización de fading', parents=(key,))
@@ -778,11 +808,37 @@ class CommunicationsPanel(QWidget):
                 _IQ: (partial(figures.iq_figure, signal=signal), None),
                 _FADING: (partial(figures.fading_envelope_figure, result=result), None),
             }
+            if fd is not None and signal.metadata.get('sample_rate_hz') and source.values.size >= 2:
+                active = next(((index, item) for index, item in enumerate(result.realizations, 1)
+                               if item.path.average_power), None)
+                if active is not None:
+                    index, path = active
+                    axes[_DOPPLER] = (partial(figures.doppler_diagnostics_figure, path_number=index, fd=fd),
+                                      path.doppler_diagnostics)
             if signal.values.size >= 2:
                 axes[_SPECTRUM] = self._spectral_plot(signal)
             self._display(Summary('Fading Rayleigh y Rician', sections), axes, records)
 
         return lambda: apply_fading(source, spec), accept
+
+    def _run_carrier(self):
+        source, register = self.source.capture_input()
+        spec = CarrierShift(self._real('frequency_hz', 0), self._real('phase_rad', 0))
+
+        def accept(signal):
+            key = store_signal(self.window.project, signal, parents=(register(),))
+            self.window.register_publication(key, signal)
+            axes = {_IQ: (partial(figures.iq_figure, signal=signal), None)}
+            if signal.values.size >= 2:
+                axes[_SPECTRUM] = self._spectral_plot(signal)
+            summary = Summary('Desplazamiento de frecuencia y fase', [Section('Rotación determinista', rows=[
+                ('Desplazamiento (Hz)', number(spec.frequency_hz)),
+                ('Fase en la primera muestra (rad)', number(spec.phase_rad)),
+                ('Primer índice', signal.origin), ('Muestras', signal.values.size),
+            ])])
+            self._display(summary, axes, {signal.name: (signal, key)})
+
+        return lambda: apply_carrier_shift(source, spec), accept
 
     def _run_receive(self):
         source, register = self.source.capture_input()

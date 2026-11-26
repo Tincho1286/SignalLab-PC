@@ -42,7 +42,7 @@ El cálculo suma copias por bloques y evita construir un FIR denso entre ecos. E
 
 Las pruebas comparan contra una convolución calculada de forma independiente, verifican identidad, cancelación, reloj, fase, superposición y persistencia. La misma operación se ejecuta desde Python, CLI y escritorio.
 
-## Fading Rayleigh y Rician independiente
+## Fading Rayleigh y Rician
 
 En **Comunicaciones → Fading Rayleigh y Rician**, configurá una trayectoria por línea con retardo y potencia media. Para Rician agregá factor K y fase LOS en radianes. El selector del resultado alterna entre la salida y las realizaciones de cada trayectoria. El gráfico de evolución muestra la magnitud de los coeficientes.
 
@@ -50,8 +50,19 @@ En **Comunicaciones → Fading Rayleigh y Rician**, configurá una trayectoria p
 python -m signallab_pc communications fading --signal entrada.slbin --path=0=1 "--path=4=0.25,10,pi/2" --k-scale db --seed 2026 --output fading.slproj
 ```
 
-El mismo ejemplo en Python usa `apply_fading(x, FadingSpec((FadingPath(), FadingPath.from_k_db(10, delay_samples=4, average_power=0.25, los_phase_rad=math.pi/2)), 2026))` desde `signallab_pc.communications_fading`. El proceso actual genera coeficientes independientes por muestra. [Potencia, fase y semillas](SCIENTIFIC_CONTRACTS.md#fading-rayleighrician-independiente)
+El mismo ejemplo en Python usa `apply_fading(x, FadingSpec((FadingPath(), FadingPath.from_k_db(10, delay_samples=4, average_power=0.25, los_phase_rad=math.pi/2)), 2026))` desde `signallab_pc.communications_fading`. Este comando genera coeficientes independientes por muestra. [Potencia, fase y semillas](SCIENTIFIC_CONTRACTS.md#fading-rayleighrician)
+
+### Doppler
+
+Para correlacionar el fading, elegí **Clarke** y un Doppler máximo en Hz. Podés abrir el diagnóstico de autocorrelación y PSD de la primera trayectoria activa. En la CLI, `--diagnostics` guarda los diagnósticos por trayectoria con potencia.
+
+```sh
+python -m signallab_pc communications fading --signal entrada.slbin --path=0=1 --doppler-max-hz 64 --diagnostics --output clarke.slproj
+python -m signallab_pc communications shift-carrier --signal entrada.slbin --frequency-hz -128 --phase-rad 0.25 --output desplazamiento.slproj
+```
+
+La entrada debe tener Fs registrada. En Workbench, **Doppler y fase** aplica el desplazamiento constante y la fase inicial de la segunda orden. [Modelo y condiciones](SCIENTIFIC_CONTRACTS.md#dispersión-doppler-de-clarke)
 
 ## Alcance siguiente
 
-Quedan el fading correlacionado, Doppler, offsets, interferencia, desequilibrio I/Q y las variantes de canal previstas para el enlace integrado. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.
+Quedan los offsets temporales, el ruido de fase, la interferencia, el desequilibrio I/Q, las pérdidas de propagación y la integración de los modelos al enlace y los barridos. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.

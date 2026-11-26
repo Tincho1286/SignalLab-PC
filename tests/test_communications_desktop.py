@@ -145,7 +145,7 @@ class CommunicationsDesktopTests(unittest.TestCase):
 
     def test_independent_routes_show_help_and_exchange_clocked_iq(self):
         articles, guides, _ = default_content()
-        for name in ('modulate', 'pulse', 'awgn', 'multipath', 'fading', 'receive', 'decide', 'measure'):
+        for name in ('modulate', 'pulse', 'awgn', 'multipath', 'fading', 'carrier', 'receive', 'decide', 'measure'):
             with self.subTest(name=name):
                 self.assertIn(('communications', name), articles)
                 self.assertIn(('communications', name), guides)
@@ -222,6 +222,24 @@ class CommunicationsDesktopTests(unittest.TestCase):
         entry = next(item for item in launcher.available() if item[2] == 'Evolución del fading')
         launcher.open_entry(entry)
         self.wait()
+
+        panel.fields['process'].setCurrentIndex(1)
+        panel.fields['max_doppler_hz'].setText('120')
+        self.calculate()
+        signal, key = next(iter(panel.records.values()))
+        self.assertEqual(signal.metadata['communications_fading']['specification']['max_doppler_hz'], 120)
+        self.assertIn('Coherencia teórica', panel.result.text.toPlainText())
+        entry = next(item for item in launcher.available() if item[2] == 'Autocorrelación y PSD Doppler')
+        launcher.open_entry(entry)
+        self.wait()
+        carrier_route = ROUTES['communications', 'carrier']
+        self.window.send_signal(signal, key, carrier_route)
+        _, carrier = self.open('carrier')
+        carrier.fields['frequency_hz'].setText('-1000')
+        self.calculate()
+        shifted, _ = next(iter(carrier.records.values()))
+        np.testing.assert_allclose(shifted.values, signal.values*np.exp(-1j*math.pi/4*np.arange(signal.values.size)),
+                                   atol=1e-14)
 
     def test_receive_and_decide_publish_labels_that_metrics_can_load(self):
         _, mapper = self.open('modulate')

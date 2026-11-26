@@ -12,6 +12,7 @@ from .communications_channel import (
     AWGNSpec, MultipathSpec, add_awgn, analyze_multipath, apply_multipath, multipath_frequency, parse_channel_path,
 )
 from .communications_data import ConstellationSpec, SymbolClock, iq_signal
+from .communications_doppler import CarrierShift, apply_carrier_shift
 from .communications_experiment import ExperimentSpec, coherent_monte_carlo, run_experiment
 from .communications_fading import FadingSpec, apply_fading, parse_fading_path
 from .communications_metrics import QualitySpec, measure_quality
@@ -179,21 +180,39 @@ def _multipath(args, ctx):
 
 
 def _fading(args, ctx):
+    if args.diagnostics and args.doppler_max_hz is None:
+        raise ValueError('Indicá --doppler-max-hz para generar diagnósticos Doppler.')
     paths = []
     for value in args.path:
         ctx.checkpoint()
         paths.append(parse_fading_path(value, k_scale=args.k_scale))
     project, workspace, source = load_input(args, ctx)
-    result = apply_fading(source, FadingSpec(tuple(paths), args.seed), ctx)
+    result = apply_fading(source, FadingSpec(tuple(paths), args.seed, args.doppler_max_hz), ctx)
     parent = _source_id(project, args, source)
     key = store_signal(project, result.signal, parents=(parent,), execution=ctx)
     coefficients = []
     for item in result.realizations:
         ctx.checkpoint()
         record = project.add(item.coefficients, operation='Realización de fading', parents=(key,))
-        coefficients.append({'record': record, 'statistics': asdict(item.statistics)})
+        entry = {'record': record, 'statistics': asdict(item.statistics)}
+        if args.diagnostics and item.path.average_power:
+            diagnostics = item.doppler_diagnostics(ctx)
+            entry['coherence_seconds'] = diagnostics.coherence_seconds
+            entry['doppler_records'] = {
+                name: project.add(value, operation='Diagnóstico Doppler', parents=(record,))
+                for name, value in diagnostics.signals().items()
+            }
+        coefficients.append(entry)
     _save(args.output, project, workspace, ctx)
     return {'record': key, 'sample_count': result.signal.values.size, 'paths': coefficients}
+
+
+def _shift_carrier(args, ctx):
+    project, workspace, source = load_input(args, ctx)
+    signal = apply_carrier_shift(source, CarrierShift(args.frequency_hz, args.phase_rad), ctx)
+    record = store_signal(project, signal, parents=(_source_id(project, args, source),), execution=ctx)
+    _save(args.output, project, workspace, ctx)
+    return {'record': record, 'sample_count': signal.values.size}
 
 
 def _receive(args, ctx):
@@ -324,13 +343,21 @@ def main(argv=None):
     add_session_arguments(multipath)
     multipath.set_defaults(execute=_multipath)
 
-    fading = commands.add_parser('fading', help='Aplicá fading Rayleigh/Rician independiente por muestra.')
+    fading = commands.add_parser('fading', help='Aplicá fading Rayleigh/Rician independiente o correlacionado.')
     fading.add_argument('--path', action='append', required=True, metavar='RETARDO=POTENCIA[,K[,FASE]]',
                         help='Retardo en muestras, potencia lineal, K opcional y fase LOS opcional en rad.')
     fading.add_argument('--k-scale', choices=('linear', 'db'), default='linear')
     fading.add_argument('--seed', type=int, default=2026)
+    fading.add_argument('--doppler-max-hz', type=float, help='Usá dispersión Clarke de hasta esta frecuencia en Hz.')
+    fading.add_argument('--diagnostics', action='store_true', help='Guardá autocorrelación, PSD y coherencia por camino.')
     add_session_arguments(fading)
     fading.set_defaults(execute=_fading)
+
+    shift = commands.add_parser('shift-carrier', help='Aplicá un desplazamiento determinista de frecuencia y fase.')
+    shift.add_argument('--frequency-hz', type=float, default=0.0)
+    shift.add_argument('--phase-rad', type=float, default=0.0)
+    add_session_arguments(shift)
+    shift.set_defaults(execute=_shift_carrier)
 
     receiver = commands.add_parser('receive', help='Sincronizá y recuperá muestras de símbolo.')
     _synchronization_arguments(receiver)

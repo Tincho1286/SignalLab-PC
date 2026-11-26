@@ -9,3 +9,9 @@ Se agrupan trayectorias coherentes antes de aplicar el canal y de medir potencia
 ## Fronteras de integración
 
 Se reutilizan las herramientas de Comunicaciones Digitales para las primeras operaciones, con ejecución Qt independiente. El enlace usará las mismas operaciones en una secuencia explícita. Los proyectos de Fase 03 y las corridas existentes serán oráculos de compatibilidad antes de extender esquemas. La distribución de los primeros candidatos usará la infraestructura de Phase 03 con manifiestos de prueba. Las claves de producción y las etiquetas se reservan para autorización separada.
+
+## Generación de Clarke
+
+Se evaluó una suma directa de rotadores con ángulos uniformes, un filtrado coloreado sobre una grilla FFT fija y cuadratura espectral de Gaussianas complejas. Con pocos rotadores de amplitud fija, la distribución de la envolvente solo se aproxima a Rayleigh. La grilla FFT fija puede representar mal un Doppler que ocupa una fracción de bin. La cuadratura usa masa integrada y frecuencias dependientes del Doppler solicitado. Mantiene marginales gaussianas y controla el coste mediante Zoom FFT, con una reserva antes de construir la transformada. Conserva una aproximación finita de la PSD continua, documentada en el contrato. La cancelación se observa entre llamadas nativas y durante la aplicación por bloques.
+
+El desplazamiento de portadora es una operación separada que conserva el módulo de cada muestra. Su misma implementación sirve para Doppler determinista, CFO y fase constante. [Clarke](https://web.stanford.edu/~dntse/papers/main.pdf) · [Transformada](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.ZoomFFT.html).

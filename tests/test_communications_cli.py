@@ -154,6 +154,27 @@ raise SystemExit(main())
             self.assertEqual(received.metadata['sample_rate_hz'], 8000)
             self.assertEqual(received.metadata['communications_fading']['specification']['seed'], 73)
 
+    def test_doppler_cli_persists_psd_and_signed_phase_rotation(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            source, output = root/'input.slbin', root/'doppler.slproj'
+            save_binary_signal(Signal(np.ones(512), origin=-3, metadata={'sample_rate_hz': 4096}), source)
+            fading = self.invoke('fading', '--signal', source, '--path=0=1', '--doppler-max-hz', 64,
+                                 '--diagnostics', '--seed', 43, '--output', output)
+            project, _ = session.load(output)
+            path, = fading['paths']
+            self.assertGreater(path['coherence_seconds'], 0)
+            psd = project.get(path['doppler_records']['theoretical_psd'])
+            self.assertEqual(psd.units, 'Hz')
+            self.assertEqual(psd.data_kind, 'density')
+            self.assertAlmostEqual(float(sum(psd.values.real)*psd.step), 1)
+            shifted = self.invoke('shift-carrier', '--signal', source, '--frequency-hz', -512,
+                                  '--phase-rad', 0.25, '--output', output)
+            project, _ = session.load(output)
+            result = project.get(shifted['record'])
+            np.testing.assert_allclose(result.values, np.exp(1j*(0.25-np.pi/4*np.arange(512))), atol=1e-13)
+            self.assertEqual(result.origin, -3)
+
     def test_sweep_cli_runs_and_verifies_a_reproducible_grid(self):
         with TemporaryDirectory() as folder:
             root = Path(folder)

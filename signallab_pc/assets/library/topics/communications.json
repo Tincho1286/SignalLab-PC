@@ -62,7 +62,16 @@
         ["Qué podés hacer", "Aplicá un canal con ganancias aleatorias. Rayleigh modela un camino sin componente dominante. Rician añade una componente coherente con amplitud y fase definidas."],
         ["Cómo preparar el cálculo", "Escribí una línea por trayectoria con retardo en muestras = potencia media. Para Rician agregá K y la fase LOS en radianes, separados por comas. En escala lineal, 4 = 0.25, 10, pi/2 declara un eco de cuatro muestras con potencia media 0.25 y K lineal 10."],
         ["Cómo interpretar la salida", "El informe compara la potencia esperada y observada por camino. El gráfico de evolución muestra el módulo de los coeficientes. En el selector de resultados podés elegir la salida del canal o una realización individual."],
-        ["Qué tener en cuenta", "Cada trayectoria tiene un flujo aleatorio distinto y las muestras se generan independientemente en el tiempo. La semilla permite repetir el ensayo. Elegí varios retardos para que el canal también produzca dispersión temporal."]
+        ["Qué tener en cuenta", "Elegí Independiente para generar cada muestra por separado o Clarke para correlacionar el proceso en el tiempo. En Clarke, el Doppler máximo debe ser menor que Fs/2. Un valor cero conserva una ganancia aleatoria fija durante el registro. El gráfico Doppler compara la parte dispersiva con Clarke y usa la primera trayectoria con potencia. Cada camino tiene su propio flujo aleatorio."]
+      ]
+    },
+    {
+      "key": ["communications", "carrier"],
+      "blocks": [
+        ["Qué podés hacer", "Corré la frecuencia de una señal I/Q y aplicá una fase inicial. Sirve para simular Doppler determinista o un desajuste de portadora."],
+        ["Cómo preparar el cálculo", "Ingresá el desplazamiento en Hz y la fase en radianes. El desplazamiento tiene signo y requiere Fs. Para un giro de fase sin desplazamiento, dejá la frecuencia en cero."],
+        ["Cómo interpretar la salida", "Un desplazamiento positivo sube la frecuencia. La fase indicada se aplica en la primera muestra del registro. La operación conserva la magnitud, el reloj y el soporte."],
+        ["Qué tener en cuenta", "Este giro coherente desplaza todo el espectro. Para generar dispersión de energía y variación aleatoria de la envolvente, elegí Fading Rayleigh y Rician con proceso Clarke."]
       ]
     },
     {
@@ -133,8 +142,14 @@
     {
       "key": ["communications", "fading"],
       "flow": ["Señal y trayectorias", "Generar ganancias complejas", "Salida y coeficientes de cada camino"],
-      "parameters": [["Potencia media", "Se ingresa en escala lineal."], ["K", "Relación de potencia entre las componentes LOS y dispersiva. Omitilo para Rayleigh. Cero en dB representa K lineal uno."], ["Fase LOS", "Ángulo en radianes de la componente dominante. Se puede omitir y usar cero."]],
-      "reading": "La potencia observada fluctúa alrededor de la esperada. Con registros cortos la diferencia puede ser mayor."
+      "parameters": [["Potencia media", "Se ingresa en escala lineal."], ["K", "Relación de potencia entre las componentes LOS y dispersiva. Omitilo para Rayleigh. Cero en dB representa K lineal uno."], ["Fase LOS", "Ángulo en radianes de la componente dominante. Se puede omitir y usar cero."], ["Doppler máximo", "Semiancho en Hz del espectro de la parte difusa en modo Clarke."]],
+      "reading": "La potencia observada fluctúa alrededor de la esperada. El tiempo de coherencia se toma en el primer cruce de 0,5 de la autocorrelación difusa teórica."
+    },
+    {
+      "key": ["communications", "carrier"],
+      "flow": ["Reloj, frecuencia y fase", "Giro complejo por muestra", "Señal desplazada"],
+      "parameters": [["Desplazamiento", "Frecuencia en Hz. Debe quedar entre −Fs/2 y Fs/2."], ["Fase inicial", "Ángulo aplicado a la primera muestra, en radianes."]],
+      "reading": "La fase progresiva cambia la frecuencia. Usá el espectro para comprobar su sentido."
     },
     {
       "key": ["communications", "receive"],

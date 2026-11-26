@@ -26,4 +26,10 @@ Se añadieron caminos con potencia media especificada, K lineal o en dB, fase LO
 | `python -B -X utf8 tools/check_static.py` | Aprobado para 404 archivos Python. |
 | Contraste de CDF con el motor sin Qt | Ambas envolventes cumplen el umbral de 0,015. La fase Rayleigh también lo cumple. [Mediciones](MATHEMATICAL_AUDIT.md#mediciones-en-windows). |
 
-La generación vigente es independiente por muestra. Los procesos correlacionados y su calificación permanecen abiertos.
+El commit `dad7625` aprobó los controles matemáticos de Windows y Ubuntu. [Resultados](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45882601534).
+
+## Doppler determinista y fading correlacionado
+
+`CarrierShift` separa el giro coherente de frecuencia y fase de la dispersión de Clarke. El motor Clarke integra la masa de cada banda de cuadratura y registra la grilla, la semilla, la huella de origen y las versiones numéricas. Workbench abre la autocorrelación y la PSD de la primera trayectoria activa. CLI exporta los diagnósticos por camino. Se midieron autocorrelación, fracción de potencia y coherencia sin cargar Qt. [Oráculos y resultados](MATHEMATICAL_AUDIT.md#mediciones-de-doppler-en-windows).
+
+La suite de comunicaciones aprobó 87 pruebas en Windows con `python -B -X utf8 -m unittest discover -s tests -p "test_communications_*.py"`. Incluye los contrastes de Clarke, el caso límite de Doppler cero, presupuesto y cancelación, salidas de CLI archivadas y apertura de las nuevas figuras. `python -B -X utf8 tools/check_static.py` aprobó 405 archivos Python.

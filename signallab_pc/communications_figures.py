@@ -152,6 +152,23 @@ def fading_envelope_figure(figure, *, result):
     axis.legend()
 
 
+def doppler_diagnostics_figure(figure, data, *, path_number, fd):
+    corr, spectrum = figure.subplots(2, 1)
+    lag = data.lags_samples / data.sample_rate_hz
+    corr.plot(lag, data.observed_correlation.real, color=COLORS['blue'], label='Real observada')
+    corr.plot(lag, data.theoretical_correlation, '--', color=COLORS['amber'], label='Clarke')
+    corr.set(xlabel='Retardo (s)', ylabel='Correlación normalizada', title=f'Trayectoria {path_number}')
+    spectrum.plot(data.frequencies_hz, data.observed_psd, color=COLORS['blue'], label='Welch')
+    spectrum.step(data.frequencies_hz, data.theoretical_psd, where='mid', linestyle='--',
+                  color=COLORS['amber'], label='Clarke por bin')
+    spectrum.set(xlabel='Frecuencia Doppler (Hz)', ylabel='PSD normalizada (1/Hz)')
+    radius = min(data.sample_rate_hz/2, fd + 5*data.sample_rate_hz/len(data.frequencies_hz))
+    spectrum.set_xlim(-radius, radius)
+    for axis in (corr, spectrum):
+        axis.grid(alpha=.22)
+        axis.legend()
+
+
 def filter_frequency_figure(figure, pulse):
     frequency, response = freqz(pulse.taps, worN=2048, include_nyquist=True)
     axes = figure.subplots(2, 1, sharex=True)
