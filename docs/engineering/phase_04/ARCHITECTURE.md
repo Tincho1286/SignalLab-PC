@@ -11,6 +11,6 @@
 
 La composición ejecuta una secuencia ordenada de contratos sobre el registro que entrega cada etapa. Mantiene las señales intermedias, los componentes aleatorios, los relojes y las potencias de entrada y salida. Usa el mismo motor desde el editor de Workbench, la API y la CLI. El informe verifica configuración efectiva, orden y huellas. Los roles se resuelven con los padres del proyecto para que importar una cadena reasigne los identificadores sin alterar el cálculo.
 
-El enlace reutilizará la cadena de pulsos y el receptor de Fase 03. El almacenamiento experimental archivará configuración, resultados intermedios y huellas por etapa. Los perfiles históricos mantendrán sus convenciones y su derivación de semillas. La persistencia y ejecución deberán rechazar un cambio de orden ambiguo o una configuración de registro inválida.
+El enlace reutiliza la cadena de pulsos y el receptor de Fase 03. El almacenamiento experimental archiva configuración, resultados intermedios y huellas por etapa. El control sin etapas conserva su convención de reloj y su derivación de semillas. La persistencia verifica las huellas y el orden efectivo de cada etapa al reabrir el proyecto. [Servicios y entradas por interfaz](INTEGRATION_CATALOG.md).
 
-La fase conserva el monolito modular y las dependencias fijadas. La revisión de modelos, almacenamiento y recursos seguirá los controles de salida. [Plan](PHASE_04_PLAN.md) · [Contratos](SCIENTIFIC_CONTRACTS.md) · [Criterios](QUALITY_GATE_CRITERIA.md)
+La fase conserva el monolito modular y las dependencias fijadas. La revisión de modelos, almacenamiento y recursos se registra por plataforma. [Plan](PHASE_04_PLAN.md) · [Contratos](SCIENTIFIC_CONTRACTS.md) · [Criterios](QUALITY_GATE_CRITERIA.md)

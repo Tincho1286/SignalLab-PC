@@ -1,0 +1,22 @@
+# Integración y referencias del laboratorio de canales
+
+Workbench y la CLI convierten sus entradas en los mismos contratos de Python. Las operaciones aceptan señales discretas y reloj cuando el parámetro físico se expresa en Hz o segundos. En Workbench se puede pasar una señal muestreada que ya contiene Fs desde un resultado o archivo. La fase conserva las versiones, dependencias y licencias inventariadas en el Core. [Relojes, unidades y condiciones](SCIENTIFIC_CONTRACTS.md).
+
+| Herramienta | Servicio científico en Python | Comando después de `communications` | Resultado reutilizable |
+| --- | --- | --- | --- |
+| Multitrayecto | `apply_multipath`, `analyze_multipath`, `multipath_frequency` | `multipath` | Salida I/Q, impulso, frecuencia, perfil de potencia y retardo e ISI en el reloj declarado |
+| Fading y dispersión Doppler | `apply_fading`, `FadingRealization.distributions`, `FadingRealization.doppler_diagnostics` | `fading` | Señal, coeficientes por trayectoria, potencias, distribuciones y diagnóstico Clarke |
+| Doppler determinista y CFO | `apply_carrier_shift` | `shift-carrier` | Señal rotada con su reloj y referencia de fase |
+| Retardo y reloj | `apply_timing_offset` | `timing-offset` | Señal interpolada o desplazada, con reloj efectivo |
+| Ruido de fase y desequilibrio I/Q | `apply_phase_noise`, `apply_iq_imbalance` | `phase-noise`, `iq-imbalance` | Trayectoria Wiener, señal, coeficientes de la componente deseada y la imagen e IRR |
+| Interferencia y propagación | `apply_interference`, `apply_propagation` | `interference`, `propagation` | Señal, interferente, ruido y referencias de potencia, ganancia o pérdida |
+| Cadena y enlace | `run_channel_pipeline`, `run_experiment` | `channel-pipeline`, `link` | Señales intermedias y experimento con configuración, procedencia y métricas condicionadas a la sincronización |
+| Barrido | `run_sweep`, `load_sweep`, `export_sweep_csv` | `sweep` | Corridas SLPROJ con escrituras atómicas, catálogo reanudable y tabla CSV |
+
+## Elección de referencias
+
+- NumPy y SciPy ya integran la distribución. Aportan una convolución y una respuesta frecuencial de contraste, CDF de Rayleigh/Rice y cuadratura. La auditoría de Clarke también usa una DFT de NumPy, una ventana Hann construida por fórmula y correlación directa sobre cada par de muestras. [Oráculos y condiciones](MATHEMATICAL_AUDIT.md).
+- La formulación de Tse y Viswanath establece la separación entre modelos deterministas, dispersión y propagación a distinta escala. PySDR aporta ejemplos didácticos de fading selectivo y su interpretación. Los textos de Proakis y Rappaport orientan el enlace digital y el uso de Friis y log-distancia. Los oráculos de aceptación quedan especificados con sus fórmulas y datos reproducibles en el expediente. [Tse y Viswanath](https://web.stanford.edu/~dntse/papers/main.pdf) · [PySDR](https://pysdr.org/content/multipath_fading.html) · [Recomendación UIT-R P.525-5](https://www.itu.int/rec/R-REC-P.525-5-202411-I/en).
+- mpmath permite contrastar la marginal angular con la integral radial de la gaussiana bivariada a 60 dígitos. El entorno simbólico existente conserva su papel en la revisión de expresiones. Las campañas del producto usan el motor numérico por lotes. [Cuadratura de mpmath](https://mpmath.org/doc/current/calculus/integration.html) · [Funciones especiales de SymPy](https://docs.sympy.org/latest/modules/functions/special.html).
+- Komm sirve como contraste del control de constelación, pulsos y canal gaussiano de Fase 03. GNU Radio aporta un ejemplo de parametrización de taps, ruido y desajustes en un flujo de muestras. Integrar un runtime de flujo continuo ampliaría el empaquetado y la auditoría nativa. [Komm](https://komm.dev/) · [Modelo de canal de GNU Radio](https://www.gnuradio.org/doc/doxygen/classgr_1_1channels_1_1channel__model.html) · [Integración de Fase 03](../phase_03/INTEGRATION_CATALOG.md).
+- Sionna separa simulación PHY, de sistema y trazado de rayos. QuaDRiGa aporta modelos geométricos de escenarios radio y calibración con 3GPP TR 38.901. Esos escenarios emplean hipótesis adicionales sobre antenas y geometría y requieren una evaluación independiente cuando se incorporen. Los modelos básicos del candidato conservan su alcance de banda base y propagación. [Sionna](https://nvlabs.github.io/sionna/) · [QuaDRiGa](https://quadriga-channel-model.de/) · [Archivo de 3GPP TR 38.901](https://www.3gpp.org/ftp/Specs/archive/38_series/38.901/).

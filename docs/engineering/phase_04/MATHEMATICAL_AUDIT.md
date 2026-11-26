@@ -108,3 +108,20 @@ Las pruebas calculan por separado la salida de escala seguida de suma y la salid
 - Rotar la componente LOS más allá de π y comprobar la referencia circular. Distinguir una trayectoria apagada de un registro fijo con Doppler nulo. Para K dentro del rango representable pero con dispersión inferior a la resolución del gráfico, exigir un histograma finito y un aviso explícito.
 
 [Densidad Rice](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.rice.html) · [Bessel escalada](https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.i0e.html) · [Función de error complementaria escalada](https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.erfcx.html)
+
+## Contrastes suplementarios sobre el candidato `2a0a3fd`
+
+El contraste de Clarke usó 32 realizaciones independientes de 32 768 muestras, con semillas 54 001 a 54 032 y Qt bloqueado. Cada realización se evalúa con correlación directa y con una DFT de ventanas Hann periódicas de 2 048 puntos y 50 % de solape. La referencia temporal usa cuadratura angular. Se conservan las tolerancias del protocolo de Doppler para la autocorrelación y las fracciones espectrales. Los intervalos t de 95 % se estiman entre registros, por componente, sin ajuste por comparaciones múltiples. [Datos por réplica](evidence/candidate-2a0a3fd/clarke-independent-replicas.json) · [Procedimiento](evidence/candidate-2a0a3fd/clarke-independent-audit.py)
+
+| Magnitud | Media | Intervalo descriptivo de 95 % |
+| --- | ---: | ---: |
+| Potencia de muestra | 1,00014 | 0,97909 a 1,02119 |
+| Real de la autocorrelación en 16 muestras | 0,47001 | 0,46463 a 0,47539 |
+| Real de la autocorrelación en 32 muestras | −0,30748 | −0,32664 a −0,28832 |
+| Real de la autocorrelación en 64 muestras | 0,22510 | 0,20638 a 0,24383 |
+| Potencia espectral dentro de ±32 Hz | 0,34472 | 0,33643 a 0,35301 |
+| Potencia espectral dentro de ±68 Hz | 0,99999530 | 0,99999505 a 0,99999556 |
+
+El intervalo de ±32 Hz describe el estimador con su ventana y sus bins. La masa de la ley continua en esa banda es 1/3. Al aplicar la autocorrelación de la ventana Hann a la función de Clarke y evaluar en los mismos bins, el cociente de las potencias esperadas en banda y totales es 0,34494. Esta diferencia explica el desplazamiento del estimador respecto de la referencia continua.
+
+Se contrastó además la densidad de fase en cinco puntos de la grilla para cada valor K = 0, 4 y 100. La integral radial gaussiana evaluada con mpmath a 60 dígitos dio un error absoluto máximo de $5,90\times10^{-16}$, dentro del criterio de $10^{-12}$. [Valores de contraste](evidence/candidate-2a0a3fd/rician-phase-mpmath.json) · [Cuadratura de mpmath](https://mpmath.org/doc/current/calculus/integration.html).

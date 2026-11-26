@@ -1,0 +1,33 @@
+{
+  "qt_platform": "windows",
+  "logical_display": [
+    1366,
+    768
+  ],
+  "scale": 1.0,
+  "dpi": 96.0,
+  "source_commit": "2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb",
+  "details": {
+    "runtime": "Qt 6.12.0; ejecución desde fuente",
+    "window_pixels": [
+      1101,
+      692
+    ],
+    "catalog_after_close": "Readable and full-width",
+    "document_close_margin": "Visible on link and fading tabs",
+    "link_stages": [
+      "multipath",
+      "fading-rician"
+    ],
+    "evaluated_bits": 4096,
+    "bit_errors": 20,
+    "exported_archive_sha256": "032486e046eeebe8c11091138144528c9615b61db9b1d38c98023049dd34fb33",
+    "archive_reopened_verified": true,
+    "independent_figure": "Envolvente y fase, trayectoria 2, 64 muestras con ley Rice y marginal Rician",
+    "remaining": [
+      "Doppler correlacionado en escritorio real",
+      "Prueba en otra escala nativa de Windows",
+      "Escritorio Linux real"
+    ]
+  }
+}

@@ -1,0 +1,491 @@
+{
+  "commit": "2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb",
+  "clean_checkout": true,
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python": "3.14.10",
+  "numpy": "2.5.5",
+  "scipy": "1.18.1",
+  "threads": 1,
+  "profiles": [
+    {
+      "symbols": 128,
+      "samples_per_symbol": 8,
+      "sample_rate_hz": 96000.0,
+      "pulse_taps": 81,
+      "source_samples": 1097,
+      "received_samples": 1190,
+      "model_stages": 6,
+      "parameters": {
+        "bit_count": 256,
+        "seed": 20261126,
+        "symbol_rate_hz": 12000.0,
+        "constellation": {
+          "family": "psk",
+          "order": 4,
+          "labeling": "gray",
+          "rotation_rad": 0.7853981633974483,
+          "normalization": "unit_energy"
+        },
+        "pulse": {
+          "family": "rrc",
+          "samples_per_symbol": 8,
+          "span_symbols": 10,
+          "rolloff": 0.35,
+          "normalization": "unit_energy"
+        },
+        "eb_n0_db": 10.0,
+        "synchronization": {
+          "mode": "ideal",
+          "sample_offset": 0,
+          "phase_rad": 0.0,
+          "search_first": 0,
+          "search_last": null,
+          "minimum_score": 0.7,
+          "minimum_margin": 0.01
+        },
+        "pilot_symbols": 24,
+        "allow_padding": true,
+        "channel_pipeline": {
+          "schema": 1,
+          "seed": 421555,
+          "stages": [
+            {
+              "kind": "multipath",
+              "parameters": {
+                "paths": [
+                  {
+                    "delay_samples": 0,
+                    "gain_real": 1.0,
+                    "gain_imag": 0.0
+                  },
+                  {
+                    "delay_samples": 5,
+                    "gain_real": 0.08,
+                    "gain_imag": 0.06
+                  },
+                  {
+                    "delay_samples": 9,
+                    "gain_real": 0.0,
+                    "gain_imag": -0.04
+                  }
+                ],
+                "normalize_power": false
+              },
+              "external_input": null
+            },
+            {
+              "kind": "fading",
+              "parameters": {
+                "paths": [
+                  {
+                    "delay_samples": 0,
+                    "average_power": 1.0,
+                    "k_linear": 8.0,
+                    "los_phase_rad": 0.2
+                  },
+                  {
+                    "delay_samples": 4,
+                    "average_power": 0.12,
+                    "k_linear": 0.0,
+                    "los_phase_rad": 0.0
+                  }
+                ],
+                "seed": 2026,
+                "max_doppler_hz": 64.0
+              },
+              "external_input": null
+            },
+            {
+              "kind": "carrier",
+              "parameters": {
+                "frequency_hz": 19.0,
+                "phase_rad": 0.06
+              },
+              "external_input": null
+            },
+            {
+              "kind": "phase_noise",
+              "parameters": {
+                "linewidth_hz": 2.0,
+                "seed": 2026
+              },
+              "external_input": null
+            },
+            {
+              "kind": "iq_imbalance",
+              "parameters": {
+                "q_gain_db": 0.3,
+                "q_phase_rad": 0.043,
+                "dc_i": 0.006,
+                "dc_q": -0.002
+              },
+              "external_input": null
+            },
+            {
+              "kind": "interference",
+              "parameters": {
+                "model": {
+                  "bandwidth_hz": 4800.0,
+                  "center_hz": 12000.0,
+                  "seed": 2026,
+                  "kind": "band"
+                },
+                "power": null,
+                "sir_db": 18.0,
+                "noise_snr_db": null,
+                "noise_seed": 2026
+              },
+              "external_input": null
+            }
+          ]
+        }
+      },
+      "baseline_peak_rss_bytes": 109539328,
+      "compute_peak_rss_bytes": 110149632,
+      "save_peak_rss_bytes": 110465024,
+      "peak_rss_bytes": 110862336,
+      "archive_bytes": 345440,
+      "verified_records": 24,
+      "archive_verified": true,
+      "estimated_link_retention_bytes": 476864,
+      "retained_channel_bytes": 177408,
+      "seconds": {
+        "compute": 0.024657300004037097,
+        "save": 0.04081240002415143,
+        "load": 0.041188000002875924,
+        "verify": 0.004127299995161593
+      }
+    },
+    {
+      "symbols": 2048,
+      "samples_per_symbol": 8,
+      "sample_rate_hz": 96000.0,
+      "pulse_taps": 81,
+      "source_samples": 16457,
+      "received_samples": 16550,
+      "model_stages": 6,
+      "parameters": {
+        "bit_count": 4096,
+        "seed": 20261126,
+        "symbol_rate_hz": 12000.0,
+        "constellation": {
+          "family": "psk",
+          "order": 4,
+          "labeling": "gray",
+          "rotation_rad": 0.7853981633974483,
+          "normalization": "unit_energy"
+        },
+        "pulse": {
+          "family": "rrc",
+          "samples_per_symbol": 8,
+          "span_symbols": 10,
+          "rolloff": 0.35,
+          "normalization": "unit_energy"
+        },
+        "eb_n0_db": 10.0,
+        "synchronization": {
+          "mode": "ideal",
+          "sample_offset": 0,
+          "phase_rad": 0.0,
+          "search_first": 0,
+          "search_last": null,
+          "minimum_score": 0.7,
+          "minimum_margin": 0.01
+        },
+        "pilot_symbols": 24,
+        "allow_padding": true,
+        "channel_pipeline": {
+          "schema": 1,
+          "seed": 421555,
+          "stages": [
+            {
+              "kind": "multipath",
+              "parameters": {
+                "paths": [
+                  {
+                    "delay_samples": 0,
+                    "gain_real": 1.0,
+                    "gain_imag": 0.0
+                  },
+                  {
+                    "delay_samples": 5,
+                    "gain_real": 0.08,
+                    "gain_imag": 0.06
+                  },
+                  {
+                    "delay_samples": 9,
+                    "gain_real": 0.0,
+                    "gain_imag": -0.04
+                  }
+                ],
+                "normalize_power": false
+              },
+              "external_input": null
+            },
+            {
+              "kind": "fading",
+              "parameters": {
+                "paths": [
+                  {
+                    "delay_samples": 0,
+                    "average_power": 1.0,
+                    "k_linear": 8.0,
+                    "los_phase_rad": 0.2
+                  },
+                  {
+                    "delay_samples": 4,
+                    "average_power": 0.12,
+                    "k_linear": 0.0,
+                    "los_phase_rad": 0.0
+                  }
+                ],
+                "seed": 2026,
+                "max_doppler_hz": 64.0
+              },
+              "external_input": null
+            },
+            {
+              "kind": "carrier",
+              "parameters": {
+                "frequency_hz": 19.0,
+                "phase_rad": 0.06
+              },
+              "external_input": null
+            },
+            {
+              "kind": "phase_noise",
+              "parameters": {
+                "linewidth_hz": 2.0,
+                "seed": 2026
+              },
+              "external_input": null
+            },
+            {
+              "kind": "iq_imbalance",
+              "parameters": {
+                "q_gain_db": 0.3,
+                "q_phase_rad": 0.043,
+                "dc_i": 0.006,
+                "dc_q": -0.002
+              },
+              "external_input": null
+            },
+            {
+              "kind": "interference",
+              "parameters": {
+                "model": {
+                  "bandwidth_hz": 4800.0,
+                  "center_hz": 12000.0,
+                  "seed": 2026,
+                  "kind": "band"
+                },
+                "power": null,
+                "sir_db": 18.0,
+                "noise_snr_db": null,
+                "noise_seed": 2026
+              },
+              "external_input": null
+            }
+          ]
+        }
+      },
+      "baseline_peak_rss_bytes": 110063616,
+      "compute_peak_rss_bytes": 115224576,
+      "save_peak_rss_bytes": 117936128,
+      "peak_rss_bytes": 121921536,
+      "archive_bytes": 3854230,
+      "verified_records": 24,
+      "archive_verified": true,
+      "estimated_link_retention_bytes": 6213824,
+      "retained_channel_bytes": 2635008,
+      "seconds": {
+        "compute": 0.04381350000039674,
+        "save": 0.08972930000163615,
+        "load": 0.02830040000844747,
+        "verify": 0.0062670999905094504
+      }
+    },
+    {
+      "symbols": 65536,
+      "samples_per_symbol": 8,
+      "sample_rate_hz": 96000.0,
+      "pulse_taps": 81,
+      "source_samples": 524361,
+      "received_samples": 524454,
+      "model_stages": 6,
+      "parameters": {
+        "bit_count": 131072,
+        "seed": 20261126,
+        "symbol_rate_hz": 12000.0,
+        "constellation": {
+          "family": "psk",
+          "order": 4,
+          "labeling": "gray",
+          "rotation_rad": 0.7853981633974483,
+          "normalization": "unit_energy"
+        },
+        "pulse": {
+          "family": "rrc",
+          "samples_per_symbol": 8,
+          "span_symbols": 10,
+          "rolloff": 0.35,
+          "normalization": "unit_energy"
+        },
+        "eb_n0_db": 10.0,
+        "synchronization": {
+          "mode": "ideal",
+          "sample_offset": 0,
+          "phase_rad": 0.0,
+          "search_first": 0,
+          "search_last": null,
+          "minimum_score": 0.7,
+          "minimum_margin": 0.01
+        },
+        "pilot_symbols": 24,
+        "allow_padding": true,
+        "channel_pipeline": {
+          "schema": 1,
+          "seed": 421555,
+          "stages": [
+            {
+              "kind": "multipath",
+              "parameters": {
+                "paths": [
+                  {
+                    "delay_samples": 0,
+                    "gain_real": 1.0,
+                    "gain_imag": 0.0
+                  },
+                  {
+                    "delay_samples": 5,
+                    "gain_real": 0.08,
+                    "gain_imag": 0.06
+                  },
+                  {
+                    "delay_samples": 9,
+                    "gain_real": 0.0,
+                    "gain_imag": -0.04
+                  }
+                ],
+                "normalize_power": false
+              },
+              "external_input": null
+            },
+            {
+              "kind": "fading",
+              "parameters": {
+                "paths": [
+                  {
+                    "delay_samples": 0,
+                    "average_power": 1.0,
+                    "k_linear": 8.0,
+                    "los_phase_rad": 0.2
+                  },
+                  {
+                    "delay_samples": 4,
+                    "average_power": 0.12,
+                    "k_linear": 0.0,
+                    "los_phase_rad": 0.0
+                  }
+                ],
+                "seed": 2026,
+                "max_doppler_hz": 64.0
+              },
+              "external_input": null
+            },
+            {
+              "kind": "carrier",
+              "parameters": {
+                "frequency_hz": 19.0,
+                "phase_rad": 0.06
+              },
+              "external_input": null
+            },
+            {
+              "kind": "phase_noise",
+              "parameters": {
+                "linewidth_hz": 2.0,
+                "seed": 2026
+              },
+              "external_input": null
+            },
+            {
+              "kind": "iq_imbalance",
+              "parameters": {
+                "q_gain_db": 0.3,
+                "q_phase_rad": 0.043,
+                "dc_i": 0.006,
+                "dc_q": -0.002
+              },
+              "external_input": null
+            },
+            {
+              "kind": "interference",
+              "parameters": {
+                "model": {
+                  "bandwidth_hz": 4800.0,
+                  "center_hz": 12000.0,
+                  "seed": 2026,
+                  "kind": "band"
+                },
+                "power": null,
+                "sir_db": 18.0,
+                "noise_snr_db": null,
+                "noise_seed": 2026
+              },
+              "external_input": null
+            }
+          ]
+        }
+      },
+      "baseline_peak_rss_bytes": 109465600,
+      "compute_peak_rss_bytes": 247062528,
+      "save_peak_rss_bytes": 351821824,
+      "peak_rss_bytes": 471789568,
+      "archive_bytes": 119867937,
+      "verified_records": 24,
+      "archive_verified": true,
+      "estimated_link_retention_bytes": 195915968,
+      "retained_channel_bytes": 83899648,
+      "seconds": {
+        "compute": 0.7399386999895796,
+        "save": 1.1649092999869026,
+        "load": 0.22943159998976626,
+        "verify": 0.08335889998124912
+      }
+    }
+  ],
+  "cancellation": {
+    "clarke_transform": {
+      "discarded": true,
+      "seconds_after_request": 0.03650180000113323
+    },
+    "atomic_archive": {
+      "discarded": true,
+      "seconds_after_request": 0.010421999992104247
+    }
+  },
+  "archive_rejected_without_changes": true,
+  "concurrency": {
+    "budget_bytes": 367001600,
+    "estimate_bytes": 112016320,
+    "competing_request_rejected": true,
+    "retry_verified": true
+  },
+  "desktop": {
+    "qt_platform": "offscreen",
+    "window": [
+      940,
+      700
+    ],
+    "bit_count": 131072,
+    "heartbeat_period_ms": 10,
+    "heartbeat_count": 2722,
+    "median_gap_seconds": 0.011595799995120615,
+    "maximum_gap_seconds": 0.1456748000055086,
+    "seconds": 27.379347000009147,
+    "peak_rss_bytes": 604049408,
+    "model_stages": 6,
+    "passed": true
+  }
+}

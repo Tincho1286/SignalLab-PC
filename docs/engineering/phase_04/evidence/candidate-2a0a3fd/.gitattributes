@@ -1,0 +1,4 @@
+# Retain the bytes of the archived receipts and the recorded audit script.
+*.json -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.txt -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+clarke-independent-audit.py -text whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol

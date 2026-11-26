@@ -1,0 +1,228 @@
+{
+  "commit": "2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb",
+  "case": {
+    "bit_count": 4096,
+    "seed": 2026,
+    "symbol_rate_hz": 12000.0,
+    "constellation": {
+      "family": "psk",
+      "order": 4,
+      "labeling": "gray",
+      "rotation_rad": 0.7853981633974483,
+      "normalization": "unit_energy"
+    },
+    "pulse": {
+      "family": "rrc",
+      "samples_per_symbol": 8,
+      "span_symbols": 10,
+      "rolloff": 0.35,
+      "normalization": "unit_energy"
+    },
+    "eb_n0_db": 6.0,
+    "synchronization": {
+      "mode": "ideal",
+      "sample_offset": 0,
+      "phase_rad": 0.0,
+      "search_first": 0,
+      "search_last": null,
+      "minimum_score": 0.7,
+      "minimum_margin": 0.01
+    },
+    "pilot_symbols": 24,
+    "allow_padding": true,
+    "channel_pipeline": {
+      "schema": 1,
+      "seed": 2026,
+      "stages": [
+        {
+          "kind": "multipath",
+          "parameters": {
+            "paths": [
+              {
+                "delay_samples": 0,
+                "gain_real": 1.0,
+                "gain_imag": 0.0
+              },
+              {
+                "delay_samples": 4,
+                "gain_real": 0.3,
+                "gain_imag": 0.0
+              }
+            ],
+            "normalize_power": false
+          },
+          "external_input": null
+        },
+        {
+          "kind": "fading",
+          "parameters": {
+            "paths": [
+              {
+                "delay_samples": 0,
+                "average_power": 1.0,
+                "k_linear": 4.0,
+                "los_phase_rad": 0.0
+              }
+            ],
+            "seed": 2026,
+            "max_doppler_hz": null
+          },
+          "external_input": null
+        }
+      ]
+    }
+  },
+  "original_workbench_archive_sha256": "032486e046eeebe8c11091138144528c9615b61db9b1d38c98023049dd34fb33",
+  "source_desktop_scale": 1.0,
+  "qt_blocked_for": [
+    "python",
+    "cli"
+  ],
+  "results": {
+    "python": {
+      "roles": {
+        "symbols": {
+          "samples": 2048,
+          "sha256": "f30cccc7cd9ae4c03d7cb0675fb6145a3dd347289b6052d2f0a5ad4787963af4",
+          "clock": 12000.0,
+          "units": "n",
+          "origin": 0
+        },
+        "upsampled": {
+          "samples": 16377,
+          "sha256": "17be59b8be7308fdede9785d854c653d6b466ba1a06b6c855e5f9f1a22eeb3ec",
+          "clock": 96000.0,
+          "units": "n",
+          "origin": 0
+        },
+        "tx": {
+          "samples": 16457,
+          "sha256": "cd6963b11763f71264e48d0ce2b7765c598caebc5c95150554efd5212beaf784",
+          "clock": 96000.0,
+          "units": "n",
+          "origin": 0
+        },
+        "channel_output": {
+          "samples": 16461,
+          "sha256": "7315ca986c1cac642758002f441ec32539ec029719e6d4219565bee0998705c9",
+          "clock": 96000.0,
+          "units": "n",
+          "origin": 0
+        },
+        "awgn": {
+          "samples": 16461,
+          "sha256": "87e3574db99fb362ac7a78f7d1bbe5f921e5ae7edacaee2e174bc548bf3e2cd2",
+          "clock": 96000.0,
+          "units": "n",
+          "origin": 0
+        },
+        "matched": {
+          "samples": 16541,
+          "sha256": "ce812a1f852857f22bc2f1d6785becc12799f07dd0bd3c01c86166840f4871a3",
+          "clock": 96000.0,
+          "units": "n",
+          "origin": 0
+        },
+        "observed": {
+          "samples": 2048,
+          "sha256": "1a44c33773c04919e45f89524c470168cc7965be7c5bc0d1ca2fffb6b96a3c12",
+          "clock": 12000.0,
+          "units": "n",
+          "origin": 0
+        }
+      },
+      "report_sha256": "89ff9fd5a28ea2fe5654493fffa04a216673ad6a46c6ed751f3749e8af0ffb67",
+      "pipeline_sha256": "539a7fb1fae9fe5f97cdee45774f922c92db337f0fb765302da39706c965236b"
+    },
+    "cli": {
+      "roles": {
+        "symbols": {
+          "samples": 2048,
+          "sha256": "f30cccc7cd9ae4c03d7cb0675fb6145a3dd347289b6052d2f0a5ad4787963af4",
+          "clock": 12000.0,
+          "units": "n",
+          "origin": 0
+        },
+        "upsampled": {
+          "samples": 16377,
+          "sha256": "17be59b8be7308fdede9785d854c653d6b466ba1a06b6c855e5f9f1a22eeb3ec",
+          "clock": 96000.0,
+          "units": "n",
+          "origin": 0
+        },
+        "tx": {
+          "samples": 16457,
+          "sha256": "cd6963b11763f71264e48d0ce2b7765c598caebc5c95150554efd5212beaf784",
+          "clock": 96000.0,
+          "units": "n",
+          "origin": 0
+        },
+        "channel_output": {
+          "samples": 16461,
+          "sha256": "7315ca986c1cac642758002f441ec32539ec029719e6d4219565bee0998705c9",
+          "clock": 96000.0,
+          "units": "n",
+          "origin": 0
+        },
+        "awgn": {
+          "samples": 16461,
+          "sha256": "87e3574db99fb362ac7a78f7d1bbe5f921e5ae7edacaee2e174bc548bf3e2cd2",
+          "clock": 96000.0,
+          "units": "n",
+          "origin": 0
+        },
+        "matched": {
+          "samples": 16541,
+          "sha256": "ce812a1f852857f22bc2f1d6785becc12799f07dd0bd3c01c86166840f4871a3",
+          "clock": 96000.0,
+          "units": "n",
+          "origin": 0
+        },
+        "observed": {
+          "samples": 2048,
+          "sha256": "1a44c33773c04919e45f89524c470168cc7965be7c5bc0d1ca2fffb6b96a3c12",
+          "clock": 12000.0,
+          "units": "n",
+          "origin": 0
+        }
+      },
+      "report_sha256": "89ff9fd5a28ea2fe5654493fffa04a216673ad6a46c6ed751f3749e8af0ffb67",
+      "pipeline_sha256": "539a7fb1fae9fe5f97cdee45774f922c92db337f0fb765302da39706c965236b"
+    }
+  },
+  "metrics": {
+    "ber": {
+      "errors": 20,
+      "evaluated": 4096,
+      "value": 0.0048828125,
+      "evidence": "few_errors",
+      "confidence": null
+    },
+    "ser": {
+      "errors": 20,
+      "evaluated": 2048,
+      "value": 0.009765625,
+      "evidence": "few_errors",
+      "confidence": null
+    },
+    "evm": {
+      "status": "measured",
+      "rms": 0.4317268083942,
+      "percent": 43.17268083942002,
+      "db": -7.295819653412517,
+      "reference_name": "S\u00edmbolos I/Q",
+      "amplitude_units": "1"
+    },
+    "specification": {
+      "transmitted_start": 0,
+      "received_start": 0,
+      "symbol_count": null,
+      "independent_bits": false,
+      "independent_symbols": false,
+      "confidence": 0.95
+    },
+    "transmitted_excluded_symbols": 0,
+    "received_excluded_symbols": 0,
+    "excluded_padding_bits": 0
+  }
+}

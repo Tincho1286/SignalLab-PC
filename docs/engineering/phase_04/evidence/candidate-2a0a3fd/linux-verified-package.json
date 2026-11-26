@@ -1,0 +1,27 @@
+{
+  "digest": "sha256:2c71bac91810179ebe0903780305d2df467b7121d889c4aa7df357674165d6f7",
+  "expires_at": "2026-12-03T21:52:36Z",
+  "files": {
+    "SignalLab-PC-2.2.0-linux-x86_64.run": {
+      "sha256": "8d5efeb0e53efc5aa12aa453c324d3b2e4b49f614c02bc5bc940a85fcf86e947",
+      "size": 160645127
+    },
+    "SignalLab-PC-2.2.0-linux-x86_64.tar.gz": {
+      "sha256": "5880ee6a848744989bb0d3bb4bca405c8cde6b7420af19824a8a6e33bb60d1a6",
+      "size": 160695626
+    },
+    "candidate-linux.json": {
+      "sha256": "52bf7a4cc20488b0d8a917acb12d55b12360688a309dfa177818c18e291b61e6",
+      "size": 893
+    },
+    "installer-linux.json": {
+      "sha256": "ca9386e9227b1ce144bb2ceeeab7404f8ed39b75c416fbf628ed1ef900dd3098",
+      "size": 396
+    }
+  },
+  "id": 15155098928,
+  "name": "phase-candidate-ubuntu-22.04-45899563971",
+  "size_bytes": 321342658,
+  "source_commit": "2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb",
+  "source_fingerprint": "8d97427c823ec510eff0331d9a2fcc9a869a11763a2b5475323dd3c13e12d52d"
+}

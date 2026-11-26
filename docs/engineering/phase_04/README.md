@@ -147,6 +147,6 @@ python -m signallab_pc communications sweep --resume --output campaña --csv cor
 
 Los informes indican cuántas réplicas dieron mediciones válidas. El catálogo permite incorporar una corrida con sus señales y configuración, o retomar las corridas faltantes. [Semillas, intervalos y recuperación](SCIENTIFIC_CONTRACTS.md#campañas-y-calibración-por-sinr)
 
-## Alcance siguiente
+## Calificación de 2.2.0 Preview
 
-Queda calificar el laboratorio integrado, cerrar las brechas de cobertura y compatibilidad, medir la envolvente operativa y preparar el candidato del Quality Gate.
+El código candidato `2a0a3fd` amplía la fase con diagnóstico de densidades por trayectoria y perfiles de trabajo reproducibles. Su expediente vincula los resultados científicos, la matriz de plataformas y el protocolo de escritorio. [Servicios](INTEGRATION_CATALOG.md) · [Validación](VALIDATION_MATRIX.md) · [Riesgos residuales](RESIDUAL_RISK_REGISTER.md) · [Límites técnicos](TECHNICAL_DEBT_REGISTER.md).
