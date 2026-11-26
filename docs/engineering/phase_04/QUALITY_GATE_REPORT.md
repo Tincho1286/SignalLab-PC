@@ -39,7 +39,7 @@ La revisión comparó el SHA-256 de cada ZIP de Actions y de cada archivo intern
 
 | Decisión | Dictamen | Condición para reconsiderarlo |
 | --- | --- | --- |
-| Cierre técnico de Fase 04 | **NO-GO** | Completar Clarke en escritorio real, el perfil de Windows a 150 % o 200 % y la sesión en Linux real. |
+| Cierre técnico de Fase 04 | **NO-GO** | Completar Windows nativo a 150 % y 200 %, resolver o delimitar el recorte observado al 200 % con Qt y registrar el escritorio Linux. |
 | Preparación técnica para Fase 05 | **NO-GO** | Completar el Quality Gate de Fase 04 y revisar la continuidad. El inicio requiere autorización específica. |
 | Distribución pública de la Preview | **NO-GO** | Completar el Quality Gate y obtener autorización para publicar, etiquetar y firmar. Stable/LTS conserva la familia 2.0.x. |
 

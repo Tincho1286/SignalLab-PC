@@ -1,0 +1,74 @@
+{
+  "platform": "windows",
+  "qt": "6.12.0",
+  "device_pixel_ratio": 1.25,
+  "scale_override": null,
+  "logical_resolution": [
+    1093,
+    614
+  ],
+  "available_logical": [
+    1093,
+    566
+  ],
+  "physical_resolution": [
+    1366,
+    768
+  ],
+  "source_commit": "a3026d288fe2371aace308b403071cf457b89123",
+  "errors": [],
+  "window": {
+    "frame": [
+      14,
+      12,
+      1065,
+      551
+    ],
+    "fits": true,
+    "overshoot_bottom": 0,
+    "minimum": [
+      640,
+      420
+    ]
+  },
+  "results_panel_bottom": 509,
+  "output": {
+    "samples": 16461,
+    "sample_rate_hz": 96000.0,
+    "max_doppler_hz": 64,
+    "coherence_report": true
+  },
+  "figures": {
+    "Distribuciones de envolvente y fase": {
+      "frame": [
+        36,
+        3,
+        1000,
+        548
+      ],
+      "fits": true,
+      "overshoot_bottom": 0,
+      "minimum": [
+        360,
+        280
+      ],
+      "axes": 2
+    },
+    "Autocorrelación y PSD Doppler": {
+      "frame": [
+        36,
+        3,
+        1000,
+        548
+      ],
+      "fits": true,
+      "overshoot_bottom": 0,
+      "minimum": [
+        360,
+        280
+      ],
+      "axes": 2
+    }
+  },
+  "passed_calculation": true
+}

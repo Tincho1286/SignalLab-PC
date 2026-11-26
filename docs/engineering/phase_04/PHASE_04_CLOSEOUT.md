@@ -10,7 +10,7 @@ La calificación automatizada de 2.2.0 Preview aprobó sobre `a3026d288fe2371aac
 
 ## Evidencia y decisiones pendientes
 
-El registro nativo de Windows cubre 1366 × 768 al 100 %, con enlace, exportación, regreso al catálogo y distribuciones Rician. El protocolo pendiente pide completar Clarke, un perfil nativo de Windows a 150 % o 200 % y una sesión en Linux real. Se registrará el SHA o el hash del paquete, la resolución, la escala, el tema y el resultado observado. [Protocolo y registro existente](VALIDATION_MATRIX.md)
+El registro nativo de Windows cubre 1366 × 768 al 100 % con enlace, exportación, regreso al catálogo y distribuciones Rician. Clarke calculó y abrió ambas figuras al 125 % nativo. Con escalado de Qt, las ventanas entraron al 150 % y excedieron el alto útil al 200 %. Quedan la comprobación nativa de Windows al 150 % y 200 %, la evaluación del recorte observado y la sesión en Linux real. [Resultados y protocolo](VALIDATION_MATRIX.md)
 
 | Decisión | Dictamen | Condición pendiente |
 | --- | --- | --- |

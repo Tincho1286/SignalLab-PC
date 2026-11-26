@@ -10,13 +10,23 @@ Windows Server 2022 y Ubuntu 22.04 aprobaron la suite integral, cobertura y paqu
 | Compatibilidad y recuperación | Los ensayos abren registros históricos y proyectos compuestos. Comparan reloj, señales y huellas, reanudan barridos y conservan el archivo previo si se cancela la entrega. | Matriz aprobada |
 | Cobertura global y crítica | Ambas plataformas alcanzaron los umbrales de líneas y ramas con conteos exactos. [Cobertura](QUALITY_GATE_REPORT.md) | Matriz aprobada |
 | Recursos | Los perfiles de seis etapas y 128, 2 048 y 65 536 símbolos se verificaron en ambos runners sobre `a3026d2`. Se comprobaron memoria, archivo previo, cancelación, concurrencia y respuesta offscreen. [Mediciones](PERFORMANCE_REPORT.md#repetición-sobre-a3026d2) | Perfiles medidos aprobados |
-| Escritorio y distribución | La sesión real de Windows verificó enlace, exportación, cierre de pestaña y distribuciones. Ambos sistemas aprobaron instalador y actualización aislada desde 2.0.0. Se comprobaron los hashes de ambos portables, instaladores y fuente. [Distribución](QUALITY_GATE_REPORT.md#paquetes-de-revisión-de-a3026d2) | Clarke en escritorio real, Windows a 150 % o 200 % y Linux nativo |
+| Escritorio y distribución | La sesión real de Windows verificó enlace, exportación, cierre de pestaña y distribuciones. Clarke calculó y abrió ambas figuras al 125 % nativo. Ambos sistemas aprobaron instalador y actualización aislada desde 2.0.0. [Distribución](QUALITY_GATE_REPORT.md#paquetes-de-revisión-de-a3026d2) | Pendientes 150 % y 200 % nativos y escritorio Linux. Se observó recorte al 200 % con escalado de Qt. |
 
 ## Observación de escritorio Windows
 
 Se usó el código de `2a0a3fd` con el complemento `windows` de Qt 6.12.0, en un escritorio a 1366 × 768, escala nativa 100 % y 96 DPI. Workbench mostró el enlace a 1101 × 692 píxeles en tema oscuro. El enlace multitrayecto más fading Rician calculó 4 096 bits y archivó ambas etapas. El proyecto exportado se reabrió con sus huellas y los mismos 20 errores observados. Al cerrar la pestaña, el catálogo conservó el ancho y el botón de cierre se observó con margen respecto del borde.
 
-La figura de distribuciones de la trayectoria Rician seleccionada abrió con ejes y referencias legibles para envolvente y fase. La sesión manual quedó detenida durante la comprobación de Clarke. Quedan Clarke en escritorio real, una segunda escala nativa de Windows y el protocolo en Linux real. [Registro de Windows](evidence/candidate-2a0a3fd/windows-native-desktop.json)
+La figura de distribuciones de la trayectoria Rician seleccionada abrió con ejes y referencias legibles para envolvente y fase. La primera sesión quedó detenida durante Clarke. [Registro de Windows al 100 %](evidence/candidate-2a0a3fd/windows-native-desktop.json)
+
+Se retomó Clarke desde el código candidato `a3026d2` con Qt 6.12.0, dos trayectorias, una entrada reabierta a 96 kHz y Doppler máximo de 64 Hz. El mismo cálculo produjo 16 461 muestras y abrió **Distribuciones de envolvente y fase** y **Autocorrelación y PSD Doppler** en las tres comprobaciones.
+
+| Escala | Configuración | Resultado de geometría |
+| --- | --- | --- |
+| 125 % | Windows nativo en 1366 × 768. | La ventana y ambas figuras entraron en el escritorio. [Registro](evidence/candidate-a3026d2/windows-clarke-native-125.json) |
+| 150 % | Escalado de Qt sobre Windows al 100 %. | La ventana y ambas figuras entraron en el escritorio. [Registro](evidence/candidate-a3026d2/windows-clarke-qt-150.json) |
+| 200 % | Escalado de Qt sobre Windows al 100 %. | En 683 × 360 unidades lógicas útiles, la ventana principal excedió el borde inferior en 88 unidades. Las figuras lo excedieron en 81 y 50. [Registro](evidence/candidate-a3026d2/windows-clarke-qt-200.json) |
+
+El panel integrado ofreció 100 % y 125 % en el selector directo de Windows. Se restauró el 100 % al terminar la sesión. Las escalas de Qt se registran como comprobaciones de interfaz y dejan pendiente la observación nativa al 150 % y 200 %.
 
 ## Protocolo de escritorio real
 
