@@ -27,6 +27,9 @@ La continuación incorporó lotes focales sobre la base de Windows. La cobertura
 | Fourier con impulsos, importación, guías y estudios espectrales | 37 738/42 977 (87,81 %) | 12 317/16 538 (74,48 %) | 87 |
 | Entradas entre variantes, series y registro de archivos | 37 812/42 977 (87,98 %) | 12 349/16 538 (74,67 %) | 55 |
 | Fórmulas por tramos, funciones y matrices | 37 892/42 977 (88,17 %) | 12 382/16 538 (74,87 %) | 22 |
+| Reloj de H exacta, coeficientes y estudios de frecuencia | 37 945/42 981 (88,28 %) | 12 413/16 538 (75,06 %) | 0 |
+
+La última proyección supera el objetivo de ramas por nueve arcos. Las cifras provienen de lotes de Windows sobre la última cobertura integral del mismo sistema. El candidato requiere una medición integral local antes de despachar una sola matriz para Windows y Linux.
 
 ## Medición focal de la siguiente revisión
 

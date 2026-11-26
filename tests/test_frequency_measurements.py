@@ -86,5 +86,58 @@ class Interface(unittest.TestCase):
         p.count.setText('31');p.calculate();self.assertEqual(self.errors,[]);self.assertEqual(p.model.rows[0]['name'],'Paso');self.assertTrue(p.figure.axes[0].patches)
         p.table.setCurrentIndex(p.model.index(0,0));self.assertTrue(any(getattr(line,'_signallab_reference',False) for line in p.figure.axes[0].lines));self.assertTrue(any(getattr(line,'_signallab_curve_definition',None) for line in p.figure.axes[0].lines));p.set_source(None);self.assertFalse(p.calculate_button.isEnabled());self.assertIsNone(p.result)
 
+    def test_changing_study_ignores_a_draft_endpoint_that_only_applies_to_crossings(self):
+        p = self.panel
+        p.mode.setCurrentIndex(p.mode.findData('level'))
+        p.count.setText('45')
+        p.low.setText('0')
+        p.high.setText('3')
+        p.calculate()
+        self.assertEqual(self.errors,[])
+        assert_allclose([row['frequency'] for row in p.result['rows']],[1],atol=2e-13)
+        self.assertAlmostEqual(p.result['above'][0]['width'],1)
+        self.assertIn('Ancho hasta el borde de la ventana',p.report.toPlainText())
+        p.scale.setCurrentIndex(1)
+        self.assertTrue(any(line.get_label()=='Nivel buscado' for line in p.figure.axes[0].lines))
+
+        p.high.setText('pi/0')
+        previous = p.result
+        p.calculate()
+        self.assertTrue(self.errors)
+        self.assertIs(p.result,previous)
+        count = len(self.errors)
+        p.mode.setCurrentIndex(p.mode.findData('bands'))
+        for column,text in enumerate(('Paso', '0', '1/2', '0.89', '1.01')):
+            p.bands.table.item(0,column).setText(text)
+        p.calculate()
+        self.assertEqual(len(self.errors),count)
+        self.assertEqual(p.high.text(),'pi/0')
+        band, = p.result['rows']
+        self.assertAlmostEqual(band['minimum'],2/np.sqrt(5))
+        self.assertAlmostEqual(band['maximum'],1)
+        self.assertGreater(band['margin'],0)
+
+    def test_delay_and_absolute_crossings_use_their_own_limits_and_units(self):
+        p = self.panel
+        p.set_source(analog(start=0.1,stop=4,points=21))
+        p.mode.setCurrentIndex(p.mode.findData('delay'))
+        p.low.setText('1/2')
+        p.high.setText('2')
+        p.count.setText('31')
+        p.calculate()
+        self.assertEqual(self.errors,[])
+        row, = p.result['rows']
+        assert_allclose([row['delay_min'],row['delay_max']],[0.2,0.8],atol=2e-13)
+        self.assertEqual(p.result['delay_units'],'s')
+        p.mode.setCurrentIndex(p.mode.findData('level'))
+        p.level_mode.setCurrentIndex(1)
+        p.level.setText('1/sqrt(2)')
+        p.reference.setText('sin(')
+        p.calculate()
+        self.assertEqual(self.errors,[])
+        self.assertFalse(p.result['relative'])
+        self.assertIsNone(p.result['reference'])
+        assert_allclose([row['frequency'] for row in p.result['rows']],[1],atol=2e-13)
+
 
 if __name__=='__main__':unittest.main()

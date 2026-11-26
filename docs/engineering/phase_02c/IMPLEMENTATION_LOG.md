@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-04 y C-07 · Medidas de frecuencia independientes
+
+**Causa y corrección.** Comprobar bandas leía los límites del formulario usado para cruces y retardo, aunque esos campos quedaran ocultos. Cada estudio ahora lee sus límites propios. Cambiar de modo deja intacto el borrador de los otros estudios.
+
+**Evidencia focal.** Pasaron 18 pruebas de medidas, fórmulas y coeficientes. Se probaron el rechazo y reintento con límites incompletos, cruces relativos y absolutos, el ancho observado, las tolerancias de banda y el retardo de grupo. Los valores se compararon con las expresiones cerradas de `H(s)=1/(s+1)`. La proyección global llega a 37 945/42 981 líneas (88,28 %) y 12 413/16 538 ramas (75,06 %), nueve ramas por encima del objetivo; se requiere confirmación integral.
+
 ## 25 de noviembre de 2026 · C-04, C-06 y C-07 · Restaurar la definición exacta de un sistema
 
 **Causa y corrección.** Al copiar un sistema desde Resultados, se registraba el período para los coeficientes numéricos iniciales. Restaurar su fórmula o sus coeficientes exactos cambiaba la firma del formulario y descartaba el período. La firma se captura después de recuperar la definición exacta. Las ediciones posteriores vuelven a invalidar el período heredado.

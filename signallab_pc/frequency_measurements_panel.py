@@ -95,10 +95,13 @@ class FrequencyMeasurementsPanel(QWidget):
                 options['frequencies']=values.real
             else:
                 options['count']=integer_field(self.count,minimum=3)
-                low=real_field(self.low) if self.low.text().strip() else None;high=real_field(self.high) if self.high.text().strip() else None
-                if mode=='bands':options['bands']=self.bands.read()
-                elif mode=='delay':options['bands']=[('Retardo en banda',low,high,None,None)]
-                else:options.update(low=low,high=high,level=real_field(self.level),relative=self.level_mode.currentIndex()==0,reference=real_field(self.reference) if self.level_mode.currentIndex()==0 else 0.)
+                if mode=='bands':
+                    options['bands']=self.bands.read()
+                else:
+                    low=real_field(self.low) if self.low.text().strip() else None
+                    high=real_field(self.high) if self.high.text().strip() else None
+                    if mode=='delay':options['bands']=[('Retardo en banda',low,high,None,None)]
+                    else:options.update(low=low,high=high,level=real_field(self.level),relative=self.level_mode.currentIndex()==0,reference=real_field(self.reference) if self.level_mode.currentIndex()==0 else 0.)
             data=self.source;parent=self.source_id;revision=self.revision;inputs=self.state.snapshot()
             def accept(result):
                 from .result_journal import snapshot
