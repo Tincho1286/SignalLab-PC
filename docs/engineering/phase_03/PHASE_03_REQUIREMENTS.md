@@ -1,0 +1,16 @@
+# Requisitos de Digital Communications Lab
+
+| ID | Resultado solicitado | Evidencia de aceptación |
+| --- | --- | --- |
+| DC-01 | Bits manuales y aleatorios, agrupamiento y relleno explícito. Contratos diferenciados para símbolos, constelaciones, I/Q, transmisión, recepción, sincronización, métricas y experimentos. | Vectores con orden de bits conocido, prueba de ida y vuelta con y sin relleno, semillas y casos inválidos. |
+| DC-02 | BPSK, QPSK y M-PSK. QAM cuadrada con 4, 16, 64 y 256 puntos y órdenes cuadrados binarios adicionales reproducibles. Mapeo natural y Gray, rotación, energía y decisión dura. | Geometrías y etiquetas de referencia, distancia mínima, decisión euclídea independiente y fronteras deterministas. |
+| DC-03 | Pulso rectangular, RC y RRC, sobremuestreo, FIR de transmisión y filtro adaptado de recepción. | Límites removibles, simetría, energía, tiempo, frecuencia, retardo y medición de ISI por truncamiento. |
+| DC-04 | AWGN real y complejo por SNR, Es/N0 o Eb/N0. Recepción con sincronización ideal, asistida y estimada en alcance medible y estado explícito de indisponibilidad. | Distinción de varianzas, potencia y energía, estimación con desalineación conocida, casos ambiguos y recuperación sin ruido. |
+| DC-05 | BER, SER, EVM RMS, porcentual y en dB cuando sea definido. Curvas exactas o aproximadas con hipótesis y medición Monte Carlo. | Conteos y referencias independientes, tratamiento de transitorios, denominadores, incertidumbre estadística y detección de casos insuficientes. |
+| DC-06 | Cadena QPSK Gray → RRC TX → AWGN → RRC RX → sincronización y decisión → bits, BER, SER y EVM. Configuración, informes y figuras desde interfaces compartidas. | Igualdad entre Python, CLI y Workbench. Casos de cambios de semilla, reloj, sobremuestreo, roll-off, span, Eb/N0 y sincronización. |
+| DC-07 | Constelación, I/Q, ojo, espectro, PSD, respuesta del filtro, curvas de métricas y comparaciones. Exportación, figuras independientes y controles accesibles. | Ejes, unidades, referencia de escala, capturas y pruebas de guardado de gráficos y de navegación en ventana compacta. |
+| DC-08 | Barridos reproducibles de Eb/N0, orden, roll-off, muestras por símbolo, span y símbolos. Guardado, cancelación, recuperación y comparación y exportación. | Interrupción entre corridas y durante escritura. Catálogo preservado, verificación de archivos, reintento y coincidencia con la secuencia completa. |
+| DC-09 | Adaptación a JSON histórico, SLBIN y SLPROJ, y evaluación de intercambio científico. | Sesiones antiguas, round trips de entidad tipada y señal compleja, procedencia y manipulación de muestras, archivos corruptos y escrituras atómicas. |
+| DC-10 | Presupuestos, cancelación, progreso, trazabilidad, seguridad, documentación, validación y empaquetados. | Matriz Windows/Linux sobre un SHA, oráculos matemáticos, perfiles de latencia y memoria, cobertura, pruebas de GUI y evidencia de instaladores. |
+
+La primera etapa parte de sincronización conocida. Las decisiones blandas y LLR se evalúan luego de validar el caso base. Los criterios y las convenciones se registran antes de implementar cada operación. [Quality Gate](QUALITY_GATE_CRITERIA.md) · [Plan de trabajo](PHASE_03_PLAN.md)

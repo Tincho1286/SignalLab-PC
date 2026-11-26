@@ -1,0 +1,78 @@
+{
+  "komm_version": "0.37.0",
+  "numpy_version": "2.5.5",
+  "gray_cycle_8_matches": true,
+  "qam_raw_energy_matches": true,
+  "pulse_comparison": [
+    {
+      "kind": "rc",
+      "rolloff": 0.0,
+      "max_abs_difference": 1.1102230246251565e-16,
+      "max_abs_difference_at_other_points": 1.1102230246251565e-16,
+      "max_abs_difference_beside_pole": null
+    },
+    {
+      "kind": "rrc",
+      "rolloff": 0.0,
+      "max_abs_difference": 1.1102230246251565e-16,
+      "max_abs_difference_at_other_points": 1.1102230246251565e-16,
+      "max_abs_difference_beside_pole": null
+    },
+    {
+      "kind": "rc",
+      "rolloff": 0.2,
+      "max_abs_difference": 2.220446049250313e-16,
+      "max_abs_difference_at_other_points": 2.220446049250313e-16,
+      "max_abs_difference_beside_pole": 1.5265566588595902e-16
+    },
+    {
+      "kind": "rrc",
+      "rolloff": 0.2,
+      "max_abs_difference": 2.4000013393310482e-08,
+      "max_abs_difference_at_other_points": 2.220446049250313e-16,
+      "max_abs_difference_beside_pole": 2.4000013393310482e-08
+    },
+    {
+      "kind": "rc",
+      "rolloff": 0.25,
+      "max_abs_difference": 1.1102230246251565e-16,
+      "max_abs_difference_at_other_points": 1.1102230246251565e-16,
+      "max_abs_difference_beside_pole": 2.174238946139713e-17
+    },
+    {
+      "kind": "rrc",
+      "rolloff": 0.25,
+      "max_abs_difference": 9.009465118392512e-08,
+      "max_abs_difference_at_other_points": 1.1102230246251565e-16,
+      "max_abs_difference_beside_pole": 9.009465118392512e-08
+    },
+    {
+      "kind": "rc",
+      "rolloff": 0.5,
+      "max_abs_difference": 2.220446049250313e-16,
+      "max_abs_difference_at_other_points": 2.220446049250313e-16,
+      "max_abs_difference_beside_pole": 4.322431629151356e-17
+    },
+    {
+      "kind": "rrc",
+      "rolloff": 0.5,
+      "max_abs_difference": 1.7859579892753885e-07,
+      "max_abs_difference_at_other_points": 2.220446049250313e-16,
+      "max_abs_difference_beside_pole": 1.7859579892753885e-07
+    },
+    {
+      "kind": "rc",
+      "rolloff": 1.0,
+      "max_abs_difference": 1.1102230246251565e-16,
+      "max_abs_difference_at_other_points": 1.1102230246251565e-16,
+      "max_abs_difference_beside_pole": 1.1102230246251565e-16
+    },
+    {
+      "kind": "rrc",
+      "rolloff": 1.0,
+      "max_abs_difference": 2.000000257629253e-07,
+      "max_abs_difference_at_other_points": 2.220446049250313e-16,
+      "max_abs_difference_beside_pole": 2.000000257629253e-07
+    }
+  ]
+}
