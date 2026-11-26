@@ -13,3 +13,9 @@ La corrida única de `a5eafa9` terminó con éxito en ambos sistemas. Se verific
 ## Contratos de bits y modulación · WP-01 y WP-02
 
 Se implementaron los contratos de bits, etiquetas, reloj e I/Q y las operaciones de mapeo y decisión para BPSK, QPSK, M-PSK y QAM cuadrada. La decisión emplea sectores o ejes de la grilla, con uso de memoria por bloque. Las pruebas comparan la geometría, la energía y las decisiones con referencias independientes y verifican relleno, reloj, casos extremos, cancelación y cambios de entrada. `python -B -X utf8 -m unittest discover -s tests -p test_communications_modulation.py` aprobó 12 pruebas. La medición focal en Windows cubrió 362/362 líneas y 117/118 ramas de los dos módulos, y la verificación estática aprobó 392 archivos. [Contratos y ejemplo](SCIENTIFIC_CONTRACTS.md#bits-reloj-y-constelaciones-en-python)
+
+## Pulsos y filtrado · WP-03
+
+Se incorporaron pulsos rectangular, RC y RRC, sobremuestreo por inserción de ceros, FIR de longitud completa y filtro adaptado. RC cancela la singularidad con una identidad de sinc. RRC factoriza el cero del numerador antes de dividir en la vecindad del polo. En los 79 valores de referencia, el mayor error absoluto medido fue 2,23 × 10⁻¹⁶. Los retardos de medio índice de FIR pares se conservan y su suma TX/RX da un índice entero. La publicación del resultado recalcula su huella después de añadir el reloj y la descripción del pulso.
+
+Pasaron 19 pruebas mediante `python -B -X utf8 -m unittest discover -s tests -p "test_communications*.py"`. Se verificaron DTFT directa de coeficientes, convolución, ISI por suma de productos, compatibilidad con Project, cancelación y rechazo por memoria. La cobertura focal de los tres módulos fue 551/551 líneas y 159/160 ramas en Windows. La verificación estática aprobó 393 archivos. [Convenciones de pulsos](MATHEMATICAL_FOUNDATIONS.md#pulsos-y-retardo) · [Medición inicial](PERFORMANCE_REPORT.md)

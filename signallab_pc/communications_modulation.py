@@ -8,7 +8,7 @@ import numpy as np
 
 from .communications_data import (
     MAX_SEED, BitSequence, ConstellationSpec, SymbolClock, SymbolSequence,
-    immutable_array, integer, iq_signal,
+    clock_from_signal, immutable_array, integer, iq_signal,
 )
 from .execution import ExecutionContext
 from .model import Signal
@@ -229,15 +229,13 @@ def decide_symbols(signal: Signal, spec: ConstellationSpec, *, valid_bits=None,
         raise TypeError('La decisión requiere una señal I/Q y una configuración de constelación.')
     if signal.domain != 'discrete' or signal.data_kind != 'temporal':
         raise ValueError('La decisión requiere muestras temporales discretas.')
-    sps = integer(signal.metadata.get('samples_per_symbol', 1), 'Las muestras por símbolo')
-    if sps != 1:
-        raise ValueError('Seleccioná una muestra por símbolo antes de decidir.')
+    ctx = execution or ExecutionContext()
+    ctx.checkpoint(0)
+    clock = clock_from_signal(signal, 1)
     values = signal.values
     if not isinstance(values, np.ndarray) or values.ndim != 1 or not values.size or values.dtype != np.complex128:
         raise ValueError('La decisión requiere un vector de observaciones complejas.')
     count = values.size
-    ctx = execution or ExecutionContext()
-    ctx.checkpoint(0)
     _, _, gain = _geometry(spec)
     with ctx.reserve(8 * count + 128 * min(count, _BLOCK)):
         digest = content_digest(signal, ctx.checkpoint)
@@ -250,13 +248,6 @@ def decide_symbols(signal: Signal, spec: ConstellationSpec, *, valid_bits=None,
                 raise ValueError('La decisión requiere observaciones finitas.')
             positions = _nearest_positions(block, spec, gain)
             labels[start:stop] = _label_transform(positions, spec, inverse=False)
-        rate = signal.metadata.get('symbol_rate_hz', signal.metadata.get('sample_rate_hz'))
-        clock = None if rate is None else SymbolClock(
-            rate, time_start_s=signal.metadata.get('time_start_s'),
-            center_frequency_hz=signal.metadata.get('center_frequency_hz'),
-        )
-        if clock is not None and signal.metadata.get('sample_rate_hz', rate) != clock.sample_rate_hz:
-            raise ValueError('La tasa de muestras no coincide con la tasa de símbolos.')
         source = signal.metadata.get('communications')
         if valid_bits is None and isinstance(source, dict):
             useful = source.get('valid_bits')

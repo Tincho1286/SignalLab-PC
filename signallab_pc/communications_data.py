@@ -135,6 +135,25 @@ class SymbolClock:
         return fields
 
 
+def clock_from_signal(signal: Signal, expected_sps: int) -> SymbolClock | None:
+    fields = signal.metadata
+    recorded = integer(fields.get('samples_per_symbol', expected_sps), 'Las muestras por símbolo')
+    if recorded != expected_sps:
+        raise ValueError('Las muestras por símbolo registradas no coinciden con la operación.')
+    sample_rate = fields.get('sample_rate_hz')
+    if sample_rate is not None:
+        sample_rate = real(sample_rate, 'Fs', positive=True)
+    symbol_rate = fields.get('symbol_rate_hz')
+    if symbol_rate is None:
+        if sample_rate is None:
+            return None
+        symbol_rate = sample_rate / expected_sps
+    clock = SymbolClock(symbol_rate, expected_sps, fields.get('time_start_s'), fields.get('center_frequency_hz'))
+    if sample_rate is not None and not math.isclose(sample_rate, clock.sample_rate_hz, rel_tol=1e-12, abs_tol=0):
+        raise ValueError('La tasa de muestras y la de símbolos son incompatibles.')
+    return clock
+
+
 @dataclass(frozen=True, slots=True, eq=False)
 class SymbolSequence:
     """Integer labels (bit words), separated from their complex coordinates."""

@@ -19,3 +19,15 @@ Una prueba local de escritura y reapertura en Windows verificó las muestras, el
 En el caso grande, 48 archivos con ese contenido suman aproximadamente 1,60 GiB. El límite de manifiesto de SLPROJ sigue en 16 MiB. El banco justifica evaluar la codificación compacta de datos discretos con el formato existente. Los ensayos con datos del laboratorio medirán persistencia y cancelación con huellas verificadas, además del consumo de disco con las salidas que se incluyan finalmente.
 
 Se medirá en procesos frescos con versiones, plataforma y configuración numérica registradas. El informe distinguirá modulación, decisión, FIR, ruido, métricas, persistencia, barridos y el tiempo total. Se reportarán pico de memoria, retención por salida, cancelación en etapas distintas y capacidad de respuesta de Workbench. Las mediciones del laboratorio delimitarán los perfiles nuevos.
+
+## Primera medición de modulación y filtrado
+
+En Windows, CPython 3.14.10 y un hilo BLAS/OMP, se ejecutaron las primeras etapas sin importar Qt. El perfil QPSK usó RRC de 81 coeficientes, $β=0,35$, ocho muestras por símbolo y tasa de 12 ksym/s. Estos son tiempos de una corrida por tamaño, incluida la verificación de procedencia de cada FIR.
+
+| Símbolos | Modulación (ms) | Inserción (ms) | FIR TX (ms) | FIR adaptado (ms) |
+| ---: | ---: | ---: | ---: | ---: |
+| 128 | 0,40 | 2,35 | 6,27 | 2,61 |
+| 2 048 | 0,95 | 1,27 | 5,73 | 5,04 |
+| 65 536 | 5,30 | 7,89 | 95,92 | 95,22 |
+
+La corrida mayor produjo 524 441 muestras después del filtro adaptado. La cancelación antes y después de cada FIR es cooperativa. La medición de latencia dentro de perfiles completos incorporará el canal, la sincronización y la carga de escritorio.
