@@ -196,6 +196,24 @@ raise SystemExit(main())
             self.assertIsNone(imbalance['statistics']['image_rejection_db'])
             np.testing.assert_array_equal(project.get(imbalance['record']).values, x.values - 0.25j)
 
+    def test_interference_cli_keeps_components_and_registered_parents(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            x, interferer, output = root/'primary.slbin', root/'external.slbin', root/'mix.slproj'
+            save_binary_signal(Signal([1, 1, 1, 1], origin=-1), x)
+            save_binary_signal(Signal([1j, 2], origin=0), interferer)
+            receipt = self.invoke('interference', '--signal', x, '--interferer', interferer, '--output', output)
+            project, _ = session.load(output)
+            self.assertAlmostEqual(receipt['statistics']['interference_power'], 1.25)
+            np.testing.assert_array_equal(project.get(receipt['record']).values, [1, 1+1j, 3, 1])
+            branch = next(row for row in project.headers() if row['id'] == receipt['record'])
+            self.assertEqual(len(branch['verified_provenance']['parents']), 2)
+            earlier = output.read_bytes()
+            failure = self.invoke('interference', '--session', output, '--record', receipt['record'],
+                                  '--bandwidth-hz', 30, '--output', output, expected=1)
+            self.assertIn('muestreo', failure)
+            self.assertEqual(output.read_bytes(), earlier)
+
     def test_sweep_cli_runs_and_verifies_a_reproducible_grid(self):
         with TemporaryDirectory() as folder:
             root = Path(folder)

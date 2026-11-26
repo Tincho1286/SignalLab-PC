@@ -75,6 +75,18 @@ python -m signallab_pc communications iq-imbalance --signal entrada.slbin --gain
 
 Python expone las mismas operaciones en `signallab_pc.communications_impairments`. Los retardos fraccionarios y SFO usan interpolación aproximada. [Convenciones y alcance](SCIENTIFIC_CONTRACTS.md#retardo-y-desajuste-del-reloj)
 
+## Interferencia
+
+En **Comunicaciones → Interferencia**, elegí tonos, banda limitada o una señal externa. Podés declarar la potencia interferente o el objetivo SIR. El informe mide cada potencia sobre el registro deseado y compara SIR, SNR y SINR. La salida, el interferente y el ruido opcional quedan disponibles en el proyecto.
+
+```sh
+python -m signallab_pc communications interference --signal entrada.slbin --tone "100,0.5" --tone "200,0.2,1.57" --sir-db 6 --output tonos.slproj
+python -m signallab_pc communications interference --signal entrada.slbin --bandwidth-hz 512 --center-hz 1000 --sir-db 8 --noise-snr-db 10 --output adyacente.slproj
+python -m signallab_pc communications interference --signal entrada.slbin --interferer externa.slbin --output mezcla.slproj
+```
+
+Python usa `InterferenceSpec` y `apply_interference` en `signallab_pc.communications_interference`. Las fuentes con frecuencias en Hz requieren Fs. [Convenciones, calibración y potencia](SCIENTIFIC_CONTRACTS.md#interferencia)
+
 ## Alcance siguiente
 
-Quedan los modelos de interferencia, las pérdidas de propagación y la integración de los modelos al enlace y a los barridos. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.
+Quedan las pérdidas de propagación, la composición y la integración de los modelos al enlace y a los barridos. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.

@@ -8,7 +8,7 @@ La evidencia de cada implementación se registra en el [log](IMPLEMENTATION_LOG.
 | CH-01 | Multitrayecto | `MultipathSpec`, `apply_multipath`, `analyze_multipath`, `multipath_frequency`. Convolución, `freqz`, perfil y momentos manuales, persistencia y cancelación. [Contrato](SCIENTIFIC_CONTRACTS.md) · [Retardo fraccionario](DECISION_LOG.md). | Implementado, pendiente matriz final |
 | CH-02 | Rayleigh y Rician | Motores independiente y Clarke. Comparación con distribuciones SciPy, K lineal/dB, fase, potencias y semillas. | Implementado, pendiente matriz final |
 | CH-03 | Canal variante y Doppler | `CarrierShift`, cuadratura Clarke, autocorrelación, PSD y coherencia. [Oráculos](MATHEMATICAL_AUDIT.md#protocolo-previo-para-doppler). | Implementado, pendiente matriz final |
-| CH-04 | Imperfecciones e interferencia | CFO, fase, llegada, SFO, fase Wiener y desequilibrio I/Q con DC e IRR. Quedan tonos, banda limitada, señal externa e interferencia cocanal/adyacente. | Parcial |
+| CH-04 | Imperfecciones e interferencia | CFO, fase, llegada, SFO, fase Wiener e I/Q con DC e IRR. Interferencia tonal, en banda cocanal o adyacente, externa y con AWGN opcional. Potencias, SIR, SNR y SINR verificadas con oráculos. | Implementado, pendiente matriz final |
 | CH-05 | Pérdidas y composición | Atenuación, espacio libre, log-distance y sombra. Orden explícito con estado intermedio y procedencia. | Pendiente |
 | CH-06 | Enlace y sincronización | Integrar nuevos canales, conservar el control histórico e invalidar métricas si no hay alineación. | Pendiente |
 | CH-07 | Workbench, API y CLI | Multitrayecto, fading y Doppler del mismo servicio, informe, figuras y realizaciones reutilizables. Faltan paridad del resto de modelos y escritorio real en el candidato. | Parcial |

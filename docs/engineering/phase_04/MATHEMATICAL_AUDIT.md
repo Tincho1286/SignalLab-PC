@@ -61,3 +61,26 @@ Con Qt bloqueado, un tono de ω = 0,2π y un retardo de 0,375 muestras dio error
 Con Fs = 8 kHz, ancho de línea de 16 Hz y semilla 673, la varianza medida fue 0,0127514 rad² frente a 0,0125664 rad² teóricos. El error relativo fue 1,47 %. La proyección compleja del tono con desbalance de amplitud 1,25, ángulo de 0,23 rad y DC de 0,025 − j0,07 dio 15,90338546 dB de rechazo de imagen, de acuerdo con la relación de coeficientes.
 
 Una ejecución exploratoria de retardo y SFO sobre 524 288 muestras a 96 kHz tardó 2,83 s. El coste de memoria y la respuesta de escritorio se medirán en los perfiles del candidato.
+
+## Protocolo previo para interferencia
+
+- Comparar tonos complejos y su suma con exponenciales analíticas y proyecciones en bins exactos. Verificar el escalado a SIR de 6 dB y preservar el soporte y reloj.
+- Generar interferencia cocanal y desplazada con soporte definido en bins. Comparar potencia en banda y fuera de ella mediante DFT independiente y Parseval. Exigir potencia fuera de banda relativa <10⁻²⁶ en los registros de prueba.
+- Para una señal externa, calcular a mano los índices de superposición y los ceros del resto del registro. Rechazar incompatibilidades de reloj o unidades registradas.
+- Medir por separado P de señal, interferencia y ruido, además de la potencia observada de la suma de los dos últimos. Contrastar SIR y SINR mediante cálculo directo, y comprobar los estados de energía cero sin escribir infinitos en JSON.
+
+[Modelo y convenciones DFT](https://numpy.org/doc/stable/reference/routines.fft.html) · [Definición de SINR](https://web.stanford.edu/class/ee359/doc/WirelessComm_Chp1-7_Feb82020.pdf)
+
+### Mediciones de interferencia en Windows
+
+Con Qt bloqueado se midió un registro de 8 192 muestras a Fs = 4 096 Hz. Se fijó una SIR de 8 dB con banda de 512 Hz centrada en 1 000 Hz y AWGN de SNR nominal de 10 dB. Las semillas fueron 73 para ambas fuentes, derivadas con subflujos separados.
+
+| Magnitud | Resultado |
+| --- | ---: |
+| Potencia deseada | 4 |
+| Potencia interferente | 0,63395728 |
+| Potencia del AWGN | 0,40277478 |
+| Potencia observada de la suma interferencia + AWGN | 1,04285371 |
+| SIR | 8 dB |
+| SINR por suma de potencias | 5,86393465 dB |
+| Fracción de potencia interferente fuera de los bins configurados | 9,96 × 10⁻³² |

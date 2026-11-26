@@ -22,6 +22,10 @@ from .communications_fading import FadingSpec, apply_fading, parse_fading_path
 from .communications_impairments import (
     IQImbalance, PhaseNoiseSpec, TimingOffset, apply_iq_imbalance, apply_phase_noise, apply_timing_offset,
 )
+from .communications_interference import (
+    BandInterference, ExternalInterference, InterferenceSpec, ToneInterference, apply_interference,
+    parse_interference_tone, store_interference,
+)
 from .communications_metrics import QualitySpec, measure_quality
 from .communications_modulation import build_constellation, decide_symbols, generate_bits, group_bits, modulate, parse_bits, ungroup_symbols
 from .communications_pulses import PulseSpec, apply_pulse, design_pulse, matched_pulse_isi, upsample_symbols
@@ -45,6 +49,7 @@ _LABELS = {
     'fading': 'Aplicar fading',
     'carrier': 'Aplicar frecuencia y fase',
     'impairments': 'Aplicar imperfección',
+    'interference': 'Agregar interferencia',
     'measure': 'Medir calidad', 'sweep': 'Ejecutar barrido',
 }
 _CONSTE = 'Constelación'
@@ -59,6 +64,7 @@ _CHANNEL_TAPS = 'Impulso y perfil de potencia'
 _FADING = 'Evolución del fading'
 _DOPPLER = 'Autocorrelación y PSD Doppler'
 _PHASE_PATH = 'Trayectoria de fase'
+_INTERFERENCE_SPECTRA = 'Espectros de los componentes'
 _ERRORS = 'Tasas de error'
 _COMPARISON = 'Comparación de corridas'
 _VIEWS = {
@@ -67,6 +73,7 @@ _VIEWS = {
     'multipath': (_IQ, _SPECTRUM, _CHANNEL_TAPS, _CHANNEL_FREQUENCY),
     'fading': (_IQ, _SPECTRUM, _FADING, _DOPPLER), 'carrier': (_IQ, _SPECTRUM),
     'impairments': (_IQ, _SPECTRUM, _PHASE_PATH),
+    'interference': (_IQ, _INTERFERENCE_SPECTRA),
     'receive': (_IQ,), 'decide': (_CONSTE,), 'measure': (), 'sweep': (_COMPARISON,),
 }
 
@@ -443,6 +450,44 @@ class CommunicationsPanel(QWidget):
                     self._visible(widget, key == selected)
 
         mode.currentIndexChanged.connect(update_fields)
+        update_fields()
+
+    def _build_interference(self):
+        self.source = self._source('Señal deseada')
+        mode = self._combo('interference_mode', 'Modelo', (
+            ('Tonos complejos', 'tones'), ('Banda limitada', 'band'), ('Señal externa', 'external'),
+        ))
+        self.interferer_input = self._source('Señal interferente')
+        tones = QPlainTextEdit('0, 0.5')
+        tones.setMaximumHeight(100)
+        self._set('tones', 'Tonos · uno por línea', tones, 'Formato frecuencia en Hz, amplitud, fase en radianes.')
+        center = self._line('center_hz', 'Centro o traslado de frecuencia (Hz)', 0)
+        bandwidth = self._line('bandwidth_hz', 'Ancho de banda total (Hz)', 1000)
+        seed = self._line('interference_seed', 'Semilla de interferencia', 2026)
+        calibration = self._combo('calibration', 'Nivel de interferencia', (
+            ('Conservar el nivel del modelo', 'native'), ('Potencia fija', 'power'), ('SIR objetivo', 'sir'),
+        ))
+        power = self._line('interference_power', 'Potencia interferente', 1)
+        sir = self._line('sir_db', 'SIR objetivo (dB)', 10)
+        add_noise = self._check('add_noise', 'Agregar ruido AWGN')
+        snr = self._line('noise_snr_db', 'SNR nominal del ruido (dB)', 20)
+        noise_seed = self._line('noise_seed', 'Semilla del ruido', 2026)
+
+        def update_fields(*_):
+            selected = mode.currentData()
+            self._visible(self.interferer_input, selected == 'external')
+            self._visible(tones, selected == 'tones')
+            self._visible(center, selected != 'tones')
+            self._visible(bandwidth, selected == 'band')
+            self._visible(seed, selected == 'band')
+            self._visible(power, calibration.currentData() == 'power')
+            self._visible(sir, calibration.currentData() == 'sir')
+            self._visible(snr, add_noise.isChecked())
+            self._visible(noise_seed, add_noise.isChecked())
+
+        mode.currentIndexChanged.connect(update_fields)
+        calibration.currentIndexChanged.connect(update_fields)
+        add_noise.toggled.connect(update_fields)
         update_fields()
 
     def _build_receive(self):
@@ -928,6 +973,65 @@ class CommunicationsPanel(QWidget):
             self._display(Summary(title, [Section('', paragraphs=paragraphs, rows=rows)]), axes, records)
 
         return lambda: calculate(source, spec), accept
+
+    def _run_interference(self):
+        source, register = self.source.capture_input()
+        mode = self._choice('interference_mode')
+        external = register_external = None
+        if mode == 'tones':
+            model = ToneInterference(tuple(parse_interference_tone(line)
+                                           for line in self.fields['tones'].toPlainText().splitlines() if line.strip()))
+        elif mode == 'band':
+            model = BandInterference(self._real('bandwidth_hz'), self._real('center_hz', 0), self._int('interference_seed'))
+        else:
+            model = ExternalInterference(self._real('center_hz', 0))
+            external, register_external = self.interferer_input.capture_input()
+        level = self._choice('calibration')
+        noise = self.fields['add_noise'].isChecked()
+        spec = InterferenceSpec(model, self._real('interference_power') if level == 'power' else None,
+                                self._real('sir_db') if level == 'sir' else None,
+                                self._real('noise_snr_db') if noise else None, self._int('noise_seed') if noise else 2026)
+        if ((level == 'power' and spec.power is None) or (level == 'sir' and spec.sir_db is None)
+                or (noise and spec.noise_snr_db is None)):
+            raise ValueError('Completá el nivel de interferencia o de ruido seleccionado.')
+
+        def accept(result):
+            parents = (register(),) if register_external is None else (register(), register_external())
+            saved = store_interference(self.window.project, result, parents=parents)
+            records = {}
+            for name, signal in (('record', result.signal), ('interference_record', result.interference),
+                                 ('noise_record', result.noise)):
+                if signal is not None:
+                    self.window.register_publication(saved[name], signal)
+                    records[signal.name] = signal, saved[name]
+            self.window.register_publication(saved['statistics_record'], asdict(result.statistics))
+
+            stats = result.statistics
+            ratios = {'unbounded': 'Sin perturbación', 'zero': 'Señal deseada nula', 'undefined': 'Ambas potencias nulas'}
+            levels = [(f'{label} (dB)', number(ratio.db) if ratio.db is not None else ratios[ratio.state])
+                      for label, ratio in (('SIR', stats.sir), ('SNR', stats.snr), ('SINR', stats.sinr))]
+            summary = Summary('Señal con interferencia', [
+                Section('Potencia media en el registro completo', rows=[
+                    ('Muestras', stats.sample_count),
+                    ('Señal deseada', number(stats.signal_power)), ('Interferencia', number(stats.interference_power)),
+                    ('Ruido', number(stats.noise_power)),
+                    ('Suma de potencias de interferencia y ruido', number(stats.summed_component_powers)),
+                    ('Potencia medida de interferencia + ruido', number(stats.observed_disturbance_power)),
+                ]),
+                Section('Relaciones de potencia', rows=levels),
+            ])
+            axes = {_IQ: (partial(figures.iq_figure, signal=result.signal), None)}
+            if stats.sample_count >= 2:
+                spectra = [('Señal deseada', source), ('Interferencia', result.interference), ('Salida', result.signal)]
+                if result.noise is not None:
+                    spectra.append(('Ruido', result.noise))
+                axes[_INTERFERENCE_SPECTRA] = (
+                    figures.interference_spectra_figure,
+                    lambda: tuple((label, figures.spectrum_data(signal)) for label, signal in spectra),
+                )
+            self._display(summary, axes, records)
+
+        return lambda: apply_interference(source, spec, external=external), accept
 
     def _run_receive(self):
         source, register = self.source.capture_input()

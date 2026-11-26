@@ -32,16 +32,25 @@ def load_input(args, execution):
     else:
         if args.signal.resolve() == args.output.resolve():
             raise ValueError('Elegí un archivo de sesión distinto de la señal de entrada.')
-        if args.signal.suffix.lower() == '.slbin':
-            from .scientific_storage import load_binary_signal
-            source = load_binary_signal(args.signal, execution)
-        else:
-            source = load_json(args.signal)
+        source = load_signal_file(args.signal, execution)
         project, workspace = Project(), session.empty_workspace()
     if not isinstance(source, Signal):
         raise ValueError('El registro seleccionado debe ser una señal.')
     execution.checkpoint()
     return project, workspace, source
+
+
+def load_signal_file(path, execution):
+    execution.checkpoint()
+    if path.suffix.lower() == '.slbin':
+        from .scientific_storage import load_binary_signal
+        source = load_binary_signal(path, execution)
+    else:
+        source = load_json(path)
+    if not isinstance(source, Signal):
+        raise ValueError('El archivo seleccionado debe contener una señal.')
+    execution.checkpoint()
+    return source
 
 
 def add_session_arguments(parser):

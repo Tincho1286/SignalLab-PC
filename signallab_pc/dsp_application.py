@@ -278,9 +278,9 @@ def estimate_psd(request: PSDRequest, execution: ExecutionContext | None = None)
     return _finish_signal(result, (source,), expected, ctx)
 
 
-def store_signal(project: Project, value: Signal, *, parents=(), execution=None) -> str:
-    ctx = execution or ExecutionContext()
-    ctx.checkpoint()
+def stage_signal(project: Project, value: Signal, *, parents=(), execution: ExecutionContext) -> str:
+    """Add verified signal data to an open project transaction."""
+    execution.checkpoint()
     parents = tuple(parents)
     verification = None
     if 'core_provenance' in value.metadata or hasattr(value, '_core_verification'):
@@ -289,10 +289,21 @@ def store_signal(project: Project, value: Signal, *, parents=(), execution=None)
             expected += (auxiliary,)
         if parents and len(parents) != len(expected):
             raise ValueError('Indicá todos los orígenes utilizados, en orden de cálculo.')
-        verification = (output, expected if parents else (), ctx.checkpoint)
+        if parents:
+            unique = {}
+            for key, digest in zip(parents, expected, strict=True):
+                if key in unique and unique[key] != digest:
+                    raise ValueError('Un origen repetido debe representar los mismos datos.')
+                unique[key] = digest
+            parents, expected = tuple(unique), tuple(unique.values())
+        verification = (output, expected if parents else (), execution.checkpoint)
+    return project.add(value, operation=value.metadata.get('operation', ''), parents=parents, verification=verification)
+
+
+def store_signal(project: Project, value: Signal, *, parents=(), execution=None) -> str:
+    ctx = execution or ExecutionContext()
     with project.stage_records(before_commit=ctx.checkpoint) as staged:
-        return staged.add(value, operation=value.metadata.get('operation', ''), parents=parents,
-                          verification=verification)
+        return stage_signal(staged, value, parents=parents, execution=ctx)
 
 
 def store_fir_design(project: Project, design: FIRDesignResult, *, execution=None) -> tuple[str, str]:

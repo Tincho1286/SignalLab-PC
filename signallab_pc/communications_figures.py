@@ -105,6 +105,19 @@ def spectrum_figure(figure, spectrum, *, density=False):
     axis.grid(alpha=.22)
 
 
+def interference_spectra_figure(figure, records):
+    axis = figure.add_subplot(111)
+    rate = records[0][1].metadata.get('input_clock', {}).get('sample_rate_hz')
+    for (label, spectrum), token in zip(records, ('blue', 'amber', 'green', 'muted')):
+        coordinate = spectrum.axis if rate is None else spectrum.axis * (rate/math.tau)
+        axis.plot(coordinate, abs(spectrum.values)/spectrum.values.size, label=label, color=COLORS[token])
+    units = 'rad/muestra' if rate is None else 'Hz'
+    configure_axis(axis, units=units, label=f'Frecuencia ({units})')
+    axis.set_ylabel('|X[k]| / N')
+    axis.grid(alpha=.22)
+    axis.legend()
+
+
 def pulse_figure(figure, pulse):
     axis = figure.add_subplot(111)
     values = pulse.taps

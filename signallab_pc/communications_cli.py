@@ -7,7 +7,7 @@ from pathlib import Path
 
 from . import session
 from .atomic_file import write_json
-from .cli_session import add_output_arguments, add_session_arguments, load_input, run_command
+from .cli_session import add_output_arguments, add_session_arguments, load_input, load_signal_file, run_command
 from .communications_channel import (
     AWGNSpec, MultipathSpec, add_awgn, analyze_multipath, apply_multipath, multipath_frequency, parse_channel_path,
 )
@@ -17,6 +17,10 @@ from .communications_experiment import ExperimentSpec, coherent_monte_carlo, run
 from .communications_fading import FadingSpec, apply_fading, parse_fading_path
 from .communications_impairments import (
     IQImbalance, PhaseNoiseSpec, TimingOffset, apply_iq_imbalance, apply_phase_noise, apply_timing_offset,
+)
+from .communications_interference import (
+    BandInterference, ExternalInterference, InterferenceSpec, ToneInterference, apply_interference,
+    parse_interference_tone, store_interference,
 )
 from .communications_metrics import QualitySpec, measure_quality
 from .communications_modulation import decide_symbols, generate_bits, group_bits, modulate, parse_bits
@@ -239,6 +243,35 @@ def _impairment(args, ctx):
     return {**receipt, 'record': record, 'sample_count': signal.values.size}
 
 
+def _interfere(args, ctx):
+    project, workspace, source = load_input(args, ctx)
+    external = None
+    if args.tone:
+        if args.center_hz is not None:
+            raise ValueError('Los tonos se trasladan ingresando su frecuencia individual.')
+        model = ToneInterference(tuple(parse_interference_tone(value) for value in args.tone))
+    elif args.bandwidth_hz is not None:
+        model = BandInterference(args.bandwidth_hz, args.center_hz or 0.0, args.seed)
+    else:
+        model = ExternalInterference(args.center_hz or 0.0)
+        if args.interferer_record is not None:
+            if args.session is None:
+                raise ValueError('--interferer-record requiere una sesión de entrada.')
+            external = project.get(args.interferer_record)
+        else:
+            if args.interferer.resolve() == args.output.resolve():
+                raise ValueError('Elegí una ruta de sesión distinta de la señal interferente.')
+            external = load_signal_file(args.interferer, ctx)
+    spec = InterferenceSpec(model, args.power, args.sir_db, args.noise_snr_db, args.noise_seed)
+    result = apply_interference(source, spec, external=external, execution=ctx)
+    parents = (_source_id(project, args, source),)
+    if external is not None:
+        parents += (args.interferer_record or project.add(external, operation='Importar interferencia externa'),)
+    records = store_interference(project, result, parents=parents, execution=ctx)
+    _save(args.output, project, workspace, ctx)
+    return {**records, 'statistics': asdict(result.statistics)}
+
+
 def _receive(args, ctx):
     project, workspace, source = load_input(args, ctx)
     pilot = None if args.pilot_record is None else project.get(args.pilot_record)
@@ -402,6 +435,22 @@ def main(argv=None):
     iq.add_argument('--dc-q', type=float, default=0.0)
     add_session_arguments(iq)
     iq.set_defaults(execute=_impairment)
+
+    interfere = commands.add_parser('interference', help='Agregá tonos, interferencia en banda o una señal externa.')
+    model = interfere.add_mutually_exclusive_group(required=True)
+    model.add_argument('--tone', action='append', metavar='HZ[,AMPLITUD[,FASE]]', help='Repetible por cada tono.')
+    model.add_argument('--bandwidth-hz', type=float)
+    model.add_argument('--interferer', type=Path, help='Archivo de señal JSON o SLBIN.')
+    model.add_argument('--interferer-record', help='Registro interferente dentro de la sesión.')
+    interfere.add_argument('--center-hz', type=float, help='Centro de banda o desplazamiento de la señal externa.')
+    calibration = interfere.add_mutually_exclusive_group()
+    calibration.add_argument('--power', type=float)
+    calibration.add_argument('--sir-db', type=float)
+    interfere.add_argument('--seed', type=int, default=2026, help='Semilla de la interferencia de banda limitada.')
+    interfere.add_argument('--noise-snr-db', type=float, help='Agregá AWGN con esta SNR nominal de entrada.')
+    interfere.add_argument('--noise-seed', type=int, default=2026)
+    add_session_arguments(interfere)
+    interfere.set_defaults(execute=_interfere)
 
     receiver = commands.add_parser('receive', help='Sincronizá y recuperá muestras de símbolo.')
     _synchronization_arguments(receiver)

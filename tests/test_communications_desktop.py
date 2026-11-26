@@ -146,7 +146,7 @@ class CommunicationsDesktopTests(unittest.TestCase):
     def test_independent_routes_show_help_and_exchange_clocked_iq(self):
         articles, guides, _ = default_content()
         for name in ('modulate', 'pulse', 'awgn', 'multipath', 'fading', 'carrier', 'impairments',
-                     'receive', 'decide', 'measure'):
+                     'interference', 'receive', 'decide', 'measure'):
             with self.subTest(name=name):
                 self.assertIn(('communications', name), articles)
                 self.assertIn(('communications', name), guides)
@@ -268,6 +268,34 @@ class CommunicationsDesktopTests(unittest.TestCase):
         altered, _ = next(iter(panel.records.values()))
         np.testing.assert_array_equal(altered.values, source.values + .25)
         self.assertIn('Sin componente imagen', panel.result.text.toPlainText())
+
+    def test_interference_panel_switches_sources_and_saves_components(self):
+        clock = SymbolClock(4000, 2, -0.25)
+        desired = iq_signal([1]*16, clock, origin=-3)
+        external = iq_signal([1j]*16, clock, origin=-3)
+        a = self.window.publish(desired, operation='Entrada de prueba')
+        b = self.window.publish(external, operation='Entrada de prueba')
+        route = ROUTES['communications', 'interference']
+        self.window.send_signal(desired, a, route)
+        page, panel = self.open('interference')
+        panel.fields['interference_mode'].setCurrentIndex(2)
+        panel.interferer_input.set_source(external, b)
+        panel.fields['calibration'].setCurrentIndex(1)
+        panel.fields['interference_power'].setText('1/4')
+        self.calculate()
+        mix, key = panel.records['Salida con interferencia']
+        interference, _ = panel.records['Componente interferente']
+        np.testing.assert_allclose(mix.values, 1+.5j)
+        np.testing.assert_allclose(interference.values, .5j)
+        self.assertIn('SINR', panel.result.text.toPlainText())
+        self.assertEqual(self.window.project.get(key).origin, -3)
+        panel.fields['add_noise'].setChecked(True)
+        self.calculate()
+        self.assertIn('Ruido aditivo de la interferencia', panel.records)
+        launcher = page.workspace.results.graph_launcher
+        entry = next(item for item in launcher.available() if item[2] == 'Espectros de los componentes')
+        launcher.open_entry(entry)
+        self.wait()
 
     def test_receive_and_decide_publish_labels_that_metrics_can_load(self):
         _, mapper = self.open('modulate')

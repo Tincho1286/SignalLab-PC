@@ -32,6 +32,19 @@ def _nyquist_ratio(frequency, rate):
     return ratio
 
 
+def normalized_carrier(frequency, sample_rate):
+    if not frequency:
+        return 0.0
+    rate = real(sample_rate, 'La frecuencia de muestreo Fs en Hz', positive=True)
+    return _nyquist_ratio(frequency, rate)
+
+
+def carrier_rotation(offsets, ratio, phase_rad=0.0):
+    """Complex unit rotation for a sample-frequency ratio and a phase reference."""
+    turns = np.remainder(ratio * offsets, 1)
+    return np.exp(1j * (math.tau * turns + math.remainder(phase_rad, math.tau)))
+
+
 @dataclass(frozen=True, slots=True)
 class CarrierShift:
     """Frequency in Hz and initial phase in radians at the first input sample."""
@@ -51,8 +64,7 @@ def apply_carrier_shift(signal: Signal, spec: CarrierShift,
         raise ValueError('Indicá una configuración de frecuencia y fase.')
     ctx = execution or ExecutionContext()
     size = discrete_channel_size(signal, 0)
-    ratio = _nyquist_ratio(spec.frequency_hz, _sample_rate(signal)) if spec.frequency_hz else 0.0
-    initial = math.remainder(spec.phase_rad, math.tau)
+    ratio = normalized_carrier(spec.frequency_hz, signal.metadata.get('sample_rate_hz'))
     with ctx.reserve(40 * size + 72 * min(_BLOCK, size)):
         clock = channel_clock(signal, 0, size)
         digest = content_digest(signal, ctx.checkpoint)
@@ -60,8 +72,7 @@ def apply_carrier_shift(signal: Signal, spec: CarrierShift,
         for start in range(0, size, _BLOCK):
             ctx.checkpoint(90 * start // size)
             stop = min(start + _BLOCK, size)
-            turns = np.remainder(ratio * np.arange(start, stop), 1)
-            values[start:stop] = signal.values[start:stop] * np.exp(1j * (math.tau * turns + initial))
+            values[start:stop] = signal.values[start:stop] * carrier_rotation(np.arange(start, stop), ratio, spec.phase_rad)
         metadata = deepcopy(signal.metadata)
         metadata.pop('core_provenance', None)
         metadata.update(clock)

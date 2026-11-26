@@ -41,3 +41,11 @@ El commit `e6c2e62` aprobó los controles matemáticos de Windows y Ubuntu. [Res
 Los modelos de reloj, fase e I/Q ejecutan desde Python, Workbench y los comandos `timing-offset`, `phase-noise` e `iq-imbalance`. El resultado conserva la procedencia y la fase Wiener se archiva como señal auxiliar. El reloj de salida distingue muestras fraccionarias por símbolo de los intervalos enteros del receptor actual.
 
 `python -B -X utf8 -m unittest discover -s tests -p "test_communications_*.py"` aprobó 94 pruebas en Windows. `python -B -X utf8 tools/check_static.py` aprobó 406 archivos. El contraste directo con Qt bloqueado midió error de SFO, varianza Wiener e IRR, y delimitó el error de los perfiles ensayados. [Mediciones](MATHEMATICAL_AUDIT.md#mediciones-de-reloj-fase-e-iq-en-windows).
+
+El commit `0cebf02` aprobó los controles matemáticos de Windows y Ubuntu. [Resultados](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45885148245).
+
+## Interferencia tonal, en banda y externa
+
+Workbench, Python y CLI comparten la síntesis, calibración y medición. Se verifica la alineación de la segunda señal y se registra el traslado de portadora. Se muestran por separado SINR por suma de potencias y potencia observada del disturbio. El guardado atómico verifica las huellas de las fuentes y componentes y rechaza cambios antes de publicar.
+
+`python -B -X utf8 -m unittest discover -s tests -p "test_communications_*.py"` aprobó 101 pruebas en Windows. Las pruebas seleccionadas de CLI, escritorio, interferencia y DSP aprobaron 18 casos. La medición independiente de la banda adyacente y las relaciones de potencia se realizó con importaciones Qt bloqueadas. [Mediciones](MATHEMATICAL_AUDIT.md#mediciones-de-interferencia-en-windows).
