@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "commit": "a3026d288fe2371aace308b403071cf457b89123",
+  "version": "2.2.0",
+  "channel": "preview",
+  "source_fingerprint": "8d97427c823ec510eff0331d9a2fcc9a869a11763a2b5475323dd3c13e12d52d",
+  "platform": "linux",
+  "files": {
+    "SignalLab-PC-2.2.0-linux-x86_64.tar.gz": {
+      "sha256": "9c3106c25c0dac816e25afa2f6921f8391aef30bdea21a6a33c60399bbd566b2",
+      "size": 160698239
+    },
+    "SignalLab-PC-2.2.0-linux-x86_64.run": {
+      "sha256": "48462301a4d7491cfd448c9135c7b79c607cbc23c3495330d3666f9257ea26c4",
+      "size": 160647372
+    },
+    "installer-linux.json": {
+      "sha256": "47a0221d7d5372b2e35308aedf47fe084ca046365ec30fba97714a60558834e5",
+      "size": 396
+    }
+  },
+  "installer_sha256": "48462301a4d7491cfd448c9135c7b79c607cbc23c3495330d3666f9257ea26c4",
+  "portable_sha256": "9c3106c25c0dac816e25afa2f6921f8391aef30bdea21a6a33c60399bbd566b2"
+}

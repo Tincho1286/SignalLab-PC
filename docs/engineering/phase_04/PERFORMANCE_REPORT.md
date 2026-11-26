@@ -64,3 +64,7 @@ La campaña usó un punto a Eb/N₀ de 6 dB y 256 bits por réplica. Se volvió 
 | 16 | 0,967 | 0,141 | 2,37 | 104,38 |
 
 [Mediciones de escalado](evidence/candidate-2a0a3fd/windows-scaling.json) · [Procedimiento](evidence/candidate-2a0a3fd/scaling-audit.py).
+
+## Repetición sobre `a3026d2`
+
+La revisión del banco de pruebas repitió los tres perfiles de seis etapas en ambos runners. Para 65 536 símbolos, Windows usó 1,571 s entre cálculo, verificación, guardado y lectura, con pico RSS de 466 841 600 bytes. Ubuntu usó 1,226 s y 475 922 432 bytes. El mayor tiempo de cancelación medido fue 0,01936 s en Windows y 0,01325 s en Ubuntu. El mayor intervalo del ciclo de eventos offscreen fue 0,09623 s y 0,09373 s, respectivamente. Ambos ensayos conservaron el archivo anterior durante la cancelación, rechazaron la admisión concurrente y aprobaron el reintento. [Medición Windows](evidence/candidate-a3026d2/windows-channel-modeling-performance.json) · [Medición Linux](evidence/candidate-a3026d2/linux-channel-modeling-performance.json)

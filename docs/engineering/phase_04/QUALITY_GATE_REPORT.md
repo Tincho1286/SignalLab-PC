@@ -26,14 +26,14 @@ El informe de Windows se generó sobre un checkout limpio de `2a0a3fd`. Al combi
 
 La espera de la prueba retenía el intérprete mientras el barrido avanzaba en un hilo de Qt. Al vencer su plazo, el cierre de la ventana con un cálculo activo podía mostrar un diálogo modal sin respuesta en el runner. La espera ahora alterna el procesamiento de eventos con una pausa que deja avanzar al trabajador Python. La limpieza cancela y espera los trabajos activos antes de cerrar. Los límites de espera de la prueba, las aserciones de resultados y los umbrales de cobertura se conservan. La repetición focalizada en Ubuntu aprobó en 15,920 s con la instrumentación de la matriz. [Investigación](IMPLEMENTATION_LOG.md#diagnóstico-del-barrido-en-ubuntu)
 
-## Paquetes de revisión
+## Paquetes de revisión de `a3026d2`
 
 | Sistema | Contenido | Paquete de Actions |
 | --- | --- | --- |
-| Windows x64 | Portable `.exe`, instalador `.exe`, fuente `.zip` y comprobantes. | [Descargar Windows](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971/artifacts/15156258546) |
-| Linux x86_64 | Portable `.tar.gz`, instalador `.run` y comprobantes. | [Descargar Linux](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971/artifacts/15155098928) |
+| Windows x64 | Portable `.exe`, instalador `.exe`, fuente `.zip` y comprobantes. | [Descargar Windows](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45905864702/artifacts/15158955828) |
+| Linux x86_64 | Portable `.tar.gz`, instalador `.run` y comprobantes. | [Descargar Linux](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45905864702/artifacts/15158945033) |
 
-La revisión compara el hash de cada ZIP de Actions con su recibo de origen y vuelve a calcular el hash de cada archivo interno. El ZIP de fuentes identifica el mismo commit candidato. El portable Windows incluye la licencia y los avisos embebidos. El portable Linux conserva la licencia, los avisos y el manifiesto del entorno. Los artefactos de Actions tienen retención hasta el 3 de diciembre de 2026. [Notas de 2.2.0 Preview](PREVIEW_NOTES.md) · [Recibo de paquetes](evidence/candidate-2a0a3fd/verified-package-receipt.json)
+La revisión comparó el SHA-256 de cada ZIP de Actions y de cada archivo interno con su recibo. El ZIP de fuentes identifica el mismo commit que los instaladores y portables. Las pruebas de distribución de ambos sistemas aprobaron la actualización aislada desde 2.0.0, la conservación de la sesión y el rechazo de una descarga alterada. Ambos sistemas aprobaron también los controles de recursos y cancelación. Los artefactos de Actions tienen retención hasta el 3 de diciembre de 2026. [Notas de 2.2.0 Preview](PREVIEW_NOTES.md) · [Recibo de paquetes](evidence/candidate-a3026d2/verified-package-receipt.json) · [SHA-256](evidence/candidate-a3026d2/SHA256SUMS-2.2.0-CANDIDATE.txt)
 
 ## Dictámenes vigentes
 
