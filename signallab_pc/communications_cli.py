@@ -29,7 +29,7 @@ from .communications_pulses import PulseSpec, apply_pulse, design_pulse, upsampl
 from .communications_propagation import FreeSpaceLoss, LogDistanceLoss, PropagationSpec, apply_propagation
 from .communications_receiver import SynchronizationSpec, recover_symbols
 from .communications_storage import decode_symbols, encode_bits, encode_symbols, save_experiment
-from .communications_sweep import SweepSpec, axis_from_text, export_sweep_csv, load_sweep, run_sweep
+from .communications_sweep import SweepSpec, axis_from_text, export_sweep_csv, load_sweep, run_sweep, summarize_sweep_repetitions
 from .dsp_application import store_signal
 from .project import Project
 
@@ -97,8 +97,7 @@ def _experiment_configuration(args, bit_count, channel_pipeline=None):
     )
 
 
-def _link(args, ctx):
-    source = None if args.manual_bits is None else parse_bits(args.manual_bits, ctx)
+def _configure_channel(args, ctx):
     pipeline = _read_channel_config(args, ctx)
     external_project = None
     if args.external_session is not None:
@@ -106,6 +105,12 @@ def _link(args, ctx):
             raise ValueError('Elegí una salida distinta de la sesión de señales externas.')
         external_project, _ = session.load(args.external_session, checkpoint=ctx.checkpoint)
     external, _ = _channel_bindings(args, external_project, ctx)
+    return pipeline, external
+
+
+def _link(args, ctx):
+    source = None if args.manual_bits is None else parse_bits(args.manual_bits, ctx)
+    pipeline, external = _configure_channel(args, ctx)
     spec = _experiment_configuration(args, args.bits if source is None else source.values.size, pipeline)
     result = run_experiment(spec, bits=source, external=external, execution=ctx)
     identifier = save_experiment(args.output, result, ctx)
@@ -271,7 +276,7 @@ def _interfere(args, ctx):
             if args.interferer.resolve() == args.output.resolve():
                 raise ValueError('Elegí una ruta de sesión distinta de la señal interferente.')
             external = load_signal_file(args.interferer, ctx)
-    spec = InterferenceSpec(model, args.power, args.sir_db, args.noise_snr_db, args.noise_seed)
+    spec = InterferenceSpec(model, args.power, args.sir_db, args.noise_snr_db, args.noise_seed, args.sinr_db)
     result = apply_interference(source, spec, external=external, execution=ctx)
     parents = (_source_id(project, args, source),)
     if external is not None:
@@ -391,10 +396,12 @@ def _monte_carlo(args, ctx):
 
 
 def _sweep(args, ctx):
-    if args.inspect:
-        if args.axis:
+    if args.inspect or args.resume:
+        if args.axis or args.channel_config or args.external_record or args.external_file or args.external_session:
             raise ValueError('Abrir un barrido usa la configuración del catálogo.')
         result = load_sweep(args.output, ctx)
+        if args.resume and not result.complete:
+            result = run_sweep(result.specification, result.directory, ctx)
     else:
         axes = []
         for raw in args.axis:
@@ -402,12 +409,16 @@ def _sweep(args, ctx):
             if not separator:
                 raise ValueError('Usá --axis parámetro=valor1,valor2.')
             axes.append(axis_from_text(parameter, values))
-        spec = SweepSpec(_experiment_configuration(args, args.bits), tuple(axes), args.seed_policy)
-        result = run_sweep(spec, args.output, ctx)
+        pipeline, external = _configure_channel(args, ctx)
+        spec = SweepSpec(_experiment_configuration(args, args.bits, pipeline), tuple(axes), args.seed_policy, args.repetitions)
+        result = run_sweep(spec, args.output, ctx, external=external)
     if args.csv is not None:
         export_sweep_csv(result, args.csv, ctx)
-    return {'directory': str(result.directory), 'planned': result.planned,
-            'completed': len(result.runs), 'complete': result.complete}
+    report = {'directory': str(result.directory), 'planned': result.planned,
+              'completed': len(result.runs), 'complete': result.complete}
+    if result.specification.repetitions > 1:
+        report['repetitions'] = summarize_sweep_repetitions(result)
+    return report
 
 
 def _link_channel_arguments(parser):
@@ -517,6 +528,7 @@ def main(argv=None):
     calibration = interfere.add_mutually_exclusive_group()
     calibration.add_argument('--power', type=float)
     calibration.add_argument('--sir-db', type=float)
+    calibration.add_argument('--sinr-db', type=float)
     interfere.add_argument('--seed', type=int, default=2026, help='Semilla de la interferencia de banda limitada.')
     interfere.add_argument('--noise-snr-db', type=float, help='Agregá AWGN con esta SNR nominal de entrada.')
     interfere.add_argument('--noise-seed', type=int, default=2026)
@@ -581,9 +593,14 @@ def main(argv=None):
     _constellation_arguments(sweep)
     _pulse_arguments(sweep)
     _link_channel_arguments(sweep)
+    _channel_config_arguments(sweep)
+    sweep.add_argument('--external-session', type=Path)
     sweep.add_argument('--axis', action='append', default=[], help='Parámetro y valores. Ejemplo: eb_n0_db=0,2,4,6.')
     sweep.add_argument('--seed-policy', choices=('per_run', 'common'), default='per_run')
-    sweep.add_argument('--inspect', action='store_true', help='Verificá el catálogo existente y sus archivos.')
+    sweep.add_argument('--repetitions', type=int, default=1)
+    action = sweep.add_mutually_exclusive_group()
+    action.add_argument('--inspect', action='store_true', help='Verificá el catálogo existente y sus archivos.')
+    action.add_argument('--resume', action='store_true', help='Retomá las corridas que falten en el catálogo.')
     sweep.add_argument('--csv', type=Path, help='Exportá las corridas verificadas a una tabla.')
     add_output_arguments(sweep)
     sweep.set_defaults(execute=_sweep)

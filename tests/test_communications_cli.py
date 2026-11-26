@@ -263,6 +263,20 @@ raise SystemExit(main())
             self.assertEqual(len(restored.chain['stage_records']), 1)
             self.assertIsNone(restored.report['theoretical'])
 
+    def test_channel_sweep_cli_runs_and_resumes_catalogued_replicas(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            config, destination = root/'channel.json', root/'sweep'
+            config.write_text(json.dumps({'schema': 1, 'seed': 10, 'stages': [
+                {'kind': 'carrier', 'parameters': {'frequency_hz': 0}},
+            ]}), encoding='utf-8')
+            first = self.invoke('sweep', '--bits', 80, '--channel-config', config,
+                                '--axis', 'channel.1.frequency_hz=0,50', '--repetitions', 2,
+                                '--no-noise', '--output', destination)
+            self.assertEqual(first['completed'], 4)
+            self.assertEqual(len(first['repetitions']), 2)
+            self.assertEqual(self.invoke('sweep', '--resume', '--output', destination), first)
+
     def test_sweep_cli_runs_and_verifies_a_reproducible_grid(self):
         with TemporaryDirectory() as folder:
             root = Path(folder)

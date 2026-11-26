@@ -8,7 +8,7 @@ from scipy.signal import freqz
 from .dft_application import DFTRequest, calculate_dft
 from .dsp_application import PSDRequest, estimate_psd
 from .communications_metrics import theoretical_error
-from .communications_sweep import AXES
+from .communications_sweep import axis_label, summarize_sweep_repetitions
 from .signal_plot import configure_axis, plot_samples
 from .theme_tokens import COLORS
 
@@ -241,19 +241,30 @@ def sweep_figure(figure, sweep):
     horizontal = 'eb_n0_db' if 'eb_n0_db' in names else names[0]
     separate = [name for name in names if name != horizontal]
     groups = {}
-    for row in sweep.runs:
+    rows_to_plot = sweep.runs
+    if sweep.specification.repetitions > 1:
+        rows_to_plot = []
+        for point in summarize_sweep_repetitions(sweep):
+            values = point['measurements']
+            metrics = {
+                name: {'value': values[name]['mean'], 'confidence': values[name]['confidence']}
+                for name in ('ber', 'ser')
+            }
+            metrics['evm'] = {'percent': values['evm']['mean']}
+            rows_to_plot.append({**point, 'metrics': metrics})
+    for row in rows_to_plot:
         key = tuple(row['parameters'][name] for name in separate)
         groups.setdefault(key, []).append(row)
     axes = figure.subplots(3, 1, sharex=True)
     colors = [COLORS[color] for color in ('blue', 'green', 'amber', 'purple', 'red', 'cyan')]
     for group, (key, rows) in enumerate(groups.items()):
-        label = ', '.join(f'{AXES[name]}={value:g}' for name, value in zip(separate, key, strict=True))
+        label = ', '.join(f'{axis_label(name)}={value:g}' for name, value in zip(separate, key, strict=True))
         ordered = sorted(rows, key=lambda row: row['parameters'][horizontal])
         x = np.array([row['parameters'][horizontal] for row in ordered])
         color = colors[group % len(colors)]
         for axis, field in zip(axes[:2], ('ber', 'ser'), strict=True):
             rates = [None if row['metrics'] is None else row['metrics'][field] for row in ordered]
-            observed = [np.nan if rate is None or rate['value'] == 0 else rate['value'] for rate in rates]
+            observed = [np.nan if rate is None or not rate['value'] else rate['value'] for rate in rates]
             bound = [np.nan if rate is None or rate['value'] or rate['confidence'] is None
                      else rate['confidence']['upper'] for rate in rates]
             ideal = [np.nan if row['theoretical'] is None else row['theoretical'][field] or np.nan for row in ordered]
@@ -263,6 +274,10 @@ def sweep_figure(figure, sweep):
             suffix = ' · '+label if label else ''
             if np.isfinite(observed).any():
                 axis.semilogy(x, observed, color=color, marker='o', label=f'{field.upper()} medido{suffix}')
+                if sweep.specification.repetitions > 1:
+                    for coordinate, value, rate in zip(x, observed, rates, strict=True):
+                        if np.isfinite(value) and (interval := rate['confidence']) and interval['lower'] > 0:
+                            axis.vlines(coordinate, interval['lower'], interval['upper'], color=color, alpha=.5)
             if np.isfinite(bound).any():
                 axis.scatter(x, bound, color=color, marker='v', label=f'Cota {field.upper()}{suffix}')
             if np.isfinite(ideal).any():
@@ -281,4 +296,4 @@ def sweep_figure(figure, sweep):
             axis.legend()
         else:
             axis.text(.5, .5, 'Sin valores representables en esta escala', transform=axis.transAxes, ha='center')
-    axes[-1].set_xlabel(AXES[horizontal])
+    axes[-1].set_xlabel(axis_label(horizontal))

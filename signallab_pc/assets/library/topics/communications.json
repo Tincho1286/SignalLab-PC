@@ -15,9 +15,9 @@
       "key": ["communications", "sweep"],
       "blocks": [
         ["Qué podés hacer", "Repetí un enlace mientras variás un parámetro y compará BER, SER y EVM en un gráfico común."],
-        ["Cómo preparar el cálculo", "Elegí una carpeta de trabajo, un parámetro y valores separados por comas. El resto del formulario configura el enlace base. Las semillas pueden variar por corrida o ser comunes."],
+        ["Cómo preparar el cálculo", "Elegí una carpeta, un parámetro y valores separados por comas. Si activás una cadena de canal, también aparecen sus parámetros. Podés combinar ejes y repetir cada punto con semillas independientes por corrida o comunes entre puntos."],
         ["Cómo interpretar la salida", "Cada corrida tiene su archivo SLPROJ. El catálogo conserva parámetros, orden, semilla y huella. Podés incorporar una corrida al proyecto o exportar la comparación completa a CSV."],
-        ["Qué tener en cuenta", "Para retomar, abrí la carpeta guardada y elegí Continuar barrido. Se verifican las corridas ya guardadas. Los puntos de BER y SER cero se muestran como cotas si el método estadístico las define."]
+        ["Qué tener en cuenta", "Para retomar, abrí la carpeta guardada y elegí Continuar barrido. El catálogo verifica las corridas y guarda las entradas externas. Las medias usan las réplicas con métricas válidas. Si no se observaron errores, el informe muestra ese resultado sin inferir probabilidad cero."]
       ]
     },
     {
@@ -88,7 +88,7 @@
       "blocks": [
         ["Qué podés hacer", "Sumá uno o varios tonos complejos, interferencia gaussiana de banda limitada o una segunda señal. Con un centro de frecuencia cero podés estudiar interferencia cocanal. Con un centro desplazado podés ubicarla en una banda adyacente."],
         ["Cómo cargar las fuentes", "Para tonos escribí frecuencia en Hz, amplitud y fase en radianes, uno por línea. En banda limitada se indican centro, ancho total y semilla. Para una señal externa, ambas entradas deben compartir el criterio de reloj y las unidades de amplitud. Si ambas tienen portadora registrada, el programa tiene en cuenta su diferencia. Podés agregar un traslado manual."],
-        ["Cómo fijar el nivel", "Podés mantener el nivel del modelo, fijar la potencia interferente o buscar una SIR. El programa mide sobre todo el registro deseado, incluidos los ceros donde una señal externa queda fuera de la ventana. El AWGN opcional se calibra con la potencia de la señal deseada."],
+        ["Cómo fijar el nivel", "Podés mantener el nivel del modelo, fijar la potencia interferente o buscar una SIR o SINR. Para SINR, se descuenta la potencia observada del AWGN antes de ajustar la interferencia. El programa mide sobre todo el registro deseado, incluidos los ceros donde una señal externa queda fuera de la ventana."],
         ["Cómo interpretar la salida", "La SINR usa la suma de la potencia de interferencia y la de ruido. El informe también muestra la potencia observada de la suma de sus muestras. El gráfico alinea los espectros en la misma escala. El selector permite reutilizar la salida, la interferencia y el ruido."]
       ]
     },
@@ -148,7 +148,7 @@
     {
       "key": ["communications", "sweep"],
       "flow": ["Enlace base y eje", "Ejecutar o retomar corridas", "Catálogo y gráficos"],
-      "parameters": [["Eje", "Podés variar Eb/N₀, el orden, β, L, span o cantidad de símbolos."], ["Valores", "Separalos con coma y usá punto para los decimales."], ["Carpeta", "Guarda un archivo por corrida y un catálogo verificable."]],
+      "parameters": [["Eje", "Podés variar Eb/N₀, la modulación, el pulso o los parámetros de la cadena activa."], ["Valores", "Separalos con coma y usá punto para los decimales."], ["Réplicas", "Repite el experimento en cada punto para comparar realizaciones."], ["Carpeta", "Guarda las corridas, el catálogo y las señales externas vinculadas."]],
       "reading": "Las líneas continuas muestran resultados medidos. Las discontinuas representan referencias coherentes, que se identifican como teóricas o aproximadas."
     },
     {

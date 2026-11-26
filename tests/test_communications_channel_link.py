@@ -31,7 +31,8 @@ class ChannelLinkContracts(unittest.TestCase):
     def test_known_integer_channel_delay_keeps_the_symbol_grid(self):
         config = ExperimentSpec(bit_count=160, seed=8, eb_n0_db=None)
         baseline = run_experiment(config)
-        chain = ChannelPipelineSpec((ChannelStage(MultipathSpec((ChannelPath(5),))),))
+        paths = (ChannelPath(0), ChannelPath(0, -1), ChannelPath(5))
+        chain = ChannelPipelineSpec((ChannelStage(MultipathSpec(paths)),))
         delayed = run_experiment(replace(config, channel_pipeline=chain))
         np.testing.assert_allclose(delayed.reception.symbols.values, baseline.reception.symbols.values, atol=2e-13)
         self.assertEqual(delayed.reception.synchronization.sample_offset, baseline.reception.synchronization.sample_offset+5)

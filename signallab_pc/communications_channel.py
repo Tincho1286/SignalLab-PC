@@ -419,6 +419,7 @@ def apply_multipath(signal: Signal, paths: tuple[ChannelPath, ...] | MultipathSp
         metadata.update(operation='communications_multipath', communications_multipath={
             'schema': 2, 'paths': [asdict(path) for path in spec.paths],
             'normalize_power': spec.normalize_power, 'source_sha256': source,
+            'first_active_delay_samples': next((tap.delay_samples for tap in taps if tap.gain), None),
         })
         result = signal.copy_with(values=output, metadata=metadata, expression='', name='Salida multitrayecto')
         result._core_verification = (content_digest(result, ctx.checkpoint), (source,), None)

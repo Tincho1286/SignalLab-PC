@@ -128,6 +128,17 @@ python -m signallab_pc communications link --bits 1024 --channel-config canal.js
 
 Si la configuración requiere interferentes, agregá `--external-file nombre=archivo.slbin`, o `--external-session proyecto.slproj --external-record nombre=id`. El archivo del enlace incluye la cadena verificable. En Python, se configura con `ExperimentSpec(channel_pipeline=...)` y `run_experiment(spec, external=...)`. [Recepción y condiciones de validez](SCIENTIFIC_CONTRACTS.md#acoplamiento-al-enlace-digital)
 
+### Barridos de canal
+
+En **Barrido**, activá la cadena para habilitar sus parámetros en el selector de ejes. Podés elegir réplicas por punto, agregar ejes y usar semillas comunes o independientes. En la CLI se repite `--axis` para formar una combinación de parámetros.
+
+```sh
+python -m signallab_pc communications sweep --bits 2048 --channel-config canal.json --axis channel.2.frequency_hz=0,30,60 --axis eb_n0_db=4,8 --repetitions 3 --output campaña
+python -m signallab_pc communications sweep --resume --output campaña --csv corridas.csv
+```
+
+Los informes indican cuántas réplicas dieron mediciones válidas. El catálogo permite incorporar una corrida con sus señales y configuración, o retomar las corridas faltantes. [Semillas, intervalos y recuperación](SCIENTIFIC_CONTRACTS.md#campañas-y-calibración-por-sinr)
+
 ## Alcance siguiente
 
-Queda completar los barridos sobre parámetros de canal y sus réplicas reproducibles. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.
+Queda completar los diagnósticos visuales de fading, calificar el laboratorio integrado, cerrar las brechas de cobertura y compatibilidad, medir la envolvente operativa y preparar el candidato del Quality Gate.

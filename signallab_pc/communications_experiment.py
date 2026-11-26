@@ -8,7 +8,7 @@ import sys
 
 import numpy as np
 
-from .communications_channel import AWGNResult, AWGNSpec, MultipathSpec, add_awgn, analyze_multipath
+from .communications_channel import AWGNResult, AWGNSpec, MultipathSpec, add_awgn
 from .communications_data import MAX_SEED, BitSequence, ConstellationSpec, SymbolClock, SymbolSequence, integer, real
 from .communications_metrics import QualityMetrics, QualitySpec, TheoreticalError, measure_quality, theoretical_error
 from .communications_modulation import decide_symbols, generate_bits, group_bits, modulate, ungroup_symbols
@@ -213,18 +213,17 @@ def _quality(spec, frame, observed, reference, pilot_count, random_source, ctx):
     return decoded, bits, metrics
 
 
-def _known_delay(pipeline, ctx):
+def _known_delay(pipeline):
     delays = []
     for stage in pipeline.stages:
         op = stage.stage.operation
         if isinstance(op, TimingOffset):
             delays.append(op.delay_samples)
         elif isinstance(op, MultipathSpec):
-            analysis = analyze_multipath(op, execution=ctx)
-            active = [tap.delay_samples for tap in analysis.taps if tap.gain]
-            if not active:
+            delay = stage.signal.metadata['communications_multipath']['first_active_delay_samples']
+            if delay is None:
                 return None
-            delays.append(min(active))
+            delays.append(delay)
         elif isinstance(op, FadingSpec):
             active = [path.delay_samples for path in op.paths if path.average_power]
             if not active:
@@ -251,7 +250,7 @@ def _receive_experiment(signal, pulse, frame, pilot, spec, pipeline, ctx):
     if sync_spec.mode == 'ideal':
         offset = pulse.taps.size - 1
         if pipeline is not None:
-            delay = _known_delay(pipeline, _child(ctx, 8))
+            delay = _known_delay(pipeline)
             if delay is None or not delay.is_integer() or offset + delay < 0:
                 sync = Synchronization('unavailable', 'known_channel_reference',
                                        reason='La referencia del canal no determina un arribo válido en el eje entero de recepción.')

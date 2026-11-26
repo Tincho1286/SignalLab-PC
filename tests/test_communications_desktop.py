@@ -358,6 +358,27 @@ class CommunicationsDesktopTests(unittest.TestCase):
         self.assertIn('Después del filtro adaptado', panel.records)
         self.assertNotIn('Símbolos recibidos', panel.records)
 
+    def test_sweep_workbench_selects_channel_axes_and_displays_replica_means(self):
+        page, panel = self.open('sweep')
+        panel.fields['directory'].setText(str(Path(self.folder)/'channel-campaign'))
+        panel.fields['bit_count'].setText('80')
+        panel.fields['channel_enabled'].setChecked(True)
+        editor = panel.fields['pipeline']
+        editor.preset.setCurrentIndex(editor.preset.findText('Doppler o CFO'))
+        editor.append()
+        axis = panel.fields['axis']
+        axis.setCurrentIndex(axis.findData('channel.1.frequency_hz'))
+        self.assertEqual(axis.currentData(), 'channel.1.frequency_hz')
+        panel.fields['axis_values'].setText('0,50')
+        panel.fields['repetitions'].setText('2')
+        self.calculate()
+        self.assertEqual(len(panel.campaign.runs), 4)
+        self.assertIn('Medias por punto', panel.result.text.toPlainText())
+        launcher = page.workspace.results.graph_launcher
+        entry = next(item for item in launcher.available() if item[2] == 'Comparación de corridas')
+        launcher.open_entry(entry)
+        self.wait()
+
     def test_receive_and_decide_publish_labels_that_metrics_can_load(self):
         _, mapper = self.open('modulate')
         mapper.fields['manual_bits'].setText('00 11 01 10')

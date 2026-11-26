@@ -87,6 +87,8 @@ class ChannelPipelineSpec:
 def _encode_stage(stage):
     operation = stage.operation
     parameters = asdict(operation)
+    if isinstance(operation, InterferenceSpec) and operation.sinr_db is None:
+        parameters.pop('sinr_db')
     if isinstance(operation, (InterferenceSpec, PropagationSpec)) and operation.model is not None:
         parameters['model']['kind'] = _SUBMODELS[type(operation.model)]
     return {'kind': stage.kind, 'parameters': parameters, 'external_input': stage.external_input}

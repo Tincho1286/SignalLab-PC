@@ -34,7 +34,10 @@ from .communications_pulses import PulseSpec, apply_pulse, design_pulse, matched
 from .communications_propagation import FreeSpaceLoss, LogDistanceLoss, PropagationSpec, apply_propagation
 from .communications_receiver import SynchronizationSpec, recover_symbols
 from .communications_storage import decode_symbols, encode_bits, encode_symbols, load_experiment, store_experiment
-from .communications_sweep import AXES, SweepSpec, axis_from_text, export_sweep_csv, load_sweep, load_sweep_run, run_sweep
+from .communications_sweep import (
+    AXES, SweepSpec, axis_from_text, axis_label, export_sweep_csv, load_sweep, load_sweep_run, run_sweep,
+    summarize_sweep_repetitions, sweep_axes,
+)
 from .dsp_application import store_signal
 from .execution import ExecutionContext
 from .numeric_input import integer_field, real_field
@@ -339,6 +342,9 @@ class CommunicationsPanel(QWidget):
 
     def _build_link(self):
         self._link_fields()
+        self._link_pipeline_controls()
+
+    def _link_pipeline_controls(self):
         use = self._check('channel_enabled', 'Incluir cadena de canal')
         editor = self._set('pipeline', 'Etapas de canal', ChannelPipelineEditor(lambda: self.window.project))
         use.toggled.connect(lambda enabled: self._visible(editor, enabled))
@@ -352,11 +358,35 @@ class CommunicationsPanel(QWidget):
         restore = QPushButton('Abrir barrido guardado')
         restore.clicked.connect(self._open_sweep)
         self.form.addRow(restore)
-        self._combo('axis', 'Parámetro que varía', [(caption, name) for name, caption in AXES.items()])
+        axis = self._combo('axis', 'Parámetro que varía', [(caption, name) for name, caption in AXES.items()])
         self._line('axis_values', 'Valores separados por coma', '0, 2, 4, 6, 8', 'Para decimales usá punto.')
+        extra = QPlainTextEdit()
+        extra.setMaximumHeight(78)
+        extra.setPlaceholderText('Opcional · un parámetro=valores por línea')
+        self._set('extra_axes', 'Ejes adicionales', extra)
+        self._line('repetitions', 'Réplicas por punto', 1)
         self._combo('seed_policy', 'Semillas',
                     (('Independientes por corrida', 'per_run'), ('Común a las corridas', 'common')))
         self._link_fields(manual=False)
+        self._link_pipeline_controls()
+
+        def refresh_axes(*_):
+            selected = axis.currentData()
+            pipeline = None
+            if self.fields['channel_enabled'].isChecked():
+                try:
+                    pipeline = self.fields['pipeline'].specification()
+                except ValueError:
+                    pass
+            axis.blockSignals(True)
+            axis.clear()
+            for key, label in sweep_axes(pipeline).items():
+                axis.addItem(label, key)
+            axis.setCurrentIndex(max(0, axis.findData(selected)))
+            axis.blockSignals(False)
+
+        self.fields['pipeline'].textChanged.connect(refresh_axes)
+        self.fields['channel_enabled'].toggled.connect(refresh_axes)
 
     def _build_modulate(self):
         self._bits()
@@ -478,9 +508,11 @@ class CommunicationsPanel(QWidget):
         seed = self._line('interference_seed', 'Semilla de interferencia', 2026)
         calibration = self._combo('calibration', 'Nivel de interferencia', (
             ('Conservar el nivel del modelo', 'native'), ('Potencia fija', 'power'), ('SIR objetivo', 'sir'),
+            ('SINR objetivo', 'sinr'),
         ))
         power = self._line('interference_power', 'Potencia interferente', 1)
         sir = self._line('sir_db', 'SIR objetivo (dB)', 10)
+        sinr = self._line('sinr_db', 'SINR objetivo (dB)', 10)
         add_noise = self._check('add_noise', 'Agregar ruido AWGN')
         snr = self._line('noise_snr_db', 'SNR nominal del ruido (dB)', 20)
         noise_seed = self._line('noise_seed', 'Semilla del ruido', 2026)
@@ -494,6 +526,7 @@ class CommunicationsPanel(QWidget):
             self._visible(seed, selected == 'band')
             self._visible(power, calibration.currentData() == 'power')
             self._visible(sir, calibration.currentData() == 'sir')
+            self._visible(sinr, calibration.currentData() == 'sinr')
             self._visible(snr, add_noise.isChecked())
             self._visible(noise_seed, add_noise.isChecked())
 
@@ -655,7 +688,16 @@ class CommunicationsPanel(QWidget):
     def _run_sweep(self):
         directory = self._campaign_directory()
         axis = axis_from_text(self._choice('axis'), self.fields['axis_values'].text())
-        plan = SweepSpec(self._experiment_spec(self._int('bit_count')), (axis,), self._choice('seed_policy'))
+        axes = [axis]
+        for line in self.fields['extra_axes'].toPlainText().splitlines():
+            if line.strip():
+                name, separator, values = line.partition('=')
+                if not separator:
+                    raise ValueError('Usá parámetro=valor1,valor2 para cada eje adicional.')
+                axes.append(axis_from_text(name.strip(), values))
+        experiment = self._experiment_spec(self._int('bit_count'))
+        external = self._pipeline_sources() if experiment.channel_pipeline is not None else {}
+        plan = SweepSpec(experiment, tuple(axes), self._choice('seed_policy'), self._int('repetitions', 1))
 
         def accept(result):
             self.window.publish({'directory': str(result.directory), 'planned': result.planned,
@@ -663,7 +705,7 @@ class CommunicationsPanel(QWidget):
                                 title='Barrido de comunicaciones', operation='Barrido paramétrico')
             self._show_sweep(result)
 
-        return lambda: run_sweep(plan, directory), accept
+        return lambda: run_sweep(plan, directory, external=external), accept
 
     def _continue_sweep(self):
         campaign = self.campaign
@@ -677,7 +719,7 @@ class CommunicationsPanel(QWidget):
         self.resume_sweep.setEnabled(not value.complete)
         self.run_choice.clear()
         for row in value.runs:
-            name = ', '.join(f'{AXES[key]}={number(item)}' for key, item in row['parameters'].items())
+            name = self._sweep_point(row['parameters'])
             self.run_choice.addItem(f"{row['ordinal']}. {name}", row['ordinal'])
         self.run_choice.setVisible(bool(value.runs))
         paragraphs = [] if value.complete else ['El catálogo conserva las corridas ya verificadas.']
@@ -687,7 +729,7 @@ class CommunicationsPanel(QWidget):
                 ('Semillas', 'Común' if value.specification.seed_policy == 'common' else 'Independientes por corrida')]
         comparisons = []
         for row in value.runs[:40]:
-            name = ', '.join(f'{AXES[key]}={number(item)}' for key, item in row['parameters'].items())
+            name = self._sweep_point(row['parameters'])
             metrics = row['metrics']
             if metrics is None:
                 detail = 'Sin sincronización disponible'
@@ -698,14 +740,34 @@ class CommunicationsPanel(QWidget):
                     detail += f' · EVM {evm:.4g} %'
             comparisons.append((name, detail))
         axes = {_COMPARISON: (partial(figures.sweep_figure, sweep=value), None)} if value.runs else {}
-        self._display(Summary('Barrido de comunicaciones', [
+        sections = [
             Section('Catálogo', paragraphs=paragraphs, rows=rows),
             Section('Corridas', rows=comparisons),
-        ]), axes, {})
+        ]
+        if value.specification.repetitions > 1:
+            means = []
+            for point in summarize_sweep_repetitions(value)[:40]:
+                details = []
+                for name, result in point['measurements'].items():
+                    if result['mean'] is None:
+                        continue
+                    text = f"{name.upper()} {number(result['mean'])} · {result['valid']}/{point['runs']} válidas"
+                    if confidence := result['confidence']:
+                        text += f" · IC 95 % [{number(confidence['lower'])}, {number(confidence['upper'])}]"
+                    details.append(text)
+                means.append((self._sweep_point(point['parameters']), ' / '.join(details) or 'Sin mediciones válidas'))
+            sections.append(Section('Medias por punto', rows=means, paragraphs=[
+                'Intervalos aproximados sobre réplicas válidas. Una media de cero describe los errores observados.',
+            ]))
+        self._display(Summary('Barrido de comunicaciones', sections), axes, {})
         workspace = self.findChild(ToolWorkspace)
         if workspace is not None:
             workspace.show_results()
 
+    @staticmethod
+    def _sweep_point(parameters):
+        return ', '.join(f"{'Réplica' if key == 'repetition' else axis_label(key)}={number(value)}"
+                         for key, value in parameters.items())
     def _import_run(self):
         campaign, ordinal = self.campaign, self.run_choice.currentData()
 
@@ -1053,8 +1115,10 @@ class CommunicationsPanel(QWidget):
         noise = self.fields['add_noise'].isChecked()
         spec = InterferenceSpec(model, self._real('interference_power') if level == 'power' else None,
                                 self._real('sir_db') if level == 'sir' else None,
-                                self._real('noise_snr_db') if noise else None, self._int('noise_seed') if noise else 2026)
+                                self._real('noise_snr_db') if noise else None, self._int('noise_seed') if noise else 2026,
+                                self._real('sinr_db') if level == 'sinr' else None)
         if ((level == 'power' and spec.power is None) or (level == 'sir' and spec.sir_db is None)
+                or (level == 'sinr' and spec.sinr_db is None)
                 or (noise and spec.noise_snr_db is None)):
             raise ValueError('Completá el nivel de interferencia o de ruido seleccionado.')
 

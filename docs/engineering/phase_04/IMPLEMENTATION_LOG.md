@@ -77,3 +77,11 @@ El commit `6e9702c` aprobó los controles matemáticos de Windows y Ubuntu. [Res
 El enlace ejecuta la cadena entre TX y RX, guarda sus realizaciones e identifica la sincronización aplicada. El control sin cadena conserva las muestras y el formato históricos. Los casos con SFO incompatible o retardo fraccionario fuera de la referencia entera guardan las señales y el estado de indisponibilidad sin fabricar métricas. El modo piloto se comprobó con Rayleigh, Rician y desplazamiento Doppler. También se guardó un interferente externo dentro del enlace y se abrió el archivo recuperando sus vínculos.
 
 La suite de comunicaciones aprobó 121 pruebas en Windows. `tools/check_static.py` aprobó 410 archivos y `git diff --check` terminó sin errores.
+
+El commit `e60f820` aprobó los controles matemáticos de Windows y Ubuntu. [Resultados](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45891161240).
+
+## Barridos de canal y réplicas
+
+Los ejes numéricos de las etapas se combinan con los del enlace. Cada punto puede guardar réplicas y semillas comunes o independientes. La calibración SINR descuenta la potencia de ruido observada. El CSV incluye las relaciones medidas de interferencia. Los archivos externos del catálogo tienen huellas verificadas y se conservan para continuar una campaña sin volver a suministrar las entradas.
+
+El experimento de regresión combinó dos niveles de SINR, dos ganancias y tres réplicas por punto. Se verificaron las 12 corridas reabiertas, el resultado observado de calibración, la exportación, los intervalos sobre EVM y el emparejamiento de semillas. Una segunda campaña se canceló después de registrar la primera corrida y retomó los datos externos archivados. La suite de comunicaciones aprobó 128 pruebas en Windows.

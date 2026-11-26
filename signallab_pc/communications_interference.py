@@ -80,16 +80,19 @@ class InterferenceSpec:
     sir_db: float | None = None
     noise_snr_db: float | None = None
     noise_seed: int = 2026
+    sinr_db: float | None = None
 
     def __post_init__(self):
         if not isinstance(self.model, (ToneInterference, BandInterference, ExternalInterference)):
             raise ValueError('Elegí interferencia tonal, de banda limitada o con una señal externa.')
-        if self.power is not None and self.sir_db is not None:
-            raise ValueError('Especificá potencia interferente o SIR, con una referencia por cálculo.')
+        if sum(value is not None for value in (self.power, self.sir_db, self.sinr_db)) > 1:
+            raise ValueError('Especificá potencia interferente, SIR o SINR, con una referencia por cálculo.')
         if self.power is not None:
             object.__setattr__(self, 'power', real(self.power, 'La potencia interferente', minimum=0))
         if self.sir_db is not None:
             object.__setattr__(self, 'sir_db', real(self.sir_db, 'La SIR en dB'))
+        if self.sinr_db is not None:
+            object.__setattr__(self, 'sinr_db', real(self.sinr_db, 'La SINR en dB'))
         if self.noise_snr_db is not None:
             object.__setattr__(self, 'noise_snr_db', real(self.noise_snr_db, 'La SNR nominal del ruido en dB'))
         object.__setattr__(self, 'noise_seed', integer(
@@ -206,14 +209,14 @@ def _external(source, interferer, model, rate, ctx):
                  'effective_shift_hz': shift}
 
 
-def _power_for_sir(signal_power, sir_db):
+def _power_for_ratio(signal_power, ratio_db):
     if not signal_power:
-        raise ValueError('La SIR requiere una señal deseada de potencia positiva.')
+        raise ValueError('La calibración de SIR o SINR requiere una señal deseada de potencia positiva.')
     try:
-        power = math.exp(math.log(signal_power) - math.log(10)/10 * sir_db)
+        power = math.exp(math.log(signal_power) - math.log(10)/10 * ratio_db)
     except OverflowError as exc:
         raise ValueError('La potencia interferente excede el rango numérico.') from exc
-    return real(power, 'La potencia interferente calculada', positive=True)
+    return real(power, 'La potencia de perturbación calculada', positive=True)
 
 
 def _scale_power(values, target, ctx):
@@ -248,7 +251,8 @@ def apply_interference(signal: Signal, spec: InterferenceSpec, *, external: Sign
         clock = channel_clock(signal, 0, size)
         rate = clock.get('sample_rate_hz')
         desired_power = channel_record_power(signal.values, 'complex', ctx)
-        levels = spec.power if spec.sir_db is None else _power_for_sir(desired_power, spec.sir_db)
+        levels = spec.power if spec.sir_db is None else _power_for_ratio(desired_power, spec.sir_db)
+        total_target = None if spec.sinr_db is None else _power_for_ratio(desired_power, spec.sinr_db)
         if spec.noise_snr_db is not None and not desired_power:
             raise ValueError('La SNR del ruido requiere una señal deseada de potencia positiva.')
         try:
@@ -262,9 +266,6 @@ def apply_interference(signal: Signal, spec: InterferenceSpec, *, external: Sign
                 else:
                     kind = 'external'
                     interferer, evidence = _external(signal, external, spec.model, rate, ctx)
-                if levels is not None:
-                    _scale_power(interferer, levels, ctx)
-                interference_power = channel_record_power(interferer, 'complex', ctx)
                 fields = {**clock, 'amplitude_units': signal.metadata.get('amplitude_units', '1')}
                 noise = None
                 noise_power = 0.0
@@ -281,8 +282,16 @@ def apply_interference(signal: Signal, spec: InterferenceSpec, *, external: Sign
                     # The standalone AWGN proof referenced a generated zero input, not a project record.
                     del noise._core_verification
                     noise_power = channel_record_power(noise.values, 'complex', ctx)
-                    disturbance = interferer + noise.values
                     evidence.update(noise_seed_key=[1], noise_effective_seed=noise_seed)
+                if total_target is not None:
+                    levels = total_target - noise_power
+                    if levels < 0:
+                        raise ValueError('La potencia del ruido por sí sola supera la perturbación que permite la SINR objetivo.')
+                if levels is not None:
+                    _scale_power(interferer, levels, ctx)
+                interference_power = channel_record_power(interferer, 'complex', ctx)
+                if noise is not None:
+                    disturbance = interferer + noise.values
                 summed = real(interference_power + noise_power, 'La potencia total por componentes', minimum=0)
                 observed = channel_record_power(disturbance, 'complex', ctx)
                 values = signal.values + disturbance
@@ -299,7 +308,10 @@ def apply_interference(signal: Signal, spec: InterferenceSpec, *, external: Sign
         components = {'interference': content_digest(wave, ctx.checkpoint)}
         if noise is not None:
             components['noise'] = content_digest(noise, ctx.checkpoint)
-        config = {'schema': 1, 'model': kind, 'specification': asdict(spec), 'sources_sha256': list(digests),
+        specification = asdict(spec)
+        if spec.sinr_db is None:
+            specification.pop('sinr_db')
+        config = {'schema': 1, 'model': kind, 'specification': specification, 'sources_sha256': list(digests),
                   'statistics': asdict(stats), 'synthesis': evidence, 'numpy_version': np.__version__,
                   'window': {'origin': signal.origin, 'sample_count': size}, 'components_sha256': components}
         metadata = {**deepcopy(signal.metadata), **clock}
