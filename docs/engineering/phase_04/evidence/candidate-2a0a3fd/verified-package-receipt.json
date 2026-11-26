@@ -1,0 +1,70 @@
+{
+  "run_id": 45899563971,
+  "commit": "2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb",
+  "channel": "preview",
+  "verified_packages": {
+    "ubuntu-22.04": {
+      "digest": "sha256:2c71bac91810179ebe0903780305d2df467b7121d889c4aa7df357674165d6f7",
+      "expires_at": "2026-12-03T21:52:36Z",
+      "files": {
+        "SignalLab-PC-2.2.0-linux-x86_64.run": {
+          "sha256": "8d5efeb0e53efc5aa12aa453c324d3b2e4b49f614c02bc5bc940a85fcf86e947",
+          "size": 160645127
+        },
+        "SignalLab-PC-2.2.0-linux-x86_64.tar.gz": {
+          "sha256": "5880ee6a848744989bb0d3bb4bca405c8cde6b7420af19824a8a6e33bb60d1a6",
+          "size": 160695626
+        },
+        "candidate-linux.json": {
+          "sha256": "52bf7a4cc20488b0d8a917acb12d55b12360688a309dfa177818c18e291b61e6",
+          "size": 893
+        },
+        "installer-linux.json": {
+          "sha256": "ca9386e9227b1ce144bb2ceeeab7404f8ed39b75c416fbf628ed1ef900dd3098",
+          "size": 396
+        }
+      },
+      "id": 15155098928,
+      "name": "phase-candidate-ubuntu-22.04-45899563971",
+      "size_bytes": 321342658,
+      "source_commit": "2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb",
+      "source_fingerprint": "8d97427c823ec510eff0331d9a2fcc9a869a11763a2b5475323dd3c13e12d52d"
+    },
+    "windows-2022": {
+      "digest": "sha256:3f140b586283275305adc6d0211601b623dfd7af7d94c3523c083e39843dded3",
+      "expires_at": "2026-12-03T22:08:05Z",
+      "files": {
+        "SignalLab-PC-2.2.0-setup.exe": {
+          "sha256": "81c4a2899753bedf5773a6ec6507bff89475b00f99b12fff19fa78e6f9b4dfcd",
+          "size": 114588016
+        },
+        "SignalLab-PC-2.2.0-source.zip": {
+          "sha256": "c140960a2fc6cc7a6445e02a079c65db1598e6741202dd7e572dd042603e9a25",
+          "size": 5038736
+        },
+        "SignalLab-PC-2.2.0.exe": {
+          "sha256": "872f6974f88413ca255a057319e99eb13cebf01f8734e8d8312a7a2f50f08297",
+          "size": 113389781
+        },
+        "candidate-windows.json": {
+          "sha256": "9bfe4d0bfc7c4f0a50d9d83fc801277ed55ac6a6cedbbfda13569107d56e0fd7",
+          "size": 1054
+        },
+        "installer-windows.json": {
+          "sha256": "9682f222b069e96b29b5f7477fec68d96b3e2383d2060c118c923a8f4c2e0616",
+          "size": 402
+        }
+      },
+      "id": 15156258546,
+      "name": "phase-candidate-windows-2022-45899563971",
+      "size_bytes": 233018717,
+      "source_commit": "2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb",
+      "source_fingerprint": "8d97427c823ec510eff0331d9a2fcc9a869a11763a2b5475323dd3c13e12d52d"
+    }
+  },
+  "license_and_source_checks": {
+    "portable_windows_embedded_notice_files": 108,
+    "source_archive_commit": "2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb",
+    "source_license_verified": true
+  }
+}

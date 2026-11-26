@@ -1,0 +1,68 @@
+{
+  "candidate": "2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb",
+  "platform": "Windows-11-10.0.26300-SP0",
+  "python": "3.14.10",
+  "qt_blocked": true,
+  "script_sha256": "580300dbb7a63c14f27b14ab1e6140b013aeb678828cc22fa7058f9cf9c7e595",
+  "paths": [
+    {
+      "count": 1,
+      "input_samples": 32768,
+      "sample_rate_hz": 96000,
+      "f_d_hz": 64,
+      "compute_seconds": 0.015197799977613613,
+      "coefficient_bytes": 524288,
+      "verified_output_samples": 32768,
+      "peak_rss_bytes": 110104576
+    },
+    {
+      "count": 4,
+      "input_samples": 32768,
+      "sample_rate_hz": 96000,
+      "f_d_hz": 64,
+      "compute_seconds": 0.020967199990991503,
+      "coefficient_bytes": 2097152,
+      "verified_output_samples": 32771,
+      "peak_rss_bytes": 112332800
+    },
+    {
+      "count": 16,
+      "input_samples": 32768,
+      "sample_rate_hz": 96000,
+      "f_d_hz": 64,
+      "compute_seconds": 0.04523210000479594,
+      "coefficient_bytes": 8388608,
+      "verified_output_samples": 32783,
+      "peak_rss_bytes": 118771712
+    }
+  ],
+  "replicas": [
+    {
+      "count": 1,
+      "bits_per_replica": 256,
+      "store_seconds": 0.11921309999888763,
+      "reopen_seconds": 0.015908900008071214,
+      "archive_bytes": 157395,
+      "replicas_verified": 1,
+      "peak_rss_bytes": 108503040
+    },
+    {
+      "count": 4,
+      "bits_per_replica": 256,
+      "store_seconds": 0.272495599987451,
+      "reopen_seconds": 0.04096740001114085,
+      "archive_bytes": 623911,
+      "replicas_verified": 4,
+      "peak_rss_bytes": 109019136
+    },
+    {
+      "count": 16,
+      "bits_per_replica": 256,
+      "store_seconds": 0.9674515000078827,
+      "reopen_seconds": 0.14067069999873638,
+      "archive_bytes": 2489619,
+      "replicas_verified": 16,
+      "peak_rss_bytes": 109453312
+    }
+  ]
+}

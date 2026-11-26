@@ -1,0 +1,28 @@
+{
+  "schema": 1,
+  "commit": "2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb",
+  "version": "2.2.0",
+  "channel": "preview",
+  "source_fingerprint": "8d97427c823ec510eff0331d9a2fcc9a869a11763a2b5475323dd3c13e12d52d",
+  "platform": "windows",
+  "files": {
+    "SignalLab-PC-2.2.0.exe": {
+      "sha256": "872f6974f88413ca255a057319e99eb13cebf01f8734e8d8312a7a2f50f08297",
+      "size": 113389781
+    },
+    "SignalLab-PC-2.2.0-setup.exe": {
+      "sha256": "81c4a2899753bedf5773a6ec6507bff89475b00f99b12fff19fa78e6f9b4dfcd",
+      "size": 114588016
+    },
+    "installer-windows.json": {
+      "sha256": "9682f222b069e96b29b5f7477fec68d96b3e2383d2060c118c923a8f4c2e0616",
+      "size": 402
+    },
+    "SignalLab-PC-2.2.0-source.zip": {
+      "sha256": "c140960a2fc6cc7a6445e02a079c65db1598e6741202dd7e572dd042603e9a25",
+      "size": 5038736
+    }
+  },
+  "installer_sha256": "81c4a2899753bedf5773a6ec6507bff89475b00f99b12fff19fa78e6f9b4dfcd",
+  "portable_sha256": "872f6974f88413ca255a057319e99eb13cebf01f8734e8d8312a7a2f50f08297"
+}

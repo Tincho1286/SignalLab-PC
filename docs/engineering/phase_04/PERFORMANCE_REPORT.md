@@ -30,4 +30,37 @@ El perfil de calificación admite hasta 65 536 símbolos con los parámetros ind
 
 La medición local del candidato `2a0a3fd` pasó las comprobaciones de recursos. El mayor perfil archivó y reabrió 119 867 937 bytes y alcanzó un pico RSS de 471 789 568 bytes. Se observaron 0,03650 s de cancelación en Clarke y 0,01042 s en SLPROJ. El mayor intervalo observado en Workbench offscreen fue 0,14567 s. [Mediciones locales de Windows](evidence/candidate-2a0a3fd/windows-local-performance.json)
 
-En Ubuntu 22.04, sobre el mismo commit, el mayor perfil archivó y reabrió 119 867 582 bytes y alcanzó un pico RSS de 475 701 248 bytes. La ejecución de ese perfil duró 0,48421 s y la escritura 0,61468 s. Las cancelaciones de Clarke y de entrega del archivo tardaron 0,01437 y 0,00692 s. Qt offscreen registró un intervalo máximo de 0,10018 s. El rechazo concurrente, la reanudación y la preservación del proyecto pasaron con el presupuesto ensayado. [Mediciones Linux de la matriz](evidence/candidate-2a0a3fd/linux-channel-modeling-performance.json)
+### Windows y Linux en la matriz
+
+Ambos runners usaron `2a0a3fd` y reabrieron los tres perfiles con el mismo informe, reloj y muestras. Los tiempos incluyen las operaciones indicadas en cada columna. RSS incluye el arranque del proceso. Los tamaños de archivo reflejan la compresión en cada entorno.
+
+| Sistema | Símbolos | Cálculo (s) | Guardado (s) | Apertura y verificación (s) | SLPROJ (bytes) | Pico RSS (bytes) |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Windows Server 2022 | 128 | 0,027 | 0,026 | 0,017 | 345 440 | 106 401 792 |
+| Windows Server 2022 | 2 048 | 0,047 | 0,060 | 0,028 | 3 854 230 | 116 461 568 |
+| Windows Server 2022 | 65 536 | 0,809 | 1,102 | 0,317 | 119 867 955 | 466 124 800 |
+| Ubuntu 22.04 | 128 | 0,021 | 0,011 | 0,011 | 345 087 | 115 027 968 |
+| Ubuntu 22.04 | 2 048 | 0,032 | 0,025 | 0,018 | 3 853 686 | 126 582 784 |
+| Ubuntu 22.04 | 65 536 | 0,484 | 0,615 | 0,219 | 119 867 582 | 475 701 248 |
+
+La cancelación de Clarke tardó 0,02662 s en Windows y 0,01437 s en Linux. Durante la entrega del archivo tardó 0,00927 y 0,00692 s. Los intervalos máximos del ciclo de eventos offscreen fueron 0,15939 y 0,10018 s. El archivo existente se conservó en ambos entornos y la reserva ensayada de 350 MiB rechazó un segundo cálculo concurrente y permitió reintentarlo con las mismas huellas. [Windows](evidence/candidate-2a0a3fd/windows-channel-modeling-performance.json) · [Linux](evidence/candidate-2a0a3fd/linux-channel-modeling-performance.json).
+
+## Escalado con trayectorias y réplicas
+
+Se midieron tres tamaños de cada operación en Windows con CPython 3.14.10, Qt bloqueado y un hilo BLAS/OMP. Cada fila corresponde a un proceso nuevo. Para fading Clarke se mantuvieron 32 768 muestras a 96 kHz, Doppler máximo de 64 Hz y potencia media total unitaria. En cada caso se reconstruyó la señal exactamente a partir de los coeficientes entregados y los retardos de cada trayectoria.
+
+| Trayectorias | Tiempo de cálculo (s) | Coeficientes retenidos (MiB) | Pico RSS (MiB) |
+| ---: | ---: | ---: | ---: |
+| 1 | 0,015 | 0,50 | 105,00 |
+| 4 | 0,021 | 2,00 | 107,13 |
+| 16 | 0,045 | 8,00 | 113,27 |
+
+La campaña usó un punto a Eb/N₀ de 6 dB y 256 bits por réplica. Se volvió a abrir cada catálogo y se cotejaron todas las corridas. El espacio de archivo creció de 0,15 a 2,37 MiB. La tabla cubre este perfil local, con un número acotado de réplicas.
+
+| Réplicas | Ejecutar y guardar (s) | Reabrir y verificar (s) | Archivos (MiB) | Pico RSS (MiB) |
+| ---: | ---: | ---: | ---: | ---: |
+| 1 | 0,119 | 0,016 | 0,15 | 103,48 |
+| 4 | 0,272 | 0,041 | 0,60 | 103,97 |
+| 16 | 0,967 | 0,141 | 2,37 | 104,38 |
+
+[Mediciones de escalado](evidence/candidate-2a0a3fd/windows-scaling.json) · [Procedimiento](evidence/candidate-2a0a3fd/scaling-audit.py).

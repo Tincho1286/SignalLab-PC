@@ -149,4 +149,4 @@ Los informes indican cuántas réplicas dieron mediciones válidas. El catálogo
 
 ## Calificación de 2.2.0 Preview
 
-El código candidato `2a0a3fd` amplía la fase con diagnóstico de densidades por trayectoria y perfiles de trabajo reproducibles. Su expediente vincula los resultados científicos, la matriz de plataformas y el protocolo de escritorio. [Servicios](INTEGRATION_CATALOG.md) · [Validación](VALIDATION_MATRIX.md) · [Riesgos residuales](RESIDUAL_RISK_REGISTER.md) · [Límites técnicos](TECHNICAL_DEBT_REGISTER.md).
+El código candidato `2a0a3fd` amplía la fase con diagnóstico de densidades por trayectoria y perfiles de trabajo reproducibles. Su expediente vincula los resultados científicos, la matriz de plataformas, los paquetes verificados y el protocolo de escritorio. [Quality Gate](QUALITY_GATE_REPORT.md) · [Servicios](INTEGRATION_CATALOG.md) · [Validación](VALIDATION_MATRIX.md) · [Riesgos residuales](RESIDUAL_RISK_REGISTER.md) · [Límites técnicos](TECHNICAL_DEBT_REGISTER.md).
