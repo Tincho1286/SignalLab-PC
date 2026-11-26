@@ -10,7 +10,7 @@ from .tool_catalog import AREAS
 SHORT_NAMES = {
     'signals': 'Señales', 'systems': 'Sistemas', 'filters': 'Filtros',
     'spectra': 'Fourier', 'sampling': 'Muestreo', 'transforms': 'Laplace / Z',
-    'random': 'Aleatorias',
+    'random': 'Aleatorias', 'communications': 'Comunic.',
 }
 
 

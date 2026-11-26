@@ -9,6 +9,7 @@ AREAS=[
  ('sampling','Muestreo y A/D','Muestrear, reconstruir, cambiar tasa y cuantizar.','sampling'),
  ('transforms','Laplace y Z','Expresiones, inversas y ecuaciones diferenciales.','zplane'),
  ('random','Señales aleatorias','Estadística, correlación y modelos AR/MA/ARMA.','random'),
+ ('communications','Comunicaciones digitales','Modulación, pulsos, ruido, recepción y métricas.','constellation'),
 ]
 ENTRIES=[]
 def add(area,section,key,title,summary,tags=''):
@@ -102,6 +103,16 @@ add('spectra','Fourier discreta',('inverse_dtft',0),'DTFT inversa numérica','Ob
 add('spectra','Fourier discreta',('dtft_symbolic',1),'DTFT inversa algebraica','Recuperar la expresión de x[n] por propiedades o integración.','inversa idtft expresion propiedades bilateral')
 add('signals','Transformar',('signal_product',0),'Multiplicar señales','Producto punto a punto para enventanar señales discretas o continuas.','multiplicacion producto ventana enventanado dos señales')
 add('filters','Diseñar',('fir_window',0),'FIR desde h[n] propia y ventana','Cargar h[n], aplicar una ventana y obtener el FIR.','enventanar respuesta impulso propia coeficientes ventana')
+for mode, group, title, description in (
+    ('link','Experimentos','Enlace digital','Cadena PSK o QAM, pulso, AWGN y recuperación.'),
+    ('modulate','Transmisión','Modulación PSK y QAM','Generá bits y convertí sus etiquetas en símbolos I/Q.'),
+    ('pulse','Transmisión','Pulsos y filtro adaptado','Diseñá un pulso rectangular, RC o RRC y aplicá el FIR.'),
+    ('awgn','Canal','Canal AWGN','Agregá ruido real o complejo con SNR, Es/N₀ o Eb/N₀.'),
+    ('receive','Recepción','Recuperar símbolos','Muestreo y fase mediante un retardo conocido, valores propios o un piloto.'),
+    ('decide','Recepción','Decisión de constelación','Convertí observaciones alineadas en etiquetas y bits.'),
+    ('measure','Recepción','Medir BER, SER y EVM','Compará etiquetas y observaciones I/Q alineadas.'),
+):
+    add('communications',group,('communications',mode),title,description,'comunicaciones digital qpsk iq bpsk')
 # Operations have one canonical home, regardless of their historical routes.
 for entry in ENTRIES:
     if entry['key'] in (('basic','sum'),('signal_product',0)):entry['section']='Combinar y comparar'

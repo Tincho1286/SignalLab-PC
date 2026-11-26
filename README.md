@@ -30,7 +30,11 @@ python -m signallab_pc dsp-pipeline --signal work/ejemplos-core/entrada.json --o
 
 Los ejemplos reproducibles cubren DFT, IDFT y el flujo DSP. El expediente de Fase 02C documenta la cobertura, la compatibilidad de proyectos y los instaladores comprobados en Windows y Ubuntu. [Ejemplos de Python y CLI](docs/engineering/phase_02b/ENGINEERING_CORE_EXAMPLES.md) · [Validación de 02C](docs/engineering/phase_02c/validation/FINAL_VALIDATION_MATRIX.md)
 
-El laboratorio de comunicaciones digitales se desarrolla en `develop` sobre estos servicios. Su expediente reúne las convenciones para PSK, QAM, pulsos, ruido y mediciones, con referencias matemáticas reproducibles. [Fase 03](docs/engineering/phase_03/README.md)
+En `develop`, el área **Comunicaciones digitales** permite modular bits, diseñar pulsos, aplicar AWGN, recuperar símbolos y medir BER, SER y EVM. El enlace integrado reúne las etapas en un experimento que conserva muestras, reloj y procedencia. Incluye figuras de constelación, I/Q, ojo y espectro. [Fase 03 y auditoría matemática](docs/engineering/phase_03/README.md)
+
+```bash
+python -m signallab_pc communications link --bits 4096 --seed 2026 --eb-n0 6 --output enlace.slproj
+```
 
 ## Descargar la versión estable
 

@@ -14,6 +14,9 @@ def main(argv=None):
     if args[:1] == ['dsp']:
         from .dsp_cli import main as dsp
         return dsp(args[1:])
+    if args[:1] == ['communications']:
+        from .communications_cli import main as communications
+        return communications(args[1:])
     if len(args) == 3 and args[0] == '--symbolic-job':
         from .symbolic_process import worker
         return worker(args[1], args[2])

@@ -697,6 +697,9 @@ class ToolPage(QWidget):
         if kind=='random':
             from .random_panel import RandomPanel
             self.panel=RandomPanel(window,index);root.addWidget(self.panel);return
+        if kind=='communications':
+            from .communications_panel import CommunicationsPanel
+            self.panel=CommunicationsPanel(window,index);root.addWidget(self.panel);return
         if kind=='systems' and index==9:
             from .temporal_panel import TemporalPanel
             self.panel=TemporalPanel(window);root.addWidget(self.panel);return

@@ -1,0 +1,113 @@
+{
+  "version": 1,
+  "category": "Comunicaciones digitales",
+  "articles": [
+    {
+      "key": ["communications", "link"],
+      "blocks": [
+        ["Qué podés hacer", "Transmití bits con PSK o QAM, conformá el pulso, aplicá AWGN y recuperá símbolos. La configuración inicial usa QPSK Gray y un par de filtros RRC."],
+        ["Cómo preparar el cálculo", "Elegí la cantidad de bits o escribí tu secuencia. Rs indica símbolos por segundo. L es la cantidad de muestras por símbolo y el programa obtiene Fs = L × Rs."],
+        ["Cómo interpretar la salida", "Abrí la constelación, las muestras I/Q, el ojo o el espectro desde los resultados. El informe separa los bits útiles, el piloto y el relleno. Exportá el experimento completo para conservar sus señales y parámetros."],
+        ["Qué tener en cuenta", "La sincronización ideal usa el retardo conocido de ambos filtros. La estimada usa un piloto. La referencia teórica supone detección coherente ideal en AWGN y la medición incluye los efectos del registro finito."]
+      ]
+    },
+    {
+      "key": ["communications", "modulate"],
+      "blocks": [
+        ["Qué podés hacer", "Convertí una secuencia binaria en etiquetas y puntos complejos I/Q. Cada símbolo contiene log₂(M) bits."],
+        ["Cómo preparar el cálculo", "Ingresá bits manuales o una cantidad y semilla. PSK admite órdenes potencia de dos. QAM cuadrada admite M = 4, 16, 64, 256 y potencias de cuatro compatibles con los recursos."],
+        ["Cómo interpretar la salida", "Los bits se leen de mayor a menor peso. La etiqueta indica la palabra binaria, mientras que la constelación muestra su posición geométrica. Podés reutilizar las etiquetas o la señal I/Q."],
+        ["Qué tener en cuenta", "El mapeo Gray asigna etiquetas que difieren en un bit a los vecinos de PSK circular y de cada eje QAM. La rotación se aplica en radianes. El relleno agrega ceros al final y conserva por separado la cantidad útil."]
+      ]
+    },
+    {
+      "key": ["communications", "pulse"],
+      "blocks": [
+        ["Qué podés hacer", "Diseñá un pulso rectangular, RC o RRC. Podés guardar el FIR, aplicarlo a un registro o usar su filtro adaptado."],
+        ["Cómo preparar el cálculo", "El span expresa la duración en períodos de símbolo. L es la cantidad de muestras por símbolo. El roll-off β determina la transición espectral de RC y RRC y admite valores entre 0 y 1."],
+        ["Cómo interpretar la salida", "Los gráficos muestran h[n] y su respuesta en radianes por muestra. El informe indica la energía y el retardo de cada FIR. El pico relativo de ISI compara las muestras fuera del centro con el pico del par TX/RX."],
+        ["Qué tener en cuenta", "La interpolación coloca L − 1 ceros entre símbolos antes del pulso. Para un registro que ya está sobremuestreado, elegí filtrar directamente. La respuesta completa conserva las colas y un FIR par puede retardar media muestra."]
+      ]
+    },
+    {
+      "key": ["communications", "awgn"],
+      "blocks": [
+        ["Qué podés hacer", "Sumá ruido gaussiano blanco real o complejo circular a una señal propia y repetí el cálculo con la misma semilla."],
+        ["Cómo preparar el cálculo", "SNR por muestra usa la potencia media del registro o la potencia que declares. Es/N₀ requiere la energía por símbolo. Eb/N₀ también requiere la cantidad de bits por símbolo."],
+        ["Cómo interpretar la salida", "El informe registra la potencia utilizada, N₀ y la varianza de cada componente, junto con sus valores observados en el ruido generado."],
+        ["Qué tener en cuenta", "En las convenciones de energía, cada cuadratura activa tiene varianza N₀/2. El canal complejo activa I y Q, mientras que el real requiere una entrada sin componente imaginaria."]
+      ]
+    },
+    {
+      "key": ["communications", "receive"],
+      "blocks": [
+        ["Qué podés hacer", "Elegí una muestra por símbolo en un registro filtrado y corregí la fase."],
+        ["Cómo preparar el cálculo", "Especificá L, cuántos símbolos se evaluarán y el desplazamiento desde la primera muestra. Para estimar, cargá los primeros símbolos conocidos como piloto y delimitá la búsqueda."],
+        ["Cómo interpretar la salida", "El informe muestra el índice de la primera decisión, su fase, el método y la correlación si se usó un piloto. El resultado I/Q conserva el reloj a una muestra por símbolo."],
+        ["Qué tener en cuenta", "Con un filtro adaptado, la ganancia de muestreo puede ser la energía del pulso TX. Si el intervalo queda corto, el piloto no coincide o el mejor instante es ambiguo, la sincronización queda indisponible."]
+      ]
+    },
+    {
+      "key": ["communications", "decide"],
+      "blocks": [
+        ["Qué podés hacer", "Asigná cada observación I/Q al punto más cercano de una constelación PSK o QAM y recuperá su palabra binaria."],
+        ["Cómo preparar el cálculo", "Cargá una muestra alineada por símbolo. Usá el mismo orden, mapeo, rotación y escala de la transmisión."],
+        ["Cómo interpretar la salida", "La constelación superpone las observaciones con los puntos de referencia. Las etiquetas y los bits quedan en el proyecto."],
+        ["Qué tener en cuenta", "La decisión dura compara distancias. No estima el reloj ni resuelve la fase del registro. Si hay relleno en la última palabra, especificá los bits útiles cuando la entrada no los registre."]
+      ]
+    },
+    {
+      "key": ["communications", "measure"],
+      "blocks": [
+        ["Qué podés hacer", "Compará etiquetas transmitidas y recibidas para medir BER y SER. Para EVM aporta además los símbolos complejos de referencia y las observaciones."],
+        ["Cómo preparar el cálculo", "Indicá los índices de inicio a partir de cero. El largo limita la comparación y permite descartar la cabecera del piloto o los transitorios. Podés elegir etiquetas del proyecto o escribirlas."],
+        ["Cómo interpretar la salida", "BER indica bits útiles erróneos sobre bits útiles evaluados. SER indica etiquetas erróneas sobre símbolos evaluados. EVM mide el error complejo RMS relativo a la referencia."],
+        ["Qué tener en cuenta", "Cero errores observados describe solo el registro medido. Los intervalos binomiales del experimento se muestran cuando su configuración justifica la independencia."]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": ["communications", "link"],
+      "flow": ["Bits y reloj", "Pulso → AWGN → recepción", "I/Q, BER, SER y EVM"],
+      "parameters": [["Rs y L", "Rs expresa símbolos/s. L expresa muestras/símbolo. Su producto es Fs."], ["Eb/N₀", "Relación de energía por bit a densidad de ruido. Se expresa en dB."], ["Sincronización", "Elegí referencia de retardo, alineación asistida o correlación con piloto."]],
+      "reading": "Leé primero el estado de sincronización. Si está disponible, compará la constelación recibida y las métricas del contenido útil."
+    },
+    {
+      "key": ["communications", "modulate"],
+      "flow": ["Bits manuales o con semilla", "Agrupar en palabras y mapear", "Etiquetas y símbolos I/Q"],
+      "parameters": [["M", "Cantidad de puntos de la constelación."], ["Rotación", "Giro antihorario en radianes."], ["Relleno", "Completa con ceros la última palabra si hace falta."]],
+      "reading": "Los valores I/Q pueden pasar a Pulsos o a un estudio de señales."
+    },
+    {
+      "key": ["communications", "pulse"],
+      "flow": ["Familia, span y L", "Diseñar y aplicar el FIR", "Coeficientes y respuesta"],
+      "parameters": [["Span", "Duración del pulso medida en períodos de símbolo."], ["β", "Controla la anchura de transición de RC y RRC. Va de 0 a 1."], ["Normalización", "Energía discreta unitaria o pico teórico unitario."]],
+      "reading": "El retardo de cada FIR es (N − 1)/2 muestras. El par de filtros suma ambos retardos."
+    },
+    {
+      "key": ["communications", "awgn"],
+      "flow": ["Registro y referencia", "Generar ruido con semilla", "Registro perturbado y varianzas"],
+      "parameters": [["Referencia en dB", "SNR por muestra, Es/N₀ o Eb/N₀."], ["Es", "Energía discreta del símbolo en la escala del registro."], ["Bits por símbolo", "Se usa para transformar Es en Eb."]],
+      "reading": "Contrastá las varianzas nominales con las observadas y conservá la semilla para repetir el ensayo."
+    },
+    {
+      "key": ["communications", "receive"],
+      "flow": ["Registro filtrado y L", "Localizar y corregir", "Muestras I/Q de símbolos"],
+      "parameters": [["Desplazamiento", "Cantidad de muestras entre el inicio del registro y el primer símbolo."], ["Fase", "Ángulo que se resta de las observaciones."], ["Ganancia", "Valor por el que se divide el registro antes de decidir."]],
+      "reading": "Un estado indisponible explica qué faltó para producir muestras alineadas."
+    },
+    {
+      "key": ["communications", "decide"],
+      "flow": ["I/Q alineada y constelación", "Buscar el vecino más cercano", "Símbolos y bits"],
+      "parameters": [["Mapeo", "Debe coincidir con el mapeo del transmisor."], ["Bits útiles", "Excluye del resultado binario los ceros de relleno."]],
+      "reading": "Las etiquetas permiten medir SER incluso cuando el error cae en los bits de relleno."
+    },
+    {
+      "key": ["communications", "measure"],
+      "flow": ["Etiqueta TX y etiqueta RX", "Alinear y comparar", "BER, SER y EVM opcional"],
+      "parameters": [["Primer símbolo TX y RX", "Desplazamientos de comparación en cada secuencia, desde cero."], ["Símbolos a comparar", "Longitud del tramo evaluado."], ["Referencia I/Q", "Símbolos complejos ideales que se comparan con las observaciones."]],
+      "reading": "Revisá los denominadores y las exclusiones junto con cada tasa estimada."
+    }
+  ]
+}

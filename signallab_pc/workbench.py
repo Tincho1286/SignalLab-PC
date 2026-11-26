@@ -666,6 +666,10 @@ class WorkbenchWindow(ToolboxWindow):
             self.finish_handoff(origin,'Modelo de estados cargado · '+str(value.name),key)
 
     def _load_signal(self,value,key,item):
+        if item[1:3] in (('communications','pulse'),('communications','awgn'),
+                          ('communications','receive'),('communications','decide')):
+            self.open_tool(item);panel=self.pages[tuple(item)].panel
+            return panel.receive_signal(self.project.get(key) if key else value,key)
         if item[1:3]==('state_space','simulation'):
             self.open_tool(item);panel=self.pages[tuple(item)].panel;panel.domain.setCurrentIndex(1 if value.domain=='discrete' else 0)
             index=max(0,panel.inputs.channel.currentIndex())

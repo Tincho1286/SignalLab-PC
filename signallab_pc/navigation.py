@@ -21,6 +21,16 @@ MENUS['Señales aleatorias']=[('Generar ruido y realizaciones','random','generat
 MENUS['Señales aleatorias'].append(('Correlación y covarianza de registros','random_correlation',0,'discrete'))
 MENUS['Señales aleatorias'] += [('Analizar modelo AR, MA o ARMA','random_model','model',None),('Estimar modelo AR desde un registro','random_model','fit','discrete')]
 
+MENUS['Comunicaciones'] = [
+    ('Enlace digital','communications','link',None),
+    ('Modulación PSK y QAM','communications','modulate',None),
+    ('Pulsos y filtro adaptado','communications','pulse','discrete'),
+    ('Canal AWGN','communications','awgn','discrete'),
+    ('Recuperar símbolos','communications','receive','discrete'),
+    ('Decisión de constelación','communications','decide','discrete'),
+    ('Medir BER, SER y EVM','communications','measure',None),
+]
+
 MENUS['Señales'].insert(2,('Transformar una señal continua','time_transform',0,'continuous'))
 MENUS['Señales'] += [(title,'time_transform',index,'continuous') for index,title in [(1,'Desplazar señal continua'),(2,'Invertir señal continua'),(3,'Escalar amplitud continua'),(4,'Partes par e impar continuas')]]
 

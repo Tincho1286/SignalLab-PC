@@ -5,7 +5,9 @@ ROUTES={item[1:3]:item for items in MENUS.values() for item in items}
 STATIONS=[(area,title,symbol,[GROUP_ROUTES[key][1:3]]) for key,(area,title,symbol,_) in GROUPS.items()]
 STATIONS += [('Sistemas','Filtros','design',[FILTER_ROUTE[1:3]]),('Sistemas','Conectar sistemas','blocks',[('interconnection',0)]),('Transformadas','Transformada Z','zplane',[Z_ROUTE[1:3]])]
 # Keep categories together in the explorer and the menu bar.
-_order=['Señales','Sistemas','Espectros','Muestreo','Transformadas','Aleatorias']
+STATIONS.append(('Comunicaciones', 'Comunicaciones digitales', 'constellation',
+                 [item[1:3] for item in MENUS['Comunicaciones']]))
+_order=['Señales','Sistemas','Espectros','Muestreo','Transformadas','Aleatorias','Comunicaciones']
 STATIONS.sort(key=lambda station:_order.index(station[0]))
 STATION_FOR={key:index for index,(_,_,_,keys) in enumerate(STATIONS) for key in keys}
 for key,route in GROUP_FOR.items():STATION_FOR[key]=STATION_FOR[route[1:3]]

@@ -31,7 +31,7 @@ def select(key):
     global CURRENT
     if key not in PRESETS:key='navy'
     COLORS.update(PRESETS[key][1]);CURRENT=key
-    for area,role in [('signals','green'),('systems','blue'),('filters','purple'),('spectra','amber'),('sampling','cyan'),('transforms','accent'),('random','red')]:AREA_COLORS[area]=COLORS[role]
+    for area,role in [('signals','green'),('systems','blue'),('filters','purple'),('spectra','amber'),('sampling','cyan'),('transforms','accent'),('random','red'),('communications','amber')]:AREA_COLORS[area]=COLORS[role]
     return key
 
 
