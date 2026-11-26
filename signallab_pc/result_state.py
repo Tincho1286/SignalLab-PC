@@ -1,5 +1,5 @@
 """Estado de resultados respecto de los datos editados, sin recalcular."""
-from PySide6.QtWidgets import QLabel,QComboBox,QCheckBox
+from PySide6.QtWidgets import QLabel,QComboBox,QCheckBox,QPlainTextEdit
 
 class ResultState(QLabel):
     def __init__(self,widgets,button,sources=(),parent=None):
@@ -42,6 +42,7 @@ class ResultState(QLabel):
             if not self.is_input(widget):values.append(None);continue
             if isinstance(widget,QComboBox):values.append(widget.currentIndex())
             elif isinstance(widget,QCheckBox):values.append(widget.isChecked())
+            elif isinstance(widget,QPlainTextEdit):values.append(widget.toPlainText())
             else:values.append(widget.text())
         values.extend(getattr(source,'source_revision',0) for source in self.sources)
         return tuple(values)

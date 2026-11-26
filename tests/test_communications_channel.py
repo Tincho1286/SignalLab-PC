@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 from scipy.stats import chi2
 
-from signallab_pc.communications_channel import AWGNSpec, add_awgn
+from signallab_pc.communications_channel import AWGNSpec, ChannelPath, add_awgn, apply_multipath
 from signallab_pc.communications_data import SymbolClock, iq_signal
 from signallab_pc.communications_pulses import PulseSpec, apply_pulse, design_pulse, upsample_symbols
 from signallab_pc.dsp_application import store_signal
@@ -183,6 +183,63 @@ class CommunicationsChannelTests(unittest.TestCase):
         noise = store_signal(project, noisy, parents=(inserted,))
         np.testing.assert_array_equal(project.get(noise).values, noisy.values)
         self.assertEqual(project.get(noise).metadata['time_start_s'], -0.25)
+
+
+class MultipathContracts(unittest.TestCase):
+    def test_multipath_matches_dense_convolution_and_preserves_clock(self):
+        source = iq_signal([1+2j, 3-1j, 2, -1j], SymbolClock(4000, 2, -0.25, 1e6),
+                           origin=-3, amplitude_units='V')
+        paths = (ChannelPath(4, 0, 0.25), ChannelPath(1, -0.5), ChannelPath(1, 0, 1),
+                 ChannelPath(0), ChannelPath(7, 0))
+        expected = np.convolve(source.values, [1, -0.5+1j, 0, 0, 0.25j, 0, 0, 0])
+        result = apply_multipath(source, paths)
+        np.testing.assert_array_equal(result.values, expected)
+        np.testing.assert_array_equal(result.axis, np.arange(-3, 8))
+        identity = apply_multipath(source, (ChannelPath(0),))
+        np.testing.assert_array_equal(identity.values, source.values)
+        for name in ('sample_rate_hz', 'time_start_s', 'samples_per_symbol', 'center_frequency_hz', 'amplitude_units'):
+            self.assertEqual(result.metadata[name], source.metadata[name])
+        project = Project()
+        parent = project.add(source)
+        key = store_signal(project, result, parents=(parent,))
+        self.assertIn(parent, next(row for row in project.headers() if row['id'] == key)['parents'])
+        different = project.add(source.copy_with(values=source.values + 1))
+        with self.assertRaises(ValueError):
+            store_signal(project, result, parents=(different,))
+        self.assertEqual(len(project.headers()), 3)
+
+    def test_multipath_validates_limits_and_cancels_between_blocks(self):
+        source = Signal(np.ones(140_000))
+        paths = (ChannelPath(0), ChannelPath(3, -1))
+        with self.assertRaisesRegex(ValueError, 'trayectoria'):
+            apply_multipath(source, ())
+        with self.assertRaisesRegex(ValueError, 'temporal discreta'):
+            apply_multipath(Signal([1], domain='frequency'), paths)
+        with self.assertRaisesRegex(ValueError, 'soporte'):
+            apply_multipath(Signal([1], origin=(1 << 63) - 1), (ChannelPath(1),))
+        with self.assertRaisesRegex(ValueError, 'reloj'):
+            apply_multipath(Signal([1], metadata={'sample_rate_hz': 1e-308}), (ChannelPath(2),))
+        with self.assertRaisesRegex(FloatingPointError, 'rango'):
+            apply_multipath(Signal([1e308]), (ChannelPath(0, 2),))
+        with self.assertRaises(ResourceLimitError):
+            apply_multipath(source, paths, ExecutionContext(max_work_bytes=1024))
+        event = Event()
+        budget = 20_000_000
+        pool = ResourcePool(budget)
+
+        def stop(percentage):
+            if percentage > 20:
+                event.set()
+
+        with self.assertRaises(OperationCancelled):
+            apply_multipath(source, paths, ExecutionContext(cancel=event, progress=stop, pool=pool))
+        self.assertTrue(event.is_set())
+        with pool.reserve(budget):
+            pass
+        result = apply_multipath(source, paths)
+        np.testing.assert_array_equal(result.values[:3], [1, 1, 1])
+        np.testing.assert_array_equal(result.values[3:-3], np.zeros(139_997))
+        np.testing.assert_array_equal(result.values[-3:], [-1, -1, -1])
 
 
 if __name__ == '__main__':

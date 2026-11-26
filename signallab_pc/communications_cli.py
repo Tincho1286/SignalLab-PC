@@ -8,7 +8,7 @@ from pathlib import Path
 from . import session
 from .atomic_file import write_json
 from .cli_session import add_output_arguments, add_session_arguments, load_input, run_command
-from .communications_channel import AWGNSpec, add_awgn
+from .communications_channel import AWGNSpec, add_awgn, apply_multipath, parse_channel_path
 from .communications_data import ConstellationSpec, SymbolClock, iq_signal
 from .communications_experiment import ExperimentSpec, coherent_monte_carlo, run_experiment
 from .communications_metrics import QualitySpec, measure_quality
@@ -150,6 +150,16 @@ def _channel(args, ctx):
     return {'record': record, 'statistics': asdict(awgn.statistics)}
 
 
+def _multipath(args, ctx):
+    paths = tuple(parse_channel_path(value) for value in args.path)
+    project, workspace, source = load_input(args, ctx)
+    output = apply_multipath(source, paths, ctx)
+    parent = _source_id(project, args, source)
+    record = store_signal(project, output, parents=(parent,), execution=ctx)
+    _save(args.output, project, workspace, ctx)
+    return {'record': record, 'sample_count': output.values.size, 'channel': output.metadata['communications_multipath']}
+
+
 def _receive(args, ctx):
     project, workspace, source = load_input(args, ctx)
     pilot = None if args.pilot_record is None else project.get(args.pilot_record)
@@ -267,6 +277,12 @@ def main(argv=None):
     channel.add_argument('--signal-power', type=float)
     add_session_arguments(channel)
     channel.set_defaults(execute=_channel)
+
+    multipath = commands.add_parser('multipath', help='Sumá trayectorias con retardo entero y ganancia compleja.')
+    multipath.add_argument('--path', action='append', required=True, metavar='RETARDO=GANANCIA',
+                           help='Repetí la opción por trayectoria. Ejemplo: --path=0=1 --path=4=0.35*i.')
+    add_session_arguments(multipath)
+    multipath.set_defaults(execute=_multipath)
 
     receiver = commands.add_parser('receive', help='Sincronizá y recuperá muestras de símbolo.')
     _synchronization_arguments(receiver)

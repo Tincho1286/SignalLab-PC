@@ -27,6 +27,7 @@ MENUS['Comunicaciones'] = [
     ('Modulación PSK y QAM','communications','modulate',None),
     ('Pulsos y filtro adaptado','communications','pulse','discrete'),
     ('Canal AWGN','communications','awgn','discrete'),
+    ('Canal multitrayecto','communications','multipath','discrete'),
     ('Recuperar símbolos','communications','receive','discrete'),
     ('Decisión de constelación','communications','decide','discrete'),
     ('Medir BER, SER y EVM','communications','measure',None),

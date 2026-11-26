@@ -48,6 +48,15 @@
       ]
     },
     {
+      "key": ["communications", "multipath"],
+      "blocks": [
+        ["Qué podés hacer", "Simulá una señal que llega por varios caminos. Cada camino retarda una copia de la entrada, cambia su amplitud y fase, y la suma a las demás."],
+        ["Cómo preparar el cálculo", "Cargá una señal temporal discreta. Escribí una trayectoria por línea con el formato retardo = ganancia. Por ejemplo, 0 = 1 representa el camino directo y 4 = 0.35*i un eco de cuatro muestras que gira la fase π/2."],
+        ["Cómo interpretar la salida", "Abrí I/Q para comparar los transitorios. El resultado empieza en el mismo índice que la entrada y se prolonga por el mayor retardo para conservar los ecos. Podés reutilizarlo en el filtro adaptado o en otra herramienta."],
+        ["Qué tener en cuenta", "El retardo es un entero no negativo en muestras. Con Fs conocida, un retardo d equivale a d/Fs segundos. Las trayectorias con el mismo retardo se suman con su fase."]
+      ]
+    },
+    {
       "key": ["communications", "receive"],
       "blocks": [
         ["Qué podés hacer", "Elegí una muestra por símbolo en un registro filtrado y corregí la fase."],
@@ -105,6 +114,12 @@
       "flow": ["Registro y referencia", "Generar ruido con semilla", "Registro perturbado y varianzas"],
       "parameters": [["Referencia en dB", "SNR por muestra, Es/N₀ o Eb/N₀."], ["Es", "Energía discreta del símbolo en la escala del registro."], ["Bits por símbolo", "Se usa para transformar Es en Eb."]],
       "reading": "Contrastá las varianzas nominales con las observadas y conservá la semilla para repetir el ensayo."
+    },
+    {
+      "key": ["communications", "multipath"],
+      "flow": ["Registro de entrada", "Retardar, escalar y sumar", "Salida I/Q reutilizable"],
+      "parameters": [["Retardo", "Cantidad de muestras que se desplaza una copia hacia la derecha."], ["Ganancia", "Factor real o complejo que multiplica a la copia. Su módulo escala la amplitud y su ángulo gira la fase."]],
+      "reading": "La entrada se toma como cero fuera del registro. Con 0 = 1 como única trayectoria, la salida reproduce las muestras de entrada."
     },
     {
       "key": ["communications", "receive"],

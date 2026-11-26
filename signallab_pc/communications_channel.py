@@ -1,8 +1,9 @@
-"""Reproducible additive white Gaussian noise with explicit reference energies."""
+"""Baseband communication channels for finite sampled records."""
 
 from copy import deepcopy
 from dataclasses import asdict, dataclass
 import math
+import sys
 
 import numpy as np
 
@@ -10,6 +11,7 @@ from .communications_data import MAX_SEED, integer, real
 from .execution import ExecutionContext
 from .model import Signal
 from .operation_provenance import content_digest, verify_inputs
+from .system_clock import reindex_clock, validate_clock_resolution
 
 
 _BLOCK = 65_536
@@ -201,3 +203,89 @@ def add_awgn(signal: Signal, spec: AWGNSpec, execution: ExecutionContext | None 
         ctx.checkpoint(100)
         verify_inputs((signal,), (source,), ctx.checkpoint)
     return AWGNResult(noisy, spec, statistics)
+
+
+@dataclass(frozen=True, slots=True)
+class ChannelPath:
+    """A causal path with delay in samples and a constant complex gain."""
+
+    delay_samples: int
+    gain_real: float = 1.0
+    gain_imag: float = 0.0
+
+    def __post_init__(self):
+        object.__setattr__(self, 'delay_samples', integer(
+            self.delay_samples, 'El retardo en muestras', minimum=0, maximum=(1 << 63) - 1,
+        ))
+        object.__setattr__(self, 'gain_real', real(self.gain_real, 'La parte real de la ganancia'))
+        object.__setattr__(self, 'gain_imag', real(self.gain_imag, 'La parte imaginaria de la ganancia'))
+
+    @property
+    def gain(self):
+        return complex(self.gain_real, self.gain_imag)
+
+
+def parse_channel_path(text: str) -> ChannelPath:
+    from .scalar_expression import constant_value, integer_value
+
+    delay, separator, gain = text.partition('=')
+    if not separator or not delay.strip() or not gain.strip():
+        raise ValueError('Escribí cada trayectoria como retardo = ganancia. Por ejemplo, 4 = 0.35*i.')
+    coefficient = constant_value(gain.strip())
+    return ChannelPath(integer_value(delay.strip()), coefficient.real, coefficient.imag)
+
+
+def apply_multipath(signal: Signal, paths: tuple[ChannelPath, ...],
+                    execution: ExecutionContext | None = None) -> Signal:
+    """Sum delayed copies of a record, retaining the full finite response."""
+    if not isinstance(signal, Signal) or signal.domain != 'discrete' or signal.data_kind != 'temporal':
+        raise ValueError('El canal multitrayecto requiere una señal temporal discreta.')
+    ctx = execution or ExecutionContext()
+    ctx.checkpoint(0)
+    paths = tuple(paths)
+    if not paths or any(not isinstance(path, ChannelPath) for path in paths):
+        raise ValueError('Indicá al menos una trayectoria con retardo y ganancia.')
+    length = signal.values.size
+    max_delay = max(path.delay_samples for path in paths)
+    count = length + max_delay
+    if count > sys.maxsize // 16 or signal.origin + count - 1 >= 1 << 63:
+        raise ValueError('El soporte de salida excede los índices o el espacio de direcciones.')
+
+    with ctx.reserve(48 * count + 32 * min(length, _BLOCK) + 512 * len(paths)):
+        source = content_digest(signal, ctx.checkpoint)
+        clock = reindex_clock(signal.metadata, 0, count)
+        if 'sample_rate_hz' in clock and 'time_start_s' not in clock:
+            validate_clock_resolution(0, clock['sample_rate_hz'], count)
+        for start in range(0, length, _BLOCK):
+            ctx.checkpoint()
+            if not np.isfinite(signal.values[start:start + _BLOCK]).all():
+                raise ValueError('El canal requiere un registro con muestras finitas.')
+        output = np.zeros(count, dtype=np.complex128)
+        work = len(paths) * length
+        try:
+            with np.errstate(over='raise', invalid='raise', under='ignore'):
+                for index, path in enumerate(paths):
+                    gain = path.gain if path.gain_imag else path.gain_real
+                    if not gain:
+                        ctx.checkpoint(10 + 80 * index // len(paths))
+                        continue
+                    delay = path.delay_samples
+                    for start in range(0, length, _BLOCK):
+                        ctx.checkpoint(10 + 80 * (index * length + start) // work)
+                        stop = min(length, start + _BLOCK)
+                        output[start + delay:stop + delay] += gain * signal.values[start:stop]
+        except FloatingPointError as exc:
+            raise FloatingPointError('La suma de trayectorias excede el rango numérico finito.') from exc
+
+        ctx.checkpoint(90)
+        metadata = deepcopy(signal.metadata)
+        metadata.pop('core_provenance', None)
+        metadata.update(clock)
+        metadata.update(operation='communications_multipath', communications_multipath={
+            'schema': 1, 'paths': [asdict(path) for path in paths], 'source_sha256': source,
+        })
+        result = signal.copy_with(values=output, metadata=metadata, expression='', name='Salida multitrayecto')
+        result._core_verification = (content_digest(result, ctx.checkpoint), (source,), None)
+        ctx.checkpoint(100)
+        verify_inputs((signal,), (source,), ctx.checkpoint)
+    return result

@@ -144,7 +144,7 @@ class CommunicationsDesktopTests(unittest.TestCase):
 
     def test_independent_routes_show_help_and_exchange_clocked_iq(self):
         articles, guides, _ = default_content()
-        for name in ('modulate', 'pulse', 'awgn', 'receive', 'decide', 'measure'):
+        for name in ('modulate', 'pulse', 'awgn', 'multipath', 'receive', 'decide', 'measure'):
             with self.subTest(name=name):
                 self.assertIn(('communications', name), articles)
                 self.assertIn(('communications', name), guides)
@@ -176,6 +176,28 @@ class CommunicationsDesktopTests(unittest.TestCase):
         self.calculate()
         self.assertIn('1 / 6', measure.result.text.toPlainText())
         self.assertIn('1 / 3', measure.result.text.toPlainText())
+
+    def test_multipath_keeps_a_reusable_result_and_opens_its_graphs(self):
+        source = iq_signal([1+2j, 3-1j], SymbolClock(4000, 2, -0.25), origin=-3)
+        key = self.window.publish(source, operation='Entrada de prueba')
+        route = ROUTES['communications', 'multipath']
+        self.window.send_signal(source, key, route)
+        page, panel = self.open('multipath')
+        panel.fields['paths'].setPlainText('0 = 1\n2 = -i/2')
+        self.calculate()
+        result, record = panel.records['Salida multitrayecto']
+        np.testing.assert_array_equal(result.values, [1+2j, 3-1j, 1-0.5j, -0.5-1.5j])
+        self.assertIn('Último índice', panel.result.text.toPlainText())
+        launcher = page.workspace.results.graph_launcher
+        entries = {item[2]: item for item in launcher.available()}
+        self.assertEqual(set(entries), {'I/Q', 'Espectro'})
+        launcher.open_entry(entries['Espectro'])
+        self.wait()
+        panel.fields['paths'].setPlainText('0 = 1')
+        self.assertTrue(panel.result_state.property('resultStale'))
+        receive = ROUTES['communications', 'receive']
+        self.window.send_signal(result, record, receive)
+        self.assertEqual(self.window.pages[receive].panel.source.loaded_reference_id, record)
 
     def test_receive_and_decide_publish_labels_that_metrics_can_load(self):
         _, mapper = self.open('modulate')

@@ -109,6 +109,26 @@ raise SystemExit(main())
             self.assertEqual(result['stopping_rule'], 'fixed_symbol_count')
             self.assertEqual(result, json.loads(monte.read_text(encoding='utf-8')))
 
+    def test_multipath_saves_the_clock_and_leaves_existing_session_on_failure(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            path, output = root/'input.slbin', root/'channel.slproj'
+            source = Signal([1+2j, 3-1j], origin=-1, metadata={'sample_rate_hz': 2000, 'time_start_s': 0.2})
+            save_binary_signal(source, path)
+            result = self.invoke('multipath', '--signal', path, '--path=0=1', '--path=2=-i/2', '--output', output)
+            project, _ = session.load(output)
+            restored = project.get(result['record'])
+            np.testing.assert_array_equal(restored.values, [1+2j, 3-1j, 1-0.5j, -0.5-1.5j])
+            self.assertEqual(result['sample_count'], 4)
+            self.assertEqual(restored.origin, -1)
+            self.assertEqual(restored.metadata['time_start_s'], 0.2)
+            self.assertEqual(restored.metadata['communications_multipath'], result['channel'])
+            original = output.read_bytes()
+            failure = self.invoke('multipath', '--session', output, '--record', result['record'],
+                                  '--path=0=z', '--output', output, expected=1)
+            self.assertIn('constante', failure)
+            self.assertEqual(output.read_bytes(), original)
+
     def test_sweep_cli_runs_and_verifies_a_reproducible_grid(self):
         with TemporaryDirectory() as folder:
             root = Path(folder)

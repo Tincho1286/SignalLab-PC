@@ -8,11 +8,11 @@ from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg, NavigationToolb
 from matplotlib.figure import Figure
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QFileDialog, QFormLayout, QHBoxLayout, QLineEdit, QMenu,
-    QMessageBox, QVBoxLayout, QWidget, QPushButton,
+    QMessageBox, QVBoxLayout, QWidget, QPushButton, QPlainTextEdit,
 )
 
 from . import communications_figures as figures, session
-from .communications_channel import AWGNSpec, add_awgn
+from .communications_channel import AWGNSpec, add_awgn, apply_multipath, parse_channel_path
 from .communications_data import ConstellationSpec, SymbolClock, SymbolSequence, iq_signal
 from .communications_experiment import ExperimentSpec, run_experiment
 from .communications_metrics import QualitySpec, measure_quality
@@ -21,6 +21,7 @@ from .communications_pulses import PulseSpec, apply_pulse, design_pulse, matched
 from .communications_receiver import SynchronizationSpec, recover_symbols
 from .communications_storage import decode_symbols, encode_bits, encode_symbols, load_experiment, store_experiment
 from .communications_sweep import AXES, SweepSpec, axis_from_text, export_sweep_csv, load_sweep, load_sweep_run, run_sweep
+from .dsp_application import store_signal
 from .execution import ExecutionContext
 from .numeric_input import integer_field, real_field
 from .plot_view import hide_plot
@@ -33,7 +34,7 @@ from .validation import show_input_error
 
 _LABELS = {
     'link': 'Ejecutar enlace', 'modulate': 'Modular bits', 'pulse': 'Calcular pulso',
-    'awgn': 'Aplicar AWGN', 'receive': 'Recuperar símbolos', 'decide': 'Decidir símbolos',
+    'awgn': 'Aplicar AWGN', 'multipath': 'Aplicar canal', 'receive': 'Recuperar símbolos', 'decide': 'Decidir símbolos',
     'measure': 'Medir calidad', 'sweep': 'Ejecutar barrido',
 }
 _CONSTE = 'Constelación'
@@ -48,6 +49,7 @@ _COMPARISON = 'Comparación de corridas'
 _VIEWS = {
     'link': (_CONSTE, _IQ, _EYE, _SPECTRUM, _PSD, _IMPULSE, _FREQUENCY, _ERRORS),
     'modulate': (_CONSTE, _IQ), 'pulse': (_IMPULSE, _FREQUENCY, _IQ), 'awgn': (_IQ, _PSD),
+    'multipath': (_IQ, _SPECTRUM),
     'receive': (_IQ,), 'decide': (_CONSTE,), 'measure': (), 'sweep': (_COMPARISON,),
 }
 
@@ -360,6 +362,13 @@ class CommunicationsPanel(QWidget):
         reference.currentIndexChanged.connect(changed)
         changed()
 
+    def _build_multipath(self):
+        self.source = self._source('Señal de entrada')
+        paths = QPlainTextEdit('0 = 1\n4 = 0.35')
+        paths.setMaximumHeight(120)
+        self._set('paths', 'Trayectorias · una por línea', paths,
+                  'Retardo en muestras = ganancia. Para una ganancia compleja, usá i.')
+
     def _build_receive(self):
         self.source = self._source('Registro después del filtro adaptado')
         self._line('count', 'Símbolos a recuperar', 16)
@@ -670,6 +679,29 @@ class CommunicationsPanel(QWidget):
             self._display(Summary('Adición de ruido', [_noise_section(result.statistics)]), axes, {signal.name: (signal, key)})
 
         return lambda: add_awgn(source, spec), accept
+
+    def _run_multipath(self):
+        paths = tuple(parse_channel_path(row) for row in self.fields['paths'].toPlainText().splitlines() if row.strip())
+        source, register = self.source.capture_input()
+
+        def accept(signal):
+            key = store_signal(self.window.project, signal, parents=(register(),))
+            self.window.register_publication(key, signal)
+            axes = {_IQ: (partial(figures.iq_figure, signal=signal), None)}
+            if signal.values.size >= 2:
+                axes[_SPECTRUM] = self._spectral_plot(signal)
+            summary = Summary('Canal multitrayecto', [
+                Section('Trayectorias', rows=[
+                    (f'{path.delay_samples} muestras', number(path.gain)) for path in paths
+                ]),
+                Section('Registro de salida', rows=[
+                    ('Muestras de entrada', source.values.size), ('Muestras de salida', signal.values.size),
+                    ('Primer índice', signal.origin), ('Último índice', signal.origin + signal.values.size - 1),
+                ]),
+            ])
+            self._display(summary, axes, {signal.name: (signal, key)})
+
+        return lambda: apply_multipath(source, paths), accept
 
     def _run_receive(self):
         source, register = self.source.capture_input()
