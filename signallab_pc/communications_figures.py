@@ -165,6 +165,27 @@ def fading_envelope_figure(figure, *, result):
     axis.legend()
 
 
+def fading_distributions_figure(figure, data, *, path_number, fd):
+    envelope, phase = figure.subplots(2, 1)
+    figure.suptitle(f'Trayectoria {path_number} · {data.sample_count} muestras')
+    if fd is not None:
+        phase.set_title('Ganancia fija durante el registro' if fd == 0 else 'Registro con muestras correlacionadas')
+    if not data.envelope.reference_axis.size:
+        envelope.set_title('Dispersión por debajo de la resolución')
+    plots = (
+        (envelope, data.envelope, 'Envolvente normalizada |a|/√P', 'Densidad', 'Rayleigh' if not data.k_linear else 'Rice'),
+        (phase, data.phase, 'Fase respecto de LOS (rad)' if data.k_linear else 'Fase (rad)',
+         'Densidad (1/rad)', 'Uniforme' if not data.k_linear else 'Marginal Rician'),
+    )
+    for axis, distribution, xlabel, ylabel, reference in plots:
+        axis.stairs(distribution.empirical, distribution.edges, color=COLORS['blue'], label='Observada')
+        if distribution.reference_axis.size:
+            axis.plot(distribution.reference_axis, distribution.theoretical, '--', color=COLORS['amber'], label=reference)
+        axis.set(xlabel=xlabel, ylabel=ylabel, ylim=(0, None))
+        axis.grid(alpha=.22)
+        axis.legend()
+
+
 def doppler_diagnostics_figure(figure, data, *, path_number, fd):
     corr, spectrum = figure.subplots(2, 1)
     lag = data.lags_samples / data.sample_rate_hz

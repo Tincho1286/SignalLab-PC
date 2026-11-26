@@ -70,6 +70,7 @@ _FREQUENCY = 'Respuesta del filtro'
 _CHANNEL_FREQUENCY = 'Respuesta del canal'
 _CHANNEL_TAPS = 'Impulso y perfil de potencia'
 _FADING = 'Evolución del fading'
+_FADING_DISTRIBUTIONS = 'Distribuciones de envolvente y fase'
 _DOPPLER = 'Autocorrelación y PSD Doppler'
 _PHASE_PATH = 'Trayectoria de fase'
 _INTERFERENCE_SPECTRA = 'Espectros de los componentes'
@@ -80,7 +81,7 @@ _VIEWS = {
     'link': (_CONSTE, _IQ, _EYE, _SPECTRUM, _PSD, _IMPULSE, _FREQUENCY, _ERRORS, _LINK_CHANNEL),
     'modulate': (_CONSTE, _IQ), 'pulse': (_IMPULSE, _FREQUENCY, _IQ), 'awgn': (_IQ, _PSD),
     'multipath': (_IQ, _SPECTRUM, _CHANNEL_TAPS, _CHANNEL_FREQUENCY),
-    'fading': (_IQ, _SPECTRUM, _FADING, _DOPPLER), 'carrier': (_IQ, _SPECTRUM),
+    'fading': (_IQ, _SPECTRUM, _FADING, _FADING_DISTRIBUTIONS, _DOPPLER), 'carrier': (_IQ, _SPECTRUM),
     'impairments': (_IQ, _SPECTRUM, _PHASE_PATH),
     'interference': (_IQ, _INTERFERENCE_SPECTRA),
     'propagation': (_IQ, _SPECTRUM),
@@ -446,6 +447,9 @@ class CommunicationsPanel(QWidget):
                   'Retardo = potencia media, K, fase LOS en radianes. Omití K y fase para Rayleigh.')
         self._combo('k_scale', 'Escala de K', (('Lineal', 'linear'), ('dB', 'db')))
         self._line('seed', 'Semilla', 2026)
+        diagnostic = self._line('diagnostic_path', 'Trayectoria para los diagnósticos',
+                                tip='Usá el número de fila de una trayectoria con potencia para ver sus distribuciones y su Doppler.')
+        diagnostic.setPlaceholderText('Primera trayectoria activa')
         process = self._combo('process', 'Variación temporal', (
             ('Independiente por muestra', 'iid'), ('Correlacionada · Clarke', 'clarke'),
         ))
@@ -984,6 +988,11 @@ class CommunicationsPanel(QWidget):
         if self._choice('process') == 'clarke' and fd is None:
             raise ValueError('Ingresá el Doppler máximo en Hz. Usá cero para un canal fijo durante el registro.')
         spec = FadingSpec(paths, self._int('seed'), fd)
+        diagnostic_index = self._int('diagnostic_path')
+        if diagnostic_index is None:
+            diagnostic_index = next((i for i, path in enumerate(paths, 1) if path.average_power), None)
+        elif not 1 <= diagnostic_index <= len(paths) or not paths[diagnostic_index - 1].average_power:
+            raise ValueError('Elegí el número de una trayectoria con potencia para ver sus diagnósticos.')
         source, register = self.source.capture_input()
 
         def accept(result):
@@ -1015,13 +1024,14 @@ class CommunicationsPanel(QWidget):
                 _IQ: (partial(figures.iq_figure, signal=signal), None),
                 _FADING: (partial(figures.fading_envelope_figure, result=result), None),
             }
-            if fd is not None and signal.metadata.get('sample_rate_hz') and source.values.size >= 2:
-                active = next(((index, item) for index, item in enumerate(result.realizations, 1)
-                               if item.path.average_power), None)
-                if active is not None:
-                    index, path = active
-                    axes[_DOPPLER] = (partial(figures.doppler_diagnostics_figure, path_number=index, fd=fd),
-                                      path.doppler_diagnostics)
+            if diagnostic_index is not None:
+                item = result.realizations[diagnostic_index - 1]
+                axes[_FADING_DISTRIBUTIONS] = (
+                    partial(figures.fading_distributions_figure, path_number=diagnostic_index, fd=fd), item.distributions,
+                )
+                if fd is not None and signal.metadata.get('sample_rate_hz') and source.values.size >= 2:
+                    axes[_DOPPLER] = (partial(figures.doppler_diagnostics_figure, path_number=diagnostic_index, fd=fd),
+                                      item.doppler_diagnostics)
             if signal.values.size >= 2:
                 axes[_SPECTRUM] = self._spectral_plot(signal)
             self._display(Summary('Fading Rayleigh y Rician', sections), axes, records)

@@ -30,7 +30,15 @@ La realización integra la masa teórica de cada uno de $M=\max(64,\lceil 8Nf_D/
 
 Con $f_D=0$ la ganancia es aleatoria y fija durante el registro. Las líneas de la cuadratura mínima se colapsan en CC con los mismos pesos, de modo que un registro de longitud fija converge al caso de cero con la misma semilla cuando $f_D$ tiende a cero. El tiempo de coherencia es el primer cruce de 0,5 de la autocorrelación teórica difusa e infinito para $f_D=0$.
 
-La API y CLI generan la autocorrelación observada normalizada por la potencia difusa del registro y la PSD Welch bilateral en 1/Hz. La referencia espectral muestra la masa Clarke dividida por el ancho de cada bin, incluido el caso de CC. En Workbench se muestra el diagnóstico de la primera trayectoria con potencia. [Clarke](https://web.stanford.edu/~dntse/papers/main.pdf) · [Zoom FFT](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.ZoomFFT.html).
+La API y CLI generan la autocorrelación observada normalizada por la potencia difusa del registro y la PSD Welch bilateral en 1/Hz. La referencia espectral muestra la masa Clarke dividida por el ancho de cada bin, incluido el caso de CC. Workbench usa la trayectoria elegida o la primera con potencia. [Clarke](https://web.stanford.edu/~dntse/papers/main.pdf) · [Zoom FFT](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.ZoomFFT.html).
+
+### Distribuciones de envolvente y fase
+
+El diagnóstico divide el módulo de los coeficientes por $\sqrt P$. Para Rician, calcula el ángulo respecto de la fase LOS y lo sitúa en $[-\pi,\pi)$. Para Rayleigh usa la fase absoluta. El histograma divide cada recuento por el número de muestras y el ancho del intervalo. Las referencias usan $\mu=\sqrt{K/(1+K)}$ y $\sigma=1/\sqrt{2(1+K)}$ para la variable compleja normalizada.
+
+La envolvente tiene densidad Rice con parámetro de forma $\mu/\sigma$ y escala $\sigma$. Cuando K = 0 se reduce a Rayleigh. La densidad de fase se obtiene integrando la gaussiana bidimensional sobre el radio. Con $\eta=\sqrt{2K}\cos\theta$ es $e^{-K}/(2\pi)+\eta e^{-K\sin^2\theta}\Phi(\eta)/\sqrt{2\pi}$, donde $\Phi$ es la CDF normal estándar. Cuando K = 0, la fase es uniforme. [Densidad Rice](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.rice.html) · [Oráculos independientes](MATHEMATICAL_AUDIT.md#protocolo-para-las-distribuciones-visuales-de-fading).
+
+Las curvas se evalúan en una grilla independiente del histograma para resolver picos angostos. Se muestran en un intervalo de hasta ocho desviaciones por cuadratura alrededor de la media radial o de la fase dominante, y para K ≤ 10 se muestra toda la fase. El diagnóstico avisa si la concentración queda por debajo de la resolución del gráfico. Una trayectoria sin potencia carece de diagnóstico. Con Doppler nulo, toda la realización comparte un coeficiente y su histograma se concentra en un intervalo. Con Doppler positivo, la comparación describe la distribución marginal y el histograma de un registro correlacionado puede apartarse de la referencia.
 
 ## Desplazamiento determinista de frecuencia y fase
 

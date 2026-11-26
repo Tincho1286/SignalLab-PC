@@ -31,6 +31,7 @@ from .communications_receiver import SynchronizationSpec, recover_symbols
 from .communications_storage import decode_symbols, encode_bits, encode_symbols, save_experiment
 from .communications_sweep import SweepSpec, axis_from_text, export_sweep_csv, load_sweep, run_sweep, summarize_sweep_repetitions
 from .dsp_application import store_signal
+from .operation_provenance import encoded_digest
 from .project import Project
 
 
@@ -223,6 +224,14 @@ def _fading(args, ctx):
                 name: project.add(value, operation='Diagnóstico Doppler', parents=(record,))
                 for name, value in diagnostics.signals().items()
             }
+        if args.distributions and item.path.average_power:
+            data = item.distributions(ctx).document()
+            verification = (encoded_digest('calculation', data, ctx.checkpoint),
+                            (data['source_sha256'],), ctx.checkpoint)
+            entry['distribution_record'] = project.add(
+                data, title=f'Distribuciones de fading · trayectoria {len(coefficients) + 1}',
+                operation='Diagnóstico de fading', parents=(record,), verification=verification,
+            )
         coefficients.append(entry)
     _save(args.output, project, workspace, ctx)
     return {'record': key, 'sample_count': result.signal.values.size, 'paths': coefficients}
@@ -489,6 +498,8 @@ def main(argv=None):
     fading.add_argument('--seed', type=int, default=2026)
     fading.add_argument('--doppler-max-hz', type=float, help='Usá dispersión Clarke de hasta esta frecuencia en Hz.')
     fading.add_argument('--diagnostics', action='store_true', help='Guardá autocorrelación, PSD y coherencia por camino.')
+    fading.add_argument('--distributions', action='store_true',
+                        help='Guardá densidades observadas y teóricas de envolvente y fase por trayectoria activa.')
     add_session_arguments(fading)
     fading.set_defaults(execute=_fading)
 

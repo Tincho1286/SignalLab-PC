@@ -61,8 +61,8 @@
       "blocks": [
         ["Qué podés hacer", "Aplicá un canal con ganancias aleatorias. Rayleigh modela un camino sin componente dominante. Rician añade una componente coherente con amplitud y fase definidas."],
         ["Cómo preparar el cálculo", "Escribí una línea por trayectoria con retardo en muestras = potencia media. Para Rician agregá K y la fase LOS en radianes, separados por comas. En escala lineal, 4 = 0.25, 10, pi/2 declara un eco de cuatro muestras con potencia media 0.25 y K lineal 10."],
-        ["Cómo interpretar la salida", "El informe compara la potencia esperada y observada por camino. El gráfico de evolución muestra el módulo de los coeficientes. En el selector de resultados podés elegir la salida del canal o una realización individual."],
-        ["Qué tener en cuenta", "Elegí Independiente para generar cada muestra por separado o Clarke para correlacionar el proceso en el tiempo. En Clarke, el Doppler máximo debe ser menor que Fs/2. Un valor cero conserva una ganancia aleatoria fija durante el registro. El gráfico Doppler compara la parte dispersiva con Clarke y usa la primera trayectoria con potencia. Cada camino tiene su propio flujo aleatorio."]
+        ["Cómo interpretar la salida", "El informe compara la potencia esperada y observada por camino. En Distribuciones de envolvente y fase, el histograma se compara con la densidad teórica. La envolvente se divide por la raíz de la potencia media indicada y la fase Rician se mide respecto de LOS. Elegí una trayectoria para este diagnóstico o dejá el campo vacío para usar la primera con potencia."],
+        ["Qué tener en cuenta", "Elegí Independiente para generar cada muestra por separado o Clarke para correlacionar el proceso en el tiempo. En Clarke, el Doppler máximo debe ser menor que Fs/2. Un valor cero conserva una ganancia aleatoria fija durante el registro. Cuanto más correlacionadas estén las muestras, más puede apartarse el histograma de la densidad marginal. Cada camino tiene su propio flujo aleatorio."]
       ]
     },
     {

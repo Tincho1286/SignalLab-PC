@@ -3,6 +3,7 @@ from threading import Event
 import unittest
 
 import numpy as np
+from scipy.integrate import quad
 from scipy.stats import kstest, rayleigh, rice, uniform
 
 from signallab_pc.communications_fading import FadingPath, FadingSpec, apply_fading, parse_fading_path
@@ -13,6 +14,67 @@ from signallab_pc.resources import ResourceLimitError
 
 
 class FadingContracts(unittest.TestCase):
+    def test_distribution_densities_against_polar_quadrature_and_counts(self):
+        for k in (0, 4):
+            with self.subTest(k=k):
+                path = FadingPath(average_power=2.7, k_linear=k, los_phase_rad=3.5)
+                part, = apply_fading(Signal(np.ones(32_768)), FadingSpec((path,), 70123)).realizations
+                result = part.distributions(bins=24)
+                sigma = math.sqrt(1/(2*(1+k)))
+                mean = math.sqrt(k/(1+k))
+                envelope_law = rice(math.sqrt(2*k), scale=sigma) if k else rayleigh(scale=sigma)
+                np.testing.assert_allclose(result.envelope.theoretical,
+                                           envelope_law.pdf(result.envelope.reference_axis), rtol=0, atol=1e-13)
+                angle = result.phase.reference_axis[::32]
+                oracle = [quad(lambda radius: radius / (math.tau*sigma**2) * math.exp(
+                    -((radius*math.cos(theta)-mean)**2 + (radius*math.sin(theta))**2) / (2*sigma**2)
+                ), 0, np.inf)[0] for theta in angle]
+                np.testing.assert_allclose(result.phase.theoretical[::32], oracle, rtol=0, atol=1e-12)
+                self.assertEqual(result.phase_reference_rad, path.los_phase_rad if k else 0)
+                samples = part.coefficients.values
+                relative = (np.angle(samples) - result.phase_reference_rad + math.pi) % math.tau - math.pi
+                for values, distribution in ((abs(samples)/math.sqrt(path.average_power), result.envelope),
+                                             (relative, result.phase)):
+                    counts = [np.count_nonzero((values >= left) & (
+                        (values <= right) if right == distribution.edges[-1] else (values < right)
+                    )) for left, right in zip(distribution.edges[:-1], distribution.edges[1:], strict=True)]
+                    masses = distribution.empirical * np.diff(distribution.edges)
+                    np.testing.assert_allclose(masses, np.asarray(counts)/len(samples), rtol=0, atol=1e-12)
+                    self.assertAlmostEqual(float(masses.sum()), 1, places=12)
+
+    def test_distribution_handles_static_unresolved_and_inactive_paths(self):
+        source = Signal(np.ones(20), metadata={'sample_rate_hz': 2000})
+        fixed, inactive = apply_fading(source, FadingSpec((FadingPath(), FadingPath(0, 0)), 4, 0)).realizations
+        data = fixed.distributions()
+        self.assertIn('único coeficiente', data.notes[0])
+        self.assertEqual(np.count_nonzero(data.phase.empirical), 1)
+        self.assertGreater(data.phase.theoretical.size, 0)
+        with self.assertRaisesRegex(ValueError, 'potencia nula'):
+            inactive.distributions()
+        with self.assertRaisesRegex(ValueError, 'intervalos'):
+            fixed.distributions(bins=129)
+        dominant, = apply_fading(source, FadingSpec((FadingPath(k_linear=1e300, los_phase_rad=7),), 4)).realizations
+        data = dominant.distributions()
+        self.assertEqual(data.envelope.theoretical.size, 0)
+        self.assertIn('resolución', data.notes[0])
+        self.assertTrue(np.isfinite(data.envelope.empirical).all())
+        self.assertTrue(np.all(np.diff(data.envelope.edges) > 0))
+
+    def test_distributions_bound_work_and_discard_interrupted_computations(self):
+        part, = apply_fading(Signal(np.ones(80_000)), FadingSpec((FadingPath(),), 23)).realizations
+        with self.assertRaises(ResourceLimitError):
+            part.distributions(ExecutionContext(max_work_bytes=1024))
+        event = Event()
+
+        def stop(percentage):
+            if percentage >= 75:
+                event.set()
+
+        with self.assertRaises(OperationCancelled):
+            part.distributions(ExecutionContext(cancel=event, progress=stop))
+        self.assertTrue(event.is_set())
+        self.assertEqual(part.distributions().sample_count, 80_000)
+
     def test_iid_envelope_phase_and_power_against_distributions(self):
         signal = Signal(np.ones(32_768))
         power, phase = 2.7, -0.82

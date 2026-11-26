@@ -29,7 +29,7 @@ FAMILIES={
     'execution_context':('test_math_execution_context.ExecutionContractTests',4),
     'dsp_application':('test_math_dsp_application.DSPApplicationTests',7),
     'communications_multipath':('test_communications_channel.MultipathContracts',5),
-    'communications_iid_fading':('test_communications_fading.FadingContracts',4),
+    'communications_iid_fading':('test_communications_fading.FadingContracts',7),
     'communications_doppler':('test_communications_doppler.DopplerContracts',5),
     'communications_impairments':('test_communications_impairments.ImpairmentContracts',5),
     'communications_interference':('test_communications_interference.InterferenceContracts',5),

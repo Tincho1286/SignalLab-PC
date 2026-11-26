@@ -100,3 +100,11 @@ Con importaciones Qt bloqueadas, la pérdida de espacio libre a un kilómetro y 
 ## Composición
 
 Las pruebas calculan por separado la salida de escala seguida de suma y la salida de suma seguida de escala. El caso de fase Wiener compuesta contrasta el producto de rotaciones con la exponencial de la suma de fases. Se comprueba la identidad de la cadena vacía y la reproducción con la misma semilla raíz. Las pruebas de almacenamiento incorporan un informe en un proyecto nuevo, comprueban la reasignación de identificadores y rechazan una realización alterada sin dejar etapas parciales.
+
+## Protocolo para las distribuciones visuales de fading
+
+- Usar 32 768 muestras independientes con una potencia de 2,7 y K de 0 y 4. Comparar la envolvente normalizada contra las funciones de densidad Rayleigh y Rice de SciPy. Exigir error absoluto <10⁻¹³ en la grilla de referencia.
+- Comparar la densidad de fase contra la integral radial de la gaussiana bidimensional en ángulos repartidos entre −π y π. Exigir error absoluto <10⁻¹². Contrastar las frecuencias del histograma con un recuento independiente y verificar que cada densidad observada integra a uno dentro de 10⁻¹².
+- Rotar la componente LOS más allá de π y comprobar la referencia circular. Distinguir una trayectoria apagada de un registro fijo con Doppler nulo. Para K dentro del rango representable pero con dispersión inferior a la resolución del gráfico, exigir un histograma finito y un aviso explícito.
+
+[Densidad Rice](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.rice.html) · [Bessel escalada](https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.i0e.html) · [Función de error complementaria escalada](https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.erfcx.html)

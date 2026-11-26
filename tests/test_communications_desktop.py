@@ -212,6 +212,7 @@ class CommunicationsDesktopTests(unittest.TestCase):
         panel.fields['paths'].setPlainText('0 = 1\n2 = 0.5, 10, pi/4')
         panel.fields['k_scale'].setCurrentIndex(1)
         panel.fields['seed'].setText('43')
+        panel.fields['diagnostic_path'].setText('2')
         self.calculate()
         expected = apply_fading(source, FadingSpec((FadingPath(), FadingPath(2, 0.5, 10, math.pi/4)), 43))
         values = [expected.signal, *(part.coefficients for part in expected.realizations)]
@@ -224,6 +225,15 @@ class CommunicationsDesktopTests(unittest.TestCase):
         entry = next(item for item in launcher.available() if item[2] == 'Evolución del fading')
         launcher.open_entry(entry)
         self.wait()
+        name = 'Distribuciones de envolvente y fase'
+        launcher.open_entry(next(item for item in launcher.available() if item[2] == name))
+        self.wait()
+        canvas, _ = panel.canvas[name]
+        phase, = canvas.figure.axes[1].lines
+        reference = expected.realizations[1].distributions()
+        np.testing.assert_array_equal(phase.get_xdata(), reference.phase.reference_axis)
+        np.testing.assert_array_equal(phase.get_ydata(), reference.phase.theoretical)
+        self.assertEqual(len(canvas.figure.axes[1].patches), 1)
 
         panel.fields['process'].setCurrentIndex(1)
         panel.fields['max_doppler_hz'].setText('120')

@@ -11,6 +11,7 @@ from scipy import __version__ as scipy_version
 from .communications_channel import channel_clock, channel_record_power, discrete_channel_size
 from .communications_data import MAX_SEED, integer, real
 from .communications_doppler import ClarkeGrid, analyze_clarke
+from .communications_fading_distributions import FadingDistributions, analyze_fading_distributions
 from .execution import ExecutionContext
 from .model import Signal
 from .operation_provenance import content_digest, verify_inputs
@@ -102,6 +103,9 @@ class FadingRealization:
     path: FadingPath
     coefficients: Signal
     statistics: FadingStatistics
+
+    def distributions(self, execution: ExecutionContext | None = None, *, bins=48) -> FadingDistributions:
+        return analyze_fading_distributions(self, execution, bins=bins)
 
     def doppler_diagnostics(self, execution: ExecutionContext | None = None):
         fd = self.coefficients.metadata.get('max_doppler_hz')

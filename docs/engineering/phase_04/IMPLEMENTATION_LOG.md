@@ -85,3 +85,9 @@ El commit `e60f820` aprobó los controles matemáticos de Windows y Ubuntu. [Res
 Los ejes numéricos de las etapas se combinan con los del enlace. Cada punto puede guardar réplicas y semillas comunes o independientes. La calibración SINR descuenta la potencia de ruido observada. El CSV incluye las relaciones medidas de interferencia. Los archivos externos del catálogo tienen huellas verificadas y se conservan para continuar una campaña sin volver a suministrar las entradas.
 
 El experimento de regresión combinó dos niveles de SINR, dos ganancias y tres réplicas por punto. Se verificaron las 12 corridas reabiertas, el resultado observado de calibración, la exportación, los intervalos sobre EVM y el emparejamiento de semillas. Una segunda campaña se canceló después de registrar la primera corrida y retomó los datos externos archivados. La suite de comunicaciones aprobó 128 pruebas en Windows.
+
+## Distribuciones de fading por trayectoria
+
+Workbench abre las densidades observada y teórica de envolvente y fase para la trayectoria seleccionada. API y CLI comparten el cálculo. La CLI asocia el diagnóstico con la huella de sus coeficientes. El servicio conserva el histograma cuando la dispersión queda por debajo de la resolución de la grilla, con un aviso explícito. En registros correlacionados, la referencia describe la marginal del modelo. [Fórmulas y alcance](SCIENTIFIC_CONTRACTS.md#distribuciones-de-envolvente-y-fase).
+
+El contraste con densidades conocidas, cuadratura polar e histogramas contados por intervalo forma parte de la familia matemática de fading. Las pruebas focalizadas de motor, CLI y figura de Workbench aprobaron 21 casos en Windows. El guardia estático aprobó 411 archivos Python. [Protocolo](MATHEMATICAL_AUDIT.md#protocolo-para-las-distribuciones-visuales-de-fading).

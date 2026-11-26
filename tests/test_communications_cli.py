@@ -146,7 +146,7 @@ raise SystemExit(main())
             source, output = root/'input.slbin', root/'fading.slproj'
             save_binary_signal(Signal(np.ones(20), origin=4, metadata={'sample_rate_hz': 8000}), source)
             stats = self.invoke('fading', '--signal', source, '--path=0=2', '--path=3=1,6,pi/4', '--k-scale',
-                                'db', '--seed', 73, '--output', output)
+                                'db', '--seed', 73, '--distributions', '--output', output)
             project, _ = session.load(output)
             direct, echo = [project.get(path['record']) for path in stats['paths']]
             received = project.get(stats['record'])
@@ -154,6 +154,16 @@ raise SystemExit(main())
             self.assertEqual(echo.origin, 7)
             self.assertEqual(received.metadata['sample_rate_hz'], 8000)
             self.assertEqual(received.metadata['communications_fading']['specification']['seed'], 73)
+            echo_path = stats['paths'][1]
+            distribution = project.get(echo_path['distribution_record'])
+            self.assertEqual(distribution['phase_reference_rad'], np.pi/4)
+            self.assertEqual(distribution['sample_count'], 20)
+            phase = distribution['phase']
+            self.assertAlmostEqual(np.dot(phase['empirical'], np.diff(phase['edges'])), 1)
+            headers = {record['id']: record for record in project.headers()}
+            header = headers[echo_path['distribution_record']]
+            self.assertEqual(header['parents'], [echo_path['record']])
+            self.assertEqual(header['verified_provenance']['parents'], [distribution['source_sha256']])
 
     def test_doppler_cli_persists_psd_and_signed_phase_rotation(self):
         with TemporaryDirectory() as folder:

@@ -54,7 +54,7 @@ El mismo ejemplo en Python usa `apply_fading(x, FadingSpec((FadingPath(), Fading
 
 ### Doppler
 
-Para correlacionar el fading, elegí **Clarke** y un Doppler máximo en Hz. Podés abrir el diagnóstico de autocorrelación y PSD de la primera trayectoria activa. En la CLI, `--diagnostics` guarda los diagnósticos por trayectoria con potencia.
+Para correlacionar el fading, elegí **Clarke** y un Doppler máximo en Hz. El gráfico de autocorrelación y PSD usa la trayectoria elegida o la primera con potencia. En la CLI, `--diagnostics` guarda los diagnósticos Doppler por trayectoria activa.
 
 ```sh
 python -m signallab_pc communications fading --signal entrada.slbin --path=0=1 --doppler-max-hz 64 --diagnostics --output clarke.slproj
@@ -62,6 +62,14 @@ python -m signallab_pc communications shift-carrier --signal entrada.slbin --fre
 ```
 
 La entrada debe tener Fs registrada. En Workbench, **Doppler y fase** aplica el desplazamiento constante y la fase inicial de la segunda orden. [Modelo y condiciones](SCIENTIFIC_CONTRACTS.md#dispersión-doppler-de-clarke)
+
+### Distribuciones de fading
+
+Abrí **Distribuciones de envolvente y fase** en los resultados de **Fading Rayleigh y Rician**. El histograma usa la envolvente normalizada por la potencia de la trayectoria y el ángulo relativo a LOS para Rician. Si dejás vacío el número de trayectoria, se muestra la primera con potencia. En Python, usá `resultado.realizations[0].distributions()`. En la CLI, `--distributions` guarda las densidades y enlaza cada cálculo con la realización que lo originó. [Unidades, fórmulas y alcance](SCIENTIFIC_CONTRACTS.md#distribuciones-de-envolvente-y-fase)
+
+```sh
+python -m signallab_pc communications fading --signal entrada.slbin '--path=0=1,4,pi/2' --seed 2026 --distributions --output distribuciones.slproj
+```
 
 ## Imperfecciones de reloj, fase e I/Q
 
@@ -141,4 +149,4 @@ Los informes indican cuántas réplicas dieron mediciones válidas. El catálogo
 
 ## Alcance siguiente
 
-Queda completar los diagnósticos visuales de fading, calificar el laboratorio integrado, cerrar las brechas de cobertura y compatibilidad, medir la envolvente operativa y preparar el candidato del Quality Gate.
+Queda calificar el laboratorio integrado, cerrar las brechas de cobertura y compatibilidad, medir la envolvente operativa y preparar el candidato del Quality Gate.
