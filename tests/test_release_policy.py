@@ -13,7 +13,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from signallab_pc.release_policy import publication_version
 from signallab_pc.update_download import fetch_release
 from signallab_pc.update_manifest import FEED_URL, FILENAMES, REPOSITORY, UpdateError
-from tools.check_release_target import validate
+from tools.check_release_target import revision_metadata, validate, validate_history
 from tools.github_release import GitHub, require_publication_checkout, sha256, validate_publication_files
 
 
@@ -98,6 +98,19 @@ class ReleasePolicyTests(unittest.TestCase):
         for args in wrong:
             with self.subTest(args=args), self.assertRaises(ValueError):
                 validate(*args)
+        tip = 'ef'*20
+        with patch('tools.check_release_target.subprocess.run') as check:
+            check.return_value.returncode = 0
+            validate_history('preview', CANDIDATE, tip)
+            self.assertEqual(check.call_args.args[0], ['git', 'merge-base', '--is-ancestor', CANDIDATE, tip])
+            check.return_value.returncode = 1
+            with self.assertRaisesRegex(ValueError, 'historial de develop'):
+                validate_history('preview', CANDIDATE, tip)
+        validate_history('stable', CANDIDATE, CANDIDATE)
+        with self.assertRaises(ValueError):
+            validate_history('stable', CANDIDATE, tip)
+        code = "__version__='2.1.0'\n__release_channel__='preview'\nraise RuntimeError('Do not execute')"
+        self.assertEqual(revision_metadata(code), ('2.1.0', 'preview'))
 
     def test_checkout_routes_preserve_origin_and_detached_maintenance_base(self):
         origin = 'cd'*20

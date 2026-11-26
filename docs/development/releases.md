@@ -12,7 +12,7 @@ Para Preview, prepará el commit limpio en `develop` y verificá el mismo SHA en
 
 ## Construir portables e instaladores
 
-El [flujo de distribuciones](../../.github/workflows/portable.yml) recibe el canal, el SHA completo y las plataformas. Preview se ejecuta sobre `develop`. Stable/LTS admite `main` cuando contiene código de esa familia o una etiqueta LTS coincidente con el código. Un candidato LTS desacoplado que todavía no tiene etiqueta se compila y valida desde ese mismo commit en cada sistema. Usá `request_signing=false` mientras no haya un servicio Authenticode aprobado.
+El [flujo de distribuciones](../../.github/workflows/portable.yml) recibe el canal, el SHA completo y las plataformas. Preview se ejecuta sobre `develop` y comprueba que el SHA elegido esté en su historial. Así podés identificar el candidato aunque haya commits posteriores de documentación. Stable/LTS admite el SHA exacto de `main` cuando contiene código de esa familia o de una etiqueta LTS coincidente con el código. Un candidato LTS desacoplado que todavía no tiene etiqueta se compila y valida desde ese mismo commit en cada sistema. Usá `request_signing=false` mientras no haya un servicio Authenticode aprobado.
 
 El Quality Gate de Fase 03 produce directamente los adjuntos del candidato para ambos sistemas. Guardá los comprobantes `candidate-windows.json` y `candidate-linux.json` con sus paquetes y el informe de la misma ejecución. Así se puede preparar la entrega a partir de lo que se probó. Los artefactos de Actions tienen retención temporal.
 

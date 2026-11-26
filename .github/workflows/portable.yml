@@ -48,13 +48,15 @@ jobs:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           ref: ${{ github.sha }}
+          fetch-depth: 0
           persist-credentials: false
       - name: Confirm approved revision and separated release line
         env:
           CHANNEL: ${{ inputs.channel }}
           SOURCE_REF: ${{ github.ref }}
           CANDIDATE_SHA: ${{ inputs.candidate_sha }}
-        run: python3 -B tools/check_release_target.py --channel "$CHANNEL" --ref "$SOURCE_REF" --candidate "$CANDIDATE_SHA"
+          DISPATCH_SHA: ${{ github.sha }}
+        run: python3 -B tools/check_release_target.py --channel "$CHANNEL" --ref "$SOURCE_REF" --candidate "$CANDIDATE_SHA" --ref-tip "$DISPATCH_SHA"
 
   portable:
     needs: verify_target
@@ -68,7 +70,7 @@ jobs:
       - name: Check out the exact build commit
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ inputs.candidate_sha }}
           persist-credentials: false
 
       - name: Set up Python
@@ -136,7 +138,7 @@ jobs:
       - name: Record binary metadata and source provenance
         id: metadata
         env:
-          BUILD_COMMIT: ${{ github.sha }}
+          BUILD_COMMIT: ${{ inputs.candidate_sha }}
           BUILD_REF: ${{ github.ref }}
           BUILD_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
@@ -223,7 +225,7 @@ jobs:
       - name: Check out the exact build commit
         uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ inputs.candidate_sha }}
           persist-credentials: false
 
       - name: Set up Python
