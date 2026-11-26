@@ -96,6 +96,28 @@ python -m signallab_pc communications propagation --signal entrada.slbin --model
 python -m signallab_pc communications propagation --signal entrada.slbin --model log-distance --distance-m 100 --reference-distance-m 10 --reference-loss-db 42 --exponent 3 --shadow-std-db 4 --seed 70 --output sombra.slproj
 ```
 
+## Cadena de canal
+
+En **Comunicaciones → Cadena de canal**, elegí modelos, ordenalos y vinculá los interferentes externos a señales del proyecto. Podés guardar la configuración, modificar sus parámetros en JSON y abrirla desde el escritorio o la CLI. El selector de resultados muestra la salida final, las etapas y sus componentes.
+
+```json
+{
+  "schema": 1,
+  "seed": 2026,
+  "stages": [
+    {"kind": "multipath", "parameters": {"paths": [{"delay_samples": 0}, {"delay_samples": 4, "gain_real": 0.3}]}},
+    {"kind": "carrier", "parameters": {"frequency_hz": 45}},
+    {"kind": "awgn", "parameters": {"reference": "snr", "level_db": 15, "seed": 30}}
+  ]
+}
+```
+
+```sh
+python -m signallab_pc communications channel-pipeline --signal entrada.slbin --config canal.json --output etapa.slproj
+```
+
+Python usa `ChannelStage`, `ChannelPipelineSpec` y `run_channel_pipeline` en `signallab_pc.communications_pipeline`. Cada vínculo externo agrega `external_input` a la etapa y usa `--external-file nombre=archivo.slbin` o `--external-record nombre=id` en la CLI. [Contratos y semillas](SCIENTIFIC_CONTRACTS.md#composición-ordenada)
+
 ## Alcance siguiente
 
-Quedan la composición ordenada y la integración de los modelos al enlace y a los barridos. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.
+Queda integrar los modelos al enlace de comunicaciones y a los barridos. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.

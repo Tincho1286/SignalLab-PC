@@ -12,6 +12,7 @@ import numpy as np
 from signallab_pc import session
 from signallab_pc.__main__ import main
 from signallab_pc.communications_experiment import ExperimentSpec, run_experiment
+from signallab_pc.communications_pipeline import load_channel_pipeline
 from signallab_pc.communications_storage import decode_bits, decode_symbols, load_experiment
 from signallab_pc.model import Signal
 from signallab_pc.scientific_storage import save_binary_signal
@@ -228,6 +229,24 @@ raise SystemExit(main())
             self.assertEqual(receipt['statistics']['net_gain_db'], -60)
             self.assertEqual(result.origin, 3)
             np.testing.assert_allclose(result.values, x.values*1e-3)
+
+    def test_channel_pipeline_cli_composes_and_archives_the_stages(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            config, source, peer, output = (root/name for name in ('channel.json', 'tx.slbin', 'peer.slbin', 'chain.slproj'))
+            config.write_text(json.dumps({'schema': 1, 'seed': 4, 'stages': [
+                {'kind': 'timing', 'parameters': {'delay_samples': 1}},
+                {'kind': 'interference', 'parameters': {'model': {'kind': 'external'}}, 'external_input': 'peer'},
+            ]}), encoding='utf-8')
+            save_binary_signal(Signal([1, 2, 3], origin=5), source)
+            save_binary_signal(Signal([1j], origin=6), peer)
+            result = self.invoke('channel-pipeline', '--signal', source, '--config', config,
+                                 '--external-file', 'peer='+str(peer), '--output', output)
+            project, _ = session.load(output)
+            _, report = load_channel_pipeline(project, result['report_record'])
+            self.assertEqual(report['report_sha256'], result['report_sha256'])
+            self.assertEqual(len(report['stage_records']), 2)
+            np.testing.assert_array_equal(project.get(result['record']).values, [0, 1+1j, 2])
 
     def test_sweep_cli_runs_and_verifies_a_reproducible_grid(self):
         with TemporaryDirectory() as folder:

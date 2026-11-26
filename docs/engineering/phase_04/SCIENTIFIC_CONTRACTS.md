@@ -71,3 +71,11 @@ El AWGN opcional reutiliza el motor de Fase 03 con potencia de señal deseada co
 Log-distancia usa $L(d)=L_0+10\gamma\log_{10}(d/d_0)$ con exponente positivo y $d\ge d_0$. Si no se da $L_0$, se toma la pérdida de espacio libre a $d_0$. El exponente y el ancla representan el escenario declarado. El modelo de sombra agrega una pérdida gaussiana en dB de media cero y desviación indicada. PCG64 toma un valor por registro, con lo cual la ganancia lineal por sombra sigue una log-normal. Sombra y pérdida por distancia se informan por separado.
 
 La señal se escala por $10^{(G-L-X)/20}$, con $G$ la ganancia adicional, $L$ la pérdida por distancia y $X$ la realización de sombra. Se conservan fase, soporte, reloj y unidades. Esta etapa solo modela escala de amplitud. La demora y la propagación variante se modelan mediante retardo o fading. [UIT-R P.525-5](https://www.itu.int/rec/R-REC-P.525-5-202411-I/en) · [Pérdida por distancia y sombra](https://web.stanford.edu/class/ee359/lectures.html).
+
+## Composición ordenada
+
+`ChannelPipelineSpec` define hasta 128 etapas de los motores de canal. Cada salida es la siguiente entrada y los relojes se recalculan según el modelo. En una cadena vacía, la salida es la propia señal de entrada. Cada etapa conserva su registro, potencia media, reloj, amplitud, parámetros efectivos, huellas, condiciones de uso y realizaciones auxiliares. Las potencias se miden sobre el registro completo de cada etapa, con el soporte que utilice esa operación.
+
+La semilla raíz puede omitirse para usar las semillas originales de cada etapa. Con raíz, `SeedSequence` combina la raíz y la semilla declarada y deriva un subflujo por posición de etapa y por rol. Para interferencia de banda, la banda y el AWGN son roles separados. El resultado de una corrida se reproduce con el mismo orden, entradas, configuración y entorno numérico.
+
+Las interferencias externas se vinculan por nombre antes de ejecutar. El informe conserva huellas de las entradas y vínculos al proyecto. Una sola transacción conserva salida, etapas, componentes e informe. La importación reasigna identificadores manteniendo el orden y las huellas. En ejecución, las señales retenidas consumen una parte del presupuesto disponible para las siguientes etapas. La cancelación es cooperativa en los motores y en la transacción del proyecto.

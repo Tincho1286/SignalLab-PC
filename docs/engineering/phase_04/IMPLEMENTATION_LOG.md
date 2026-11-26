@@ -57,3 +57,15 @@ Los controles matemáticos de `7262ba8` aprobaron Windows y Ubuntu. [Resultados]
 El nuevo motor aplica ganancia fija, espacio libre, log-distancia y sombra log-normal. Guarda pérdida de referencia, pérdida por distancia, realización de sombra y ganancia neta. La API permite evaluar la pérdida sin generar una señal. Workbench y CLI comparten el servicio para aplicar el modelo a una entrada.
 
 La suite de comunicaciones aprobó 107 pruebas en Windows. El control estático aprobó 408 archivos Python. Se verificaron la referencia UIT-R, los incrementos por década, el reloj de salida, la persistencia por CLI, el flujo de escritorio y el modelo log-normal con Qt bloqueado. [Oráculos](MATHEMATICAL_AUDIT.md#mediciones-de-propagación-en-windows).
+
+El commit `964f3f6` aprobó los controles matemáticos de Windows y Ubuntu. [Resultados](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45887301131).
+
+La medición exploratoria del mismo bloque usó `tools/engineering.coveragerc` sobre la suite de comunicaciones. Se observaron brechas de ramas en CLI (76,8 %), fading (78,6 %), Doppler (80,0 %), imperfecciones (82,6 %) e interferencia (83,3 %). Se volverán a medir con la suite integral y el candidato final. Los denominadores de cobertura se conservan.
+
+## Cadena ordenada de modelos de canal
+
+El contrato de cadena reutiliza las operaciones individuales. Registra el orden, las semillas efectivas, la potencia, el reloj y las realizaciones de cada etapa. Los artefactos se guardan juntos. La prueba de importación conserva los vínculos y huellas después de cambiar los identificadores de proyecto. Las señales intermedias cuentan contra la reserva disponible durante la ejecución.
+
+El editor de Workbench permite agregar y reordenar modelos preconfigurados, vincular entradas externas y abrir o guardar su configuración común con CLI y Python. La edición detallada de parámetros se realiza en el JSON opcional del editor. [Uso](README.md#cadena-de-canal) · [Contratos](SCIENTIFIC_CONTRACTS.md#composición-ordenada).
+
+En Windows, la suite de comunicaciones aprobó 114 pruebas. El control estático aprobó 410 archivos Python. La CLI también ejecutó y archivó una cadena completa con importaciones de Qt bloqueadas. Se verificaron cancelación, límite de memoria de la cadena, etapas alteradas, reasignación de identificadores, vínculo a una señal externa y equivalencia de orden en Workbench.

@@ -102,6 +102,15 @@
       ]
     },
     {
+      "key": ["communications", "channel_pipeline"],
+      "blocks": [
+        ["Qué podés hacer", "Ejecutá efectos de canal uno después de otro. Cada etapa recibe la salida de la anterior. Cambiar el orden puede cambiar el resultado."],
+        ["Cómo preparar el cálculo", "Elegí un modelo y agregalo a la lista. Usá Subir y Bajar para ordenar, o Quitar para retirar una etapa. Para cambiar parámetros o importar un ensayo de Python o CLI, abrí la configuración JSON. Si la etapa pide un interferente, vinculá su nombre a una señal del proyecto."],
+        ["Cómo interpretar la salida", "El informe indica potencia, reloj y condiciones de uso por etapa. El selector permite consultar y reutilizar la salida final, las señales intermedias y realizaciones como fase, fading o interferencia."],
+        ["Qué tener en cuenta", "Una cadena vacía conserva la entrada. La semilla opcional de cadena deriva subflujos distintos por posición y fuente aleatoria. Cambiar el orden puede cambiar las semillas efectivas."]
+      ]
+    },
+    {
       "key": ["communications", "receive"],
       "blocks": [
         ["Qué podés hacer", "Elegí una muestra por símbolo en un registro filtrado y corregí la fase."],
@@ -195,6 +204,12 @@
       "flow": ["Modelo, distancia y portadora", "Calcular la pérdida neta", "Escalar las muestras"],
       "parameters": [["Ganancia adicional", "Un valor positivo aumenta la amplitud. Un valor negativo atenúa."], ["Exponente", "Por cada década de distancia, agrega diez veces su valor en dB."], ["Sombra", "Desviación en dB. Cero desactiva el término aleatorio."]],
       "reading": "El factor de amplitud se obtiene con 10 elevado a la ganancia neta en dB dividida por 20."
+    },
+    {
+      "key": ["communications", "channel_pipeline"],
+      "flow": ["Señal y etapas ordenadas", "Ejecutar cada modelo", "Informe y señales intermedias"],
+      "parameters": [["Etapas", "Se ejecutan de arriba hacia abajo."], ["Configuración JSON", "Esquema 1 compartido con Python y CLI."], ["Entradas externas", "Señales discretas del proyecto vinculadas por nombre."]],
+      "reading": "Compará las potencias de entrada y salida de cada etapa. Una métrica de recepción depende de que el receptor pueda alinear el registro."
     },
     {
       "key": ["communications", "receive"],

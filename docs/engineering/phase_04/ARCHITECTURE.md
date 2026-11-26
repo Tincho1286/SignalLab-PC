@@ -9,7 +9,7 @@
 
 ## Fronteras para la integración
 
-La composición será una secuencia ordenada de contratos, ejecutada sobre el mismo registro de comunicación. Cada etapa expondrá salidas y estadísticas suficientes para verificar su efecto y para calcular las potencias en una ventana declarada. Debe poder registrar la diferencia entre desplazamiento Doppler, fading, ruido y error de sincronización.
+La composición ejecuta una secuencia ordenada de contratos sobre el registro que entrega cada etapa. Mantiene las señales intermedias, los componentes aleatorios, los relojes y las potencias de entrada y salida. Usa el mismo motor desde el editor de Workbench, la API y la CLI. El informe verifica configuración efectiva, orden y huellas. Los roles se resuelven con los padres del proyecto para que importar una cadena reasigne los identificadores sin alterar el cálculo.
 
 El enlace reutilizará la cadena de pulsos y el receptor de Fase 03. El almacenamiento experimental archivará configuración, resultados intermedios y huellas por etapa. Los perfiles históricos mantendrán sus convenciones y su derivación de semillas. La persistencia y ejecución deberán rechazar un cambio de orden ambiguo o una configuración de registro inválida.
 

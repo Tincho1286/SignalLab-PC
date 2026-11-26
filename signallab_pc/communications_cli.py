@@ -24,6 +24,7 @@ from .communications_interference import (
 )
 from .communications_metrics import QualitySpec, measure_quality
 from .communications_modulation import decide_symbols, generate_bits, group_bits, modulate, parse_bits
+from .communications_pipeline import read_pipeline_spec, run_channel_pipeline, store_channel_pipeline
 from .communications_pulses import PulseSpec, apply_pulse, design_pulse, upsample_symbols
 from .communications_propagation import FreeSpaceLoss, LogDistanceLoss, PropagationSpec, apply_propagation
 from .communications_receiver import SynchronizationSpec, recover_symbols
@@ -287,6 +288,34 @@ def _propagation(args, ctx):
     return {'record': record, 'statistics': asdict(result.statistics)}
 
 
+def _channel_pipeline(args, ctx):
+    config = read_pipeline_spec(args.channel_config, ctx)
+    if args.channel_config.resolve() == args.output.resolve():
+        raise ValueError('Elegí una salida distinta del archivo de configuración de la cadena.')
+    project, workspace, source = load_input(args, ctx)
+    external = {}
+    records = {}
+    for load_record, values in ((True, args.external_record), (False, args.external_file)):
+        for binding in values:
+            name, separator, target = binding.partition('=')
+            if not separator or not name or not target or name in external:
+                raise ValueError('Usá nombre=registro o nombre=archivo una sola vez para cada entrada externa.')
+            if load_record:
+                if args.session is None:
+                    raise ValueError('Los vínculos a registros externos requieren una sesión de entrada.')
+                records[name] = target
+                external[name] = project.get(target)
+            else:
+                path = Path(target)
+                if path.resolve() == args.output.resolve():
+                    raise ValueError('Elegí una salida distinta de todas las señales externas.')
+                external[name] = load_signal_file(path, ctx)
+    result = run_channel_pipeline(source, config, external=external, execution=ctx)
+    receipt = store_channel_pipeline(project, result, source_id=args.record, external_records=records, execution=ctx)
+    _save(args.output, project, workspace, ctx)
+    return {**receipt, 'report_sha256': result.report_sha256, 'sample_count': result.signal.values.size}
+
+
 def _receive(args, ctx):
     project, workspace, source = load_input(args, ctx)
     pilot = None if args.pilot_record is None else project.get(args.pilot_record)
@@ -479,6 +508,13 @@ def main(argv=None):
     loss.add_argument('--seed', type=int, default=2026)
     add_session_arguments(loss)
     loss.set_defaults(execute=_propagation)
+
+    pipeline = commands.add_parser('channel-pipeline', help='Ejecutá y guardá una cadena ordenada de canales.')
+    pipeline.add_argument('--config', dest='channel_config', required=True, type=Path, help='Configuración JSON.')
+    pipeline.add_argument('--external-record', action='append', default=[], metavar='NOMBRE=REGISTRO')
+    pipeline.add_argument('--external-file', action='append', default=[], metavar='NOMBRE=ARCHIVO')
+    add_session_arguments(pipeline)
+    pipeline.set_defaults(execute=_channel_pipeline)
 
     receiver = commands.add_parser('receive', help='Sincronizá y recuperá muestras de símbolo.')
     _synchronization_arguments(receiver)

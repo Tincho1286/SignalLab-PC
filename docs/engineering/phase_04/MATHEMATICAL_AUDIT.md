@@ -96,3 +96,7 @@ Con Qt bloqueado se midió un registro de 8 192 muestras a Fs = 4 096 Hz. Se fij
 ### Mediciones de propagación en Windows
 
 Con importaciones Qt bloqueadas, la pérdida de espacio libre a un kilómetro y 1 GHz fue 92,44778322 dB. En sombra, las 512 realizaciones dieron 0,04457 de distancia CDF frente a la normal teórica y una desviación de 3,79635 dB frente a 4 dB. Ambos cumplieron el protocolo.
+
+## Composición
+
+Las pruebas calculan por separado la salida de escala seguida de suma y la salida de suma seguida de escala. El caso de fase Wiener compuesta contrasta el producto de rotaciones con la exponencial de la suma de fases. Se comprueba la identidad de la cadena vacía y la reproducción con la misma semilla raíz. Las pruebas de almacenamiento incorporan un informe en un proyecto nuevo, comprueban la reasignación de identificadores y rechazan una realización alterada sin dejar etapas parciales.

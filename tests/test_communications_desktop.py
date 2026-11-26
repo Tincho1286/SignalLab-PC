@@ -17,6 +17,7 @@ from signallab_pc import communications_figures as figures
 from signallab_pc.communications_data import SymbolClock, iq_signal
 from signallab_pc.communications_experiment import ExperimentSpec, run_experiment
 from signallab_pc.communications_fading import FadingPath, FadingSpec, apply_fading
+from signallab_pc.communications_pipeline import load_channel_pipeline
 from signallab_pc.communications_storage import load_experiment
 from signallab_pc.library_content import default_content
 from signallab_pc.tool_browser import CatalogCard
@@ -146,7 +147,7 @@ class CommunicationsDesktopTests(unittest.TestCase):
     def test_independent_routes_show_help_and_exchange_clocked_iq(self):
         articles, guides, _ = default_content()
         for name in ('modulate', 'pulse', 'awgn', 'multipath', 'fading', 'carrier', 'impairments',
-                     'interference', 'propagation', 'receive', 'decide', 'measure'):
+                     'interference', 'propagation', 'channel_pipeline', 'receive', 'decide', 'measure'):
             with self.subTest(name=name):
                 self.assertIn(('communications', name), articles)
                 self.assertIn(('communications', name), guides)
@@ -312,6 +313,27 @@ class CommunicationsDesktopTests(unittest.TestCase):
         np.testing.assert_allclose(result.values, expected)
         self.assertEqual(self.window.project.get(record).metadata['sample_rate_hz'], 8000)
         self.assertIn('Pérdida por distancia', panel.result.text.toPlainText())
+
+    def test_channel_pipeline_editor_reorders_and_binds_external_signals(self):
+        source = iq_signal([1, 2, 3], SymbolClock(4000, 2, -.25), origin=-3)
+        peer = source.copy_with(values=np.full(3, 1j), name='Interferente')
+        tx, external = (self.window.publish(signal, operation='Entrada de prueba') for signal in (source, peer))
+        self.window.send_signal(source, tx, ROUTES['communications', 'channel_pipeline'])
+        _, panel = self.open('channel_pipeline')
+        editor = panel.fields['pipeline']
+        editor.preset.setCurrentIndex(editor.preset.findText('Interferencia externa'))
+        editor.append()
+        editor.choices['interferente'].setCurrentIndex(editor.choices['interferente'].findData(external))
+        editor.preset.setCurrentIndex(editor.preset.findText('Retardo'))
+        editor.append()
+        editor.reorder(-1)
+        self.calculate()
+        output, _ = panel.records['Salida de la cadena']
+        np.testing.assert_array_equal(output.values, [1j, 1+1j, 2+1j])
+        reports = [item['id'] for item in self.window.project.headers('calculation') if item['title'] == 'Cadena de canal']
+        _, report = load_channel_pipeline(self.window.project, reports[-1])
+        self.assertEqual(report['external_records']['interferente'], external)
+        self.assertIn('Potencia de entrada', panel.result.text.toPlainText())
 
     def test_receive_and_decide_publish_labels_that_metrics_can_load(self):
         _, mapper = self.open('modulate')

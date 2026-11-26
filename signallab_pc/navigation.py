@@ -33,6 +33,7 @@ MENUS['Comunicaciones'] = [
     ('Imperfecciones de reloj, fase e I/Q','communications','impairments','discrete'),
     ('Interferencia','communications','interference','discrete'),
     ('Pérdidas de propagación','communications','propagation','discrete'),
+    ('Cadena de canal','communications','channel_pipeline','discrete'),
     ('Recuperar símbolos','communications','receive','discrete'),
     ('Decisión de constelación','communications','decide','discrete'),
     ('Medir BER, SER y EVM','communications','measure',None),

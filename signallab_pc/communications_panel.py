@@ -28,6 +28,8 @@ from .communications_interference import (
 )
 from .communications_metrics import QualitySpec, measure_quality
 from .communications_modulation import build_constellation, decide_symbols, generate_bits, group_bits, modulate, parse_bits, ungroup_symbols
+from .communications_pipeline import run_channel_pipeline, store_channel_pipeline
+from .communications_pipeline_editor import ChannelPipelineEditor, channel_stage_label
 from .communications_pulses import PulseSpec, apply_pulse, design_pulse, matched_pulse_isi, upsample_symbols
 from .communications_propagation import FreeSpaceLoss, LogDistanceLoss, PropagationSpec, apply_propagation
 from .communications_receiver import SynchronizationSpec, recover_symbols
@@ -52,6 +54,7 @@ _LABELS = {
     'impairments': 'Aplicar imperfección',
     'interference': 'Agregar interferencia',
     'propagation': 'Aplicar modelo',
+    'channel_pipeline': 'Ejecutar cadena',
     'measure': 'Medir calidad', 'sweep': 'Ejecutar barrido',
 }
 _CONSTE = 'Constelación'
@@ -77,6 +80,7 @@ _VIEWS = {
     'impairments': (_IQ, _SPECTRUM, _PHASE_PATH),
     'interference': (_IQ, _INTERFERENCE_SPECTRA),
     'propagation': (_IQ, _SPECTRUM),
+    'channel_pipeline': (_IQ, _SPECTRUM),
     'receive': (_IQ,), 'decide': (_CONSTE,), 'measure': (), 'sweep': (_COMPARISON,),
 }
 
@@ -518,6 +522,10 @@ class CommunicationsPanel(QWidget):
 
         model.currentIndexChanged.connect(update_fields)
         update_fields()
+
+    def _build_channel_pipeline(self):
+        self.source = self._source('Señal de entrada')
+        self._set('pipeline', 'Etapas de canal', ChannelPipelineEditor(lambda: self.window.project))
 
     def _build_receive(self):
         self.source = self._source('Registro después del filtro adaptado')
@@ -1091,6 +1099,47 @@ class CommunicationsPanel(QWidget):
             self._display(summary, axes, {signal.name: (signal, record)})
 
         return lambda: apply_propagation(source, spec), accept
+
+    def _run_channel_pipeline(self):
+        source, register = self.source.capture_input()
+        editor = self.fields['pipeline']
+        spec, bindings = editor.specification(), editor.bindings()
+        if any(identifier is None for identifier in bindings.values()):
+            raise ValueError('Elegí las señales externas solicitadas por la cadena.')
+        external = {name: self.window.project.get(identifier) for name, identifier in bindings.items()}
+
+        def accept(result):
+            source_id = register()
+            receipt = store_channel_pipeline(self.window.project, result, source_id=source_id,
+                                             external_records=bindings)
+            records = {'Salida de la cadena': (result.signal, receipt['record'])}
+            summary = [Section('Orden de ejecución', rows=[('Etapas aplicadas', len(result.stages))])]
+            for index, (stage, saved) in enumerate(zip(result.stages, receipt['stages'], strict=True), 1):
+                report = stage.report()
+                label = f'{index}. {channel_stage_label(stage.stage.kind)}'
+                self.window.register_publication(saved['record'], stage.signal)
+                if saved['record'] != receipt['record']:
+                    records[label] = stage.signal, saved['record']
+                for name, signal in stage.components:
+                    key = saved['components'][name]
+                    self.window.register_publication(key, signal)
+                    records[f'{index}. {signal.name}'] = signal, key
+                rows = [('Muestras', report['sample_count']), ('Índice inicial', report['origin']),
+                        ('Potencia de entrada', number(report['input_power'])),
+                        ('Potencia de salida', number(report['output_power']))]
+                if 'sample_rate_hz' in report['clock']:
+                    rows.append(('Fs (Hz)', number(report['clock']['sample_rate_hz'])))
+                seed = report['effective']['parameters'].get('seed')
+                if seed is not None:
+                    rows.append(('Semilla efectiva', seed))
+                summary.append(Section(label, paragraphs=report['conditions'], rows=rows))
+            self.window.register_publication(receipt['report_record'], self.window.project.get(receipt['report_record']))
+            axes = {_IQ: (partial(figures.iq_figure, signal=result.signal), None)}
+            if result.signal.values.size >= 2:
+                axes[_SPECTRUM] = self._spectral_plot(result.signal)
+            self._display(Summary('Cadena de canal', summary), axes, records)
+
+        return lambda: run_channel_pipeline(source, spec, external=external), accept
 
     def _run_receive(self):
         source, register = self.source.capture_input()
