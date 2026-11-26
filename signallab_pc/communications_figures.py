@@ -115,6 +115,31 @@ def pulse_figure(figure, pulse):
     axis.set_title(f'{pulse.specification.family.upper()} · {values.size} coeficientes')
 
 
+def channel_taps_figure(figure, *, analysis):
+    delays = np.array([tap.delay_samples for tap in analysis.taps], dtype=np.int64)
+    gains = np.array([tap.gain for tap in analysis.taps])
+    powers = np.array([row.power for row in analysis.power_delay_profile])
+    axes = figure.subplots(3, 1, sharex=True)
+    for axis, values, label, color in zip(
+        axes, (gains.real, gains.imag, powers), ('Re h[n]', 'Im h[n]', 'Potencia'),
+        (COLORS['blue'], COLORS['green'], COLORS['amber']), strict=True,
+    ):
+        plot_samples(axis, delays, values, discrete=True, color=color)
+        axis.set_ylabel(label)
+    configure_axis(axes[-1], discrete_index=True, label='Retardo (muestras)')
+
+
+def channel_frequency_figure(figure, response):
+    axes = figure.subplots(2, 1, sharex=True)
+    values = response.values
+    axes[0].plot(response.axis, abs(values), color=COLORS['blue'])
+    phase = np.where(abs(values) > 16*np.finfo(float).eps * np.max(abs(values)), np.angle(values), np.nan)
+    plot_samples(axes[1], response.axis, phase, phase=True, color=COLORS['green'])
+    axes[0].set_ylabel('|H(eʲω)|')
+    axes[1].set_ylabel('Fase (rad)')
+    configure_axis(axes[1], units=response.units, label='ω (rad/muestra)')
+
+
 def filter_frequency_figure(figure, pulse):
     frequency, response = freqz(pulse.taps, worN=2048, include_nyquist=True)
     axes = figure.subplots(2, 1, sharex=True)

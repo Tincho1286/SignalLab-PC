@@ -1,0 +1,13 @@
+# Criterios de Quality Gate de Fase 04
+
+| Control | Criterio previo a la calificación |
+| --- | --- |
+| Cobertura | En ambas plataformas, ≥85 % de líneas global y ≥75 % de ramas global. Cada componente crítico alcanza ≥90 % de líneas y ≥85 % de ramas. Se conserva la instrumentación y el conjunto de componentes del Core y Fase 03. Se agregan todos los motores de fase, servicios de composición e integración, API/CLI científica y almacenamiento científico nuevos, por función de producción. |
+| Oráculos | Contrastar canales deterministas con identidades y referencias independientes. Verificar Rayleigh/Rician mediante distribuciones, momentos e identidades límite. Fijar tamaño, nivel, criterio y tolerancia antes de registrar resultados. Procesos correlacionados requieren autocorrelación y PSD contra el modelo, con incertidumbre estimada sobre réplicas independientes. |
+| Enlace | Identidad con deterioros deshabilitados, control QPSK/RRC/AWGN, casos separados y combinados, comportamiento ante sincronización indeterminada y compatibilidad de sesiones, experimentos y campañas históricas. |
+| Interoperabilidad | Mismos resultados y unidades en escritorio, API y CLI. Ejecución científica con importación de Qt bloqueada. Recalcular huellas después de abrir archivos y detectar alteraciones. Verificar atomicidad, cancelación y recuperación de campaña. |
+| Recursos | Medir tiempo, pico RSS, tamaño de persistencia, concurrencia y respuesta para perfiles de 128, 2 048 y 65 536 símbolos RRC con número de trayectorias, Fs y modelos registrados. Comprobar rechazo sin archivo parcial al superar presupuesto. Mantener latencia de cancelación ≤1,5 s y salto máximo del bucle de eventos ≤2 s en perfiles aprobados, con seguimiento explícito de operaciones nativas. |
+| Escritorio y distribución | Sesiones reales con DPI y resoluciones registradas en Windows y Linux, más pruebas automatizadas de regresión. Portables e instaladores funcionales, archivos fuente, hashes e inventarios del mismo SHA. Probar separación de canales y actualización con manifiesto de prueba. |
+| Cierre | 100 % de pruebas obligatorias aprobadas, P0 abiertos cero y P1 internos pendientes cero. Evidencia por requisito, matriz de un SHA limpio y dictámenes separados de cierre, Fase 05 y distribución. |
+
+Los objetivos y límites son criterios de calificación. El informe final debe separar pruebas reales de escritorio, pruebas simuladas y evidencia ausente. Las restricciones de importación MAT, los perfiles aprobados de recursos y el seguimiento E-04 conservan el alcance concedido en fases anteriores. [Política de distribución](../RELEASE_POLICY.md).

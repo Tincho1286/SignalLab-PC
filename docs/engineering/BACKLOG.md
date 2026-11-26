@@ -1,6 +1,6 @@
 # Backlog de SignalLab Engineering
 
-La Fase 03 comienza con la consolidación del Core. El cierre técnico de 02C acredita E-01 y E-06a–j y registra las aprobaciones E-02, E-03 y E-05. E-04 sigue como seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Plan de Fase 03](phase_03/PHASE_03_PLAN.md)
+La Fase 04 amplía el laboratorio integrado de comunicaciones. Los próximos bloques cubren fading, Doppler y deterioros de enlace, seguidos por composición, barridos y calificación. E-04 sigue como seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Plan de Fase 04](phase_04/PHASE_04_PLAN.md)
 
 La [matriz de Fase 02B](phase_02b/PHASE_02B_TRACEABILITY_MATRIX.md) registra los nuevos paquetes y sus criterios. Los controles y riesgos de estabilización siguen debajo como referencia.
 

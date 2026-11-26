@@ -190,9 +190,10 @@ class CommunicationsDesktopTests(unittest.TestCase):
         self.assertIn('Último índice', panel.result.text.toPlainText())
         launcher = page.workspace.results.graph_launcher
         entries = {item[2]: item for item in launcher.available()}
-        self.assertEqual(set(entries), {'I/Q', 'Espectro'})
-        launcher.open_entry(entries['Espectro'])
-        self.wait()
+        self.assertEqual(set(entries), {'I/Q', 'Espectro', 'Impulso y perfil de potencia', 'Respuesta del canal'})
+        for name in ('Espectro', 'Impulso y perfil de potencia', 'Respuesta del canal'):
+            launcher.open_entry(entries[name])
+            self.wait()
         panel.fields['paths'].setPlainText('0 = 1')
         self.assertTrue(panel.result_state.property('resultStale'))
         receive = ROUTES['communications', 'receive']

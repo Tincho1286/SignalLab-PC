@@ -3,9 +3,12 @@ from threading import Event
 import unittest
 
 import numpy as np
+from scipy.signal import freqz
 from scipy.stats import chi2
 
-from signallab_pc.communications_channel import AWGNSpec, ChannelPath, add_awgn, apply_multipath
+from signallab_pc.communications_channel import (
+    AWGNSpec, ChannelPath, MultipathSpec, add_awgn, analyze_multipath, apply_multipath, multipath_frequency,
+)
 from signallab_pc.communications_data import SymbolClock, iq_signal
 from signallab_pc.communications_pulses import PulseSpec, apply_pulse, design_pulse, upsample_symbols
 from signallab_pc.dsp_application import store_signal
@@ -186,6 +189,55 @@ class CommunicationsChannelTests(unittest.TestCase):
 
 
 class MultipathContracts(unittest.TestCase):
+    def test_coherent_power_profile_and_symbol_spaced_isi(self):
+        paths = (ChannelPath(1, 1, 1), ChannelPath(1, 1, -1), ChannelPath(5, 0, 1))
+        spec = MultipathSpec(paths)
+        analysis = analyze_multipath(spec, samples_per_symbol=4)
+        self.assertEqual([(p.delay_samples, p.power) for p in analysis.power_delay_profile], [(1, 4), (5, 1)])
+        self.assertEqual(analysis.total_power, 5)
+        self.assertAlmostEqual(analysis.mean_delay_samples, 1.8)
+        self.assertAlmostEqual(analysis.rms_delay_spread_samples, 1.6)
+        self.assertEqual(analysis.symbol_spaced_isi.interfering_lags_symbols, (1,))
+        self.assertEqual(analysis.symbol_spaced_isi.interference_to_reference_power, 0.25)
+        self.assertEqual(analyze_multipath(spec, samples_per_symbol=3).symbol_spaced_isi.interfering_lags_symbols, ())
+        normalized = MultipathSpec(paths, normalize_power=True)
+        self.assertAlmostEqual(analyze_multipath(normalized).total_power, 1)
+        impulse = apply_multipath(Signal([1]), normalized)
+        np.testing.assert_allclose(impulse.values, [0, 2/math.sqrt(5), 0, 0, 0, 1j/math.sqrt(5)])
+
+    def test_frequency_matches_freqz_on_centered_even_and_odd_grids(self):
+        analysis = analyze_multipath(MultipathSpec((ChannelPath(0, 2, 1), ChannelPath(3, -0.5, 1))))
+        impulse = [2+1j, 0, 0, -0.5+1j]
+        for points in (40, 41):
+            with self.subTest(points=points):
+                response = multipath_frequency(analysis, points)
+                omega = np.fft.fftshift(np.fft.fftfreq(points))*math.tau
+                np.testing.assert_allclose(response.axis, omega, rtol=0, atol=1e-15)
+                _, expected = freqz(impulse, worN=omega)
+                np.testing.assert_allclose(response.values, expected, rtol=0, atol=7e-15)
+        delay = (1 << 63) - 1
+        sparse = analyze_multipath(MultipathSpec((ChannelPath(delay), ChannelPath(delay-2))))
+        self.assertEqual(sparse.rms_delay_spread_samples, 1)
+        response = multipath_frequency(sparse, 8)
+        _, expected = freqz([0, 0, 0, 0, 0, 1, 0, 1], worN=response.axis)
+        np.testing.assert_allclose(response.values, expected, rtol=0, atol=7e-15)
+
+    def test_zero_profile_and_extreme_normalization(self):
+        cancelling = (ChannelPath(2), ChannelPath(2, -1))
+        empty = analyze_multipath(MultipathSpec(cancelling), samples_per_symbol=1)
+        self.assertIsNone(empty.mean_delay_samples)
+        self.assertIsNone(empty.rms_delay_spread_samples)
+        self.assertIsNone(empty.symbol_spaced_isi)
+        np.testing.assert_array_equal(multipath_frequency(empty, 4).values, np.zeros(4))
+        with self.assertRaisesRegex(ValueError, 'nula'):
+            analyze_multipath(MultipathSpec(cancelling, normalize_power=True))
+        for gain in (1e-300, 1e300):
+            with self.subTest(gain=gain):
+                spec = MultipathSpec((ChannelPath(0, gain, gain),), normalize_power=True)
+                self.assertAlmostEqual(analyze_multipath(spec).total_power, 1)
+                got = apply_multipath(Signal([1]), spec)
+                np.testing.assert_allclose(got.values, [(1+1j)/math.sqrt(2)])
+
     def test_multipath_matches_dense_convolution_and_preserves_clock(self):
         source = iq_signal([1+2j, 3-1j, 2, -1j], SymbolClock(4000, 2, -0.25, 1e6),
                            origin=-3, amplitude_units='V')

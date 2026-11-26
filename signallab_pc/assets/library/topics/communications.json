@@ -52,8 +52,8 @@
       "blocks": [
         ["Qué podés hacer", "Simulá una señal que llega por varios caminos. Cada camino retarda una copia de la entrada, cambia su amplitud y fase, y la suma a las demás."],
         ["Cómo preparar el cálculo", "Cargá una señal temporal discreta. Escribí una trayectoria por línea con el formato retardo = ganancia. Por ejemplo, 0 = 1 representa el camino directo y 4 = 0.35*i un eco de cuatro muestras que gira la fase π/2."],
-        ["Cómo interpretar la salida", "Abrí I/Q para comparar los transitorios. El resultado empieza en el mismo índice que la entrada y se prolonga por el mayor retardo para conservar los ecos. Podés reutilizarlo en el filtro adaptado o en otra herramienta."],
-        ["Qué tener en cuenta", "El retardo es un entero no negativo en muestras. Con Fs conocida, un retardo d equivale a d/Fs segundos. Las trayectorias con el mismo retardo se suman con su fase."]
+        ["Cómo interpretar la salida", "El impulso muestra la ganancia compleja de cada tap. El perfil de potencia mide su módulo cuadrado. La dispersión RMS mide cuánto se separan los retardos alrededor del promedio ponderado por potencia. La señal de salida conserva la cola de los ecos y se puede reutilizar en el filtro adaptado."],
+        ["Qué tener en cuenta", "El retardo es un entero no negativo en muestras. Con Fs conocida, un retardo d equivale a d/Fs segundos. La normalización opcional fija la energía total del impulso en uno. Si indicás las muestras por símbolo, la medida de ISI usa los taps que coinciden con la fase del más potente, sin considerar los pulsos TX/RX."]
       ]
     },
     {
@@ -118,8 +118,8 @@
     {
       "key": ["communications", "multipath"],
       "flow": ["Registro de entrada", "Retardar, escalar y sumar", "Salida I/Q reutilizable"],
-      "parameters": [["Retardo", "Cantidad de muestras que se desplaza una copia hacia la derecha."], ["Ganancia", "Factor real o complejo que multiplica a la copia. Su módulo escala la amplitud y su ángulo gira la fase."]],
-      "reading": "La entrada se toma como cero fuera del registro. Con 0 = 1 como única trayectoria, la salida reproduce las muestras de entrada."
+      "parameters": [["Retardo", "Cantidad de muestras que se desplaza una copia hacia la derecha."], ["Ganancia", "Factor real o complejo que multiplica a la copia. Su módulo escala la amplitud y su ángulo gira la fase."], ["Muestras por símbolo", "Permite medir la interferencia del canal a intervalos de símbolo. Si la señal ya registra ese valor, se puede usar el del reloj."]],
+      "reading": "Abrí Impulso y perfil de potencia para comprobar la suma de ecos y Respuesta del canal para observar sus efectos en módulo y fase."
     },
     {
       "key": ["communications", "receive"],

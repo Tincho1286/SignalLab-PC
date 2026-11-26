@@ -235,23 +235,149 @@ def parse_channel_path(text: str) -> ChannelPath:
     return ChannelPath(integer_value(delay.strip()), coefficient.real, coefficient.imag)
 
 
-def apply_multipath(signal: Signal, paths: tuple[ChannelPath, ...],
+@dataclass(frozen=True, slots=True)
+class MultipathSpec:
+    """Finite LTI baseband channel, with optional unit impulse energy."""
+
+    paths: tuple[ChannelPath, ...]
+    normalize_power: bool = False
+
+    def __post_init__(self):
+        paths = tuple(self.paths)
+        if not paths or any(not isinstance(path, ChannelPath) for path in paths):
+            raise ValueError('Indicá al menos una trayectoria con retardo y ganancia.')
+        if type(self.normalize_power) is not bool:
+            raise ValueError('Indicá explícitamente si se normaliza la potencia del canal.')
+        object.__setattr__(self, 'paths', paths)
+
+
+def _effective_taps(spec, ctx):
+    grouped = {}
+    for path in spec.paths:
+        ctx.checkpoint()
+        grouped.setdefault(path.delay_samples, []).append(path)
+    try:
+        taps = tuple(ChannelPath(delay, math.fsum(p.gain_real for p in paths),
+                                 math.fsum(p.gain_imag for p in paths))
+                     for delay, paths in sorted(grouped.items()))
+    except OverflowError as exc:
+        raise FloatingPointError('La ganancia coherente excede el rango numérico finito.') from exc
+    if not spec.normalize_power:
+        return taps
+    scale = max(max(abs(p.gain_real), abs(p.gain_imag)) for p in taps)
+    if scale == 0:
+        raise ValueError('La respuesta al impulso nula no admite normalización de potencia.')
+    norm = math.sqrt(math.fsum((p.gain_real / scale)**2 + (p.gain_imag / scale)**2 for p in taps))
+    return tuple(ChannelPath(p.delay_samples, p.gain_real / scale / norm, p.gain_imag / scale / norm)
+                 for p in taps)
+
+
+@dataclass(frozen=True, slots=True)
+class PowerDelayTap:
+    delay_samples: int
+    power: float
+
+
+@dataclass(frozen=True, slots=True)
+class SymbolSpacedISI:
+    samples_per_symbol: int
+    reference_delay_samples: int
+    interfering_lags_symbols: tuple[int, ...]
+    interference_to_reference_power: float
+
+
+@dataclass(frozen=True, slots=True)
+class MultipathAnalysis:
+    taps: tuple[ChannelPath, ...]
+    power_delay_profile: tuple[PowerDelayTap, ...]
+    total_power: float
+    mean_delay_samples: float | None
+    rms_delay_spread_samples: float | None
+    symbol_spaced_isi: SymbolSpacedISI | None
+
+
+def analyze_multipath(spec: MultipathSpec, *, samples_per_symbol: int | None = None,
+                      execution: ExecutionContext | None = None) -> MultipathAnalysis:
+    """Analyze coherent taps, with an optional channel-only symbol-spaced ISI measure."""
+    if not isinstance(spec, MultipathSpec):
+        raise ValueError('El análisis requiere una configuración multitrayecto.')
+    if samples_per_symbol is not None:
+        samples_per_symbol = integer(samples_per_symbol, 'Las muestras por símbolo')
+    ctx = execution or ExecutionContext()
+    with ctx.reserve(640 * len(spec.paths)):
+        taps = _effective_taps(spec, ctx)
+        try:
+            profile = tuple(PowerDelayTap(tap.delay_samples, tap.gain_real**2 + tap.gain_imag**2)
+                            for tap in taps)
+            total = math.fsum(row.power for row in profile)
+        except OverflowError as exc:
+            raise FloatingPointError('La potencia del canal excede el rango numérico finito.') from exc
+        if not math.isfinite(total):
+            raise FloatingPointError('La potencia del canal excede el rango numérico finito.')
+        if any(row.power == 0 and tap.gain for tap, row in zip(taps, profile)):
+            raise FloatingPointError('La potencia de una trayectoria no nula es menor que el rango numérico.')
+        mean = spread = isi = None
+        if total:
+            # Work with relative delays so a large shared delay does not erase the spread.
+            base = next(row.delay_samples for row in profile if row.power > 0)
+            remaining = tuple((row.delay_samples - base, row.power / total) for row in profile if row.power > 0)
+            relative_mean = math.fsum(delay * weight for delay, weight in remaining)
+            mean = base + relative_mean
+            spread = math.sqrt(math.fsum((delay - relative_mean)**2 * weight for delay, weight in remaining))
+            if samples_per_symbol is not None:
+                main = max(profile, key=lambda row: row.power)
+                echoes = tuple(row for row in profile if row.power > 0 and row is not main
+                               and (row.delay_samples - main.delay_samples) % samples_per_symbol == 0)
+                isi = SymbolSpacedISI(
+                    samples_per_symbol, main.delay_samples,
+                    tuple((row.delay_samples - main.delay_samples) // samples_per_symbol for row in echoes),
+                    math.fsum(row.power / main.power for row in echoes),
+                )
+        ctx.checkpoint()
+    return MultipathAnalysis(taps, profile, total, mean, spread, isi)
+
+
+def multipath_frequency(analysis: MultipathAnalysis, points: int = 2048,
+                        execution: ExecutionContext | None = None) -> Signal:
+    """Evaluate H on a centered periodic grid in rad/sample."""
+    if not isinstance(analysis, MultipathAnalysis):
+        raise ValueError('Calculá primero la respuesta al impulso del canal.')
+    points = integer(points, 'Los puntos de frecuencia', minimum=2, maximum=(1 << 31) - 1)
+    ctx = execution or ExecutionContext()
+    origin_bin = -(points // 2)
+    step = math.tau / points
+    with ctx.reserve(36 * points + 80 * min(_BLOCK, points)):
+        values = np.zeros(points, dtype=np.complex128)
+        for start in range(0, points, _BLOCK):
+            stop = min(points, start + _BLOCK)
+            indices = np.arange(origin_bin + start, origin_bin + stop, dtype=np.int64)
+            for tap in analysis.taps:
+                ctx.checkpoint()
+                if tap.gain:
+                    turns = np.remainder(indices * (tap.delay_samples % points), points) / points
+                    values[start:stop] += tap.gain * np.exp(-1j * math.tau * turns)
+        result = Signal(values, origin_bin * step, step, 'rad/muestra', 'H(eʲω)', 'frequency',
+                        metadata={'operation': 'frequency_response'})
+        ctx.checkpoint()
+    return result
+
+
+def apply_multipath(signal: Signal, paths: tuple[ChannelPath, ...] | MultipathSpec,
                     execution: ExecutionContext | None = None) -> Signal:
     """Sum delayed copies of a record, retaining the full finite response."""
     if not isinstance(signal, Signal) or signal.domain != 'discrete' or signal.data_kind != 'temporal':
         raise ValueError('El canal multitrayecto requiere una señal temporal discreta.')
     ctx = execution or ExecutionContext()
     ctx.checkpoint(0)
-    paths = tuple(paths)
-    if not paths or any(not isinstance(path, ChannelPath) for path in paths):
-        raise ValueError('Indicá al menos una trayectoria con retardo y ganancia.')
+    spec = paths if isinstance(paths, MultipathSpec) else MultipathSpec(paths)
     length = signal.values.size
-    max_delay = max(path.delay_samples for path in paths)
+    max_delay = max(path.delay_samples for path in spec.paths)
     count = length + max_delay
     if count > sys.maxsize // 16 or signal.origin + count - 1 >= 1 << 63:
         raise ValueError('El soporte de salida excede los índices o el espacio de direcciones.')
 
-    with ctx.reserve(48 * count + 32 * min(length, _BLOCK) + 512 * len(paths)):
+    with ctx.reserve(48 * count + 32 * min(length, _BLOCK) + 640 * len(spec.paths)):
+        taps = _effective_taps(spec, ctx)
         source = content_digest(signal, ctx.checkpoint)
         clock = reindex_clock(signal.metadata, 0, count)
         if 'sample_rate_hz' in clock and 'time_start_s' not in clock:
@@ -261,13 +387,13 @@ def apply_multipath(signal: Signal, paths: tuple[ChannelPath, ...],
             if not np.isfinite(signal.values[start:start + _BLOCK]).all():
                 raise ValueError('El canal requiere un registro con muestras finitas.')
         output = np.zeros(count, dtype=np.complex128)
-        work = len(paths) * length
+        work = len(taps) * length
         try:
             with np.errstate(over='raise', invalid='raise', under='ignore'):
-                for index, path in enumerate(paths):
+                for index, path in enumerate(taps):
                     gain = path.gain if path.gain_imag else path.gain_real
                     if not gain:
-                        ctx.checkpoint(10 + 80 * index // len(paths))
+                        ctx.checkpoint(10 + 80 * index // len(taps))
                         continue
                     delay = path.delay_samples
                     for start in range(0, length, _BLOCK):
@@ -282,7 +408,8 @@ def apply_multipath(signal: Signal, paths: tuple[ChannelPath, ...],
         metadata.pop('core_provenance', None)
         metadata.update(clock)
         metadata.update(operation='communications_multipath', communications_multipath={
-            'schema': 1, 'paths': [asdict(path) for path in paths], 'source_sha256': source,
+            'schema': 2, 'paths': [asdict(path) for path in spec.paths],
+            'normalize_power': spec.normalize_power, 'source_sha256': source,
         })
         result = signal.copy_with(values=output, metadata=metadata, expression='', name='Salida multitrayecto')
         result._core_verification = (content_digest(result, ctx.checkpoint), (source,), None)

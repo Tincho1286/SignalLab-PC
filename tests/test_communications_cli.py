@@ -128,6 +128,16 @@ raise SystemExit(main())
                                   '--path=0=z', '--output', output, expected=1)
             self.assertIn('constante', failure)
             self.assertEqual(output.read_bytes(), original)
+            result = self.invoke('multipath', '--signal', path, '--path=0=2', '--path=2=-i',
+                                 '--normalize-power', '--samples-per-symbol', 2, '--frequency-points', 16,
+                                 '--output', output)
+            self.assertAlmostEqual(result['analysis']['total_power'], 1)
+            self.assertAlmostEqual(result['analysis']['symbol_spaced_isi']['interference_to_reference_power'], 0.25)
+            project, _ = session.load(output)
+            self.assertEqual(project.get(result['analysis_record']), result['analysis'])
+            response = project.get(result['frequency_record'])
+            self.assertEqual(response.units, 'rad/muestra')
+            np.testing.assert_allclose(response.values, (2-1j*np.exp(-2j*response.axis))/np.sqrt(5))
 
     def test_sweep_cli_runs_and_verifies_a_reproducible_grid(self):
         with TemporaryDirectory() as folder:

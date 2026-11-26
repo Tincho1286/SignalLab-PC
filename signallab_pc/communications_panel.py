@@ -12,7 +12,9 @@ from PySide6.QtWidgets import (
 )
 
 from . import communications_figures as figures, session
-from .communications_channel import AWGNSpec, add_awgn, apply_multipath, parse_channel_path
+from .communications_channel import (
+    AWGNSpec, MultipathSpec, add_awgn, analyze_multipath, apply_multipath, multipath_frequency, parse_channel_path,
+)
 from .communications_data import ConstellationSpec, SymbolClock, SymbolSequence, iq_signal
 from .communications_experiment import ExperimentSpec, run_experiment
 from .communications_metrics import QualitySpec, measure_quality
@@ -44,12 +46,14 @@ _SPECTRUM = 'Espectro'
 _PSD = 'PSD'
 _IMPULSE = 'Impulso del filtro'
 _FREQUENCY = 'Respuesta del filtro'
+_CHANNEL_FREQUENCY = 'Respuesta del canal'
+_CHANNEL_TAPS = 'Impulso y perfil de potencia'
 _ERRORS = 'Tasas de error'
 _COMPARISON = 'Comparación de corridas'
 _VIEWS = {
     'link': (_CONSTE, _IQ, _EYE, _SPECTRUM, _PSD, _IMPULSE, _FREQUENCY, _ERRORS),
     'modulate': (_CONSTE, _IQ), 'pulse': (_IMPULSE, _FREQUENCY, _IQ), 'awgn': (_IQ, _PSD),
-    'multipath': (_IQ, _SPECTRUM),
+    'multipath': (_IQ, _SPECTRUM, _CHANNEL_TAPS, _CHANNEL_FREQUENCY),
     'receive': (_IQ,), 'decide': (_CONSTE,), 'measure': (), 'sweep': (_COMPARISON,),
 }
 
@@ -368,6 +372,9 @@ class CommunicationsPanel(QWidget):
         paths.setMaximumHeight(120)
         self._set('paths', 'Trayectorias · una por línea', paths,
                   'Retardo en muestras = ganancia. Para una ganancia compleja, usá i.')
+        self._check('normalize_power', 'Normalizar la energía de h[n] a 1')
+        sps = self._line('sps', 'Muestras por símbolo para medir ISI')
+        sps.setPlaceholderText('Opcional · usar el reloj de la señal')
 
     def _build_receive(self):
         self.source = self._source('Registro después del filtro adaptado')
@@ -682,18 +689,45 @@ class CommunicationsPanel(QWidget):
 
     def _run_multipath(self):
         paths = tuple(parse_channel_path(row) for row in self.fields['paths'].toPlainText().splitlines() if row.strip())
+        spec = MultipathSpec(paths, self.fields['normalize_power'].isChecked())
         source, register = self.source.capture_input()
+        sps = self._int('sps', source.metadata.get('samples_per_symbol'))
 
-        def accept(signal):
+        def task():
+            analysis = analyze_multipath(spec, samples_per_symbol=sps)
+            return apply_multipath(source, spec), analysis
+
+        def accept(result):
+            signal, analysis = result
             key = store_signal(self.window.project, signal, parents=(register(),))
             self.window.register_publication(key, signal)
-            axes = {_IQ: (partial(figures.iq_figure, signal=signal), None)}
+            self.window.publish(asdict(analysis), title='Análisis multitrayecto', parents=(key,))
+            axes = {
+                _IQ: (partial(figures.iq_figure, signal=signal), None),
+                _CHANNEL_TAPS: (partial(figures.channel_taps_figure, analysis=analysis), None),
+                _CHANNEL_FREQUENCY: (figures.channel_frequency_figure, partial(multipath_frequency, analysis)),
+            }
             if signal.values.size >= 2:
                 axes[_SPECTRUM] = self._spectral_plot(signal)
+            rate = signal.metadata.get('sample_rate_hz')
+            delay_rows = [('Potencia total del perfil', number(analysis.total_power))]
+            for label, value in (('Retardo medio', analysis.mean_delay_samples),
+                                 ('Dispersión RMS', analysis.rms_delay_spread_samples)):
+                display = 'Sin potencia en el canal' if value is None else f'{number(value)} muestras'
+                if value is not None and rate is not None:
+                    display += f' · {number(value / rate)} s'
+                delay_rows.append((label, display))
+            if analysis.symbol_spaced_isi is not None:
+                isi = analysis.symbol_spaced_isi
+                delay_rows.extend([
+                    ('Referencia para ISI (muestras)', isi.reference_delay_samples),
+                    ('Potencia relativa de ISI en el canal', number(isi.interference_to_reference_power)),
+                ])
             summary = Summary('Canal multitrayecto', [
-                Section('Trayectorias', rows=[
-                    (f'{path.delay_samples} muestras', number(path.gain)) for path in paths
+                Section('Respuesta al impulso', rows=[
+                    (f'{tap.delay_samples} muestras', number(tap.gain)) for tap in analysis.taps
                 ]),
+                Section('Perfil de potencia y retardo', rows=delay_rows),
                 Section('Registro de salida', rows=[
                     ('Muestras de entrada', source.values.size), ('Muestras de salida', signal.values.size),
                     ('Primer índice', signal.origin), ('Último índice', signal.origin + signal.values.size - 1),
@@ -701,7 +735,7 @@ class CommunicationsPanel(QWidget):
             ])
             self._display(summary, axes, {signal.name: (signal, key)})
 
-        return lambda: apply_multipath(source, paths), accept
+        return task, accept
 
     def _run_receive(self):
         source, register = self.source.capture_input()

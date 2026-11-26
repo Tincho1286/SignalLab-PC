@@ -2,11 +2,15 @@
 
 La fase parte de `a94cd37`, la integración aprobada tras validar la 2.1.1 Preview. Amplía el canal AWGN de Fase 03 con modelos de propagación e imperfecciones del enlace. [Roadmap](../ROADMAP.md)
 
+[Línea base](PHASE_04_BASELINE.md) · [Plan](PHASE_04_PLAN.md) · [Contratos científicos](SCIENTIFIC_CONTRACTS.md) · [Trazabilidad](TRACEABILITY_MATRIX.md) · [Quality Gate](QUALITY_GATE_CRITERIA.md)
+
 ## Multitrayecto con retardos enteros
 
 Para una señal discreta finita, cada trayectoria desplaza la entrada $d_k$ muestras y la multiplica por una ganancia compleja $a_k$. El canal calcula $y[n] = \sum_k a_k x[n - d_k]$. Los retardos son enteros no negativos. Las trayectorias con igual retardo se superponen con su fase. La entrada vale cero fuera del registro y la salida conserva las colas de todos los caminos. [Modelo de banda base, Tse y Viswanath, §2.2](https://web.stanford.edu/~dntse/papers/ch1%2B2.pdf)
 
 El primer índice y el reloj de la salida coinciden con los de la entrada. Para $N$ muestras se devuelven $N + \max(d_k)$, incluso si una ganancia se declara igual a cero. Si se conoce $F_s$, cada retardo equivale a $d_k/F_s$ segundos. Las ganancias controlan la amplitud y fase sin normalización automática.
+
+El análisis entrega el impulso coherente, el perfil de potencia, el retardo medio y la dispersión RMS. Con muestras por símbolo conocidas, cuantifica la interferencia sobre la fase del tap de mayor potencia. Se puede elegir normalizar a energía unitaria y abrir la respuesta frecuencial, el impulso y el perfil de potencia desde el resultado del escritorio.
 
 ### Reproducir el cálculo
 
@@ -29,7 +33,7 @@ print(y.axis, y.values)
 ```
 
 ```sh
-python -m signallab_pc communications multipath --signal entrada.slbin --path=0=1 "--path=2=-i/2" --output canal.slproj
+python -m signallab_pc communications multipath --signal entrada.slbin --path=0=1 "--path=2=-i/2" --frequency-points 2048 --output canal.slproj
 ```
 
 ### Ejecución y validación

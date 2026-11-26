@@ -8,7 +8,9 @@ from pathlib import Path
 from . import session
 from .atomic_file import write_json
 from .cli_session import add_output_arguments, add_session_arguments, load_input, run_command
-from .communications_channel import AWGNSpec, add_awgn, apply_multipath, parse_channel_path
+from .communications_channel import (
+    AWGNSpec, MultipathSpec, add_awgn, analyze_multipath, apply_multipath, multipath_frequency, parse_channel_path,
+)
 from .communications_data import ConstellationSpec, SymbolClock, iq_signal
 from .communications_experiment import ExperimentSpec, coherent_monte_carlo, run_experiment
 from .communications_metrics import QualitySpec, measure_quality
@@ -153,11 +155,26 @@ def _channel(args, ctx):
 def _multipath(args, ctx):
     paths = tuple(parse_channel_path(value) for value in args.path)
     project, workspace, source = load_input(args, ctx)
-    output = apply_multipath(source, paths, ctx)
+    spec = MultipathSpec(paths, args.normalize_power)
+    analysis = response = None
+    if args.analyze or args.samples_per_symbol is not None or args.frequency_points is not None:
+        sps = args.samples_per_symbol if args.samples_per_symbol is not None else source.metadata.get('samples_per_symbol')
+        analysis = analyze_multipath(spec, samples_per_symbol=sps, execution=ctx)
+    if args.frequency_points is not None:
+        response = multipath_frequency(analysis, args.frequency_points, ctx)
+    output = apply_multipath(source, spec, ctx)
     parent = _source_id(project, args, source)
     record = store_signal(project, output, parents=(parent,), execution=ctx)
+    receipt = {'record': record, 'sample_count': output.values.size, 'channel': output.metadata['communications_multipath']}
+    if analysis is not None:
+        data = asdict(analysis)
+        receipt['analysis_record'] = project.add(data, title='Análisis multitrayecto', parents=(record,))
+        receipt['analysis'] = data
+    if response is not None:
+        receipt['frequency_record'] = project.add(response, operation='Respuesta del canal',
+                                                   parents=(receipt['analysis_record'],))
     _save(args.output, project, workspace, ctx)
-    return {'record': record, 'sample_count': output.values.size, 'channel': output.metadata['communications_multipath']}
+    return receipt
 
 
 def _receive(args, ctx):
@@ -281,6 +298,10 @@ def main(argv=None):
     multipath = commands.add_parser('multipath', help='Sumá trayectorias con retardo entero y ganancia compleja.')
     multipath.add_argument('--path', action='append', required=True, metavar='RETARDO=GANANCIA',
                            help='Repetí la opción por trayectoria. Ejemplo: --path=0=1 --path=4=0.35*i.')
+    multipath.add_argument('--normalize-power', action='store_true', help='Fijá la energía de h[n] en uno.')
+    multipath.add_argument('--analyze', action='store_true', help='Guardá el perfil de potencia y los retardos.')
+    multipath.add_argument('--samples-per-symbol', type=int, help='Calculá también la ISI a intervalos de símbolo.')
+    multipath.add_argument('--frequency-points', type=int, help='Guardá H(eʲω) en este número de puntos centrados.')
     add_session_arguments(multipath)
     multipath.set_defaults(execute=_multipath)
 
