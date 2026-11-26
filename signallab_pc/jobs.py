@@ -17,6 +17,18 @@ def bind(cancel_event, progress):
 def clear():
     _context.__dict__.clear()
 
+
+@contextmanager
+def suspend_progress():
+    """Let a composite operation emit progress without exposing nested fractions."""
+    previous = getattr(_context, 'progress', None)
+    _context.progress = None
+    try:
+        yield previous
+    finally:
+        _context.progress = previous
+
+
 @contextmanager
 def observe(callback):
     previous = getattr(_context, 'observer', None)

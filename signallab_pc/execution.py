@@ -2,7 +2,7 @@
 
 from collections.abc import Callable
 from contextlib import contextmanager, nullcontext
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 import math
 from threading import Event, Lock
 from time import monotonic
@@ -81,6 +81,21 @@ class ExecutionContext:
     def reserve(self, estimate):
         self.require(estimate)
         return self.pool.reserve(estimate) if self.pool is not None and estimate else nullcontext()
+
+    @contextmanager
+    def aggregate_progress(self):
+        """Expose only the composite operation's percentages to an active worker."""
+        with jobs.suspend_progress() as listener:
+            if listener is None:
+                yield self
+                return
+
+            def emit(percentage):
+                listener(percentage)
+                if self.progress is not None:
+                    self.progress(percentage)
+
+            yield replace(self, progress=emit)
 
     def run(self, function, *, work_bytes=0):
         def observe(fraction):

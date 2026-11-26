@@ -13,3 +13,17 @@ La referencia QAM integra la gaussiana en todas las regiones de decisión de cad
 Como contraste adicional se instaló Komm 0.37.0 únicamente en un directorio de auditoría con tqdm 4.67.3 y el NumPy del entorno fijado. En esa versión el RRC se obtiene con `RaisedCosinePulse(rolloff).root()`. Coincidieron el ciclo Gray de ocho etiquetas, las cuatro energías de QAM y RC en la grilla. RRC coincidió en los puntos ordinarios y en las singularidades con error absoluto de hasta 2,3 × 10⁻¹⁶. En la vecindad inmediata de los polos, la discrepancia de Komm llegó a 2 × 10⁻⁷. Esta comparación justifica usar la cuadratura como oráculo principal en esas vecindades. [Comparación](evidence/komm-comparison-v1.json) · [Modelo de pulsos](https://komm.dev/ref/RaisedCosinePulse/)
 
 Con Komm instalado en un entorno de auditoría se reproduce la comparación mediante `python tools/audit_communications_reference.py --compare-komm --output work/komm-comparison.json`. Los experimentos Monte Carlo y las pruebas de recuperación, EVM y cancelación se incorporan al desarrollar sus contratos y servicios.
+
+## Monte Carlo coherente
+
+Cada configuración usó 90 000 símbolos equiprobables, semilla fija, AWGN y detección coherente, con una muestra por símbolo y sin ISI. En BPSK y QPSK Gray se contrastaron BER y SER mediante intervalos binomiales centrales de cobertura al menos 99,9 %. En 16-QAM se aplicó el mismo criterio a SER y se acotó la fracción de bits erróneos observada por símbolo con Hoeffding al 99,9 %. El control por unión de los diez contrastes da una probabilidad de falso rechazo de hasta 1 % bajo las hipótesis del ensayo. Todas las mediciones quedaron dentro de sus intervalos.
+
+| Modulación | Eb/N₀ (dB) | Semilla | Errores / bits | Errores / símbolos |
+| --- | ---: | ---: | ---: | ---: |
+| BPSK | 0 | 191 | 7 018 / 90 000 | 7 018 / 90 000 |
+| BPSK | 4 | 577 | 1 101 / 90 000 | 1 101 / 90 000 |
+| QPSK Gray | 0 | 901 | 14 178 / 180 000 | 13 628 / 90 000 |
+| QPSK Gray | 4 | 817 | 2 259 / 180 000 | 2 245 / 90 000 |
+| 16-QAM Gray | 0 | 522 | 50 794 / 360 000 | 43 067 / 90 000 |
+
+El laboratorio reporta incertidumbre binomial para observaciones independientes. Para BER de QAM de orden superior los bits de un mismo símbolo comparten la decisión. La cota del oráculo para este ensayo usa el símbolo como unidad independiente. Para RRC truncado, sincronización por piloto y datos manuales, el experimento informa los conteos y excluye la hipótesis binomial automática.
