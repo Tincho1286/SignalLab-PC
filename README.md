@@ -37,7 +37,7 @@ La Fase 03 incorpora modulación PSK y QAM, diseño de pulsos RC/RRC, ruido AWGN
 
 La **2.1.1 Preview** conserva la distribución del catálogo al cerrar una herramienta y mejora el espacio de los botones de cierre. Está disponible como instalador y portable para Windows x64 y Linux x86_64. [Descargas y novedades](docs/releases/v2.1.1.md)
 
-En `develop`, la Fase 04 empieza con un canal multitrayecto que suma copias demoradas de una señal con ganancias complejas. El resultado conserva el reloj de entrada y puede reutilizarse en otras herramientas. [Modelo y ejemplos](docs/engineering/phase_04/README.md)
+En `develop`, la Fase 04 amplía el enlace con multitrayecto, fading Rayleigh y Rician, Doppler, interferencia y errores de sincronización e I/Q. Podés aplicar cada modelo a una señal o encadenarlos antes del receptor. Los experimentos guardan las etapas y las fuentes del canal, y los barridos permiten comparar réplicas con semillas reproducibles. [Modelos y ejemplos](docs/engineering/phase_04/README.md)
 
 ```bash
 python -m signallab_pc communications link --bits 4096 --seed 2026 --eb-n0 6 --output enlace.slproj

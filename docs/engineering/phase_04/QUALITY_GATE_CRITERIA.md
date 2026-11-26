@@ -11,3 +11,5 @@
 | Cierre | 100 % de pruebas obligatorias aprobadas, P0 abiertos cero y P1 internos pendientes cero. Evidencia por requisito, matriz de un SHA limpio y dictámenes separados de cierre, Fase 05 y distribución. |
 
 Los objetivos y límites son criterios de calificación. El informe final debe separar pruebas reales de escritorio, pruebas simuladas y evidencia ausente. Las restricciones de importación MAT, los perfiles aprobados de recursos y el seguimiento E-04 conservan el alcance concedido en fases anteriores. [Política de distribución](../RELEASE_POLICY.md).
+
+El verificador automatizado de Fase 04 exige los controles del Core y Fase 03 y añade cobertura de los motores de fading, distribuciones, Doppler, imperfecciones, interferencia, propagación y composición. Requiere el perfil de canal a 96 kHz en ambos sistemas, la cancelación en Clarke y SLPROJ, el rechazo concurrente con recuperación, la prueba offscreen y un enlace de canal ejecutado desde cada portable. El informe automatizado se genera con `tools/check_quality_gate_04.py` y mide por conteos exactos. [Rendimiento y alcance](PERFORMANCE_REPORT.md).

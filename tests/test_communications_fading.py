@@ -107,6 +107,10 @@ class FadingContracts(unittest.TestCase):
         self.assertEqual(parse_fading_path('4 = 1/2, 10, pi/4', k_scale='db'),
                          FadingPath(4, 0.5, 10, math.pi/4))
         self.assertEqual(parse_fading_path('0=1', k_scale='db'), FadingPath())
+        self.assertEqual(parse_fading_path('4=1/2,4,pi/4'), FadingPath(4, 0.5, 4, math.pi/4))
+        iid, = apply_fading(source, rayleigh_spec).realizations
+        with self.assertRaisesRegex(ValueError, 'modo independiente'):
+            iid.doppler_diagnostics()
 
     def test_multipath_realizations_reconstruct_the_output_and_preserve_arrival_clock(self):
         source = Signal([1+2j, -2j, -3], origin=-3, metadata={'sample_rate_hz': 8, 'time_start_s': 0.25})

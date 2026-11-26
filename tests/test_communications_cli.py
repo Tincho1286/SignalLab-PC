@@ -12,9 +12,10 @@ import numpy as np
 from signallab_pc import session
 from signallab_pc.__main__ import main
 from signallab_pc.communications_experiment import ExperimentSpec, run_experiment
-from signallab_pc.communications_pipeline import load_channel_pipeline
+from signallab_pc.communications_pipeline import decode_pipeline_spec, load_channel_pipeline
 from signallab_pc.communications_storage import decode_bits, decode_symbols, load_experiment
 from signallab_pc.model import Signal
+from signallab_pc.project import Project
 from signallab_pc.scientific_storage import save_binary_signal
 
 
@@ -171,7 +172,7 @@ raise SystemExit(main())
             source, output = root/'input.slbin', root/'doppler.slproj'
             save_binary_signal(Signal(np.ones(512), origin=-3, metadata={'sample_rate_hz': 4096}), source)
             fading = self.invoke('fading', '--signal', source, '--path=0=1', '--doppler-max-hz', 64,
-                                 '--diagnostics', '--seed', 43, '--output', output)
+                                 '--diagnostics', '--distributions', '--seed', 43, '--output', output)
             project, _ = session.load(output)
             path, = fading['paths']
             self.assertGreater(path['coherence_seconds'], 0)
@@ -179,6 +180,10 @@ raise SystemExit(main())
             self.assertEqual(psd.units, 'Hz')
             self.assertEqual(psd.data_kind, 'density')
             self.assertAlmostEqual(float(sum(psd.values.real)*psd.step), 1)
+            corr = project.get(path['doppler_records']['observed_covariance'])
+            self.assertEqual(corr.metadata['sample_rate_hz'], 4096)
+            self.assertEqual(corr.values[0], 1)
+            self.assertIn('correlacionadas', project.get(path['distribution_record'])['notes'][0])
             shifted = self.invoke('shift-carrier', '--signal', source, '--frequency-hz', -512,
                                   '--phase-rad', 0.25, '--output', output)
             project, _ = session.load(output)
@@ -301,6 +306,76 @@ raise SystemExit(main())
             invalid = self.invoke('sweep', '--axis', 'sps:2,4', '--output', root/'invalid', expected=1)
             self.assertIn('parámetro=valor1,valor2', invalid)
 
+
+    def test_external_session_bindings_and_archive_destinations(self):
+        invoke = self.invoke
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            base = ExperimentSpec(bit_count=96, eb_n0_db=None, seed=58)
+            transmitted = run_experiment(base).transmitted
+            external = transmitted.copy_with(values=np.full(transmitted.values.size, .025j), name='Interferente')
+            project = Project()
+            identifier = project.add(external)
+            external_path, config, output, samples = (root/name for name in ('peer.slproj', 'channel.json', 'out.slproj', 'source.slbin'))
+            session.save(external_path, project, session.empty_workspace())
+            save_binary_signal(transmitted, samples)
+            document = {'schema': 1, 'stages': [{'kind': 'carrier', 'parameters': {'phase_rad': .125}},
+                        {'kind': 'interference', 'parameters': {'model': {'kind': 'external'}}, 'external_input': 'peer'}]}
+            config.write_text(json.dumps(document), encoding='utf-8')
+            controls = ('--bits', 96, '--seed', 58, '--no-noise', '--channel-config', config)
+            receipt = invoke('link', *controls, '--external-session', external_path,
+                             '--external-record', 'peer='+identifier, '--output', output)
+            reopened, _ = session.load(output)
+            link = load_experiment(reopened, receipt['record'])
+            spec = ExperimentSpec(bit_count=96, eb_n0_db=None, seed=58, channel_pipeline=decode_pipeline_spec(document))
+            actual = reopened.get(link.records['channel_output'])
+            np.testing.assert_allclose(actual.values, transmitted.values*np.exp(.125j) + .025j, rtol=0, atol=1e-15)
+            python = run_experiment(spec, external={'peer': external})
+            self.assertEqual(link.report['metrics'], python.report()['metrics'])
+            np.testing.assert_array_equal(reopened.get(link.chain['external_records']['peer']).values, external.values)
+            previous = {path: path.read_bytes() for path in (external_path, config, output, samples)}
+            for args, destination, match in (
+                (('--external-session', external_path), external_path, 'señales externas'),
+                ((), config, 'configuración'),
+                (('--external-record', 'peer='+identifier), output, 'sesión de entrada'),
+                (('--external-session', external_path, '--external-record', 'peer='+identifier,
+                  '--external-file', 'peer='+str(samples)), output, 'una sola vez'),
+                (('--external-file', 'peer='+str(samples)), samples, 'señales externas'),
+            ):
+                with self.subTest(match=match):
+                    diagnostic = invoke('link', *controls, *args, '--output', destination, expected=1)
+                    self.assertIn(match, diagnostic)
+                    self.assertEqual({path: path.read_bytes() for path in previous}, previous)
+
+
+    def test_cli_tones_and_a_clocked_interferer_from_the_same_session(self):
+        invoke = self.invoke
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            source, output = root/'s.slbin', root/'out.slproj'
+            metadata = {'sample_rate_hz': 4096}
+            size = 32
+            original = Signal(np.ones(size), origin=4, metadata=metadata)
+            save_binary_signal(original, source)
+            receipt = invoke('interference', '--signal', source, '--tone', '128,0.5,0.25', '--output', output)
+            project, workspace = session.load(output)
+            actual = project.get(receipt['record'])
+            expected = original.values + 0.5*np.exp(1j*(0.25 + (2*np.pi/size)*np.arange(size)))
+            np.testing.assert_allclose(actual.values, expected, rtol=0, atol=3e-15)
+            self_record = project.add(Signal([0.25j, -0.5j], 5, metadata=metadata))
+            session.save(output, project, workspace)
+            result = invoke('interference', '--session', output, '--record', receipt['record'],
+                            '--interferer-record', self_record, '--output', output)
+            restored, _ = session.load(output)
+            expected[1:3] += [0.25j, -0.5j]
+            np.testing.assert_allclose(restored.get(result['record']).values, expected, rtol=0, atol=3e-15)
+            checkpoint = output.read_bytes()
+            for args, name in ((('--tone', '128', '--center-hz', '2'), 'frecuencia individual'),
+                               (('--interferer-record', self_record), 'sesión de entrada'),
+                               (('--interferer', output), 'distinta de la señal interferente')):
+                message = invoke('interference', '--signal', source, *args, '--output', output, expected=1)
+                self.assertIn(name, message)
+                self.assertEqual(output.read_bytes(), checkpoint)
 
 if __name__ == '__main__':
     unittest.main()

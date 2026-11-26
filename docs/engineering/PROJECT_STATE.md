@@ -2,6 +2,8 @@
 
 **Fase 04 en curso en `develop`.** La validación funcional de la 2.1.1 Preview confirmó las dos correcciones de escritorio. La integración aprobada llevó `main` a `a94cd37`. El código, las pruebas y el empaquetado coinciden con `3ccb81a`, el candidato probado en Windows y Ubuntu. La versión LTS vigente es `v2.0.0`. [Publicación 2.1.1 Preview](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.1.1) · [Quality Gate de Fase 03](phase_03/QUALITY_GATE_REPORT.md) · [Fase 04](phase_04/README.md) · [Política de distribución](RELEASE_POLICY.md)
 
+El laboratorio de canales ya integra modelos individuales, una cadena para el enlace y barridos con réplicas. La versión interna 2.2.0 identifica la preparación del candidato Preview. Su calificación requiere la matriz Windows/Linux, evidencias de escritorio y verificación de los paquetes. [Matriz de validación de Fase 04](phase_04/VALIDATION_MATRIX.md) · [Notas del candidato](phase_04/PREVIEW_NOTES.md)
+
 ## Línea base histórica de Fase 01
 
 La Fase 01 cerró con excepciones documentadas sobre `853bd67`. [Informe de cierre](PHASE_01_CLOSEOUT.md)

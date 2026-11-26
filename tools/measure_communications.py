@@ -175,7 +175,7 @@ def cancel_and_campaign():
             'sweep': {'runs': len(run.runs), 'seconds': times, 'archive_bytes': size, 'verified': True}}
 
 
-def desktop_trial():
+def desktop_trial(*, configure=None):
     from PySide6.QtCore import QDeadlineTimer, QSettings, QTimer, Qt
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QApplication, QMessageBox
@@ -197,6 +197,8 @@ def desktop_trial():
             window.open_tool(route)
             panel = window.pages[route].panel
             panel.fields['bit_count'].setText(str(2*PROFILES[-1]))
+            if configure is not None:
+                configure(panel)
             app.processEvents()
             times = []
             timer = QTimer()
@@ -214,10 +216,18 @@ def desktop_trial():
             if window._workers or warning.called or error.called or panel.artifact is None or len(times) < 2:
                 raise ValueError('El perfil de escritorio no terminó o no registró pulsos de eventos.')
             ticks = [b-a for a,b in zip([start, *times], [*times, start+elapsed], strict=True)]
+            stages = 0
+            if configure is not None:
+                from signallab_pc.communications_storage import load_experiment
+
+                identifier = panel.artifact.headers('calculation')[-1]['id']
+                experiment = load_experiment(panel.artifact, identifier)
+                stages = len(experiment.chain['stage_records']) if experiment.chain else 0
             window.close()
     return {'qt_platform': app.platformName(), 'window': [940, 700], 'bit_count': 2*PROFILES[-1],
             'heartbeat_period_ms': 10, 'heartbeat_count': len(times), 'median_gap_seconds': median(ticks),
-            'maximum_gap_seconds': max(ticks), 'seconds': elapsed, 'peak_rss_bytes': peak_rss(), 'passed': True}
+            'maximum_gap_seconds': max(ticks), 'seconds': elapsed, 'peak_rss_bytes': peak_rss(),
+            'model_stages': stages, 'passed': True}
 
 
 def main():

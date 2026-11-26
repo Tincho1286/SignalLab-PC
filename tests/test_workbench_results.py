@@ -168,7 +168,8 @@ class WorkbenchResultContracts(DesktopSessionFixture):
         window.prepare_selected_reuse()
         action=next(a for a in window.reuse_actions if 'CAS' in a.text())
         action.trigger()
-        self.wait_for_calculation(window)
+        # This handoff starts an instrumented, fresh Python CAS worker.
+        self.wait_for_calculation(window, timeout_ms=12_000)
         self.assertEqual(window.current_operation,CAS_ROUTE)
         panel=window.pages[CAS_ROUTE]
         self.assertEqual(panel.entries[-1]['status'],'done')

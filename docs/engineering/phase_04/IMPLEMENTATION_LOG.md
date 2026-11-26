@@ -91,3 +91,13 @@ El experimento de regresión combinó dos niveles de SINR, dos ganancias y tres 
 Workbench abre las densidades observada y teórica de envolvente y fase para la trayectoria seleccionada. API y CLI comparten el cálculo. La CLI asocia el diagnóstico con la huella de sus coeficientes. El servicio conserva el histograma cuando la dispersión queda por debajo de la resolución de la grilla, con un aviso explícito. En registros correlacionados, la referencia describe la marginal del modelo. [Fórmulas y alcance](SCIENTIFIC_CONTRACTS.md#distribuciones-de-envolvente-y-fase).
 
 El contraste con densidades conocidas, cuadratura polar e histogramas contados por intervalo forma parte de la familia matemática de fading. Las pruebas focalizadas de motor, CLI y figura de Workbench aprobaron 21 casos en Windows. El guardia estático aprobó 411 archivos Python. [Protocolo](MATHEMATICAL_AUDIT.md#protocolo-para-las-distribuciones-visuales-de-fading).
+
+Los controles matemáticos de `2644391` aprobaron Windows y Ubuntu. [Resultados](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45893628130).
+
+## Calificación local y corrección de la escala Doppler
+
+La exploración integral de `2644391` ejecutó `python -B -X utf8 tools/check_engineering_baseline.py --output <directorio-nuevo>` con CPython 3.14.10, Qt 6.12.0 y cobertura de ramas. Se ejecutaron 1 248 pruebas, con una falla en la espera de la transferencia al CAS y 150 casos matemáticos preventivos aprobados. La cobertura fue 89,21 % de líneas (43 152/48 373) y 76,17 % de ramas (13 719/18 012). La repetición aislada de la transferencia al CAS con cobertura activa pasó. El ensayo puntual usa una espera de 12 s para un proceso Python nuevo instrumentado, mientras los controles de exactitud, origen y resultado conservan sus condiciones.
+
+En el diagnóstico Doppler se reprodujo una PSD observada de área cero para un tono unitario a Fs = 10³⁰⁸ Hz. El producto de la tasa con la energía de ventana desbordaba en Welch. La conversión a Hz se aplica después de estimar y normalizar en ciclos por muestra. La autocorrelación exportada ahora conserva Fs y fija el retardo cero en uno. El contraste con el mismo tono a tres escalas de Fs comprueba la forma y el área de la densidad con avisos numéricos tratados como errores. [Convenciones](SCIENTIFIC_CONTRACTS.md#dispersión-doppler-de-clarke).
+
+El comando de medición de Fase 04 prueba el enlace con seis etapas, recompone sus archivos verificados y mide memoria, rechazo concurrente, cancelación y respuesta offscreen. La comprobación de ejecutable incorpora ese flujo con fading Clarke y recalcula la fase marginal en LOS contra una referencia cerrada. [Perfiles de rendimiento](PERFORMANCE_REPORT.md).

@@ -1,6 +1,7 @@
 import math
 from threading import Event
 import unittest
+import warnings
 
 import numpy as np
 from scipy.signal import welch
@@ -15,6 +16,31 @@ from signallab_pc.resources import ResourceLimitError
 
 
 class DopplerContracts(unittest.TestCase):
+    def test_doppler_density_retains_power_under_a_change_of_time_units(self):
+        count = 128
+        tone = np.exp(5j * math.tau * np.arange(count) / count)
+        normal = analyze_clarke(Signal(tone, metadata={'sample_rate_hz': 1.0}), 0.1)
+        for rate in (1e-305, 1e308):
+            with self.subTest(rate=rate), warnings.catch_warnings():
+                warnings.simplefilter('error', RuntimeWarning)
+                source = Signal(tone, metadata={'sample_rate_hz': rate})
+                data = analyze_clarke(source, 0.1*rate, max_lag=0)
+                np.testing.assert_allclose(data.frequencies_hz/rate, normal.frequencies_hz, rtol=0, atol=1e-15)
+                np.testing.assert_allclose(data.observed_psd*rate, normal.observed_psd, rtol=0, atol=1e-12)
+                np.testing.assert_allclose(data.theoretical_psd*rate, normal.theoretical_psd, rtol=0, atol=1e-12)
+                self.assertAlmostEqual(float(np.sum(data.observed_psd)*(rate/count)), 1)
+                np.testing.assert_array_equal(data.observed_correlation, [1])
+                lag = data.signals()['observed_covariance']
+                self.assertEqual(lag.metadata['sample_rate_hz'], rate)
+                self.assertEqual(lag.metadata['time_start_s'], 0)
+                self.assertEqual(lag.origin, 0)
+
+    def test_doppler_rejects_a_missing_estimate_and_nonfinite_los(self):
+        with self.assertRaisesRegex(ValueError, 'dos o más'):
+            analyze_clarke(Signal([2], metadata={'sample_rate_hz': 8000}), 64)
+        with self.assertRaisesRegex(ValueError, 'media.*finita'):
+            analyze_clarke(Signal([2, 1j], metadata={'sample_rate_hz': 8000}), 64, mean=complex(float('nan')))
+
     def test_signed_carrier_shift_keeps_origin_clock_and_power(self):
         offsets = np.arange(37)
         original = np.exp(1j * math.tau * offsets / 16)

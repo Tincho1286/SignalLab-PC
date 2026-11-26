@@ -1,6 +1,6 @@
 # Backlog de SignalLab Engineering
 
-La Fase 04 amplía el laboratorio integrado de comunicaciones. Los próximos bloques cubren fading, Doppler y deterioros de enlace, seguidos por composición, barridos y calificación. E-04 sigue como seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Plan de Fase 04](phase_04/PHASE_04_PLAN.md)
+La Fase 04 está calificando el laboratorio de canales integrado con el enlace y los barridos. Quedan la matriz del candidato en Windows y Linux, las comprobaciones de escritorio real y la evidencia de los paquetes Preview. E-04 sigue como seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Plan de Fase 04](phase_04/PHASE_04_PLAN.md)
 
 La [matriz de Fase 02B](phase_02b/PHASE_02B_TRACEABILITY_MATRIX.md) registra los nuevos paquetes y sus criterios. Los controles y riesgos de estabilización siguen debajo como referencia.
 

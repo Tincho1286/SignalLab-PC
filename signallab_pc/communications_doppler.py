@@ -158,9 +158,12 @@ class DopplerDiagnostics:
 
     def signals(self):
         """Expose sampled results in the native signal format."""
+        lag_clock = {'sample_rate_hz': self.sample_rate_hz, 'time_start_s': 0.0, 'amplitude_units': '1'}
         records = {
-            'observed_covariance': Signal(self.observed_correlation, name='Autocorrelación observada'),
-            'theoretical_covariance': Signal(self.theoretical_correlation, name='Autocorrelación Clarke'),
+            'observed_covariance': Signal(self.observed_correlation, name='Autocorrelación observada',
+                                           metadata=lag_clock.copy()),
+            'theoretical_covariance': Signal(self.theoretical_correlation, name='Autocorrelación Clarke',
+                                              metadata=lag_clock.copy()),
         }
         step = self.sample_rate_hz / len(self.frequencies_hz)
         for key, values, name in (
@@ -172,14 +175,14 @@ class DopplerDiagnostics:
         return records
 
 
-def _clarke_psd(frequencies, sample_rate, max_doppler):
-    width = sample_rate / len(frequencies)
-    if max_doppler == 0:
+def _clarke_psd(frequencies, doppler_ratio):
+    width = 1 / len(frequencies)
+    if doppler_ratio == 0:
         mass = (frequencies == 0).astype(float)
     else:
         edges = np.append(frequencies - width/2, frequencies[-1] + width/2)
         with np.errstate(over='ignore'):
-            cumulative = _cdf(edges / max_doppler)
+            cumulative = _cdf(edges / doppler_ratio)
         mass = np.diff(cumulative)
         # The negative Nyquist cell also covers the last half bin above the positive edge.
         mass[0] += 1 - cumulative[-1]
@@ -195,7 +198,7 @@ def analyze_clarke(coefficients: Signal, max_doppler_hz: float, *, mean=0j, max_
     rate = _sample_rate(coefficients)
     fd = real(max_doppler_hz, 'El Doppler máximo en Hz', minimum=0)
     ratio = _nyquist_ratio(fd, rate)
-    max_lag = min(integer(max_lag, 'El mayor retardo de correlación'), size - 1)
+    max_lag = min(integer(max_lag, 'El mayor retardo de correlación', minimum=0), size - 1)
     segment = min(integer(segment, 'El segmento Welch', minimum=2), size)
     mean = complex(mean)
     if not math.isfinite(mean.real) or not math.isfinite(mean.imag):
@@ -211,12 +214,17 @@ def analyze_clarke(coefficients: Signal, max_doppler_hz: float, *, mean=0j, max_
         lags = np.arange(max_lag + 1)
         raw = correlate(values, values, mode='full', method='fft')[size - 1:size + max_lag] / (size - lags)
         observed = raw / raw[0].real
+        observed[0] = 1.0
         theoretical = j0(math.tau * ratio * lags)
         ctx.checkpoint()
-        freq, psd = welch(values, fs=rate, nperseg=segment, detrend=False, return_onesided=False)
+        # Compute in cycles/sample and convert the normalized density to 1/Hz.
+        # This keeps the window-energy normalization independent of the clock.
+        freq, psd = welch(values, fs=1, nperseg=segment, detrend=False, return_onesided=False)
         freq, psd = np.fft.fftshift(freq), np.fft.fftshift(psd)
-        observed_psd = psd / raw[0].real
-        theoretical_psd = _clarke_psd(freq, rate, fd)
+        with np.errstate(over='ignore', under='ignore'):
+            observed_psd = (psd / raw[0].real) / rate
+            theoretical_psd = _clarke_psd(freq, ratio) / rate
+        freq *= rate
         if not np.all(np.isfinite(observed_psd)) or not np.all(np.isfinite(theoretical_psd)):
             raise ValueError('La densidad Doppler excede el rango numérico.')
         coherence = clarke_coherence_seconds(fd)

@@ -1,5 +1,6 @@
 """Comprobación ejecutable del paquete; no equivale a la auditoría de paridad."""
 import json
+import math
 import os
 import sys
 import traceback
@@ -119,11 +120,27 @@ def run(destination):
             link_project, _ = session.load(link_path)
             archived = load_experiment(link_project, link_id)
             np.testing.assert_array_equal(link_project.get(archived.records['matched']).values, link.matched.values)
+            from .communications_fading import FadingPath, FadingSpec, apply_fading
+            from .communications_pipeline import ChannelPipelineSpec, ChannelStage
+
+            fading = FadingSpec((FadingPath(k_linear=4, los_phase_rad=0.3),), 21, 64)
+            spec = ChannelPipelineSpec((ChannelStage(fading),))
+            link = run_experiment(ExperimentSpec(bit_count=120, eb_n0_db=None, channel_pipeline=spec))
+            link_id = save_experiment(link_path, link)
+            link_project, _ = session.load(link_path)
+            archived = load_experiment(link_project, link_id)
+            stage, = archived.chain['stage_records']
+            coefficients = link_project.get(stage['components']['fading_1'])
+            original, = apply_fading(link.transmitted, fading).realizations
+            np.testing.assert_array_equal(coefficients.values, original.coefficients.values)
+            at_los = math.exp(-4)/math.tau + math.sqrt(4/math.pi)*(1+math.erf(2))/2
+            np.testing.assert_allclose(original.distributions().phase.theoretical[256], at_los, rtol=1e-14)
         communications_item = ROUTES['communications', 'link']
         window.open_tool(communications_item)
         app.processEvents()
         assert window.pages[communications_item].panel.mode == 'link'
         report['checks']['packaged_communications_link_and_project'] = True
+        report['checks']['packaged_channel_chain'] = True
         report['checks']['bounded_mat_worker_and_scientific_project'] = True
         report['checks']['packaged_cas_session'] = True
         from .sampling import sample_expression

@@ -15,6 +15,19 @@ from signallab_pc.resources import ResourceLimitError
 
 
 class ImpairmentContracts(unittest.TestCase):
+    def test_clock_change_preserves_an_integer_symbol_grid_when_one_is_known(self):
+        standalone = Signal(np.ones(256), metadata={'sample_rate_hz': 4000})
+        clocked = standalone.copy_with(metadata={'sample_rate_hz': 4000, 'samples_per_symbol': 4})
+        config = TimingOffset(sfo_ppm=1e6)
+        without_symbols = apply_timing_offset(standalone, config)
+        with_symbols = apply_timing_offset(clocked, config)
+        self.assertEqual(with_symbols.metadata['sample_rate_hz'], 8000)
+        self.assertEqual(with_symbols.metadata['symbol_rate_hz'], 1000)
+        self.assertEqual(with_symbols.metadata['samples_per_symbol'], 8)
+        self.assertNotIn('symbol_rate_hz', without_symbols.metadata)
+        self.assertNotIn('samples_per_symbol', without_symbols.metadata)
+        np.testing.assert_array_equal(with_symbols.values, without_symbols.values)
+
     def test_integer_offsets_keep_receiver_window_and_fill_exposed_edges(self):
         source = Signal([1, 2j, -3, 4], -2, metadata={'sample_rate_hz': 1000, 'time_start_s': 0.4})
         for delay, samples in ((2, [0, 0, 1, 2j]), (-2, [-3, 4, 0, 0]), (8, [0, 0, 0, 0])):
@@ -23,6 +36,15 @@ class ImpairmentContracts(unittest.TestCase):
             np.testing.assert_array_equal(result.axis, source.axis)
             self.assertEqual(result.metadata['time_start_s'], 0.4)
         np.testing.assert_array_equal(apply_timing_offset(source, TimingOffset()).values, source.values)
+
+    def test_fractional_offsets_outside_the_receiver_window_are_silent(self):
+        source = Signal([1, -2j, 3], origin=-7, metadata={'sample_rate_hz': 12000, 'time_start_s': 0.25})
+        for delay in (-128.5, 128.5):
+            with self.subTest(delay=delay):
+                result = apply_timing_offset(source, TimingOffset(delay))
+                np.testing.assert_array_equal(result.values, np.zeros(3))
+                np.testing.assert_array_equal(result.axis, source.axis)
+                self.assertEqual(result.metadata['time_start_s'], 0.25)
 
     def test_sfo_and_fractional_delay_match_analytical_tone_and_preserve_symbol_rate(self):
         k = np.arange(8192)

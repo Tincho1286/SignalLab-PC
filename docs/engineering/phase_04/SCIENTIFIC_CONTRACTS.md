@@ -32,6 +32,8 @@ Con $f_D=0$ la ganancia es aleatoria y fija durante el registro. Las líneas de 
 
 La API y CLI generan la autocorrelación observada normalizada por la potencia difusa del registro y la PSD Welch bilateral en 1/Hz. La referencia espectral muestra la masa Clarke dividida por el ancho de cada bin, incluido el caso de CC. Workbench usa la trayectoria elegida o la primera con potencia. [Clarke](https://web.stanford.edu/~dntse/papers/main.pdf) · [Zoom FFT](https://docs.scipy.org/doc/scipy/reference/generated/scipy.signal.ZoomFFT.html).
 
+Welch calcula primero la densidad en ciclos por muestra. La conversión final usa $f=F_s\nu$ y $S(f)=S(\nu)/F_s$, de modo que el área se conserva aunque cambie la escala del reloj. La autocorrelación exportada conserva Fs, con origen de retardos en cero y $R[0]=1$ exacto. `max_lag=0` devuelve solo ese valor para la autocorrelación y conserva el diagnóstico espectral completo.
+
 ### Distribuciones de envolvente y fase
 
 El diagnóstico divide el módulo de los coeficientes por $\sqrt P$. Para Rician, calcula el ángulo respecto de la fase LOS y lo sitúa en $[-\pi,\pi)$. Para Rayleigh usa la fase absoluta. El histograma divide cada recuento por el número de muestras y el ancho del intervalo. Las referencias usan $\mu=\sqrt{K/(1+K)}$ y $\sigma=1/\sqrt{2(1+K)}$ para la variable compleja normalizada.
