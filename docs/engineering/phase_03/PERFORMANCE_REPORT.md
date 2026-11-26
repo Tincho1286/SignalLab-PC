@@ -31,3 +31,13 @@ En Windows, CPython 3.14.10 y un hilo BLAS/OMP, se ejecutaron las primeras etapa
 | 65 536 | 5,30 | 7,89 | 95,92 | 95,22 |
 
 La corrida mayor produjo 524 441 muestras después del filtro adaptado. La cancelación antes y después de cada FIR es cooperativa. La medición de latencia dentro de perfiles completos incorporará el canal, la sincronización y la carga de escritorio.
+
+## Búsqueda inicial de sincronización
+
+El receptor procesa fases de sobremuestreo y ventanas en bloques de hasta 65 536 términos, ampliados al tamaño de una ventana si el piloto es mayor. La cancelación se consulta entre bloques. El límite de trabajo admite 16 777 216 términos por búsqueda. Se comprobó con el perfil máximo siguiente en Windows, un hilo BLAS/OMP, dos muestras por símbolo, fase inyectada de 0,55 rad y desplazamiento en la mitad de la búsqueda.
+
+| Instantes candidatos | Símbolos de piloto | Términos | Tiempo (ms) |
+| ---: | ---: | ---: | ---: |
+| 256 | 16 | 4 096 | 5,37 |
+| 4 096 | 64 | 262 144 | 6,26 |
+| 65 536 | 256 | 16 777 216 | 174,52 |

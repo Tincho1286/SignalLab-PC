@@ -40,3 +40,9 @@ assert decoded.values.tolist() == bits.values.tolist()
 ```
 
 La decisión recibe observaciones alineadas, a una muestra por símbolo. En la frontera de sectores PSK selecciona la posición siguiente en sentido antihorario. En cero usa la posición geométrica 0. QAM resuelve el empate hacia el nivel superior de cada eje. Las etiquetas de entrada y los resultados binarios tienen buffers de sólo lectura.
+
+## Canal y alineación
+
+`AWGNSpec` especifica modo de referencia, magnitud en dB, dominio y semilla. El modo SNR mide potencia sobre todo el registro finito o usa la referencia suministrada. Es/N₀ y Eb/N₀ requieren Es discreta y, para Eb/N₀, los bits por símbolo. `NoiseStatistics` distingue potencia medida, potencia de referencia, N₀ y varianzas por cuadratura. Sus varianzas observadas describen los valores de ruido generados antes del redondeo de la suma. La semilla, PCG64, la versión de NumPy y el hash de la señal de entrada quedan en el resultado.
+
+`SynchronizationSpec` distingue el retardo conocido, el alineamiento aportado y la búsqueda por correlación normalizada con un piloto. Los índices de búsqueda y de muestreo se miden desde la primera muestra del registro. El receptor devuelve también el índice absoluto del registro, la fase compensada, la ganancia aplicada, el intervalo y las puntuaciones si estima. Una correlación insuficiente, un máximo ambiguo o un registro incompleto devuelven un estado de indisponibilidad con causa y sin muestras de salida. La búsqueda admite hasta 16 777 216 productos entre ventanas y piloto, además del presupuesto de memoria.

@@ -172,16 +172,19 @@ def upsample_symbols(symbols: Signal, samples_per_symbol: int,
             values[start*samples_per_symbol:stop*samples_per_symbol:samples_per_symbol] = symbols.values[start:stop]
         fields = {
             **deepcopy(symbols.metadata),
+            'operation': 'symbol_upsampling',
             'samples_per_symbol': samples_per_symbol,
             'communications_upsampling': {'schema': 1, 'input_symbols': length, 'input_origin': symbols.origin,
                                           'input_sha256': digest, 'stride': samples_per_symbol},
         }
+        fields.pop('core_provenance', None)
         name = 'Tren de símbolos I/Q'
         if clock is None:
             result = Signal(values, origin=origin, name=name, metadata=fields)
         else:
             result = iq_signal(values, clock, origin=origin, name=name,
                                amplitude_units=fields.get('amplitude_units', '1'), metadata=fields)
+        result._core_verification = (content_digest(result, ctx.checkpoint), (digest,), None)
         ctx.checkpoint(100)
         verify_inputs((symbols,), (digest,), ctx.checkpoint)
     return result
