@@ -1,0 +1,52 @@
+{
+  "executable_check": {
+    "frozen": true,
+    "migration_complete": false,
+    "checks": {
+      "fft_roundtrip": true,
+      "lti_recurrence": true,
+      "bilinear": true,
+      "symbolic_runtime": true,
+      "packaged_update_verification": true,
+      "state_space_simulation_and_project": true,
+      "digital_delay_transfer_roundtrip": true,
+      "toolbox_menu_and_matplotlib": true,
+      "packaged_communications_link_and_project": true,
+      "bounded_mat_worker_and_scientific_project": true,
+      "packaged_cas_session": true,
+      "sampling_plot_and_report_layout": true,
+      "project_picker_search_and_selection": true,
+      "formatted_report_preserves_text": true,
+      "packaged_symbolic_measures_and_window": true,
+      "expression_measure_menu": true
+    },
+    "runtime": {
+      "python": "3.14.10",
+      "openssl": "OpenSSL 3.0.2 15 Mar 2022",
+      "expat": "expat_2.9.0",
+      "qt": "6.12.1",
+      "pillow_jpeg2000": false
+    },
+    "versions": {
+      "numpy": "2.5.5",
+      "scipy": "1.18.1",
+      "sympy": "1.14.0",
+      "matplotlib": "3.11.2"
+    },
+    "ok": true
+  },
+  "runtime": {
+    "qt": {
+      "file": "PySide6/Qt/lib/libQt6Core.so.6",
+      "version": "6.12.1"
+    },
+    "qt_svg": {
+      "file": "PySide6/Qt/lib/libQt6Svg.so.6"
+    },
+    "python": {
+      "file": "libpython3.14.so.1.0",
+      "version": "3.14.10"
+    }
+  },
+  "sha256": "149468fa6ece37bc2f99c5be3f28c16f92e2f7c7a864ed25ae4563a1530a0517"
+}

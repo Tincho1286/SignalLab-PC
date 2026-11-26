@@ -1,0 +1,133 @@
+{
+  "commit": "441f1c2fcd9716d12ca3262a6b49728536f92435",
+  "clean_checkout": true,
+  "platform": "Linux-6.8.0-1073-azure-x86_64-with-glibc2.35",
+  "python": "3.14.10",
+  "numpy": "2.5.5",
+  "scipy": "1.18.1",
+  "threads": 1,
+  "profiles": [
+    {
+      "symbols": 128,
+      "sps": 8,
+      "taps": 81,
+      "seconds": {
+        "generate_bits": 0.0010729129999162978,
+        "group": 0.000411043999974936,
+        "modulate": 0.00044802699994761497,
+        "pulse": 0.0003482490001260885,
+        "upsample": 0.0012941899999532325,
+        "fir_tx": 0.00877644499996677,
+        "awgn": 0.0013967989998491248,
+        "fir_rx": 0.002256647000194789,
+        "recover": 0.0012269070002730587,
+        "decide": 0.0008459470000161673,
+        "metrics": 0.0007625319999533531,
+        "experiment": 0.009923373000219726,
+        "save_slproj": 0.010429913999814744,
+        "load_slproj": 0.006022713999755069
+      },
+      "peak_before_bytes": 111955968,
+      "peak_rss_bytes": 113135616,
+      "archive_bytes": 108229,
+      "matched_samples": 1177,
+      "estimated_work_bytes": 297168,
+      "archive_verified": true
+    },
+    {
+      "symbols": 2048,
+      "sps": 8,
+      "taps": 81,
+      "seconds": {
+        "generate_bits": 0.0010669339999367367,
+        "group": 0.00041439999995418475,
+        "modulate": 0.0005066859998805739,
+        "pulse": 0.0003650510002444207,
+        "upsample": 0.0016027129995563882,
+        "fir_tx": 0.010764906000076735,
+        "awgn": 0.0031027750001157983,
+        "fir_rx": 0.004130418999920948,
+        "recover": 0.0017523849996905483,
+        "decide": 0.0009844279998105776,
+        "metrics": 0.0009163109998553409,
+        "experiment": 0.017664529999819933,
+        "save_slproj": 0.013556709000113187,
+        "load_slproj": 0.008490418000292266
+      },
+      "peak_before_bytes": 112214016,
+      "peak_rss_bytes": 116486144,
+      "archive_bytes": 1159175,
+      "matched_samples": 16537,
+      "estimated_work_bytes": 3576528,
+      "archive_verified": true
+    },
+    {
+      "symbols": 65536,
+      "sps": 8,
+      "taps": 81,
+      "seconds": {
+        "generate_bits": 0.001389972999731981,
+        "group": 0.001065992999883747,
+        "modulate": 0.004484072000195738,
+        "pulse": 0.00043735200006267405,
+        "upsample": 0.014259972000218113,
+        "fir_tx": 0.06514010599994435,
+        "awgn": 0.05913955799996984,
+        "fir_rx": 0.06140197000013359,
+        "recover": 0.015812274999916553,
+        "decide": 0.00510276100021656,
+        "metrics": 0.005339327999990928,
+        "experiment": 0.24869145699994988,
+        "save_slproj": 0.2513604670002678,
+        "load_slproj": 0.08614255599968601
+      },
+      "peak_before_bytes": 111865856,
+      "peak_rss_bytes": 233553920,
+      "archive_bytes": 35908327,
+      "matched_samples": 524441,
+      "estimated_work_bytes": 112014032,
+      "archive_verified": true
+    }
+  ],
+  "cancellation": {
+    "fir": {
+      "method": "timer_from_fir_entry",
+      "seconds_after_request": 0.04458402299997033,
+      "discarded": true
+    },
+    "awgn": {
+      "method": "noise_block",
+      "seconds_after_request": 3.8426000173785724e-05,
+      "discarded": true
+    },
+    "persistence": {
+      "method": "before_archive_commit",
+      "seconds_after_request": 0.0008295820002786058,
+      "discarded": true
+    }
+  },
+  "sweep": {
+    "runs": 8,
+    "seconds": {
+      "execute": 0.29223004999994373,
+      "reopen": 0.06506506599998829
+    },
+    "archive_bytes": 9273944,
+    "verified": true
+  },
+  "desktop": {
+    "qt_platform": "offscreen",
+    "window": [
+      940,
+      700
+    ],
+    "bit_count": 131072,
+    "heartbeat_period_ms": 10,
+    "heartbeat_count": 1172,
+    "median_gap_seconds": 0.010211068999979034,
+    "maximum_gap_seconds": 0.06411495400016065,
+    "seconds": 11.819693624999672,
+    "peak_rss_bytes": 450691072,
+    "passed": true
+  }
+}

@@ -1,0 +1,451 @@
+{
+  "phase": "03",
+  "commit": "441f1c2fcd9716d12ca3262a6b49728536f92435",
+  "platforms": {
+    "windows-2022": {
+      "checks": {
+        "core": true,
+        "scientific_suite": true,
+        "critical_coverage": true,
+        "performance": true,
+        "cancellation": true,
+        "sweep_and_archive": true,
+        "desktop_responsiveness": true,
+        "packaged_link": true,
+        "fixed_native_runtime": true,
+        "isolated_preview": true,
+        "candidate_bundle": true
+      },
+      "coverage": {
+        "lines": {
+          "goal": 85,
+          "covered": 40685,
+          "total": 45738,
+          "state": "pass",
+          "additional_required": 0
+        },
+        "branches": {
+          "goal": 75,
+          "covered": 13077,
+          "total": 17224,
+          "state": "pass",
+          "additional_required": 0
+        }
+      },
+      "critical": {
+        "communications_data.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 167,
+            "total": 167,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 64,
+            "total": 64,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_modulation.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 206,
+            "total": 206,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 59,
+            "total": 60,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_pulses.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 180,
+            "total": 180,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 36,
+            "total": 36,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_channel.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 141,
+            "total": 142,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 39,
+            "total": 40,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_receiver.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 176,
+            "total": 176,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 46,
+            "total": 46,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_metrics.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 188,
+            "total": 188,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 66,
+            "total": 66,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_experiment.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 164,
+            "total": 164,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 36,
+            "total": 36,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_storage.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 157,
+            "total": 159,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 42,
+            "total": 44,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_sweep.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 235,
+            "total": 240,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 71,
+            "total": 74,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_cli.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 245,
+            "total": 246,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 14,
+            "total": 16,
+            "state": "pass",
+            "additional_required": 0
+          }
+        }
+      },
+      "communications_tests": 67,
+      "integral_tests": 1184,
+      "portable_version": "2.1.0",
+      "candidate_bundle": {
+        "schema": 1,
+        "commit": "441f1c2fcd9716d12ca3262a6b49728536f92435",
+        "version": "2.1.0",
+        "channel": "preview",
+        "source_fingerprint": "2c93d9968eb0af4d54905f57f4b660b71b033393c15fe30cbd0a29a1b6666343",
+        "platform": "windows",
+        "files": {
+          "SignalLab-PC-2.1.0.exe": {
+            "sha256": "bb7f16f43102e129cbf0784bb8720deec7d045e455fdeeb60a77d01aa00ca392",
+            "size": 113242455
+          },
+          "SignalLab-PC-2.1.0-setup.exe": {
+            "sha256": "d7fa375694b389a41ea3d327bb88073b03a5d174d5e3c0ad5b86b90b27600bb5",
+            "size": 114442999
+          },
+          "installer-windows.json": {
+            "sha256": "4ed66f4404e0eeceff454c2ec058cf52e523188acdc68dfc383e92584320844b",
+            "size": 402
+          },
+          "SignalLab-PC-2.1.0-source.zip": {
+            "sha256": "72c94678851a0478b9f1bb434945d252d8d34dd9958c6b8594582ec7ddbae0cc",
+            "size": 4800514
+          }
+        },
+        "installer_sha256": "d7fa375694b389a41ea3d327bb88073b03a5d174d5e3c0ad5b86b90b27600bb5",
+        "portable_sha256": "bb7f16f43102e129cbf0784bb8720deec7d045e455fdeeb60a77d01aa00ca392"
+      }
+    },
+    "ubuntu-22.04": {
+      "checks": {
+        "core": true,
+        "scientific_suite": true,
+        "critical_coverage": true,
+        "performance": true,
+        "cancellation": true,
+        "sweep_and_archive": true,
+        "desktop_responsiveness": true,
+        "packaged_link": true,
+        "fixed_native_runtime": true,
+        "isolated_preview": true,
+        "candidate_bundle": true
+      },
+      "coverage": {
+        "lines": {
+          "goal": 85,
+          "covered": 40656,
+          "total": 45738,
+          "state": "pass",
+          "additional_required": 0
+        },
+        "branches": {
+          "goal": 75,
+          "covered": 13072,
+          "total": 17224,
+          "state": "pass",
+          "additional_required": 0
+        }
+      },
+      "critical": {
+        "communications_data.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 167,
+            "total": 167,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 64,
+            "total": 64,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_modulation.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 206,
+            "total": 206,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 59,
+            "total": 60,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_pulses.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 180,
+            "total": 180,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 36,
+            "total": 36,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_channel.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 141,
+            "total": 142,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 39,
+            "total": 40,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_receiver.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 176,
+            "total": 176,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 46,
+            "total": 46,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_metrics.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 188,
+            "total": 188,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 66,
+            "total": 66,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_experiment.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 164,
+            "total": 164,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 36,
+            "total": 36,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_storage.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 157,
+            "total": 159,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 42,
+            "total": 44,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_sweep.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 231,
+            "total": 240,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 69,
+            "total": 74,
+            "state": "pass",
+            "additional_required": 0
+          }
+        },
+        "communications_cli.py": {
+          "lines": {
+            "goal": 90,
+            "covered": 245,
+            "total": 246,
+            "state": "pass",
+            "additional_required": 0
+          },
+          "branches": {
+            "goal": 85,
+            "covered": 14,
+            "total": 16,
+            "state": "pass",
+            "additional_required": 0
+          }
+        }
+      },
+      "communications_tests": 67,
+      "integral_tests": 1184,
+      "portable_version": "2.1.0",
+      "candidate_bundle": {
+        "schema": 1,
+        "commit": "441f1c2fcd9716d12ca3262a6b49728536f92435",
+        "version": "2.1.0",
+        "channel": "preview",
+        "source_fingerprint": "2c93d9968eb0af4d54905f57f4b660b71b033393c15fe30cbd0a29a1b6666343",
+        "platform": "linux",
+        "files": {
+          "SignalLab-PC-2.1.0-linux-x86_64.tar.gz": {
+            "sha256": "baab5966f6880ae0fdfcf999fa2390b50cda75b80fa8a21e92cb7db71931bc64",
+            "size": 160551515
+          },
+          "SignalLab-PC-2.1.0-linux-x86_64.run": {
+            "sha256": "66f6fdc3e5fa8e5e5d5da3ddfb0bedaf32ac6aac728f0bd9465e5d22c675f39e",
+            "size": 160501152
+          },
+          "installer-linux.json": {
+            "sha256": "41d80021486af9965617853d4261510f3e9cfe22fbfdea20b9f62b4b53483f88",
+            "size": 396
+          }
+        },
+        "installer_sha256": "66f6fdc3e5fa8e5e5d5da3ddfb0bedaf32ac6aac728f0bd9465e5d22c675f39e",
+        "portable_sha256": "baab5966f6880ae0fdfcf999fa2390b50cda75b80fa8a21e92cb7db71931bc64"
+      }
+    }
+  },
+  "automated_passed": true
+}

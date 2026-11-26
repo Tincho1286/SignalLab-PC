@@ -1,0 +1,9 @@
+{
+  "client": "2.0.0",
+  "stable": "2.0.1",
+  "preview": "2.1.0",
+  "requires_opt_in": true,
+  "rejects_preview_in_stable": true,
+  "signed_test_feeds": true,
+  "historical_commit": "adfad5c093a236b0565f00f5e97845acf040ec96"
+}

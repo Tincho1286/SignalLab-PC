@@ -1,0 +1,218 @@
+{
+  "procedure": "QTest on the native Windows desktop with a disposable profile",
+  "display_pixels": [
+    1366,
+    768
+  ],
+  "native_dpi": 96,
+  "qt_scale_factors_are_simulated": true,
+  "profiles": {
+    "1": {
+      "sha": "441f1c2fcd9716d12ca3262a6b49728536f92435",
+      "qt_platform": "windows",
+      "binding": "6.12.0",
+      "qt": "6.12.0",
+      "native_dpi": 96,
+      "window_logical": [
+        1200,
+        660
+      ],
+      "screen_device_pixel_ratio": 1.0,
+      "screen_work_logical": [
+        1366,
+        720
+      ],
+      "compact": false,
+      "figures": 8,
+      "files": {
+        "enlace-entrada": {
+          "pixels": [
+            1200,
+            660
+          ],
+          "sha256": "b6d7cced358d55807210a2efc2e2caef2ae74f58fe032bd079e4a4832973f382"
+        },
+        "enlace-informe": {
+          "pixels": [
+            1200,
+            660
+          ],
+          "sha256": "38a57242b6ef977eacad0d62214cb2fb6608ab9ccb31a67a1ca370aef611d7ba"
+        },
+        "constelacion": {
+          "pixels": [
+            1000,
+            672
+          ],
+          "sha256": "f7030f718589a013484e1c212edad03aad7a3827c0ee2a02eae36f6cf2fda23f"
+        },
+        "constelacion-solo-figura": {
+          "pixels": [
+            1000,
+            672
+          ],
+          "sha256": "e6b6076953389ba122f4e1ef5f8b35c8008d722bfad07af7b800b49f57b744fe"
+        },
+        "ojo": {
+          "pixels": [
+            1000,
+            672
+          ],
+          "sha256": "8ab873846e3a0d015cb043e4dd1b9d1d67331f9f3d86ca267f871968c383c1fb"
+        },
+        "ojo-solo-figura": {
+          "pixels": [
+            1000,
+            672
+          ],
+          "sha256": "433793343baf15165d4bbde11633d29d30dd936873ac0607a9beb13c455db9fb"
+        },
+        "barrido-entrada": {
+          "pixels": [
+            1200,
+            660
+          ],
+          "sha256": "cffc6318dde0d7f89a40289d385d61d2275e4ea2690db469b1ce01946e31bca7"
+        }
+      }
+    },
+    "1.5": {
+      "sha": "441f1c2fcd9716d12ca3262a6b49728536f92435",
+      "qt_platform": "windows",
+      "binding": "6.12.0",
+      "qt": "6.12.0",
+      "native_dpi": 96,
+      "window_logical": [
+        871,
+        430
+      ],
+      "screen_device_pixel_ratio": 1.5,
+      "screen_work_logical": [
+        911,
+        480
+      ],
+      "compact": true,
+      "figures": 8,
+      "files": {
+        "enlace-entrada": {
+          "pixels": [
+            1307,
+            645
+          ],
+          "sha256": "b97dc887ce6f36b7671c084d6bd48d95daa07ff9519017f39b9138bc707ddb5e"
+        },
+        "enlace-informe": {
+          "pixels": [
+            1307,
+            645
+          ],
+          "sha256": "e4fe6ee62b968601963ee6d31ca4e42133dfa0916aff824c88c5895c8e076f1a"
+        },
+        "constelacion": {
+          "pixels": [
+            1319,
+            648
+          ],
+          "sha256": "cade29c5f39566e6e02336b3c5841afcd5035f96e9b37c399be205f8504c3842"
+        },
+        "constelacion-solo-figura": {
+          "pixels": [
+            1319,
+            648
+          ],
+          "sha256": "652d8d225c2045886fc7855b1cd8c8dcd705aeb35abbfd918b7e9972c514855e"
+        },
+        "ojo": {
+          "pixels": [
+            1319,
+            648
+          ],
+          "sha256": "9ad804fbf9d3686eed19ecd5f1bc48c0ca1edf9daa976f20373d51b939bb397a"
+        },
+        "ojo-solo-figura": {
+          "pixels": [
+            1319,
+            648
+          ],
+          "sha256": "2771e0abca1494e020c5bd6e49ca8ada3c5c9c93b4317a35e852b45d54e0deb3"
+        },
+        "barrido-entrada": {
+          "pixels": [
+            1307,
+            645
+          ],
+          "sha256": "01626214fefb585ffbee13e53916e24fcdfd3bfb3f0a7449b08a8ec84bcc786d"
+        }
+      }
+    },
+    "2": {
+      "sha": "441f1c2fcd9716d12ca3262a6b49728536f92435",
+      "qt_platform": "windows",
+      "binding": "6.12.0",
+      "qt": "6.12.0",
+      "native_dpi": 96,
+      "window_logical": [
+        643,
+        420
+      ],
+      "screen_device_pixel_ratio": 2.0,
+      "screen_work_logical": [
+        683,
+        360
+      ],
+      "compact": true,
+      "figures": 8,
+      "files": {
+        "enlace-entrada": {
+          "pixels": [
+            1286,
+            840
+          ],
+          "sha256": "bceebf5cd9b3274c840bb5ad296abf94ad0d73f92b8e8a97db79a0a21aa98757"
+        },
+        "enlace-informe": {
+          "pixels": [
+            1286,
+            840
+          ],
+          "sha256": "87a08c10d5e4b56e8e0854659ebc897ccfd991e1d38ef95adb712837880af350"
+        },
+        "constelacion": {
+          "pixels": [
+            1302,
+            772
+          ],
+          "sha256": "539764e778c488ae97c324729f13654d1ba5bdd2254a99c23911968e3e4f9c6a"
+        },
+        "constelacion-solo-figura": {
+          "pixels": [
+            1302,
+            772
+          ],
+          "sha256": "4f521406fadb68477e79eaef7fc8f695c61db1a4941681e1e30bfde9647ed899"
+        },
+        "ojo": {
+          "pixels": [
+            1302,
+            772
+          ],
+          "sha256": "1b8349493d4d35f181ddb3a18597c3edf32fd9faa9228fafceea8d58809a768a"
+        },
+        "ojo-solo-figura": {
+          "pixels": [
+            1302,
+            772
+          ],
+          "sha256": "712f855e1335de30bdadf9f06e36cb1ca421f4710613b60f87cd2630cd98af70"
+        },
+        "barrido-entrada": {
+          "pixels": [
+            1286,
+            840
+          ],
+          "sha256": "7e523319a2ddc0b5b363a5b256a5e142243b30435925005ddb3aa9d3aaca1620"
+        }
+      }
+    }
+  }
+}

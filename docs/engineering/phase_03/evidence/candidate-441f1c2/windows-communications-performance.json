@@ -1,0 +1,133 @@
+{
+  "commit": "441f1c2fcd9716d12ca3262a6b49728536f92435",
+  "clean_checkout": true,
+  "platform": "Windows-2022Server-10.0.20348-SP0",
+  "python": "3.14.10",
+  "numpy": "2.5.5",
+  "scipy": "1.18.1",
+  "threads": 1,
+  "profiles": [
+    {
+      "symbols": 128,
+      "sps": 8,
+      "taps": 81,
+      "seconds": {
+        "generate_bits": 0.0003641999996943923,
+        "group": 0.0002592999999251333,
+        "modulate": 0.00030990000004749163,
+        "pulse": 0.00027380000028642826,
+        "upsample": 0.001103300000067975,
+        "fir_tx": 0.006823700000040844,
+        "awgn": 0.0010641000003488443,
+        "fir_rx": 0.001819699999941804,
+        "recover": 0.0009872000000541448,
+        "decide": 0.000639100000171311,
+        "metrics": 0.0006469999998444109,
+        "experiment": 0.008299999999962893,
+        "save_slproj": 0.017211800000040967,
+        "load_slproj": 0.0053704000001744134
+      },
+      "peak_before_bytes": 104067072,
+      "peak_rss_bytes": 104701952,
+      "archive_bytes": 108495,
+      "matched_samples": 1177,
+      "estimated_work_bytes": 297168,
+      "archive_verified": true
+    },
+    {
+      "symbols": 2048,
+      "sps": 8,
+      "taps": 81,
+      "seconds": {
+        "generate_bits": 0.0003826000001936336,
+        "group": 0.00026209999987258925,
+        "modulate": 0.0004364999999779684,
+        "pulse": 0.00028449999990698416,
+        "upsample": 0.0014033000002200424,
+        "fir_tx": 0.009054699999978766,
+        "awgn": 0.0023577000001751003,
+        "fir_rx": 0.003573899999992136,
+        "recover": 0.0013365999998313782,
+        "decide": 0.0009552999999868916,
+        "metrics": 0.00121579999995447,
+        "experiment": 0.014973099999679107,
+        "save_slproj": 0.03628600000001825,
+        "load_slproj": 0.007262299999638344
+      },
+      "peak_before_bytes": 103522304,
+      "peak_rss_bytes": 106602496,
+      "archive_bytes": 1159438,
+      "matched_samples": 16537,
+      "estimated_work_bytes": 3576528,
+      "archive_verified": true
+    },
+    {
+      "symbols": 65536,
+      "sps": 8,
+      "taps": 81,
+      "seconds": {
+        "generate_bits": 0.0005981999997857201,
+        "group": 0.0005679999999301799,
+        "modulate": 0.005219399999987218,
+        "pulse": 0.00029119999999238644,
+        "upsample": 0.010688500000014756,
+        "fir_tx": 0.06929499999978361,
+        "awgn": 0.04998039999964021,
+        "fir_rx": 0.06414910000012242,
+        "recover": 0.013418099999853439,
+        "decide": 0.006530600000132836,
+        "metrics": 0.005005600000004051,
+        "experiment": 0.2467263999997158,
+        "save_slproj": 0.2251064000001861,
+        "load_slproj": 0.0694389999998748
+      },
+      "peak_before_bytes": 103899136,
+      "peak_rss_bytes": 212295680,
+      "archive_bytes": 35908593,
+      "matched_samples": 524441,
+      "estimated_work_bytes": 112014032,
+      "archive_verified": true
+    }
+  ],
+  "cancellation": {
+    "fir": {
+      "method": "timer_from_fir_entry",
+      "seconds_after_request": 0.05158819999996922,
+      "discarded": true
+    },
+    "awgn": {
+      "method": "noise_block",
+      "seconds_after_request": 2.1599999854515772e-05,
+      "discarded": true
+    },
+    "persistence": {
+      "method": "before_archive_commit",
+      "seconds_after_request": 0.000320099999953527,
+      "discarded": true
+    }
+  },
+  "sweep": {
+    "runs": 8,
+    "seconds": {
+      "execute": 0.46810950000008233,
+      "reopen": 0.06244440000000395
+    },
+    "archive_bytes": 9275284,
+    "verified": true
+  },
+  "desktop": {
+    "qt_platform": "offscreen",
+    "window": [
+      940,
+      700
+    ],
+    "bit_count": 131072,
+    "heartbeat_period_ms": 10,
+    "heartbeat_count": 906,
+    "median_gap_seconds": 0.011947699999836914,
+    "maximum_gap_seconds": 0.05955800000037925,
+    "seconds": 9.142578200000116,
+    "peak_rss_bytes": 416530432,
+    "passed": true
+  }
+}

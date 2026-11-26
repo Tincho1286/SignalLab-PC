@@ -1,6 +1,6 @@
 # Estado de SignalLab Engineering
 
-**Engineering Core cerrado técnicamente. Fase 03 en marcha en `develop`.** La consolidación de 02C aprobó el mismo SHA en Windows y Ubuntu. La etiqueta `v2.0.0` es la base de Stable/LTS. `main` identifica el código aprobado y Preview identifica los candidatos acumulativos de Engineering. [Línea base validada](phase_03/PHASE_03_BASELINE.md) · [Política de distribución](RELEASE_POLICY.md)
+**Engineering Core y Fase 03 con cierre técnico.** Candidato 2.1.0 Preview `441f1c2` en `develop`, validado en Windows y Ubuntu. La etiqueta `v2.0.0` es la base de Stable/LTS. `main` identifica el código aprobado y Preview reúne los candidatos acumulativos de Engineering. La publicación y validación funcional del candidato siguen el procedimiento de autorización. [Quality Gate de Fase 03](phase_03/QUALITY_GATE_REPORT.md) · [Política de distribución](RELEASE_POLICY.md)
 
 ## Línea base histórica de Fase 01
 

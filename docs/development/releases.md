@@ -57,6 +57,8 @@ Las entregas nuevas requieren un único SHA validado en las dos plataformas. La 
 
 Con la autorización del propietario, usá `tools/github_release.py` con `--candidate SHA_COMPLETO`, `--quality-gate INFORME.json`, el archivo de notas y un `--file` por adjunto. `--allow-public` habilita el repositorio público configurado. Preview comprueba que el SHA pertenezca a `develop`. Para Stable/LTS usá `--stable --lts-base v2.0.X` desde el checkout desacoplado que contiene el candidato.
 
+El informe acredita los controles de la entrega y lleva `commit`, `automated_passed` y `platforms`. Los nodos `windows-2022` y `ubuntu-22.04` deben incluir cada uno su objeto `candidate_bundle` emitido en la construcción correspondiente. El publicador coteja esos objetos con los dos comprobantes adjuntos. Para una corrección LTS, usá la evidencia del mantenimiento y de sus regresiones sobre el SHA desacoplado. Los controles científicos de una fase de Engineering corresponden a su propio candidato.
+
 Las entregas con instaladores necesitan un manifiesto firmado entre sus adjuntos. El publicador comprueba el canal, la coincidencia entre versión y etiqueta y los tamaños y hashes de todos los instaladores declarados antes de crear la publicación. Para preliminares compatibles se utilizan etiquetas numéricas y `--channel preview` al firmar, como explica la [guía de firma](signing.md).
 
 El publicador crea un borrador, sube y verifica los archivos y luego activa la publicación. Conserva el commit exacto de construcción y rechaza una etiqueta que apunte a otro commit. También conserva las entregas que ya están públicas.

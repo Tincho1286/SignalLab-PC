@@ -1,0 +1,64 @@
+{
+  "platform": "linux-x86_64",
+  "sha256": "66f6fdc3e5fa8e5e5d5da3ddfb0bedaf32ac6aac728f0bd9465e5d22c675f39e",
+  "temporary_signature_verified": true,
+  "production_key_rejected_test_signature": true,
+  "channel": "preview",
+  "other_channel_rejected": true,
+  "download_verified": true,
+  "native_installation": {
+    "passed": true,
+    "checks": [
+      "real_run_payload",
+      "installed_packaged_self_check",
+      "repair_in_place",
+      "uninstall_preserves_data"
+    ],
+    "packaged": {
+      "frozen": true,
+      "migration_complete": false,
+      "checks": {
+        "fft_roundtrip": true,
+        "lti_recurrence": true,
+        "bilinear": true,
+        "symbolic_runtime": true,
+        "packaged_update_verification": true,
+        "state_space_simulation_and_project": true,
+        "digital_delay_transfer_roundtrip": true,
+        "toolbox_menu_and_matplotlib": true,
+        "packaged_communications_link_and_project": true,
+        "bounded_mat_worker_and_scientific_project": true,
+        "packaged_cas_session": true,
+        "sampling_plot_and_report_layout": true,
+        "project_picker_search_and_selection": true,
+        "formatted_report_preserves_text": true,
+        "packaged_symbolic_measures_and_window": true,
+        "expression_measure_menu": true
+      },
+      "runtime": {
+        "python": "3.14.10",
+        "openssl": "OpenSSL 3.0.2 15 Mar 2022",
+        "expat": "expat_2.9.0",
+        "qt": "6.12.1",
+        "pillow_jpeg2000": false
+      },
+      "versions": {
+        "numpy": "2.5.5",
+        "scipy": "1.18.1",
+        "sympy": "1.14.0",
+        "matplotlib": "3.11.2"
+      },
+      "ok": true
+    }
+  },
+  "upgrade_from_stable": {
+    "from": "2.0.0",
+    "to": "2.1.0",
+    "stable_sha256": "a3fa8ce6ed4a5d559d8b8eb007c595dc680bc2070da92298d20f69f8f983f3c4",
+    "candidate_sha256": "66f6fdc3e5fa8e5e5d5da3ddfb0bedaf32ac6aac728f0bd9465e5d22c675f39e",
+    "session_preserved": true,
+    "corrupt_download_rejected": true,
+    "native_handoff": true,
+    "in_place": true
+  }
+}

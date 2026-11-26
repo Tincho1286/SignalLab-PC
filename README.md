@@ -34,6 +34,8 @@ Los ejemplos reproducibles cubren DFT, IDFT y el flujo DSP. El expediente de Fas
 
 La Fase 03 incorpora modulación PSK y QAM, diseño de pulsos RC/RRC, ruido AWGN calibrado, recuperación asistida o con piloto y mediciones BER, SER y EVM. El enlace integrado guarda las muestras, el reloj y la procedencia del experimento. Podés comparar constelaciones, señales I/Q, diagramas de ojo y espectros, o ejecutar un barrido y retomarlo desde la última corrida verificada. [Expediente y ejemplos](docs/engineering/phase_03/README.md)
 
+El candidato **2.1.0 Preview** en `develop` aprobó la validación técnica de Fase 03 en Windows y Ubuntu. El expediente identifica el SHA probado, los artefactos de Actions y las condiciones de distribución. [Quality Gate y resultados](docs/engineering/phase_03/QUALITY_GATE_REPORT.md)
+
 ```bash
 python -m signallab_pc communications link --bits 4096 --seed 2026 --eb-n0 6 --output enlace.slproj
 ```

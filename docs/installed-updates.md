@@ -20,7 +20,7 @@ La edición portable permite consultar las versiones y abrir las descargas ofici
 
 Stable/LTS entrega las actualizaciones de mantenimiento de la familia 2.0.x. Preview permite probar los avances de Engineering mediante la opción explícita del diálogo. Una preliminar se ofrece si es posterior a la versión instalada, tiene un instalador compatible y presenta un manifiesto firmado válido de su canal. El diálogo identifica Preview y conserva las estables compatibles como candidatas. Las preliminares históricas sin manifiesto están disponibles para descarga manual en GitHub. [Política de los canales](engineering/RELEASE_POLICY.md)
 
-Volver a **Sólo versiones estables** no instala una versión anterior: si tu preliminar es más nueva, se esperará a una estable posterior. Cambiar el canal descarta la selección de descarga anterior y realiza una consulta nueva. Si no puede completarse la consulta de preliminares, el diálogo lo informa y conserva únicamente las versiones que logró verificar.
+Volver a Stable/LTS cambia las próximas consultas. Una instalación Preview 2.1.0 o posterior conserva su versión instalada, ya que el actualizador exige una versión más nueva. Podés ejecutar el portable 2.0.x por separado para seguir usando esa familia. Al cambiar el canal, el diálogo descarta la descarga antes seleccionada y vuelve a consultar. Si falla la consulta de preliminares, el diálogo lo informa y conserva las versiones que logró verificar.
 
 ## Descargar, instalar y reiniciar
 

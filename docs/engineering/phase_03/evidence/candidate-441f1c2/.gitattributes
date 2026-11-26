@@ -1,0 +1,3 @@
+# Retain the exact bytes used for the hashes in the Actions receipt.
+*.json -text
+*.txt -text

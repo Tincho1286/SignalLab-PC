@@ -1,0 +1,9 @@
+66f6fdc3e5fa8e5e5d5da3ddfb0bedaf32ac6aac728f0bd9465e5d22c675f39e  SignalLab-PC-2.1.0-linux-x86_64.run
+baab5966f6880ae0fdfcf999fa2390b50cda75b80fa8a21e92cb7db71931bc64  SignalLab-PC-2.1.0-linux-x86_64.tar.gz
+d7fa375694b389a41ea3d327bb88073b03a5d174d5e3c0ad5b86b90b27600bb5  SignalLab-PC-2.1.0-setup.exe
+72c94678851a0478b9f1bb434945d252d8d34dd9958c6b8594582ec7ddbae0cc  SignalLab-PC-2.1.0-source.zip
+bb7f16f43102e129cbf0784bb8720deec7d045e455fdeeb60a77d01aa00ca392  SignalLab-PC-2.1.0.exe
+6f29f43135ed94fb914cc337a65e214d4438737a1b7653b057ac857440c15302  candidate-linux.json
+028720b1194c10f465fcd253865dad58df1df32acbc82621824f20bf1c8b0dba  candidate-windows.json
+41d80021486af9965617853d4261510f3e9cfe22fbfdea20b9f62b4b53483f88  installer-linux.json
+4ed66f4404e0eeceff454c2ec058cf52e523188acdc68dfc383e92584320844b  installer-windows.json
