@@ -35,3 +35,11 @@ La entrega guarda bits y etiquetas compactos, filtros, muestras I/Q e informe de
 Se incorporó el área Comunicaciones digitales con una cadena integrada y seis herramientas de ejecución independiente, cada una con ayuda contextual. CLI expone las mismas operaciones, incluida una medición Monte Carlo. Se compararon muestras, reloj y métricas de Workbench, Python y CLI y se ejecutó CLI con bloqueo de importaciones Qt. El lanzador común abre y conserva las ocho figuras del enlace. Se comprobó el espectro con un tono de frecuencia exacta en Hz y en rad/muestra, y se confirmó el traspaso de señales y etiquetas entre herramientas.
 
 Se ejecutaron 56 pruebas focales en Windows. La verificación de escritorio usó Qt offscreen y ventanas de 640 × 420 y 1 200 × 800 para comprobar cambio de distribución, ayuda, entrega y repetición de apertura de gráficas. El total de once módulos de comunicaciones cubrió 2 210/2 246 líneas y 496/528 ramas en esa medición. [Matriz](VALIDATION_MATRIX.md)
+
+## Barridos reproducibles · WP-07
+
+Se incorporó un catálogo con un SLPROJ por corrida y guardado atómico del índice. Cada combinación conserva su configuración, política de semillas y huella. La recuperación verifica cada archivo y reconoce una corrida completa archivada justo antes de cancelar. Los escritorios y la CLI pueden reabrir y comparar un barrido, exportar un CSV e incorporar una corrida al proyecto. Las pruebas focales en Windows ejecutaron 67 casos de comunicaciones. Se verificaron catálogos corruptos, exclusión de escritores de procesos distintos, interrupción antes de confirmar el índice y comparación con el barrido íntegro. [Arquitectura](ARCHITECTURE.md) · [Ejemplos](README.md)
+
+## Preparación del candidato · WP-08
+
+El empaquetado comprueba la ejecución de un enlace desde el binario y reabre el proyecto resultante. El Quality Gate verifica los informes de ambas plataformas, las medidas de recursos, el aislamiento de Preview y la procedencia de sus portables e instaladores. La política de publicación reserva 2.0.x para Stable/LTS y usa 2.1.0 como versión del primer candidato de Engineering. Se comprobaron localmente los contratos del actualizador y del publicador con firmas de ensayo. [Auditoría de distribución](../DISTRIBUTION_INFRASTRUCTURE_AUDIT.md) · [Criterios](QUALITY_GATE_CRITERIA.md)

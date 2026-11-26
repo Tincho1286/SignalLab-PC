@@ -110,6 +110,20 @@ def run(destination):
             restored = prepare_worksheet(saved['cas'], copy)
             assert restored['state'] == state and restored['input'] == 'a+'
             assert restored['entries'][0]['result_id'] == result_id
+            from .communications_experiment import ExperimentSpec, run_experiment
+            from .communications_storage import load_experiment, save_experiment
+            link = run_experiment(ExperimentSpec(bit_count=120, eb_n0_db=None))
+            assert link.metrics.ber.errors == 0 and link.metrics.ber.evaluated == 120
+            link_path = Path(directory)/'communications.slproj'
+            link_id = save_experiment(link_path, link)
+            link_project, _ = session.load(link_path)
+            archived = load_experiment(link_project, link_id)
+            np.testing.assert_array_equal(link_project.get(archived.records['matched']).values, link.matched.values)
+        communications_item = ROUTES['communications', 'link']
+        window.open_tool(communications_item)
+        app.processEvents()
+        assert window.pages[communications_item].panel.mode == 'link'
+        report['checks']['packaged_communications_link_and_project'] = True
         report['checks']['bounded_mat_worker_and_scientific_project'] = True
         report['checks']['packaged_cas_session'] = True
         from .sampling import sample_expression
