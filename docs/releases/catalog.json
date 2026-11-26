@@ -1,6 +1,21 @@
 {
   "releases": [
     {
+      "tag": "v2.1.0",
+      "title": "Comunicaciones digitales",
+      "channel": "preview",
+      "summary": "La 2.1.0 Preview incorpora el laboratorio de comunicaciones digitales en Workbench, Python y CLI.",
+      "changes": [
+        "Modulación PSK y QAM, pulsos RC y RRC, canal AWGN y recuperación de símbolos.",
+        "Mediciones BER, SER y EVM junto con constelación, ojo y espectro.",
+        "Experimentos reproducibles y barridos recuperables con exportación CSV."
+      ],
+      "limits": [
+        "La LTS vigente es la 2.0.0. Preview se activa desde el actualizador."
+      ],
+      "notes": "docs/releases/v2.1.0.md"
+    },
+    {
       "tag": "v2.0.0",
       "title": "Escritorio, gráficos y resultados conectados",
       "channel": "stable",
