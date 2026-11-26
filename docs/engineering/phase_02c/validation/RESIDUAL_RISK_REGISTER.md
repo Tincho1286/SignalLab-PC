@@ -37,3 +37,9 @@
 | C-09 | Instaladores y salto aislado verificados en `54adaa0`. | Validar el nuevo presupuesto de CI. Firma e infraestructura conservan evaluación particular. |
 
 [Matriz de evidencia](FINAL_VALIDATION_MATRIX.md) · [Registro de excepciones](EXCEPTION_APPROVAL_REGISTER.md)
+
+## Revisión sobre 623c9dd
+
+La brecha global de cobertura quedó satisfecha en los dos sistemas. El riesgo de entorno se materializó en una aserción del test de fondos de Windows y se corrigió localmente con una comparación de identidad. La condición integral permanece abierta para el SHA corregido. El ensayo de escritorio descubrió y aisló el fallo de cambio de disposición. Se verificó su corrección en Windows a 96 DPI. [Quality Gate](QUALITY_GATE_REPORT.md#evaluación-del-candidato-623c9dd) · [Acta](../gui/DESKTOP_CONTINUATION.md#medidas-de-frecuencia-en-el-candidato-623c9dd)
+
+Los controles de presupuesto y cancelación pasaron en los tamaños y operaciones del banco. La admisión estimada y la cancelación cooperativa mantienen su alcance. El importador MAT conserva su cuota de proceso y plazo. Las condiciones nativas de Qt, OpenJPEG y HDF5, la validación física de Linux y DPI y la distribución pública siguen abiertas por sus criterios específicos. [Envolvente](../resources/OPERATIONAL_ENVELOPE.md) · [Decisiones individuales](EXCEPTION_APPROVAL_REGISTER.md#revisión-sobre-623c9dd)

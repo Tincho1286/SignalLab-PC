@@ -1,6 +1,6 @@
 # Puerta de calidad de Engineering Core
 
-Dictamen vigente en la [continuación autónoma de Fase 02C](#continuación-autónoma-de-fase-02c). Los apartados anteriores conservan los dictámenes históricos de `459b9fc` y `faef335`.
+Dictamen vigente en [Evaluación del candidato 623c9dd](#evaluación-del-candidato-623c9dd). Los apartados de versiones anteriores conservan sus dictámenes históricos.
 
 **NO-GO de cierre definitivo.** El candidato supera la matriz técnica en Windows y Linux. El criterio de cobertura global y varios objetivos de ramas del Core siguen pendientes. Los riesgos P1 que permanecen requieren resolución o aceptación individual, junto con la evidencia manual pendiente.
 
@@ -80,3 +80,19 @@ La evidencia histórica permanece versionada. Los recibos, SBOM, campaña y benc
 Los ensayos focales sobre el código de desarrollo proyectan que el objetivo de líneas está cubierto y que quedan alrededor de 485 ramas para el 75 %. El expediente conserva los 35 de 37 controles automáticos aprobados en la última matriz por sistema. Los tres dictámenes anteriores permanecen abiertos hasta validar el mismo candidato en ambos sistemas y resolver las condiciones externas que les corresponden. Se reserva la ejecución completa en GitHub para el candidato que alcance ambos umbrales. [Medición ampliada](../testing/FINAL_COVERAGE_REPORT.md#medición-focal-de-la-siguiente-revisión)
 
 La medición integral local de `8793c48` confirmó 85,52 % de líneas y 72,10 % de ramas en Windows con 1 039 pruebas y 150 casos preventivos aprobados. El déficit de ramas fue de 477. Esta evidencia amplía la validación local en modo offscreen. La matriz de ambos sistemas, las verificaciones de escritorio y el dictamen de distribución mantienen sus condiciones. [Medición integral local](../testing/FINAL_COVERAGE_REPORT.md#medición-integral-local-en-windows)
+
+## Evaluación del candidato 623c9dd
+
+El despacho 45739704501 evaluó `623c9ddcc2460485b549e864fa86ddc6b7cba407` en `develop`. Windows pasó 36 de 37 controles y Ubuntu 37 de 37. Se cotejaron los cinco artefactos con sus digests y el verificador local reprodujo el dictamen publicado por GitHub. [Matriz](FINAL_VALIDATION_MATRIX.md#resultado-de-623c9dd) · [Dictamen por control](evidence/quality-gate-623c9dd.json) · [Recibos y huellas](evidence/ci-623c9dd.json)
+
+| Dictamen | Estado | Evidencia y criterio pendiente |
+| --- | --- | --- |
+| Cierre de Engineering Core | **Pendiente** | Los objetivos globales y de componentes se cumplieron en ambos runners. El control integral de Windows falló por una aserción de identidad de rutas. La corrección del test pasó localmente. E-01, E-02 y E-05 conservan seguimiento y decisión individual. |
+| Preparación para Fase 03 | **Pendiente** | Pasaron la campaña de 48 corridas y los perfiles de cancelación y persistencia en ambos runners. La preparación requiere resolver el cierre del Core, acordar la envolvente admisible y obtener autorización específica. |
+| Distribución pública | **Pendiente** | Se verificaron los portables, SBOM, instaladores y salto aislado de 2.0.0 a 2.0.1 en los dos sistemas. E-04 conserva la verificación de firma de producción y del canal público. |
+
+En el trabajo Windows, `RUNNER~1` y `runneradmin` eran dos escrituras del mismo directorio temporal. El test comparaba las cadenas. `b6bcb85` cambió la comprobación a identidad del sistema de archivos y pasó 36 pruebas en Windows local. Relanzar el trabajo original conservaría el SHA que contiene la aserción anterior. [Causa y corrección](../IMPLEMENTATION_LOG.md) · [Trabajo Windows](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45739704501/job/139641392962)
+
+La comprobación en Windows real a 96 DPI encontró que el selector de figuras podía desactivarse al maximizar. `87b74ed` corrigió el registro de figuras y pasó la comprobación en ese escritorio y 83 pruebas relacionadas. Los dos commits posteriores tienen evidencia focal separada de la matriz de `623c9dd`. [Acta de escritorio](../gui/DESKTOP_CONTINUATION.md#medidas-de-frecuencia-en-el-candidato-623c9dd)
+
+El cotejo del inventario confirmó 219 archivos nativos de Windows y 389 de Linux. En Ubuntu se verificaron `libssl.so.3` y `libcrypto.so.3` de `libssl3` 3.0.2-0ubuntu1.30. El resultado de la prueba de actualización corresponde a una firma de auditoría. Las decisiones externas siguen abiertas en el registro de excepciones. [Dependencias](../security/DEPENDENCY_CONTINUATION.md) · [Excepciones](EXCEPTION_APPROVAL_REGISTER.md)

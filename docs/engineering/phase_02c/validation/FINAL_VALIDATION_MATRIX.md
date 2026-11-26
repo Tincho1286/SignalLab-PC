@@ -76,3 +76,18 @@ El flujo matemático mantiene los controles de catálogo y análisis estático e
 Los cuatro trabajos de plataforma y el informe automatizado aprobaron la ejecución. El resultado de cierre conserva las brechas globales aunque los trabajos hayan terminado bien. Se verificaron ambos instaladores con manifiesto de ensayo, rechazo de firma temporal desde el verificador de producción y descarga corrupta rechazada. La matriz se reprodujo con el mismo SHA y produjo el mismo JSON de evaluación. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45689459348) · [Índice](evidence/ci-eb50895.json)
 
 El cambio de disparo en `d996f87` fue comprobado por la corrida automática de sólo tres trabajos. Aprobaron matemática Windows, matemática Linux y controles estáticos. Los motores, la suite, el entorno fijado y los scripts de construcción mantienen el árbol probado en la auditoría. [Corrida rápida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45691896234)
+
+## Resultado de 623c9dd
+
+La única matriz de continuación se despachó después de comprobar ambos objetivos de cobertura en Windows local. Cada etapa de las plataformas registra `623c9ddcc2460485b549e864fa86ddc6b7cba407`. Los informes de cobertura y compilación corresponden a ese candidato de auditoría 2.0.1. [Corrida 45739704501](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45739704501)
+
+| Control | Windows 2022 | Ubuntu 22.04 |
+| --- | --- | --- |
+| Árbol y cobertura | SHA limpio, 88,38 % de líneas y 75,15 % de ramas | SHA limpio, 88,33 % de líneas y 75,18 % de ramas |
+| Integral, preventivo | 1 108/1 109 y 150/150 | 1 109/1 109 y 150/150 |
+| Portable y actualización 2.0.0 → 2.0.1 aislada | Aprobados | Aprobados |
+| Inventario y SBOM | 219 archivos cotejados | 389 archivos cotejados. OpenSSL de Ubuntu 3.0.2-0ubuntu1.30 |
+| Recursos y persistencia | 71 mediciones, 22 perfiles de cancelación, 48 corridas y 6 ensayos de recuperación | 71 mediciones, 22 perfiles de cancelación, 48 corridas y 6 ensayos de recuperación |
+| Controles de Quality Gate | 36/37 | 37/37 |
+
+El verificador ejecutó `tools/check_quality_gate_02c.py --require-automated` contra los artefactos de la corrida. Produjo el mismo JSON que GitHub y devolvió código 1 por el control integral de Windows. El caso de fondos falló al comparar el alias 8.3 con la ruta larga. `b6bcb85` corrige esa aserción y la regresión pasó en Windows local. `87b74ed` corrige el hallazgo posterior de figuras al maximizar y tiene evidencia local independiente. [Recibos de los cinco artefactos](evidence/ci-623c9dd.json) · [Quality Gate](QUALITY_GATE_REPORT.md#evaluación-del-candidato-623c9dd)

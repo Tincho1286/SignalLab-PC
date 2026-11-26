@@ -26,3 +26,7 @@ Para `623c9dd` se repitió la consulta de PyPI y de los proveedores el 25/11/202
 ## Inventario de la matriz 54adaa0
 
 El SBOM cotejó huellas y origen para 219 archivos nativos de Windows y 389 de Linux. NumPy reemplazó su OpenBLAS en ambos sistemas. La nueva rueda Linux dejó de incluir las copias de libgfortran y libquadmath específicas de NumPy. El portable Linux incluye libssl.so.3 y libcrypto.so.3 del paquete corregido de Ubuntu `3.0.2-0ubuntu1.30`. El binding de cryptography declara por separado OpenSSL 4.0.3 en los dos binarios. CPython 3.14.10 y Qt 6.12.0 se comprobaron por sus bibliotecas. El siguiente candidato conserva los pines. [SBOM Windows](../validation/evidence/windows-native.cdx-54adaa0.json) · [SBOM Linux](../validation/evidence/linux-native.cdx-54adaa0.json) · [Origen de los binarios](../validation/evidence/ci-54adaa0.json)
+
+## Inventario de la matriz 623c9dd
+
+Los dos inventarios registran `623c9ddcc2460485b549e864fa86ddc6b7cba407`. Los hashes y orígenes de 219 archivos nativos de Windows y 389 de Linux coincidieron con los SBOM. En Linux se cotejaron los binarios `libssl.so.3` y `libcrypto.so.3` de `libssl3:amd64` 3.0.2-0ubuntu1.30. Los bindings de cryptography identificaron OpenSSL 4.0.3 por separado. [Artefactos y huellas](../validation/evidence/ci-623c9dd.json) · [Matriz](../validation/FINAL_VALIDATION_MATRIX.md#resultado-de-623c9dd)

@@ -39,3 +39,16 @@ Este registro conserva pendientes las decisiones de aceptación individual. [Cob
 | E-06c–j | Dentro del objetivo en ambas plataformas de `eb50895`. SLPROJ, CAS y controlador de sesiones también cumplen. | Mantener mínimos y validar en cada candidato integral. |
 
 El [Quality Gate](QUALITY_GATE_REPORT.md#continuación-autónoma-de-fase-02c) registra los pendientes antes de cualquier solicitud de decisión. [Evaluación nativa](../security/DEPENDENCY_CONTINUATION.md) · [Protocolo de escritorio](../gui/DESKTOP_CONTINUATION.md)
+
+## Revisión sobre 623c9dd
+
+| ID | Estado | Criterio o decisión que queda |
+| --- | --- | --- |
+| E-01 | El inventario confirma Qt 6.12.0 y OpenJPEG 2.5.4. Se revisó la falta de ruedas corregidas. | Definir si el cierre exige las ruedas corregidas o admite un alcance delimitado con las mitigaciones de entrada vigentes. |
+| E-02 | HDF5 sigue pendiente de versión corregida publicada. El proceso lector mantiene cuota y plazo. | Decidir si se admite el alcance actual de archivos MAT locales seleccionados, con la restricción de exposición documentada. |
+| E-03 | Pasaron 22 perfiles de cancelación y ambos inventarios de recursos. | Confirmar el alcance ensayado o identificar la operación y presupuesto que requieran aislamiento adicional. |
+| E-04 | Portables e instaladores probados con el canal de auditoría. | Evaluar la firma de producción y el canal público en una autorización separada. |
+| E-05 | Windows real a 96 DPI verificado. El hallazgo de Abrir gráfico se corrigió y se comprobó en el mismo monitor. | Obtener las actas de Linux real y escalados físicos, o definir explícitamente los perfiles de escritorio que se aceptarán. |
+| E-06a–j | Objetivos medidos alcanzados en `623c9dd` en los dos sistemas. | Conservar los umbrales. La aserción de rutas del trabajo integral se corrigió en `b6bcb85` y requiere confirmación sobre ese código. |
+
+Ninguna excepción fue aprobada por este expediente. [Quality Gate](QUALITY_GATE_REPORT.md#evaluación-del-candidato-623c9dd)

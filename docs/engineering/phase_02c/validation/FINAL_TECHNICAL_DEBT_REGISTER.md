@@ -30,3 +30,15 @@ El [registro de riesgos](RESIDUAL_RISK_REGISTER.md) identifica responsables y co
 ## Saldo de la continuación autónoma
 
 SLPROJ superó su objetivo en `54adaa0` y el almacenamiento por lotes verificó 48 corridas. El contrato CAS y el escritor asíncrono completan la persistencia de sesión dentro de su alcance. Se corrigieron la reapertura con foco, los checkpoints obsoletos y la publicación prematura de entradas LTI. La prioridad técnica sigue en la cobertura global, con pruebas de traspaso de datos, diseño, tablas, recuperación y errores. [Registro maestro](../audit/MASTER_TECHNICAL_DEBT_REGISTER.md) · [Matriz por candidato](FINAL_VALIDATION_MATRIX.md#continuación-autónoma)
+
+## Saldo de la matriz de 623c9dd
+
+| Hallazgo | Evidencia | Pendiente |
+| --- | --- | --- |
+| C-07 · Cobertura | 85 % de líneas y 75 % de ramas alcanzados en ambos runners. Pasaron los 23 controles de los componentes designados en cada plataforma. | Mantener objetivos en la siguiente revisión integral. |
+| C-11 · Prueba de fondos | `b6bcb85` corrige la aserción que comparaba rutas por texto y pasa las pruebas locales. | Verificar el nuevo SHA en el runner correspondiente. |
+| C-08 · Selector de figuras | `87b74ed` corrige el cambio compacto a amplio. Pasaron el ensayo en Windows real y 83 pruebas locales. | Completar Linux físico y otros DPI. |
+| C-01, C-02 y C-05 | Versiones y mitigaciones revisadas. La matriz aprobó el inventario, los perfiles de cancelación y la campaña de persistencia. | Resolver E-01 y E-02 según disponibilidad y alcance. Confirmar el uso dentro de la envolvente E-03. |
+| C-09 · Distribución | Actualización aislada y portables verificados. | Resolver firma y canal público por separado. |
+
+[Quality Gate actual](QUALITY_GATE_REPORT.md#evaluación-del-candidato-623c9dd)

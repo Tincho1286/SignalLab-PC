@@ -34,4 +34,6 @@ El 25/11/2026 se ejecutó `623c9ddcc2460485b549e864fa86ddc6b7cba407` desde el c�
 - Comprobar bandas volvió a calcular con el borrador de Cruces intacto. En 0 a 10 rad/s devolvió mínimo 0.09950371902 en 10 y máximo 1 en 0. Los dos estudios quedaron guardados en una sesión sintética y el lector recuperó sus valores.
 - Abrir gráfico quedó desactivado al pasar de la disposición compacta a la amplia. La pestaña Frecuencia todavía abrió su ventana independiente. Restaurar el tamaño inicial reactivó la acción de cabecera. La causa es el registro de un contenedor de la disposición como si fuese una pestaña de figura. El cambio posterior al candidato se valida por separado.
 
+En `87b74ed`, volver a calcular `H(s)=1/(s+1)` en modo compacto y maximizar conservó habilitada la acción de cabecera. Abrir gráfico mostró la figura de frecuencia y cerrarla devolvió el foco al informe. Se usó el mismo monitor a 96 DPI. [Corrección y regresión](../IMPLEMENTATION_LOG.md#25-de-noviembre-de-2026--c-08--figuras-al-cambiar-de-ancho-de-ventana)
+
 El entorno no dispone de un escritorio Linux ni de un segundo monitor con otro DPI. Las pruebas con Linux real y escalados físicos adicionales siguen pendientes.

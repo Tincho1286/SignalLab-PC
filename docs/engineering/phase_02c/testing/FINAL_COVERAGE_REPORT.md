@@ -31,6 +31,33 @@ La continuación incorporó lotes focales sobre la base de Windows. La cobertura
 
 La última proyección supera el objetivo de ramas por nueve arcos. Las cifras provienen de lotes de Windows sobre la última cobertura integral del mismo sistema. El candidato requiere una medición integral local antes de despachar una sola matriz para Windows y Linux.
 
+## Confirmación integral local del candidato 623c9dd
+
+`python -B -X utf8 tools/check_engineering_baseline.py --output work/phase02c-local-623c9dd` terminó en Windows con CPython 3.14.10, Qt offscreen y el SHA limpio `623c9ddcc2460485b549e864fa86ddc6b7cba407`. El SHA se cotejó antes y después. Se mantuvieron la configuración, los denominadores y los umbrales de instrumentación del candidato.
+
+| Comprobación | Resultado |
+| --- | ---: |
+| Suite integral | 1 109 aprobadas, 0 fallos, 0 errores, 0 omitidas |
+| Casos preventivos | 150/150 |
+| Líneas | 37 992/42 981 (88,39 %) |
+| Ramas | 12 437/16 538 (75,20 %) |
+| Controles en componentes críticos | 23/23 |
+| Procesos de álgebra instrumentados | 172 archivos de cobertura |
+
+La suite y los casos preventivos tomaron 1 898 s. Pasaron el análisis estático, la ejecución integral, la combinación y la exportación de cobertura. Esta medición habilitó el único despacho de la matriz completa del candidato. [Matriz de GitHub](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45739704501)
+
+## Medición de 623c9dd en Windows y Linux
+
+| Medición | Windows 2022 | Ubuntu 22.04 | Objetivo |
+| --- | ---: | ---: | ---: |
+| Líneas | 37 985/42 981 (88,38 %) | 37 967/42 981 (88,33 %) | 85 % |
+| Ramas | 12 429/16 538 (75,15 %) | 12 434/16 538 (75,18 %) | 75 % |
+| Controles de componentes críticos | 23/23 | 23/23 | 23/23 |
+| Pruebas integrales aprobadas | 1 108/1 109 | 1 109/1 109 | Todas |
+| Casos preventivos aprobados | 150/150 | 150/150 | 150/150 |
+
+E-06a y E-06b alcanzaron el objetivo en ambos runners. Se midió el mismo SHA limpio con el alcance de instrumentación vigente. La suite integral de Windows queda con una aserción fallida por un alias de ruta 8.3 en una prueba de fondos. El resultado de la suite y la cobertura se conservan como verificaciones independientes. [Matriz y artefactos](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45739704501) · [Dictamen por control](../validation/evidence/quality-gate-623c9dd.json)
+
 ## Medición focal de la siguiente revisión
 
 Se combinaron las líneas y arcos del último candidato integral `eb50895` con ocho grupos de pruebas focales ejecutados en Windows con CPython 3.14.10. En los archivos de cálculo modificados se trasladaron sólo las líneas históricas que se conservan y los arcos cuyos extremos permanecen en el código. Se mantuvo el alcance de instrumentación de la aplicación. Esta proyección sirve para priorizar pruebas adicionales. La cobertura definitiva requiere la suite integral sobre el candidato limpio.
