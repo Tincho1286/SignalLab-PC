@@ -213,6 +213,16 @@ class ChannelPipelineResult:
     def signal(self):
         return self.stages[-1].signal if self.stages else self.source
 
+    @property
+    def retained_bytes(self):
+        return sum(stage.signal.values.nbytes + sum(value.values.nbytes for _, value in stage.components)
+                   for stage in self.stages)
+
+    @property
+    def storage_estimate(self):
+        return 24 * (self.source.values.size + sum(value.values.size for _, value in self.external_sources)
+                     + self.retained_bytes // 16)
+
     def report(self):
         return {
             'schema': 1, 'specification': encode_pipeline_spec(self.specification),
@@ -357,11 +367,7 @@ def stage_channel_pipeline(project: Project, result: ChannelPipelineResult, *, s
 def store_channel_pipeline(project: Project, result: ChannelPipelineResult, *, source_id=None, external_records=None,
                            execution: ExecutionContext | None = None):
     ctx = execution or ExecutionContext()
-    records = [result.source, *(value for _, value in result.external_sources)]
-    for stage in result.stages:
-        records.extend((stage.signal, *(value for _, value in stage.components)))
-    estimate = 24 * sum(signal.values.size for signal in records)
-    with ctx.reserve(estimate), project.stage_records(before_commit=ctx.checkpoint) as staged:
+    with ctx.reserve(result.storage_estimate), project.stage_records(before_commit=ctx.checkpoint) as staged:
         return stage_channel_pipeline(staged, result, source_id=source_id, external_records=external_records,
                                       execution=ctx)
 

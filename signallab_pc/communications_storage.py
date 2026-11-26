@@ -12,6 +12,7 @@ import numpy as np
 from . import session
 from .communications_data import BitSequence, ConstellationSpec, SymbolClock, SymbolSequence, integer
 from .communications_experiment import ExperimentResult, ExperimentSpec
+from .communications_pipeline import decode_pipeline_spec, load_channel_pipeline, stage_channel_pipeline
 from .communications_pulses import PulseSpec
 from .communications_receiver import SynchronizationSpec
 from .execution import ExecutionContext
@@ -115,6 +116,8 @@ def decode_experiment_spec(document) -> ExperimentSpec:
         fields['constellation'] = ConstellationSpec(**fields['constellation'])
         fields['pulse'] = PulseSpec(**fields['pulse'])
         fields['synchronization'] = SynchronizationSpec(**fields['synchronization'])
+        if 'channel_pipeline' in fields:
+            fields['channel_pipeline'] = decode_pipeline_spec(fields['channel_pipeline'])
         return ExperimentSpec(**fields)
     except (KeyError, TypeError) as exc:
         raise ValueError('La configuración almacenada está incompleta o tiene campos desconocidos.') from exc
@@ -126,6 +129,7 @@ class StoredExperiment:
     specification: ExperimentSpec
     report: dict
     records: dict[str, str]
+    chain: dict | None = None
 
 
 def load_experiment(project: Project, identifier: str) -> StoredExperiment:
@@ -144,7 +148,16 @@ def load_experiment(project: Project, identifier: str) -> StoredExperiment:
     if not isinstance(report, dict) or data.get('report_sha256') != settings_digest(report):
         raise ValueError('El informe del experimento cambió después del cálculo.')
     spec = decode_experiment_spec(report.get('specification'))
-    return StoredExperiment(identifier, spec, report, dict(zip(roles, parents, strict=True)))
+    records = dict(zip(roles, parents, strict=True))
+    chain = None
+    if spec.channel_pipeline is not None:
+        if not {'channel_pipeline', 'channel_output', 'tx'} <= records.keys():
+            raise ValueError('El experimento no conserva la cadena de canal indicada.')
+        configuration, chain = load_channel_pipeline(project, records['channel_pipeline'])
+        if (configuration != spec.channel_pipeline or chain['report_sha256'] != settings_digest(report.get('channel_pipeline'))
+                or chain['source_record'] != records['tx'] or chain['stage_records'][-1]['record'] != records['channel_output']):
+            raise ValueError('La cadena guardada no corresponde al enlace.')
+    return StoredExperiment(identifier, spec, report, records, chain)
 
 
 def store_experiment(project: Project, result: ExperimentResult,
@@ -166,6 +179,8 @@ def store_experiment(project: Project, result: ExperimentResult,
     rate = result.specification.symbol_rate_hz * result.specification.pulse.samples_per_symbol
     cost = 24*sum(value.values.size for value in signals.values()) + 36*result.transmitted_labels.labels.size
     estimates = cost + 24*result.input_bits.values.size + 384*result.pulse.taps.size
+    if result.pipeline is not None:
+        estimates += result.pipeline.storage_estimate
     with ctx.reserve(estimates), project.stage_records(before_commit=ctx.checkpoint) as staged:
         ids, hashes = {}, {}
 
@@ -186,16 +201,26 @@ def store_experiment(project: Project, result: ExperimentResult,
         add('tx_labels', encode_symbols(result.transmitted_labels), ('input_bits', *pilot_parents),
             title='Etiquetas transmitidas')
         add('pulse_tx', result.pulse.transfer(rate))
-        add('pulse_rx', result.pulse.transfer(rate, matched=True))
+        receiver_rate = result.matched.metadata.get('sample_rate_hz', rate)
+        add('pulse_rx', result.pulse.transfer(receiver_rate, matched=True))
         stages = [('symbols', ('tx_labels',)), ('upsampled', ('symbols',)),
                   ('tx', ('upsampled', 'pulse_tx'))]
-        if result.channel is not None:
-            stages.append(('awgn', ('tx',)))
-        stages.append(('matched', ('awgn' if result.channel is not None else 'tx', 'pulse_rx')))
-        if result.reception.symbols is not None:
-            stages.append(('observed', ('matched', *pilot_parents)))
         for role, parents in stages:
             add(role, signals[role], parents, digest=expected[role])
+        receiver_parent = 'tx'
+        if result.pipeline is not None:
+            receipt = stage_channel_pipeline(staged, result.pipeline, source_id=ids['tx'], execution=ctx)
+            ids['channel_pipeline'] = receipt['report_record']
+            hashes['channel_pipeline'] = encoded_digest('calculation', staged.get(receipt['report_record']), ctx.checkpoint)
+            ids['channel_output'] = receipt['record']
+            hashes['channel_output'] = expected['channel_output']
+            receiver_parent = 'channel_output'
+        if result.channel is not None:
+            add('awgn', signals['awgn'], (receiver_parent,), digest=expected['awgn'])
+            receiver_parent = 'awgn'
+        add('matched', signals['matched'], (receiver_parent, 'pulse_rx'), digest=expected['matched'])
+        if result.reception.symbols is not None:
+            add('observed', signals['observed'], ('matched', *pilot_parents), digest=expected['observed'])
         if result.received_labels is not None:
             add('rx_labels', encode_symbols(result.received_labels), ('observed',), title='Etiquetas recibidas')
             add('output_bits', encode_bits(result.received_bits), ('rx_labels',), title='Bits recuperados')

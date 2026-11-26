@@ -5,10 +5,10 @@
     {
       "key": ["communications", "link"],
       "blocks": [
-        ["Qué podés hacer", "Transmití bits con PSK o QAM, conformá el pulso, aplicá AWGN y recuperá símbolos. La configuración inicial usa QPSK Gray y un par de filtros RRC."],
+        ["Qué podés hacer", "Transmití bits con PSK o QAM, conformá el pulso y recuperá símbolos. La configuración inicial usa QPSK Gray y filtros RRC. Podés activar una cadena de canal y elegir qué efectos se aplican antes del filtro de recepción."],
         ["Cómo preparar el cálculo", "Elegí la cantidad de bits o escribí tu secuencia. Rs indica símbolos por segundo. L es la cantidad de muestras por símbolo y el programa obtiene Fs = L × Rs."],
         ["Cómo interpretar la salida", "Abrí la constelación, las muestras I/Q, el ojo o el espectro desde los resultados. El informe separa los bits útiles, el piloto y el relleno. Exportá el experimento completo para conservar sus señales y parámetros."],
-        ["Qué tener en cuenta", "La sincronización ideal usa el retardo conocido de ambos filtros. La estimada usa un piloto. La referencia teórica supone detección coherente ideal en AWGN y la medición incluye los efectos del registro finito."]
+        ["Qué tener en cuenta", "La sincronización ideal usa retardos conocidos. La estimada usa un piloto. Si no se puede alinear el reloj o determinar un instante de muestreo válido, el enlace guarda las señales pero deja las métricas sin evaluar. AWGN al final usa la energía transmitida como referencia. La curva teórica se muestra para el control AWGN sin cadena adicional."]
       ]
     },
     {

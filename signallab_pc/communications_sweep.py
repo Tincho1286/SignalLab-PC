@@ -118,7 +118,9 @@ def _plan(spec):
 
 
 def _definition(spec):
-    return {'engine_contract': _SCHEMA, 'numpy': np.__version__, 'specification': asdict(spec)}
+    return {'engine_contract': _SCHEMA, 'numpy': np.__version__, 'specification': {
+        'base': spec.base.document(), 'axes': [asdict(axis) for axis in spec.axes], 'seed_policy': spec.seed_policy,
+    }}
 
 
 def _decode_definition(document):
@@ -185,7 +187,7 @@ def _artifact_entry(folder, index, assignment, ctx):
     identifier = identifiers[0]
     restored = load_experiment(project, identifier)
     expected = restored.report.get('provenance', {}).get('settings_sha256')
-    if restored.specification != spec or expected != settings_digest(asdict(spec)):
+    if restored.specification != spec or expected != settings_digest(spec.document()):
         raise ValueError(f'La configuración registrada en {file} es distinta de la corrida planificada.')
     with path.open('rb') as stream:
         stream.seek(-32, os.SEEK_END)

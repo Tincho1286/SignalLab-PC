@@ -248,6 +248,21 @@ raise SystemExit(main())
             self.assertEqual(len(report['stage_records']), 2)
             np.testing.assert_array_equal(project.get(result['record']).values, [0, 1+1j, 2])
 
+    def test_link_cli_uses_the_saved_channel_without_fake_sfo_metrics(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            config, output = root/'channel.json', root/'link.slproj'
+            config.write_text(json.dumps({'schema': 1, 'stages': [
+                {'kind': 'timing', 'parameters': {'sfo_ppm': 250}},
+            ]}), encoding='utf-8')
+            receipt = self.invoke('link', '--bits', 80, '--channel-config', config, '--no-noise', '--output', output)
+            self.assertEqual(receipt['synchronization']['method'], 'clock_mismatch')
+            self.assertIsNone(receipt['metrics'])
+            project, _ = session.load(output)
+            restored = load_experiment(project, receipt['record'])
+            self.assertEqual(len(restored.chain['stage_records']), 1)
+            self.assertIsNone(restored.report['theoretical'])
+
     def test_sweep_cli_runs_and_verifies_a_reproducible_grid(self):
         with TemporaryDirectory() as folder:
             root = Path(folder)

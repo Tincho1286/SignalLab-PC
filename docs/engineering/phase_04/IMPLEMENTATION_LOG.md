@@ -69,3 +69,11 @@ El contrato de cadena reutiliza las operaciones individuales. Registra el orden,
 El editor de Workbench permite agregar y reordenar modelos preconfigurados, vincular entradas externas y abrir o guardar su configuración común con CLI y Python. La edición detallada de parámetros se realiza en el JSON opcional del editor. [Uso](README.md#cadena-de-canal) · [Contratos](SCIENTIFIC_CONTRACTS.md#composición-ordenada).
 
 En Windows, la suite de comunicaciones aprobó 114 pruebas. El control estático aprobó 410 archivos Python. La CLI también ejecutó y archivó una cadena completa con importaciones de Qt bloqueadas. Se verificaron cancelación, límite de memoria de la cadena, etapas alteradas, reasignación de identificadores, vínculo a una señal externa y equivalencia de orden en Workbench.
+
+El commit `6e9702c` aprobó los controles matemáticos de Windows y Ubuntu. [Resultados](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45890224295).
+
+## Cadena de canal en el enlace
+
+El enlace ejecuta la cadena entre TX y RX, guarda sus realizaciones e identifica la sincronización aplicada. El control sin cadena conserva las muestras y el formato históricos. Los casos con SFO incompatible o retardo fraccionario fuera de la referencia entera guardan las señales y el estado de indisponibilidad sin fabricar métricas. El modo piloto se comprobó con Rayleigh, Rician y desplazamiento Doppler. También se guardó un interferente externo dentro del enlace y se abrió el archivo recuperando sus vínculos.
+
+La suite de comunicaciones aprobó 121 pruebas en Windows. `tools/check_static.py` aprobó 410 archivos y `git diff --check` terminó sin errores.

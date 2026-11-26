@@ -70,10 +70,11 @@ _FADING = 'Evolución del fading'
 _DOPPLER = 'Autocorrelación y PSD Doppler'
 _PHASE_PATH = 'Trayectoria de fase'
 _INTERFERENCE_SPECTRA = 'Espectros de los componentes'
+_LINK_CHANNEL = 'I/Q después de la cadena'
 _ERRORS = 'Tasas de error'
 _COMPARISON = 'Comparación de corridas'
 _VIEWS = {
-    'link': (_CONSTE, _IQ, _EYE, _SPECTRUM, _PSD, _IMPULSE, _FREQUENCY, _ERRORS),
+    'link': (_CONSTE, _IQ, _EYE, _SPECTRUM, _PSD, _IMPULSE, _FREQUENCY, _ERRORS, _LINK_CHANNEL),
     'modulate': (_CONSTE, _IQ), 'pulse': (_IMPULSE, _FREQUENCY, _IQ), 'awgn': (_IQ, _PSD),
     'multipath': (_IQ, _SPECTRUM, _CHANNEL_TAPS, _CHANNEL_FREQUENCY),
     'fading': (_IQ, _SPECTRUM, _FADING, _DOPPLER), 'carrier': (_IQ, _SPECTRUM),
@@ -331,13 +332,17 @@ class CommunicationsPanel(QWidget):
         self._bits(manual=manual)
         self._constellation()
         self._pulse_fields()
-        noise = self._check('noise_enabled', 'Incluir canal AWGN', True)
+        noise = self._check('noise_enabled', 'Agregar AWGN al final del canal', True)
         field = self._line('eb_n0', 'Eb/N₀ (dB)', 6)
         noise.toggled.connect(lambda enabled: self._visible(field, enabled))
         self._synchronization(chain=True)
 
     def _build_link(self):
         self._link_fields()
+        use = self._check('channel_enabled', 'Incluir cadena de canal')
+        editor = self._set('pipeline', 'Etapas de canal', ChannelPipelineEditor(lambda: self.window.project))
+        use.toggled.connect(lambda enabled: self._visible(editor, enabled))
+        self._visible(editor, False)
 
     def _build_sweep(self):
         self._line('directory', 'Carpeta del barrido')
@@ -600,24 +605,28 @@ class CommunicationsPanel(QWidget):
             show_input_error(self, 'Revisá los datos', exc)
 
     def _experiment_spec(self, count):
+        pipeline = None
+        if 'channel_enabled' in self.fields and self.fields['channel_enabled'].isChecked():
+            pipeline = self.fields['pipeline'].specification()
         return ExperimentSpec(
             bit_count=count, seed=self._int('seed'), symbol_rate_hz=self._real('symbol_rate'),
             constellation=self._constellation_spec(), pulse=self._pulse_spec(),
             eb_n0_db=real_field(self.fields['eb_n0']) if self.fields['noise_enabled'].isChecked() else None,
             synchronization=self._sync_spec(chain=True), pilot_symbols=self._int('pilot_symbols', 24),
-            allow_padding=self.fields['padding'].isChecked(),
+            allow_padding=self.fields['padding'].isChecked(), channel_pipeline=pipeline,
         )
 
     def _run_link(self):
         text = self.fields['manual_bits'].text()
         count = self._int('bit_count') if not text.strip() else len(''.join(text.split()))
         spec = self._experiment_spec(count)
+        external = self._pipeline_sources() if spec.channel_pipeline is not None else {}
 
         def task():
             with ExecutionContext().aggregate_progress() as ctx:
                 bits = parse_bits(text, replace(ctx, progress=None)) if text.strip() else None
                 child = replace(ctx, progress=lambda percentage: ctx.checkpoint(percentage*9//10))
-                output = run_experiment(spec, bits=bits, execution=child)
+                output = run_experiment(spec, bits=bits, external=external, execution=child)
                 project = Project()
                 key = store_experiment(project, output, ctx)
                 ctx.checkpoint(100)
@@ -740,7 +749,7 @@ class CommunicationsPanel(QWidget):
         if sync.sample_offset is not None and result.matched.values.size > 2*spec.pulse.samples_per_symbol:
             axes[_EYE] = (partial(figures.eye_figure, signal=result.matched, sps=spec.pulse.samples_per_symbol,
                                   sample_offset=sync.sample_offset, count=result.transmitted_labels.labels.size), None)
-        if result.metrics is not None and spec.eb_n0_db is not None:
+        if result.metrics is not None and result.theoretical is not None:
             axes[_ERRORS] = (partial(figures.performance_figure, specification=spec.constellation,
                                      eb_n0_db=spec.eb_n0_db, metrics=result.metrics), None)
         sections = [
@@ -759,8 +768,25 @@ class CommunicationsPanel(QWidget):
             sections.append(_noise_section(result.channel.statistics))
         names = {'symbols': 'Símbolos transmitidos', 'upsampled': 'Tren de símbolos', 'tx': 'I/Q transmitida',
                  'awgn': 'Después del canal', 'matched': 'Después del filtro adaptado',
-                 'observed': 'Símbolos recibidos', 'pilot': 'Piloto'}
+                 'observed': 'Símbolos recibidos', 'pilot': 'Piloto', 'channel_output': 'Salida de la cadena'}
         saved = {names[role]: (signal, mapping[recorded.records[role]]) for role, signal in result.signals().items()}
+        if result.pipeline is not None:
+            axes[_LINK_CHANNEL] = (partial(figures.iq_figure, signal=result.pipeline.signal), None)
+            rows = []
+            for index, (stage, archived) in enumerate(zip(
+                result.pipeline.stages, recorded.chain['stage_records'], strict=True,
+            ), 1):
+                title = f'{index}. {channel_stage_label(stage.stage.kind)}'
+                rows.append((title, f'{stage.signal.values.size} muestras · potencia {number(stage.output_power)}'))
+                if archived['record'] != recorded.records['channel_output']:
+                    key = mapping[archived['record']]
+                    self.window.register_publication(key, stage.signal)
+                    saved[title] = stage.signal, key
+                for name, component in stage.components:
+                    key = mapping[archived['components'][name]]
+                    self.window.register_publication(key, component)
+                    saved[f'{index}. {component.name}'] = component, key
+            sections.append(Section('Cadena de canal', rows=rows))
         self._display(Summary('Enlace digital', sections), axes, saved)
 
     def _run_modulate(self):
@@ -1104,9 +1130,7 @@ class CommunicationsPanel(QWidget):
         source, register = self.source.capture_input()
         editor = self.fields['pipeline']
         spec, bindings = editor.specification(), editor.bindings()
-        if any(identifier is None for identifier in bindings.values()):
-            raise ValueError('Elegí las señales externas solicitadas por la cadena.')
-        external = {name: self.window.project.get(identifier) for name, identifier in bindings.items()}
+        external = self._pipeline_sources()
 
         def accept(result):
             source_id = register()
@@ -1140,6 +1164,12 @@ class CommunicationsPanel(QWidget):
             self._display(Summary('Cadena de canal', summary), axes, records)
 
         return lambda: run_channel_pipeline(source, spec, external=external), accept
+
+    def _pipeline_sources(self):
+        bindings = self.fields['pipeline'].bindings()
+        if any(identifier is None for identifier in bindings.values()):
+            raise ValueError('Elegí las señales externas solicitadas por la cadena.')
+        return {name: self.window.project.get(identifier) for name, identifier in bindings.items()}
 
     def _run_receive(self):
         source, register = self.source.capture_input()

@@ -335,6 +335,29 @@ class CommunicationsDesktopTests(unittest.TestCase):
         self.assertEqual(report['external_records']['interferente'], external)
         self.assertIn('Potencia de entrada', panel.result.text.toPlainText())
 
+    def test_link_workbench_reuses_channel_pipeline_and_exposes_receiver_status(self):
+        page, panel = self.open('link')
+        panel.fields['bit_count'].setText('100')
+        panel.fields['noise_enabled'].setChecked(False)
+        panel.fields['channel_enabled'].setChecked(True)
+        editor = panel.fields['pipeline']
+        editor.preset.setCurrentIndex(editor.preset.findText('Multitrayecto'))
+        editor.append()
+        self.calculate()
+        self.assertIn('Cadena de canal', panel.result.text.toPlainText())
+        self.assertIn('Salida de la cadena', panel.records)
+        self.assertIn('Símbolos recibidos', panel.records)
+        launcher = page.workspace.results.graph_launcher
+        entry = next(item for item in launcher.available() if item[2] == 'I/Q después de la cadena')
+        launcher.open_entry(entry)
+        self.wait()
+        editor.preset.setCurrentIndex(editor.preset.findText('Error de reloj'))
+        editor.append()
+        self.calculate()
+        self.assertIn('corregir el SFO', panel.result.text.toPlainText())
+        self.assertIn('Después del filtro adaptado', panel.records)
+        self.assertNotIn('Símbolos recibidos', panel.records)
+
     def test_receive_and_decide_publish_labels_that_metrics_can_load(self):
         _, mapper = self.open('modulate')
         mapper.fields['manual_bits'].setText('00 11 01 10')

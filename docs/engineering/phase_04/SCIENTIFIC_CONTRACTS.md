@@ -79,3 +79,13 @@ La señal se escala por $10^{(G-L-X)/20}$, con $G$ la ganancia adicional, $L$ la
 La semilla raíz puede omitirse para usar las semillas originales de cada etapa. Con raíz, `SeedSequence` combina la raíz y la semilla declarada y deriva un subflujo por posición de etapa y por rol. Para interferencia de banda, la banda y el AWGN son roles separados. El resultado de una corrida se reproduce con el mismo orden, entradas, configuración y entorno numérico.
 
 Las interferencias externas se vinculan por nombre antes de ejecutar. El informe conserva huellas de las entradas y vínculos al proyecto. Una sola transacción conserva salida, etapas, componentes e informe. La importación reasigna identificadores manteniendo el orden y las huellas. En ejecución, las señales retenidas consumen una parte del presupuesto disponible para las siguientes etapas. La cancelación es cooperativa en los motores y en la transacción del proyecto.
+
+## Acoplamiento al enlace digital
+
+La cadena recibe la señal conformada por el pulso TX. Si se conserva el AWGN del demostrador, se agrega a la salida de la cadena y su $E_b/N_0$ se refiere a la energía transmitida. Al desactivar el AWGN y usar una cadena vacía, se recupera el enlace ideal de Fase 03. Una cadena vacía con AWGN mantiene el formato y las semillas del control histórico.
+
+La captura de referencia conocida suma los retardos enteros de la primera trayectoria activa y el desplazamiento temporal configurado. Considera también la latencia de los pulsos TX y RX. Cuando se conoce el instante de muestreo pero quedan errores de amplitud o fase, las mediciones describen la recepción con esas imperfecciones. El modo asistido usa el instante y la fase indicados. El modo estimado busca el instante y la fase con el piloto. Los tres métodos quedan identificados en el informe.
+
+Si el receptor entero no puede usar el reloj de llegada, se archiva la señal y la respuesta de los taps nominales aplicada a la tasa recibida. La sincronización queda indisponible y no se calculan BER, SER ni EVM. También queda indisponible la referencia conocida si determina un instante fraccionario o no hay una llegada activa. La simulación de SFO no corrige automáticamente ese error.
+
+El informe de un enlace con cadena incluye parámetros y procedencia de cada etapa. La curva teórica del control AWGN y los intervalos basados en independencia se reservan para configuraciones que satisfacen sus hipótesis. El archivo guarda entrada, etapas, realizaciones, salida final, recepción y métricas disponibles en una sola transacción.

@@ -88,19 +88,26 @@ def _save(path, project, workspace, ctx):
     session.save(path, project, workspace, before_commit=ctx.checkpoint, checkpoint=ctx.checkpoint)
 
 
-def _experiment_configuration(args, bit_count):
+def _experiment_configuration(args, bit_count, channel_pipeline=None):
     return ExperimentSpec(
         bit_count=bit_count, seed=args.seed,
         symbol_rate_hz=args.symbol_rate, constellation=_constellation(args), pulse=_pulse(args),
         eb_n0_db=None if args.no_noise else args.eb_n0, synchronization=_synchronization(args),
-        pilot_symbols=args.pilot_symbols, allow_padding=not args.no_padding,
+        pilot_symbols=args.pilot_symbols, allow_padding=not args.no_padding, channel_pipeline=channel_pipeline,
     )
 
 
 def _link(args, ctx):
     source = None if args.manual_bits is None else parse_bits(args.manual_bits, ctx)
-    spec = _experiment_configuration(args, args.bits if source is None else source.values.size)
-    result = run_experiment(spec, bits=source, execution=ctx)
+    pipeline = _read_channel_config(args, ctx)
+    external_project = None
+    if args.external_session is not None:
+        if args.external_session.resolve() == args.output.resolve():
+            raise ValueError('Elegí una salida distinta de la sesión de señales externas.')
+        external_project, _ = session.load(args.external_session, checkpoint=ctx.checkpoint)
+    external, _ = _channel_bindings(args, external_project, ctx)
+    spec = _experiment_configuration(args, args.bits if source is None else source.values.size, pipeline)
+    result = run_experiment(spec, bits=source, external=external, execution=ctx)
     identifier = save_experiment(args.output, result, ctx)
     return {'record': identifier, **result.report()}
 
@@ -288,11 +295,15 @@ def _propagation(args, ctx):
     return {'record': record, 'statistics': asdict(result.statistics)}
 
 
-def _channel_pipeline(args, ctx):
-    config = read_pipeline_spec(args.channel_config, ctx)
+def _read_channel_config(args, ctx):
+    if args.channel_config is None:
+        return None
     if args.channel_config.resolve() == args.output.resolve():
         raise ValueError('Elegí una salida distinta del archivo de configuración de la cadena.')
-    project, workspace, source = load_input(args, ctx)
+    return read_pipeline_spec(args.channel_config, ctx)
+
+
+def _channel_bindings(args, project, ctx):
     external = {}
     records = {}
     for load_record, values in ((True, args.external_record), (False, args.external_file)):
@@ -301,7 +312,7 @@ def _channel_pipeline(args, ctx):
             if not separator or not name or not target or name in external:
                 raise ValueError('Usá nombre=registro o nombre=archivo una sola vez para cada entrada externa.')
             if load_record:
-                if args.session is None:
+                if project is None:
                     raise ValueError('Los vínculos a registros externos requieren una sesión de entrada.')
                 records[name] = target
                 external[name] = project.get(target)
@@ -310,10 +321,24 @@ def _channel_pipeline(args, ctx):
                 if path.resolve() == args.output.resolve():
                     raise ValueError('Elegí una salida distinta de todas las señales externas.')
                 external[name] = load_signal_file(path, ctx)
+    return external, records
+
+
+def _channel_pipeline(args, ctx):
+    config = _read_channel_config(args, ctx)
+    project, workspace, source = load_input(args, ctx)
+    external, records = _channel_bindings(args, project if args.session is not None else None, ctx)
     result = run_channel_pipeline(source, config, external=external, execution=ctx)
     receipt = store_channel_pipeline(project, result, source_id=args.record, external_records=records, execution=ctx)
     _save(args.output, project, workspace, ctx)
     return {**receipt, 'report_sha256': result.report_sha256, 'sample_count': result.signal.values.size}
+
+
+def _channel_config_arguments(parser, *, standalone=False):
+    flag = '--config' if standalone else '--channel-config'
+    parser.add_argument(flag, dest='channel_config', required=standalone, type=Path, help='Configuración de canal JSON.')
+    parser.add_argument('--external-record', action='append', default=[], metavar='NOMBRE=REGISTRO')
+    parser.add_argument('--external-file', action='append', default=[], metavar='NOMBRE=ARCHIVO')
 
 
 def _receive(args, ctx):
@@ -401,6 +426,8 @@ def main(argv=None):
     _constellation_arguments(link)
     _pulse_arguments(link)
     _link_channel_arguments(link)
+    _channel_config_arguments(link)
+    link.add_argument('--external-session', type=Path, help='Sesión con los registros externos de la cadena.')
     add_output_arguments(link)
     link.set_defaults(execute=_link)
 
@@ -510,9 +537,7 @@ def main(argv=None):
     loss.set_defaults(execute=_propagation)
 
     pipeline = commands.add_parser('channel-pipeline', help='Ejecutá y guardá una cadena ordenada de canales.')
-    pipeline.add_argument('--config', dest='channel_config', required=True, type=Path, help='Configuración JSON.')
-    pipeline.add_argument('--external-record', action='append', default=[], metavar='NOMBRE=REGISTRO')
-    pipeline.add_argument('--external-file', action='append', default=[], metavar='NOMBRE=ARCHIVO')
+    _channel_config_arguments(pipeline, standalone=True)
     add_session_arguments(pipeline)
     pipeline.set_defaults(execute=_channel_pipeline)
 

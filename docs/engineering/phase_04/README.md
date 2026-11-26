@@ -118,6 +118,16 @@ python -m signallab_pc communications channel-pipeline --signal entrada.slbin --
 
 Python usa `ChannelStage`, `ChannelPipelineSpec` y `run_channel_pipeline` en `signallab_pc.communications_pipeline`. Cada vínculo externo agrega `external_input` a la etapa y usa `--external-file nombre=archivo.slbin` o `--external-record nombre=id` en la CLI. [Contratos y semillas](SCIENTIFIC_CONTRACTS.md#composición-ordenada)
 
+### Ejecutar el enlace
+
+En **Enlace digital**, activá **Incluir cadena de canal** para aplicarla entre los pulsos TX y RX. Podés usar la misma configuración que guardaste desde **Cadena de canal**. El selector lista la señal recibida y los resultados intermedios. Con **Agregar AWGN al final del canal**, el ruido conserva la referencia de energía transmitida del control histórico.
+
+```sh
+python -m signallab_pc communications link --bits 1024 --channel-config canal.json --no-noise --output enlace.slproj
+```
+
+Si la configuración requiere interferentes, agregá `--external-file nombre=archivo.slbin`, o `--external-session proyecto.slproj --external-record nombre=id`. El archivo del enlace incluye la cadena verificable. En Python, se configura con `ExperimentSpec(channel_pipeline=...)` y `run_experiment(spec, external=...)`. [Recepción y condiciones de validez](SCIENTIFIC_CONTRACTS.md#acoplamiento-al-enlace-digital)
+
 ## Alcance siguiente
 
-Queda integrar los modelos al enlace de comunicaciones y a los barridos. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.
+Queda completar los barridos sobre parámetros de canal y sus réplicas reproducibles. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.
