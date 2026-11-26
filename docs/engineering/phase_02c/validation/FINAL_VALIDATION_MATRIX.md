@@ -102,7 +102,7 @@ El push del mismo SHA también aprobó el flujo habitual de `develop`, con matem
 
 ## Distribución, recursos y almacenamiento de a80508c
 
-Los trabajos de distribución de la corrida 45745729541 terminaron correctamente en Windows 2022 y Ubuntu 22.04. Los recibos se descargaron con verificación del digest publicado por GitHub. El salto aislado de 2.0.0 a 2.0.1 conservó la sesión y el destino, rechazó una descarga corrupta y ejecutó el diagnóstico del programa instalado. El verificador de producción rechazó la clave temporal usada para el ensayo. [Recibo Windows](evidence/windows-installer-a80508c.json) · [Recibo Linux](evidence/linux-installer-a80508c.json) · [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45745729541)
+Los trabajos de distribución de la corrida 45745729541 terminaron correctamente en Windows 2022 y Ubuntu 22.04. Los recibos se descargaron con verificación del digest publicado por GitHub. El salto aislado de 2.0.0 a 2.0.1 conservó la sesión y el destino, rechazó una descarga corrupta y ejecutó el diagnóstico del programa instalado. El verificador con la clave pública de producción rechazó el manifiesto firmado con la clave temporal del ensayo. [Recibo Windows](evidence/windows-installer-a80508c.json) · [Recibo Linux](evidence/linux-installer-a80508c.json) · [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45745729541)
 
 | Control | Windows x64 | Linux x86-64 |
 | --- | --- | --- |
