@@ -4,6 +4,8 @@ La fase autorizada integra una cadena de comunicaciones digitales con el Core, e
 
 La **2.1.0 Preview** obtuvo GO técnico y está publicada sobre `441f1c2`. La matriz de Windows y Ubuntu y los paquetes corresponden a ese SHA. La validación funcional de la entrega precede a la Fase 04. [Descargas](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.1.0) · [Quality Gate final](QUALITY_GATE_REPORT.md) · [Informe de cierre](PHASE_03_CLOSEOUT.md)
 
+La **2.1.1 Preview** corrige dos problemas detectados al probar el escritorio. Conserva la distribución del catálogo al cerrar una herramienta y da más margen a los botones de cierre. [Descargas](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.1.1) · [Matriz de la corrección](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45861456445)
+
 El diseño distingue la secuencia transmitida, el reloj de símbolos, las muestras I/Q, la referencia de recepción y el resultado medido. [Arquitectura](ARCHITECTURE.md) · [Contratos](SCIENTIFIC_CONTRACTS.md) · [Matemática](MATHEMATICAL_FOUNDATIONS.md) · [Auditoría independiente](MATHEMATICAL_AUDIT.md)
 
 [Requisitos](PHASE_03_REQUIREMENTS.md) · [Trazabilidad](TRACEABILITY_MATRIX.md) · [Criterios de salida](QUALITY_GATE_CRITERIA.md) · [Referencias](INTEGRATION_CATALOG.md) · [Decisiones](DECISION_LOG.md) · [Registro de trabajo](IMPLEMENTATION_LOG.md)

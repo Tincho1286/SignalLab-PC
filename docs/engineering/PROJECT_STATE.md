@@ -1,6 +1,6 @@
 # Estado de SignalLab Engineering
 
-**Engineering Core y Fase 03 con cierre técnico.** La 2.1.0 Preview se publicó desde `develop` con el SHA `441f1c2`, validado en Windows y Ubuntu. La versión LTS vigente es `v2.0.0`. La validación funcional de Preview precede a la integración y a la autorización de la Fase 04. [Publicación 2.1.0 Preview](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.1.0) · [Quality Gate de Fase 03](phase_03/QUALITY_GATE_REPORT.md) · [Política de distribución](RELEASE_POLICY.md)
+**Engineering Core y Fase 03 con cierre técnico.** La 2.1.1 Preview se publicó desde `develop` con el SHA `3ccb81a`, validado en Windows y Ubuntu. Corrige la vuelta al catálogo y los botones de cierre de pestañas. La versión LTS vigente es `v2.0.0`. La validación funcional de Preview precede a la integración y a la autorización de la Fase 04. [Publicación 2.1.1 Preview](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.1.1) · [Quality Gate de Fase 03](phase_03/QUALITY_GATE_REPORT.md) · [Política de distribución](RELEASE_POLICY.md)
 
 ## Línea base histórica de Fase 01
 

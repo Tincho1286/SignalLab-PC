@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><strong>Descargar Stable/LTS</strong></a> ·
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.1.0"><strong>Descargar Preview 2.1.0</strong></a> ·
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.1.1"><strong>Descargar Preview 2.1.1</strong></a> ·
   <a href="#engineering-core-en-develop">Engineering Core</a> ·
   <a href="docs/getting-started.md">Primeros pasos</a> ·
   <a href="docs/tools.md">Herramientas</a> ·
@@ -35,7 +35,7 @@ Los ejemplos reproducibles cubren DFT, IDFT y el flujo DSP. El expediente de Fas
 
 La Fase 03 incorpora modulación PSK y QAM, diseño de pulsos RC/RRC, ruido AWGN calibrado, recuperación asistida o con piloto y mediciones BER, SER y EVM. El enlace integrado guarda las muestras, el reloj y la procedencia del experimento. Podés comparar constelaciones, señales I/Q, diagramas de ojo y espectros, o ejecutar un barrido y retomarlo desde la última corrida verificada. [Expediente y ejemplos](docs/engineering/phase_03/README.md)
 
-La **2.1.0 Preview** está disponible como instalador y portable para Windows x64 y Linux x86_64. La entrega corresponde al SHA validado en las dos plataformas. [Descargas y novedades](docs/releases/v2.1.0.md) · [Quality Gate](docs/engineering/phase_03/QUALITY_GATE_REPORT.md)
+La **2.1.1 Preview** conserva la distribución del catálogo al cerrar una herramienta y mejora el espacio de los botones de cierre. Está disponible como instalador y portable para Windows x64 y Linux x86_64. [Descargas y novedades](docs/releases/v2.1.1.md)
 
 ```bash
 python -m signallab_pc communications link --bits 4096 --seed 2026 --eb-n0 6 --output enlace.slproj

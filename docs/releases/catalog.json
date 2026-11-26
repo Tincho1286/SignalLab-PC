@@ -1,6 +1,20 @@
 {
   "releases": [
     {
+      "tag": "v2.1.1",
+      "title": "Correcciones de interfaz",
+      "channel": "preview",
+      "summary": "Al cerrar una herramienta después de calcular, el catálogo conserva la distribución de sus tarjetas.",
+      "changes": [
+        "El catálogo conserva el tamaño de sus tarjetas y la legibilidad del texto al volver desde una herramienta.",
+        "Los botones de cierre tienen más margen y un área de clic más amplia."
+      ],
+      "limits": [
+        "La LTS vigente es la 2.0.0. Las preliminares se habilitan desde el actualizador."
+      ],
+      "notes": "docs/releases/v2.1.1.md"
+    },
+    {
       "tag": "v2.1.0",
       "title": "Comunicaciones digitales",
       "channel": "preview",

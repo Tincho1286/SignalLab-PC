@@ -2,6 +2,12 @@
 
 La versión LTS es la [2.0.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.0.0). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 2.1.1 · Preview
+
+Al cerrar una herramienta después de calcular, el catálogo conserva la disposición de sus tarjetas y los resultados siguen en el proyecto. Los botones de cierre ganaron margen dentro de las pestañas y un área de clic más amplia.
+
+[Novedades y descargas](docs/releases/v2.1.1.md)
+
 ## 2.1.0 · Preview
 
 El laboratorio de comunicaciones digitales reúne PSK, QAM, pulsos RC/RRC, canal AWGN, recuperación y mediciones BER, SER y EVM. El enlace completo se puede reproducir en Workbench, Python y CLI. Los barridos guardan semillas y resultados verificados, se pueden retomar y permiten exportar las métricas a CSV.
