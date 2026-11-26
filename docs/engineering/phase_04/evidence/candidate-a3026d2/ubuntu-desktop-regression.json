@@ -1,0 +1,27 @@
+{
+  "command": "python -u -B -X utf8 -m coverage run --rcfile=tools/engineering.coveragerc -m unittest -v test_communications_desktop",
+  "commit": "a3026d288fe2371aace308b403071cf457b89123",
+  "conclusion": "success",
+  "coverage": {
+    "config": "tools/engineering.coveragerc",
+    "instrumented": true,
+    "version": "7.17.5"
+  },
+  "finished_utc": "2026-11-26T22:35:41Z",
+  "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45905625343/job/140201537179",
+  "integral_matrix": {
+    "commit": "a3026d288fe2371aace308b403071cf457b89123",
+    "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45905864702",
+    "id": 45905864702
+  },
+  "job_id": 140201537179,
+  "log_sha256": "4259c2050d627865a72e4eb7224a7cfed8fe008b6d16a6aa6b55e592fd1f176f",
+  "platform": "ubuntu-22.04",
+  "qt_platform": "offscreen",
+  "run_id": 45905625343,
+  "tests": {
+    "elapsed_seconds": 15.92,
+    "passed": 14,
+    "sweep_replicas": "pass"
+  }
+}

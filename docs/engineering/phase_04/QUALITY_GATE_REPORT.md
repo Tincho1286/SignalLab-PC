@@ -1,8 +1,10 @@
 # Informe del Quality Gate de Fase 04
 
-**Estado en revisión.** La matriz de 2.2.0 Preview sobre `2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb` terminó con Ubuntu cancelado. Se conservan los resultados de Windows y los recibos de distribución de ambas plataformas para esa revisión. [Matriz de Actions](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971) · [Recibo](evidence/candidate-2a0a3fd/matrix-receipt.json)
+**Estado en revisión.** El candidato de 2.2.0 Preview `a3026d288fe2371aace308b403071cf457b89123` corrige la espera de las pruebas de escritorio y la configuración de su tarea focalizada. Ubuntu aprobó las 14 pruebas focalizadas con cobertura activa, incluido el barrido que interrumpió la matriz anterior. La nueva matriz se ejecuta sobre el mismo SHA en ambos sistemas. [Matriz del candidato](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45905864702) · [Recibo focalizado](evidence/candidate-a3026d2/ubuntu-desktop-regression.json)
 
-## Evidencia disponible
+La matriz de `2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb` terminó con Ubuntu cancelado. Se conservan los resultados de Windows y los recibos de distribución de ambas plataformas para esa revisión. [Matriz anterior](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971) · [Recibo](evidence/candidate-2a0a3fd/matrix-receipt.json)
+
+## Evidencia de `2a0a3fd`
 
 | Control | Resultado | Evidencia |
 | --- | --- | --- |
@@ -22,7 +24,7 @@
 
 El informe de Windows se generó sobre un checkout limpio de `2a0a3fd`. Al combinar la instrumentación se identificaron 173 archivos de cobertura generados por procesos simbólicos. La prueba de reutilización de una respuesta en el CAS, que había excedido la espera anterior en la exploración local, aprobó en la matriz. [Línea base](evidence/candidate-2a0a3fd/windows-baseline.json) · [Recibo integral](evidence/candidate-2a0a3fd/windows-integral-receipt.json)
 
-La espera de la prueba retenía el intérprete mientras el barrido avanzaba en un hilo de Qt. Al vencer su plazo, el cierre de la ventana con un cálculo activo podía mostrar un diálogo modal sin respuesta en el runner. La espera ahora alterna el procesamiento de eventos con una pausa que deja avanzar al trabajador Python. La limpieza cancela y espera los trabajos activos antes de cerrar. Los límites de espera de la prueba, las aserciones de resultados y los umbrales de cobertura se conservan. La repetición focalizada en Ubuntu usa la instrumentación de la matriz. [Investigación](IMPLEMENTATION_LOG.md#diagnóstico-del-barrido-en-ubuntu)
+La espera de la prueba retenía el intérprete mientras el barrido avanzaba en un hilo de Qt. Al vencer su plazo, el cierre de la ventana con un cálculo activo podía mostrar un diálogo modal sin respuesta en el runner. La espera ahora alterna el procesamiento de eventos con una pausa que deja avanzar al trabajador Python. La limpieza cancela y espera los trabajos activos antes de cerrar. Los límites de espera de la prueba, las aserciones de resultados y los umbrales de cobertura se conservan. La repetición focalizada en Ubuntu aprobó en 15,920 s con la instrumentación de la matriz. [Investigación](IMPLEMENTATION_LOG.md#diagnóstico-del-barrido-en-ubuntu)
 
 ## Paquetes de revisión
 
@@ -37,7 +39,7 @@ La revisión compara el hash de cada ZIP de Actions con su recibo de origen y vu
 
 | Decisión | Dictamen | Condición para reconsiderarlo |
 | --- | --- | --- |
-| Cierre técnico de Fase 04 | **NO-GO** | Verificar en Ubuntu el arreglo de la prueba y calificar la revisión corregida en la matriz. Completar el escritorio real. |
+| Cierre técnico de Fase 04 | **NO-GO** | Completar la matriz del candidato corregido y las comprobaciones de escritorio real. |
 | Preparación técnica para Fase 05 | **NO-GO** | Completar la revisión de Fase 04 y emitir el dictamen de continuidad sobre los resultados consolidados. Su inicio requiere autorización específica. |
 | Distribución pública de la Preview | **NO-GO** | Completar el Quality Gate. La publicación, la etiqueta y las claves de producción requieren autorización separada. Stable/LTS conserva su canal 2.0.x. |
 
