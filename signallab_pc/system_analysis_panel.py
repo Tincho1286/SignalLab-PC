@@ -282,6 +282,8 @@ class SystemAnalysisPanel(QWidget):
         spec=system.roc;self.roc_choice.setCurrentIndex({'right':0,'left':1,'radius':2,'line':2}.get(spec.get('mode'),3) if spec else 3)
         if spec and ('radius' in spec or 'sigma' in spec):self.roc_radius.setText(str(spec.get('radius',spec.get('sigma'))))
     def choose(self):
+        from .system_clock import remember_period
+
         key=self.window.choose_record('system')
         if not key:return
         system=self.window.project.get(key);self.set_system(system,key);record=next(r for r in self.window.project.headers() if r['id']==key)
@@ -298,6 +300,10 @@ class SystemAnalysisPanel(QWidget):
             def coefficient(v):return str(float(v.real)) if not v.imag else '('+str(float(v.real))+'+'+str(float(v.imag))+'*i)'
             self.b.setText(', '.join(coefficient(v) for v in system.b));self.a.setText(', '.join(coefficient(v) for v in system.a))
             self.report.setPlainText('Se importaron coeficientes numéricos. El análisis algebraico representa estos decimales almacenados; no recupera una fórmula exacta anterior desconocida.')
+        # Bind the clock to the exact text restored from the selected record.
+        # Later user edits still invalidate the inherited period.
+        remember_period(self,system.sample_period_s)
+
     def calculate(self):
         try:
             if self.definition_mode.currentIndex()==3 and self.diagram_input.graph is None and not self.open_diagram_editor():return

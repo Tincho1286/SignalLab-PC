@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-04, C-06 y C-07 · Restaurar la definición exacta de un sistema
+
+**Causa y corrección.** Al copiar un sistema desde Resultados, se registraba el período para los coeficientes numéricos iniciales. Restaurar su fórmula o sus coeficientes exactos cambiaba la firma del formulario y descartaba el período. La firma se captura después de recuperar la definición exacta. Las ediciones posteriores vuelven a invalidar el período heredado.
+
+**Evidencia focal.** Pasaron 36 pruebas de análisis, navegación y transferencia de resultados. Se compararon el reloj y la respuesta compleja con un polo de valor conocido, antes y después de editar la definición restaurada. También se comprobó la exportación y reimportación de una respuesta de fase, la separación de opciones de ajuste y reconstrucción, y la reconstrucción de H como producto de sus factores. Las cuatro pruebas de fórmulas y coeficientes comprobaron que la tabla conserva potencias y admite `pi` y `10^(-3)` después de rechazar un denominador nulo.
+
 ## 25 de noviembre de 2026 · C-06 y C-07 · Edición de fórmulas y matrices
 
 **Evidencia focal.** Pasaron las tres pruebas de `test_workbench_formula_entry`. El asistente de condiciones y el menú de funciones se verificaron calculando las muestras, incluida la prioridad entre `n = 0` y `n ≥ 0`. Cancelar el reemplazo preservó la definición por tramos. El pegado de matrices conservó expresiones científicas y coeficientes complejos. Un bloque irregular preservó la matriz anterior y permitió corregir el pegado. Se compararon los coeficientes parseados y las celdas recuperadas tras cambiar dimensiones.

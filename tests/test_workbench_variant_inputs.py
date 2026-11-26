@@ -159,3 +159,44 @@ class VariantInputContracts(DesktopSessionFixture):
         self.assertTrue(window.variant_strip.copy_button.isHidden())
         self.assertEqual(temporal._preserved_system.sample_period_s,0.125)
         self.assertEqual(temporal.parent_id,ordinary_key)
+
+    def test_gain_to_phase_respects_domain_and_the_selected_reconstruction_mode(self):
+        gain_key = ('course_tools','gain')
+        phase_key = ('course_tools','phase')
+        window = self.window()
+        window.open_tool(ROUTES[gain_key])
+        gain = window.pages[ROUTES[gain_key]].panel
+        continuous = Transfer([2],[1,1],'analog')
+        gain.set_system(continuous,window.publish(continuous,operation='Sistema RC'))
+        window.variant_strip.select(phase_key)
+        phase = window.pages[ROUTES[phase_key]].panel
+        self.assertIn('necesita H(z)',window.statusBar().currentMessage())
+        self.assertIsNone(phase.parent_id)
+
+        def phase_mode(key):
+            select = phase.fields['phase_mode']
+            select.setCurrentIndex(select.findData(key))
+
+        phase_mode('reconstruct')
+        window.variant_strip.select(gain_key)
+        self.assertIn('datos de módulo o fase independientes',window.statusBar().currentMessage())
+        digital = Transfer([1,-1.5],[1,-0.25],sample_period_s=0.2)
+        origin = window.publish(digital,operation='Sistema digital')
+        gain.set_system(digital,origin)
+        window.variant_strip.select(phase_key)
+        self.assertTrue(window.variant_strip.copy_button.isHidden())
+        self.assertIsNone(phase.parent_id)
+        phase_mode('factor')
+        window.variant_strip.select(gain_key)
+        window.variant_strip.select(phase_key)
+        window.variant_strip.copy_button.click()
+        self.assertEqual(phase.parent_id,origin)
+        window.calculate_active()
+        self.wait_for_calculation(window,12000)
+        minimum,allpass,complement = phase.items
+        frequencies = np.array([0.13,0.75,2.9])
+        np.testing.assert_allclose(minimum.response(frequencies)*allpass.response(frequencies),
+                                   digital.response(frequencies),rtol=1e-13)
+        np.testing.assert_allclose(allpass.response(frequencies)*complement.response(frequencies),1,rtol=1e-13)
+        self.assertAlmostEqual(abs(minimum.poles_zeros()[0][0]),2/3)
+        self.assertTrue(all(value.sample_period_s==0.2 for value in phase.items))

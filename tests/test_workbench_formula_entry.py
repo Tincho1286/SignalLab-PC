@@ -13,6 +13,34 @@ from test_desktop_session import DesktopSessionFixture
 
 
 class FormulaEntryContracts(DesktopSessionFixture):
+    def test_coefficient_table_preserves_powers_and_recovers_after_zero_denominator(self):
+        window = self.window()
+        route = ROUTES['system_analysis',0]
+        window.open_tool(route)
+        panel = window.pages[route].panel
+        panel.domain.setCurrentIndex(1)
+        panel.b.setText('1')
+        panel.b.remove_term()
+        panel.b.add_term()
+        model = panel.b.model
+        self.assertEqual(model.data(model.index(1,0)),'z⁻¹')
+        self.assertFalse(model.setData(model.index(1,0),'pi'))
+        self.assertTrue(model.setData(model.index(1,1),'pi'))
+        panel.a.setText('0, 0')
+        panel.transfer_preview.refresh()
+        self.assertIn('denominador no puede ser cero',panel.transfer_preview.toPlainText())
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        self.assertIsNone(panel.analyzed_system)
+        self.assertEqual(window.project.headers(),[])
+        panel.a.setText('1, -10^(-3)')
+        panel.transfer_preview.refresh()
+        window.calculate_active()
+        self.wait_for_calculation(window,12000)
+        angles = np.array([0.1,0.5,np.pi])
+        expected = (1+np.pi*np.exp(-1j*angles))/(1-0.001*np.exp(-1j*angles))
+        np.testing.assert_allclose(panel.analyzed_system.response(angles),expected,rtol=1e-14)
+
     def test_piecewise_conditions_helpers_preserve_order_and_calculable_values(self):
         window = self.window()
         route = ROUTES['basic','generate']
