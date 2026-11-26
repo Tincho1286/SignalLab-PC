@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-11 · Identidad de rutas en la prueba de fondos
+
+**Causa.** En el trabajo Windows de `623c9dd`, la prueba comparaba `Path` por texto. El runner expuso el directorio temporal con el alias 8.3 `RUNNER~1` y el importador resolvió la misma carpeta como `runneradmin`. Esta diferencia provocó la única aserción fallida del trabajo integral. La aplicación ya normalizaba las rutas para copiar y limpiar fondos.
+
+**Corrección y evidencia.** Se compara la identidad de la carpeta con `samefile`. La prueba usa dos escrituras equivalentes deliberadamente para verificar la copia, la conservación del origen y el borrado selectivo. Pasaron 36 pruebas de apariencia y escritorio en Windows local. La corrección afecta al test y el resultado histórico de la matriz conserva su fallo. [Trabajo de GitHub](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45739704501/job/139641392962)
+
 ## 25 de noviembre de 2026 · C-08 · Figuras al cambiar de ancho de ventana
 
 **Causa.** En `623c9dd`, abrir Análisis LTI en modo compacto registraba las figuras usando también la pestaña exterior Resultado. Al maximizar, el escritorio retira esa pestaña y coloca la superficie en el separador. La disponibilidad de la figura se evaluaba con el índice anterior y desactivaba Abrir gráfico.

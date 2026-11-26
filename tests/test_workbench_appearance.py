@@ -21,8 +21,9 @@ class WallpaperContracts(DesktopSessionFixture):
         first=self.write_photo('original.png','#336699')
         second=self.write_photo('other.bmp','#ff0000')
         folder=self.path/'appearance'
-        one=Path(wallpaper.save_photo(first,folder))
-        self.assertEqual(one.parent,folder)
+        aliased_folder=folder/'..'/'appearance'
+        one=Path(wallpaper.save_photo(first,aliased_folder))
+        self.assertTrue(one.parent.samefile(aliased_folder))
         self.assertEqual(one.read_bytes(),first.read_bytes())
         self.assertEqual(wallpaper.save_photo(one,folder),str(one))
         two=Path(wallpaper.save_photo(second,folder))
@@ -32,7 +33,7 @@ class WallpaperContracts(DesktopSessionFixture):
         self.assertEqual(wallpaper.pixmap(one).cacheKey(),cached.cacheKey())
         note=folder/'proyecto.json'
         note.write_text('{}',encoding='utf-8')
-        with patch('signallab_pc.wallpaper.appearance_folder',return_value=folder):
+        with patch('signallab_pc.wallpaper.appearance_folder',return_value=aliased_folder):
             wallpaper.clean_previous(first)
             self.assertTrue(one.exists())
             wallpaper.clean_previous(two)
