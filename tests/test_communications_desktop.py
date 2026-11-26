@@ -2,6 +2,7 @@ import math
 import os
 from pathlib import Path
 from tempfile import TemporaryDirectory
+from time import sleep
 import unittest
 from unittest.mock import patch
 
@@ -44,6 +45,9 @@ class CommunicationsDesktopTests(unittest.TestCase):
         self.addCleanup(self.close_window)
 
     def close_window(self):
+        if self.window._workers:
+            self.window._cancel_operations()
+            self.wait_for_idle()
         self.window.close()
         self.window.deleteLater()
         QCoreApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
@@ -56,11 +60,16 @@ class CommunicationsDesktopTests(unittest.TestCase):
         page = self.window.pages[route]
         return page, page.panel
 
-    def wait(self):
+    def wait_for_idle(self):
         timeout = QDeadlineTimer(12_000)
         while self.window._workers and not timeout.hasExpired():
-            QTest.qWait(10)
-        self.assertFalse(self.window._workers)
+            self.app.processEvents()
+            # Release the GIL while the Python calculation runs in the Qt worker.
+            sleep(0.01)
+        self.assertFalse(self.window._workers, 'El cálculo no se detuvo dentro del plazo de la prueba.')
+
+    def wait(self):
+        self.wait_for_idle()
         self.warning.assert_not_called()
         self.error.assert_not_called()
 

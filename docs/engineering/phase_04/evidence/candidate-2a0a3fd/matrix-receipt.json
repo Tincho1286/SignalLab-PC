@@ -1,0 +1,103 @@
+{
+  "commit": "2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb",
+  "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971",
+  "jobs": [
+    {
+      "conclusion": "success",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971/job/140181737399",
+      "id": 140181737399,
+      "name": "engineering-distribution (windows-2022)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971/job/140181737631",
+      "id": 140181737631,
+      "name": "engineering-baseline (windows-2022)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "cancelled",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971/job/140181737748",
+      "id": 140181737748,
+      "name": "engineering-baseline (ubuntu-22.04)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "success",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971/job/140181737782",
+      "id": 140181737782,
+      "name": "engineering-distribution (ubuntu-22.04)",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971/job/140181738679",
+      "id": 140181738679,
+      "name": "static-actions",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971/job/140181739607",
+      "id": 140181739607,
+      "name": "core-mathematics",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971/job/140181775203",
+      "id": 140181775203,
+      "name": "workflow-integration",
+      "status": "completed"
+    },
+    {
+      "conclusion": "skipped",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971/job/140181790253",
+      "id": 140181790253,
+      "name": "desktop-regressions",
+      "status": "completed"
+    },
+    {
+      "conclusion": "failure",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/45899563971/job/140198060684",
+      "id": 140198060684,
+      "name": "engineering-quality-gate",
+      "status": "completed"
+    }
+  ],
+  "reports": {
+    "engineering-baseline-ubuntu-22.04-45899563971": {
+      "digest": "sha256:eebc03ff36535b6bd81970866497a0696c1b04629d731f87d11a1e8582c13afd",
+      "expires_at": "2026-12-10T22:24:07Z",
+      "id": 15156843327,
+      "size_in_bytes": 4556
+    },
+    "engineering-baseline-windows-2022-45899563971": {
+      "digest": "sha256:867586ccd4028952313c44c14537c1b4c54482a4397d8e72fc7a65c8206f1c6b",
+      "expires_at": "2026-12-10T22:15:43Z",
+      "id": 15157400257,
+      "size_in_bytes": 436334
+    },
+    "engineering-distribution-ubuntu-22.04-45899563971": {
+      "digest": "sha256:2aba0151120fe1ed9a274ae40f65b0becca16bd6ac214535a56fc1fc00fcc9a7",
+      "expires_at": "2026-12-10T21:52:39Z",
+      "id": 15155328301,
+      "size_in_bytes": 12160823
+    },
+    "engineering-distribution-windows-2022-45899563971": {
+      "digest": "sha256:b7011aa265ee6b82abaa6dc3583464490219e38a6562dec34d46f00126e03b8f",
+      "expires_at": "2026-12-10T22:08:08Z",
+      "id": 15155994573,
+      "size_in_bytes": 3458481
+    },
+    "quality-gate-45899563971": {
+      "digest": "sha256:4dd85599483dd3b319dc9837a48a58c2a184925e1ac0aaad5e59e7f9ab8ddb0f",
+      "expires_at": "2026-12-10T22:24:19Z",
+      "id": 15156878240,
+      "size_in_bytes": 11192
+    }
+  },
+  "result": "cancelled",
+  "run_id": 45899563971
+}

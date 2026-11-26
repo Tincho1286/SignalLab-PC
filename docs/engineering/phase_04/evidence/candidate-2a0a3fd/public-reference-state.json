@@ -1,0 +1,14 @@
+{
+  "official_branches": {
+    "develop": "67a60ca8493cfbb0803fb1a0f7945b695212ba5b",
+    "main": "a94cd37d8fdc34fc16713a69af3e5bc30dd57600"
+  },
+  "lts_ref": {
+    "refs/tags/v2.0.0": "98a049e1d1293f30d4905ec0ffc42dee1ca384d3",
+    "refs/tags/v2.0.0^{}": "adfad5c093a236b0565f00f5e97845acf040ec96"
+  },
+  "github_latest": "v2.0.0",
+  "candidate": "2a0a3fd97e63bd766d09739d51dc9aab4e9e6efb",
+  "candidate_tag_present": false,
+  "latest_release_url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.0.0"
+}
