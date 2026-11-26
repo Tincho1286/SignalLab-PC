@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 25 de noviembre de 2026 · C-08 · Figuras al cambiar de ancho de ventana
+
+**Causa.** En `623c9dd`, abrir Análisis LTI en modo compacto registraba las figuras usando también la pestaña exterior Resultado. Al maximizar, el escritorio retira esa pestaña y coloca la superficie en el separador. La disponibilidad de la figura se evaluaba con el índice anterior y desactivaba Abrir gráfico.
+
+**Corrección y evidencia.** El registro se limita a las pestañas de resultado dentro de la superficie que posee el selector. La regresión abre Análisis desde una ventana compacta, calcula H(s), comprueba módulo y retardo y abre la figura de una medida al cambiar dos veces de disposición. Reprodujo el fallo en la disposición amplia antes de la corrección. Luego pasaron 83 pruebas de superficies LTI, traspaso, escritorio, inspección y medidas. [Acta de escritorio](gui/DESKTOP_CONTINUATION.md#medidas-de-frecuencia-en-el-candidato-623c9dd)
+
 ## 25 de noviembre de 2026 · C-04 y C-07 · Medidas de frecuencia independientes
 
 **Causa y corrección.** Comprobar bandas leía los límites del formulario usado para cruces y retardo, aunque esos campos quedaran ocultos. Cada estudio ahora lee sus límites propios. Cambiar de modo deja intacto el borrador de los otros estudios.

@@ -21,6 +21,44 @@ class SystemSurfaceContracts(DesktopSessionFixture):
         window.open_tool(route)
         return window,window.pages[route].panel
 
+    def test_figure_launcher_keeps_calculated_views_after_switching_workspace_layout(self):
+        from PySide6.QtTest import QTest
+
+        window = self.window()
+        window.resize(800,600)
+        window.show()
+        route = ROUTES['system_analysis',0]
+        window.open_tool(route)
+        page = window.pages[route]
+        panel = page.panel
+        panel.count.setText('31')
+        self.app.processEvents()
+        self.assertTrue(page.workspace.compact)
+        window.calculate_active()
+        self.wait_for_calculation(window,12000)
+        measurement = panel.measurements
+        panel.result_tabs.setCurrentIndex(panel.measurements_index)
+        measurement.points.setText('1')
+        measurement.calculate_button.click()
+        self.wait_for_calculation(window,12000)
+        reading, = measurement.result['rows']
+        self.assertAlmostEqual(reading['magnitude'],1/np.sqrt(2))
+        self.assertAlmostEqual(reading['delay'],0.5)
+
+        launcher = page.workspace.results.graph_launcher
+        for width,compact in ((800,True),(1200,False),(800,True)):
+            with self.subTest(width=width):
+                window.resize(width,600)
+                QTest.qWait(30)
+                self.assertEqual(page.workspace.compact,compact)
+                self.assertTrue(launcher.isEnabled())
+                entries = {entry[0]():entry for entry in launcher.available()}
+                self.assertIn(panel.canvas,entries)
+                self.assertIn(measurement.canvas,entries)
+                launcher.open_entry(entries[measurement.canvas])
+                self.assertTrue(measurement.canvas._signallab_window.isVisible())
+                measurement.canvas._signallab_window.hide()
+
     def test_project_import_selects_the_last_system_and_rejects_unrelated_records(self):
         window,panel = self.analysis()
         panel.count.setText('21')

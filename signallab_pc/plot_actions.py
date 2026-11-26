@@ -220,8 +220,13 @@ def install_context_actions(surface,dock):
 
 
 def bind_canvas(canvas,origin):
+    scope=origin
+    while scope is not None and scope.objectName()!='resultSurface':scope=scope.parentWidget()
+    if scope is not None and not hasattr(scope,'action_dock'):scope=None
     routes=[];ancestor=origin
-    while ancestor is not None:
+    # Result tabs describe figures. Outer compact-layout tabs only host the
+    # surface temporarily and are removed when the window becomes wide.
+    while ancestor is not None and ancestor is not scope:
         if getattr(ancestor,'tool_item',None) is not None:break
         if isinstance(ancestor,QTabWidget):
             for index in range(ancestor.count()):
@@ -233,9 +238,7 @@ def bind_canvas(canvas,origin):
         canvas._signallab_plot_action_scope = custom
         canvas._signallab_explicit_plot = True
         return
-    scope=origin
-    while scope is not None and scope.objectName()!='resultSurface':scope=scope.parentWidget()
-    if scope is not None and hasattr(scope,'action_dock'):
+    if scope is not None:
         launcher=getattr(scope,'graph_launcher',None)
         if launcher is None:launcher=PlotLauncher(scope);scope.graph_launcher=launcher;scope.action_dock.set_graph(launcher)
         label=' · '.join(tabs.tabText(tabs.indexOf(page)) for tabs,page in reversed(routes)) if routes else 'Resultado'

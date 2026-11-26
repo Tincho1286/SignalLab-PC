@@ -1,5 +1,9 @@
 # Decisiones
 
+## 25 de noviembre de 2026 · Un candidato y evidencia de escritorio separada
+
+La proyección focal orientó la selección de `623c9dd`. La medición integral local de ese SHA en Windows confirmó 88,39 % de líneas y 75,20 % de ramas y habilitó un único despacho de la matriz. El hallazgo posterior de cambio de tamaño se corrige en un commit separado de `develop`. La corrida y sus artefactos siguen correspondiendo al candidato inmutable. [Matriz](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45739704501) · [Acta de escritorio](gui/DESKTOP_CONTINUATION.md#medidas-de-frecuencia-en-el-candidato-623c9dd)
+
 ## 25 de noviembre de 2026 · Publicación y recuperación por sesión
 
 La entrada capturada para una operación LTI se publica al aceptar su resultado. Publicarla al validar el formulario dejaba objetos huérfanos si el motor rechazaba el sistema o si el usuario cancelaba. El checkpoint automático pertenece a la generación de la sesión en que se tomó la instantánea. Un cambio confirmado invalida una escritura propia anterior cuando termina. Se preservan los respaldos de otras instancias y los que el usuario decide conservar. Se reutilizan la entrega de resultados del escritorio y la escritura atómica existente. [Regresiones y comandos](IMPLEMENTATION_LOG.md)

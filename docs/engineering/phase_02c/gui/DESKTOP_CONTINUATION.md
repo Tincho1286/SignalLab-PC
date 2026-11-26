@@ -25,3 +25,13 @@ En el escritorio Windows de 1366 × 768, con ventana de 800 × 600 a 96 DPI, se 
 Se consulta ahora el método de QWidget y se prepara la nueva hoja fuera del árbol activo antes de reemplazar la sesión. La regresión offscreen fija el foco en el propio panel anterior. La repetición en Qt para Windows real conservó `a+` y `2 + 3*i` en la ventana de 800 × 600. El diagnóstico del portable comprueba también la reapertura de la hoja CAS en SLPROJ.
 
 Para completar las actas pendientes, repetí también el flujo CAS en los perfiles físicos del protocolo. Evaluá `a := 2+3*i`, dejá `a+` sin ejecutar y guardá una sesión `.slproj`. Abrila con la hoja aún enfocada y comprobá el valor complejo y el borrador. Verificá que el control de cálculo queda disponible y que un gráfico existente puede moverse al otro monitor sin perder sus controles. Registrá los pasos según el entorno, el SHA y la escala aplicada por el sistema.
+
+## Medidas de frecuencia en el candidato 623c9dd
+
+El 25/11/2026 se ejecutó `623c9ddcc2460485b549e864fa86ddc6b7cba407` desde el código fuente con Qt `windows`, en un perfil descartable. El monitor físico de 1366 × 768 registró 96 DPI y DPR 1.0. La misma herramienta se usó a 800 × 600 lógicos y maximizada.
+
+- En Análisis LTI se calculó `H(s)=1/(s+1)`. El cruce de media potencia fue 1 rad/s con módulo 0.7071067812. Al ingresar `pi/0` como límite final, Cruces señaló el campo y conservó su tabla.
+- Comprobar bandas volvió a calcular con el borrador de Cruces intacto. En 0 a 10 rad/s devolvió mínimo 0.09950371902 en 10 y máximo 1 en 0. Los dos estudios quedaron guardados en una sesión sintética y el lector recuperó sus valores.
+- Abrir gráfico quedó desactivado al pasar de la disposición compacta a la amplia. La pestaña Frecuencia todavía abrió su ventana independiente. Restaurar el tamaño inicial reactivó la acción de cabecera. La causa es el registro de un contenedor de la disposición como si fuese una pestaña de figura. El cambio posterior al candidato se valida por separado.
+
+El entorno no dispone de un escritorio Linux ni de un segundo monitor con otro DPI. Las pruebas con Linux real y escalados físicos adicionales siguen pendientes.
