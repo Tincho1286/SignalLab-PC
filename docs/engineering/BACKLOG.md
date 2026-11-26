@@ -1,6 +1,6 @@
 # Backlog de SignalLab Engineering
 
-La Fase 04 está calificando el laboratorio de canales integrado con el enlace y los barridos. Quedan la matriz del candidato en Windows y Linux, las comprobaciones de escritorio real y la evidencia de los paquetes Preview. E-04 sigue como seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Plan de Fase 04](phase_04/PHASE_04_PLAN.md)
+La matriz de Windows y Linux y los paquetes de 2.2.0 Preview están verificados sobre `a3026d2`. Quedan Clarke en escritorio real, un segundo escalado nativo de Windows y el protocolo en un escritorio Linux. E-04 sigue como seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Protocolo de escritorio](phase_04/VALIDATION_MATRIX.md#protocolo-de-escritorio-real)
 
 La [matriz de Fase 02B](phase_02b/PHASE_02B_TRACEABILITY_MATRIX.md) registra los nuevos paquetes y sus criterios. Los controles y riesgos de estabilización siguen debajo como referencia.
 

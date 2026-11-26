@@ -4,6 +4,22 @@ La fase parte de `a94cd37`, la integración aprobada tras validar la 2.1.1 Previ
 
 [Línea base](PHASE_04_BASELINE.md) · [Plan](PHASE_04_PLAN.md) · [Arquitectura](ARCHITECTURE.md) · [Requisitos](PHASE_04_REQUIREMENTS.md) · [Contratos científicos](SCIENTIFIC_CONTRACTS.md) · [Auditoría matemática](MATHEMATICAL_AUDIT.md) · [Trazabilidad](TRACEABILITY_MATRIX.md) · [Quality Gate](QUALITY_GATE_CRITERIA.md)
 
+## Preparar las señales de ejemplo
+
+Ejecutá este código con el entorno Python de SignalLab en una carpeta de trabajo vacía. Genera dos tonos I/Q de 16 384 muestras con el mismo reloj de 96 kHz. `entrada.slbin` es el tono de 1,5 kHz y `externa.slbin` es un interferente de 4 kHz con amplitud 0,15. Los comandos de consola de esta página usan esos archivos.
+
+```python
+import numpy as np
+
+from signallab_pc.communications_data import SymbolClock, iq_signal
+from signallab_pc.scientific_storage import save_binary_signal
+
+clock = SymbolClock(12_000, 8)
+n = np.arange(16_384)
+save_binary_signal(iq_signal(np.exp(2j * np.pi * n / 64), clock), 'entrada.slbin')
+save_binary_signal(iq_signal(0.15 * np.exp(2j * np.pi * n / 24), clock), 'externa.slbin')
+```
+
 ## Multitrayecto con retardos enteros
 
 Para una señal discreta finita, cada trayectoria desplaza la entrada $d_k$ muestras y la multiplica por una ganancia compleja $a_k$. El canal calcula $y[n] = \sum_k a_k x[n - d_k]$. Los retardos son enteros no negativos. Las trayectorias con igual retardo se superponen con su fase. La entrada vale cero fuera del registro y la salida conserva las colas de todos los caminos. [Modelo de banda base, Tse y Viswanath, §2.2](https://web.stanford.edu/~dntse/papers/ch1%2B2.pdf)
@@ -106,7 +122,7 @@ python -m signallab_pc communications propagation --signal entrada.slbin --model
 
 ## Cadena de canal
 
-En **Comunicaciones → Cadena de canal**, elegí modelos, ordenalos y vinculá los interferentes externos a señales del proyecto. Podés guardar la configuración, modificar sus parámetros en JSON y abrirla desde el escritorio o la CLI. El selector de resultados muestra la salida final, las etapas y sus componentes.
+En **Comunicaciones → Cadena de canal**, elegí modelos, ordenalos y vinculá los interferentes externos a señales del proyecto. Podés guardar la configuración, modificar sus parámetros en JSON y abrirla desde el escritorio o la CLI. El selector de resultados muestra la salida final, las etapas y sus componentes. Para reproducir los ejemplos de cadena, enlace y barrido, guardá este bloque como `canal.json` junto a las señales de ejemplo.
 
 ```json
 {
