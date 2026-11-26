@@ -13,6 +13,7 @@ from .communications_channel import (
 )
 from .communications_data import ConstellationSpec, SymbolClock, iq_signal
 from .communications_experiment import ExperimentSpec, coherent_monte_carlo, run_experiment
+from .communications_fading import FadingSpec, apply_fading, parse_fading_path
 from .communications_metrics import QualitySpec, measure_quality
 from .communications_modulation import decide_symbols, generate_bits, group_bits, modulate, parse_bits
 from .communications_pulses import PulseSpec, apply_pulse, design_pulse, upsample_symbols
@@ -177,6 +178,24 @@ def _multipath(args, ctx):
     return receipt
 
 
+def _fading(args, ctx):
+    paths = []
+    for value in args.path:
+        ctx.checkpoint()
+        paths.append(parse_fading_path(value, k_scale=args.k_scale))
+    project, workspace, source = load_input(args, ctx)
+    result = apply_fading(source, FadingSpec(tuple(paths), args.seed), ctx)
+    parent = _source_id(project, args, source)
+    key = store_signal(project, result.signal, parents=(parent,), execution=ctx)
+    coefficients = []
+    for item in result.realizations:
+        ctx.checkpoint()
+        record = project.add(item.coefficients, operation='Realización de fading', parents=(key,))
+        coefficients.append({'record': record, 'statistics': asdict(item.statistics)})
+    _save(args.output, project, workspace, ctx)
+    return {'record': key, 'sample_count': result.signal.values.size, 'paths': coefficients}
+
+
 def _receive(args, ctx):
     project, workspace, source = load_input(args, ctx)
     pilot = None if args.pilot_record is None else project.get(args.pilot_record)
@@ -304,6 +323,14 @@ def main(argv=None):
     multipath.add_argument('--frequency-points', type=int, help='Guardá H(eʲω) en este número de puntos centrados.')
     add_session_arguments(multipath)
     multipath.set_defaults(execute=_multipath)
+
+    fading = commands.add_parser('fading', help='Aplicá fading Rayleigh/Rician independiente por muestra.')
+    fading.add_argument('--path', action='append', required=True, metavar='RETARDO=POTENCIA[,K[,FASE]]',
+                        help='Retardo en muestras, potencia lineal, K opcional y fase LOS opcional en rad.')
+    fading.add_argument('--k-scale', choices=('linear', 'db'), default='linear')
+    fading.add_argument('--seed', type=int, default=2026)
+    add_session_arguments(fading)
+    fading.set_defaults(execute=_fading)
 
     receiver = commands.add_parser('receive', help='Sincronizá y recuperá muestras de símbolo.')
     _synchronization_arguments(receiver)

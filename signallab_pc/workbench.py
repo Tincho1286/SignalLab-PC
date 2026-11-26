@@ -693,7 +693,8 @@ class WorkbenchWindow(ToolboxWindow):
 
     def _load_signal(self,value,key,item):
         if item[1:3] in (('communications','pulse'),('communications','awgn'),
-                          ('communications','multipath'),('communications','receive'),('communications','decide')):
+                          ('communications','multipath'),('communications','fading'),
+                          ('communications','receive'),('communications','decide')):
             self.open_tool(item);panel=self.pages[tuple(item)].panel
             return panel.receive_signal(self.project.get(key) if key else value,key)
         if item[1:3]==('state_space','simulation'):

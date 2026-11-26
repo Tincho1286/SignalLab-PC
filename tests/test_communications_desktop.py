@@ -16,6 +16,7 @@ from PySide6.QtWidgets import QApplication, QMessageBox, QTabBar, QToolButton
 from signallab_pc import communications_figures as figures
 from signallab_pc.communications_data import SymbolClock, iq_signal
 from signallab_pc.communications_experiment import ExperimentSpec, run_experiment
+from signallab_pc.communications_fading import FadingPath, FadingSpec, apply_fading
 from signallab_pc.communications_storage import load_experiment
 from signallab_pc.library_content import default_content
 from signallab_pc.tool_browser import CatalogCard
@@ -144,7 +145,7 @@ class CommunicationsDesktopTests(unittest.TestCase):
 
     def test_independent_routes_show_help_and_exchange_clocked_iq(self):
         articles, guides, _ = default_content()
-        for name in ('modulate', 'pulse', 'awgn', 'multipath', 'receive', 'decide', 'measure'):
+        for name in ('modulate', 'pulse', 'awgn', 'multipath', 'fading', 'receive', 'decide', 'measure'):
             with self.subTest(name=name):
                 self.assertIn(('communications', name), articles)
                 self.assertIn(('communications', name), guides)
@@ -199,6 +200,28 @@ class CommunicationsDesktopTests(unittest.TestCase):
         receive = ROUTES['communications', 'receive']
         self.window.send_signal(result, record, receive)
         self.assertEqual(self.window.pages[receive].panel.source.loaded_reference_id, record)
+
+    def test_fading_matches_python_and_exposes_each_path(self):
+        source = iq_signal([1, 1j, -2], SymbolClock(4000, 2, -0.25), origin=-3)
+        key = self.window.publish(source, operation='Entrada de prueba')
+        route = ROUTES['communications', 'fading']
+        self.window.send_signal(source, key, route)
+        page, panel = self.open('fading')
+        panel.fields['paths'].setPlainText('0 = 1\n2 = 0.5, 10, pi/4')
+        panel.fields['k_scale'].setCurrentIndex(1)
+        panel.fields['seed'].setText('43')
+        self.calculate()
+        expected = apply_fading(source, FadingSpec((FadingPath(), FadingPath(2, 0.5, 10, math.pi/4)), 43))
+        values = [expected.signal, *(part.coefficients for part in expected.realizations)]
+        self.assertEqual(len(panel.records), 3)
+        for source_record, (actual, record) in zip(values, panel.records.values(), strict=True):
+            np.testing.assert_array_equal(actual.values, source_record.values)
+            self.assertEqual(self.window.project.get(record).origin, source_record.origin)
+        self.assertIn('Rician', panel.result.text.toPlainText())
+        launcher = page.workspace.results.graph_launcher
+        entry = next(item for item in launcher.available() if item[2] == 'Evolución del fading')
+        launcher.open_entry(entry)
+        self.wait()
 
     def test_receive_and_decide_publish_labels_that_metrics_can_load(self):
         _, mapper = self.open('modulate')

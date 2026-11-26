@@ -2,7 +2,7 @@
 
 La fase parte de `a94cd37`, la integración aprobada tras validar la 2.1.1 Preview. Amplía el canal AWGN de Fase 03 con modelos de propagación e imperfecciones del enlace. [Roadmap](../ROADMAP.md)
 
-[Línea base](PHASE_04_BASELINE.md) · [Plan](PHASE_04_PLAN.md) · [Contratos científicos](SCIENTIFIC_CONTRACTS.md) · [Trazabilidad](TRACEABILITY_MATRIX.md) · [Quality Gate](QUALITY_GATE_CRITERIA.md)
+[Línea base](PHASE_04_BASELINE.md) · [Plan](PHASE_04_PLAN.md) · [Arquitectura](ARCHITECTURE.md) · [Requisitos](PHASE_04_REQUIREMENTS.md) · [Contratos científicos](SCIENTIFIC_CONTRACTS.md) · [Auditoría matemática](MATHEMATICAL_AUDIT.md) · [Trazabilidad](TRACEABILITY_MATRIX.md) · [Quality Gate](QUALITY_GATE_CRITERIA.md)
 
 ## Multitrayecto con retardos enteros
 
@@ -42,6 +42,16 @@ El cálculo suma copias por bloques y evita construir un FIR denso entre ecos. E
 
 Las pruebas comparan contra una convolución calculada de forma independiente, verifican identidad, cancelación, reloj, fase, superposición y persistencia. La misma operación se ejecuta desde Python, CLI y escritorio.
 
+## Fading Rayleigh y Rician independiente
+
+En **Comunicaciones → Fading Rayleigh y Rician**, configurá una trayectoria por línea con retardo y potencia media. Para Rician agregá factor K y fase LOS en radianes. El selector del resultado alterna entre la salida y las realizaciones de cada trayectoria. El gráfico de evolución muestra la magnitud de los coeficientes.
+
+```sh
+python -m signallab_pc communications fading --signal entrada.slbin --path=0=1 "--path=4=0.25,10,pi/2" --k-scale db --seed 2026 --output fading.slproj
+```
+
+El mismo ejemplo en Python usa `apply_fading(x, FadingSpec((FadingPath(), FadingPath.from_k_db(10, delay_samples=4, average_power=0.25, los_phase_rad=math.pi/2)), 2026))` desde `signallab_pc.communications_fading`. El proceso actual genera coeficientes independientes por muestra. [Potencia, fase y semillas](SCIENTIFIC_CONTRACTS.md#fading-rayleighrician-independiente)
+
 ## Alcance siguiente
 
-Quedan por implementar Rayleigh, Rician, Doppler, offsets, interferencia, desequilibrio I/Q y las variantes de canal previstas para el enlace integrado. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.
+Quedan el fading correlacionado, Doppler, offsets, interferencia, desequilibrio I/Q y las variantes de canal previstas para el enlace integrado. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.

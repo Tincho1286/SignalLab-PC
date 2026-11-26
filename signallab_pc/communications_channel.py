@@ -79,7 +79,7 @@ class AWGNResult:
     statistics: NoiseStatistics
 
 
-def _power(values, domain, ctx):
+def channel_record_power(values, domain, ctx):
     scale = 0.0
     count = values.size
     for start in range(0, count, _BLOCK):
@@ -161,7 +161,7 @@ def add_awgn(signal: Signal, spec: AWGNSpec, execution: ExecutionContext | None 
     dimensions = 1 if spec.domain == 'real' else 2
     with ctx.reserve(48 * count + 96 * min(count, _BLOCK)):
         source = content_digest(signal, ctx.checkpoint)
-        measured_power = _power(values, spec.domain, ctx)
+        measured_power = channel_record_power(values, spec.domain, ctx)
         power = measured_power if spec.signal_power is None else spec.signal_power
         variance, n0, snr, es_n0, eb_n0, bit_energy = _nominal(spec, power)
         std = math.sqrt(variance)
@@ -362,26 +362,35 @@ def multipath_frequency(analysis: MultipathAnalysis, points: int = 2048,
     return result
 
 
+def discrete_channel_size(signal, max_delay):
+    """Validate a finite temporal record and its expanded output geometry."""
+    if not isinstance(signal, Signal) or signal.domain != 'discrete' or signal.data_kind != 'temporal':
+        raise ValueError('El canal requiere una señal temporal discreta.')
+    count = signal.values.size + max_delay
+    if count > sys.maxsize // 16 or signal.origin + count - 1 >= 1 << 63:
+        raise ValueError('El soporte de salida excede los índices o el espacio de direcciones.')
+    return count
+
+
+def channel_clock(signal, offset, count):
+    clock = reindex_clock(signal.metadata, offset, count)
+    if 'sample_rate_hz' in clock and 'time_start_s' not in clock:
+        validate_clock_resolution(0, clock['sample_rate_hz'], count)
+    return clock
+
+
 def apply_multipath(signal: Signal, paths: tuple[ChannelPath, ...] | MultipathSpec,
                     execution: ExecutionContext | None = None) -> Signal:
     """Sum delayed copies of a record, retaining the full finite response."""
-    if not isinstance(signal, Signal) or signal.domain != 'discrete' or signal.data_kind != 'temporal':
-        raise ValueError('El canal multitrayecto requiere una señal temporal discreta.')
     ctx = execution or ExecutionContext()
     ctx.checkpoint(0)
     spec = paths if isinstance(paths, MultipathSpec) else MultipathSpec(paths)
+    count = discrete_channel_size(signal, max(path.delay_samples for path in spec.paths))
     length = signal.values.size
-    max_delay = max(path.delay_samples for path in spec.paths)
-    count = length + max_delay
-    if count > sys.maxsize // 16 or signal.origin + count - 1 >= 1 << 63:
-        raise ValueError('El soporte de salida excede los índices o el espacio de direcciones.')
-
     with ctx.reserve(48 * count + 32 * min(length, _BLOCK) + 640 * len(spec.paths)):
         taps = _effective_taps(spec, ctx)
         source = content_digest(signal, ctx.checkpoint)
-        clock = reindex_clock(signal.metadata, 0, count)
-        if 'sample_rate_hz' in clock and 'time_start_s' not in clock:
-            validate_clock_resolution(0, clock['sample_rate_hz'], count)
+        clock = channel_clock(signal, 0, count)
         for start in range(0, length, _BLOCK):
             ctx.checkpoint()
             if not np.isfinite(signal.values[start:start + _BLOCK]).all():

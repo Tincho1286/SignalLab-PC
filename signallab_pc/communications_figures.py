@@ -140,6 +140,18 @@ def channel_frequency_figure(figure, response):
     configure_axis(axes[1], units=response.units, label='ω (rad/muestra)')
 
 
+def fading_envelope_figure(figure, *, result):
+    axis = figure.add_subplot(111)
+    for index, item in enumerate(result.realizations, 1):
+        values = item.coefficients.values
+        indices = np.linspace(0, len(values)-1, min(len(values), 2048), dtype=np.int64)
+        arrival = indices + item.path.delay_samples
+        axis.plot(arrival, abs(values[indices]), lw=1, label=f'Trayectoria {index}')
+    configure_axis(axis, discrete_index=True, label='Muestras desde el comienzo del registro')
+    axis.set_ylabel('|a[n]|')
+    axis.legend()
+
+
 def filter_frequency_figure(figure, pulse):
     frequency, response = freqz(pulse.taps, worN=2048, include_nyquist=True)
     axes = figure.subplots(2, 1, sharex=True)

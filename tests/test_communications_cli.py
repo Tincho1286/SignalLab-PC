@@ -139,6 +139,21 @@ raise SystemExit(main())
             self.assertEqual(response.units, 'rad/muestra')
             np.testing.assert_allclose(response.values, (2-1j*np.exp(-2j*response.axis))/np.sqrt(5))
 
+    def test_fading_stores_its_realizations_in_the_session(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            source, output = root/'input.slbin', root/'fading.slproj'
+            save_binary_signal(Signal(np.ones(20), origin=4, metadata={'sample_rate_hz': 8000}), source)
+            stats = self.invoke('fading', '--signal', source, '--path=0=2', '--path=3=1,6,pi/4', '--k-scale',
+                                'db', '--seed', 73, '--output', output)
+            project, _ = session.load(output)
+            direct, echo = [project.get(path['record']) for path in stats['paths']]
+            received = project.get(stats['record'])
+            np.testing.assert_array_equal(received.values, np.pad(direct.values, (0, 3)) + np.pad(echo.values, (3, 0)))
+            self.assertEqual(echo.origin, 7)
+            self.assertEqual(received.metadata['sample_rate_hz'], 8000)
+            self.assertEqual(received.metadata['communications_fading']['specification']['seed'], 73)
+
     def test_sweep_cli_runs_and_verifies_a_reproducible_grid(self):
         with TemporaryDirectory() as folder:
             root = Path(folder)

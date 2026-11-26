@@ -17,6 +17,7 @@ from .communications_channel import (
 )
 from .communications_data import ConstellationSpec, SymbolClock, SymbolSequence, iq_signal
 from .communications_experiment import ExperimentSpec, run_experiment
+from .communications_fading import FadingSpec, apply_fading, parse_fading_path
 from .communications_metrics import QualitySpec, measure_quality
 from .communications_modulation import build_constellation, decide_symbols, generate_bits, group_bits, modulate, parse_bits, ungroup_symbols
 from .communications_pulses import PulseSpec, apply_pulse, design_pulse, matched_pulse_isi, upsample_symbols
@@ -37,6 +38,7 @@ from .validation import show_input_error
 _LABELS = {
     'link': 'Ejecutar enlace', 'modulate': 'Modular bits', 'pulse': 'Calcular pulso',
     'awgn': 'Aplicar AWGN', 'multipath': 'Aplicar canal', 'receive': 'Recuperar símbolos', 'decide': 'Decidir símbolos',
+    'fading': 'Aplicar fading',
     'measure': 'Medir calidad', 'sweep': 'Ejecutar barrido',
 }
 _CONSTE = 'Constelación'
@@ -48,12 +50,14 @@ _IMPULSE = 'Impulso del filtro'
 _FREQUENCY = 'Respuesta del filtro'
 _CHANNEL_FREQUENCY = 'Respuesta del canal'
 _CHANNEL_TAPS = 'Impulso y perfil de potencia'
+_FADING = 'Evolución del fading'
 _ERRORS = 'Tasas de error'
 _COMPARISON = 'Comparación de corridas'
 _VIEWS = {
     'link': (_CONSTE, _IQ, _EYE, _SPECTRUM, _PSD, _IMPULSE, _FREQUENCY, _ERRORS),
     'modulate': (_CONSTE, _IQ), 'pulse': (_IMPULSE, _FREQUENCY, _IQ), 'awgn': (_IQ, _PSD),
     'multipath': (_IQ, _SPECTRUM, _CHANNEL_TAPS, _CHANNEL_FREQUENCY),
+    'fading': (_IQ, _SPECTRUM, _FADING),
     'receive': (_IQ,), 'decide': (_CONSTE,), 'measure': (), 'sweep': (_COMPARISON,),
 }
 
@@ -375,6 +379,15 @@ class CommunicationsPanel(QWidget):
         self._check('normalize_power', 'Normalizar la energía de h[n] a 1')
         sps = self._line('sps', 'Muestras por símbolo para medir ISI')
         sps.setPlaceholderText('Opcional · usar el reloj de la señal')
+
+    def _build_fading(self):
+        self.source = self._source('Señal de entrada')
+        paths = QPlainTextEdit('0 = 1\n4 = 0.2')
+        paths.setMaximumHeight(120)
+        self._set('paths', 'Trayectorias · una por línea', paths,
+                  'Retardo = potencia media, K, fase LOS en radianes. Omití K y fase para Rayleigh.')
+        self._combo('k_scale', 'Escala de K', (('Lineal', 'linear'), ('dB', 'db')))
+        self._line('seed', 'Semilla', 2026)
 
     def _build_receive(self):
         self.source = self._source('Registro después del filtro adaptado')
@@ -736,6 +749,40 @@ class CommunicationsPanel(QWidget):
             self._display(summary, axes, {signal.name: (signal, key)})
 
         return task, accept
+
+    def _run_fading(self):
+        scale = self._choice('k_scale')
+        paths = tuple(parse_fading_path(line, k_scale=scale)
+                      for line in self.fields['paths'].toPlainText().splitlines() if line.strip())
+        spec = FadingSpec(paths, self._int('seed'))
+        source, register = self.source.capture_input()
+
+        def accept(result):
+            signal = result.signal
+            key = store_signal(self.window.project, signal, parents=(register(),))
+            self.window.register_publication(key, signal)
+            records = {signal.name: (signal, key)}
+            sections = [Section('Proceso independiente por muestra', rows=[('Semilla', spec.seed)])]
+            for index, item in enumerate(result.realizations, 1):
+                coefficients = item.coefficients
+                record = self.window.publish(coefficients, operation='Realización de fading', parents=(key,))
+                records[coefficients.name] = coefficients, record
+                path, stats = item.path, item.statistics
+                sections.append(Section(f'Trayectoria {index}', rows=[
+                    ('Modelo', 'Rayleigh' if path.k_linear == 0 else 'Rician'),
+                    ('Retardo (muestras)', path.delay_samples), ('K lineal', number(path.k_linear)),
+                    ('Potencia media esperada', number(stats.expected_power)),
+                    ('Potencia media observada', number(stats.observed_power)),
+                ]))
+            axes = {
+                _IQ: (partial(figures.iq_figure, signal=signal), None),
+                _FADING: (partial(figures.fading_envelope_figure, result=result), None),
+            }
+            if signal.values.size >= 2:
+                axes[_SPECTRUM] = self._spectral_plot(signal)
+            self._display(Summary('Fading Rayleigh y Rician', sections), axes, records)
+
+        return lambda: apply_fading(source, spec), accept
 
     def _run_receive(self):
         source, register = self.source.capture_input()

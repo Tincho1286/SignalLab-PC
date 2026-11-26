@@ -110,6 +110,7 @@ for mode, group, title, description in (
     ('pulse','Transmisión','Pulsos y filtro adaptado','Diseñá un pulso rectangular, RC o RRC y aplicá el FIR.'),
     ('awgn','Canal','Canal AWGN','Agregá ruido real o complejo con SNR, Es/N₀ o Eb/N₀.'),
     ('multipath','Canal','Canal multitrayecto','Sumá copias de una señal con retardos y ganancias complejas.'),
+    ('fading','Canal','Fading Rayleigh y Rician','Aplicá caminos con ganancias aleatorias y potencia media configurable.'),
     ('receive','Recepción','Recuperar símbolos','Muestreo y fase mediante un retardo conocido, valores propios o un piloto.'),
     ('decide','Recepción','Decisión de constelación','Convertí observaciones alineadas en etiquetas y bits.'),
     ('measure','Recepción','Medir BER, SER y EVM','Compará etiquetas y observaciones I/Q alineadas.'),

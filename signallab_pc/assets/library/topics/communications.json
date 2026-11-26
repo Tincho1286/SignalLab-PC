@@ -57,6 +57,15 @@
       ]
     },
     {
+      "key": ["communications", "fading"],
+      "blocks": [
+        ["Qué podés hacer", "Aplicá un canal con ganancias aleatorias. Rayleigh modela un camino sin componente dominante. Rician añade una componente coherente con amplitud y fase definidas."],
+        ["Cómo preparar el cálculo", "Escribí una línea por trayectoria con retardo en muestras = potencia media. Para Rician agregá K y la fase LOS en radianes, separados por comas. En escala lineal, 4 = 0.25, 10, pi/2 declara un eco de cuatro muestras con potencia media 0.25 y K lineal 10."],
+        ["Cómo interpretar la salida", "El informe compara la potencia esperada y observada por camino. El gráfico de evolución muestra el módulo de los coeficientes. En el selector de resultados podés elegir la salida del canal o una realización individual."],
+        ["Qué tener en cuenta", "Cada trayectoria tiene un flujo aleatorio distinto y las muestras se generan independientemente en el tiempo. La semilla permite repetir el ensayo. Elegí varios retardos para que el canal también produzca dispersión temporal."]
+      ]
+    },
+    {
       "key": ["communications", "receive"],
       "blocks": [
         ["Qué podés hacer", "Elegí una muestra por símbolo en un registro filtrado y corregí la fase."],
@@ -120,6 +129,12 @@
       "flow": ["Registro de entrada", "Retardar, escalar y sumar", "Salida I/Q reutilizable"],
       "parameters": [["Retardo", "Cantidad de muestras que se desplaza una copia hacia la derecha."], ["Ganancia", "Factor real o complejo que multiplica a la copia. Su módulo escala la amplitud y su ángulo gira la fase."], ["Muestras por símbolo", "Permite medir la interferencia del canal a intervalos de símbolo. Si la señal ya registra ese valor, se puede usar el del reloj."]],
       "reading": "Abrí Impulso y perfil de potencia para comprobar la suma de ecos y Respuesta del canal para observar sus efectos en módulo y fase."
+    },
+    {
+      "key": ["communications", "fading"],
+      "flow": ["Señal y trayectorias", "Generar ganancias complejas", "Salida y coeficientes de cada camino"],
+      "parameters": [["Potencia media", "Se ingresa en escala lineal."], ["K", "Relación de potencia entre las componentes LOS y dispersiva. Omitilo para Rayleigh. Cero en dB representa K lineal uno."], ["Fase LOS", "Ángulo en radianes de la componente dominante. Se puede omitir y usar cero."]],
+      "reading": "La potencia observada fluctúa alrededor de la esperada. Con registros cortos la diferencia puede ser mayor."
     },
     {
       "key": ["communications", "receive"],
