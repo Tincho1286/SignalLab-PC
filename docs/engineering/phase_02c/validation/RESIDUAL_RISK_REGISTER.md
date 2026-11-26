@@ -48,9 +48,9 @@ Los controles de presupuesto y cancelación pasaron en los tamaños y operacione
 
 | Riesgo | Evidencia nueva | Alcance y responsable |
 | --- | --- | --- |
-| C-01 y C-02 · Dependencias | Ambos SBOM y OpenSSL de Ubuntu verificados. La revisión de proveedores mantiene abiertas las condiciones de Qt, OpenJPEG y HDF5. | Empaquetado debe volver a revisar los avisos de noviembre cuando lleguen las correcciones. El responsable de MAT debe mantener cuota, plazo y alcance de archivos seleccionados localmente. |
-| C-05 · Recursos | Las 22 cancelaciones de cada plataforma conservaron el estado observado en los tamaños ensayados. La campaña recuperó el catálogo y reintentó la corrida cancelada. | Engineering Core debe acordar la envolvente. Las llamadas nativas del motor numérico conservan límites cooperativos, con cuota efectiva del SO sólo en MAT. |
-| C-08 · Escritorio | Windows a 100 % y 125 % confirmó CAS, informe y figura independiente. | El responsable de validación debe registrar Linux de escritorio y perfiles físicos de mayor DPI o delimitar expresamente el alcance que acepta. |
+| C-01 y C-02 · Dependencias | Ambos SBOM y OpenSSL de Ubuntu verificados. El mantenedor aprobó el uso de MAT con archivos confiables. | Empaquetado conserva el seguimiento de Qt, OpenJPEG y HDF5. El responsable de MAT debe mantener cuota y plazo. El lector conserva los permisos de la cuenta. |
+| C-05 · Recursos | Las 22 cancelaciones de cada plataforma conservaron el estado observado. El mantenedor aprobó los perfiles probados. | Las llamadas nativas del motor numérico conservan límites cooperativos, con cuota efectiva del SO sólo en MAT. Los compromisos de recursos fuera de los perfiles aprobados requieren mediciones propias. |
+| C-08 · Escritorio | Windows a 100 % y 125 % acreditado en el acta. El mantenedor informó que probó el 150 % y 200 % y aprobó Windows. | Queda pendiente la validación en Linux de escritorio. |
 | C-09 · Distribución | El actualizador aislado conservó el destino y la sesión en los dos instaladores. | Distribución debe evaluar la firma de producción y el canal público por separado. |
 
-[Matriz](FINAL_VALIDATION_MATRIX.md#distribución-recursos-y-almacenamiento-de-a80508c) · [Decisiones individuales](EXCEPTION_APPROVAL_REGISTER.md#decisiones-del-candidato-a80508c)
+[Matriz](FINAL_VALIDATION_MATRIX.md#distribución-recursos-y-almacenamiento-de-a80508c) · [Aprobaciones](EXCEPTION_APPROVAL_REGISTER.md#aprobaciones-del-mantenedor-del-26-de-noviembre-de-2026)

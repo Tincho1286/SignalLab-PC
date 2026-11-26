@@ -60,3 +60,10 @@ La entrada capturada para una operación LTI se publica al aceptar su resultado.
 - C-01 y C-02. Conservar los pines de la matriz. La revisión de proveedores identifica cuándo actualizar las dependencias y volver a cotejar los binarios que las contienen. [Consulta e inventario](security/DEPENDENCY_CONTINUATION.md#consulta-de-proveedores-para-a80508c)
 - C-08. Acreditar los perfiles realmente ejecutados en Windows a 100 % y 125 %. Los perfiles de Xvfb siguen siendo evidencia automatizada. E-05 queda abierto para los perfiles restantes. [Acta](gui/DESKTOP_CONTINUATION.md#acta-windows-del-candidato-a80508c)
 - C-11. Usar la corrida 45745729541 para el candidato y un commit documental posterior para el expediente. Los resultados acreditan el gate automático. El cierre del Core, la preparación de Fase 03 y la distribución pública se evalúan por separado. [Dictámenes](validation/QUALITY_GATE_REPORT.md#evaluación-del-candidato-a80508c)
+
+## Aprobaciones del 26 de noviembre de 2026
+
+- E-02 y E-03. El mantenedor aprobó la importación MAT para archivos confiables y la envolvente operativa de los perfiles probados.
+- E-05. El mantenedor informó pruebas Windows al 150 % y 200 % y aprobó el alcance de Windows. Queda pendiente el acta de Linux real.
+
+[Alcance de las aprobaciones](validation/EXCEPTION_APPROVAL_REGISTER.md#aprobaciones-del-mantenedor-del-26-de-noviembre-de-2026)

@@ -1,5 +1,7 @@
 # Aprobación de excepciones
 
+El estado vigente está en [Aprobaciones del mantenedor del 26 de noviembre de 2026](#aprobaciones-del-mantenedor-del-26-de-noviembre-de-2026).
+
 | ID | Excepción | Estado |
 | --- | --- | --- |
 | E-01 | C-01. Qt 6.12.0, OpenJPEG 2.5.4 y revisión de componentes embebidos. Condición de distribución. | Pendiente de resolución o aceptación explícita |
@@ -65,6 +67,18 @@ El despacho focalizado de `8e274e7` confirmó en Windows 2022 la corrección de 
 | E-04 · Actualización de 2.0.0 a 2.0.1 e instaladores verificados con el canal aislado. | Mantener pendiente la distribución hasta contar con un criterio de firma de producción y autorización del canal. | Distribuir fuera de ese criterio conserva el posible bloqueo de Windows y la falta de validación pública. La espera mantiene disponible el canal estable existente. | Distribución pública. |
 | E-05 · Acta física de Windows a 100 % y 125 %. Faltan Linux real y los perfiles de DPI que el monitor disponible no ofrece. | Completar el protocolo en otro escritorio o aprobar expresamente los perfiles cubiertos. Se recomienda aportar las actas faltantes. | Aceptar sólo la evidencia disponible deja sin comprobar esos perfiles. Mantener el protocolo completo requiere acceso a otro entorno. | Cierre del Core y disponibilidad de evidencia de escritorio para Fase 03 y distribución. |
 
-El informe deja pendientes las decisiones individuales. La distribución pública requiere una autorización separada. [Dependencias y SBOM](../security/DEPENDENCY_CONTINUATION.md#inventario-del-candidato-a80508c) · [Acta y protocolo](../gui/DESKTOP_CONTINUATION.md#acta-windows-del-candidato-a80508c) · [Resultados de distribución y recursos](FINAL_VALIDATION_MATRIX.md#distribución-recursos-y-almacenamiento-de-a80508c)
+La matriz dejó las decisiones individuales para revisión del mantenedor. La distribución pública requiere una autorización separada. [Dependencias y SBOM](../security/DEPENDENCY_CONTINUATION.md#inventario-del-candidato-a80508c) · [Acta y protocolo](../gui/DESKTOP_CONTINUATION.md#acta-windows-del-candidato-a80508c) · [Resultados de distribución y recursos](FINAL_VALIDATION_MATRIX.md#distribución-recursos-y-almacenamiento-de-a80508c)
 
 E-06a–j quedaron acreditadas por medición en los dos sistemas. Se alcanzaron los umbrales globales y los de los componentes designados. [Cobertura por plataforma y componente](../testing/FINAL_COVERAGE_REPORT.md#cobertura-del-candidato-a80508c)
+
+## Aprobaciones del mantenedor del 26 de noviembre de 2026
+
+Las decisiones expresas del mantenedor se registran para el expediente del candidato `a80508c224d902ce225c6b6cc66fd090210c52b2`.
+
+| ID | Decisión | Alcance y seguimiento |
+| --- | --- | --- |
+| E-02 · MAT | **Aprobada para archivos confiables.** | Selección manual de archivos propios o de fuentes confiables. El lector mantiene sus límites y los permisos de la cuenta. La importación automatizada y los archivos de origen desconocido quedan fuera del alcance aprobado. Se mantiene el seguimiento de HDF5. |
+| E-03 · Recursos | **Aprobada para los perfiles probados.** | La aprobación cubre las operaciones, tamaños y configuraciones documentados. La memoria del Core numérico se estima para decidir la admisión y la cancelación sigue siendo cooperativa. La cuota efectiva del SO corresponde al lector MAT. |
+| E-05 · Escritorio | **Windows aprobado. Linux pendiente.** | A las comprobaciones documentadas al 100 % y 125 % se suman las pruebas manuales al 150 % y 200 % informadas por el mantenedor. El acta pendiente corresponde a Linux en un escritorio real. |
+
+[Acta de Windows](../gui/DESKTOP_CONTINUATION.md#aceptación-de-los-escalados-de-windows) · [Perfiles operativos](../resources/OPERATIONAL_ENVELOPE.md) · [Dictamen vigente](QUALITY_GATE_REPORT.md#evaluación-del-candidato-a80508c)
