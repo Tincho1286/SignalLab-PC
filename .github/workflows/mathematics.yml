@@ -87,6 +87,10 @@ on:
         description: Audit one candidate with the complete Windows and Linux matrix
         type: boolean
         default: false
+      desktop_regressions:
+        description: Check the wallpaper and figure regressions on Windows only
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -97,7 +101,7 @@ concurrency:
 
 jobs:
   core-mathematics:
-    if: ${{ !inputs.engineering_baseline }}
+    if: ${{ !inputs.engineering_baseline && !inputs.desktop_regressions }}
     strategy:
       fail-fast: false
       matrix:
@@ -132,7 +136,7 @@ jobs:
           retention-days: 7
 
   workflow-integration:
-    if: ${{ !inputs.engineering_baseline && github.ref != 'refs/heads/develop' }}
+    if: ${{ !inputs.engineering_baseline && !inputs.desktop_regressions && github.ref != 'refs/heads/develop' }}
     strategy:
       fail-fast: false
       matrix:
@@ -166,7 +170,7 @@ jobs:
           retention-days: 7
 
   static-actions:
-    if: ${{ !inputs.engineering_baseline }}
+    if: ${{ !inputs.engineering_baseline && !inputs.desktop_regressions }}
     runs-on: ubuntu-22.04
     timeout-minutes: 3
     steps:
@@ -185,6 +189,31 @@ jobs:
           path: work/static-checks.json
           if-no-files-found: error
           retention-days: 7
+
+  desktop-regressions:
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/develop' && inputs.desktop_regressions && !inputs.engineering_baseline }}
+    runs-on: windows-2022
+    timeout-minutes: 8
+    env:
+      QT_QPA_PLATFORM: offscreen
+      PYTHONPATH: tests
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '1'
+      PYTHONDONTWRITEBYTECODE: '1'
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version-file: '.python-version'
+      - name: Install locked application dependencies
+        run: python -m pip install --disable-pip-version-check --only-binary=:all: -r requirements-lock.txt
+      - name: Check managed image paths and figures after resizing
+        run: >-
+          python -B -X utf8 -m unittest -v
+          test_workbench_appearance
+          test_workbench_system_surfaces.SystemSurfaceContracts.test_figure_launcher_keeps_calculated_views_after_switching_workspace_layout
 
   engineering-baseline:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.engineering_baseline }}
