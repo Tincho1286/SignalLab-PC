@@ -2,7 +2,7 @@
 
 import argparse
 import json
-from math import cos, exp, pi, sqrt
+from math import cos, erfc, exp, inf, pi, sqrt
 from pathlib import Path
 
 from scipy.integrate import quad
@@ -41,6 +41,40 @@ def antipodal_ber(db):
                 epsabs=1e-16, epsrel=2e-13)[0]
 
 
+def gaussian_interval(lower, upper):
+    """Probability in standard-normal decision interval [lower, upper]."""
+    if upper <= 0:
+        return gaussian_interval(-upper, -lower)
+    if lower >= 0:
+        return (erfc(lower/sqrt(2)) - erfc(upper/sqrt(2))) / 2
+    return 1 - (erfc(-lower/sqrt(2)) + erfc(upper/sqrt(2))) / 2
+
+
+def square_qam_decision_reference(side, db):
+    """Average Gaussian integrals over the decision regions of a QAM axis."""
+    width = side.bit_length() - 1
+    levels = [2*i - (side-1) for i in range(side)]
+    boundaries = [-inf, *[(a+b)/2 for a, b in zip(levels, levels[1:])], inf]
+    gray = reflected_words(width)
+    energy = 2*sum(level**2 for level in levels)/side
+    noise_std = sqrt(energy / (4*width*10**(db/10)))
+    axis_symbol_errors = axis_bit_errors = 0.0
+    for sent, level in enumerate(levels):
+        for decided, (left, right) in enumerate(zip(boundaries, boundaries[1:])):
+            if sent == decided:
+                continue
+            weight = gaussian_interval((left-level)/noise_std, (right-level)/noise_std)
+            bit_errors = sum(a != b for a, b in zip(gray[sent], gray[decided], strict=True))
+            axis_symbol_errors += weight / side
+            axis_bit_errors += weight * bit_errors / side
+    return {
+        'order': side**2,
+        'eb_n0_db': db,
+        'ser': axis_symbol_errors * (2 - axis_symbol_errors),
+        'gray_ber': axis_bit_errors / width,
+    }
+
+
 def reference_report():
     pulses = []
     for rolloff in (0.0, 0.2, 0.25, 0.5, 1.0):
@@ -61,6 +95,10 @@ def reference_report():
         'square_qam_raw_energy': [[side**2, 2*sum((2*i-side+1)**2 for i in range(side))/side]
                                   for side in (2, 4, 8, 16)],
         'antipodal_ber': [[db, antipodal_ber(db)] for db in (-3, 0, 4, 8, 12)],
+        'square_qam_decision_probabilities': [
+            square_qam_decision_reference(side, db)
+            for side in (2, 4, 8, 16) for db in (-3, 0, 4, 8, 12)
+        ],
     }
 
 

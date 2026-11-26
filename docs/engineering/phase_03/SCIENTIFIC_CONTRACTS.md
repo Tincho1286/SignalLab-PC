@@ -16,3 +16,7 @@ Convenciones de diseño para la primera revisión. Cada tipo sigue el dominio de
 | Barrido | Configuración base, ejes declarados, orden de recorrida, política de semillas y criterios de detención. Solo incorpora al índice resultados con proyecto validado. |
 
 Las configuraciones distinguen la tasa de bits útil, cuando corresponde, de la tasa nominal sin codificación `Rb = k Rs`. Deben especificar transitorios, muestras y relleno excluidos de cada medición. Un registro guarda valores de energía según la normalización discreta adoptada y la conversión a unidades físicas requiere contexto adicional. [Convenciones matemáticas](MATHEMATICAL_FOUNDATIONS.md)
+
+Las etiquetas de símbolo se guardan con su orden de modulación y número de bits útiles. Los I/Q exportados como `Signal` temporal conservan el índice `n` y documentan el reloj físico. El Core interpreta la unidad `k` como armónicos de Fourier y la reserva para ese uso. Una amplitud de símbolo exportada como señal discreta registra una muestra por símbolo. Un registro sobremuestreado indica el cociente entero entre la tasa de muestras y la de símbolos.
+
+Para persistir entradas compactas, el diseño inicial usa longitud y orden de bits explícitos junto a los bytes codificados. La lectura verifica la longitud esperada antes de decodificar y comprueba que el relleno externo a la secuencia sea cero. Las etiquetas usan un ancho y orden de bytes explícitos. Las relaciones con señales se expresan mediante los padres del proyecto, de modo que importar un subconjunto pueda conservar y verificar su procedencia.
