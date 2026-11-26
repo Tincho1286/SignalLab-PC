@@ -9,6 +9,11 @@ from signallab_pc.result_summary import transform_summary
 from signallab_pc.transform_status import finalize
 
 
+def historical_library_index():
+    path = Path(__file__).with_name('fixtures')/'library-phase-02c-index.json'
+    return json.loads(path.read_text(encoding='utf-8'))
+
+
 def expression(result):
     if not result['evaluated']:raise AssertionError(result)
     return parse(result['branches'][0]['expression'] if result.get('branches') else result['result'])
@@ -583,7 +588,7 @@ assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
         by_id={section['article_id']:section for section in values}
         periodic_references={'reference:repeat','reference:repeat-samples','reference:pulse-train','reference:impulse-train'}
         extra_references={'reference:mod','reference:funciones-especiales','reference:cas-arguments'}
-        self.assertEqual(len(values),125+len(periodic_references)+len(extra_references))
+        self.assertEqual(set(historical_library_index()['article_ids']) - by_id.keys(), set())
         self.assertTrue((periodic_references|extra_references).issubset(by_id))
         generation=by_id['tool:basic:generate']
         self.assertTrue(periodic_references.issubset({key for key,_ in generation['related']}))
@@ -744,7 +749,14 @@ assert normalized_key(('Legacy','systems',3,None))==('system_analysis',0)
         from signallab_pc.library_catalog import sections
         from signallab_pc.function_reference import function_sections
         articles,guides,_=read_content()
-        self.assertEqual(len(articles),85);self.assertEqual(len(guides),109)
+        historical = historical_library_index()
+        self.assertEqual({tuple(route) for route in historical['article_routes']} - articles.keys(), set())
+        self.assertEqual({tuple(route) for route in historical['guide_routes']} - guides.keys(), set())
+        from signallab_pc.tool_catalog import DETAILS_BY_KEY
+        communication_routes = {route for route in DETAILS_BY_KEY if route[0] == 'communications'}
+        self.assertTrue(communication_routes)
+        self.assertEqual(communication_routes - articles.keys(), set())
+        self.assertEqual(communication_routes - guides.keys(), set())
         self.assertTrue(all(len(value['flow'])==3 for value in guides.values()))
         self.assertEqual(guides['basic','measures']['flow'][1],'E = Σ|x[n]|²')
         self.assertTrue(all(section['blocks'] for section in sections()))

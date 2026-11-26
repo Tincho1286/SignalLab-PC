@@ -28,7 +28,8 @@ def validate_publication_files(tag, target, channel, paths, gate):
     if not isinstance(gate, dict) or gate.get('commit') != target or gate.get('automated_passed') is not True:
         raise ValueError('La evidencia del Quality Gate debe aprobar el SHA de la publicación.')
     platforms = gate.get('platforms', {})
-    if not isinstance(platforms, dict) or not {'windows-2022', 'ubuntu-22.04'} <= platforms.keys():
+    runners = {'windows': 'windows-2022', 'linux': 'ubuntu-22.04'}
+    if not isinstance(platforms, dict) or not set(runners.values()) <= platforms.keys():
         raise ValueError('El Quality Gate requiere evidencia de Windows y Linux.')
     files = {path.name: path for path in paths}
     if len(files) != len(paths):
@@ -50,8 +51,11 @@ def validate_publication_files(tag, target, channel, paths, gate):
     if declared != calculated:
         raise ValueError('Los checksums no coinciden con todos los adjuntos de la publicación.')
     fingerprints = set()
-    for platform in ('windows', 'linux'):
+    for platform, runner in runners.items():
         receipt = json.loads(files[f'candidate-{platform}.json'].read_text(encoding='utf-8-sig'))
+        controls = platforms[runner]
+        if not isinstance(controls, dict) or controls.get('candidate_bundle') != receipt:
+            raise ValueError('El comprobante de construcción difiere del expediente del Quality Gate.')
         if (receipt.get('commit'), receipt.get('version'), receipt.get('channel'), receipt.get('platform')) != (
             target, version, channel, platform,
         ):

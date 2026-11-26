@@ -43,3 +43,9 @@ Se incorporó un catálogo con un SLPROJ por corrida y guardado atómico del ín
 ## Preparación del candidato · WP-08
 
 El empaquetado comprueba la ejecución de un enlace desde el binario y reabre el proyecto resultante. El Quality Gate verifica los informes de ambas plataformas, las medidas de recursos, el aislamiento de Preview y la procedencia de sus portables e instaladores. La política de publicación reserva 2.0.x para Stable/LTS y usa 2.1.0 como versión del primer candidato de Engineering. Se comprobaron localmente los contratos del actualizador y del publicador con firmas de ensayo. [Auditoría de distribución](../DISTRIBUTION_INFRASTRUCTURE_AUDIT.md) · [Criterios](QUALITY_GATE_CRITERIA.md)
+
+### Regresión del control de biblioteca
+
+El control rápido de `6b64361` detectó dos aserciones que exigían totales exactos de artículos y guías. Ambas rechazaron el catálogo ampliado del laboratorio aún con todas las entradas históricas presentes. La misma comprobación detuvo la construcción de portables de ese SHA. Se canceló la matriz de ese candidato. El control ahora conserva el índice de 02C extraído de `a5eafa9`, verifica cada identificador y ruta histórica, y exige artículo y guía para cada nueva herramienta de comunicaciones. Se mantienen las comprobaciones de unicidad, enlaces y contenido. [Control rápido](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45831250799) · [Matriz interrumpida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45831312526)
+
+La verificación de publicación compara los comprobantes de paquetes con los datos emitidos por el Quality Gate. Se probó el rechazo de un recibo distinto del aprobado, aunque el hash del archivo local cuadre. `python -B -X utf8 tools/check_integral.py --list` descubrió 1 184 pruebas. El verificador de Fase 03 rechazó como candidato el expediente histórico de 02C y produjo un informe de controles pendientes, como se esperaba.

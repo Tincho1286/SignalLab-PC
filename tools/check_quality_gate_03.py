@@ -61,7 +61,8 @@ def _platform(folders, candidate, operating_system):
         and bundle.get('portable_sha256') == native.get('artifact_sha256') and bool(bundle.get('files')),
     }
     return {'checks': checks, 'coverage': core['coverage'], 'critical': critical,
-            'communications_tests': len(runs), 'integral_tests': core['tests'], 'portable_version': bundle.get('version')}
+            'communications_tests': len(runs), 'integral_tests': core['tests'], 'portable_version': bundle.get('version'),
+            'candidate_bundle': bundle if checks['candidate_bundle'] else None}
 
 
 def evaluate(folder, candidate):
@@ -70,7 +71,9 @@ def evaluate(folder, candidate):
         reports = [path for path in folder.glob('engineering-*') if path.is_dir() and f'-{name}-' in path.name]
         platforms[name] = _platform(reports, candidate, operating_system)
     versions = {value['portable_version'] for value in platforms.values()}
-    passed = len(versions) == 1 and None not in versions and all(
+    source = {value['candidate_bundle'].get('source_fingerprint') if value['candidate_bundle'] else None
+              for value in platforms.values()}
+    passed = len(versions) == 1 and None not in versions and len(source) == 1 and None not in source and all(
         all(platform['checks'].values()) for platform in platforms.values()
     )
     return {'phase': '03', 'commit': candidate, 'platforms': platforms, 'automated_passed': passed}

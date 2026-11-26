@@ -143,24 +143,33 @@ class ReleasePolicyTests(unittest.TestCase):
         (folder/f'SHA256SUMS-{version}.txt').write_text(sums, encoding='utf-8')
         return list(folder.iterdir())
 
-    def gate(self):
+    def gate(self, folder):
+        runners = {'windows-2022': 'windows', 'ubuntu-22.04': 'linux'}
         return {'commit': CANDIDATE, 'automated_passed': True,
-                'platforms': {'windows-2022': {}, 'ubuntu-22.04': {}}}
+                'platforms': {runner: {'candidate_bundle': json.loads(
+                    (folder/f'candidate-{system}.json').read_text(encoding='utf-8'))}
+                    for runner, system in runners.items()}}
 
     def test_checksums_and_candidate_receipts_are_mandatory(self):
         with TemporaryDirectory() as directory:
             folder = Path(directory)
             assets = self.files(folder, '2.1.0', 'preview')
-            validate_publication_files('v2.1.0', CANDIDATE, 'preview', assets, self.gate())
+            gate = self.gate(folder)
+            validate_publication_files('v2.1.0', CANDIDATE, 'preview', assets, gate)
             with self.assertRaisesRegex(ValueError, 'Quality Gate'):
-                validate_publication_files('v2.1.0', CANDIDATE, 'preview', assets, self.gate() | {'commit': 'ff'*20})
+                validate_publication_files('v2.1.0', CANDIDATE, 'preview', assets, gate | {'commit': 'ff'*20})
+            gate['platforms']['windows-2022']['candidate_bundle']['files']['SignalLab-PC-2.1.0.exe']['sha256'] = 'a0'*32
+            with self.assertRaisesRegex(ValueError, 'expediente del Quality Gate'):
+                validate_publication_files('v2.1.0', CANDIDATE, 'preview', assets, gate)
             (folder/'SignalLab-PC-2.1.0.exe').write_bytes(b'changed')
             with self.assertRaisesRegex(ValueError, 'checksums'):
-                validate_publication_files('v2.1.0', CANDIDATE, 'preview', assets, self.gate())
+                validate_publication_files('v2.1.0', CANDIDATE, 'preview', assets, self.gate(folder))
 
     def test_preview_publication_flags_never_replace_latest_or_modify_published_release(self):
         with TemporaryDirectory() as directory:
-            assets = self.files(Path(directory), '2.1.0', 'preview')
+            folder = Path(directory)
+            assets = self.files(folder, '2.1.0', 'preview')
+            gate = self.gate(folder)
             publisher = GitHub.__new__(GitHub)
             publisher.repository = REPOSITORY
             publisher.require_repository = Mock()
@@ -187,14 +196,14 @@ class ReleasePolicyTests(unittest.TestCase):
             with (patch('signallab_pc.update_manifest.public_key', return_value=self.public),
                   patch('tools.github_release.require_publication_checkout') as validate_checkout):
                 result, _ = publisher.publish('v2.1.0', 'Preview', 'Notes', assets, CANDIDATE,
-                                              allow_public=True, gate=self.gate())
+                                              allow_public=True, gate=gate)
                 self.assertEqual(result, activated)
                 validate_checkout.assert_called_once_with(Path(__file__).resolve().parents[1], CANDIDATE, 'preview', None)
                 publisher.ensure_release_tag.assert_called_once_with('v2.1.0', CANDIDATE, 'Preview', detached_lts=False)
                 publisher.api = Mock(return_value=draft | {'draft': False})
                 publisher.ensure_release_tag.reset_mock()
                 with self.assertRaisesRegex(ValueError, 'conserva'):
-                    publisher.publish('v2.1.0', 'Preview', 'Notes', assets, CANDIDATE, gate=self.gate())
+                    publisher.publish('v2.1.0', 'Preview', 'Notes', assets, CANDIDATE, gate=gate)
                 publisher.ensure_release_tag.assert_not_called()
 
     def test_lts_tag_transfers_detached_commit_without_pushing_a_branch(self):
