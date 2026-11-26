@@ -109,6 +109,20 @@ raise SystemExit(main())
             self.assertEqual(result['stopping_rule'], 'fixed_symbol_count')
             self.assertEqual(result, json.loads(monte.read_text(encoding='utf-8')))
 
+    def test_sweep_cli_runs_and_verifies_a_reproducible_grid(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            output = root/'experiment'
+            result = self.invoke('sweep', '--axis', 'eb_n0_db=2,6', '--axis', 'span_symbols=4,8',
+                                 '--bits', 96, '--output', output)
+            self.assertEqual((result['completed'], result['planned'], result['complete']), (4, 4, True))
+            csv_path = root/'results.csv'
+            inspected = self.invoke('sweep', '--inspect', '--output', output, '--csv', csv_path)
+            self.assertEqual(result, inspected)
+            self.assertIn('span_symbols', csv_path.read_text(encoding='utf-8'))
+            invalid = self.invoke('sweep', '--axis', 'sps:2,4', '--output', root/'invalid', expected=1)
+            self.assertIn('parámetro=valor1,valor2', invalid)
+
 
 if __name__ == '__main__':
     unittest.main()

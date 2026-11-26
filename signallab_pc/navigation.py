@@ -23,6 +23,7 @@ MENUS['Señales aleatorias'] += [('Analizar modelo AR, MA o ARMA','random_model'
 
 MENUS['Comunicaciones'] = [
     ('Enlace digital','communications','link',None),
+    ('Barridos y comparación','communications','sweep',None),
     ('Modulación PSK y QAM','communications','modulate',None),
     ('Pulsos y filtro adaptado','communications','pulse','discrete'),
     ('Canal AWGN','communications','awgn','discrete'),

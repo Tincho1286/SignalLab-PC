@@ -16,6 +16,7 @@ from .communications_modulation import decide_symbols, generate_bits, group_bits
 from .communications_pulses import PulseSpec, apply_pulse, design_pulse, upsample_symbols
 from .communications_receiver import SynchronizationSpec, recover_symbols
 from .communications_storage import decode_symbols, encode_bits, encode_symbols, save_experiment
+from .communications_sweep import SweepSpec, axis_from_text, export_sweep_csv, load_sweep, run_sweep
 from .dsp_application import store_signal
 from .project import Project
 
@@ -60,10 +61,11 @@ def _synchronization(args):
     return SynchronizationSpec(args.sync, args.offset, args.phase, args.search_first, args.search_last)
 
 
-def _bits_arguments(parser):
-    source = parser.add_mutually_exclusive_group()
+def _bits_arguments(parser, *, manual=True):
+    source = parser.add_mutually_exclusive_group() if manual else parser
     source.add_argument('--bits', type=int, default=4096, help='Cantidad de bits pseudoaleatorios.')
-    source.add_argument('--manual-bits', help='Bits 0 y 1, con espacios opcionales.')
+    if manual:
+        source.add_argument('--manual-bits', help='Bits 0 y 1, con espacios opcionales.')
     parser.add_argument('--seed', type=int, default=2026)
     parser.add_argument('--no-padding', action='store_true', help='Exigí palabras completas.')
     parser.add_argument('--symbol-rate', type=float, default=12000, help='Símbolos por segundo.')
@@ -73,14 +75,18 @@ def _save(path, project, workspace, ctx):
     session.save(path, project, workspace, before_commit=ctx.checkpoint, checkpoint=ctx.checkpoint)
 
 
-def _link(args, ctx):
-    source = None if args.manual_bits is None else parse_bits(args.manual_bits, ctx)
-    spec = ExperimentSpec(
-        bit_count=args.bits if source is None else source.values.size, seed=args.seed,
+def _experiment_configuration(args, bit_count):
+    return ExperimentSpec(
+        bit_count=bit_count, seed=args.seed,
         symbol_rate_hz=args.symbol_rate, constellation=_constellation(args), pulse=_pulse(args),
         eb_n0_db=None if args.no_noise else args.eb_n0, synchronization=_synchronization(args),
         pilot_symbols=args.pilot_symbols, allow_padding=not args.no_padding,
     )
+
+
+def _link(args, ctx):
+    source = None if args.manual_bits is None else parse_bits(args.manual_bits, ctx)
+    spec = _experiment_configuration(args, args.bits if source is None else source.values.size)
     result = run_experiment(spec, bits=source, execution=ctx)
     identifier = save_experiment(args.output, result, ctx)
     return {'record': identifier, **result.report()}
@@ -193,6 +199,34 @@ def _monte_carlo(args, ctx):
     return report
 
 
+def _sweep(args, ctx):
+    if args.inspect:
+        if args.axis:
+            raise ValueError('Abrir un barrido usa la configuración del catálogo.')
+        result = load_sweep(args.output, ctx)
+    else:
+        axes = []
+        for raw in args.axis:
+            parameter, separator, values = raw.partition('=')
+            if not separator:
+                raise ValueError('Usá --axis parámetro=valor1,valor2.')
+            axes.append(axis_from_text(parameter, values))
+        spec = SweepSpec(_experiment_configuration(args, args.bits), tuple(axes), args.seed_policy)
+        result = run_sweep(spec, args.output, ctx)
+    if args.csv is not None:
+        export_sweep_csv(result, args.csv, ctx)
+    return {'directory': str(result.directory), 'planned': result.planned,
+            'completed': len(result.runs), 'complete': result.complete}
+
+
+def _link_channel_arguments(parser):
+    _synchronization_arguments(parser)
+    noise = parser.add_mutually_exclusive_group()
+    noise.add_argument('--eb-n0', type=float, default=6.0)
+    noise.add_argument('--no-noise', action='store_true')
+    parser.add_argument('--pilot-symbols', type=int, default=24)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog='signallab-pc communications', description='Laboratorio digital sin Qt.')
     commands = parser.add_subparsers(dest='operation', required=True)
@@ -200,11 +234,7 @@ def main(argv=None):
     _bits_arguments(link)
     _constellation_arguments(link)
     _pulse_arguments(link)
-    _synchronization_arguments(link)
-    noise = link.add_mutually_exclusive_group()
-    noise.add_argument('--eb-n0', type=float, default=6.0)
-    noise.add_argument('--no-noise', action='store_true')
-    link.add_argument('--pilot-symbols', type=int, default=24)
+    _link_channel_arguments(link)
     add_output_arguments(link)
     link.set_defaults(execute=_link)
 
@@ -272,4 +302,16 @@ def main(argv=None):
     mc.add_argument('--seed', type=int, default=2026)
     add_output_arguments(mc)
     mc.set_defaults(execute=_monte_carlo)
+
+    sweep = commands.add_parser('sweep', help='Ejecutá, retomá o revisá un barrido guardado.')
+    _bits_arguments(sweep, manual=False)
+    _constellation_arguments(sweep)
+    _pulse_arguments(sweep)
+    _link_channel_arguments(sweep)
+    sweep.add_argument('--axis', action='append', default=[], help='Parámetro y valores. Ejemplo: eb_n0_db=0,2,4,6.')
+    sweep.add_argument('--seed-policy', choices=('per_run', 'common'), default='per_run')
+    sweep.add_argument('--inspect', action='store_true', help='Verificá el catálogo existente y sus archivos.')
+    sweep.add_argument('--csv', type=Path, help='Exportá las corridas verificadas a una tabla.')
+    add_output_arguments(sweep)
+    sweep.set_defaults(execute=_sweep)
     return run_command(parser, argv, None, 'No se pudo completar la operación de comunicaciones')

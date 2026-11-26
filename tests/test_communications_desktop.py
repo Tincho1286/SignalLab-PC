@@ -95,6 +95,10 @@ class CommunicationsDesktopTests(unittest.TestCase):
             canvas = entries[name][0]()
             self.assertTrue(canvas._signallab_window.isVisible())
             self.assertTrue(canvas.figure.axes)
+            if name == 'Constelación':
+                filename = Path(self.folder)/'constelacion.png'
+                canvas.print_figure(filename, dpi=140)
+                self.assertEqual(filename.read_bytes()[:8], b'\x89PNG\r\n\x1a\n')
             canvas._signallab_window.hide()
         self.assertEqual(set(item[2] for item in launcher.available()), set(entries))
         self.window.resize(1200, 800)
@@ -188,6 +192,32 @@ class CommunicationsDesktopTests(unittest.TestCase):
         figures.spectrum_figure(density, figures.spectrum_data(original, density=True), density=True)
         self.assertEqual(density.axes[0].get_xlabel(), 'Frecuencia (Hz)')
         self.assertIn('/Hz', density.axes[0].get_ylabel())
+
+    def test_sweep_tool_compares_and_imports_its_verified_runs(self):
+        page, panel = self.open('sweep')
+        folder = Path(self.folder)/'campaign'
+        panel.fields['directory'].setText(str(folder))
+        panel.fields['axis_values'].setText('0, 4')
+        panel.fields['bit_count'].setText('360')
+        self.calculate()
+        self.assertEqual(panel.run_choice.count(), 2)
+        self.assertTrue(panel.campaign.complete)
+        self.assertIn('2 de 2', panel.result.text.toPlainText())
+        self.assertFalse(panel.resume_sweep.isEnabled())
+        launcher = page.workspace.results.graph_launcher
+        launcher.open_default()
+        self.wait()
+        self.app.processEvents()
+        canvas = panel.canvas['Comparación de corridas'][0]
+        self.assertEqual([axis.get_ylabel() for axis in canvas.figure.axes], ['BER', 'SER', 'EVM (%)'])
+        self.assertEqual(canvas.figure.axes[-1].get_xlabel(), 'Eb/N₀ (dB)')
+        canvas._signallab_window.hide()
+        panel._open_sweep()
+        self.wait()
+        panel.import_run.click()
+        self.wait()
+        records = self.window.project.headers('calculation')
+        self.assertTrue(any(row['title'] == 'Experimento de comunicaciones' for row in records))
 
 
 if __name__ == '__main__':

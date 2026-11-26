@@ -12,6 +12,15 @@
       ]
     },
     {
+      "key": ["communications", "sweep"],
+      "blocks": [
+        ["Qué podés hacer", "Repetí un enlace mientras variás un parámetro y compará BER, SER y EVM en un gráfico común."],
+        ["Cómo preparar el cálculo", "Elegí una carpeta de trabajo, un parámetro y valores separados por comas. El resto del formulario configura el enlace base. Las semillas pueden variar por corrida o ser comunes."],
+        ["Cómo interpretar la salida", "Cada corrida tiene su archivo SLPROJ. El catálogo conserva parámetros, orden, semilla y huella. Podés incorporar una corrida al proyecto o exportar la comparación completa a CSV."],
+        ["Qué tener en cuenta", "Para retomar, abrí la carpeta guardada y elegí Continuar barrido. Se verifican las corridas ya guardadas. Los puntos de BER y SER cero se muestran como cotas si el método estadístico las define."]
+      ]
+    },
+    {
       "key": ["communications", "modulate"],
       "blocks": [
         ["Qué podés hacer", "Convertí una secuencia binaria en etiquetas y puntos complejos I/Q. Cada símbolo contiene log₂(M) bits."],
@@ -72,6 +81,12 @@
       "flow": ["Bits y reloj", "Pulso → AWGN → recepción", "I/Q, BER, SER y EVM"],
       "parameters": [["Rs y L", "Rs expresa símbolos/s. L expresa muestras/símbolo. Su producto es Fs."], ["Eb/N₀", "Relación de energía por bit a densidad de ruido. Se expresa en dB."], ["Sincronización", "Elegí referencia de retardo, alineación asistida o correlación con piloto."]],
       "reading": "Leé primero el estado de sincronización. Si está disponible, compará la constelación recibida y las métricas del contenido útil."
+    },
+    {
+      "key": ["communications", "sweep"],
+      "flow": ["Enlace base y eje", "Ejecutar o retomar corridas", "Catálogo y gráficos"],
+      "parameters": [["Eje", "Podés variar Eb/N₀, el orden, β, L, span o cantidad de símbolos."], ["Valores", "Separalos con coma y usá punto para los decimales."], ["Carpeta", "Guarda un archivo por corrida y un catálogo verificable."]],
+      "reading": "Las líneas continuas muestran resultados medidos. Las discontinuas representan referencias coherentes, que se identifican como teóricas o aproximadas."
     },
     {
       "key": ["communications", "modulate"],

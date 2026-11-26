@@ -20,19 +20,21 @@ from .communications_modulation import build_constellation, decide_symbols, gene
 from .communications_pulses import PulseSpec, apply_pulse, design_pulse, matched_pulse_isi, upsample_symbols
 from .communications_receiver import SynchronizationSpec, recover_symbols
 from .communications_storage import decode_symbols, encode_bits, encode_symbols, load_experiment, store_experiment
+from .communications_sweep import AXES, SweepSpec, axis_from_text, export_sweep_csv, load_sweep, load_sweep_run, run_sweep
 from .execution import ExecutionContext
 from .numeric_input import integer_field, real_field
 from .plot_view import hide_plot
 from .project import Project
 from .result_state import ResultState
 from .result_summary import Section, Summary, number
+from .tool_workspace import ToolWorkspace
 from .validation import show_input_error
 
 
 _LABELS = {
     'link': 'Ejecutar enlace', 'modulate': 'Modular bits', 'pulse': 'Calcular pulso',
     'awgn': 'Aplicar AWGN', 'receive': 'Recuperar símbolos', 'decide': 'Decidir símbolos',
-    'measure': 'Medir calidad',
+    'measure': 'Medir calidad', 'sweep': 'Ejecutar barrido',
 }
 _CONSTE = 'Constelación'
 _IQ = 'I/Q'
@@ -42,10 +44,11 @@ _PSD = 'PSD'
 _IMPULSE = 'Impulso del filtro'
 _FREQUENCY = 'Respuesta del filtro'
 _ERRORS = 'Tasas de error'
+_COMPARISON = 'Comparación de corridas'
 _VIEWS = {
     'link': (_CONSTE, _IQ, _EYE, _SPECTRUM, _PSD, _IMPULSE, _FREQUENCY, _ERRORS),
     'modulate': (_CONSTE, _IQ), 'pulse': (_IMPULSE, _FREQUENCY, _IQ), 'awgn': (_IQ, _PSD),
-    'receive': (_IQ,), 'decide': (_CONSTE,), 'measure': (),
+    'receive': (_IQ,), 'decide': (_CONSTE,), 'measure': (), 'sweep': (_COMPARISON,),
 }
 
 
@@ -175,6 +178,27 @@ class CommunicationsPanel(QWidget):
             self.export_experiment.setMenu(menu)
             self.export_experiment.setEnabled(False)
             self.result.actions.replace_action('export', self.export_experiment)
+        elif mode == 'sweep':
+            self.campaign = None
+            self.run_choice = QComboBox()
+            self.run_choice.setAccessibleName('Corrida guardada')
+            self.run_choice.hide()
+            self.result.layout().insertWidget(2, self.run_choice)
+            save = QPushButton('Exportar CSV…')
+            save.clicked.connect(self._export_sweep)
+            save.setEnabled(False)
+            self.result.actions.replace_action('export', save)
+            self.sweep_export = save
+            load = QPushButton('Incorporar corrida')
+            load.clicked.connect(self._import_run)
+            load.setEnabled(False)
+            self.result.actions.replace_action('reuse', load)
+            self.import_run = load
+            resume = QPushButton('Continuar barrido')
+            resume.setEnabled(False)
+            resume.clicked.connect(self._continue_sweep)
+            self.result.actions.add_action(resume)
+            self.resume_sweep = resume
 
     def _set(self, key, label, widget, tip=''):
         widget.setAccessibleName(label)
@@ -212,11 +236,12 @@ class CommunicationsPanel(QWidget):
         self.form.setRowVisible(widget, shown)
         widget.setProperty('calculationInput', shown)
 
-    def _bits(self):
+    def _bits(self, *, manual=True):
         self._line('bit_count', 'Cantidad de bits aleatorios', 4096)
-        manual = self._line('manual_bits', 'Bits manuales', '', 'Ingresá ceros y unos. Podés separarlos con espacios.')
-        manual.setPlaceholderText('Opcional · si queda vacío, se genera la secuencia')
-        manual.textChanged.connect(lambda text: self._visible(self.fields['bit_count'], not text.strip()))
+        if manual:
+            field = self._line('manual_bits', 'Bits manuales', '', 'Ingresá ceros y unos. Podés separarlos con espacios.')
+            field.setPlaceholderText('Opcional · si queda vacío, se genera la secuencia')
+            field.textChanged.connect(lambda text: self._visible(self.fields['bit_count'], not text.strip()))
         self._line('seed', 'Semilla', 2026)
         self._line('symbol_rate', 'Tasa de símbolos Rs (símbolos/s)', 12000)
         self._check('padding', 'Completar el último símbolo con ceros', True)
@@ -269,14 +294,31 @@ class CommunicationsPanel(QWidget):
         mode.currentIndexChanged.connect(changed)
         changed()
 
-    def _build_link(self):
-        self._bits()
+    def _link_fields(self, *, manual=True):
+        self._bits(manual=manual)
         self._constellation()
         self._pulse_fields()
         noise = self._check('noise_enabled', 'Incluir canal AWGN', True)
         field = self._line('eb_n0', 'Eb/N₀ (dB)', 6)
         noise.toggled.connect(lambda enabled: self._visible(field, enabled))
         self._synchronization(chain=True)
+
+    def _build_link(self):
+        self._link_fields()
+
+    def _build_sweep(self):
+        self._line('directory', 'Carpeta del barrido')
+        select = QPushButton('Elegir carpeta…')
+        select.clicked.connect(self._choose_sweep_folder)
+        self.form.addRow(select)
+        restore = QPushButton('Abrir barrido guardado')
+        restore.clicked.connect(self._open_sweep)
+        self.form.addRow(restore)
+        self._combo('axis', 'Parámetro que varía', [(caption, name) for name, caption in AXES.items()])
+        self._line('axis_values', 'Valores separados por coma', '0, 2, 4, 6, 8', 'Para decimales usá punto.')
+        self._combo('seed_policy', 'Semillas',
+                    (('Independientes por corrida', 'per_run'), ('Común a las corridas', 'common')))
+        self._link_fields(manual=False)
 
     def _build_modulate(self):
         self._bits()
@@ -390,16 +432,19 @@ class CommunicationsPanel(QWidget):
         except Exception as exc:
             show_input_error(self, 'Revisá los datos', exc)
 
-    def _run_link(self):
-        text = self.fields['manual_bits'].text()
-        count = self._int('bit_count') if not text.strip() else len(''.join(text.split()))
-        spec = ExperimentSpec(
+    def _experiment_spec(self, count):
+        return ExperimentSpec(
             bit_count=count, seed=self._int('seed'), symbol_rate_hz=self._real('symbol_rate'),
             constellation=self._constellation_spec(), pulse=self._pulse_spec(),
-            eb_n0_db=self._real('eb_n0') if self.fields['noise_enabled'].isChecked() else None,
+            eb_n0_db=real_field(self.fields['eb_n0']) if self.fields['noise_enabled'].isChecked() else None,
             synchronization=self._sync_spec(chain=True), pilot_symbols=self._int('pilot_symbols', 24),
             allow_padding=self.fields['padding'].isChecked(),
         )
+
+    def _run_link(self):
+        text = self.fields['manual_bits'].text()
+        count = self._int('bit_count') if not text.strip() else len(''.join(text.split()))
+        spec = self._experiment_spec(count)
 
         def task():
             with ExecutionContext().aggregate_progress() as ctx:
@@ -412,6 +457,99 @@ class CommunicationsPanel(QWidget):
             return output, project, key
 
         return task, self._show_experiment
+
+    def _campaign_directory(self):
+        text = self.fields['directory'].text().strip()
+        if not text:
+            raise ValueError('Elegí una carpeta para los archivos del barrido.')
+        return Path(text).expanduser()
+
+    def _choose_sweep_folder(self):
+        folder = QFileDialog.getExistingDirectory(self, 'Carpeta del barrido', self.fields['directory'].text())
+        if folder:
+            self.fields['directory'].setText(folder)
+
+    def _open_sweep(self):
+        try:
+            directory = self._campaign_directory()
+            self.window._run_view_operation('Verificando las corridas…', lambda: load_sweep(directory), self._show_sweep)
+        except ValueError as exc:
+            show_input_error(self, 'Revisá la carpeta', exc)
+
+    def _run_sweep(self):
+        directory = self._campaign_directory()
+        axis = axis_from_text(self._choice('axis'), self.fields['axis_values'].text())
+        plan = SweepSpec(self._experiment_spec(self._int('bit_count')), (axis,), self._choice('seed_policy'))
+
+        def accept(result):
+            self.window.publish({'directory': str(result.directory), 'planned': result.planned,
+                                 'completed': len(result.runs), 'axes': [asdict(axis) for axis in result.specification.axes]},
+                                title='Barrido de comunicaciones', operation='Barrido paramétrico')
+            self._show_sweep(result)
+
+        return lambda: run_sweep(plan, directory), accept
+
+    def _continue_sweep(self):
+        campaign = self.campaign
+        self.window._run_view_operation('Continuando barrido…',
+                                        lambda: run_sweep(campaign.specification, campaign.directory), self._show_sweep)
+
+    def _show_sweep(self, value):
+        self.campaign = value
+        self.sweep_export.setEnabled(bool(value.runs))
+        self.import_run.setEnabled(bool(value.runs))
+        self.resume_sweep.setEnabled(not value.complete)
+        self.run_choice.clear()
+        for row in value.runs:
+            name = ', '.join(f'{AXES[key]}={number(item)}' for key, item in row['parameters'].items())
+            self.run_choice.addItem(f"{row['ordinal']}. {name}", row['ordinal'])
+        self.run_choice.setVisible(bool(value.runs))
+        paragraphs = [] if value.complete else ['El catálogo conserva las corridas ya verificadas.']
+        if len(value.runs) > 40:
+            paragraphs.append('La tabla muestra las primeras 40 corridas. El CSV incluye todas las corridas verificadas.')
+        rows = [('Carpeta', str(value.directory)), ('Corridas verificadas', f'{len(value.runs)} de {value.planned}'),
+                ('Semillas', 'Común' if value.specification.seed_policy == 'common' else 'Independientes por corrida')]
+        comparisons = []
+        for row in value.runs[:40]:
+            name = ', '.join(f'{AXES[key]}={number(item)}' for key, item in row['parameters'].items())
+            metrics = row['metrics']
+            if metrics is None:
+                detail = 'Sin sincronización disponible'
+            else:
+                ber, ser, evm = metrics['ber'], metrics['ser'], metrics['evm']['percent']
+                detail = f"BER {ber['errors']}/{ber['evaluated']} · SER {ser['errors']}/{ser['evaluated']}"
+                if evm is not None:
+                    detail += f' · EVM {evm:.4g} %'
+            comparisons.append((name, detail))
+        axes = {_COMPARISON: (partial(figures.sweep_figure, sweep=value), None)} if value.runs else {}
+        self._display(Summary('Barrido de comunicaciones', [
+            Section('Catálogo', paragraphs=paragraphs, rows=rows),
+            Section('Corridas', rows=comparisons),
+        ]), axes, {})
+        workspace = self.findChild(ToolWorkspace)
+        if workspace is not None:
+            workspace.show_results()
+
+    def _import_run(self):
+        campaign, ordinal = self.campaign, self.run_choice.currentData()
+
+        def accept(output):
+            project, key = output
+            mapping = self.window.project.incorporate(project, root=key)
+            self.window.refresh_project()
+            self.window.focus_result(mapping[key])
+
+        self.window._run_view_operation('Incorporando corrida…', lambda: load_sweep_run(campaign, ordinal), accept)
+
+    def _export_sweep(self):
+        path, _ = QFileDialog.getSaveFileName(self, 'Exportar tabla de corridas', 'barrido.csv', 'Tabla CSV (*.csv)')
+        if path:
+            destination = Path(path)
+            if not destination.suffix:
+                destination = destination.with_suffix('.csv')
+            campaign = self.campaign
+            self.window._run_view_operation('Exportando corridas…', lambda: export_sweep_csv(campaign, destination),
+                                            lambda _: self.window.statusBar().showMessage(f'Tabla guardada en {destination}'))
 
     def _show_experiment(self, payload):
         result, project, key = payload

@@ -105,6 +105,7 @@ add('signals','Transformar',('signal_product',0),'Multiplicar señales','Product
 add('filters','Diseñar',('fir_window',0),'FIR desde h[n] propia y ventana','Cargar h[n], aplicar una ventana y obtener el FIR.','enventanar respuesta impulso propia coeficientes ventana')
 for mode, group, title, description in (
     ('link','Experimentos','Enlace digital','Cadena PSK o QAM, pulso, AWGN y recuperación.'),
+    ('sweep','Experimentos','Barridos y comparación','Variá parámetros, retomá corridas y compará BER, SER y EVM.'),
     ('modulate','Transmisión','Modulación PSK y QAM','Generá bits y convertí sus etiquetas en símbolos I/Q.'),
     ('pulse','Transmisión','Pulsos y filtro adaptado','Diseñá un pulso rectangular, RC o RRC y aplicá el FIR.'),
     ('awgn','Canal','Canal AWGN','Agregá ruido real o complejo con SNR, Es/N₀ o Eb/N₀.'),
