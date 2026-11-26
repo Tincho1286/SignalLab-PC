@@ -1,6 +1,7 @@
 # Puerta de calidad de Engineering Core
 
 Dictamen vigente en [Evaluación del candidato a80508c](#evaluación-del-candidato-a80508c). Los apartados de versiones anteriores conservan sus dictámenes históricos.
+La [auditoría de dependencias de 64dc3c4](#auditoría-de-dependencias-de-64dc3c4) resuelve E-01 por separado.
 
 **NO-GO de cierre definitivo.** El candidato supera la matriz técnica en Windows y Linux. El criterio de cobertura global y varios objetivos de ramas del Core siguen pendientes. Los riesgos P1 que permanecen requieren resolución o aceptación individual, junto con la evidencia manual pendiente.
 
@@ -119,3 +120,9 @@ Las tres regresiones se aprobaron en el runner Windows 2022 sobre `8e274e7`. La 
 - Los SBOM coinciden con 219 y 389 archivos nativos. Linux usa OpenSSL de Ubuntu `3.0.2-0ubuntu1.30`. Qt, OpenJPEG y HDF5 conservan mitigaciones y seguimiento de proveedor. El importador MAT tiene cuota del SO. Los motores numéricos mantienen admisión estimada y cancelación cooperativa en la envolvente ensayada. [Inventario y avisos](../security/DEPENDENCY_CONTINUATION.md#inventario-del-candidato-a80508c) · [Riesgos](RESIDUAL_RISK_REGISTER.md#alcance-residual-de-a80508c)
 
 El 26/11/2026 se registraron las aprobaciones de E-02 y E-03 y las pruebas Windows al 150 % y 200 % informadas por el mantenedor. La validación de escritorio Linux queda abierta en E-05. La firma y el canal público se evalúan por separado. [Aprobaciones](EXCEPTION_APPROVAL_REGISTER.md#aprobaciones-del-mantenedor-del-26-de-noviembre-de-2026) · [Protocolo Linux](../gui/DESKTOP_CONTINUATION.md#validación-pendiente-en-linux-real)
+
+## Auditoría de dependencias de 64dc3c4
+
+E-01 queda resuelta con Qt 6.12.1 y la exclusión de OpenJPEG. Pasaron las dos auditorías focalizadas en `64dc3c4` y se cotejaron los inventarios y los diagnósticos ejecutados por ambos instaladores. La cobertura integral se registra por separado en las matrices de `a80508c` y `2f1410c`. [Matriz de empaquetado](FINAL_VALIDATION_MATRIX.md#verificación-de-empaquetado-e-01) · [Registro de resolución](EXCEPTION_APPROVAL_REGISTER.md#resolución-técnica-de-e-01)
+
+El cierre formal del Core sigue pendiente del escritorio Linux real, con E-02 y E-03 aprobadas para sus alcances registrados. La preparación técnica para Fase 03 conserva su condición de cierre del Core y autorización específica. El dictamen de distribución sigue pendiente de E-04.

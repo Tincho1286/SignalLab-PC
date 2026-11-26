@@ -1,5 +1,11 @@
 # Registro de implementación
 
+## 26 de noviembre de 2026 · C-01 · Resolución de E-01
+
+Se fijaron las ruedas oficiales de Qt y los bindings 6.12.1 por revisión y SHA-256. Se reconstruyó Pillow 13.0.0 con JPEG 2000 deshabilitado. Durante la validación de Windows se corrigieron la inclusión de AVIF en la receta y el uso de un nombre de carpeta sin prefijo de ruta al invocar pip. El diálogo de figuras ajusta AVIF a la capacidad instalada de Pillow. [Causas y correcciones](security/DEPENDENCY_CONTINUATION.md#corrección-de-empaquetado-para-e-01)
+
+El despacho `native_packaging=true` de Mathematical reliability validó `64dc3c41ae6b7d4fc61c16d067ae86205ef520dc` en Windows 2022 y Ubuntu 22.04. Se cotejaron las huellas de cada archivo nativo en el inventario y el SBOM. Los dos instaladores confirmaron Qt 6.12.1 y la ausencia del códec, con 15 diagnósticos y 347 controles de interfaz por plataforma. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45753691354) · [Recibos](validation/evidence/ci-e01-64dc3c4.json)
+
 ## 26 de noviembre de 2026 · C-08 y C-11 · Candidato a80508c
 
 `a80508c224d902ce225c6b6cc66fd090210c52b2` incorpora `b6bcb85` y `87b74ed`. El despacho manual de Mathematical reliability en `develop` con `engineering_baseline=true` y `desktop_regressions=false` ejecutó una sola matriz. La suite Windows confirmó la identidad de rutas del directorio de fondos. Ambas suites verificaron el resultado y la figura después de cambiar de disposición. Pasaron 1 110 pruebas integrales, 150 casos preventivos y 37 controles por plataforma. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45745729541) · [Recibos](validation/evidence/ci-a80508c.json)

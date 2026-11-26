@@ -1,6 +1,7 @@
 # Aprobación de excepciones
 
 El estado vigente está en [Aprobaciones del mantenedor del 26 de noviembre de 2026](#aprobaciones-del-mantenedor-del-26-de-noviembre-de-2026).
+La [resolución técnica de E-01](#resolución-técnica-de-e-01) se incorpora con la evidencia de los portables de `64dc3c4`.
 
 | ID | Excepción | Estado |
 | --- | --- | --- |
@@ -82,3 +83,7 @@ Las decisiones expresas del mantenedor se registran para el expediente del candi
 | E-05 · Escritorio | **Windows aprobado. Linux pendiente.** | A las comprobaciones documentadas al 100 % y 125 % se suman las pruebas manuales al 150 % y 200 % informadas por el mantenedor. El acta pendiente corresponde a Linux en un escritorio real. |
 
 [Acta de Windows](../gui/DESKTOP_CONTINUATION.md#aceptación-de-los-escalados-de-windows) · [Perfiles operativos](../resources/OPERATIONAL_ENVELOPE.md) · [Dictamen vigente](QUALITY_GATE_REPORT.md#evaluación-del-candidato-a80508c)
+
+## Resolución técnica de E-01
+
+**E-01 resuelta** el 26/11/2026 para los portables Windows y Linux x64 de `64dc3c41ae6b7d4fc61c16d067ae86205ef520dc`. El runtime Qt se actualizó a 6.12.1 y la compilación de Pillow excluye OpenJPEG. Los dos portables se reconstruyeron y verificaron con el mismo SHA. La resolución se acreditó con binarios, diagnóstico e inventarios. E-04 sigue como condición independiente de distribución. [Resultados y evidencia](../security/DEPENDENCY_CONTINUATION.md#verificación-de-e-01-en-64dc3c4)

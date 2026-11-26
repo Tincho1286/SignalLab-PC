@@ -67,3 +67,7 @@ La entrada capturada para una operación LTI se publica al aceptar su resultado.
 - E-05. El mantenedor informó pruebas Windows al 150 % y 200 % y aprobó el alcance de Windows. Queda pendiente el acta de Linux real.
 
 [Alcance de las aprobaciones](validation/EXCEPTION_APPROVAL_REGISTER.md#aprobaciones-del-mantenedor-del-26-de-noviembre-de-2026)
+
+## Resolución técnica de E-01
+
+Se adoptó Qt 6.12.1 desde el lote oficial fijado y se excluyó el decodificador JPEG 2000 al compilar Pillow. Las dos plataformas acreditaron la versión y los componentes efectivos mediante el ejecutable instalado y el SBOM. [Evidencia y alcance](security/DEPENDENCY_CONTINUATION.md#verificación-de-e-01-en-64dc3c4)

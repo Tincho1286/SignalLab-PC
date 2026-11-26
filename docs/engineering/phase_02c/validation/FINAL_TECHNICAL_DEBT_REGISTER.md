@@ -48,3 +48,5 @@ En `8e274e7` se verificó en el runner Windows la corrección C-11 de identidad 
 ## Saldo del candidato a80508c
 
 La matriz única verificó las correcciones C-11 de identidad de rutas y C-08 de figuras, y acreditó las condiciones de cobertura C-07 y E-06a–j. El mantenedor aprobó E-02 y E-03 para archivos MAT confiables y perfiles operativos probados, respectivamente. C-01 y C-02 conservan el seguimiento de proveedores. E-05 mantiene pendiente la validación en Linux real con el alcance Windows aprobado. C-09 conserva firma y canal público como condiciones independientes. [Dictámenes vigentes](QUALITY_GATE_REPORT.md#evaluación-del-candidato-a80508c) · [Aprobaciones](EXCEPTION_APPROVAL_REGISTER.md#aprobaciones-del-mantenedor-del-26-de-noviembre-de-2026)
+
+C-01 resuelve E-01 con los binarios de `64dc3c4` en las dos plataformas. El seguimiento de HDF5 corresponde a C-02 y al alcance ya aprobado de MAT. La firma y el canal público conservan E-04. [Resolución técnica](EXCEPTION_APPROVAL_REGISTER.md#resolución-técnica-de-e-01)

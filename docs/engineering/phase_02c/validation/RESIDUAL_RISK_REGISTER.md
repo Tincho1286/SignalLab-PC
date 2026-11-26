@@ -54,3 +54,7 @@ Los controles de presupuesto y cancelación pasaron en los tamaños y operacione
 | C-09 · Distribución | El actualizador aislado conservó el destino y la sesión en los dos instaladores. | Distribución debe evaluar la firma de producción y el canal público por separado. |
 
 [Matriz](FINAL_VALIDATION_MATRIX.md#distribución-recursos-y-almacenamiento-de-a80508c) · [Aprobaciones](EXCEPTION_APPROVAL_REGISTER.md#aprobaciones-del-mantenedor-del-26-de-noviembre-de-2026)
+
+## Dependencias después de resolver E-01
+
+La auditoría de `64dc3c4` acreditó Qt 6.12.1 y la retirada de OpenJPEG en los portables x64. La disponibilidad del lote de ruedas fijado corresponde al mantenimiento del entorno de construcción. El seguimiento del lector HDF5 sigue bajo C-02 y los alcances de E-02 y E-03 conservan sus aprobaciones. [Inventarios y criterio](../security/DEPENDENCY_CONTINUATION.md#verificación-de-e-01-en-64dc3c4) · [Decisión](EXCEPTION_APPROVAL_REGISTER.md#resolución-técnica-de-e-01)

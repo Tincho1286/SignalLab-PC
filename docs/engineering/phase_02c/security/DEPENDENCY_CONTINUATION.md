@@ -60,3 +60,19 @@ SignalLab admite fondos PNG, JPEG, BMP y WebP. El empaquetado compila el fuente 
 La matriz `45751459528` de `2f1410c` detectó que la receta Windows de Pillow intentaba compilar AVIF y que el runner carecía de Meson. Se dejó AVIF fuera de la compilación de los portables. El diálogo de guardado de Matplotlib ofrecía AVIF por defecto, así que la aplicación muestra esa opción cuando Pillow incluye el códec. Las exportaciones PNG, JPEG, TIFF y WebP se comprueban en el diagnóstico congelado. [Primer trabajo Windows](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45751459528/job/139679982215)
 
 La corrida focalizada `45752832083` de `b9dfa4d` completó la compilación de las bibliotecas de Pillow para Windows. Después pip interpretó el nombre del directorio como un requisito remoto. El lanzador ahora pasa una ruta local explícita. El despacho focalizado del workflow existente verifica los dos portables corregidos y sus instaladores. La matriz de `a80508c` conserva su inventario original. [Segundo trabajo Windows](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45752832083/job/139684425485)
+
+## Verificación de E-01 en 64dc3c4
+
+**E-01 resuelta técnicamente para Windows y Linux x64.** La auditoría focalizada `45753691354` aprobó ambos sistemas en el primer intento para `64dc3c41ae6b7d4fc61c16d067ae86205ef520dc`. Se cotejaron los reportes con los digests de GitHub y los componentes CycloneDX con el inventario de cada binario. [Corrida](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45753691354) · [Recibos y SHA-256](../validation/evidence/ci-e01-64dc3c4.json)
+
+| Evidencia | Windows 2022 x64 | Ubuntu 22.04 x86-64 |
+| --- | --- | --- |
+| QtCore en el ejecutable y Qt cargado al ejecutarlo | 6.12.1, huella de la rueda fijada | 6.12.1, huella de la rueda fijada |
+| Pillow 13.0.0 | Compilación propia, JPEG 2000 deshabilitado | Compilación propia, JPEG 2000 deshabilitado |
+| Inventario nativo | 218 archivos con origen registrado | 385 archivos con origen registrado |
+| Diagnóstico instalado y verificador de interfaz | 15 y 347 controles aprobados | 15 y 347 controles aprobados |
+| Actualización aislada desde 2.0.0 | Mismo destino y sesión conservada | Mismo destino y sesión conservada |
+
+Los inventarios excluyen bibliotecas OpenJPEG y plugins Qt JPEG 2000. Los ejecutables congelados confirmaron que Pillow carece de ese códec y completaron la exportación y reapertura de figuras PNG, JPEG, TIFF y WebP. La compilación de auditoría deja AVIF deshabilitado y el diálogo lo omite cuando Pillow carece del códec. [SBOM Windows](../validation/evidence/windows-native.cdx-64dc3c4.json) · [SBOM Linux](../validation/evidence/linux-native.cdx-64dc3c4.json) · [Instalador Windows](../validation/evidence/windows-installer-64dc3c4.json) · [Instalador Linux](../validation/evidence/linux-installer-64dc3c4.json)
+
+La construcción de Qt depende de la disponibilidad de la URI oficial fijada. Si se reemplazan esas ruedas, corresponde comprobar la nueva procedencia, actualizar el lock y auditar los dos empaquetados. La resolución E-01 se limita a los componentes y avisos del expediente. Las revisiones de MAT, escritorio y firma conservan sus registros propios.
