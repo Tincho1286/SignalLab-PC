@@ -35,6 +35,8 @@ QToolButton#areaNavigation:checked {background:@selected@;border:1px solid trans
 QTabBar#documents {background:@chrome@;padding:5px 16px 0;}
 QTabBar#documents::tab {color:@muted@;border:1px solid transparent;border-top:2px solid transparent;border-radius:6px;padding:6px 10px;min-width:65px;margin-bottom:0;}
 QTabBar#documents::tab:selected {color:@text@;background:@window@;border-top-color:@accent@;}
+QTabBar#documents QToolButton#documentClose {background:transparent;border:0;border-radius:5px;padding:0;}
+QTabBar#documents QToolButton#documentClose:hover {background:@selected@;}
 QTabWidget::pane {border:0;background:transparent;}
 QTabBar::tab {border:0;background:transparent;border-radius:9px;padding:9px 11px;margin:0 3px 5px 0;}
 QTabBar::tab:selected {background:@selected@;border:0;color:@text@;}

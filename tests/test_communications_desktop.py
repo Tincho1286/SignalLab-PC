@@ -9,15 +9,16 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 
 from matplotlib.figure import Figure
 import numpy as np
-from PySide6.QtCore import QCoreApplication, QDeadlineTimer, QEvent, QSettings
+from PySide6.QtCore import QCoreApplication, QDeadlineTimer, QEvent, QPoint, QRect, QSettings, Qt
 from PySide6.QtTest import QTest
-from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtWidgets import QApplication, QMessageBox, QTabBar, QToolButton
 
 from signallab_pc import communications_figures as figures
 from signallab_pc.communications_data import SymbolClock, iq_signal
 from signallab_pc.communications_experiment import ExperimentSpec, run_experiment
 from signallab_pc.communications_storage import load_experiment
 from signallab_pc.library_content import default_content
+from signallab_pc.tool_browser import CatalogCard
 from signallab_pc.workbench import WorkbenchWindow
 from signallab_pc.workspaces import ROUTES
 
@@ -64,6 +65,41 @@ class CommunicationsDesktopTests(unittest.TestCase):
     def calculate(self):
         self.window.calculate_active()
         self.wait()
+
+    def test_closing_calculated_link_restores_readable_catalog_and_inset_close_buttons(self):
+        self.window.resize(700, 540)
+        self.window.show_area('communications')
+        QTest.qWait(25)
+        browser = self.window.pages['browser',]
+        cards = [card for card in browser.findChildren(CatalogCard) if card.isVisible()]
+        self.assertTrue(cards)
+        heights = [(card.title.height(), card.summary.height()) for card in cards]
+        link = next(card for card in cards if card.accessibleName() == 'Enlace digital')
+        browser.ensureWidgetVisible(link)
+        QTest.mouseClick(link, Qt.MouseButton.LeftButton)
+        panel = self.window.pages[ROUTES['communications', 'link']].panel
+        panel.fields['bit_count'].setText('160')
+        self.calculate()
+        tab_bar = self.window.documents
+        index = tab_bar.currentIndex()
+        slot = tab_bar.tabButton(index, QTabBar.ButtonPosition.RightSide)
+        close = slot.findChild(QToolButton, 'documentClose')
+        self.assertIsNotNone(close)
+        self.assertTrue(close.isVisible())
+        close_rect = QRect(close.mapTo(tab_bar, QPoint()), close.size())
+        self.assertTrue(tab_bar.tabRect(index).adjusted(6, 3, -6, -3).contains(close_rect))
+        records = self.window.project.headers()
+        self.assertTrue(records)
+        QTest.mouseClick(close, Qt.MouseButton.LeftButton)
+        QTest.qWait(25)
+        self.assertIs(self.window.stack.currentWidget(), browser)
+        self.assertEqual(browser.area, 'communications')
+        self.assertEqual(tab_bar.count(), 1)
+        self.assertEqual(self.window.project.headers(), records)
+        for card, (title_height, summary_height) in zip(cards, heights, strict=True):
+            self.assertTrue(card.isVisible())
+            self.assertGreaterEqual(card.title.height(), title_height)
+            self.assertGreaterEqual(card.summary.height(), summary_height)
 
     def test_workbench_link_matches_python_and_has_reopenable_figures(self):
         page, panel = self.open('link')

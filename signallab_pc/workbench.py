@@ -54,7 +54,7 @@ class WorkbenchWindow(ToolboxWindow):
         body = QVBoxLayout(desktop)
         body.setContentsMargins(0, 0, 0, 0)
         body.setSpacing(0)
-        self.documents=QTabBar();self.documents.setObjectName('documents');self.documents.setExpanding(False);self.documents.setMovable(True);self.documents.setTabsClosable(True);self.documents.setUsesScrollButtons(True);self.documents.setElideMode(Qt.TextElideMode.ElideRight);self.documents.currentChanged.connect(self.activate_document);self.documents.tabCloseRequested.connect(self.close_document);body.addWidget(self.documents)
+        self.documents=QTabBar();self.documents.setObjectName('documents');self.documents.setExpanding(False);self.documents.setMovable(True);self.documents.setUsesScrollButtons(True);self.documents.setElideMode(Qt.TextElideMode.ElideRight);self.documents.currentChanged.connect(self.activate_document);self.documents.tabCloseRequested.connect(self.close_document);body.addWidget(self.documents)
         heading=QWidget();self.heading=heading;heading.setObjectName('documentHeading');row=QHBoxLayout(heading);row.setContentsMargins(24,12,24,13);row.setSpacing(9)
         titles=QVBoxLayout();titles.setSpacing(0);row.addLayout(titles,1)
         self.area_path=QToolButton();self.area_path.setObjectName('documentArea');self.area_path.setCursor(Qt.CursorShape.PointingHandCursor);self.area_path.clicked.connect(lambda:self.show_area(self.navigation_area));self.area_path.hide()
@@ -347,11 +347,35 @@ class WorkbenchWindow(ToolboxWindow):
         self._refresh_primary_action();button=self.current_calculate
         if button is not None and button.isEnabled():button.click();self._refresh_primary_action()
 
+    def _document_index(self, key):
+        return next((i for i in range(self.documents.count()) if self.documents.tabData(i) == key), -1)
+
+    def _add_document_tab(self, key, title):
+        index = self.documents.addTab(title)
+        self.documents.setTabData(index, key)
+        self.documents.setTabToolTip(index, title)
+        slot = QWidget()
+        spacing = QHBoxLayout(slot)
+        spacing.setContentsMargins(4, 0, 7, 0)
+        close = QToolButton(slot)
+        close.setObjectName('documentClose')
+        close.setIcon(icon('close'))
+        close.setIconSize(QSize(14, 14))
+        close.setFixedSize(22, 22)
+        close.setCursor(Qt.CursorShape.PointingHandCursor)
+        close.setAccessibleName(f'Cerrar pestaña {title}')
+        close.setToolTip('Cerrar pestaña')
+        close.clicked.connect(lambda: self.documents.tabCloseRequested.emit(self._document_index(key)))
+        spacing.addWidget(close)
+        self.documents.setTabButton(index, QTabBar.ButtonPosition.RightSide, slot)
+        return index
+
     def activate_view(self,key,title,page):
         browser=key==('browser',)
         self.documents.blockSignals(True)
-        index=next((i for i in range(self.documents.count()) if self.documents.tabData(i)==key),-1)
-        if index<0:index=self.documents.addTab(title);self.documents.setTabData(index,key);self.documents.setTabToolTip(index,title)
+        index = self._document_index(key)
+        if index < 0:
+            index = self._add_document_tab(key, title)
         self.documents.setCurrentIndex(index);self.documents.blockSignals(False);self.title.setText(title);self.stack.setCurrentWidget(page)
         self.title.setToolTip('')
         self.heading.setVisible(not browser)
@@ -392,6 +416,8 @@ class WorkbenchWindow(ToolboxWindow):
         elif key[0]=='area':self.show_area(key[1])
         elif key in self.views:self.open_tool(key)
     def close_document(self,index):
+        if not 0 <= index < self.documents.count():
+            return
         self.documents.blockSignals(True);self.documents.removeTab(index);self.documents.blockSignals(False)
         if self.documents.count():self.activate_document(self.documents.currentIndex())
         else:self.show_home()
@@ -719,9 +745,13 @@ class WorkbenchWindow(ToolboxWindow):
         from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
         from .plot_view import install_enlarge
         from .tool_guide import ToolGuide
-        for toolbar in self.findChildren(NavigationToolbar2QT):install_enlarge(toolbar)
-        for guide in self.findChildren(ToolGuide):guide.hide()
-        for field in self.findChildren(QLineEdit)+self.findChildren(QComboBox):
+        # Each registered document owns its form layout. The catalog has its own responsive cards.
+        def document_widgets(widget_type):
+            return [widget for view in self.views.values() for widget in view.findChildren(widget_type)]
+
+        for toolbar in document_widgets(NavigationToolbar2QT):install_enlarge(toolbar)
+        for guide in document_widgets(ToolGuide):guide.hide()
+        for field in document_widgets(QLineEdit)+document_widgets(QComboBox):
             field.setMinimumHeight(34);field.setMinimumWidth(0);field.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed)
             if isinstance(field,QComboBox):
                 if field.property('fitComboText'):
@@ -731,7 +761,7 @@ class WorkbenchWindow(ToolboxWindow):
                 ancestor=field.parentWidget()
                 while ancestor is not None and ancestor.objectName()!='inputSurface':ancestor=ancestor.parentWidget()
                 if ancestor is not None:field.setSizePolicy(QSizePolicy.Policy.Ignored,QSizePolicy.Policy.Fixed)
-        for form in self.findChildren(QFormLayout):
+        for form in document_widgets(QFormLayout):
             form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows if form.property('stackFields') else QFormLayout.RowWrapPolicy.WrapLongRows);form.setVerticalSpacing(6);form.setFieldGrowthPolicy(QFormLayout.FieldGrowthPolicy.AllNonFixedFieldsGrow)
             form.setFormAlignment(Qt.AlignmentFlag.AlignTop);form.setAlignment(Qt.AlignmentFlag.AlignTop)
             if form.property('stackFields'):
@@ -739,16 +769,16 @@ class WorkbenchWindow(ToolboxWindow):
                 for row in range(form.rowCount()):
                     item=form.itemAt(row,QFormLayout.ItemRole.LabelRole)
                     if item is not None and item.widget() is not None:item.widget().setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Fixed)
-        for tabs in self.findChildren(QTabWidget):
+        for tabs in document_widgets(QTabWidget):
             bar=tabs.tabBar();bar.setUsesScrollButtons(True);bar.setElideMode(Qt.TextElideMode.ElideRight)
             for index in range(tabs.count()):
                 if not tabs.tabToolTip(index):tabs.setTabToolTip(index,tabs.tabText(index))
             from .result_selector import install as install_result_selector
             install_result_selector(tabs)
-        for label in self.findChildren(QLabel):
+        for label in document_widgets(QLabel):
             if label.objectName() not in {'brand','pageTitle','resultEmpty'}:
                 label.setWordWrap(True);label.setSizePolicy(label.sizePolicy().horizontalPolicy(),QSizePolicy.Policy.Fixed)
-        for scroll in self.findChildren(QScrollArea):scroll.setWidgetResizable(True)
+        for scroll in document_widgets(QScrollArea):scroll.setWidgetResizable(True)
         from .wallpaper import refresh
         refresh(self)
         from .responsive_tools import install_tool_columns

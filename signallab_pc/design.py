@@ -45,6 +45,7 @@ def icon(kind, color=None):
         'home':'M3 11l9-8 9 8 M6 10v11h12V10 M10 21v-7h4v7',
         'star':'M12 2l3.1 6.3 7 .9-5.1 5 1.2 7-6.2-3.2-6.2 3.2 1.2-7-5.1-5 7-.9z',
         'remove':'M5 6h14m-12 0 1 14h8l1-14M9 6V3h6v3m-5 4v6m4-6v6',
+        'close':'M5 5l14 14m0-14L5 19',
         'wave':'M2 12h3l3-8 5 16 3-8h6',
         'chart':'M3 3v18h18 M6 15l4-6 4 3 6-8',
         'constellation':'M12 3v18 M3 12h18 M6 5h2v2H6z M16 5h2v2h-2z M6 17h2v2H6z M16 17h2v2h-2z',
