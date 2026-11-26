@@ -58,3 +58,7 @@ Los controles de presupuesto y cancelación pasaron en los tamaños y operacione
 ## Dependencias después de resolver E-01
 
 La auditoría de `64dc3c4` acreditó Qt 6.12.1 y la retirada de OpenJPEG en los portables x64. La disponibilidad del lote de ruedas fijado corresponde al mantenimiento del entorno de construcción. El seguimiento del lector HDF5 sigue bajo C-02 y los alcances de E-02 y E-03 conservan sus aprobaciones. [Inventarios y criterio](../security/DEPENDENCY_CONTINUATION.md#verificación-de-e-01-en-64dc3c4) · [Decisión](EXCEPTION_APPROVAL_REGISTER.md#resolución-técnica-de-e-01)
+
+## Aceptación de escritorio al cierre
+
+E-05 queda aprobada por las pruebas manuales de Linux informadas por el mantenedor y por el acta de Windows. Una reproducción independiente en Linux conserva el protocolo de escalado y los flujos de interfaz. La firma de producción y el canal público permanecen bajo E-04. [Acta](../gui/DESKTOP_CONTINUATION.md#aprobación-de-linux-de-escritorio) · [Dictamen](QUALITY_GATE_REPORT.md#cierre-técnico-de-fase-02c)

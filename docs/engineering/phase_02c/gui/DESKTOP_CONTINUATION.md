@@ -1,5 +1,7 @@
 # Verificación de escritorio en la continuidad 02C
 
+El estado vigente de Linux está en [Aprobación de Linux de escritorio](#aprobación-de-linux-de-escritorio).
+
 ## Windows real
 
 Fecha 25/11/2026. Escritorio Windows interactivo, un monitor de 1366 × 768 a 96 DPI (100 %). Candidato `faef335bb7892cda92edc50a7c4f417a89b0415c`, ejecutado desde código fuente con Qt para Windows y datos sintéticos. El cliente se probó maximizado y a 640 × 420 lógicos (642 × 452 con marco en la captura).
@@ -56,3 +58,9 @@ El 26/11/2026 el mantenedor informó que probó personalmente Windows al 150 % y
 ## Validación pendiente en Linux real
 
 Para completar E-05, usá este mismo SHA en Linux con escritorio a 100 % y en los escalados nativos más altos que ofrezca el entorno. Repetí el cambio compacto a maximizado de Análisis LTI con `H(s)=1/(s+1)` y la reapertura de CAS de la tabla. Registrá los tamaños físicos y lógicos, si los controles se pueden alcanzar y el valor posterior a reabrir CAS. Para probar 720 × 450 lógicos al 200 %, el área utilizable del monitor debe ser de al menos 1440 × 900 píxeles físicos.
+
+## Aprobación de Linux de escritorio
+
+El 26/11/2026 el mantenedor informó que realizó las pruebas manualmente en otro escritorio Linux y aprobó E-05 en esa plataforma. El expediente acredita la aprobación mediante su declaración. La distribución, la sesión gráfica, la resolución, el escalado y el SHA ejecutado quedan sin consignar en esa declaración.
+
+La repetición independiente requiere acceso a una sesión de escritorio Linux. Para esa repetición se conserva el protocolo anterior. [Decisión de aceptación](../validation/EXCEPTION_APPROVAL_REGISTER.md#resolución-de-e-05)

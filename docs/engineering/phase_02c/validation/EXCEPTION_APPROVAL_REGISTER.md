@@ -1,7 +1,6 @@
 # Aprobación de excepciones
 
-El estado vigente está en [Aprobaciones del mantenedor del 26 de noviembre de 2026](#aprobaciones-del-mantenedor-del-26-de-noviembre-de-2026).
-La [resolución técnica de E-01](#resolución-técnica-de-e-01) se incorpora con la evidencia de los portables de `64dc3c4`.
+Estado vigente en las [aprobaciones de E-02 y E-03](#aprobaciones-del-mantenedor-del-26-de-noviembre-de-2026), la [resolución técnica de E-01](#resolución-técnica-de-e-01) y la [resolución de E-05](#resolución-de-e-05). E-04 corresponde al dictamen de distribución pública.
 
 | ID | Excepción | Estado |
 | --- | --- | --- |
@@ -87,3 +86,7 @@ Las decisiones expresas del mantenedor se registran para el expediente del candi
 ## Resolución técnica de E-01
 
 **E-01 resuelta** el 26/11/2026 para los portables Windows y Linux x64 de `64dc3c41ae6b7d4fc61c16d067ae86205ef520dc`. El runtime Qt se actualizó a 6.12.1 y la compilación de Pillow excluye OpenJPEG. Los dos portables se reconstruyeron y verificaron con el mismo SHA. La resolución se acreditó con binarios, diagnóstico e inventarios. E-04 sigue como condición independiente de distribución. [Resultados y evidencia](../security/DEPENDENCY_CONTINUATION.md#verificación-de-e-01-en-64dc3c4)
+
+## Resolución de E-05
+
+**E-05 aprobada en Windows y Linux.** El 26/11/2026 el mantenedor aprobó expresamente Linux tras realizar sus pruebas manuales en otro escritorio. La aprobación completa el alcance de escritorio de la fase y se suma a la aprobación de Windows ya registrada. La declaración del mantenedor es la evidencia de aceptación de Linux. [Acta de Linux](../gui/DESKTOP_CONTINUATION.md#aprobación-de-linux-de-escritorio) · [Acta de Windows](../gui/DESKTOP_CONTINUATION.md#aceptación-de-los-escalados-de-windows)

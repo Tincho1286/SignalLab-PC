@@ -71,3 +71,7 @@ La entrada capturada para una operación LTI se publica al aceptar su resultado.
 ## Resolución técnica de E-01
 
 Se adoptó Qt 6.12.1 desde el lote oficial fijado y se excluyó el decodificador JPEG 2000 al compilar Pillow. Las dos plataformas acreditaron la versión y los componentes efectivos mediante el ejecutable instalado y el SBOM. [Evidencia y alcance](security/DEPENDENCY_CONTINUATION.md#verificación-de-e-01-en-64dc3c4)
+
+## Aprobación de E-05 y cierre del Core
+
+El mantenedor informó sus pruebas manuales en otro escritorio Linux y aprobó E-05 en Linux el 26/11/2026. La aceptación completa los requisitos de escritorio del cierre técnico. La repetición independiente queda disponible con acceso al escritorio Linux. El inicio de Fase 03 y la distribución conservan decisiones propias. [Aprobación](validation/EXCEPTION_APPROVAL_REGISTER.md#resolución-de-e-05) · [Dictamen](validation/QUALITY_GATE_REPORT.md#cierre-técnico-de-fase-02c)

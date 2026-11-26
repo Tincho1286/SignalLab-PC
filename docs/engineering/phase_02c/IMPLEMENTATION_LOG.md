@@ -1,5 +1,9 @@
 # Registro de implementación
 
+## 26 de noviembre de 2026 · C-08 · Aceptación de Linux y cierre
+
+Se registró la aprobación explícita de E-05 aportada por el mantenedor después de sus pruebas en un escritorio Linux. Se actualizaron el acta, la trazabilidad y el dictamen de cierre técnico. El registro de aceptación distingue la declaración del mantenedor de la evidencia automatizada. [Acta](gui/DESKTOP_CONTINUATION.md#aprobación-de-linux-de-escritorio) · [Quality Gate](validation/QUALITY_GATE_REPORT.md#cierre-técnico-de-fase-02c)
+
 ## 26 de noviembre de 2026 · C-01 · Resolución de E-01
 
 Se fijaron las ruedas oficiales de Qt y los bindings 6.12.1 por revisión y SHA-256. Se reconstruyó Pillow 13.0.0 con JPEG 2000 deshabilitado. Durante la validación de Windows se corrigieron la inclusión de AVIF en la receta y el uso de un nombre de carpeta sin prefijo de ruta al invocar pip. El diálogo de figuras ajusta AVIF a la capacidad instalada de Pillow. [Causas y correcciones](security/DEPENDENCY_CONTINUATION.md#corrección-de-empaquetado-para-e-01)
