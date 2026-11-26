@@ -695,7 +695,7 @@ class WorkbenchWindow(ToolboxWindow):
         if item[1:3] in (('communications','pulse'),('communications','awgn'),
                           ('communications','multipath'),('communications','fading'),('communications','carrier'),
                           ('communications','impairments'),('communications','interference'),
-                          ('communications','receive'),('communications','decide')):
+                          ('communications','propagation'),('communications','receive'),('communications','decide')):
             self.open_tool(item);panel=self.pages[tuple(item)].panel
             return panel.receive_signal(self.project.get(key) if key else value,key)
         if item[1:3]==('state_space','simulation'):

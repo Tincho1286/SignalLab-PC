@@ -214,6 +214,21 @@ raise SystemExit(main())
             self.assertIn('muestreo', failure)
             self.assertEqual(output.read_bytes(), earlier)
 
+    def test_propagation_cli_round_trips_log_distance_statistics(self):
+        with TemporaryDirectory() as folder:
+            root = Path(folder)
+            source, output = root/'signal.slbin', root/'propagation.slproj'
+            x = Signal([1 + 2j, -1], origin=3, metadata={'sample_rate_hz': 1000})
+            save_binary_signal(x, source)
+            receipt = self.invoke('propagation', '--signal', source, '--model', 'log-distance', '--distance-m', 100,
+                                  '--reference-distance-m', 10, '--reference-loss-db', 35, '--exponent', 3,
+                                  '--gain-db', 5, '--output', output)
+            project, _ = session.load(output)
+            result = project.get(receipt['record'])
+            self.assertEqual(receipt['statistics']['net_gain_db'], -60)
+            self.assertEqual(result.origin, 3)
+            np.testing.assert_allclose(result.values, x.values*1e-3)
+
     def test_sweep_cli_runs_and_verifies_a_reproducible_grid(self):
         with TemporaryDirectory() as folder:
             root = Path(folder)

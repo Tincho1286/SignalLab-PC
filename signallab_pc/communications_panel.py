@@ -29,6 +29,7 @@ from .communications_interference import (
 from .communications_metrics import QualitySpec, measure_quality
 from .communications_modulation import build_constellation, decide_symbols, generate_bits, group_bits, modulate, parse_bits, ungroup_symbols
 from .communications_pulses import PulseSpec, apply_pulse, design_pulse, matched_pulse_isi, upsample_symbols
+from .communications_propagation import FreeSpaceLoss, LogDistanceLoss, PropagationSpec, apply_propagation
 from .communications_receiver import SynchronizationSpec, recover_symbols
 from .communications_storage import decode_symbols, encode_bits, encode_symbols, load_experiment, store_experiment
 from .communications_sweep import AXES, SweepSpec, axis_from_text, export_sweep_csv, load_sweep, load_sweep_run, run_sweep
@@ -50,6 +51,7 @@ _LABELS = {
     'carrier': 'Aplicar frecuencia y fase',
     'impairments': 'Aplicar imperfección',
     'interference': 'Agregar interferencia',
+    'propagation': 'Aplicar modelo',
     'measure': 'Medir calidad', 'sweep': 'Ejecutar barrido',
 }
 _CONSTE = 'Constelación'
@@ -74,6 +76,7 @@ _VIEWS = {
     'fading': (_IQ, _SPECTRUM, _FADING, _DOPPLER), 'carrier': (_IQ, _SPECTRUM),
     'impairments': (_IQ, _SPECTRUM, _PHASE_PATH),
     'interference': (_IQ, _INTERFERENCE_SPECTRA),
+    'propagation': (_IQ, _SPECTRUM),
     'receive': (_IQ,), 'decide': (_CONSTE,), 'measure': (), 'sweep': (_COMPARISON,),
 }
 
@@ -488,6 +491,32 @@ class CommunicationsPanel(QWidget):
         mode.currentIndexChanged.connect(update_fields)
         calibration.currentIndexChanged.connect(update_fields)
         add_noise.toggled.connect(update_fields)
+        update_fields()
+
+    def _build_propagation(self):
+        self.source = self._source('Señal de entrada')
+        model = self._combo('propagation_model', 'Modelo', (
+            ('Ganancia o atenuación fija', 'gain'), ('Espacio libre', 'free_space'), ('Log-distancia', 'log_distance'),
+        ))
+        distance = self._line('distance_m', 'Distancia (m)', 100)
+        carrier = self._line('carrier_hz', 'Portadora (Hz)')
+        carrier.setPlaceholderText('Usar la portadora registrada')
+        reference = self._line('reference_distance_m', 'Distancia de referencia (m)', 1)
+        exponent = self._line('exponent', 'Exponente de pérdidas', 2)
+        loss = self._line('reference_loss_db', 'Pérdida de referencia (dB)')
+        loss.setPlaceholderText('Calcular por espacio libre')
+        self._line('gain_db', 'Ganancia adicional (dB)', 0)
+        self._line('shadow_std_db', 'Desviación de sombra (dB)', 0)
+        self._line('seed', 'Semilla de sombra', 2026)
+
+        def update_fields(*_):
+            selected = model.currentData()
+            self._visible(distance, selected != 'gain')
+            self._visible(carrier, selected != 'gain')
+            for field in (reference, exponent, loss):
+                self._visible(field, selected == 'log_distance')
+
+        model.currentIndexChanged.connect(update_fields)
         update_fields()
 
     def _build_receive(self):
@@ -1032,6 +1061,36 @@ class CommunicationsPanel(QWidget):
             self._display(summary, axes, records)
 
         return lambda: apply_interference(source, spec, external=external), accept
+
+    def _run_propagation(self):
+        source, register = self.source.capture_input()
+        selection = self._choice('propagation_model')
+        model = None
+        if selection == 'free_space':
+            model = FreeSpaceLoss(self._real('distance_m'), self._real('carrier_hz'))
+        elif selection == 'log_distance':
+            model = LogDistanceLoss(self._real('distance_m'), self._real('reference_distance_m'),
+                                    self._real('exponent'), self._real('reference_loss_db'), self._real('carrier_hz'))
+        spec = PropagationSpec(model, self._real('gain_db', 0), self._real('shadow_std_db', 0), self._int('seed', 2026))
+
+        def accept(result):
+            signal, stats = result.signal, result.statistics
+            record = store_signal(self.window.project, signal, parents=(register(),))
+            self.window.register_publication(record, signal)
+            axes = {_IQ: (partial(figures.iq_figure, signal=signal), None)}
+            if signal.values.size >= 2:
+                axes[_SPECTRUM] = self._spectral_plot(signal)
+            rows = [
+                ('Portadora (Hz)', stats.carrier_hz), ('Pérdida de referencia (dB)', stats.reference_loss_db),
+                ('Pérdida por distancia (dB)', stats.path_loss_db), ('Pérdida por sombra (dB)', stats.shadow_loss_db),
+                ('Ganancia neta (dB)', stats.net_gain_db), ('Factor de amplitud', stats.amplitude_factor),
+            ]
+            summary = Summary('Propagación a gran escala', [Section('Balance aplicado', rows=[
+                (label, number(value)) for label, value in rows if value is not None
+            ])])
+            self._display(summary, axes, {signal.name: (signal, record)})
+
+        return lambda: apply_propagation(source, spec), accept
 
     def _run_receive(self):
         source, register = self.source.capture_input()

@@ -49,3 +49,11 @@ El commit `0cebf02` aprobó los controles matemáticos de Windows y Ubuntu. [Res
 Workbench, Python y CLI comparten la síntesis, calibración y medición. Se verifica la alineación de la segunda señal y se registra el traslado de portadora. Se muestran por separado SINR por suma de potencias y potencia observada del disturbio. El guardado atómico verifica las huellas de las fuentes y componentes y rechaza cambios antes de publicar.
 
 `python -B -X utf8 -m unittest discover -s tests -p "test_communications_*.py"` aprobó 101 pruebas en Windows. Las pruebas seleccionadas de CLI, escritorio, interferencia y DSP aprobaron 18 casos. La medición independiente de la banda adyacente y las relaciones de potencia se realizó con importaciones Qt bloqueadas. [Mediciones](MATHEMATICAL_AUDIT.md#mediciones-de-interferencia-en-windows).
+
+Los controles matemáticos de `7262ba8` aprobaron Windows y Ubuntu. [Resultados](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45886585846).
+
+## Pérdidas de propagación a gran escala
+
+El nuevo motor aplica ganancia fija, espacio libre, log-distancia y sombra log-normal. Guarda pérdida de referencia, pérdida por distancia, realización de sombra y ganancia neta. La API permite evaluar la pérdida sin generar una señal. Workbench y CLI comparten el servicio para aplicar el modelo a una entrada.
+
+La suite de comunicaciones aprobó 107 pruebas en Windows. El control estático aprobó 408 archivos Python. Se verificaron la referencia UIT-R, los incrementos por década, el reloj de salida, la persistencia por CLI, el flujo de escritorio y el modelo log-normal con Qt bloqueado. [Oráculos](MATHEMATICAL_AUDIT.md#mediciones-de-propagación-en-windows).

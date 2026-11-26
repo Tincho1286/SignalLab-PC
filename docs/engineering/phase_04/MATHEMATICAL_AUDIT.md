@@ -84,3 +84,15 @@ Con Qt bloqueado se midió un registro de 8 192 muestras a Fs = 4 096 Hz. Se fij
 | SIR | 8 dB |
 | SINR por suma de potencias | 5,86393465 dB |
 | Fracción de potencia interferente fuera de los bins configurados | 9,96 × 10⁻³² |
+
+## Protocolo previo para propagación
+
+- Contrastá la pérdida de espacio libre a un kilómetro y 1 GHz con la ecuación de P.525-5 en SI. Duplicar distancia o frecuencia debe sumar $20\log_{10}(2)$ dB. La amplitud de salida se compara con la raíz de la relación de potencias.
+- Verificá ganancia unitaria, ancla del modelo log-distancia, incremento por década y equivalencia con espacio libre para exponente 2 y ancla de espacio libre. Rechazá distancias inferiores a la referencia o portadoras incompatibles.
+- Con 512 semillas enteras sucesivas y desviación de sombra de 4 dB, exigí distancia CDF menor que 0,09 frente a la normal teórica y desvío muestral a menos de 10 % de 4 dB. Verificá una sola atenuación por registro y persistencia de sus parámetros.
+
+[UIT-R P.525-5](https://www.itu.int/rec/R-REC-P.525-5-202411-I/en) · [Goldsmith, modelos de propagación y sombra](https://web.stanford.edu/class/ee359/lectures.html)
+
+### Mediciones de propagación en Windows
+
+Con importaciones Qt bloqueadas, la pérdida de espacio libre a un kilómetro y 1 GHz fue 92,44778322 dB. En sombra, las 512 realizaciones dieron 0,04457 de distancia CDF frente a la normal teórica y una desviación de 3,79635 dB frente a 4 dB. Ambos cumplieron el protocolo.

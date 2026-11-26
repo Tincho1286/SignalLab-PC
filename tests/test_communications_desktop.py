@@ -146,7 +146,7 @@ class CommunicationsDesktopTests(unittest.TestCase):
     def test_independent_routes_show_help_and_exchange_clocked_iq(self):
         articles, guides, _ = default_content()
         for name in ('modulate', 'pulse', 'awgn', 'multipath', 'fading', 'carrier', 'impairments',
-                     'interference', 'receive', 'decide', 'measure'):
+                     'interference', 'propagation', 'receive', 'decide', 'measure'):
             with self.subTest(name=name):
                 self.assertIn(('communications', name), articles)
                 self.assertIn(('communications', name), guides)
@@ -296,6 +296,22 @@ class CommunicationsDesktopTests(unittest.TestCase):
         entry = next(item for item in launcher.available() if item[2] == 'Espectros de los componentes')
         launcher.open_entry(entry)
         self.wait()
+
+    def test_propagation_panel_uses_the_recorded_carrier_and_exposes_loss(self):
+        values = [1, 1j, -2]
+        clock = SymbolClock(4000, 2, 0.1, 1e9)
+        source = iq_signal(values, clock, origin=3)
+        key = self.window.publish(source, operation='Entrada de prueba')
+        self.window.send_signal(source, key, ROUTES['communications', 'propagation'])
+        _, panel = self.open('propagation')
+        panel.fields['propagation_model'].setCurrentIndex(1)
+        panel.fields['distance_m'].setText('1000')
+        self.calculate()
+        result, record = panel.records['Salida de propagación']
+        expected = (299_792_458/(1e9*4*np.pi*1000))*np.array(values)
+        np.testing.assert_allclose(result.values, expected)
+        self.assertEqual(self.window.project.get(record).metadata['sample_rate_hz'], 8000)
+        self.assertIn('Pérdida por distancia', panel.result.text.toPlainText())
 
     def test_receive_and_decide_publish_labels_that_metrics_can_load(self):
         _, mapper = self.open('modulate')

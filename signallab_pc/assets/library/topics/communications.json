@@ -93,6 +93,15 @@
       ]
     },
     {
+      "key": ["communications", "propagation"],
+      "blocks": [
+        ["Qué podés hacer", "Escalá la amplitud con ganancia fija, pérdida de espacio libre o log-distancia. Podés sumar una pérdida por sombra reproducible a cualquiera de los modelos."],
+        ["Cómo preparar el cálculo", "Ingresá distancias en metros y portadora en Hz. En log-distancia, indicá la distancia y pérdida de referencia o dejá calcular esta última por espacio libre. El exponente indica cuánto aumenta la pérdida al aumentar la distancia."],
+        ["Cómo interpretar la salida", "El informe muestra por separado la pérdida por distancia, la sombra y la ganancia adicional. El resultado conserva el reloj y la fase de entrada."],
+        ["Qué tener en cuenta", "La sombra se realiza una vez para todo el registro. La pérdida de espacio libre supone campo lejano entre antenas isotrópicas. Para fluctuaciones rápidas, usá Fading Rayleigh y Rician."]
+      ]
+    },
+    {
       "key": ["communications", "receive"],
       "blocks": [
         ["Qué podés hacer", "Elegí una muestra por símbolo en un registro filtrado y corregí la fase."],
@@ -180,6 +189,12 @@
       "flow": ["Señal y modelo interferente", "Alinear y escalar", "Salida, potencias y espectros"],
       "parameters": [["Centro", "Ubicación del centro de banda o traslado de la señal externa."], ["SIR", "Relación entre la potencia deseada y la interferente."], ["SNR", "Referencia nominal del ruido blanco opcional, medida respecto de la señal deseada."], ["SINR", "Relación entre la potencia deseada y la suma de potencias de interferencia y ruido."]],
       "reading": "La banda limitada usa los bins DFT del registro. Si la banda es menor que la resolución, puede quedar vacía. Revisá la longitud y Fs."
+    },
+    {
+      "key": ["communications", "propagation"],
+      "flow": ["Modelo, distancia y portadora", "Calcular la pérdida neta", "Escalar las muestras"],
+      "parameters": [["Ganancia adicional", "Un valor positivo aumenta la amplitud. Un valor negativo atenúa."], ["Exponente", "Por cada década de distancia, agrega diez veces su valor en dB."], ["Sombra", "Desviación en dB. Cero desactiva el término aleatorio."]],
+      "reading": "El factor de amplitud se obtiene con 10 elevado a la ganancia neta en dB dividida por 20."
     },
     {
       "key": ["communications", "receive"],

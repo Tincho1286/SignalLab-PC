@@ -25,6 +25,7 @@ from .communications_interference import (
 from .communications_metrics import QualitySpec, measure_quality
 from .communications_modulation import decide_symbols, generate_bits, group_bits, modulate, parse_bits
 from .communications_pulses import PulseSpec, apply_pulse, design_pulse, upsample_symbols
+from .communications_propagation import FreeSpaceLoss, LogDistanceLoss, PropagationSpec, apply_propagation
 from .communications_receiver import SynchronizationSpec, recover_symbols
 from .communications_storage import decode_symbols, encode_bits, encode_symbols, save_experiment
 from .communications_sweep import SweepSpec, axis_from_text, export_sweep_csv, load_sweep, run_sweep
@@ -272,6 +273,20 @@ def _interfere(args, ctx):
     return {**records, 'statistics': asdict(result.statistics)}
 
 
+def _propagation(args, ctx):
+    project, workspace, source = load_input(args, ctx)
+    model = None
+    if args.model == 'free-space':
+        model = FreeSpaceLoss(args.distance_m, args.carrier_hz)
+    elif args.model == 'log-distance':
+        model = LogDistanceLoss(args.distance_m, args.reference_distance_m, args.exponent,
+                                args.reference_loss_db, args.carrier_hz)
+    result = apply_propagation(source, PropagationSpec(model, args.gain_db, args.shadow_std_db, args.seed), ctx)
+    record = store_signal(project, result.signal, parents=(_source_id(project, args, source),), execution=ctx)
+    _save(args.output, project, workspace, ctx)
+    return {'record': record, 'statistics': asdict(result.statistics)}
+
+
 def _receive(args, ctx):
     project, workspace, source = load_input(args, ctx)
     pilot = None if args.pilot_record is None else project.get(args.pilot_record)
@@ -451,6 +466,19 @@ def main(argv=None):
     interfere.add_argument('--noise-seed', type=int, default=2026)
     add_session_arguments(interfere)
     interfere.set_defaults(execute=_interfere)
+
+    loss = commands.add_parser('propagation', help='Aplicá ganancia, pérdidas de propagación y sombra log-normal.')
+    loss.add_argument('--model', choices=('gain', 'free-space', 'log-distance'), default='gain')
+    loss.add_argument('--gain-db', type=float, default=0)
+    loss.add_argument('--distance-m', type=float)
+    loss.add_argument('--carrier-hz', type=float)
+    loss.add_argument('--reference-distance-m', type=float, default=1)
+    loss.add_argument('--reference-loss-db', type=float)
+    loss.add_argument('--exponent', type=float, default=2)
+    loss.add_argument('--shadow-std-db', type=float, default=0)
+    loss.add_argument('--seed', type=int, default=2026)
+    add_session_arguments(loss)
+    loss.set_defaults(execute=_propagation)
 
     receiver = commands.add_parser('receive', help='Sincronizá y recuperá muestras de símbolo.')
     _synchronization_arguments(receiver)

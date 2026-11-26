@@ -87,6 +87,15 @@ python -m signallab_pc communications interference --signal entrada.slbin --inte
 
 Python usa `InterferenceSpec` y `apply_interference` en `signallab_pc.communications_interference`. Las fuentes con frecuencias en Hz requieren Fs. [Convenciones, calibración y potencia](SCIENTIFIC_CONTRACTS.md#interferencia)
 
+## Pérdidas de propagación
+
+En **Comunicaciones → Pérdidas de propagación**, elegí ganancia fija, espacio libre o log-distancia. La sombra es opcional y se mantiene constante durante una corrida. El informe desglosa pérdida por distancia, sombra y ganancia resultante. El módulo Python `signallab_pc.communications_propagation` permite evaluar la pérdida sin una señal mediante `evaluate_propagation` y aplicar la misma configuración con `apply_propagation`. [Modelo y condiciones](SCIENTIFIC_CONTRACTS.md#propagación-a-gran-escala)
+
+```sh
+python -m signallab_pc communications propagation --signal entrada.slbin --model free-space --distance-m 1000 --carrier-hz 1e9 --output espacio-libre.slproj
+python -m signallab_pc communications propagation --signal entrada.slbin --model log-distance --distance-m 100 --reference-distance-m 10 --reference-loss-db 42 --exponent 3 --shadow-std-db 4 --seed 70 --output sombra.slproj
+```
+
 ## Alcance siguiente
 
-Quedan las pérdidas de propagación, la composición y la integración de los modelos al enlace y a los barridos. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.
+Quedan la composición ordenada y la integración de los modelos al enlace y a los barridos. La caracterización de rendimiento por perfil y la matriz del Quality Gate corresponden al candidato de cierre de la fase.

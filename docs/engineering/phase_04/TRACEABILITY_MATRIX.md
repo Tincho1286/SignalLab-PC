@@ -9,7 +9,7 @@ La evidencia de cada implementación se registra en el [log](IMPLEMENTATION_LOG.
 | CH-02 | Rayleigh y Rician | Motores independiente y Clarke. Comparación con distribuciones SciPy, K lineal/dB, fase, potencias y semillas. | Implementado, pendiente matriz final |
 | CH-03 | Canal variante y Doppler | `CarrierShift`, cuadratura Clarke, autocorrelación, PSD y coherencia. [Oráculos](MATHEMATICAL_AUDIT.md#protocolo-previo-para-doppler). | Implementado, pendiente matriz final |
 | CH-04 | Imperfecciones e interferencia | CFO, fase, llegada, SFO, fase Wiener e I/Q con DC e IRR. Interferencia tonal, en banda cocanal o adyacente, externa y con AWGN opcional. Potencias, SIR, SNR y SINR verificadas con oráculos. | Implementado, pendiente matriz final |
-| CH-05 | Pérdidas y composición | Atenuación, espacio libre, log-distance y sombra. Orden explícito con estado intermedio y procedencia. | Pendiente |
+| CH-05 | Pérdidas y composición | Ganancia, espacio libre, log-distancia y sombra ya tienen API, CLI, Workbench y oráculos. Queda composición ordenada, estados intermedios y procedencia de la cadena. | Parcial |
 | CH-06 | Enlace y sincronización | Integrar nuevos canales, conservar el control histórico e invalidar métricas si no hay alineación. | Pendiente |
 | CH-07 | Workbench, API y CLI | Multitrayecto, fading y Doppler del mismo servicio, informe, figuras y realizaciones reutilizables. Faltan paridad del resto de modelos y escritorio real en el candidato. | Parcial |
 | CH-08 | Barridos y almacenamiento | Cadena, ejes y réplicas, CSV, huellas, recuperación, límites y formatos históricos. | Pendiente |

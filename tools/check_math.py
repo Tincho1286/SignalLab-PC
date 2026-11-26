@@ -33,6 +33,7 @@ FAMILIES={
     'communications_doppler':('test_communications_doppler.DopplerContracts',5),
     'communications_impairments':('test_communications_impairments.ImpairmentContracts',5),
     'communications_interference':('test_communications_interference.InterferenceContracts',5),
+    'communications_propagation':('test_communications_propagation.PropagationContracts',4),
     'dsp_pipeline':('test_math_dsp_pipeline.DSPPipelineTests',3),
     'scientific_storage':('test_math_scientific_storage.ScientificStorageTests',6),
     'core_robustness':('test_math_core_robustness.CoreRobustnessTests',6),
