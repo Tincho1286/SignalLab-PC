@@ -3,12 +3,14 @@
 from argparse import ArgumentParser
 from pathlib import Path
 
-from . import session
+from . import random_models, session
 from .adaptive_filter import METHODS as ADAPTIVE_METHODS, PURPOSES, adaptive_fir, compare_adaptive, store_adaptive, store_adaptive_comparison
 from .cli_session import add_output_arguments, add_session_arguments, load_input, load_signal_file, run_command, timeout_seconds
+from .communications_data import real
 from .input_files import decode_finite_json, read_json
 from .kalman_filter import kalman_filter, store_kalman
-from .monte_carlo import METRICS, campaign_spec, export_campaign_csv, load_campaign, run_campaign, store_campaign
+from .monte_carlo import (METRICS, campaign_spec, export_campaign_csv, load_campaign, run_campaign,
+                         store_campaign, validate_campaign_destination)
 from .monte_carlo_bootstrap import bootstrap_record
 from .multivariate_probability import array_from_parts
 from .optimal_estimation import linear_gaussian, store_gaussian_estimate
@@ -19,6 +21,7 @@ from .statistical_spectra import cross_spectra, lomb_periodogram, store_cross_sp
 from .stochastic_covariance import METHODS, covariance_matrix, ensemble_moments, estimate_correlation
 from .stochastic_noise import NOISES, Noise, generate_noise, noise_spectrum, store_noise
 from .stochastic_processes import PROCESSES, Process, generate_process, process_moments, process_transition, store_processes
+from .system_clock import validate_period
 from .time_series_identification import arma_diagnostics, arma_forecast, arma_system, fit_arma, store_arma_result
 from .wiener_filter import store_wiener, store_wiener_model, wiener_fir, wiener_hopf
 
@@ -114,12 +117,17 @@ def _lomb(args, context):
     return _save_analysis(args,project,workspace,result,[(source,args.record)],result.name,context)
 
 
-def _optimization_model(args, context):
+def _model_document(args, context):
     if args.model.resolve() == args.output.resolve():
         raise ValueError('Elegí una salida distinta del archivo de modelo.')
     model = read_json(args.model, checkpoint=context.checkpoint)
     if not isinstance(model, dict):
         raise ValueError('El modelo debe ser un objeto JSON.')
+    return model
+
+
+def _optimization_model(args, context):
+    model = _model_document(args,context)
     project = Project()
     if args.engine == 'gaussian':
         result = linear_gaussian(**model, execution=context)
@@ -176,13 +184,14 @@ def _adaptive(args, context):
 
 
 def _campaign(args, context):
-    occupied = [args.output.resolve()]
-    if args.csv is not None:
-        occupied.append(args.csv.resolve())
+    output = validate_campaign_destination(args.output, args.directory, '.slproj')
+    occupied = [output.resolve()]
+    csv_file = validate_campaign_destination(args.csv, args.directory, '.csv') if args.csv is not None else None
+    if csv_file is not None:
+        occupied.append(csv_file.resolve())
     if args.model is not None:
         occupied.append(args.model.resolve())
-    if len(set(occupied))!=len(occupied) or (args.output.resolve().parent==args.directory.resolve()
-                                             and args.output.suffix.lower()!='.slproj'):
+    if len(set(occupied))!=len(occupied):
         raise ValueError('Elegí rutas distintas para el proyecto, el CSV y la configuración de la campaña.')
     if args.model is None:
         result = load_campaign(args.directory,context)
@@ -191,9 +200,9 @@ def _campaign(args, context):
         result = run_campaign(spec,args.directory,context)
     project = Project()
     identifier = store_campaign(project,result,execution=context)
-    if args.csv is not None:
-        export_campaign_csv(result,args.csv,context)
-    session.save(args.output,project,session.empty_workspace(),checkpoint=context.checkpoint)
+    if csv_file is not None:
+        export_campaign_csv(result,csv_file,context)
+    session.save(output,project,session.empty_workspace(),checkpoint=context.checkpoint)
     return {'result_id':identifier,'status':result.report['status'],'replicas':len(result.replicas)}
 
 
@@ -239,6 +248,36 @@ def _identify(args, context):
     result = store_arma_result(project,source,args.record,fit,system,outputs,execution=context)
     session.save(args.output,project,workspace,checkpoint=context.checkpoint)
     return result
+
+
+def _analyze_model(args, context):
+    options = _model_document(args,context)
+    sample_rate = options.pop('sample_rate_hz',None)
+    realizations = options.pop('realization',None)
+    comparisons = options.pop('sensitivity',None)
+    pacf = options.pop('pacf',False)
+    if type(pacf) is not bool:
+        raise ValueError('El campo pacf debe ser verdadero o falso.')
+    period = None if sample_rate is None else validate_period(1/real(sample_rate,'Frecuencia de muestreo',positive=True))
+    model = random_models.analyze(**options,execution=context)
+    model.system.sample_period_s = period
+    curves = list(model.signals)
+    report = {'report':random_models.summary(model).plain_text(), 'mean':model.mean, 'variance':model.variance,
+              'innovation_variance':model.noise_variance, 'pole_radius':model.radius}
+    if realizations is not None:
+        sample = random_models.realization(model,**realizations,execution=context)
+        curves.insert(0,sample)
+        report['realization'] = sample.metadata
+    if pacf:
+        curves.append(random_models.model_pacf(model))
+    if comparisons is not None:
+        sensitivity = random_models.sensitivity(model,**comparisons,execution=context)
+        curves.extend(sensitivity.pop('spectra'))
+        report['sensitivity'] = sensitivity
+    project = Project()
+    system, records, report_id = random_models.store_analysis(project,model,curves,report,execution=context)
+    session.save(args.output,project,session.empty_workspace(),checkpoint=context.checkpoint)
+    return {'model_id':system, 'signal_ids':records, 'result_id':report_id}
 
 
 def main(argv):
@@ -349,6 +388,10 @@ def main(argv):
     identify.add_argument('--horizon', type=int, help='Muestras futuras del pronóstico de niveles.')
     identify.add_argument('--coverage', type=float, default=.95, help='Cobertura nominal del intervalo predictivo.')
     identify.set_defaults(execute=_identify)
+    analysis = commands.add_parser('analyze-model', help='Analizar y simular un modelo AR, MA o ARMA conocido.')
+    analysis.add_argument('--model', type=Path, required=True, help='Configuración JSON del modelo y de la simulación.')
+    add_output_arguments(analysis)
+    analysis.set_defaults(execute=_analyze_model)
     for command in (inspect, generate):
         command.add_argument('--family', choices=(*PROCESSES, *NOISES), required=True)
         command.add_argument('--parameters', required=True, help='Objeto JSON de parámetros.')

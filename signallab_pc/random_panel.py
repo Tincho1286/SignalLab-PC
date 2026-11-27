@@ -147,9 +147,11 @@ class RandomPanel(QWidget):
                                              'fit': 'Ajustar una distribución', 'infer': 'Contrastar una hipótesis'})
         self.bins = entry('Intervalos del histograma', '30')
         self.diagnostics = QCheckBox('Incluir CDF, CCDF y diagrama de caja')
-        self.reference_normal = QCheckBox('Comparar con una normal de parámetros conocidos')
+        self.reference_normal = QCheckBox('Comparar con una distribución de parámetros conocidos')
         form.addRow(self.diagnostics)
         form.addRow(self.reference_normal)
+        self.reference_family = choices('Distribución de referencia', {key: law.label for key,law in FAMILIES.items()})
+        self.reference_family.setCurrentIndex(self.reference_family.findData('normal'))
         self.reference_mean = entry('Media de referencia', '0')
         self.reference_std = entry('Desviación de referencia', '1')
         families = {key: FAMILIES[key].label for key in FIT_FAMILIES}
@@ -171,7 +173,7 @@ class RandomPanel(QWidget):
         self.ks_family = choices('Distribución continua conocida', {
             key: law.label for key, law in FAMILIES.items() if not law.discrete})
         self.fields = {}
-        for key in dict.fromkeys(key for law in FAMILIES.values() if not law.discrete for key, _, _ in law.parameters):
+        for key in dict.fromkeys(key for law in FAMILIES.values() for key, _, _ in law.parameters):
             self.fields[key] = entry(*_PARAMETERS[key])
         self.iid = QCheckBox('Confirmo observaciones independientes bajo la hipótesis nula')
         self.iid.setToolTip('En pruebas de dos muestras, también deben ser independientes entre sí.')
@@ -186,6 +188,8 @@ class RandomPanel(QWidget):
             described, fitted, inferred = (mode == option for option in ('describe', 'fit', 'infer'))
             diagnostic = described and self.diagnostics.isChecked()
             known = diagnostic and self.reference_normal.isChecked()
+            reference = self.reference_family.currentData()
+            normal_reference = known and reference == 'normal'
             ks = inferred and method == 'ks'
             ljung = inferred and method == 'ljung_box'
             family = self.fit_family.currentData()
@@ -197,7 +201,8 @@ class RandomPanel(QWidget):
                 self.fit_method.setCurrentIndex(0)
             settings = (
                 (self.bins, described), (self.diagnostics, described), (self.reference_normal, diagnostic),
-                (self.reference_mean, known), (self.reference_std, known), (self.fit_family, fitted),
+                (self.reference_family, known), (self.reference_mean, normal_reference),
+                (self.reference_std, normal_reference), (self.fit_family, fitted),
                 (self.fit_method, fitted), (self.fit_trials, fitted and family == 'binomial'),
                 (self.inference_method, inferred), (self.iid, use_level), (self.confidence_level, use_level),
                 (self.fit_interval, interval_available),
@@ -208,7 +213,8 @@ class RandomPanel(QWidget):
             )
             for widget, visible in settings:
                 form.setRowVisible(widget, visible)
-            active = {key for key, _, _ in FAMILIES[self.ks_family.currentData()].parameters} if ks else set()
+            parameters = self.ks_family.currentData() if ks else reference if known and not normal_reference else None
+            active = {key for key, _, _ in FAMILIES[parameters].parameters} if parameters is not None else set()
             for key, widget in self.fields.items():
                 form.setRowVisible(widget, key in active)
             note.setText({
@@ -223,7 +229,7 @@ class RandomPanel(QWidget):
                 'welch': 'Ingresá la diferencia hipotética de medias, primera muestra menos segunda. Las varianzas pueden diferir.',
             }.get(method, 'Ingresá la media poblacional bajo H₀. La calibración supone normalidad.'))
 
-        for selector in (self.analysis, self.fit_family, self.inference_method, self.ks_family):
+        for selector in (self.analysis, self.fit_family, self.inference_method, self.ks_family, self.reference_family):
             selector.currentIndexChanged.connect(update)
         for checkbox in (self.diagnostics, self.reference_normal, self.fit_interval):
             checkbox.toggled.connect(update)
@@ -658,7 +664,11 @@ class RandomPanel(QWidget):
                 diagnostics=self.diagnostics.isChecked()
                 reference=None
                 if diagnostics and self.reference_normal.isChecked():
-                    reference=Distribution('normal',{'mean':real_field(self.reference_mean),'std':real_field(self.reference_std)})
+                    family=self.reference_family.currentData()
+                    if family=='normal':
+                        reference=Distribution(family,{'mean':real_field(self.reference_mean),'std':real_field(self.reference_std)})
+                    else:
+                        reference=Distribution(family,self._statistical_parameters(family))
 
                 def calculate():
                     data=random_signals.statistics(source,component,bins,histogram_notice=bins_notice)
@@ -696,6 +706,22 @@ class RandomPanel(QWidget):
                 self.window._run_operation('Calculando estadísticas…',calculate,accept)
         except Exception as exc:show_input_error(self,'Revisá las entradas',exc)
 
+    def _statistical_parameters(self, family):
+        from .systems_panel import parse_list
+
+        parameters={}
+        for name,_,rule in FAMILIES[family].parameters:
+            field=self.fields[name]
+            if rule=='vector':
+                values=parse_list(field.text())
+                if np.any(values.imag):
+                    raise ValueError('Las probabilidades por categoría deben ser reales.')
+                parameters[name]=values.real
+            else:
+                parser=integer_field if rule in ('integer','count','positive_count') else real_field
+                parameters[name]=parser(field)
+        return parameters
+
     def _calculate_inference(self):
         fitting = self.analysis.currentData() == 'fit'
         method = self.inference_method.currentData()
@@ -729,8 +755,7 @@ class RandomPanel(QWidget):
                 parameters.update(lags=integer_field(self.lags), fitted_parameters=integer_field(self.fitted_parameters))
             elif method == 'ks':
                 family = self.ks_family.currentData()
-                parameters['reference'] = Distribution(family, {key: real_field(self.fields[key])
-                    for key, _, _ in FAMILIES[family].parameters})
+                parameters['reference'] = Distribution(family,self._statistical_parameters(family))
 
         def calculate():
             return service(signals[0], component=projection, **parameters)
@@ -789,6 +814,11 @@ def _descriptive_report(result):
     if 'boxplot' in result:
         sections.append(Section('Diagrama de caja',rows=[('Atípicos',result['boxplot']['outliers'])],
                                 paragraphs=['Los bigotes alcanzan observaciones dentro de 1,5 rangos intercuartílicos.']))
+    if 'reference' in result:
+        law=result['reference']
+        section=Section('Comparación teórica',rows=[('Distribución',FAMILIES[law['family']].label)])
+        section.rows.extend((_PARAMETERS[key][0],_result_text(value)) for key,value in law['parameters'].items())
+        sections.append(section)
     return Summary(_PROJECTION_LABELS[result['component']],sections).plain_text()
 
 
@@ -886,8 +916,10 @@ def _statistical_plot(axis,choice,data):
         axis.step(empirical['x'],empirical[choice],where='post',label='Registro')
         reference=empirical.get('reference_'+choice)
         if reference is not None:
+            law=FAMILIES[result['reference']['family']]
+            style={'linestyle':'None','marker':'.'} if law.discrete else {}
             axis.plot(empirical['reference_axis'],[row['value'] if row['status']=='finite' else np.nan for row in reference],
-                      label='Normal de referencia')
+                      label=law.label+' de referencia',**style)
             axis.legend()
         axis.set_xlabel(label)
         axis.set_ylabel('P(X ≤ x)' if choice=='cdf' else 'P(X > x)')
@@ -900,7 +932,7 @@ def _statistical_plot(axis,choice,data):
         qq=result['qq']
         theoretical=[row['value'] if row['status']=='finite' else np.nan for row in qq['theoretical']]
         axis.scatter(theoretical,qq['observed'],s=12)
-        axis.set_xlabel('Cuantiles normales de referencia')
+        axis.set_xlabel('Cuantiles de '+FAMILIES[result['reference']['family']].label)
         axis.set_ylabel('Observados · '+label)
     axis.grid(alpha=.2)
 

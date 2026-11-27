@@ -97,7 +97,7 @@ for key,title,summary in [
  (('random','generate'),'Generar realización','Distribuciones, procesos y trayectorias reproducibles.'),
  (('random','statistics'),'Estadísticas e histograma','Explorá un registro, ajustá distribuciones y contrastá hipótesis.'),
  (('random_correlation',0),'Correlación y covarianza','Auto y cruzada: estimaciones a partir de uno o dos registros.')]:add('random','Generación y análisis',key,title,summary)
-add('random','Modelos',('random_model','model'),'Analizar modelo AR, MA o ARMA','Media, varianza, correlación y PSD teóricas; realización estacionaria.','proceso estocastico autorregresivo promedio movil ruido blanco filtrado lyapunov')
+add('random','Modelos',('random_model','model'),'Analizar modelo AR, MA o ARMA','Calculá la correlación y la PSD teóricas. Simulá una realización con la condición inicial que elijas.','proceso estocastico autorregresivo promedio movil ruido blanco filtrado lyapunov estado inicial calentamiento')
 add('random','Modelos',('random_model','fit'),'Estimar modelo temporal','Ajustá AR, MA, ARMA o ARIMA y examiná pronósticos y residuos.','ar ma arma arima yule walker burg verosimilitud identificacion aic aicc bic ljung box prediccion pronostico validacion residuos')
 add('random','Estimación y filtrado',('estimation','gaussian'),'Estimación gaussiana','Compará ML, MAP y MMSE con observaciones de ruido correlacionado.','lmmse verosimilitud fisher cramer rao sesgo varianza bayes')
 add('random','Estimación y filtrado',('estimation','wiener'),'Filtro de Wiener','Obtené un FIR causal desde dos registros o desde correlaciones conocidas.','wiener hopf lmmse ruido residual entrenamiento')

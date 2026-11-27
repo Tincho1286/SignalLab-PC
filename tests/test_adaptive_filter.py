@@ -120,10 +120,20 @@ class AdaptiveFilterTests(unittest.TestCase):
             source,configuration,destination = (Path(folder)/name for name in ('signal.slproj','methods.json','out.slproj'))
             session.save(source,project,session.empty_workspace())
             configuration.write_text('[{"method":"lms","step":0.03},{"method":"rls","forgetting":1}]',encoding='utf-8')
+            options=['adaptive','--session',str(source),'--record',incoming,'--second-record',desired,
+                     '--length','1','--reserve','3','--configurations',str(configuration)]
+            original=configuration.read_bytes()
+            for extra,target,message in ((['--method','nlms'],destination,'configuraciones'),
+                                         ([],configuration,'archivo de configuraciones')):
+                stderr=StringIO()
+                with self.subTest(target=target),redirect_stderr(stderr):
+                    self.assertEqual(main([*options,*extra,'--output',str(target)]),1)
+                    self.assertIn(message,stderr.getvalue())
+                self.assertEqual(configuration.read_bytes(),original)
+                self.assertFalse(destination.exists())
             stdout,stderr = StringIO(),StringIO()
             with redirect_stdout(stdout),redirect_stderr(stderr):
-                code = main(['adaptive','--session',str(source),'--record',incoming,'--second-record',desired,
-                             '--length','1','--reserve','3','--configurations',str(configuration),'--output',str(destination)])
+                code = main([*options,'--output',str(destination)])
             self.assertEqual(code,0,stderr.getvalue())
             receipt = json.loads(stdout.getvalue())
             saved,_ = session.load(destination)

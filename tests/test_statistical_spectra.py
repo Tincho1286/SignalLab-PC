@@ -336,8 +336,17 @@ class AdvancedSpectralTests(unittest.TestCase):
             session.save(base,project,session.empty_workspace())
             coordinates.write_text(json.dumps(times),encoding='utf-8')
             common=['--session',str(base),'--record',key,'--output',str(out)]
+            scale=['--low','.25','--high','1','--points','13']
+            original=coordinates.read_bytes()
+            stderr=StringIO()
+            with redirect_stderr(stderr):
+                self.assertEqual(stochastic(['lomb','--times-file',str(coordinates),*scale,
+                                             *common[:-1],str(coordinates)]),1)
+                self.assertIn('archivo de tiempos',stderr.getvalue())
+            self.assertEqual(coordinates.read_bytes(),original)
             for runner,args in [(main,['psd','--method','multitaper','--bandwidth','1.5','--tapers','2','--nfft','8']),
-                                (stochastic,['lomb','--times-file',str(coordinates),'--low','.25','--high','1','--points','13'])]:
+                                (stochastic,['lomb','--times-file',str(coordinates),*scale]),
+                                (stochastic,['lomb','--times',json.dumps(times),*scale])]:
                 stdout,stderr=StringIO(),StringIO()
                 with redirect_stdout(stdout),redirect_stderr(stderr):
                     code=runner([*args,*common])

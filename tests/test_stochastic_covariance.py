@@ -166,6 +166,30 @@ class CovarianceOracles(unittest.TestCase):
             store_statistics(project, conflicting, [(source,parent,()),(other,parent,())], conflicting.name)
         self.assertEqual(project.headers(),before)
 
+    def test_cli_pairs_independent_signal_files_and_preserves_both_sources(self):
+        first=Signal([1.,2.,3.],origin=-1)
+        second=Signal([4.,5.,6.],origin=-1)
+        with TemporaryDirectory() as directory:
+            left,right,out=(Path(directory)/name for name in ('first.slbin','second.slbin','out.slproj'))
+            save_binary_signal(first,left)
+            save_binary_signal(second,right)
+            arguments=['correlate','--signal',str(left),'--max-lag','1','--method','direct']
+            for selection,target,message in ((['--second-record','missing'],out,'requiere una sesión'),
+                                              (['--second-signal',str(right)],right,'segunda señal')):
+                stderr=StringIO()
+                with self.subTest(target=target),redirect_stderr(stderr):
+                    self.assertEqual(main([*arguments,*selection,'--output',str(target)]),1)
+                self.assertIn(message,stderr.getvalue())
+            stdout,stderr=StringIO(),StringIO()
+            with redirect_stdout(stdout),redirect_stderr(stderr):
+                self.assertEqual(main([*arguments,'--second-signal',str(right),'--output',str(out)]),0,stderr.getvalue())
+            receipt=json.loads(stdout.getvalue())
+            restored,_=session.load(out)
+            curve=restored.get(receipt['result_id'])
+            np.testing.assert_allclose(curve.values,correlation_oracle(first.values,second.values,1,'N',False))
+            self.assertEqual([restored.get(key).origin for key in receipt['source_ids']],[-1,-1])
+            self.assertEqual(restored.headers()[-1]['parents'],receipt['source_ids'])
+
     def test_cli_methods_persist_completed_reports_and_reject_bad_references(self):
         project = Project()
         data = (Signal([1,2]),Signal([3,6]))

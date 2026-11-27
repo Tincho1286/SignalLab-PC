@@ -123,6 +123,22 @@ class ProbabilityWorkbenchTests(DesktopSessionFixture):
             self.assertEqual(len(panel.figure.axes), 1)
         qq = panel.figure.axes[0].collections[0].get_offsets()
         self.assertEqual(len(qq), len(source.values))
+        self.assertEqual(report['reference']['family'],'normal')
+
+        panel.reference_family.setCurrentIndex(panel.reference_family.findData('poisson'))
+        panel.fields['rate'].setText('2')
+        self.assertFalse(panel.fields['rate'].isHidden())
+        self.assertTrue(panel.reference_mean.isHidden())
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        rows=[row for row in window.project.headers() if row['operation']=='Estadísticas de registro']
+        fitted=window.project.get(rows[-1]['id'])['descriptive']
+        self.assertEqual(fitted['reference']['parameters'],{'rate':2.})
+        self.assertAlmostEqual(fitted['empirical']['reference_cdf'][0]['value'],3*np.exp(-2))
+        panel.plot_kind.setCurrentIndex(panel.plot_kind.findData('cdf'))
+        reference=panel.figure.axes[0].lines[1]
+        self.assertEqual(reference.get_label(),'Poisson de referencia')
+        self.assertEqual(reference.get_linestyle(),'None')
 
     def test_two_sample_inference_and_fit_share_api_results(self):
         window = self.window()

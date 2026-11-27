@@ -154,6 +154,10 @@ class StochasticNoiseOracles(unittest.TestCase):
         result = invoke(['inspect',*common,'--bins','8'])
         np.testing.assert_array_equal(result['density'],noise_spectrum(model,8,rate=8).values)
         self.assertIn('posiciones', invoke(['inspect', *common, '--first','2'], 1))
+        poisson=['inspect','--family','poisson_process','--parameters','{"initial":3,"event_rate":2}','--rate','8']
+        transition=invoke(poisson)['transition']
+        self.assertAlmostEqual(transition['event_mean']['value'],.25)
+        self.assertIn('bins',invoke([*poisson,'--bins','10'],1))
         with TemporaryDirectory() as folder:
             target = Path(folder)/'noise.slproj'
             result = invoke(['generate',*common,'--count','8','--seed','17','--output',str(target)])

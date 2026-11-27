@@ -352,11 +352,20 @@ def run_campaign(spec,directory,execution=None):
             return CampaignResult(folder,spec,stamp,tuple(rows),_report(spec,rows,stamp))
 
 
+def validate_campaign_destination(path, directory, extension):
+    """Preserve the directory and its catalog when writing a derived file."""
+    path = Path(path)
+    destination = path.resolve()
+    folder = Path(directory).resolve()
+    if (destination == folder or destination.is_dir()
+            or (destination.parent == folder and destination.suffix.lower() != extension)):
+        raise ValueError('Elegí una salida distinta de la carpeta de campaña y sus archivos internos.')
+    return path
+
+
 def export_campaign_csv(result,path,execution=None):
     context = execution or ExecutionContext()
-    path = Path(path)
-    if path.resolve().parent==result.folder and path.suffix.lower()!='.csv':
-        raise ValueError('Elegí un archivo CSV distinto del catálogo y sus bloques.')
+    path = validate_campaign_destination(path, result.folder, '.csv')
     with atomic_binary_file(path,before_commit=context.checkpoint) as handle:
         text = io.TextIOWrapper(handle,encoding='utf-8',newline='')
         try:

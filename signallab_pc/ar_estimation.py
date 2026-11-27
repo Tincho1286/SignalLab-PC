@@ -12,16 +12,19 @@ from .spectral_measurements import quantity
 def integer(value,name,minimum=0):
     try:valid=not isinstance(value,(bool,np.bool_)) and int(value)==value and value>=minimum
     except (TypeError,ValueError,OverflowError):valid=False
-    if not valid:raise ValueError(name+' debe ser un entero ≥'+str(minimum)+'.')
+    if not valid:
+        raise ValueError(name+' debe ser un entero ≥'+str(minimum)+'.')
     return int(value)
 
 
 def prepare(source,validation=0):
     from .signal_semantics import require_temporal
     require_temporal(source)
-    if source.domain!='discrete' or np.any(source.values.imag):raise ValueError('El ajuste AR requiere muestras temporales discretas reales.')
+    if source.domain!='discrete' or np.any(source.values.imag):
+        raise ValueError('El ajuste AR requiere muestras temporales discretas reales.')
     n=len(source.values);validation=integer(validation,'Muestras reservadas')
-    if n-validation<2:raise ValueError('La reserva debe dejar al menos dos muestras para ajustar.')
+    if n-validation<2:
+        raise ValueError('La reserva debe dejar al menos dos muestras para ajustar.')
     from .system_clock import common_rate,validate_clock_resolution
     rate=common_rate(source)
     start = source.metadata.get('time_start_s')
@@ -36,14 +39,16 @@ def _prediction(data,fit,start,stop):
     x=data['x'];p=fit['order'];mean=fit['center_scaled'];answer=np.full(stop-start,mean+fit['offset_scaled'])
     for k,c in enumerate(fit['phi'],1):
         checkpoint(k/max(1,p));answer+=c*(x[start-k:stop-k]-mean)
-    if not np.isfinite(answer).all():raise ValueError('La predicción excede el rango numérico.')
+    if not np.isfinite(answer).all():
+        raise ValueError('La predicción excede el rango numérico.')
     return answer
 
 
 def _error_measure(errors,scale):
     # errors are normalized before squaring. Preserve tiny/huge physical variances.
     peak=float(np.max(abs(errors))) if len(errors) else 0.
-    if peak==0:return quantity(-np.inf)
+    if peak==0:
+        return quantity(-np.inf)
     return quantity(2*math.log(scale)+2*math.log(peak)+math.log(float(np.mean((errors/peak)**2))))
 
 
@@ -53,28 +58,34 @@ def fit(source,order,*,method='ols',validation=0,hold_back=None):
 
 def fit_prepared(data,order,method='ols',hold_back=None):
     p=integer(order,'Orden AR');train=data['train'];start=p if hold_back is None else integer(hold_back,'Inicio común')
-    if start<p or train-start<1 or method=='ols' and train-start<=p+1:raise ValueError('Se necesitan más filas de ajuste que coeficientes (incluida la constante). Reducí el orden, el inicio común o la reserva.')
+    if start<p or train-start<1 or method=='ols' and train-start<=p+1:
+        raise ValueError('Se necesitan más filas de ajuste que coeficientes (incluida la constante). Reducí el orden, el inicio común o la reserva.')
     x=data['x'];mean=float(np.mean(x[:train]));centered=x-mean;nfit=train-start;scale=data['scale'];condition=None
     ensure_working_set(int(nfit*(p+2)+p*p+len(x)),live_arrays=6)
     if method=='ols':
         matrix=np.ones((nfit,p+1))
         for k in range(1,p+1):matrix[:,k]=centered[start-k:train-k]
         coefficients,_,rank,singular=np.linalg.lstsq(matrix,centered[start:train],rcond=None)
-        if rank!=p+1:raise ValueError('Las columnas de retardos son dependientes. No hay un ajuste AR único para ese orden.')
+        if rank!=p+1:
+            raise ValueError('Las columnas de retardos son dependientes. No hay un ajuste AR único para ese orden.')
         condition=float(singular[0]/singular[-1])
-        if not np.isfinite(coefficients).all() or condition>1/math.sqrt(np.finfo(float).eps):raise ValueError('El ajuste está mal condicionado; reducí el orden o revisá el registro.')
+        if not np.isfinite(coefficients).all() or condition>1/math.sqrt(np.finfo(float).eps):
+            raise ValueError('El ajuste está mal condicionado; reducí el orden o revisá el registro.')
         phi=coefficients[1:];offset=float(coefficients[0]);method_name='Mínimos cuadrados condicionales'
     elif method=='yw':
-        if hold_back is not None and hold_back!=p:raise ValueError('La comparación con inicio común usa mínimos cuadrados; Yule–Walker conserva su propia estimación de covarianzas.')
+        if hold_back is not None and hold_back!=p:
+            raise ValueError('La comparación con inicio común usa mínimos cuadrados; Yule–Walker conserva su propia estimación de covarianzas.')
         if p==0:phi=np.empty(0);offset=0.
         else:
             from scipy.linalg import solve_toeplitz,toeplitz
             cov=signal.correlate(centered[:train],centered[:train],mode='full',method='fft')[train-1:train+p]/train
             cov[0]=np.mean(centered[:train]**2)
-            if cov[0]<=0:raise ValueError('Un registro constante no identifica coeficientes AR de orden positivo.')
+            if cov[0]<=0:
+                raise ValueError('Un registro constante no identifica coeficientes AR de orden positivo.')
             phi=solve_toeplitz(cov[:p],cov[1:]);offset=0.
             residual=toeplitz(cov[:p])@phi-cov[1:]
-            if not np.isfinite(phi).all() or np.linalg.norm(residual)>1e-9*max(np.linalg.norm(cov),np.finfo(float).tiny):raise ValueError('Las ecuaciones de Yule–Walker no tienen precisión suficiente.')
+            if not np.isfinite(phi).all() or np.linalg.norm(residual)>1e-9*max(np.linalg.norm(cov),np.finfo(float).tiny):
+                raise ValueError('Las ecuaciones de Yule–Walker no tienen precisión suficiente.')
         method_name='Yule–Walker (covarianza con divisor N)'
     elif method=='burg':
         if hold_back is not None and hold_back != p:
@@ -85,7 +96,8 @@ def fit_prepared(data,order,method='ols',hold_back=None):
         method_name='Burg (errores de avance y retroceso)'
     else:raise ValueError('Método AR no reconocido.')
     intercept_scaled=float(offset+mean*(1-float(np.sum(phi))));intercept=intercept_scaled*scale
-    if not math.isfinite(intercept):raise ValueError('La constante del modelo excede el rango numérico.')
+    if not math.isfinite(intercept):
+        raise ValueError('La constante del modelo excede el rango numérico.')
     denominator=np.r_[1.,-phi];poles=np.roots(denominator);radius=float(np.max(abs(poles))) if p else 0.
     row=dict(order=p,phi=phi.tolist(),a=denominator.tolist(),intercept=intercept,center_scaled=mean,offset_scaled=offset,scale=scale,method=method,method_name=method_name,fit_start=start,train=train,validation=data['validation'],nfit=nfit,parameters=p+2,condition=condition,radius=radius,stationary=bool(radius<1-64*np.finfo(float).eps),error=None)
     prediction=_prediction(data,row,start,train);errors=x[start:train]-prediction;measure=_error_measure(errors,scale);row['residual_mse']=measure
@@ -93,7 +105,8 @@ def fit_prepared(data,order,method='ols',hold_back=None):
     near_exact=bool(float(np.max(abs(errors)))<=tol);row['near_exact']=near_exact
     if method=='yw':
         innovation=float(np.mean(centered[:train]**2)) if not p else float(cov[0]-np.dot(phi,cov[1:]))
-        if innovation<0:raise ValueError('La varianza de innovación de Yule–Walker no es válida.')
+        if innovation<0:
+            raise ValueError('La varianza de innovación de Yule–Walker no es válida.')
         row['innovation_variance']=quantity(-np.inf if innovation==0 else 2*math.log(scale)+math.log(innovation))
     elif method=='burg':
         row['reflection_coefficients']=list(reflection)
@@ -109,7 +122,8 @@ def fit_prepared(data,order,method='ols',hold_back=None):
     row['validation_mse']=None;row['validation_notice']=None
     if data['validation']:
         try:
-            if not np.isfinite(x).all():raise ValueError('El tramo reservado excede la escala numérica del entrenamiento.')
+            if not np.isfinite(x).all():
+                raise ValueError('El tramo reservado excede la escala numérica del entrenamiento.')
             row['validation_mse']=_error_measure(x[train:]-_prediction(data,row,train,len(x)),scale)
         except (ValueError,ArithmeticError) as exc:row['validation_notice']=str(exc)
     return row
@@ -117,10 +131,14 @@ def fit_prepared(data,order,method='ols',hold_back=None):
 
 def compare(source,maximum,minimum=0,*,validation=0,criterion='bic'):
     data=prepare(source,validation);minimum=integer(minimum,'Orden mínimo');maximum=integer(maximum,'Orden máximo')
-    if minimum>maximum:raise ValueError('El orden mínimo debe ser ≤ al máximo.')
-    if data['train']-maximum<=maximum+1:raise ValueError('La comparación necesita más de 2·p_máximo+1 muestras de entrenamiento para usar el mismo intervalo en todos los órdenes.')
-    if criterion not in ('aic','aicc','bic','validation'):raise ValueError('Criterio no reconocido.')
-    if criterion=='validation' and not data['validation']:raise ValueError('Reservá muestras para elegir por error de validación.')
+    if minimum>maximum:
+        raise ValueError('El orden mínimo debe ser ≤ al máximo.')
+    if data['train']-maximum<=maximum+1:
+        raise ValueError('La comparación necesita más de 2·p_máximo+1 muestras de entrenamiento para usar el mismo intervalo en todos los órdenes.')
+    if criterion not in ('aic','aicc','bic','validation'):
+        raise ValueError('Criterio no reconocido.')
+    if criterion=='validation' and not data['validation']:
+        raise ValueError('Reservá muestras para elegir por error de validación.')
     rows=[];ensure_working_set(int(data['train']*(maximum+3)+maximum*maximum),live_arrays=6)
     for p in range(minimum,maximum+1):
         checkpoint((p-minimum)/max(1,maximum-minimum+1))
@@ -128,7 +146,8 @@ def compare(source,maximum,minimum=0,*,validation=0,criterion='bic'):
         except (ValueError,np.linalg.LinAlgError) as exc:row=dict(order=p,error=str(exc))
         rows.append(row)
     def score(row):
-        if row.get('error'):return None
+        if row.get('error'):
+            return None
         return row['validation_mse']['log_value'] if criterion=='validation' and row['validation_mse']['value']!=0 else -np.inf if criterion=='validation' else row[criterion]
     candidates=[(score(row),i) for i,row in enumerate(rows) if not row.get('error') and (row['validation_mse'] is not None if criterion=='validation' else row[criterion] is not None)]
     selected=min(candidates)[1] if candidates else None
@@ -146,7 +165,8 @@ def diagnostics(source,row,max_lag=20):
     outputs=[temporal(source,pred*scale,start,'Predicción a un paso','ar_one_step',model_order=row['order'],scope='Cada punto usa antecedentes observados, también dentro de la reserva; no es predicción recursiva.'),temporal(source,residual*scale,start,'Residuo a un paso','ar_residual',model_order=row['order'],training_last=int(source.origin)+train-1)]
     fit_res=residual[:train-start];n=len(fit_res);lag=min(integer(max_lag,'Retardos del diagnóstico'),n-1);rows=[]
     centered=fit_res-float(np.mean(fit_res));peak=float(np.max(abs(centered)))
-    if peak==0 or row['near_exact']:return dict(signals=outputs,rows=[],report='El residuo de entrenamiento es nulo o compatible con redondeo. No se asignan autocorrelaciones normalizadas ni valores p ficticios.',lags=lag)
+    if peak==0 or row['near_exact']:
+        return dict(signals=outputs,rows=[],report='El residuo de entrenamiento es nulo o compatible con redondeo. No se asignan autocorrelaciones normalizadas ni valores p ficticios.',lags=lag)
     normalized=centered/peak;cov=signal.correlate(normalized,normalized,mode='full',method='fft')[n-1:n+lag];rho=cov/cov[0];rho[0]=1.
     # Ljung–Box: residuals centered, estimated AR degrees of freedom p.
     terms=rho[1:]**2/(n-np.arange(1,lag+1));q=n*(n+2)*np.cumsum(terms);p=row['order']
@@ -169,28 +189,35 @@ def diagnostics(source,row,max_lag=20):
 
 def forecast(source,row,horizon=16,coverage=95):
     horizon=integer(horizon,'Horizonte',1)
-    if not math.isfinite(coverage) or not 0<coverage<100:raise ValueError('La cobertura debe estar entre 0 y 100 %, sin incluir extremos.')
+    if not math.isfinite(coverage) or not 0<coverage<100:
+        raise ValueError('La cobertura debe estar entre 0 y 100 %, sin incluir extremos.')
     ensure_working_set(int(len(source.values)+horizon+row['order']),live_arrays=12)
     data=prepare(source,row['validation']);x=data['x'];p=row['order'];mean=row['center_scaled'];history=np.r_[x[-p:] if p else [],np.zeros(horizon)];values=np.empty(horizon)
     for h in range(horizon):
         checkpoint(h/horizon);value=mean+row['offset_scaled']
         for k,c in enumerate(row['phi'],1):value+=c*(history[p+h-k]-mean)
-        if not math.isfinite(value):raise ValueError('La predicción recursiva excede el rango numérico; el ajuste se conserva.')
+        if not math.isfinite(value):
+            raise ValueError('La predicción recursiva excede el rango numérico; el ajuste se conserva.')
         history[p+h]=values[h]=value
     with np.errstate(over='ignore',invalid='ignore'):values*=data['scale']
-    if not np.isfinite(values).all():raise ValueError('La amplitud predicha excede float64; el ajuste se conserva.')
+    if not np.isfinite(values).all():
+        raise ValueError('La amplitud predicha excede float64; el ajuste se conserva.')
     offset=len(x);base=dict(model_order=p,training_samples=row['train'],observed_samples=len(x),coverage=coverage,scope='Coeficientes fijados en entrenamiento. El pronóstico parte de los últimos antecedentes observados; después reutiliza sus predicciones.')
     outputs=[temporal(source,values,offset,'Predicción recursiva AR','ar_forecast',**base)]
     notice='Los intervalos presuponen innovaciones gaussianas independientes, parámetros fijados y varianza estimada. Incluyen incertidumbre de innovaciones futuras, no de parámetros ni selección del orden.'
-    if row['near_exact']:return dict(signals=outputs,report='No se calcula intervalo: el residuo es compatible con redondeo y no permite estimar una incertidumbre estadística fiable.')
+    if row['near_exact']:
+        return dict(signals=outputs,report='No se calcula intervalo: el residuo es compatible con redondeo y no permite estimar una incertidumbre estadística fiable.')
     impulse=np.zeros(horizon);impulse[0]=1.;psi=signal.lfilter([1.],row['a'],impulse)
-    if not np.isfinite(psi).all():return dict(signals=outputs,report='La respuesta de innovaciones excede float64. Se conserva la predicción, sin intervalo.')
+    if not np.isfinite(psi).all():
+        return dict(signals=outputs,report='La respuesta de innovaciones excede float64. Se conserva la predicción, sin intervalo.')
     with np.errstate(divide='ignore'):logvar=np.logaddexp.accumulate(2*np.log(abs(psi)))
     innovation=row['innovation_variance']['log_value'];z=float(stats.norm.isf((100-coverage)/200))
-    if innovation is None or not math.isfinite(z) or z<=0:return dict(signals=outputs,report='La varianza o la cobertura no permiten representar un intervalo fiable. Se conserva la predicción.')
+    if innovation is None or not math.isfinite(z) or z<=0:
+        return dict(signals=outputs,report='La varianza o la cobertura no permiten representar un intervalo fiable. Se conserva la predicción.')
     with np.errstate(over='ignore',under='ignore'):width=np.exp((logvar+innovation)/2+math.log(z))
     with np.errstate(over='ignore',invalid='ignore'):lower,upper=values-width,values+width
-    if not np.isfinite(lower).all() or not np.isfinite(upper).all() or np.any((width==0)|(lower==values)|(upper==values)):return dict(signals=outputs,report='El intervalo excede el rango o la resolución de float64. Se conserva la predicción. '+notice)
+    if not np.isfinite(lower).all() or not np.isfinite(upper).all() or np.any((width==0)|(lower==values)|(upper==values)):
+        return dict(signals=outputs,report='El intervalo excede el rango o la resolución de float64. Se conserva la predicción. '+notice)
     outputs.extend([temporal(source,lower,offset,'Límite predictivo inferior','ar_prediction_limit',**base),temporal(source,upper,offset,'Límite predictivo superior','ar_prediction_limit',**base)])
     return dict(signals=outputs,report=notice)
 

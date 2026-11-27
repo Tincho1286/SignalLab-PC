@@ -17,9 +17,8 @@ def campaign_writer(folder, *, operation='barrido', filename='campaign.lock'):
     with path.open('a+b') as handle:
         if os.name == 'nt':
             from msvcrt import LK_NBLCK, LK_UNLCK, locking
-            if handle.tell() == 0:
-                handle.write(b'\x00')
-                handle.flush()
+            # CRT locks may extend past EOF. Leave a new file empty so
+            # simultaneous first writers cannot race on a sentinel write.
             handle.seek(0)
             lock = lambda: locking(handle.fileno(), LK_NBLCK, 1)
             unlock = lambda: locking(handle.fileno(), LK_UNLCK, 1)

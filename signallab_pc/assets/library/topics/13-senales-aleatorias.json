@@ -56,7 +56,7 @@
         ],
         [
           "Cómo preparar el cálculo",
-          "Cargá la secuencia y elegí parte real, parte imaginaria, módulo o fase. En Estadística descriptiva, los diagnósticos habilitan CDF, CCDF y caja. Elegí una normal de referencia para sumar un gráfico Q–Q. En Ajustar una distribución elegí la familia y el estimador. Para un ajuste binomial indicá cuántos ensayos representa cada recuento."
+          "Cargá la secuencia y elegí parte real, parte imaginaria, módulo o fase. En Estadística descriptiva, los diagnósticos habilitan CDF, CCDF y caja. Elegí una distribución con sus parámetros conocidos para superponer la referencia y sumar un gráfico Q–Q. En una distribución discreta se marcan las probabilidades en los valores evaluados. En Ajustar una distribución elegí la familia y el estimador. Para un ajuste binomial indicá cuántos ensayos representa cada recuento."
         ],
         [
           "Cómo interpretar la salida",
@@ -120,19 +120,19 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Un modelo AR, MA o ARMA relaciona una entrada de ruido blanco con un proceso cuya evolución depende de coeficientes conocidos. Esta herramienta obtiene las estadísticas del modelo y permite generar una realización gaussiana estacionaria."
+          "Un modelo AR, MA o ARMA relaciona una entrada de ruido blanco con un proceso cuya evolución depende de coeficientes conocidos. Esta herramienta obtiene las estadísticas estacionarias del modelo y simula registros con distintas condiciones iniciales."
         ],
         [
           "Cómo preparar el cálculo",
-          "Elegí AR, MA o ARMA y cargá los coeficientes por potencias de z⁻¹. Para AR, b es 1; para MA, a es 1. Definí la media y la desviación del ruido, los retardos de interés y la rejilla espectral. También podés cargar un sistema digital desde archivo o Resultados."
+          "Elegí AR, MA o ARMA y cargá los coeficientes por potencias de z⁻¹. En AR, b vale 1. En MA, a vale 1. Definí la media y la desviación del ruido, los retardos de interés y la rejilla espectral. También podés cargar un sistema digital desde archivo o Resultados.\n\nAl simular, elegí estado estacionario para sortear el estado con la covarianza de Lyapunov. Reposo inicia las fluctuaciones x−media con estado cero. Estado manual acepta los componentes reales de la forma directa II transpuesta. Por ejemplo, para x[n]−media = 0,8·(x[n−1]−media)+e[n], el estado inicial es 0,8·(x[n−1]−media). El calentamiento simula y descarta muestras anteriores al índice inicial."
         ],
         [
           "Cómo interpretar la salida",
-          "El informe muestra la recurrencia, H(z), media, varianza y potencia del proceso. Podés abrir autocovarianza, autocorrelación, PSD y, si lo pediste, autocorrelación parcial o una realización. Cada curva se guarda en Resultados y H(z) se puede reutilizar en el análisis de sistemas."
+          "El informe muestra la recurrencia, H(z), media, varianza y potencia del proceso. Podés abrir autocovarianza, autocorrelación, PSD y, si lo pediste, autocorrelación parcial o una realización. Cada curva se guarda en Resultados y H(z) se puede reutilizar en el análisis de sistemas.\n\nPara estudiar sensibilidad, elegí un coeficiente o un parámetro del ruido y cargá sus valores separados por coma. Para b[k] o a[k], k corresponde a z⁻ᵏ. El informe compara media, varianza y mayor módulo de polo. Las PSD de los casos válidos se pueden superponer en la misma grilla."
         ],
         [
           "Qué tener en cuenta",
-          "Usá un modelo real, causal y estable. Para generar el registro, el estado inicial gaussiano usa la covarianza estacionaria obtenida mediante la ecuación de Lyapunov. La semilla permite repetir ese registro, cuyas estadísticas pueden diferir de las del modelo.\n\nLa densidad de potencia describe x menos su media. Su integral en un período, dividida por 2π, da la varianza. Con media distinta de cero, el espectro completo agrega una línea ideal en ω=0 con peso 2π·media². La línea se registra por separado."
+          "Usá un modelo real, causal y estable. La semilla permite repetir el registro con el mismo estado y calentamiento. Si arrancás desde reposo o desde un estado manual, la realización puede incluir un transitorio. Las estadísticas teóricas describen el régimen estacionario.\n\nLa densidad de potencia describe x menos su media. Su integral en un período, dividida por 2π, da la varianza. Con media distinta de cero, el espectro completo agrega una línea ideal en ω=0 con peso 2π·media². La línea se registra por separado."
         ],
         [
           "Indeterminaciones y valores por continuidad",

@@ -124,6 +124,49 @@ class Arithmetic(unittest.TestCase):
         diagnostic=ar.diagnostics(source,row,5);self.assertEqual(len(diagnostic['signals'][0].values),39);self.assertEqual(len(diagnostic['rows']),5)
 
 
+    def test_fitting_rejects_ambiguous_training_and_order_requests(self):
+        source=Signal([0,3,1,5,2,3,6,4])
+        for invalid in (Signal([1.,2j,5.]),Signal([1.,2.,5.],domain='continuous')):
+            with self.assertRaisesRegex(ValueError,'discretas reales'):
+                ar.fit(invalid,0)
+        for method,hold_back,message in (('yw',3,'Yule'),('burg',3,'Burg'),('otra',None,'Método')):
+            with self.subTest(method=method),self.assertRaisesRegex(ValueError,message):
+                ar.fit(source,1,method=method,hold_back=hold_back)
+        for options,message in (({'order':True},'entero'),({'order':0,'validation':7},'reserva'),
+                                ({'order':4},'más filas'),({'order':1,'hold_back':0},'más filas')):
+            with self.subTest(options=options),self.assertRaisesRegex(ValueError,message):
+                ar.fit(source,**options)
+        for method,message in (('ols','dependientes'),('yw','constante')):
+            with self.assertRaisesRegex(ValueError,message):
+                ar.fit(Signal(np.ones(12)),1,method=method)
+
+    def test_order_comparison_rejects_incommensurate_scores_and_reports_failed_candidates(self):
+        source=Signal([0,3,1,5,2,3,6,4])
+        for options,message in (({'maximum':0,'minimum':1},'mínimo'),({'maximum':4},'entrenamiento'),
+                                ({'maximum':1,'criterion':'rms'},'Criterio'),
+                                ({'maximum':1,'criterion':'validation'},'Reservá')):
+            with self.subTest(options=options),self.assertRaisesRegex(ValueError,message):
+                ar.compare(source,**options)
+        result=ar.compare(Signal(np.ones(12)),2)
+        self.assertIsNone(result['selected'])
+        self.assertTrue(result['rows'][0]['near_exact'])
+        self.assertTrue(all('dependientes' in row['error'] for row in result['rows'][1:]))
+
+    def test_forecast_rejects_unrepresentable_amplitude_and_keeps_narrow_interval_explanation(self):
+        source=Signal([1e307,2e307,4e307,8e307])
+        adjusted=ar.fit(source,1)
+        self.assertAlmostEqual(ar.forecast(source,adjusted,1)['signals'][0].values[0].real/1e308,1.6)
+        with self.assertRaisesRegex(ValueError,'amplitud predicha'):
+            ar.forecast(source,adjusted,2)
+        source=Signal([2,5,1,3,7,2,3,5])
+        adjusted=ar.fit(source,0)
+        with self.assertRaisesRegex(ValueError,'cobertura'):
+            ar.forecast(source,adjusted,1,coverage=100)
+        narrow=ar.forecast(source,adjusted,1,coverage=1e-300)
+        self.assertEqual(len(narrow['signals']),1)
+        self.assertIn('intervalo fiable',narrow['report'])
+
+
 class Interface(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -133,6 +176,7 @@ class Interface(unittest.TestCase):
         from test_workflow_contracts import Host
         from signallab_pc.ar_estimation_panel import ARFitPanel
         self.host=Host();self.panel=ARFitPanel(self.host);self.errors=[];self.warning=patch('PySide6.QtWidgets.QMessageBox.warning',side_effect=lambda *a:self.errors.append(str(a[2])));self.warning.start()
+        self.host.register_publication=lambda key,value:None
         self.panel.source.set_source(Signal(np.random.default_rng(30).normal(size=120),metadata={'sample_rate_hz':100.,'time_start_s':2.}))
     def tearDown(self):
         self.warning.stop();self.panel.close();self.panel.deleteLater();self.host.bar.deleteLater();self.app.processEvents()
@@ -153,6 +197,47 @@ class Interface(unittest.TestCase):
             self.assertFalse(self.errors)
             curve=next(value for value in view.signals if value.metadata['operation']=='model_pacf')
             assert_allclose(curve.values,[1,.8,0,0,0,0],atol=2e-12)
+        finally:
+            view.close()
+            view.deleteLater()
+    def test_manual_model_state_and_warmup_are_visible_and_published(self):
+        from signallab_pc.random_model_panel import RandomModelPanel
+        view=RandomModelPanel(self.host,'model')
+        try:
+            view.a.setText('1, -0.5')
+            view.std.setText('0')
+            view.count.setText('3')
+            view.origin.setText('-4')
+            view.initialization.setCurrentIndex(view.initialization.findData('manual'))
+            view.initial_state.setText('2^3')
+            view.warm_up.setText('2')
+            view.calculate()
+            self.assertFalse(self.errors)
+            curve=self.host.project.get(view.records[0])
+            assert_allclose(curve.values,[2.,1.,.5])
+            self.assertEqual(curve.origin,-4)
+            self.assertEqual(curve.metadata['warm_up_samples'],2)
+            self.assertIn('Estado manual de x−media',view.report.toPlainText())
+            self.assertIn('Muestras descartadas',view.report.toPlainText())
+        finally:
+            view.close()
+            view.deleteLater()
+    def test_model_sensitivity_publishes_each_psd_and_overlays_valid_variants(self):
+        from signallab_pc.random_model_panel import RandomModelPanel
+        view=RandomModelPanel(self.host,'model')
+        try:
+            view.generate.setChecked(False)
+            view.sensitivity.setCurrentIndex(view.sensitivity.findData('a'))
+            view.sensitivity_values.setText('-1/4, -1, -3/4')
+            view.calculate()
+            self.assertFalse(self.errors)
+            self.assertIn('polos dentro del círculo unidad',view.report.toPlainText())
+            self.assertEqual(len(view.comparison),3)
+            view.tabs.setCurrentIndex(1)
+            view.selector.setCurrentIndex(view.selector.count()-1)
+            values=tuple(self.host.project.get(key) for key in view.output.result_ids)
+            self.assertEqual([value.metadata.get('sensitivity_value') for value in values],[None,-.25,-.75])
+            self.assertTrue(all(value.units=='rad/muestra' for value in values))
         finally:
             view.close()
             view.deleteLater()

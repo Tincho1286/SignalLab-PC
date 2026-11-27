@@ -1,6 +1,8 @@
 import csv
 import json
 import math
+import subprocess
+import sys
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
 from dataclasses import replace
@@ -20,7 +22,6 @@ from signallab_pc.monte_carlo import (CampaignSpec, Scenario, campaign_spec, cam
                                     load_campaign, run_campaign)
 from signallab_pc.monte_carlo_bootstrap import bootstrap_record
 from signallab_pc.probability import Distribution
-from signallab_pc.project import Project
 from signallab_pc.resources import ResourceLimitError
 from signallab_pc.stochastic_cli import main
 
@@ -31,6 +32,37 @@ def event_campaign(**options):
 
 
 class MonteCarloTests(unittest.TestCase):
+    def test_native_campaign_writer_excludes_a_separate_process_and_retries(self):
+        worker = '''
+from pathlib import Path
+import sys
+from signallab_pc.campaign_files import campaign_writer
+try:
+    with campaign_writer(Path(sys.argv[1])):
+        print("acquired")
+except ValueError as error:
+    print(error)
+    raise SystemExit(2)
+'''
+        with TemporaryDirectory() as directory:
+            folder = Path(directory)
+            for contents in (b'',b'\x00'):
+                path = folder/'campaign.lock'
+                path.write_bytes(contents)
+
+                def start_worker():
+                    return subprocess.run([sys.executable,'-B','-X','utf8','-c',worker,str(folder)],
+                                          capture_output=True,encoding='utf-8',timeout=20)
+
+                with campaign_writer(folder):
+                    contender = start_worker()
+                    self.assertEqual(contender.returncode,2,contender.stderr)
+                    self.assertIn('Otro proceso',contender.stdout)
+                reopened = start_worker()
+                self.assertEqual(reopened.returncode,0,reopened.stderr)
+                self.assertEqual(reopened.stdout.strip(),'acquired')
+                self.assertEqual(path.read_bytes(),contents)
+
     def test_zero_observed_events_have_exact_positive_upper_bound(self):
         with TemporaryDirectory() as folder:
             result=run_campaign(event_campaign(),folder)
@@ -204,6 +236,29 @@ class MonteCarloTests(unittest.TestCase):
                 saved,_=session.load(output)
                 payload=saved.get(json.loads(stdout.getvalue())['result_id'])
                 self.assertEqual(payload['replicate_summaries'],[[0]]*8)
+
+    def test_cli_rejects_campaign_destinations_before_creating_or_resuming_files(self):
+        with TemporaryDirectory() as directory:
+            folder=Path(directory)
+            model, checkpoint=folder/'definition.json', folder/'campaign'
+            model.write_text(json.dumps(event_campaign().document()),encoding='utf-8')
+            base=['monte-carlo','--model',str(model),'--directory',str(checkpoint)]
+            output=folder/'results.slproj'
+            for args in (['--output',str(checkpoint)], ['--output',str(checkpoint/'monte-carlo.json')],
+                         ['--output',str(output),'--csv',str(checkpoint/'monte-carlo.json')],
+                         ['--output',str(output),'--csv',str(output)]):
+                stderr=StringIO()
+                with self.subTest(args=args), redirect_stderr(stderr):
+                    self.assertEqual(main([*base,*args]),1)
+                    self.assertIn('Elegí',stderr.getvalue())
+                    self.assertFalse(checkpoint.exists())
+                    self.assertFalse(output.exists())
+            csv_file=checkpoint/'replicas.csv'
+            stdout,stderr=StringIO(),StringIO()
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                self.assertEqual(main([*base,'--output',str(output),'--csv',str(csv_file)]),0,stderr.getvalue())
+            self.assertEqual(len(load_campaign(checkpoint).replicas),8)
+            self.assertIn('Escenario: Eventos',csv_file.read_text(encoding='utf-8'))
 
 
 class BootstrapTests(unittest.TestCase):
