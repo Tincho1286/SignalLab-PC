@@ -13,6 +13,7 @@ from signallab_pc.model import Signal
 from signallab_pc.probability import Distribution, generate_realizations
 from signallab_pc.session import load
 from signallab_pc.session_fields import field_values
+from signallab_pc.statistical_inference import fit_distribution, infer_record
 from signallab_pc.workspaces import ROUTES
 from test_desktop_session import DesktopSessionFixture
 
@@ -119,3 +120,39 @@ class ProbabilityWorkbenchTests(DesktopSessionFixture):
             self.assertEqual(len(panel.figure.axes), 1)
         qq = panel.figure.axes[0].collections[0].get_offsets()
         self.assertEqual(len(qq), len(source.values))
+
+    def test_two_sample_inference_and_fit_share_api_results(self):
+        window = self.window()
+        route = ROUTES['random', 'statistics']
+        first, second = Signal([1,2,3], origin=-1), Signal([-1,0,1], origin=2)
+        first_id, second_id = [window.publish(source, operation='Entrada') for source in (first,second)]
+        window.send_signal(first, first_id, route)
+        panel = window.pages[route].panel
+        self.assertTrue(panel.second_source.isHidden())
+        panel.analysis.setCurrentIndex(panel.analysis.findData('infer'))
+        panel.inference_method.setCurrentIndex(panel.inference_method.findData('welch'))
+        self.assertFalse(panel.second_source.isHidden())
+        panel.second_source.set_source(window.project.get(second_id), second_id)
+        panel.iid.setChecked(True)
+        panel.null_value.setText('0')
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        row = window.project.headers()[-1]
+        self.assertEqual(row['parents'], [first_id, second_id])
+        self.assertEqual(window.project.get(row['id']), infer_record(first, 'welch', iid=True, null=0, second=second))
+        self.assertIn('Intervalo bilateral', panel.report.toPlainText())
+        self.assertFalse(panel.tabs.isTabEnabled(2))
+        panel.analysis.setCurrentIndex(panel.analysis.findData('fit'))
+        self.assertTrue(panel.second_source.isHidden())
+        panel.fit_interval.setChecked(True)
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        row = window.project.headers()[-1]
+        self.assertEqual(window.project.get(row['id']), fit_distribution(first, 'normal', level=.95, iid=True))
+        self.assertEqual(row['parents'], [first_id])
+        self.assertIn('Intervalos bilaterales', panel.report.toPlainText())
+        panel.analysis.setCurrentIndex(panel.analysis.findData('describe'))
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        self.assertTrue(panel.tabs.isTabEnabled(2))
+        self.assertEqual(panel.plot_kind.currentData(), 'histogram')

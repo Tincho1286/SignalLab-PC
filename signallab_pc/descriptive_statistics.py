@@ -9,7 +9,7 @@ from .execution import ExecutionContext
 from .model import Signal
 from .operation_provenance import content_digest, verify_inputs
 from .probability import Distribution, distribution_value
-from .spectral_scaling import bounded, centered_bounded, range_status, restore_scalar
+from .spectral_scaling import bounded, centered_bounded, finite_real_mean, range_status, restore_scalar
 
 
 PROJECTIONS = ('real', 'imag', 'magnitude', 'phase')
@@ -150,10 +150,7 @@ def describe_record(source: Signal, component='real', *,
         else:
             deviations = abs(scaled - math.ldexp(median, -exponent))
             mad = _measure(_quantile(np.sort(deviations), .5), exponent)
-        try:
-            mean = _measure(math.fsum(observed) / count)
-        except OverflowError:
-            mean = _measure(math.fsum(scaled) / count, exponent)
+        mean = _measure(finite_real_mean(observed, context.checkpoint))
         unique, multiplicities = np.unique(observed, return_counts=True)
         largest = int(multiplicities.max())
         modes = unique[multiplicities == largest] if largest > 1 else np.empty(0)

@@ -44,15 +44,23 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Este análisis resume una componente del registro con media, mediana, moda, dispersión, momentos y cuantiles. Incluye un histograma y puede comparar la distribución observada con una normal de parámetros conocidos."
+          "Describí una componente del registro, ajustá una distribución o contrastá una hipótesis. En la descripción podés ver medidas de centro y dispersión, momentos, cuantiles y gráficos. En el ajuste obtenés parámetros. En el contraste evaluás qué tan compatible es un estadístico con una hipótesis y un modelo de muestreo."
         ],
         [
           "Cómo preparar el cálculo",
-          "Cargá la secuencia y elegí parte real, parte imaginaria, módulo o fase. Indicá cuántos intervalos querés en el histograma. Activá los diagnósticos para ver CDF, CCDF y la caja. Para el gráfico Q–Q, ingresá también la media y desviación de la normal de referencia."
+          "Cargá la secuencia y elegí parte real, parte imaginaria, módulo o fase. En Estadística descriptiva, los diagnósticos habilitan CDF, CCDF y caja. Elegí una normal de referencia para sumar un gráfico Q–Q. En Ajustar una distribución elegí la familia y el estimador. Para un ajuste binomial indicá cuántos ensayos representa cada recuento."
         ],
         [
           "Cómo interpretar la salida",
           "El informe distingue las medidas del registro complejo de las medidas de la componente. En el histograma, el área representa probabilidad y una altura puede superar uno. La CDF y la CCDF cuentan observaciones a cada lado de un umbral. La caja resume cuartiles y el gráfico Q–Q compara cuantiles de la muestra y la referencia."
+        ],
+        [
+          "Cómo contrastar una hipótesis",
+          "Elegí el contraste según la pregunta. Media t usa la desviación calculada del registro y Z pide la desviación de la población. Welch y F requieren dos registros independientes. En proporciones cada observación es 0 o 1. En KS cargá una distribución continua con parámetros conocidos antes de tomar la muestra. Para normalidad con parámetros desconocidos usá Shapiro–Wilk o Anderson–Darling. Ljung–Box examina autocorrelaciones hasta la cantidad de retardos indicada."
+        ],
+        [
+          "Qué significa el valor p",
+          "El valor p mide la probabilidad, bajo la hipótesis nula, de un resultado al menos tan extremo como el observado. Se compara con la significación α elegida. La falta de rechazo indica evidencia insuficiente para ese contraste. El informe indica si el valor p es exacto, aproximado o si queda acotado por la tabla de calibración. Los intervalos informados son bilaterales."
         ],
         [
           "Qué tener en cuenta",

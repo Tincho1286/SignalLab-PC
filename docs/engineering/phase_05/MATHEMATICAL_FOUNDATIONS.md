@@ -1,4 +1,4 @@
-# Fundamentos matemáticos · Distribuciones
+# Fundamentos matemáticos · Probabilidad y estadística
 
 ## Masa, densidad e intervalos
 
@@ -15,3 +15,15 @@ Sea $Z=X+iY$ centrada, $C=E[ZZ^H]$ y $P=E[ZZ^T]$. Los bloques de covarianza real
 Para condicionar una gaussiana, se observa parte de $\mu+L\xi$ con $\xi$ normal estándar. La SVD de las filas observadas separa la solución de norma mínima en $\xi$ y el núcleo que conserva incertidumbre. Una observación incompatible con el rango se rechaza. El rango y la condición numérica se determinan a escala de la covarianza. Los resultados informan el rango real efectivo.
 
 Con N ensayos categóricos independientes, el vector de recuentos tiene media $Np$ y covarianza $N(\operatorname{diag}(p)-pp^T)$. Su marginal es binomial. La condicional descuenta los recuentos observados y normaliza las probabilidades restantes. [Contratos](SCIENTIFIC_CONTRACTS.md) · [Protocolo de validación](STATISTICAL_VALIDATION_PROTOCOL.md)
+
+## Inferencia y ajuste
+
+Para observaciones IID normales, el contraste de media usa $(\bar x-\mu_0)/e$ con $e=\sigma/\sqrt{N}$ si la desviación es conocida y $e=s/\sqrt{N}$ si se estima con divisor $N-1$. En dos muestras independientes, Welch suma las varianzas de ambas medias y aproxima los grados de libertad. Para contrastar una varianza normal, $(N-1)s^2/\sigma_0^2$ sigue una χ² con $N-1$ grados de libertad. Para el cociente de varianzas de dos poblaciones normales independientes se usa F con los grados de cada muestra. En todos los casos el intervalo bilateral se obtiene con un cuantil de cada cola. [Intervalo para una varianza normal](https://www.itl.nist.gov/div898/handbook/prc/section2/prc231.htm)
+
+El contraste binomial cuenta éxitos en observaciones 0 o 1 y el intervalo de Clopper–Pearson invierte las dos colas del recuento. En una prueba bilateral, el valor p binomial por orden de probabilidad y el intervalo central pueden dar decisiones distintas cerca del umbral. El intervalo estima una proporción y no exige simetría alrededor de la observación.
+
+En KS se comparan la CDF empírica y una CDF continua, con parámetros fijados antes de tomar la muestra. En normalidad con parámetros desconocidos, Anderson–Darling y Shapiro–Wilk usan calibraciones adecuadas a ese supuesto. El valor p interpolado de Anderson–Darling se informa como cota en los extremos de su tabla. Si esa cota es insuficiente para compararla con α, la decisión queda indeterminada. El valor p de Shapiro–Wilk tiene exactitud limitada para más de 5000 observaciones. Ljung–Box aplica una aproximación χ² a la suma ponderada de autocorrelaciones. La cantidad de retardos y los parámetros estimados afectan sus grados de libertad. [Anderson–Darling](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.anderson.html) · [Shapiro–Wilk](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.shapiro.html)
+
+La máxima verosimilitud estima parámetros que maximizan el producto de las densidades o masas de las observaciones. El método de los momentos iguala momentos muestrales y del modelo. Una uniforme ajustada por momentos puede dejar observaciones fuera de su soporte, en cuyo caso su verosimilitud es cero. En una comparación contra una distribución ajustada con la misma muestra, el valor p del KS de parámetros fijos queda fuera de su calibración. [Ajuste y calibración con parámetros libres](https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.goodness_of_fit.html)
+
+Con observaciones IID se pueden pedir intervalos bilaterales para parámetros ajustados. La normal usa los pivotes t y χ². La lognormal los aplica a los logaritmos. Para escala exponencial y Rayleigh se usa la distribución χ² de la suma de valores o cuadrados, respectivamente, con ubicación conocida en cero. La tasa Poisson usa el intervalo de Garwood. El intervalo de la proporción binomial agrega recuentos cuando todos representan el mismo número conocido de ensayos. Los intervalos de varios parámetros se informan por parámetro, con confianza marginal.

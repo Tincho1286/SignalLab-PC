@@ -14,6 +14,9 @@ from .multivariate_probability import Gaussian, Multinomial, gaussian_density, g
 from .matrix_editor import MatrixEditor
 from .report_view import ReportView,report_panel
 from .result_summary import Section, Summary, number
+from .statistical_inference import (FIT_FAMILIES, FIT_INTERVALS, METHODS, NULL_PARAMETER,
+                                    TWO_SAMPLES, fit_distribution, infer_record)
+from .statistics_results import store_statistics
 from .tool_guide import ToolGuide
 
 
@@ -25,6 +28,7 @@ _METHODS = {'generate': 'Generar realización', 'population': 'Propiedades pobla
             'survival': 'Probabilidad de excedencia (CCDF)', 'quantile': 'Cuantil',
             'interval': 'Probabilidad en un intervalo', 'moment': 'Momento no central'}
 _PARAMETERS = {
+    'mean': ('Media de la distribución', '0'), 'std': ('Desviación estándar', '1'),
     'trials': ('Cantidad de ensayos', '10'), 'successes': ('Cantidad de éxitos', '3'),
     'population': ('Tamaño de la población', '20'), 'draws': ('Extracciones sin reemplazo', '5'),
     'p': ('Probabilidad de éxito', '0.5'), 'rate': ('Media de recuentos λ', '4'),
@@ -40,7 +44,8 @@ _PARAMETERS = {
 _STATES = {'undefined': 'Indefinido', 'divergent': 'Divergente', 'unbounded': 'Sin cota',
            'singular_density': 'Densidad infinita en el borde', 'singular_measure': 'Distribución singular',
            'out_of_range': 'Fuera del rango numérico', 'numerically_unavailable': 'Sin valor numérico fiable',
-           'underflow': 'Por debajo del rango numérico', 'zero_or_underflow': 'Cero o por debajo del rango'}
+           'underflow': 'Por debajo del rango numérico', 'zero_or_underflow': 'Cero o por debajo del rango',
+           'zero_joint_likelihood': 'Verosimilitud nula: alguna observación quedó fuera del soporte ajustado'}
 _PROJECTION_LABELS = dict(zip(PROJECTIONS, ('Parte real', 'Parte imaginaria', 'Módulo', 'Fase (rad)'), strict=True))
 
 
@@ -54,24 +59,7 @@ class RandomPanel(QWidget):
         if action=='generate':
             self._generation_controls(form)
         else:
-            self.source=LocalInput('Registro para analizar');self.source.bind_project(window);form.addRow(self.source)
-            self.component=QComboBox();self.component.addItems(list(_PROJECTION_LABELS.values()));form.addRow('Componente para analizar',self.component)
-            self.bins=QLineEdit('30');form.addRow('Intervalos del histograma',self.bins)
-            self.diagnostics=QCheckBox('Incluir CDF, CCDF y diagrama de caja')
-            self.reference_normal=QCheckBox('Comparar con una normal de parámetros conocidos')
-            self.reference_mean,self.reference_std=QLineEdit('0'),QLineEdit('1')
-            form.addRow(self.diagnostics);form.addRow(self.reference_normal)
-            form.addRow('Media de referencia',self.reference_mean)
-            form.addRow('Desviación de referencia',self.reference_std)
-            def update_statistics_options(*_):
-                active=self.diagnostics.isChecked()
-                form.setRowVisible(self.reference_normal,active)
-                visible=active and self.reference_normal.isChecked()
-                form.setRowVisible(self.reference_mean,visible)
-                form.setRowVisible(self.reference_std,visible)
-            self.diagnostics.toggled.connect(update_statistics_options)
-            self.reference_normal.toggled.connect(update_statistics_options)
-            update_statistics_options()
+            self._statistics_controls(form, LocalInput)
         button=QPushButton('Calcular' if action=='generate' else 'Calcular estadísticas');button.setObjectName('primary');button.clicked.connect(self.calculate);form.addRow(button)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(320);split.addWidget(scroll)
         self.tabs=QTabWidget();split.addWidget(self.tabs);split.setSizes([350,740]);split.setStretchFactor(1,1)
@@ -100,6 +88,112 @@ class RandomPanel(QWidget):
             box.addWidget(self.plot_kind)
             self.figure=Figure(figsize=(7,4),layout='constrained');self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumHeight(280)
             box.addWidget(NavigationToolbar2QT(self.canvas,self));box.addWidget(self.canvas,1);self.tabs.addTab(plot,'Gráficos')
+
+    def _statistics_controls(self, form, source_type):
+        self.source = source_type('Registro para analizar')
+        self.source.bind_project(self.window)
+        form.addRow(self.source)
+        self.component = QComboBox()
+        self.component.addItems(list(_PROJECTION_LABELS.values()))
+        form.addRow('Componente para analizar', self.component)
+
+        def choices(label, values):
+            widget = QComboBox()
+            for key, name in values.items():
+                widget.addItem(name, key)
+            form.addRow(label, widget)
+            return widget
+
+        def entry(label, value):
+            widget = QLineEdit(value)
+            form.addRow(label, widget)
+            return widget
+
+        self.analysis = choices('Análisis', {'describe': 'Estadística descriptiva',
+                                             'fit': 'Ajustar una distribución', 'infer': 'Contrastar una hipótesis'})
+        self.bins = entry('Intervalos del histograma', '30')
+        self.diagnostics = QCheckBox('Incluir CDF, CCDF y diagrama de caja')
+        self.reference_normal = QCheckBox('Comparar con una normal de parámetros conocidos')
+        form.addRow(self.diagnostics)
+        form.addRow(self.reference_normal)
+        self.reference_mean = entry('Media de referencia', '0')
+        self.reference_std = entry('Desviación de referencia', '1')
+        families = {key: FAMILIES[key].label for key in FIT_FAMILIES}
+        self.fit_family = choices('Distribución para ajustar', families)
+        self.fit_method = choices('Estimador', {'ml': 'Máxima verosimilitud', 'moments': 'Método de los momentos'})
+        self.fit_trials = entry('Ensayos por observación binomial', '10')
+        self.fit_interval = QCheckBox('Incluir intervalos para los parámetros')
+        form.addRow(self.fit_interval)
+        self.inference_method = choices('Contraste', METHODS)
+        self.second_source = source_type('Segunda muestra independiente')
+        self.second_source.bind_project(self.window)
+        form.addRow(self.second_source)
+        self.null_value = entry('Valor bajo la hipótesis nula', '')
+        self.known_std = entry('Desviación poblacional conocida', '')
+        self.confidence_level = entry('Nivel de confianza (1 − α)', '0.95')
+        self.alternative = choices('Hipótesis alternativa', {'two-sided': 'Distinta', 'less': 'Menor', 'greater': 'Mayor'})
+        self.lags = entry('Cantidad de retardos', '10')
+        self.fitted_parameters = entry('Parámetros estimados del modelo', '0')
+        self.ks_family = choices('Distribución continua conocida', {
+            key: law.label for key, law in FAMILIES.items() if not law.discrete})
+        self.fields = {}
+        for key in dict.fromkeys(key for law in FAMILIES.values() if not law.discrete for key, _, _ in law.parameters):
+            self.fields[key] = entry(*_PARAMETERS[key])
+        self.iid = QCheckBox('Confirmo observaciones independientes bajo la hipótesis nula')
+        self.iid.setToolTip('En pruebas de dos muestras, también deben ser independientes entre sí.')
+        form.addRow(self.iid)
+        note = QLabel()
+        note.setWordWrap(True)
+        form.addRow(note)
+
+        def update(*_):
+            mode = self.analysis.currentData()
+            method = self.inference_method.currentData()
+            described, fitted, inferred = (mode == option for option in ('describe', 'fit', 'infer'))
+            diagnostic = described and self.diagnostics.isChecked()
+            known = diagnostic and self.reference_normal.isChecked()
+            ks = inferred and method == 'ks'
+            ljung = inferred and method == 'ljung_box'
+            family = self.fit_family.currentData()
+            interval_available = fitted and family in FIT_INTERVALS
+            use_level = inferred or interval_available and self.fit_interval.isChecked()
+            moments = 'moments' in FIT_FAMILIES[family]
+            self.fit_method.model().item(1).setEnabled(moments)
+            if not moments:
+                self.fit_method.setCurrentIndex(0)
+            settings = (
+                (self.bins, described), (self.diagnostics, described), (self.reference_normal, diagnostic),
+                (self.reference_mean, known), (self.reference_std, known), (self.fit_family, fitted),
+                (self.fit_method, fitted), (self.fit_trials, fitted and family == 'binomial'),
+                (self.inference_method, inferred), (self.iid, use_level), (self.confidence_level, use_level),
+                (self.fit_interval, interval_available),
+                (self.second_source, inferred and method in TWO_SAMPLES), (self.ks_family, ks),
+                (self.null_value, inferred and method in NULL_PARAMETER), (self.known_std, inferred and method == 'z'),
+                (self.alternative, inferred and (method in NULL_PARAMETER or method == 'mann_whitney')),
+                (self.lags, ljung), (self.fitted_parameters, ljung), (note, inferred),
+            )
+            for widget, visible in settings:
+                form.setRowVisible(widget, visible)
+            active = {key for key, _, _ in FAMILIES[self.ks_family.currentData()].parameters} if ks else set()
+            for key, widget in self.fields.items():
+                form.setRowVisible(widget, key in active)
+            note.setText({
+                'ks': 'Usá parámetros conocidos antes de observar la muestra. Los parámetros de un ajuste no sirven para esta calibración.',
+                'ljung_box': 'La hipótesis nula es ausencia de autocorrelación hasta el retardo indicado. Usá un registro discreto contiguo.',
+                'mann_whitney': 'Contrasta las distribuciones por rangos. Una diferencia de rangos no implica por sí sola un cambio de mediana.',
+                'ad': 'Contrasta normalidad y estima los parámetros normales durante la prueba.',
+                'shapiro': 'Contrasta normalidad. El valor p tiene exactitud limitada con más de 5000 observaciones.',
+                'proportion': 'Ingresá observaciones de 0 y 1. El intervalo se calcula con el método exacto de Clopper–Pearson.',
+                'f': 'Ingresá el cociente hipotético de varianzas, primera muestra sobre segunda. Se supone normalidad en ambas.',
+                'variance': 'Ingresá la varianza de la población bajo H₀. La calibración supone normalidad.',
+                'welch': 'Ingresá la diferencia hipotética de medias, primera muestra menos segunda. Las varianzas pueden diferir.',
+            }.get(method, 'Ingresá la media poblacional bajo H₀. La calibración supone normalidad.'))
+
+        for selector in (self.analysis, self.fit_family, self.inference_method, self.ks_family):
+            selector.currentIndexChanged.connect(update)
+        for checkbox in (self.diagnostics, self.reference_normal, self.fit_interval):
+            checkbox.toggled.connect(update)
+        update()
 
     def _generation_controls(self, form):
         self.distribution = QComboBox()
@@ -352,6 +446,8 @@ class RandomPanel(QWidget):
         try:
             if self.action=='generate':
                 self._calculate_distribution()
+            elif self.analysis.currentData() != 'describe':
+                self._calculate_inference()
             else:
                 source=self.source.read();parent=self.source.reference_id;component=PROJECTIONS[self.component.currentIndex()]
                 from .auxiliary import optional
@@ -381,6 +477,7 @@ class RandomPanel(QWidget):
                     self.report.setPlainText('\n'.join(lines) + '\n\n' + _descriptive_report(data['descriptive']))
                     if data.get('histogram_notice'):self.report.appendPlainText('\n'+data['histogram_notice'])
                     self._statistics=data
+                    self.tabs.setTabEnabled(2, True)
                     choices=[('Histograma','histogram')]
                     if 'empirical' in data['descriptive']:
                         choices.extend([('CDF empírica','cdf'),('CCDF empírica','survival'),('Diagrama de caja','boxplot')])
@@ -395,6 +492,66 @@ class RandomPanel(QWidget):
                     self.tabs.setCurrentIndex(1)
                 self.window._run_operation('Calculando estadísticas…',calculate,accept)
         except Exception as exc:show_input_error(self,'Revisá las entradas',exc)
+
+    def _calculate_inference(self):
+        fitting = self.analysis.currentData() == 'fit'
+        method = self.inference_method.currentData()
+        projection = PROJECTIONS[self.component.currentIndex()]
+        fields = (self.source, self.second_source) if not fitting and method in TWO_SAMPLES else (self.source,)
+        signals = [field.read(register=False) for field in fields]
+        registrations = [field.input_registration(signal) for field, signal in zip(fields, signals, strict=True)]
+        records = tuple((signal, key, parents) for signal, (key, _, parents) in zip(signals, registrations, strict=True))
+        if len(records) == 2 and records[0][1] is not None and records[0][1] == records[1][1]:
+            raise ValueError('Elegí otro registro para la segunda muestra.')
+        revisions = [(field.entry_modes.view, getattr(field, 'source_revision', 0)) for field in fields]
+        if fitting:
+            operation, service = 'Ajuste de distribución', fit_distribution
+            family = self.fit_family.currentData()
+            parameters = {'family': family, 'estimator': self.fit_method.currentData(),
+                          'trials': integer_field(self.fit_trials) if family == 'binomial' else None}
+            if family in FIT_INTERVALS and self.fit_interval.isChecked():
+                parameters.update(level=real_field(self.confidence_level), iid=self.iid.isChecked())
+        else:
+            operation, service = 'Inferencia estadística', infer_record
+            parameters = {'method': method, 'iid': self.iid.isChecked(), 'level': real_field(self.confidence_level)}
+            if len(signals) == 2:
+                parameters['second'] = signals[1]
+            if method in NULL_PARAMETER:
+                parameters['null'] = real_field(self.null_value)
+            if method in NULL_PARAMETER or method == 'mann_whitney':
+                parameters['alternative'] = self.alternative.currentData()
+            if method == 'z':
+                parameters['known_std'] = real_field(self.known_std)
+            if method == 'ljung_box':
+                parameters.update(lags=integer_field(self.lags), fitted_parameters=integer_field(self.fitted_parameters))
+            elif method == 'ks':
+                family = self.ks_family.currentData()
+                parameters['reference'] = Distribution(family, {key: real_field(self.fields[key])
+                    for key, _, _ in FAMILIES[family].parameters})
+
+        def calculate():
+            return service(signals[0], component=projection, **parameters)
+
+        def accept(result):
+            summary = _inference_report(result)
+            journal = getattr(self.window, '_result_journal', None)
+            if journal is not None:
+                journal.reported(result)
+            keys, report_id = store_statistics(self.window.project, result, records, operation,
+                                               tool=journal.origin if journal else None)
+            for field, key, signal, (_, signature, _), (view, revision) in zip(
+                fields, keys, signals, registrations, revisions, strict=True,
+            ):
+                self.window.register_publication(key, signal)
+                if field.entry_modes.view == view and getattr(field, 'source_revision', 0) == revision:
+                    field.remember_registration(key, signature)
+            self.window.register_publication(report_id, result)
+            self.output.show_result(signals[0])
+            self.report.set_readable(summary)
+            self.tabs.setTabEnabled(2, False)
+            self.tabs.setCurrentIndex(1)
+
+        self.window._run_operation('Calculando ' + operation.lower() + '…', calculate, accept)
 
     def _draw_statistics(self,*_):
         if self._statistics is None:
@@ -430,6 +587,59 @@ def _descriptive_report(result):
         sections.append(Section('Diagrama de caja',rows=[('Atípicos',result['boxplot']['outliers'])],
                                 paragraphs=['Los bigotes alcanzan observaciones dentro de 1,5 rangos intercuartílicos.']))
     return Summary(_PROJECTION_LABELS[result['component']],sections).plain_text()
+
+
+def _inference_report(result):
+    sections = []
+    if result['operation'] == 'distribution_fit':
+        model = result['estimated_distribution']
+        method = {'ml': 'Máxima verosimilitud', 'moments': 'Método de los momentos'}[result['estimator']]
+        rows = [('Estimador', method), ('Log verosimilitud', _result_text(result['log_likelihood']))]
+        rows.extend((_PARAMETERS[key][0], number(value)) for key, value in model['parameters'].items())
+        sections.append(Section(FAMILIES[model['family']].label, rows=rows))
+        if 'confidence_intervals' in result:
+            intervals = result['confidence_intervals']
+            rows = [(_PARAMETERS[key][0], _interval_text(bounds)) for key, bounds in intervals['parameters'].items()]
+            sections.append(Section(f"Intervalos bilaterales ({100 * intervals['level']:g} %)", rows=rows,
+                                    paragraphs=[intervals['method']]))
+        title = 'Ajuste de distribución'
+    else:
+        title = METHODS[result['method']]
+        decision = {True: 'Rechazar H₀', False: 'Sin evidencia suficiente para rechazar H₀',
+                    None: 'La tabla de calibración no permite decidir con el nivel elegido'}[result['reject_null']]
+        relation = {'at_most': '≤ ', 'at_least': '≥ '}.get(result.get('p_value_relation'), '')
+        rows = [('Hipótesis nula', result.get('null_description', 'El parámetro coincide con el valor indicado.')),
+                ('Estadístico', _result_text(result['statistic'])), ('Valor p', relation + number(result['p_value'])),
+                ('Significación α', number(result['alpha'])), ('Decisión', decision)]
+        if 'estimate' in result:
+            rows.extend((('Valor bajo H₀', number(result['null_value'])), ('Estimación', _result_text(result['estimate'])),
+                         (f"Intervalo bilateral ({100 * result['level']:g} %)",
+                          _interval_text(result['interval']))))
+        if result['method'] in NULL_PARAMETER or result['method'] == 'mann_whitney':
+            rows.append(('Alternativa', {'two-sided': 'Distinta', 'less': 'Menor', 'greater': 'Mayor'}[result['alternative']]))
+        if 'known_std' in result:
+            rows.append(('Desviación conocida', number(result['known_std'])))
+        if 'lags' in result:
+            rows.extend((('Cantidad de retardos', result['lags']), ('Parámetros estimados', result['fitted_parameters'])))
+        if 'degrees_of_freedom' in result and result['degrees_of_freedom'] is not None:
+            rows.append(('Grados de libertad', _result_text(result['degrees_of_freedom'])))
+        if 'reference' in result:
+            reference = result['reference']
+            rows.append(('Distribución de referencia', FAMILIES[reference['family']].label))
+            rows.extend((_PARAMETERS[key][0], number(value)) for key, value in reference['parameters'].items())
+        sections.append(Section('Contraste', rows=rows, paragraphs=[result['calibration']]))
+    observations = [('Componente', _PROJECTION_LABELS[result['component']])]
+    for index, (count, excluded, axes) in enumerate(zip(result['sample_counts'], result['excluded'], result['inputs'], strict=True), 1):
+        suffix = f' ({index})' if len(result['inputs']) > 1 else ''
+        observations.extend((('Observaciones'+suffix, count), ('Excluidas'+suffix, excluded)))
+        if axes['amplitude_units']:
+            observations.append(('Unidad de amplitud'+suffix, axes['amplitude_units']))
+    sections.append(Section('Muestras', rows=observations, paragraphs=[result['scope']]))
+    return Summary(title, sections)
+
+
+def _interval_text(bounds):
+    return '[' + ', '.join(map(_result_text, bounds)) + ']'
 
 
 def _statistical_plot(axis,choice,data):

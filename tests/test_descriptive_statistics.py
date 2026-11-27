@@ -111,6 +111,11 @@ class DescriptiveStatisticsTests(unittest.TestCase):
         with self.assertRaises(OperationCancelled):
             describe_record(signal, execution=ExecutionContext(cancel=cancel))
 
+    def test_mean_cancels_opposite_totals_without_discarding_a_small_observation(self):
+        peak = 1.5e308
+        result = describe_record(Signal([peak, peak, -peak, -peak, 1e-100]))
+        self.assertEqual(result['mean']['value'], 2e-101)
+
     def test_console_reopens_descriptive_report_and_parent(self):
         signal = Signal([1,3,1,4], origin=-2, metadata={'sample_rate_hz': 90})
         normal = Distribution('normal', {'mean':0, 'std':1})

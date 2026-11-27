@@ -10,7 +10,8 @@ from check_quality_gate_04 import evaluate as evaluate_channels
 
 
 CRITICAL = ('probability.py', 'multivariate_probability.py', 'probability_cli.py',
-            'descriptive_statistics.py', 'statistics_cli.py')
+            'descriptive_statistics.py', 'statistics_cli.py', 'statistical_inference.py',
+            'statistics_results.py')
 SCIENTIFIC_REQUIREMENTS = tuple(f'ST-{number:02}' for number in range(1, 10))
 DEMONSTRATORS = ('A', 'B', 'C', 'D', 'E')
 RESOURCE_PROFILES = (
@@ -119,7 +120,8 @@ def evaluate(folder, candidate, version):
                                      for group in critical.values() for cell in group.values()),
             'statistical_unit_and_desktop_suite': all(
                 any(test.startswith(prefix) for test in passed)
-                for prefix in ('test_probability.', 'test_probability_desktop.', 'test_descriptive_statistics.')
+                for prefix in ('test_probability.', 'test_probability_desktop.', 'test_descriptive_statistics.',
+                               'test_statistical_inference.')
             ),
             'packaged_probability': packaged.get('executable_check', {}).get('checks', {}).get(
                 'packaged_probability_and_project') is True,

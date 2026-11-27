@@ -32,3 +32,15 @@ python -m signallab_pc statistics describe --session realizaciones.slproj --reco
 ```
 
 Usá el identificador que devuelve el comando de generación. El análisis de Python utiliza `describe_record` de `signallab_pc.descriptive_statistics`. El informe conserva la huella de su entrada y los cuantiles almacenan la convención de interpolación.
+
+### Ajuste e inferencia
+
+En la misma herramienta elegí **Ajustar una distribución** para estimar sus parámetros a partir de las observaciones. Según la familia, podés seleccionar el estimador y pedir intervalos para los parámetros. Usá **Contrastar una hipótesis** para verificar, por ejemplo, una media con el método t o una proporción con la prueba binomial exacta. Si elegís Welch, F o Mann–Whitney, se habilita la segunda entrada. Confirmá que las muestras son independientes bajo el modelo del contraste. Las pruebas de media y varianza suponen normalidad y los intervalos informados son bilaterales.
+
+```sh
+python -m signallab_pc statistics fit --session realizaciones.slproj --record ID_REALIZACION --family poisson --iid --level 0.95 --output ajuste.slproj
+python -m signallab_pc probability generate --family normal --parameters '{"mean":0,"std":1}' --count 64 --seed 321 --output normales.slproj
+python -m signallab_pc statistics infer --session normales.slproj --record ID_NORMAL --iid --method ks --reference-family normal --reference-parameters '{"mean":0,"std":1}' --output contraste.slproj
+```
+
+El segundo ejemplo requiere un registro continuo sin empates que se quiera contrastar contra una normal estándar conocida. Si querés contrastar normalidad con media y desviación desconocidas, usá `--method shapiro` o `--method ad`. Las funciones equivalentes de Python son `fit_distribution` e `infer_record` en `signallab_pc.statistical_inference`. Los informes se publican en Resultados con sus entradas. [Supuestos y fórmulas](MATHEMATICAL_FOUNDATIONS.md#inferencia-y-ajuste)

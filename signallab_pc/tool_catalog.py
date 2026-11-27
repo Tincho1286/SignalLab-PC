@@ -95,7 +95,7 @@ add('transforms','Ecuaciones',('symbolic',4),'Ecuaciones diferenciales','Soluci�
 add('transforms','Ecuaciones',('difference_equation',0),'Ecuaciones en diferencias','Solución en n, condiciones iniciales y respuesta forzada.','recurrencia discreta edd recursiva ecuacion historial entrada estado cero')
 for key,title,summary in [
  (('random','generate'),'Generar realización','Distribución y semilla.'),
- (('random','statistics'),'Estadísticas e histograma','Media, varianza, RMS e histograma.'),
+ (('random','statistics'),'Estadísticas e histograma','Explorá un registro, ajustá distribuciones y contrastá hipótesis.'),
  (('random_correlation',0),'Correlación y covarianza','Auto y cruzada: estimaciones a partir de uno o dos registros.')]:add('random','Generación y análisis',key,title,summary)
 add('random','Modelos',('random_model','model'),'Analizar modelo AR, MA o ARMA','Media, varianza, correlación y PSD teóricas; realización estacionaria.','proceso estocastico autorregresivo promedio movil ruido blanco filtrado lyapunov')
 add('random','Modelos',('random_model','fit'),'Estimar modelo AR','Yule–Walker o mínimos cuadrados; órdenes, validación, pronóstico y residuos.','yule walker estimacion parametros identificacion espectral autoregresivo aic aicc bic ljung box prediccion pronostico validacion residuos')

@@ -12,6 +12,6 @@
 | Paquete | Módulos comprometidos antes de implementar |
 | --- | --- |
 | WP-01 | `probability.py`, `multivariate_probability.py` y el adaptador headless `probability_cli.py`. |
-| WP-02 | `descriptive_statistics.py`, `statistical_inference.py` y el adaptador headless `statistics_cli.py`. |
+| WP-02 | `descriptive_statistics.py`, `statistical_inference.py`, `statistics_results.py` para entrega y el adaptador headless `statistics_cli.py`. |
 
 [Protocolo estadístico](STATISTICAL_VALIDATION_PROTOCOL.md) · [Validación permanente](../VALIDATION_MATRIX.md#criterios-vigentes) · [Política de entregas](../RELEASE_POLICY.md)
