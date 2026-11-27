@@ -143,3 +143,7 @@ Windows y Ubuntu aprobaron 1 257 pruebas integrales y 150 casos preventivos por 
 El segundo intento aprobó la distribución Linux y la evaluación final. En Fedora 44 el ejecutable empaquetado consultó GitHub y verificó el manifiesto Stable/LTS 2.0.0 y el manifiesto Preview 2.2.0. [Prueba de Fedora](evidence/candidate-08cd1bc/fedora-updates.json) · [Recibo de la matriz](evidence/candidate-08cd1bc/matrix-receipt.json)
 
 La 2.2.1 Preview se publicó desde `08cd1bc`. Se verificaron los SHA-256 de los 18 adjuntos públicos, el destino de la etiqueta y la firma del manifiesto descargado. El actualizador seleccionó 2.2.1 para Windows y Linux al incluir Preview y 2.0.0 como estable. La comprobación interactiva en Fedora Plasma queda pendiente. [Publicación](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.1) · [Comprobante](evidence/candidate-08cd1bc/publication-2.2.1.json)
+
+## Cierre de Fase 04
+
+El 27 de noviembre de 2026 el propietario aprobó el cierre y la integración en `main`. La comparación con `08cd1bc` confirma que los cambios posteriores a la matriz consisten en documentación y registros de evidencia. `git merge-base --is-ancestor` comprobó que el punto de partida de `main`, `a94cd37`, permite una integración por avance directo. Los pendientes nativos de escritorio se conservan en el registro de riesgos. [Decisión](DECISION_LOG.md#cierre-e-integración-de-fase-04) · [Expediente de cierre](PHASE_04_CLOSEOUT.md)

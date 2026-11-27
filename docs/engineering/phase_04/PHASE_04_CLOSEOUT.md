@@ -1,23 +1,27 @@
 # Expediente de cierre de Fase 04
 
-La calificación automatizada de 2.2.0 Preview aprobó sobre `a3026d288fe2371aace308b403071cf457b89123` en `develop`. La validación de escritorio real sigue abierta y el cierre técnico conserva el dictamen **NO-GO**. [Quality Gate](QUALITY_GATE_REPORT.md) · [Matriz del candidato](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45905864702)
+El propietario aprobó el cierre de Fase 04 y la integración en `main` el 27 de noviembre de 2026. El cierre toma como referencia `08cd1bc28189ef0c1cd6c5a36f2d9bd32f6f1a48`, el candidato publicado como 2.2.1 Preview. [Quality Gate](QUALITY_GATE_REPORT.md) · [Matriz del candidato](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45923696053/attempts/2)
 
 ## Resultados acreditados
 
 - Los modelos multitrayecto, Rayleigh, Rician, Clarke, pérdidas, interferencia e imperfecciones comparten sus contratos y servicios entre Workbench, Python y CLI. El enlace conserva las convenciones de Fase 03 y declara cuándo los datos de sincronización impiden calcular métricas válidas. [Auditoría matemática](MATHEMATICAL_AUDIT.md) · [Trazabilidad](TRACEABILITY_MATRIX.md)
-- Ambas plataformas aprobaron 1 254 pruebas y 150 casos preventivos. Los umbrales de cobertura global y crítica se cumplieron por conteos exactos. Se verificaron recuperación de campañas, cancelación y respuesta del escritorio offscreen para los perfiles medidos. [Recibos de pruebas y recursos](QUALITY_GATE_REPORT.md)
+- La matriz de 2.2.0 registró 1 254 pruebas y 150 casos preventivos por plataforma, con los umbrales de cobertura cumplidos. La matriz de 2.2.1 volvió a aprobar la validación y la distribución en Windows Server 2022 y Ubuntu 22.04. [Recibos de pruebas y recursos](QUALITY_GATE_REPORT.md) · [Matriz de 2.2.1](evidence/candidate-08cd1bc/matrix-receipt.json)
 - Los portables e instaladores Windows y Linux se verificaron por SHA-256 junto con el código fuente, los inventarios y el salto aislado desde 2.0.0. Los artefactos de prueba preservan la separación entre Preview y Stable/LTS. [Paquetes candidatos](QUALITY_GATE_REPORT.md#paquetes-de-revisión-de-a3026d2) · [Notas](PREVIEW_NOTES.md)
 
-## Evidencia y decisiones pendientes
+## Validación de escritorio
 
-El registro nativo de Windows cubre 1366 × 768 al 100 % con enlace, exportación, regreso al catálogo y distribuciones Rician. Clarke calculó y abrió ambas figuras al 125 % nativo. Con escalado de Qt, las ventanas entraron al 150 % y excedieron el alto útil al 200 %. El propietario confirmó el funcionamiento en Linux y autorizó la publicación de esta Preview con el recorte documentado y su corrección prevista para la próxima Preview. [Resultados y protocolo](VALIDATION_MATRIX.md) · [Notas de 2.2.0](../../releases/v2.2.0.md)
+Antes de la corrección, Windows nativo se comprobó a 100 % y 125 %. El recorte a 200 % se reprodujo con escalado de Qt. En 2.2.1, la ventana principal y ambas figuras de Clarke cupieron en el área útil de 1366 × 768 con esa misma escala de Qt. En Fedora 44, el portable conectó con GitHub y verificó manifiestos de ambos canales. [Matriz de escritorio](VALIDATION_MATRIX.md) · [Windows al 200 % en Qt](evidence/candidate-08cd1bc/windows-clarke-qt-200.json) · [Fedora 44](evidence/candidate-08cd1bc/fedora-updates.json)
 
-| Decisión | Dictamen | Condición pendiente |
+La comprobación nativa de Windows a 150 % y 200 % y la prueba interactiva en Fedora Plasma siguen como riesgos residuales. La aprobación de cierre queda registrada por separado de los resultados de cada prueba. [Decisión del propietario](DECISION_LOG.md#cierre-e-integración-de-fase-04) · [Riesgos residuales](RESIDUAL_RISK_REGISTER.md)
+
+## Dictámenes
+
+| Decisión | Dictamen | Alcance |
 | --- | --- | --- |
-| Cierre técnico de Fase 04 | **NO-GO** | Verificar Windows nativo al 150 % y 200 % y el paquete 2.2.1 en Fedora Plasma. |
-| Preparación para Fase 05 | **NO-GO** | Cerrar Fase 04 y emitir la recomendación basada en la evidencia completa. El inicio tiene autorización propia. |
-| Distribución pública | **GO para 2.2.1 Preview** | Publicación autorizada sobre el SHA verificado. La revisión de escritorio del propietario queda pendiente. E-04 sigue como asunto independiente. |
+| Cierre de Fase 04 | **Aprobado** | La matriz de 2.2.1 aprobó y el propietario autorizó el cierre y la integración. Los pendientes de escritorio conservan su seguimiento. |
+| Preparación para Fase 05 | **Pendiente de evaluación** | La fase requiere un dictamen de continuidad y autorización independiente. |
+| Distribución pública | **GO para 2.2.1 Preview** | Publicación completada sobre el SHA verificado. E-04 sigue como asunto independiente. |
 
 La 2.2.0 Preview se publicó con 17 adjuntos verificados. La comprobación del actualizador en esa publicación validó su manifiesto firmado. [Publicación](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.0) · [Comprobante de publicación](evidence/candidate-a3026d2/publication-2.2.0.json)
 
-La 2.2.1 Preview se publicó con el manifiesto firmado y 18 adjuntos verificados. El código `08cd1bc` incorpora el ajuste de altura y valida los certificados de GitHub con el almacén de Fedora. El actualizador ofrece 2.2.1 al incluir preliminares. Stable/LTS selecciona `v2.0.0`, y `main` conserva la integración aprobada de 2.1.1 Preview en `a94cd37`. [Publicación 2.2.1](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.1) · [Comprobante de publicación](evidence/candidate-08cd1bc/publication-2.2.1.json) · [Política de entregas](../RELEASE_POLICY.md)
+La 2.2.1 Preview se publicó con el manifiesto firmado y 18 adjuntos verificados. El actualizador ofrece 2.2.1 al incluir preliminares y selecciona `v2.0.0` en Stable/LTS. [Publicación 2.2.1](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.1) · [Comprobante de publicación](evidence/candidate-08cd1bc/publication-2.2.1.json) · [Política de entregas](../RELEASE_POLICY.md)

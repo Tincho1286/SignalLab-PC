@@ -1,5 +1,7 @@
 # Riesgos residuales de Fase 04
 
+El cierre aprobado el 27 de noviembre de 2026 registra estos puntos para seguimiento. Las comprobaciones pendientes de escritorio conservan su estado y alcance. [Decisión de cierre](DECISION_LOG.md#cierre-e-integración-de-fase-04)
+
 | Riesgo | Efecto y control | Condición para resolver o delimitar |
 | --- | --- | --- |
 | Escala alta en escritorio | En 2.2.1, la ventana principal y las figuras cupieron en 1366 × 768 con escalado de Qt al 200 %. | Verificar Windows nativo a 150 % y 200 %. [Registro de 2.2.1](evidence/candidate-08cd1bc/windows-clarke-qt-200.json) |

@@ -19,3 +19,9 @@ El desplazamiento de portadora es una operación separada que conserva el módul
 ## Reloj alterado sobre un registro de duración finita
 
 Para SFO se requiere el mismo número de muestras de observación, conservando el primer instante, con acceso directo a instantes fraccionarios. El conversor polifásico L/M existente cambia el número de muestras y necesita una rejilla intermedia que puede ser muy grande para errores pequeños en ppm. El núcleo Lanczos local calcula el valor únicamente en los instantes solicitados. El coste queda separado del denominador racional del reloj. La aproximación y los bordes se acreditan con un oráculo analítico y con una prueba de atenuación de una componente que se plegaría al reducir la tasa.
+
+## Cierre e integración de Fase 04
+
+El 27 de noviembre de 2026 el propietario aprobó el cierre y la integración en `main`. La referencia funcional es la 2.2.1 Preview, construida desde `08cd1bc28189ef0c1cd6c5a36f2d9bd32f6f1a48`. La integración incorpora también la documentación posterior al candidato. [Quality Gate](QUALITY_GATE_REPORT.md#dictámenes-vigentes) · [Publicación](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.1)
+
+La evidencia de escritorio conserva el alcance de cada comprobación. Quedan en seguimiento el DPI nativo de Windows a 150 % y 200 % y la prueba interactiva en Fedora Plasma. La aprobación cubre Fase 04 y su integración. La autorización de Fase 05 y cualquier publicación posterior se tramitan por separado. [Riesgos residuales](RESIDUAL_RISK_REGISTER.md) · [Política de entregas](../RELEASE_POLICY.md)

@@ -1,6 +1,10 @@
 # Informe del Quality Gate de Fase 04
 
-**Matriz automatizada aprobada.** El candidato de 2.2.0 Preview `a3026d288fe2371aace308b403071cf457b89123` se calificó sobre el mismo commit limpio en Windows Server 2022 y Ubuntu 22.04. Cada sistema aprobó 1 254 pruebas integrales y 150 casos preventivos, sin fallos, errores ni omisiones. Los instaladores, portables y fuentes corresponden al mismo SHA. El cierre conserva pendiente la validación de escritorio real. [Matriz](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45905864702) · [Recibo](evidence/candidate-a3026d2/matrix-receipt.json) · [Resultado automatizado](evidence/candidate-a3026d2/automated-gate-45905864702.json)
+**Cierre aprobado el 27 de noviembre de 2026.** El propietario aprobó la integración en `main` tras la publicación de 2.2.1 Preview. [Dictámenes vigentes](#dictámenes-vigentes) · [Expediente de cierre](PHASE_04_CLOSEOUT.md)
+
+## Matriz de 2.2.0 Preview
+
+El candidato `a3026d288fe2371aace308b403071cf457b89123` se calificó sobre el mismo commit limpio en Windows Server 2022 y Ubuntu 22.04. Cada sistema aprobó 1 254 pruebas integrales y 150 casos preventivos, sin fallos, errores ni omisiones. Los instaladores, portables y fuentes corresponden al mismo SHA. La validación de escritorio real seguía pendiente al terminar esa matriz. [Matriz](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45905864702) · [Recibo](evidence/candidate-a3026d2/matrix-receipt.json) · [Resultado automatizado](evidence/candidate-a3026d2/automated-gate-45905864702.json)
 
 | Sistema | Líneas globales | Ramas globales | Mínimo de líneas críticas | Mínimo de ramas críticas |
 | --- | ---: | ---: | ---: | ---: |
@@ -37,7 +41,7 @@ La revisión comparó el SHA-256 de cada ZIP de Actions y de cada archivo intern
 
 La 2.2.0 se publicó en el canal Preview con los archivos de ese candidato. Se verificaron los 17 adjuntos públicos y la firma del manifiesto descargado. El actualizador eligió 2.2.0 Preview para Windows y Linux y mantuvo 2.0.0 en Stable/LTS. [Publicación](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.0) · [Comprobante de publicación](evidence/candidate-a3026d2/publication-2.2.0.json)
 
-## Dictámenes vigentes
+## Dictámenes de 2.2.0 Preview
 
 | Decisión | Dictamen | Condición para reconsiderarlo |
 | --- | --- | --- |
@@ -46,3 +50,17 @@ La 2.2.0 se publicó en el canal Preview con los archivos de ese candidato. Se v
 | Distribución pública de la Preview | **GO condicionado para 2.2.0 Preview** | El propietario autorizó publicar y firmar con el recorte informado. La corrección se programó para la próxima Preview. |
 
 Los ensayos de actualización usan manifiestos de prueba y el seguimiento E-04 conserva su tratamiento independiente. La aprobación funcional del propietario se registra por separado de la matriz. [Expediente de cierre](PHASE_04_CLOSEOUT.md) · [Protocolo real](VALIDATION_MATRIX.md#protocolo-de-escritorio-real) · [Riesgos residuales](RESIDUAL_RISK_REGISTER.md) · [Política de entregas](../RELEASE_POLICY.md).
+
+## Matriz de 2.2.1 Preview
+
+El candidato `08cd1bc28189ef0c1cd6c5a36f2d9bd32f6f1a48` aprobó la matriz automatizada y los dos trabajos de distribución. El segundo intento repitió el empaquetado de Ubuntu y la evaluación final sobre el mismo SHA. Los resultados aprobados de la suite de Windows y Ubuntu y la distribución de Windows se conservaron. [Matriz de Actions](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45923696053/attempts/2) · [Recibo](evidence/candidate-08cd1bc/matrix-receipt.json) · [Paquetes verificados](evidence/candidate-08cd1bc/verified-package-receipt.json)
+
+La regresión de Clarke confirmó que la ventana y ambas figuras caben al 200 % con escalado de Qt. El portable Linux verificó la conexión y ambos canales firmados en Fedora 44. El escalado nativo de Windows al 150 % y 200 % y la interacción en Fedora Plasma quedan como verificaciones pendientes. [Windows](evidence/candidate-08cd1bc/windows-clarke-qt-200.json) · [Fedora](evidence/candidate-08cd1bc/fedora-updates.json) · [Riesgos residuales](RESIDUAL_RISK_REGISTER.md)
+
+## Dictámenes vigentes
+
+| Decisión | Dictamen | Evidencia |
+| --- | --- | --- |
+| Cierre de Fase 04 | **Aprobado** | Matriz aprobada en ambas plataformas y autorización del propietario para cerrar e integrar. [Decisión](DECISION_LOG.md#cierre-e-integración-de-fase-04) |
+| Preparación para Fase 05 | **Pendiente de evaluación** | Requiere revisión de continuidad y autorización independiente. [Roadmap](../ROADMAP.md) |
+| Distribución pública | **GO para 2.2.1 Preview** | Publicación completada con paquetes y manifiesto firmado verificados. Stable/LTS conserva `v2.0.0`. [Comprobante](evidence/candidate-08cd1bc/publication-2.2.1.json) |

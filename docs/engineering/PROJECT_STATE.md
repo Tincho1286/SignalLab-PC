@@ -1,8 +1,10 @@
 # Estado de SignalLab Engineering
 
-**Fase 04 en curso en `develop`.** La validación funcional de la 2.1.1 Preview confirmó las dos correcciones de escritorio. La integración aprobada llevó `main` a `a94cd37`. El código, las pruebas y el empaquetado coinciden con `3ccb81a`, el candidato probado en Windows y Ubuntu. La versión LTS vigente es `v2.0.0`. [Publicación 2.1.1 Preview](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.1.1) · [Quality Gate de Fase 03](phase_03/QUALITY_GATE_REPORT.md) · [Fase 04](phase_04/README.md) · [Política de distribución](RELEASE_POLICY.md)
+**Fase 04 cerrada con aprobación del propietario el 27 de noviembre de 2026.** El cierre autoriza integrar en `main` el laboratorio de canales y las correcciones de 2.2.1 Preview. El candidato `08cd1bc` aprobó la matriz de Windows y Ubuntu. [Expediente de cierre](phase_04/PHASE_04_CLOSEOUT.md) · [Matriz de 2.2.1](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45923696053/attempts/2)
 
-La **2.2.1 Preview** se publicó desde `08cd1bc`, con la matriz aprobada y el manifiesto firmado. La ventana principal y las figuras de Clarke cupieron en el área útil con escalado de Qt al 200 %. El portable verificó ambos canales firmados en Fedora 44. Quedan la comprobación nativa de Windows al 150 % y 200 % y la prueba interactiva en Fedora Plasma. [Publicación 2.2.1 Preview](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.1) · [Matriz de 2.2.1](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45923696053/attempts/2)
+El escalado de Qt al 200 % y la conexión del portable con GitHub en Fedora 44 se verificaron. El DPI nativo de Windows al 150 % y 200 % y la prueba interactiva en Fedora Plasma quedan registrados para seguimiento. La Fase 05 requiere autorización independiente. [Riesgos residuales](phase_04/RESIDUAL_RISK_REGISTER.md) · [Roadmap](ROADMAP.md)
+
+La versión publicada **2.2.1** pertenece al canal Preview. **2.0.0** es la LTS vigente. [Descargas 2.2.1](../releases/v2.2.1.md) · [Política de distribución](RELEASE_POLICY.md)
 
 ## Línea base histórica de Fase 01
 

@@ -32,9 +32,13 @@ El panel integrado ofreció 100 % y 125 % en el selector directo de Windows. Se 
 
 El propietario confirmó el 26 de noviembre de 2026 que el candidato funciona en Linux. La resolución, la escala y los resultados de cada paso del protocolo quedan pendientes de registro.
 
+## Comprobaciones de 2.2.1 Preview
+
+En Windows, la regresión de Clarke se repitió sobre `08cd1bc` a 1366 × 768 con escalado de Qt al 200 %. La ventana principal y ambas figuras quedaron dentro de 683 × 360 unidades lógicas útiles. En Fedora 44, el portable consultó GitHub y verificó los manifiestos firmados de ambos canales. El cierre aprobado conserva como pendientes Windows con escalado nativo al 150 % y 200 % y la prueba interactiva en Fedora Plasma. [Registro Windows](evidence/candidate-08cd1bc/windows-clarke-qt-200.json) · [Registro Fedora](evidence/candidate-08cd1bc/fedora-updates.json) · [Aprobación](DECISION_LOG.md#cierre-e-integración-de-fase-04)
+
 ## Protocolo de escritorio real
 
-Usar los portables de `a3026d2` enlazados en el informe y registrar sistema operativo, SHA o huella del paquete, resolución física, escala del sistema y tema. En Windows usar dos escalas nativas, incluyendo una de 150 % o 200 %. En Linux comprobar un escritorio disponible con su escala nativa. Usar un usuario o perfil de prueba para validar el actualizador y preservar los datos de trabajo. [Paquetes y huellas](QUALITY_GATE_REPORT.md#paquetes-de-revisión-de-a3026d2)
+Usar los portables de 2.2.1 Preview y registrar sistema operativo, SHA o huella del paquete, resolución física, escala del sistema y tema. En Windows verificar las escalas nativas de 150 % y 200 %. En Linux comprobar el flujo en Fedora Plasma con su escala nativa. Usar un usuario o perfil de prueba para validar el actualizador y preservar los datos de trabajo. [Paquetes 2.2.1](../../releases/v2.2.1.md) · [Huellas](evidence/candidate-08cd1bc/SHA256SUMS-2.2.1-CANDIDATE.txt)
 
 1. Abrir **Enlace digital** desde el catálogo de Comunicaciones. Activar **Incluir cadena de canal** y añadir los preajustes **Multitrayecto** y **Fading Rician**, en ese orden. Conservar los valores iniciales e iniciar el enlace. En **Exportar → Experimento completo**, guardar el SLPROJ. Cerrar la pestaña desde la cruz y comprobar que el catálogo conserva su ancho y que los botones tienen margen respecto del borde.
 2. Abrir el SLPROJ y usar **I/Q transmitida** como entrada de **Fading Rayleigh y Rician** para conservar sus 96 kHz. Ingresar `0 = 1` y `4 = 0.2, 4, pi/4` en líneas separadas. Elegir la trayectoria de diagnóstico `2`, la variación **Correlacionada · Clarke** y un Doppler máximo de `64` Hz. Aplicar y abrir **Distribuciones de envolvente y fase** y **Autocorrelación y PSD Doppler**. Cambiar de tema y revisar ejes, referencias, navegación y controles de la figura al reducir la ventana.
