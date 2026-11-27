@@ -22,7 +22,8 @@ MENUS['Señales aleatorias'].append(('Correlación y covarianza de registros','r
 MENUS['Señales aleatorias'] += [('Analizar modelo AR, MA o ARMA','random_model','model',None),('Estimar modelo AR desde un registro','random_model','fit','discrete')]
 MENUS['Señales aleatorias'] += [('Estimación gaussiana','estimation','gaussian',None),
                                ('Filtro de Wiener','estimation','wiener','pair'),
-                               ('Filtro de Kalman','estimation','kalman',None)]
+                               ('Filtro de Kalman','estimation','kalman',None),
+                               ('Filtrado adaptativo','estimation','adaptive','pair')]
 
 MENUS['Comunicaciones'] = [
     ('Enlace digital','communications','link',None),

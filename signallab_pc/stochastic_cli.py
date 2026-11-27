@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 from . import session
+from .adaptive_filter import METHODS as ADAPTIVE_METHODS, PURPOSES, adaptive_fir, compare_adaptive, store_adaptive, store_adaptive_comparison
 from .cli_session import add_output_arguments, add_session_arguments, load_input, load_signal_file, run_command, timeout_seconds
 from .input_files import decode_finite_json, read_json
 from .kalman_filter import kalman_filter, store_kalman
@@ -151,6 +152,27 @@ def _wiener(args, context):
     return receipt
 
 
+def _adaptive(args, context):
+    project, workspace, observed, desired, records = _paired_input(args, context)
+    options = {'length':args.length, 'delay':args.delay, 'purpose':args.purpose, 'reserve':args.reserve}
+    settings = {key:getattr(args,key) for key in ('method','step','floor','forgetting','ridge')
+                if getattr(args,key) is not None}
+    inputs = [(source,key,()) for source,key in records]
+    if args.configurations is None:
+        result = adaptive_fir(observed,desired,**options,**settings,execution=context)
+        receipt = store_adaptive(project,result,inputs,execution=context)
+    else:
+        if settings:
+            raise ValueError('Usá las configuraciones del archivo o los parámetros del algoritmo.')
+        if args.configurations.resolve() == args.output.resolve():
+            raise ValueError('Elegí una salida distinta del archivo de configuraciones.')
+        configurations = read_json(args.configurations,checkpoint=context.checkpoint)
+        results = compare_adaptive(observed,desired,configurations,**options,execution=context)
+        receipt = store_adaptive_comparison(project,results,inputs,execution=context)
+    session.save(args.output,project,workspace,checkpoint=context.checkpoint)
+    return receipt
+
+
 def _ensemble(args, context):
     project, workspace = session.load(args.session, checkpoint=context.checkpoint)
     if len(set(args.records)) != len(args.records):
@@ -213,9 +235,19 @@ def main(argv):
     wiener.add_argument('--length', type=int, required=True)
     wiener.add_argument('--reserve', type=int, default=0)
     wiener.add_argument('--offset', action='store_true')
-    for command in (correlation,cross,wiener):
+    adaptive = commands.add_parser('adaptive', help='Aplicar LMS, NLMS, RLS o comparar configuraciones.')
+    adaptive.set_defaults(execute=_adaptive)
+    adaptive.add_argument('--method',choices=ADAPTIVE_METHODS)
+    adaptive.add_argument('--purpose',choices=PURPOSES,default='identification')
+    adaptive.add_argument('--length',type=int,required=True)
+    adaptive.add_argument('--delay',type=int)
+    adaptive.add_argument('--reserve',type=int,default=0)
+    for flag in ('step','floor','forgetting','ridge'):
+        adaptive.add_argument('--'+flag,type=float)
+    adaptive.add_argument('--configurations',type=Path,help='Archivo JSON con una lista de algoritmos y parámetros.')
+    for command in (correlation,cross,wiener,adaptive):
         add_session_arguments(command)
-        second = command.add_mutually_exclusive_group(required=command is not correlation)
+        second = command.add_mutually_exclusive_group(required=command in (cross,wiener))
         second.add_argument('--second-record')
         second.add_argument('--second-signal', type=Path)
     correlation.add_argument('--max-lag', type=int)

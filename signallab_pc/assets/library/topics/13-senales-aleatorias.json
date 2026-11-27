@@ -214,6 +214,15 @@
         ["Cómo interpretar la salida", "La predicción usa mediciones anteriores. La corrección usa además las mediciones disponibles en el instante actual. La varianza posterior mide la incertidumbre de la estimación."],
         ["Qué tener en cuenta", "El modelo supone ruido independiente, blanco y de media cero. Si todas las mediciones de un instante faltan, se conserva solo la predicción."]
       ]
+    },
+    {
+      "key": ["estimation", "adaptive"],
+      "blocks": [
+        ["Qué podés hacer", "Estimá un FIR que cambia mientras recibe muestras. Podés identificar un sistema, predecir una secuencia o cancelar ruido con una referencia."],
+        ["Cómo preparar el cálculo", "Elegí el objetivo y cargá las señales. Para identificar, usá entrada y salida del sistema. Para cancelar ruido, cargá una referencia del ruido y el registro contaminado. Para predecir, cargá un solo registro y un retardo positivo."],
+        ["Cómo interpretar la salida", "La estimación y el error en cada muestra usan los coeficientes disponibles antes de actualizar. Compará el error durante la adaptación y en el tramo final reservado. Los coeficientes finales se pueden reutilizar como un filtro fijo."],
+        ["Qué tener en cuenta", "La convergencia depende de la energía y excitación de la entrada, de los parámetros y de cuánto varíe el sistema. Una referencia correlacionada con la señal deseada puede eliminar también parte de esa señal."]
+      ]
     }
   ],
   "guides": [
@@ -468,6 +477,18 @@
         ["Mediciones, controles y máscara", "y tiene una columna por canal. u tiene una columna por entrada conocida y puede quedar vacía para entrada cero. La máscara usa 1 para medición disponible y 0 para ausente, con las mismas dimensiones que y."]
       ],
       "reading": "La innovación es la diferencia entre la medición y su predicción. La ganancia controla cuánto cambia cada estado al corregirlo. Resultados conserva los estados, las varianzas y las matrices por instante."
+    },
+    {
+      "key": ["estimation", "adaptive"],
+      "flow": ["Objetivo y registro", "Algoritmo y parámetros", "Coeficientes y errores"],
+      "parameters": [
+        ["Muestras del FIR", "La longitud determina cuántos coeficientes se adaptan. El retardo indica cuántas muestras hacia atrás empieza la ventana. Para predecir, el retardo mínimo es 1."],
+        ["LMS", "Reducí el paso μ si el error crece. El mismo valor de μ puede funcionar con una escala de amplitud y divergir con otra."],
+        ["NLMS", "μ está entre 0 y 2. Divide la corrección por la energía de la ventana más un piso positivo para evitar una actualización excesiva con señales débiles."],
+        ["RLS", "λ es el peso que se conserva por cada muestra transcurrida y admite 0 < λ ≤ 1. La regularización inicial estabiliza un ajuste con pocas observaciones."],
+        ["Reserva y comparación", "El tramo reservado usa el filtro final fijo. Podés comparar tres algoritmos con sus parámetros iniciales o variar el paso de LMS/NLMS o el factor λ de RLS."]
+      ],
+      "reading": "Compará los MSE sobre el mismo intervalo. Durante el entrenamiento, cada error mide lo que se podía estimar antes de recibir el dato de ese instante. En cancelación de ruido, el residuo estima la señal limpia."
     }
   ]
 }

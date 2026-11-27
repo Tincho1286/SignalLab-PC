@@ -24,6 +24,11 @@ def _power(value, exponent=0):
     return _scalar(restored) if status == 'ok' else {'value': None, 'status': status}
 
 
+def mean_square_metric(values, exponent=0):
+    scaled, shift = bounded(values, normalize=True)
+    return _power(float(np.mean(scaled.real**2 + scaled.imag**2)), 2*(shift+exponent))
+
+
 def _output(values, exponent):
     restored = restore_scale(values, exponent)
     if not np.isfinite(restored).all() or np.any((values != 0) & (restored == 0)):
@@ -131,8 +136,8 @@ def wiener_fir(observed, desired, length, *, fit_offset=False, reserve=0, execut
                   'coefficients': _parts(taps), 'offset': _parts(_output(np.asarray(offset), ed)),
                   'fit_offset': bool(fit_offset), 'length': length, 'rank': int(rank),
                   'first_index': start, 'last_index': end-1, 'training_samples': training,
-                  'validation_samples': reserve, 'training_mse': _power(float(np.mean(abs(error[:training])**2)), 2*ed),
-                  'validation_mse': _power(float(np.mean(abs(error[training:])**2)), 2*ed) if reserve else None,
+                  'validation_samples': reserve, 'training_mse': mean_square_metric(error[:training], ed),
+                  'validation_mse': mean_square_metric(error[training:], ed) if reserve else None,
                   'scope': 'MSE observado con ventanas causales completas. El tramo final se excluye del ajuste.'}
         system = Transfer(taps, [1.], name='Filtro FIR de Wiener', sample_period_s=None if rate is None else 1/rate)
         verify_inputs((observed, desired), digests, context.checkpoint)

@@ -1,6 +1,7 @@
 import numpy as np
 
 from signallab_pc.state_space import StateModel
+from signallab_pc.model import Signal
 from signallab_pc.workspaces import ROUTES
 from test_desktop_session import DesktopSessionFixture
 from test_optimal_estimation import matched_records
@@ -81,3 +82,28 @@ class EstimationWorkbenchTests(DesktopSessionFixture):
         panel.selector.setCurrentIndex(1)
         np.testing.assert_allclose(panel.output.displayed_signals()[0].values,[.5,.5,1/3])
         self.assertIn('Última corrección disponible',panel.report.toPlainText())
+
+    def test_adaptive_sensitivity_uses_same_observations_and_exports_selected_fir(self):
+        window = self.window()
+        route = ROUTES['estimation','adaptive']
+        window.open_tool(route)
+        panel=window.pages[route].panel
+        source=Signal([1,2,3,-2,1,0,5,-6,1])
+        target=Signal(source.values*2)
+        source_key,target_key=window.publish(source),window.publish(target)
+        panel.drive.set_source(window.project.get(source_key),source_key)
+        panel.target.set_source(window.project.get(target_key),target_key)
+        panel.length.setText('1')
+        panel.reserve.setText('2')
+        panel.method.setCurrentIndex(panel.method.findData('lms'))
+        panel.mode.setCurrentIndex(panel.mode.findData('sweep'))
+        panel.sweep.setText('0.01, 0.05')
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        self.warning.assert_not_called()
+        self.assertEqual(panel.choice.count(),2)
+        first = panel.actions.key
+        panel.choice.setCurrentIndex(1)
+        self.assertNotEqual(panel.actions.key,first)
+        self.assertIn('MSE por configuración',panel.report.toPlainText())
+        self.assertEqual(panel.output.displayed_signals()[0].origin,0)

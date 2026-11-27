@@ -707,6 +707,9 @@ class ToolPage(QWidget):
             if index=='kalman':
                 from .kalman_panel import KalmanPanel
                 self.panel=KalmanPanel(window)
+            elif index=='adaptive':
+                from .adaptive_panel import AdaptivePanel
+                self.panel=AdaptivePanel(window)
             else:
                 from .estimation_panel import EstimationPanel
                 self.panel=EstimationPanel(window,index)
@@ -1388,7 +1391,7 @@ class ToolboxWindow(SignalLabWindow):
         active=getattr(self.stack.currentWidget(),'active_page',self.stack.currentWidget())
         fields=[field for field in active.findChildren(LocalInput)
                 if field.kind in ('import',value.domain) or (getattr(field,'dft_input',False) and ops.is_centered_dft(value)) or value.data_kind in getattr(field,'cross_domain_kinds',())]
-        if item[1:3] in (('random', 'statistics'), ('random_correlation', 0), ('fourier', 7)):
+        if item[1:3] in (('random', 'statistics'), ('random_correlation', 0), ('fourier', 7), ('estimation','adaptive')):
             fields = [field for field in fields if not field.isHidden()]
         if not fields:return
         target=fields[0]

@@ -176,3 +176,14 @@ python -m signallab_pc stochastic kalman --model kalman.json --output estados.sl
 ```
 
 Con este ejemplo, la estimación corregida es 1, 1, 4. En el segundo instante solo se predice. El API usa `kalman_filter` de `signallab_pc.kalman_filter` con un `StateModel` discreto. [Modelo y estabilidad numérica](MATHEMATICAL_FOUNDATIONS.md#kalman-lineal-discreto)
+
+### Adaptar un filtro y comparar métodos
+
+En **Filtrado adaptativo**, elegí identificar un sistema, predecir o cancelar ruido. Indica la longitud del FIR y, si corresponde, el retardo de predicción. Para medir generalización, reservá un tramo final en el que los coeficientes se mantengan fijos. La vista **Señales** muestra cómo cambia el error durante el ajuste. El informe compara MSE entre algoritmos y entre valores del parámetro elegido. Podés elegir una configuración de la lista y reutilizar sus coeficientes finales.
+
+```sh
+python -m signallab_pc stochastic adaptive --session par.slproj --record ID_ENTRADA --second-record ID_SALIDA --length 8 --reserve 64 --method nlms --step 0.5 --output adaptacion.slproj
+python -m signallab_pc stochastic adaptive --session par.slproj --record ID_ENTRADA --second-record ID_SALIDA --length 8 --configurations comparacion.json --output comparacion.slproj
+```
+
+El archivo de comparación es una lista de objetos, por ejemplo `[{"method":"lms","step":0.01},{"method":"rls","forgetting":0.99}]`. Usá `adaptive_fir` y `compare_adaptive` para aplicar los mismos métodos desde Python. [Recursiones y condiciones](MATHEMATICAL_FOUNDATIONS.md#filtrado-adaptativo-fir)
