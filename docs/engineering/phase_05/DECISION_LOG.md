@@ -19,3 +19,7 @@ El bloqueo de campañas ejecuta una ruta nativa exclusiva por plataforma. El ver
 ## Inicialización de ARMA y comparación teórica
 
 El estado manual representa las fluctuaciones alrededor de la media y conserva la convención directa II transpuesta. El calentamiento se simula antes del primer índice visible. Se conserva el estado estacionario como opción predeterminada para que los proyectos anteriores mantengan su interpretación. Para la comparación descriptiva, la CDF teórica discreta se presenta en las ubicaciones evaluadas mediante puntos. El informe identifica su distribución y sus parámetros conocidos. [Auditoría matemática y de interfaz](AUDIT_AND_SCOPE_REPORT.md)
+
+## Aceptación de 2.3.1 y autorización de integración
+
+El 27 de noviembre de 2026, el propietario confirmó que probó los gráficos de 2.3.1 Preview y que funcionaban bien. Aprobó el cierre de Fase 05 y autorizó integrar `develop` en `main`. La aceptación corresponde al candidato publicado `1311df1f0f954f06eaf5f20c33f645d15748660a`. [Validación técnica](CORRECTIVE_PREVIEW_2_3_1.md) · [Publicación](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.3.1)
