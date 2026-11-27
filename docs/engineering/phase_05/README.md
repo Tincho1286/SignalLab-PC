@@ -102,3 +102,14 @@ python -m signallab_pc stochastic identify --session camino.slproj --record ID_T
 ```
 
 El proyecto guarda el modelo, el diagnóstico y las curvas de pronóstico con la entrada original. Usá `fit_arma`, `compare_arma`, `arma_diagnostics` y `arma_forecast` de `signallab_pc.time_series_identification` para automatizar el cálculo. [Supuestos de ajuste y predicción](MATHEMATICAL_FOUNDATIONS.md#verosimilitud-condicional-y-arima)
+
+### Estimar PSD con Bartlett
+
+En **Densidad de potencia**, elegí **Bartlett · bloques disjuntos** e indicá cuántas muestras usar por segmento. El estimador promedia periodogramas rectangulares sin solape. El informe indica qué cola parcial quedó descartada. Si el modelo es ruido blanco gaussiano de media cero, seleccioná ruido real o complejo propio para obtener un intervalo marginal por bin.
+
+```sh
+python -m signallab_pc stochastic generate --family white_noise --parameters '{"variance":1,"complex":false}' --rate 256 --count 1024 --seed 123 --output ruido-blanco.slproj
+python -m signallab_pc dsp psd --session ruido-blanco.slproj --record ID_REALIZACION --method bartlett --segment 64 --white-confidence real_gaussian_white --output densidad.slproj
+```
+
+El informe y su PSD quedan vinculados en Resultados. Para Python, usá `estimate_psd` de `signallab_pc.dsp_application` y `white_noise_confidence` de `signallab_pc.statistical_spectra`. [Normalización y cobertura](MATHEMATICAL_FOUNDATIONS.md#bartlett-y-cobertura-de-ruido-blanco)

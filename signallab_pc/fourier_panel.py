@@ -29,7 +29,7 @@ class FourierPanel(QWidget):
         scroll = QScrollArea(); scroll.setWidgetResizable(True)
         controls = QWidget(); form = QFormLayout(controls); scroll.setWidget(controls); root.addWidget(scroll, 1)
         right = QWidget(); layout = QVBoxLayout(right); root.addWidget(right, 2)
-        self.comparison=None;self.plot_mode=QComboBox();self.plot_mode.addItems(['Módulo y fase','Parte real e imaginaria','Análisis ampliado: dB y retardo']);self.plot_mode.currentIndexChanged.connect(self.draw_result);layout.addWidget(self.plot_mode)
+        self.comparison=None;self.spectral_interval=None;self.plot_mode=QComboBox();self.plot_mode.addItems(['Módulo y fase','Parte real e imaginaria','Análisis ampliado: dB y retardo']);self.plot_mode.currentIndexChanged.connect(self.draw_result);layout.addWidget(self.plot_mode)
         self.figure = Figure(figsize=(8, 6)); self.canvas = FigureCanvasQTAgg(self.figure)
         empty = self.figure.add_subplot(111); empty.set_axis_off()
         empty.text(0.5, 0.5, 'El espectro de tu señal aparecerá aquí', ha="center", va="center", color="#8194ae", transform=empty.transAxes)
@@ -71,16 +71,34 @@ class FourierPanel(QWidget):
         self._button(form, "Reconstruir serie discreta cargada", self.discrete_synthesis)
         self._section(form, "PSD / periodograma")
         self.rate = self._field(form, "Fs para señales sin reloj (Hz)", "100")
-        self.estimator = QComboBox(); self.estimator.addItems(["Welch calibrado", "Un segmento calibrado", "Periodograma sin calibración: |DFT|²/N"])
+        self.estimator = QComboBox(); self.estimator.addItems(["Welch calibrado", "Un segmento calibrado", "Periodograma sin calibración: |DFT|²/N", "Bartlett · bloques disjuntos"])
         form.addRow("Estimador", self.estimator)
-        self.segment = self._field(form, "Muestras por segmento Welch", "")
+        self.segment = self._field(form, "Muestras por segmento", "")
         self.segment.setPlaceholderText('Automático · hasta 256 muestras')
-        self.overlap = self._field(form, "Solape Welch", "")
+        self.overlap = self._field(form, "Solape de Welch", "")
         self.overlap.setPlaceholderText('Automático · mitad del segmento')
         self.window = QComboBox(); self.window.addItems(["Rectangular", "Hann", "Hamming", "Blackman", "Kaiser"])
         form.addRow("Ventana simétrica", self.window)
         self.beta = self._field(form, "Beta Kaiser", "5")
         self.demean = QCheckBox("Restar media de cada segmento"); form.addRow(self.demean)
+        self.confidence = QComboBox()
+        for label,key in [('Sin intervalo',None),('Ruido blanco gaussiano real','real_gaussian_white'),
+                          ('Ruido blanco gaussiano complejo propio','proper_complex_gaussian_white')]:
+            self.confidence.addItem(label,key)
+        self.confidence.setToolTip('Intervalos por bin para ruido blanco gaussiano de media cero y bloques rectangulares disjuntos.')
+        form.addRow('Modelo para intervalo de PSD',self.confidence)
+        self.confidence_level = self._field(form,'Cobertura (0 a 1)','0.95')
+        def spectral_controls(*_):
+            index = self.estimator.currentIndex()
+            self.segment.setEnabled(index in (0,3))
+            self.overlap.setEnabled(index==0)
+            self.window.setEnabled(index!=3)
+            self.beta.setEnabled(index!=3 and self.window.currentIndex()==4)
+            self.confidence_level.setEnabled(self.confidence.currentData() is not None)
+        self.estimator.currentIndexChanged.connect(spectral_controls)
+        self.window.currentIndexChanged.connect(spectral_controls)
+        self.confidence.currentIndexChanged.connect(spectral_controls)
+        spectral_controls()
         self._button(form, "Calcular densidad espectral", self.psd)
         self._section(form, "Resultado del panel")
         self._button(form, "Usar resultado en tabla / otras operaciones", self.use_result)
@@ -102,7 +120,7 @@ class FourierPanel(QWidget):
             ("Densidad de energía", "Obtené |X|² del último espectro calculado en este panel.",
              [],["Densidad de energía del último espectro"]),
             ("PSD y Welch", "Elegí un estimador de potencia, su ventana y la frecuencia de muestreo.",
-             [self.rate,self.estimator,self.segment,self.overlap,self.window,self.beta,self.demean],["Calcular densidad espectral"]),
+             [self.rate,self.estimator,self.segment,self.overlap,self.window,self.beta,self.demean,self.confidence,self.confidence_level],["Calcular densidad espectral"]),
             ("Usar o guardar resultado", "Enviá el resultado a la tabla, reutilizalo o exportalo.",
              [],["Usar resultado en tabla / otras operaciones","Exportar resultado CSV…","Guardar resultado JSON…"]),
         ])
@@ -203,22 +221,50 @@ class FourierPanel(QWidget):
         source,register = self._source()
         rate=source.metadata.get('sample_rate_hz')
         if rate is None:rate=real_field(self.rate)
-        method=["welch", "periodogram", "legacy"][self.estimator.currentIndex()]
+        method=["welch", "periodogram", "legacy", "bartlett"][self.estimator.currentIndex()]
         window=["boxcar", "hann", "hamming", "blackman", "kaiser"][self.window.currentIndex()]
-        kwargs=dict(method=method,window=window,beta=real_field(self.beta) if window=='kaiser' else 0.,
+        kwargs=dict(method=method,window=window,beta=real_field(self.beta) if window=='kaiser' and method!='bartlett' else 0.,
                     remove_mean=self.demean.isChecked())
-        if method=='welch':
+        if method in ('welch','bartlett'):
             from .validation import invalid
             count = source.values.size
             segment = integer_field(self.segment, minimum=1) if self.segment.text().strip() else min(256, count)
             if segment > count:
                 invalid(self.segment, f'el segmento debe tener como máximo {count} muestras.')
-            overlap = integer_field(self.overlap, minimum=0) if self.overlap.text().strip() else segment // 2
+            overlap = (integer_field(self.overlap, minimum=0) if self.overlap.text().strip() else segment // 2) if method=='welch' else 0
             if overlap >= segment:
                 invalid(self.overlap, f'el solape debe ser menor que {segment}.')
             kwargs.update(segment=segment, overlap=overlap)
         request = PSDRequest(source, rate, **kwargs)
-        self._job(lambda: estimate_psd(request),register)
+        model = self.confidence.currentData()
+        if model is None:
+            self._job(lambda: estimate_psd(request),register)
+            return
+        coverage = real_field(self.confidence_level,minimum=0,maximum=1)
+        from .auxiliary import optional
+        from .statistical_spectra import white_noise_confidence
+        from .statistics_results import store_statistics
+        def calculate():
+            result = estimate_psd(request)
+            interval,notice = optional('Intervalos de PSD',lambda:white_noise_confidence(result,model=model,coverage=coverage))
+            return result,interval,notice
+        def accept(data):
+            result,interval,notice = data
+            self._accept(result)
+            window=self.owner.window
+            journal=getattr(window,'_result_journal',None)
+            if journal is not None:journal.reported(data,outputs_registered=True)
+            if interval is not None:
+                parent=window.published_signal_id(result)
+                _,key=store_statistics(window.project,interval,((result,parent,()),),'Intervalos de densidad',
+                                       tool=journal.origin if journal else None)
+                window.register_publication(key,interval)
+                self.spectral_interval=interval
+                self.report.appendPlainText(f"\nCobertura marginal: {100*coverage:g} %. {interval['scope']}")
+                self.draw_result()
+            elif notice:
+                self.report.appendPlainText('\n'+notice)
+        self._job(calculate,register,accept=accept)
 
     def compare(self):
         source,register=self._source()
@@ -230,7 +276,7 @@ class FourierPanel(QWidget):
         self._job(lambda:fourier.dtft_with_dft(*args),register,title='Superponiendo DFT y DTFT…',accept=accept)
 
     def _accept(self, result):
-        self.result = result; self.comparison=None;self.owner._remember_signal(result)
+        self.result = result; self.comparison=None;self.spectral_interval=None;self.owner._remember_signal(result)
         self.report.setPlainText(f"{result.name}\n{result.values.size} puntos · eje {result.units}\n\n" + json.dumps(result.metadata, ensure_ascii=False, indent=2))
         self.draw_result()
 
@@ -252,6 +298,8 @@ class FourierPanel(QWidget):
             for axis,data,label in zip(axes,(first,second),labels):
                 component='real' if label in ('Parte real','Densidad') else 'imag' if label=='Parte imaginaria' else 'density_db' if power else 'magnitude' if label=='Módulo' else 'phase'
                 plot_samples(axis,coordinates,data,discrete=discrete,label=result.name,phase=polar and not power and label.startswith('Fase'),source=result,component=component);axis.set_ylabel(label);axis.grid(alpha=.2)
+                if power and axis is axes[0]:self._draw_spectral_interval(axis,coordinates,index)
+                elif power and polar:self._draw_spectral_interval(axis,coordinates,index,decibels=True)
             if self.comparison is not None:
                 bins=self.comparison[1]
                 parts=(np.abs(bins),np.angle(bins)) if polar else (bins.real,bins.imag)
@@ -289,6 +337,8 @@ class FourierPanel(QWidget):
         else:
             plot_samples(axes[1, 0],coordinate, result.values.real[index],discrete=discrete,source=result,component='real');axes[1, 0].set_title("Vista lineal")
             axes[1, 1].axis("off")
+            self._draw_spectral_interval(axes[0,0],coordinate,index)
+            self._draw_spectral_interval(axes[0,1],coordinate,index,decibels=True)
         if self.comparison is not None:
             magnitude_dft=np.abs(self.comparison[1]);db_dft=np.full(magnitude_dft.shape,np.nan)
             valid_dft=magnitude_dft>0;db_dft[valid_dft]=20*np.log10(magnitude_dft[valid_dft])
@@ -296,6 +346,16 @@ class FourierPanel(QWidget):
         for axis in axes.flat: configure_signal_axis(axis,result); axis.grid(alpha=.2)
         if not getattr(self.canvas,'_signallab_layout',False):self.figure.tight_layout()
         self.canvas.draw_idle()
+
+    def _draw_spectral_interval(self,axis,coordinates,index,*,decibels=False):
+        if self.spectral_interval is None:
+            return
+        rows=self.spectral_interval['bounds']
+        bounds=np.asarray([(rows[i]['lower'],rows[i]['upper']) if rows[i] else (np.nan,np.nan) for i in index])
+        if decibels:
+            with np.errstate(divide='ignore',invalid='ignore'):
+                bounds=10*np.log10(np.where(bounds>0,bounds,np.nan))
+        axis.fill_between(coordinates,bounds[:,0],bounds[:,1],alpha=.19,color='#6fa8dc')
 
     def draw_dft_bins(self, result, panels):
         from .plot_inspection import stored_curve

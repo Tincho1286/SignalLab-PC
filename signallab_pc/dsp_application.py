@@ -256,7 +256,8 @@ def estimate_psd(request: PSDRequest, execution: ExecutionContext | None = None)
         raise ValueError('Elegí una PSD unilateral o bilateral.')
     if request.sidedness == 'one-sided' and (request.method == 'legacy' or np.any(source.values.imag)):
         raise ValueError('La PSD unilateral requiere una señal real y una normalización de densidad.')
-    segment = sampling.positive_integer(request.segment, 'Longitud de segmento') if request.method == 'welch' else int(source.values.size)
+    segmented = request.method in ('welch','bartlett')
+    segment = sampling.positive_integer(request.segment, 'Longitud de segmento') if segmented else int(source.values.size)
     expected = (content_digest(source, ctx.checkpoint),)
     result = ctx.run(lambda: fourier.spectral_density(
         source, rate, method=request.method, segment=segment, overlap=request.overlap,
@@ -273,7 +274,8 @@ def estimate_psd(request: PSDRequest, execution: ExecutionContext | None = None)
     if isinstance(amplitude_units, str) and amplitude_units:
         metadata['density_units'] = f'{amplitude_units}²' + ('/Hz' if request.method != 'legacy' else '')
     spec = PSDParameters(request.method, metadata['segment'], metadata['overlap'], float(rate),
-                         request.window, float(request.beta), request.remove_mean, request.sidedness)
+                         metadata['window'], 0. if request.method=='bartlett' else float(request.beta),
+                         request.remove_mean, request.sidedness)
     metadata['core_provenance'] = scientific_metadata('psd', spec)
     return _finish_signal(result, (source,), expected, ctx)
 

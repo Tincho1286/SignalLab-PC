@@ -46,8 +46,15 @@ def _execute(args, context):
                                parents=(parent,) if args.operation=='resample' else ())
     parents = (parent,) if model_id is None else (parent,model_id)
     result_id = store_signal(project,result,parents=parents,execution=context)
+    receipt = {'source_id':parent,'result_id':result_id,'filter_id':model_id}
+    if getattr(args,'white_confidence',None) is not None:
+        from .statistical_spectra import white_noise_confidence
+        from .statistics_results import store_statistics
+        bounds = white_noise_confidence(result,model=args.white_confidence,coverage=args.coverage,execution=context)
+        _, key = store_statistics(project,bounds,((result,result_id,()),),'Intervalos de densidad',execution=context)
+        receipt['confidence_id'] = key
     session.save(args.output,project,workspace,checkpoint=context.checkpoint)
-    return {'source_id':parent, 'result_id':result_id, 'filter_id':model_id}
+    return receipt
 
 
 def main(argv):
@@ -71,13 +78,16 @@ def main(argv):
     rate_change.add_argument('--override-clock',action='store_true')
     psd = commands.add_parser('psd')
     psd.add_argument('--rate',type=float)
-    psd.add_argument('--method',choices=('welch','periodogram','legacy'),default='welch')
+    psd.add_argument('--method',choices=('welch','periodogram','legacy','bartlett'),default='welch')
     psd.add_argument('--segment',type=int,default=256)
     psd.add_argument('--overlap',type=int,default=128)
     psd.add_argument('--window',choices=('boxcar','hann','hamming','blackman','kaiser'),default='hann')
     psd.add_argument('--beta',type=float,default=5.0)
     psd.add_argument('--remove-mean',action='store_true')
     psd.add_argument('--sidedness',choices=('one-sided','two-sided'),default='two-sided')
+    psd.add_argument('--white-confidence',choices=('real_gaussian_white','proper_complex_gaussian_white'),
+                     help='Modelo gaussiano blanco de media cero para intervalos por bin.')
+    psd.add_argument('--coverage',type=float,default=.95)
     for command in (idft,fir,rate_change,psd):
         add_session_arguments(command)
         command.set_defaults(execute=_execute)

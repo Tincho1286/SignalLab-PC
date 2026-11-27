@@ -213,9 +213,12 @@ def spectral_density(x, rate, *, method="welch", segment=256, overlap=128,
     recorded=x.metadata.get('sample_rate_hz')
     if recorded is not None and not math.isclose(rate,positive_finite(recorded,'Fs registrada'),rel_tol=1e-12,abs_tol=0):
         raise ValueError('Fs no coincide con el reloj de la señal. Ajustá el reloj de la entrada antes de calcular su PSD.')
-    if method not in {"welch", "periodogram", "legacy"}:
+    if method not in {"welch", "bartlett", "periodogram", "legacy"}:
         raise ValueError("Estimador desconocido.")
-    if method != "welch": segment, overlap = int(x.values.size), 0
+    if method == 'bartlett':
+        overlap, window, beta = 0, 'boxcar', 0.
+    elif method != "welch":
+        segment, overlap = int(x.values.size), 0
     segment = positive_integer(segment, "Longitud de segmento")
     if segment > x.values.size or isinstance(overlap, bool) or not isinstance(overlap, int) or not 0 <= overlap < segment:
         raise ValueError("Se requiere segmento ≤ N y solape entero entre 0 y segmento−1.")
@@ -259,6 +262,7 @@ def spectral_density(x, rate, *, method="welch", segment=256, overlap=128,
     return Signal(np.fft.fftshift(power), origin, step, "Hz", f"PSD_{method}_{x.name}", "frequency", "",
                   {"operation": "spectral_density", "estimator": method, "density_units": "amplitude²/Hz" if method != "legacy" else "amplitude²",
                    "sample_rate_hz": rate, "window": window, "segment": segment, "overlap": overlap,
+                   "real_input": not bool(np.any(x.values.imag)),
                    "segments_used": int(blocks), "unused_tail": int(x.values.size-((blocks-1)*hop+segment)),
                    "remove_segment_mean": bool(remove_mean), "sidedness": "two-sided, FFT-shifted",
                    "convention": "Symmetric window; mean of |FFT(window*x)|²/(Fs*sum(window²)); legacy uses /N"})
