@@ -1,0 +1,8 @@
+{
+  "version": "2.2.1",
+  "target": "linux-x86_64",
+  "frozen": true,
+  "stable": "2.0.0",
+  "preview": "2.2.0",
+  "passed": true
+}

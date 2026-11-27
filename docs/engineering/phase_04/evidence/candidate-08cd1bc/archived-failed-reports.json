@@ -1,0 +1,31 @@
+{
+  "run": 45923696053,
+  "attempt": 1,
+  "commit": "08cd1bc28189ef0c1cd6c5a36f2d9bd32f6f1a48",
+  "job_to_repeat": 140260060964,
+  "conclusions": {
+    "engineering-baseline (windows-2022)": "success",
+    "engineering-baseline (ubuntu-22.04)": "success",
+    "engineering-distribution (ubuntu-22.04)": "failure",
+    "engineering-distribution (windows-2022)": "success",
+    "desktop-regressions": "skipped",
+    "static-actions": "skipped",
+    "core-mathematics": "skipped",
+    "workflow-integration": "skipped",
+    "engineering-quality-gate": "failure"
+  },
+  "archives": [
+    {
+      "id": 15167485756,
+      "name": "quality-gate-45923696053",
+      "digest": "sha256:bd3a0acb177935d0a5752acd474ce67650a4434e1d2774ea14787b7004d72072",
+      "size_in_bytes": 8263
+    },
+    {
+      "id": 15165214876,
+      "name": "engineering-distribution-ubuntu-22.04-45923696053",
+      "digest": "sha256:9609c50b06a81261c240933f1e8647c0d258048408996c3662df44df462d669f",
+      "size_in_bytes": 12178977
+    }
+  ]
+}
