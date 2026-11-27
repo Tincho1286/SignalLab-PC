@@ -8,6 +8,7 @@ from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QLineE
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg,NavigationToolbar2QT
 from . import random_signals
+from .descriptive_statistics import PROJECTIONS, describe_record
 from .probability import FAMILIES, Distribution, distribution_value, generate_realizations, interval_probability, moment, population, store_realizations
 from .multivariate_probability import Gaussian, Multinomial, gaussian_density, generate_gaussian, generate_multinomial
 from .matrix_editor import MatrixEditor
@@ -40,6 +41,7 @@ _STATES = {'undefined': 'Indefinido', 'divergent': 'Divergente', 'unbounded': 'S
            'singular_density': 'Densidad infinita en el borde', 'singular_measure': 'Distribución singular',
            'out_of_range': 'Fuera del rango numérico', 'numerically_unavailable': 'Sin valor numérico fiable',
            'underflow': 'Por debajo del rango numérico', 'zero_or_underflow': 'Cero o por debajo del rango'}
+_PROJECTION_LABELS = dict(zip(PROJECTIONS, ('Parte real', 'Parte imaginaria', 'Módulo', 'Fase (rad)'), strict=True))
 
 
 class RandomPanel(QWidget):
@@ -53,8 +55,23 @@ class RandomPanel(QWidget):
             self._generation_controls(form)
         else:
             self.source=LocalInput('Registro para analizar');self.source.bind_project(window);form.addRow(self.source)
-            self.component=QComboBox();self.component.addItems(['Parte real','Parte imaginaria','Módulo']);form.addRow('Componente del histograma',self.component)
+            self.component=QComboBox();self.component.addItems(list(_PROJECTION_LABELS.values()));form.addRow('Componente para analizar',self.component)
             self.bins=QLineEdit('30');form.addRow('Intervalos del histograma',self.bins)
+            self.diagnostics=QCheckBox('Incluir CDF, CCDF y diagrama de caja')
+            self.reference_normal=QCheckBox('Comparar con una normal de parámetros conocidos')
+            self.reference_mean,self.reference_std=QLineEdit('0'),QLineEdit('1')
+            form.addRow(self.diagnostics);form.addRow(self.reference_normal)
+            form.addRow('Media de referencia',self.reference_mean)
+            form.addRow('Desviación de referencia',self.reference_std)
+            def update_statistics_options(*_):
+                active=self.diagnostics.isChecked()
+                form.setRowVisible(self.reference_normal,active)
+                visible=active and self.reference_normal.isChecked()
+                form.setRowVisible(self.reference_mean,visible)
+                form.setRowVisible(self.reference_std,visible)
+            self.diagnostics.toggled.connect(update_statistics_options)
+            self.reference_normal.toggled.connect(update_statistics_options)
+            update_statistics_options()
         button=QPushButton('Calcular' if action=='generate' else 'Calcular estadísticas');button.setObjectName('primary');button.clicked.connect(self.calculate);form.addRow(button)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(320);split.addWidget(scroll)
         self.tabs=QTabWidget();split.addWidget(self.tabs);split.setSizes([350,740]);split.setStretchFactor(1,1)
@@ -74,7 +91,15 @@ class RandomPanel(QWidget):
         self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Informe' if action=='generate' else 'Estadísticas')
         self.report.setPlainText('Completá los datos y calculá. Los resultados describen una realización finita, no toda la distribución.')
         if action!='generate':
-            plot=QWidget();box=QVBoxLayout(plot);self.figure=Figure(figsize=(7,4));self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumHeight(280);box.addWidget(NavigationToolbar2QT(self.canvas,self));box.addWidget(self.canvas,1);self.tabs.addTab(plot,'Histograma')
+            plot=QWidget();box=QVBoxLayout(plot)
+            self.plot_kind=QComboBox()
+            self.plot_kind.setProperty('sessionTransient',True)
+            self.plot_kind.setAccessibleName('Diagnóstico estadístico')
+            self.plot_kind.currentIndexChanged.connect(self._draw_statistics)
+            self._statistics=None
+            box.addWidget(self.plot_kind)
+            self.figure=Figure(figsize=(7,4),layout='constrained');self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumHeight(280)
+            box.addWidget(NavigationToolbar2QT(self.canvas,self));box.addWidget(self.canvas,1);self.tabs.addTab(plot,'Gráficos')
 
     def _generation_controls(self, form):
         self.distribution = QComboBox()
@@ -328,9 +353,19 @@ class RandomPanel(QWidget):
             if self.action=='generate':
                 self._calculate_distribution()
             else:
-                source=self.source.read();parent=self.source.reference_id;component=['real','imag','magnitude'][self.component.currentIndex()]
+                source=self.source.read();parent=self.source.reference_id;component=PROJECTIONS[self.component.currentIndex()]
                 from .auxiliary import optional
                 bins,bins_notice=optional('Intervalos del histograma',lambda:integer_field(self.bins))
+                diagnostics=self.diagnostics.isChecked()
+                reference=None
+                if diagnostics and self.reference_normal.isChecked():
+                    reference=Distribution('normal',{'mean':real_field(self.reference_mean),'std':real_field(self.reference_std)})
+
+                def calculate():
+                    data=random_signals.statistics(source,component,bins,histogram_notice=bins_notice)
+                    data['descriptive']=describe_record(source,component,diagnostics=diagnostics,reference=reference)
+                    return data
+
                 def accept(data):
                     self.window.publish(data,title='Estadísticas de '+source.name,operation='Estadísticas de registro',parents=[parent] if parent else [])
                     self.output.show_result(source)
@@ -343,13 +378,92 @@ class RandomPanel(QWidget):
                     for key, label in labels.items():
                         lines.append(f"{label}: {states.get(data['range_status'][key], data[key])}")
                     lines.extend(('', data['scope'], '', 'El histograma estima la densidad por intervalos. El área total es 1.'))
-                    self.report.setPlainText('\n'.join(lines))
+                    self.report.setPlainText('\n'.join(lines) + '\n\n' + _descriptive_report(data['descriptive']))
                     if data.get('histogram_notice'):self.report.appendPlainText('\n'+data['histogram_notice'])
-                    self.figure.clear();axis=self.figure.add_subplot(111);edges=np.asarray(data['histogram_edges']);axis.bar(edges[:-1],data['histogram_density'],width=np.diff(edges),align='edge',alpha=.8);axis.set_xlabel({'real':'Parte real','imag':'Parte imaginaria','magnitude':'Módulo'}[component]);axis.set_ylabel('Densidad estimada');axis.grid(alpha=.2);self.figure.tight_layout();self.canvas.draw_idle();self.tabs.setCurrentIndex(1)
-                    if data.get('histogram_notice'):
-                        axis.clear();axis.set_axis_off();axis.text(.5,.5,data['histogram_notice'],ha='center',va='center',wrap=True,transform=axis.transAxes);self.canvas.draw_idle()
-                self.window._run_operation('Calculando estadísticas…',lambda:random_signals.statistics(source,component,bins,histogram_notice=bins_notice),accept)
+                    self._statistics=data
+                    choices=[('Histograma','histogram')]
+                    if 'empirical' in data['descriptive']:
+                        choices.extend([('CDF empírica','cdf'),('CCDF empírica','survival'),('Diagrama de caja','boxplot')])
+                    if 'qq' in data['descriptive']:
+                        choices.append(('Gráfico Q–Q','qq'))
+                    self.plot_kind.blockSignals(True)
+                    self.plot_kind.clear()
+                    for label,key in choices:
+                        self.plot_kind.addItem(label,key)
+                    self.plot_kind.blockSignals(False)
+                    self._draw_statistics()
+                    self.tabs.setCurrentIndex(1)
+                self.window._run_operation('Calculando estadísticas…',calculate,accept)
         except Exception as exc:show_input_error(self,'Revisá las entradas',exc)
+
+    def _draw_statistics(self,*_):
+        if self._statistics is None:
+            return
+        data=self._statistics
+        self.figure.clear()
+        axis=self.figure.add_subplot(111)
+        _statistical_plot(axis,self.plot_kind.currentData(),data)
+        self.canvas.draw_idle()
+
+
+def _descriptive_report(result):
+    labels={'mean':'Media','median':'Mediana','variance_N':'Varianza con divisor N',
+            'variance_N_minus_1':'Varianza con divisor N−1','standard_deviation_N':'Desviación estándar',
+            'rms':'RMS','skewness':'Asimetría','excess_kurtosis':'Exceso de curtosis',
+            'iqr':'Rango intercuartílico','mad':'Mediana de las desviaciones absolutas'}
+    rows=[('Observaciones',result['sample_count']),('Excluidas',result['excluded'])]
+    rows.extend((label,_result_text(result[key])) for key,label in labels.items())
+    modes=result['mode']['values']
+    rows.append(('Moda',_result_text(modes) if modes else 'Sin valores repetidos'))
+    if 'circular' in result:
+        circular=result['circular']
+        rows.extend((('Dirección media (rad)',_result_text(circular['mean_direction_rad'])),
+                     ('Varianza circular',_result_text(circular['circular_variance']))))
+    sections=[
+        Section('Medidas de la componente',rows=rows,paragraphs=[result['scope']]),
+        Section('Cuantiles',rows=[(f"{100*q['probability']:g} %",_result_text(q)) for q in result['quantiles']]),
+        Section('Momentos',rows=[
+            (f'Orden {i}',f"No central {_result_text(raw)} · Central {_result_text(centered)}")
+            for i,(raw,centered) in enumerate(zip(result['raw_moments'],result['central_moments'],strict=True))]),
+    ]
+    if 'boxplot' in result:
+        sections.append(Section('Diagrama de caja',rows=[('Atípicos',result['boxplot']['outliers'])],
+                                paragraphs=['Los bigotes alcanzan observaciones dentro de 1,5 rangos intercuartílicos.']))
+    return Summary(_PROJECTION_LABELS[result['component']],sections).plain_text()
+
+
+def _statistical_plot(axis,choice,data):
+    result=data['descriptive']
+    label=_PROJECTION_LABELS[result['component']]
+    if choice=='histogram':
+        edges=np.asarray(data['histogram_edges'])
+        axis.bar(edges[:-1],data['histogram_density'],width=np.diff(edges),align='edge',alpha=.8)
+        axis.set_xlabel(label);axis.set_ylabel('Densidad empírica')
+        if data.get('histogram_notice'):
+            axis.set_axis_off()
+            axis.text(.5,.5,data['histogram_notice'],ha='center',va='center',wrap=True,transform=axis.transAxes)
+    elif choice in ('cdf','survival'):
+        empirical=result['empirical']
+        axis.step(empirical['x'],empirical[choice],where='post',label='Registro')
+        reference=empirical.get('reference_'+choice)
+        if reference is not None:
+            axis.plot(empirical['reference_axis'],[row['value'] if row['status']=='finite' else np.nan for row in reference],
+                      label='Normal de referencia')
+            axis.legend()
+        axis.set_xlabel(label)
+        axis.set_ylabel('P(X ≤ x)' if choice=='cdf' else 'P(X > x)')
+        axis.set_ylim(-.03,1.03)
+    elif choice=='boxplot':
+        lower,middle,upper=[row['value'] for row in result['boxplot']['quartiles']]
+        first,last=[row['value'] for row in result['boxplot']['whiskers']]
+        axis.bxp([dict(label=label,q1=lower,med=middle,q3=upper,whislo=first,whishi=last)],showfliers=False)
+    else:
+        qq=result['qq']
+        theoretical=[row['value'] if row['status']=='finite' else np.nan for row in qq['theoretical']]
+        axis.scatter(theoretical,qq['observed'],s=12)
+        axis.set_xlabel('Cuantiles normales de referencia')
+        axis.set_ylabel('Observados · '+label)
+    axis.grid(alpha=.2)
 
 
 def _result_text(result):

@@ -44,19 +44,19 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Esta opción resume las amplitudes de un registro mediante media, varianza, RMS e histograma."
+          "Este análisis resume una componente del registro con media, mediana, moda, dispersión, momentos y cuantiles. Incluye un histograma y puede comparar la distribución observada con una normal de parámetros conocidos."
         ],
         [
           "Cómo preparar el cálculo",
-          "Cargá la secuencia y elegí la componente del histograma y su cantidad de intervalos. Para datos complejos, distinguí parte real, imaginaria y módulo."
+          "Cargá la secuencia y elegí parte real, parte imaginaria, módulo o fase. Indicá cuántos intervalos querés en el histograma. Activá los diagnósticos para ver CDF, CCDF y la caja. Para el gráfico Q–Q, ingresá también la media y desviación de la normal de referencia."
         ],
         [
           "Cómo interpretar la salida",
-          "La varianza mide el promedio de |x−media|². El histograma agrupa amplitudes y estima una densidad: el área representa probabilidad, por lo que una altura puede superar uno."
+          "El informe distingue las medidas del registro complejo de las medidas de la componente. En el histograma, el área representa probabilidad y una altura puede superar uno. La CDF y la CCDF cuentan observaciones a cada lado de un umbral. La caja resume cuartiles y el gráfico Q–Q compara cuantiles de la muestra y la referencia."
         ],
         [
           "Qué tener en cuenta",
-          "La corrección con N−1 presupone muestras independientes e idénticamente distribuidas. Las medidas del registro y su histograma no prueban normalidad, estacionariedad ni independencia."
+          "La corrección con N−1 se interpreta bajo un modelo de muestras independientes e idénticamente distribuidas. La fase usa la rama de −π a π y excluye muestras nulas. La dirección media y la varianza circular consideran que ambos extremos de la rama representan el mismo ángulo. Los gráficos describen este registro y no demuestran sus hipótesis poblacionales."
         ],
         [
           "Indeterminaciones y valores por continuidad",

@@ -52,6 +52,7 @@ on:
       - 'tools/check_quality_gate_04.py'
       - 'tools/check_quality_gate_05.py'
       - 'tests/test_probability*.py'
+      - 'tests/test_descriptive_statistics.py'
       - 'tests/test_phase05_quality_gate.py'
       - 'tools/measure_communications.py'
       - 'tools/measure_channel_modeling.py'

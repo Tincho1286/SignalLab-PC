@@ -50,7 +50,8 @@ def statistics(source,component,bins,*,histogram_notice=None):
         if isinstance(bins,bool) or not isinstance(bins,(int,np.integer)) or bins<1:
             raise ValueError('La cantidad de intervalos del histograma debe ser un entero positivo.')
         ensure_working_set(n+int(bins),live_arrays=10)
-        data={'real':values.real,'imag':values.imag,'magnitude':np.abs(values)}[component]
+        from .descriptive_statistics import project_samples
+        data,_=project_samples(source,component)
         with np.errstate(all='ignore'):density,edges=np.histogram(data,bins=bins,density=True)
         if not np.isfinite(density).all() or not np.isfinite(edges).all():
             raise ValueError('El histograma no es representable con esta escala de amplitudes.')

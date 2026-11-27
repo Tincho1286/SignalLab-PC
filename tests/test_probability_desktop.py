@@ -9,6 +9,7 @@ from unittest.mock import patch
 import numpy as np
 
 from signallab_pc.jobs import checkpoint
+from signallab_pc.model import Signal
 from signallab_pc.probability import Distribution, generate_realizations
 from signallab_pc.session import load
 from signallab_pc.session_fields import field_values
@@ -96,3 +97,25 @@ class ProbabilityWorkbenchTests(DesktopSessionFixture):
 
         self.assertEqual(window.project.headers(), before)
         self.assertEqual(panel.sample_choice.count(), 0)
+
+    def test_descriptive_figures_follow_the_same_saved_calculation(self):
+        window = self.window()
+        route = ROUTES['random', 'statistics']
+        source = Signal([1, 1, 2, 3, 100], name='Registro de prueba')
+        origin = window.publish(source, operation='Entrada')
+        window.send_signal(source, origin, route)
+        panel = window.pages[route].panel
+        panel.diagnostics.setChecked(True)
+        panel.reference_normal.setChecked(True)
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        row = next(record for record in window.project.headers()
+                   if record['operation'] == 'Estadísticas de registro')
+        report = window.project.get(row['id'])['descriptive']
+        self.assertEqual(report['boxplot']['outliers'], 1)
+        self.assertIn('Mediana: 2', panel.report.toPlainText())
+        for key in ('cdf','survival','boxplot','qq'):
+            panel.plot_kind.setCurrentIndex(panel.plot_kind.findData(key))
+            self.assertEqual(len(panel.figure.axes), 1)
+        qq = panel.figure.axes[0].collections[0].get_offsets()
+        self.assertEqual(len(qq), len(source.values))

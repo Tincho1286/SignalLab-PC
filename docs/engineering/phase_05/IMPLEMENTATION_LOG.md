@@ -15,3 +15,11 @@ La corrida focalizada de Windows aprobó 58 pruebas con Qt offscreen y un hilo B
 ## Infraestructura de candidato
 
 Se agregó el selector `phase_05`, su verificación de fuente, la matriz acumulativa y la evaluación de la evidencia específica. Las pruebas de vigencia del publicador rechazaron un Quality Gate de otra fase y una versión incompatible. El análisis estático de Python y `actionlint` aprobaron. Los reportes de calificación estadística y rendimiento de toda la fase quedan pendientes de implementación. [Guía de publicación](../../development/releases.md#adaptaciones-pendientes-del-flujo)
+
+## Estadística descriptiva
+
+`29094a4` pasó los controles automáticos de desarrollo de GitHub. El siguiente lote amplía la ruta de estadística con análisis por proyección, mediana, moda, momentos, medidas robustas, cuantiles, CDF/CCDF, caja y Q–Q. Para fases a ambos lados de ±π se informa la dirección circular. La fase de las muestras nulas se excluye y el conteo queda en el resultado. [Controles del primer lote](https://github.com/Tincho1286/SignalLab-PC/actions/runs/46005000910)
+
+El cálculo de cuantiles interpola en escala binaria local para preservar observaciones pequeñas frente a registros de gran rango. El promedio conserva la cancelación de términos grandes cuando es representable. Los estados numéricos describen momentos que no caben en el tipo de salida. Se mantuvo la regresión que conserva las medidas si falla el histograma.
+
+Se ejecutaron 30 pruebas focalizadas de probabilidad, estadística, escritorio y verificador en Windows. `descriptive_statistics.py` obtuvo 131/131 líneas y 36/36 ramas y `statistics_cli.py` obtuvo 34/34 líneas y 4/4 ramas en esa corrida. También aprobaron el análisis estático y `actionlint`. El ajuste inferencial y su calificación estadística siguen en WP-02.

@@ -8,4 +8,6 @@ La CLI `python -m signallab_pc probability` adapta entradas JSON y archivos de s
 
 Una realización registra su huella al generarse. La entrega guarda la distribución y todas sus realizaciones con una transacción `Project.stage_records`. Una inconsistencia de origen, contenido o cancelación antes de entregar revoca el lote. CLI persiste esa misma transacción mediante sesión JSON o SLPROJ y conserva el archivo anterior si falla el guardado. [Contratos](SCIENTIFIC_CONTRACTS.md) · [Línea base](PHASE_05_BASELINE.md)
 
+`descriptive_statistics.py` analiza una proyección real declarada de `Signal`. El Workbench compone sus resultados con las medidas globales históricas y el histograma. La CLI `statistics describe` guarda el mismo análisis de proyección como cálculo con enlace al registro padre. Los diagnósticos conservan la CDF empírica exacta en las muestras únicas. Para las curvas de referencia y Q–Q se eligen posiciones de dibujo acotadas sin cambiar los cuantiles ni los estadísticos principales.
+
 La futura estimación, identificación, PSD y campañas tomarán estos contratos como punto de partida, y seguirán usando las primitivas acreditadas de Engineering Core y canales. [Plan](PHASE_05_PLAN.md)
