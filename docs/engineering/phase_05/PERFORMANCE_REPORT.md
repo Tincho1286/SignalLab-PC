@@ -4,7 +4,7 @@
 
 ## Medición de desarrollo en Windows
 
-Estos datos orientan la preparación del candidato. La matriz final medirá las dos plataformas sobre el mismo SHA de publicación.
+Estas mediciones de desarrollo orientaron la preparación del candidato. La matriz final repitió los perfiles en Windows y Linux sobre el SHA de publicación. [Resultados del candidato](QUALITY_GATE_REPORT.md#distribución-y-recursos) · [Informes originales](https://github.com/Tincho1286/SignalLab-PC/actions/runs/46059832440)
 
 | Perfil mayor | Carga probada | Tiempo (s) | RSS (MiB) | Mayor reserva solicitada (MiB) |
 | --- | --- | ---: | ---: | ---: |

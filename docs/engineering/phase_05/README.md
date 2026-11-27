@@ -1,6 +1,6 @@
 # Fase 05 · Probabilidad, estadística y procesos estocásticos
 
-La fase está autorizada en `develop` y parte de la integración aprobada de 2.2.1 Preview. El objetivo es ampliar las herramientas de señales aleatorias y proporcionar los mismos cálculos científicos a Workbench, Python y CLI. El primer candidato público será de la familia 2.3.x, después de la calificación conjunta de Windows y Linux.
+La Fase 05 amplía las herramientas de señales aleatorias y comparte sus cálculos entre Workbench, Python y la consola. **2.3.0 Preview** está publicada y calificada en Windows y Linux. La aceptación funcional sigue pendiente. [Descargas](../../releases/v2.3.0.md) · [Informe de cierre](PHASE_05_CLOSEOUT.md)
 
 - [Línea base](PHASE_05_BASELINE.md) y [paquetes de trabajo](PHASE_05_PLAN.md)
 - [Requisitos y demostradores](PHASE_05_REQUIREMENTS.md)
@@ -11,7 +11,7 @@ La fase está autorizada en `develop` y parte de la integración aprobada de 2.2
 - [Criterios del Quality Gate](QUALITY_GATE_CRITERIA.md)
 - [Trazabilidad](TRACEABILITY_MATRIX.md), [decisiones](DECISION_LOG.md) y [registro de implementación](IMPLEMENTATION_LOG.md)
 - [Auditoría y modernización](AUDIT_AND_SCOPE_REPORT.md), [rendimiento](PERFORMANCE_REPORT.md) y [seguridad y riesgos](SECURITY_REVIEW.md)
-- [Notas previstas para 2.3.0 Preview](PREVIEW_NOTES.md)
+- [Quality Gate aprobado](QUALITY_GATE_REPORT.md), [revisión funcional](FUNCTIONAL_ACCEPTANCE.md) y [deuda técnica](TECHNICAL_DEBT_REGISTER.md)
 
 La aceptación funcional de la Preview y la integración en `main` son decisiones distintas. [Política de entregas](../RELEASE_POLICY.md)
 

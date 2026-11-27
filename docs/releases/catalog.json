@@ -1,6 +1,21 @@
 {
   "releases": [
     {
+      "tag": "v2.3.0",
+      "title": "Probabilidad, estadística y procesos estocásticos",
+      "channel": "preview",
+      "summary": "Distribuciones, análisis de registros y experimentos reproducibles con las señales del laboratorio.",
+      "changes": [
+        "Distribuciones, inferencia, procesos y análisis espectral avanzado.",
+        "Modelos temporales, estimación, filtrado adaptativo y campañas Monte Carlo recuperables.",
+        "Cambio de herramienta más ágil y destinos de señales consistentes."
+      ],
+      "limits": [
+        "La aceptación funcional corresponde al propietario. La LTS vigente es la 2.0.0."
+      ],
+      "notes": "docs/releases/v2.3.0.md"
+    },
+    {
       "tag": "v2.2.1",
       "title": "Escalado alto y actualización en Linux",
       "channel": "preview",
