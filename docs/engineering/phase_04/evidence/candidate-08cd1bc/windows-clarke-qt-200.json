@@ -1,0 +1,75 @@
+{
+  "platform": "windows",
+  "qt": "6.12.0",
+  "device_pixel_ratio": 2.0,
+  "scale_override": "2.0",
+  "logical_resolution": [
+    683,
+    384
+  ],
+  "available_logical": [
+    683,
+    360
+  ],
+  "physical_resolution": [
+    1366,
+    768
+  ],
+  "source_commit": "08cd1bc28189ef0c1cd6c5a36f2d9bd32f6f1a48",
+  "errors": [],
+  "window": {
+    "frame": [
+      14,
+      0,
+      655,
+      360
+    ],
+    "fits": true,
+    "overshoot_bottom": 0,
+    "minimum": [
+      640,
+      344
+    ]
+  },
+  "output": {
+    "samples": 16461,
+    "sample_rate_hz": 96000.0,
+    "max_doppler_hz": 64,
+    "coherence_report": true
+  },
+  "figures": {
+    "Distribuciones de envolvente y fase": {
+      "frame": [
+        6,
+        0,
+        651,
+        328
+      ],
+      "fits": true,
+      "overshoot_bottom": 0,
+      "minimum": [
+        360,
+        280
+      ],
+      "axes": 2
+    },
+    "Autocorrelación y PSD Doppler": {
+      "frame": [
+        6,
+        0,
+        651,
+        328
+      ],
+      "fits": true,
+      "overshoot_bottom": 0,
+      "minimum": [
+        360,
+        280
+      ],
+      "axes": 2
+    }
+  },
+  "status_visible": true,
+  "graph_button_visible": true,
+  "passed_calculation": true
+}
