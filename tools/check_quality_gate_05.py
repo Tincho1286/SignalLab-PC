@@ -124,7 +124,8 @@ def evaluate(folder, candidate, version):
                 any(test.startswith(prefix) for test in passed)
                 for prefix in ('test_probability.', 'test_probability_desktop.', 'test_descriptive_statistics.',
                                'test_statistical_inference.', 'test_stochastic_processes.', 'test_stochastic_noise.',
-                               'test_stochastic_covariance.', 'test_ar_estimation.')
+                               'test_stochastic_covariance.', 'test_ar_estimation.', 'test_time_series_identification.',
+                               'test_arma_desktop.')
             ),
             'packaged_probability': packaged.get('executable_check', {}).get('checks', {}).get(
                 'packaged_probability_and_project') is True,

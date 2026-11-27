@@ -11,6 +11,7 @@ from .statistics_results import store_statistics
 from .stochastic_covariance import METHODS, covariance_matrix, ensemble_moments, estimate_correlation
 from .stochastic_noise import NOISES, Noise, generate_noise, noise_spectrum, store_noise
 from .stochastic_processes import PROCESSES, Process, generate_process, process_moments, process_transition, store_processes
+from .time_series_identification import arma_diagnostics, arma_forecast, arma_system, fit_arma, store_arma_result
 
 
 def _inspect(args, context):
@@ -92,6 +93,25 @@ def _ensemble(args, context):
     return _save_analysis(args, project, workspace, result, records, title, context)
 
 
+def _identify(args, context):
+    project, workspace, source = load_input(args,context)
+    fit = fit_arma(source,args.p,args.q,differences=args.d,validation=args.reserve,
+                   max_evaluations=args.evaluations,execution=context)
+    system = arma_system(source,fit)
+    outputs = []
+    if args.lags is not None:
+        diagnostic = arma_diagnostics(source,fit,args.lags,execution=context)
+        fit['residual_diagnostics'] = {'rows':diagnostic['rows'],'scope':diagnostic['scope']}
+        outputs.extend(diagnostic['signals'])
+    if args.horizon is not None:
+        forecast = arma_forecast(source,fit,args.horizon,coverage=args.coverage,execution=context)
+        fit['forecast_scope'] = forecast['scope']
+        outputs.extend(forecast['signals'])
+    result = store_arma_result(project,source,args.record,fit,system,outputs,execution=context)
+    session.save(args.output,project,workspace,checkpoint=context.checkpoint)
+    return result
+
+
 def main(argv):
     parser = ArgumentParser(prog='signallab-pc stochastic')
     commands = parser.add_subparsers(required=True)
@@ -131,6 +151,17 @@ def main(argv):
         command.add_argument('--records', nargs='+', required=True)
         command.add_argument('--population', action='store_true', help='Dividir por N para describir los datos observados.')
         add_output_arguments(command)
+    identify = commands.add_parser('identify', help='Ajustar un modelo ARIMA condicional, con diagnóstico y pronóstico opcionales.')
+    add_session_arguments(identify)
+    identify.add_argument('--p', type=int, default=0, help='Orden autorregresivo.')
+    identify.add_argument('--d', type=int, default=0, help='Orden de diferencias.')
+    identify.add_argument('--q', type=int, default=0, help='Orden de media móvil.')
+    identify.add_argument('--reserve', type=int, default=0, help='Muestras finales excluidas del entrenamiento.')
+    identify.add_argument('--evaluations', type=int, default=200, help='Evaluaciones por intento de optimización.')
+    identify.add_argument('--lags', type=int, help='Retardos del diagnóstico de innovaciones.')
+    identify.add_argument('--horizon', type=int, help='Muestras futuras del pronóstico de niveles.')
+    identify.add_argument('--coverage', type=float, default=.95, help='Cobertura nominal del intervalo predictivo.')
+    identify.set_defaults(execute=_identify)
     for command in (inspect, generate):
         command.add_argument('--family', choices=(*PROCESSES, *NOISES), required=True)
         command.add_argument('--parameters', required=True, help='Objeto JSON de parámetros.')

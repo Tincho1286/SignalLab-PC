@@ -150,11 +150,15 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Ajustá un modelo AR a un registro discreto real. Podés elegir un orden, comparar varios, reservar datos para validar, pronosticar valores futuros y estudiar los residuos. Todo describe un modelo estimado, no una identidad exacta del proceso desconocido."
+          "Ajustá un modelo AR, MA, ARMA o ARIMA a un registro discreto real. Podés comparar órdenes, reservar observaciones, pronosticar valores futuros y estudiar las innovaciones. El informe distingue el resultado estimado de las propiedades del modelo que propone."
         ],
         [
           "Cómo preparar el cálculo",
           "Elegí Un orden elegido para usar Yule–Walker, mínimos cuadrados condicionales o Burg. Burg combina errores de predicción de avance y retroceso. El orden p indica cuántos valores anteriores intervienen. Con p=0 queda una constante más ruido.\n\nReservá muestras finales para medir el error de predicción sin usarlas al ajustar. Con cero se utiliza todo el registro. Podés generar una nueva realización estacionaria del modelo con una semilla reproducible."
+        ],
+        [
+          "Parámetros de MA, ARMA y ARIMA",
+          "p cuenta retardos de la señal y q cuenta retardos de las innovaciones. d indica cuántas diferencias sucesivas aplicar antes del ajuste. La verosimilitud condicional parte con el filtro de innovaciones en reposo. Cuando se comparan modelos se usa el mismo tramo de ajuste. En ARIMA el pronóstico y sus límites vuelven a los niveles originales. La PSD y la realización opcional describen el núcleo estacionario de las diferencias."
         ],
         [
           "Comparar órdenes",
@@ -170,11 +174,11 @@
         ],
         [
           "Diagnosticar los residuos",
-          "Residuos muestra la autocorrelación del error de entrenamiento y Q de Ljung–Box para cada retardo. El valor p utiliza k−p grados de libertad; con k≤p no se calcula. Es una aproximación asintótica que puede ser pobre en muestras cortas.\n\nUn valor p pequeño señala incompatibilidad con la ausencia de correlación bajo esas hipótesis. Un valor p grande no demuestra blancura ni independencia. Un residuo nulo o compatible con redondeo no recibe una autocorrelación normalizada ni valores p ficticios."
+          "Residuos muestra la ACF y la PACF del error de entrenamiento y Q de Ljung–Box para cada retardo. El valor p usa k−p−q grados de libertad positivos. En un AR, q es cero. En muestras cortas la aproximación puede ser pobre.\n\nUn valor p pequeño señala incompatibilidad con la ausencia de correlación bajo el modelo. Un residuo compatible con redondeo queda sin autocorrelación normalizada ni prueba de blancura."
         ],
         [
           "Qué se conserva",
-          "H(z)=1/A(z⁻¹) representa el paso de innovaciones a la salida; la constante de la recurrencia se informa aparte. Los coeficientes, tablas, predicciones y curvas quedan en Resultados y admiten exportación o CAS según su tipo. Los índices y Fs disponibles se conservan.\n\nUn ajuste no estacionario conserva sus coeficientes y predicciones finitas, pero no recibe una varianza ni PSD estacionarias. Si una gráfica, pronóstico, realización o diagnóstico complementario no puede obtenerse, el ajuste principal sigue disponible."
+          "H(z)=B(z⁻¹)/A(z⁻¹) representa el paso de innovaciones al núcleo estacionario. En un AR, B es uno. La media o constante se informa por separado. Los coeficientes, tablas, predicciones y curvas quedan en Resultados con los índices y Fs disponibles. Si una salida complementaria queda fuera de rango, el informe conserva el ajuste principal."
         ],
         [
           "Indeterminaciones y valores por continuidad",

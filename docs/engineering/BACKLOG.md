@@ -4,8 +4,8 @@
 
 | Momento | Trabajo de planificación o seguimiento | Evidencia esperada |
 | --- | --- | --- |
-| Tras autorizar Fase 05 | Confirmar el alcance estadístico, las capacidades reutilizables y el primer recorrido con complejidad progresiva. | Requisitos, contratos, oráculos, presupuesto y plan de regresiones antes de implementar. [Plan de modernización](TOOL_MODERNIZATION_PLAN.md#fase-05--probabilidad-y-estadística) |
-| Antes de calificar la primera 2.3.x | Evaluar la habilitación del Quality Gate y empaquetado para la fase nueva. Las modificaciones funcionales de infraestructura requieren autorización. | Informes, paquetes, SHA y manifiesto verificados con los controles vigentes. [Brechas del flujo](../development/releases.md#adaptaciones-pendientes-del-flujo) |
+| Fase 05 en desarrollo | Completar los paquetes de identificación, estimación espectral, filtrado y Monte Carlo. | Oráculos, campañas, paridad entre interfaces y regresiones trazadas. [Seguimiento de Fase 05](phase_05/TRACEABILITY_MATRIX.md) |
+| Antes de calificar la primera 2.3.x | Completar la evidencia de ciencia y recursos en el Quality Gate acumulativo y ejecutar la matriz sobre el candidato. | Evidencia Windows y Linux sobre un mismo SHA, paquetes verificados y manifiesto firmado. [Criterios](phase_05/QUALITY_GATE_CRITERIA.md) |
 | Durante fases autorizadas | Revisar solapamientos, rendimientos y riesgos del dominio antes de añadir métodos, motores o dependencias. | Trazabilidad, reutilización o justificación de una herramienta independiente, y validación con oráculos. [Roadmap](ROADMAP.md) · [Catálogo de integración](INTEGRATION_CATALOG.md) |
 | Seguimiento | Preservar E-04 y los pendientes nativos de Fase 04. Las pruebas específicas de escalado sirven de diagnóstico. | Alcance de cada comprobación y registro de defectos reproducibles. [Estado vigente](PROJECT_STATE.md) · [Riesgos de Fase 04](phase_04/RESIDUAL_RISK_REGISTER.md) |
 

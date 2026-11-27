@@ -56,6 +56,8 @@ Engineering Core ofrece operaciones DSP desde Python y la consola. La documentac
 
 La hoja de ruta de Engineering organiza la ampliación de laboratorios y las mejoras de las herramientas actuales. Las fases autorizadas y calificadas llegan a Preview. La familia 2.0.x conserva su canal estable. [Roadmap](docs/engineering/ROADMAP.md) · [Plan de modernización](docs/engineering/TOOL_MODERNIZATION_PLAN.md) · [Política de entregas](docs/engineering/RELEASE_POLICY.md)
 
+En `develop` está en curso la Fase 05, dedicada a probabilidad, inferencia y procesos estocásticos. El expediente incluye ejemplos reproducibles del generador, análisis de registros y ajuste de modelos temporales. [Fase 05](docs/engineering/phase_05/README.md)
+
 Si encontrás un problema, incluí la versión de SignalLab, los datos de entrada y el resultado esperado. [Informar un problema](https://github.com/Tincho1286/SignalLab-PC/issues/new/choose) · [Cómo contribuir](CONTRIBUTING.md)
 
 SignalLab PC es software libre bajo **GPL-3.0-or-later**. [Licencia](LICENSE) · [Avisos de terceros](THIRD_PARTY_NOTICES.md) · [Privacidad](docs/privacy.md)

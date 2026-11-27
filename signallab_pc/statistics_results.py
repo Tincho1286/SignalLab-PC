@@ -2,7 +2,7 @@
 
 from .execution import ExecutionContext
 from .model import Signal
-from .operation_provenance import content_digest, settings_digest
+from .operation_provenance import content_digest, settings_digest, verify_inputs
 
 
 def store_statistics(project, result, inputs, operation, *, execution=None, tool=None):
@@ -13,6 +13,7 @@ def store_statistics(project, result, inputs, operation, *, execution=None, tool
     else:
         checksums = (result['input_sha256'],) if 'input_sha256' in result else tuple(result['input_hashes'])
         report_digest = settings_digest(['calculation', result])
+    verify_inputs(tuple(source for source, _, _ in inputs), checksums, context.checkpoint)
     keys = []
     parent_checksums = {}
     with project.stage_records(before_commit=context.checkpoint) as staged:

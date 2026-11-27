@@ -91,3 +91,14 @@ print(fit(record, 2, method='burg')['a'])
 ```
 
 La comparación automática de órdenes mantiene mínimos cuadrados sobre el mismo intervalo de observaciones para poder interpretar sus criterios. [Recursiones y alcance](MATHEMATICAL_FOUNDATIONS.md#identificación-autorregresiva)
+
+### Ajustar MA, ARMA y ARIMA
+
+El estimador temporal también ofrece las familias MA, ARMA y ARIMA. Elegí p para el orden autorregresivo, q para el de media móvil y d para las diferencias. Reservá el tramo final si querés medir el error fuera del entrenamiento. El informe identifica la inicialización de las innovaciones, la estabilidad del núcleo y la invertibilidad. Los pronósticos de un ARIMA vuelven a los niveles originales y sus límites corresponden a la incertidumbre de futuras innovaciones.
+
+```sh
+python -m signallab_pc stochastic generate --family wiener --parameters '{"initial":0,"drift":0.05,"std":1}' --rate 16 --count 256 --seed 321 --output camino.slproj
+python -m signallab_pc stochastic identify --session camino.slproj --record ID_TRAYECTORIA --d 1 --reserve 16 --horizon 24 --lags 20 --output ajuste.slproj
+```
+
+El proyecto guarda el modelo, el diagnóstico y las curvas de pronóstico con la entrada original. Usá `fit_arma`, `compare_arma`, `arma_diagnostics` y `arma_forecast` de `signallab_pc.time_series_identification` para automatizar el cálculo. [Supuestos de ajuste y predicción](MATHEMATICAL_FOUNDATIONS.md#verosimilitud-condicional-y-arima)
