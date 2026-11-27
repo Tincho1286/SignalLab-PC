@@ -56,6 +56,9 @@ on:
       - 'tests/test_phase05_quality_gate.py'
       - 'tools/measure_communications.py'
       - 'tools/measure_channel_modeling.py'
+      - 'tools/measure_statistics.py'
+      - 'tools/qualify_statistics.py'
+      - 'tools/statistical_demonstrators.py'
       - 'tools/candidate_bundle.py'
       - 'tools/check_release_target.py'
       - 'tools/capture_candidate_ui.py'
@@ -287,7 +290,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04, windows-2022]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 45
+    timeout-minutes: ${{ inputs.phase_05 && matrix.os == 'windows-2022' && 65 || 45 }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -459,6 +462,15 @@ jobs:
         if: ${{ (inputs.phase_05 || (inputs.engineering_baseline && inputs.phase_04)) && runner.os == 'Linux' }}
         run: |
           .venv/bin/python -B -X utf8 tools/measure_channel_modeling.py --output work/distribution-audit/channel-modeling-performance.json
+      - name: Measure statistics and campaign recovery on Windows
+        if: ${{ inputs.phase_05 && runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          & '.\.venv\Scripts\python.exe' -B -X utf8 tools/measure_statistics.py --output work/distribution-audit/statistical-performance.json
+      - name: Measure statistics and campaign recovery on Linux
+        if: ${{ inputs.phase_05 && runner.os == 'Linux' }}
+        run: |
+          .venv/bin/python -B -X utf8 tools/measure_statistics.py --output work/distribution-audit/statistical-performance.json
       - name: Retain candidate packages for the approval review
         if: ${{ inputs.phase_05 || (inputs.engineering_baseline && (inputs.phase_03 || inputs.phase_04)) }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

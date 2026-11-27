@@ -13,3 +13,9 @@ Se conserva la familia actual del catálogo. Las leyes y consultas son variantes
 ## Gate acumulativo
 
 La opción de Actions `phase_05` valida rama, canal y familia/versiones antes de ejecutar el empaquetado. El verificador de Fase 05 reutiliza la decisión de Fase 04 para ambas plataformas. Añade requisitos estadísticos, demostradores, cobertura, recursos y una comprobación empaquetada de probabilidad. El publicador exige fase y número coincidentes para 2.3.x. La calibración científica no puede aprobar mientras falten reportes de calificación o perfiles. [Criterios](QUALITY_GATE_CRITERIA.md)
+
+El bloqueo de campañas ejecuta una ruta nativa exclusiva por plataforma. El verificador combina sus arcos y líneas sin alterar el conjunto total medido, exige exclusión entre procesos en cada sistema y conserva las cifras desagregadas. Las demás comparaciones de cobertura siguen midiendo cada plataforma. [Criterios específicos](QUALITY_GATE_CRITERIA.md#registro-de-componentes-críticos)
+
+## Inicialización de ARMA y comparación teórica
+
+El estado manual representa las fluctuaciones alrededor de la media y conserva la convención directa II transpuesta. El calentamiento se simula antes del primer índice visible. Se conserva el estado estacionario como opción predeterminada para que los proyectos anteriores mantengan su interpretación. Para la comparación descriptiva, la CDF teórica discreta se presenta en las ubicaciones evaluadas mediante puntos. El informe identifica su distribución y sus parámetros conocidos. [Auditoría matemática y de interfaz](AUDIT_AND_SCOPE_REPORT.md)

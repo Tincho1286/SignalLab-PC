@@ -9,6 +9,8 @@ La fase está autorizada en `develop` y parte de la integración aprobada de 2.2
 - [Oráculos y protocolo estadístico](STATISTICAL_VALIDATION_PROTOCOL.md)
 - [Criterios del Quality Gate](QUALITY_GATE_CRITERIA.md)
 - [Trazabilidad](TRACEABILITY_MATRIX.md), [decisiones](DECISION_LOG.md) y [registro de implementación](IMPLEMENTATION_LOG.md)
+- [Auditoría y modernización](AUDIT_AND_SCOPE_REPORT.md), [rendimiento](PERFORMANCE_REPORT.md) y [seguridad y riesgos](SECURITY_REVIEW.md)
+- [Notas previstas para 2.3.0 Preview](PREVIEW_NOTES.md)
 
 La aceptación funcional de la Preview y la integración en `main` son decisiones distintas. [Política de entregas](../RELEASE_POLICY.md)
 
@@ -25,7 +27,7 @@ El archivo se abre en SignalLab y contiene el modelo y los dos registros con sus
 
 ## Analizar una realización
 
-En **Estadísticas e histograma**, cargá un registro y elegí su parte real, imaginaria, módulo o fase. El informe separa los valores del registro completo de los de la componente. Los diagnósticos agregan CDF, CCDF y caja. Con una normal de referencia agregan un gráfico Q–Q. La fase informa cuántos ceros quedaron excluidos.
+En **Estadísticas e histograma**, cargá un registro y elegí su parte real, imaginaria, módulo o fase. El informe separa los valores del registro completo de los de la componente. Los diagnósticos agregan CDF, CCDF y caja. Podés superponer una distribución de referencia con parámetros conocidos y abrir un gráfico Q–Q. La fase informa cuántos ceros quedaron excluidos.
 
 ```sh
 python -m signallab_pc statistics describe --session realizaciones.slproj --record ID_REALIZACION --diagnostics --output analisis.slproj
@@ -91,6 +93,23 @@ print(fit(record, 2, method='burg')['a'])
 ```
 
 La comparación automática de órdenes mantiene mínimos cuadrados sobre el mismo intervalo de observaciones para poder interpretar sus criterios. [Recursiones y alcance](MATHEMATICAL_FOUNDATIONS.md#identificación-autorregresiva)
+
+### Simular y comparar un modelo conocido
+
+En **Analizar modelo AR, MA o ARMA** podés elegir el estado inicial y cuántas muestras descartar antes del primer índice visible. La comparación mantiene el resto de los parámetros fijos y superpone las densidades de los casos estacionarios. Para repetir el análisis desde la consola, guardá la configuración en `modelo.json`.
+
+```json
+{
+  "b": [1], "a": [1, -0.5], "noise_mean": 0, "noise_std": 1,
+  "sample_rate_hz": 64, "pacf": true,
+  "realization": {"count": 1024, "seed": 123, "initialization": "rest", "warm_up": 32},
+  "sensitivity": {"parameter": "a", "index": 1, "values": [-0.25, -0.75]}
+}
+```
+
+```sh
+python -m signallab_pc stochastic analyze-model --model modelo.json --output modelo.slproj
+```
 
 ### Ajustar MA, ARMA y ARIMA
 

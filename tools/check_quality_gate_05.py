@@ -24,6 +24,7 @@ RESOURCE_PROFILES = (
     'realizations', 'joint_covariance', 'identification', 'spectral',
     'kalman', 'adaptive', 'monte_carlo', 'archive',
 )
+NATIVE_LOCK_MODULE = 'campaign_files.py'
 
 
 def phase_five_version(version):
@@ -103,6 +104,11 @@ def _deadline(number, limit):
     return type(number) in (float, int) and 0 <= number <= limit
 
 
+def _profile_valid(row, scale):
+    return (row.get('verified') is True and row.get('scale') == scale and _quantity(row.get('seconds'))
+            and _quantity(row.get('peak_rss_bytes')) and _quantity(row.get('work_estimate_bytes')))
+
+
 def resource_checks(report, candidate):
     profiles = report.get('profiles', [])
     cancellation = report.get('cancellation', {})
@@ -112,9 +118,7 @@ def resource_checks(report, candidate):
         'statistical_profiles': _belongs_to(report, candidate)
         and report.get('threads') == 1
         and tuple(row.get('profile') for row in profiles) == RESOURCE_PROFILES
-        and all(row.get('verified') is True and _quantity(row.get('seconds'))
-                and _quantity(row.get('peak_rss_bytes')) and _quantity(row.get('work_estimate_bytes'))
-                for row in profiles),
+        and all(_profile_valid(row,2) and _profile_valid(row.get('reference_scale',{}),1) for row in profiles),
         'statistical_cancellation': _belongs_to(report, candidate) and all(
             cancellation.get(name, {}).get('discarded') is True
             and _deadline(cancellation[name].get('seconds_after_request'), 1.5)
@@ -133,21 +137,50 @@ def resource_checks(report, candidate):
     }
 
 
+def native_lock_coverage(measurements):
+    """Unite native Windows and POSIX paths over the full, identical source denominator."""
+    keys = (('lines','num_statements','covered_lines'), ('branches','num_branches','covered_branches'))
+    missing = within_threshold({}, 90, 85)
+    if set(measurements) != set(PLATFORMS) or not all(measurements.values()):
+        return missing
+    totals = {}
+    for kind,size_key,hit_key in keys:
+        universes, combined = [], set()
+        for row in measurements.values():
+            def entries(name):
+                values = row.get(name + '_' + kind, ())
+                return set(values) if kind == 'lines' else {tuple(arc) for arc in values}
+
+            executed, uncovered = entries('executed'), entries('missing')
+            universe = executed | uncovered
+            summary = row.get('summary', {})
+            if (not executed or executed & uncovered or len(universe) != summary.get(size_key)
+                    or len(executed) != summary.get(hit_key)):
+                return missing
+            universes.append(universe)
+            combined.update(executed)
+        if any(universe != universes[0] for universe in universes):
+            return missing
+        totals.update({size_key:len(universes[0]),hit_key:len(combined)})
+    return within_threshold(totals,90,85)
+
+
 def evaluate(folder, candidate, version):
     if not phase_five_version(version):
         raise ValueError('Fase 05 requiere una versión Preview 2.3.x.')
     if not isinstance(candidate, str) or not re.fullmatch(r'[0-9a-f]{40}', candidate):
         raise ValueError('Indicá el SHA completo del candidato.')
     previous = evaluate_channels(folder, candidate, version)
-    platforms = {}
+    platforms, native_coverage = {}, {}
     for platform in PLATFORMS:
         directories = sorted(path for path in folder.glob('engineering-*') if path.is_dir()
                              and f'-{platform}-' in path.name)
         base = previous['platforms'][platform]
         coverage = read(directories, 'coverage.json') or {}
-        modules = {name.replace('\\', '/').rsplit('/', 1)[-1]: row['summary']
+        modules = {name.replace('\\', '/').rsplit('/', 1)[-1]: row
                    for name, row in coverage.get('files', {}).items()}
-        critical = {name: within_threshold(modules.get(name, {}), 90, 85) for name in CRITICAL}
+        critical = {name: within_threshold(modules.get(name, {}).get('summary', {}), 90, 85) for name in CRITICAL}
+        native_coverage[platform] = modules.get(NATIVE_LOCK_MODULE)
         integral = read(directories, 'integral-checks.json') or {}
         passed = {row['id'] for row in integral.get('records', []) if row.get('passed') is True}
         packaged = read(directories, 'packaged-smoke.json') or {}
@@ -156,7 +189,8 @@ def evaluate(folder, candidate, version):
         checks = {
             'phase_04_controls': all(base['checks'].values()),
             'critical_coverage': all(cell['state'] == 'pass'
-                                     for group in critical.values() for cell in group.values()),
+                                     for name,group in critical.items() if name != NATIVE_LOCK_MODULE
+                                     for cell in group.values()),
             'statistical_unit_and_desktop_suite': all(
                 any(test.startswith(prefix) for test in passed)
                 for prefix in ('test_probability.', 'test_probability_desktop.', 'test_descriptive_statistics.',
@@ -166,18 +200,23 @@ def evaluate(folder, candidate, version):
                                'test_estimation_desktop.', 'test_kalman_filter.', 'test_adaptive_filter.',
                                'test_monte_carlo.', 'test_monte_carlo_desktop.')
             ),
+            'native_campaign_lock': ('test_monte_carlo.MonteCarloTests.'
+                                     'test_native_campaign_writer_excludes_a_separate_process_and_retries') in passed,
             'packaged_probability': packaged.get('executable_check', {}).get('checks', {}).get(
                 'packaged_probability_and_project') is True,
             'statistical_evidence_integrity': science_artifacts(directories, science),
+            'statistical_resource_platform': str(resources.get('platform','')).startswith(PLATFORMS[platform]),
             **science_checks(science, candidate),
             **resource_checks(resources, candidate),
         }
         platforms[platform] = {'checks': checks, 'critical': critical,
                                'candidate_bundle': base['historical']['candidate_bundle'],
                                'phase_04': base, 'science': science, 'resource_profiles': resources}
-    passed = previous['automated_passed'] and all(all(entry['checks'].values()) for entry in platforms.values())
+    lock_coverage = native_lock_coverage(native_coverage)
+    passed = (previous['automated_passed'] and all(all(entry['checks'].values()) for entry in platforms.values())
+              and all(cell['state'] == 'pass' for cell in lock_coverage.values()))
     return {'phase': '05', 'version': version, 'commit': candidate, 'automated_passed': passed,
-            'platforms': platforms}
+            'platforms': platforms, 'combined_native_coverage': {NATIVE_LOCK_MODULE:lock_coverage}}
 
 
 def main():
@@ -195,6 +234,10 @@ def main():
     for platform, entry in report['platforms'].items():
         lines.extend(f"| {platform} | {key} | {'Aprobado' if status else 'Pendiente'} |"
                      for key, status in entry['checks'].items())
+    for name, metrics in report['combined_native_coverage'].items():
+        for metric, result in metrics.items():
+            reading = f"{result['covered']}/{result['total']} (objetivo {result['goal']} %)"
+            lines.append(f"| Windows y Linux | {name} · {metric} {reading} | {result['state']} |")
     (args.output / 'quality-gate-05.md').write_text('\n'.join(lines) + '\n', encoding='utf-8')
     print('Quality Gate automatizado de Fase 05', 'PASS' if report['automated_passed'] else 'PENDIENTE')
     return 0 if report['automated_passed'] else 1

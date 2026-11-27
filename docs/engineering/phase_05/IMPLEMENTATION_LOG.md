@@ -116,6 +116,28 @@ Se midieron diez herramientas en Windows con Qt offscreen. Se abrió cada una y 
 
 En Windows aprobaron 36 regresiones de navegación, gráficos, apariencia, sesiones y comunicaciones. Se comprobó que volver a una herramienta conserva sus entradas y evita preparar otros documentos. También se verificó que una figura cerrada habilita su acción de apertura al recibir datos y empieza a renderizar al abrirse. Comando `python -m unittest test_workbench_navigation test_workbench_plot_controls test_workbench_appearance test_workbench_session_documents test_communications_desktop -q`.
 
+La prueba integral local de `2bf9567` se detuvo en el envío a Serie discreta de Fourier. El selector de destinos incluía el registro de correlación oculto y esperaba una respuesta. En `0f8b376` y `f33c304` se acotó la búsqueda a controles disponibles, incluidas las pestañas de entrada que se pueden seleccionar. Se reprodujo el análisis correcto de un período completo de tres muestras, partiendo de una vista de dos muestras. La prueba falla inmediatamente si reaparece el diálogo. Se comprobó por separado que el selector se mantiene al enviar a una herramienta con dos entradas, y que cancelar conserva sus borradores.
+
 ## Calificación científica e integración entre laboratorios
 
 En Windows se ejecutaron los cinco demostradores con 384 contrastes numéricos. La comparación de Poisson preservó valores, reloj, índice inicial y referencias del proyecto entre Python y la CLI, con las importaciones de Qt bloqueadas. La prueba del Workbench reutilizó una realización de fading desde la herramienta de canal y conservó su procedencia. El Quality Gate exige los archivos de resultados y verifica tanto la huella del informe integral como los valores de los demostradores. Aprobaron cuatro casos focalizados del gate y del recorrido de escritorio. [Catálogo y comando](INTEGRATION_CATALOG.md)
+
+## Simulación y sensibilidad de ARMA
+
+La simulación admite estado inicial estacionario, reposo de las fluctuaciones y un vector manual en forma directa II transpuesta. El calentamiento se descarta antes de construir el registro y se guarda en sus metadatos. El muestreo por bloques preserva el flujo aleatorio de la simulación estacionaria y permite cancelación cooperativa. El informe distingue la condición inicial de las estadísticas teóricas. La sensibilidad compara variantes de un coeficiente o parámetro del ruido, registra las que quedan fuera del dominio estacionario y superpone las densidades válidas en una grilla común. Modelo, informe y curvas se registran en la misma transacción con huellas de procedencia.
+
+La escala del ruido se aplica antes de formar productos exteriores cuando la escala intermedia supera la representación. Así se conserva una covarianza MA finita con coeficientes grandes. Cuando una varianza positiva queda por debajo del rango representable, queda un diagnóstico explícito. Se compararon la recurrencia directa, la simulación de un solo bloque, las estadísticas cerradas de AR(1), la PSD y autocovarianza de MA(1) y la persistencia atómica. Comando `python -B -X utf8 -m unittest -q test_time_series_identification test_ar_estimation`.
+
+La CLI expone el mismo análisis mediante `stochastic analyze-model`. La prueba abre el proyecto binario y coteja las muestras, el origen, el reloj, los parámetros del barrido y los registros registrados como padres. Con un presupuesto insuficiente finaliza antes de crear el archivo de salida. También se separaron los controles condicionales de una sola línea para que sus errores y retornos entren en el trazado estándar de cobertura, manteniendo las condiciones y sus ramas.
+
+## Exclusión y destinos de campaña
+
+La CLI valida los destinos de proyecto y CSV antes de crear o reanudar una campaña. El bloqueo de Windows reserva un rango desde el primer byte sin escribir un centinela. Esto elimina la escritura concurrente que podía ocurrir antes de adquirir el bloqueo. Se verificó exclusión entre procesos y reapertura con archivos nuevos y heredados. El gate exige ambas ejecuciones nativas y combina las rutas efectivamente cubiertas de ese módulo sobre el mismo denominador. [Documentación oficial de CPython sobre bloqueo de rangos](https://docs.python.org/3.14/library/msvcrt.html#msvcrt.locking) · [Criterios de cobertura](QUALITY_GATE_CRITERIA.md)
+
+## Perfiles y preflight de la matriz
+
+`measure_statistics.py` produce evidencia de memoria, CPU, tiempo, dimensiones, cancelación, recuperación y latencia de interfaz. Cada caso usa procesos separados y se contrasta en dos tamaños. La recuperación de campaña se coteja contra una nueva, y una segunda operación compite en otro hilo por la reserva mientras la primera sigue activa. Se ejecutó una medición de desarrollo en Windows. La matriz nativa ejecutará el productor en ambos sistemas antes de emitir su dictamen. La matriz completa de Fase 04 tardó 41 minutos en Windows. Se amplió a 65 minutos el tiempo disponible para ese trabajo en Fase 05, que incorpora más pruebas y demostradores. [Mediciones y comando](PERFORMANCE_REPORT.md) · [Matriz precedente](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45923696053/attempts/2)
+
+## Comparación gráfica con una distribución conocida
+
+Estadística descriptiva usa los parámetros tipados del catálogo para superponer una referencia continua o marcar los puntos evaluados de una referencia discreta. Se preservaron el selector histórico de la normal y sus campos. El caso de interfaz compara Poisson con media 2 y comprueba un valor de CDF de $3e^{-2}$ en el registro guardado, así como la marca sin conexión en la figura. Comando `python -B -X utf8 -m unittest -q test_probability_desktop`.

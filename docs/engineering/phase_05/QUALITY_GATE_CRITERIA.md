@@ -19,4 +19,6 @@
 | WP-06 | `optimal_estimation.py`, `wiener_filter.py`, `kalman_filter.py` y `adaptive_filter.py`. La CLI estocástica y la procedencia de proyectos conservan sus controles. |
 | WP-07 | `monte_carlo.py`, `monte_carlo_bootstrap.py` y el bloqueo compartido de campañas en `campaign_files.py`. |
 
+Cada plataforma conserva sus métricas globales y los umbrales de los módulos científicos. Para `campaign_files.py` se exigen pruebas de exclusión entre procesos y recuperación en ambos sistemas. La cobertura de ese módulo une las líneas y ramas efectivamente ejecutadas por los dos sistemas sobre el mismo SHA. Windows ejecuta el bloqueo de rango del CRT y Linux ejecuta `flock`. El verificador exige que los dos informes enumeren el mismo total de líneas y ramas y muestra también los recuentos individuales. Las ramas sin ejecutar en las dos plataformas permanecen en el cálculo.
+
 [Protocolo estadístico](STATISTICAL_VALIDATION_PROTOCOL.md) · [Validación permanente](../VALIDATION_MATRIX.md#criterios-vigentes) · [Política de entregas](../RELEASE_POLICY.md)

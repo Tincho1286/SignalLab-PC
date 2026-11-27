@@ -100,3 +100,43 @@ class PhaseFiveGateTests(unittest.TestCase):
                 validate_publication_files('v2.3.0', SHA, 'preview', [], {
                     **gate, 'commit': SHA, 'automated_passed': True,
                 })
+
+    def test_native_coverage_requires_both_paths_over_the_same_denominator(self):
+        with TemporaryDirectory() as root:
+            folder=Path(root)
+            paths=[]
+            for platform in ('windows-2022','ubuntu-22.04'):
+                platform_dir=folder/f'engineering-baseline-{platform}-1'
+                platform_dir.mkdir()
+                paths.append(platform_dir/'coverage.json')
+
+            def source(executed,missing,arcs,uncovered):
+                return {'files': {'signallab_pc/campaign_files.py': {
+                    'executed_lines':executed,'missing_lines':missing,
+                    'executed_branches':arcs,'missing_branches':uncovered,
+                    'summary': {'num_statements':len(executed)+len(missing),'covered_lines':len(executed),
+                                'num_branches':len(arcs)+len(uncovered),'covered_branches':len(arcs),
+                                'missing_lines':len(missing)},
+                }}}
+
+            windows=source([1,2,3],[4],[[2,3]],[[2,4]])
+            linux=source([1,2,4],[3],[[2,4]],[[2,3]])
+
+            def coverage():
+                result=self.gate(folder)
+                self.assertEqual(result.returncode,1,result.stderr)
+                path=folder/'out'/'quality-gate-05.json'
+                self.assertTrue(path.is_file(),result.stderr)
+                report=json.loads(path.read_bytes())
+                return report['combined_native_coverage']['campaign_files.py']
+
+            paths[0].write_text(json.dumps(windows),encoding='utf-8')
+            self.assertEqual(coverage()['lines']['state'],'missing')
+            paths[1].write_text(json.dumps(linux),encoding='utf-8')
+            combined=coverage()
+            self.assertEqual((combined['lines']['covered'],combined['lines']['total']),(4,4))
+            self.assertEqual((combined['branches']['covered'],combined['branches']['total']),(2,2))
+            paths[1].write_text(json.dumps(windows),encoding='utf-8')
+            self.assertEqual(coverage()['branches']['state'],'fail')
+            paths[1].write_text(json.dumps(source([1,2,5],[3],[[2,5]],[[2,3]])),encoding='utf-8')
+            self.assertEqual(coverage()['lines']['state'],'missing')
