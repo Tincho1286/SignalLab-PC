@@ -312,6 +312,9 @@ jobs:
           python -m pip check
       - name: Verify the clean revision and measure coverage
         run: python -B -X utf8 tools/check_engineering_baseline.py --output work/engineering-baseline
+      - name: Verify Phase 05 independent examples and interface parity
+        if: ${{ inputs.phase_05 }}
+        run: python -B -X utf8 tools/qualify_statistics.py --output work/engineering-baseline --defects docs/engineering/phase_05/tracked-findings.json
       - name: Verify a disposable portable with the fixed Qt runtime
         if: ${{ !cancelled() }}
         run: python -B -X utf8 tools/check_engineering_package.py --output work/engineering-baseline/packaged-smoke.json
@@ -322,6 +325,7 @@ jobs:
           path: |
             work/engineering-baseline/*.json
             work/engineering-baseline/*.log
+            work/engineering-baseline/demonstrators/
           if-no-files-found: error
           retention-days: 14
 

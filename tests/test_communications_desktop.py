@@ -78,6 +78,27 @@ class CommunicationsDesktopTests(unittest.TestCase):
         self.window.calculate_active()
         self.wait()
 
+    def test_channel_coefficients_feed_statistics_without_an_export(self):
+        signal = iq_signal(np.ones(512), SymbolClock(100, 8), origin=-6)
+        parent = self.window.publish(signal, operation='Entrada de prueba')
+        self.window.send_signal(signal, parent, ROUTES['communications', 'fading'])
+        self.calculate()
+        coefficient = next(row for row in self.window.project.headers('signal')
+                           if row['operation']=='Realización de fading')
+        key = coefficient['id']
+        value = self.window.project.get(key)
+        route = ROUTES['random', 'statistics']
+        self.window.send_signal(value, key, route)
+        self.window.pages[route].panel.component.setCurrentIndex(2)
+        self.calculate()
+        report = next(row for row in self.window.project.headers()
+                      if row['operation']=='Estadísticas de registro')
+        self.assertEqual(report['parents'], [key])
+        observed = self.window.project.get(report['id'])['descriptive']
+        self.assertEqual(observed['sample_count'], 512)
+        self.assertEqual(observed['clock_sample_rate_hz'], 800)
+        self.assertAlmostEqual(observed['mean']['value'], float(np.mean(abs(value.values))))
+
     def test_clarke_report_and_figures_fit_the_short_work_area(self):
         area = QRect(0, 0, 683, 360)
         with patch.object(QScreen, 'availableGeometry', return_value=area):

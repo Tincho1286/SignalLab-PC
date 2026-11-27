@@ -1,7 +1,9 @@
 """Verify Phase 05 Preview evidence while retaining the accumulated Phase 04 gate."""
 
 import argparse
+from hashlib import sha256
 import json
+from math import isfinite
 from pathlib import Path
 import re
 
@@ -58,6 +60,39 @@ def science_checks(report, candidate):
         and type(report.get('p0_open')) is int and report['p0_open'] == 0
         and type(report.get('p1_internal_open')) is int and report['p1_internal_open'] == 0,
     }
+
+
+def science_artifacts(folders, report):
+    integrals = [path for folder in folders for path in folder.rglob('integral-checks.json')]
+    if len(integrals)!=1 or sha256(integrals[0].read_bytes()).hexdigest()!=report.get('integral_sha256'):
+        return False
+    evidence_root = integrals[0].parent/'demonstrators'
+    entries = report.get('demonstrators',{})
+    for name in DEMONSTRATORS:
+        row = entries.get(name,{})
+        relative = f'{name}/report.json'
+        path = evidence_root/relative
+        if row.get('report')!=relative or not path.is_file():
+            return False
+        data = path.read_bytes()
+        if sha256(data).hexdigest()!=row.get('sha256'):
+            return False
+        try:
+            study = json.loads(data)
+        except (UnicodeError, json.JSONDecodeError):
+            return False
+        checks = study.get('checks') if isinstance(study,dict) else None
+        if not isinstance(checks,list) or not checks or len(checks)!=row.get('reference_cases'):
+            return False
+        for check in checks:
+            if not isinstance(check,dict):
+                return False
+            actual, reference, tolerance = (check.get(key) for key in ('actual','reference','absolute_tolerance'))
+            if not all(type(value) in (int,float) and isfinite(value) for value in (actual,reference,tolerance)):
+                return False
+            if abs(actual-reference)>tolerance:
+                return False
+    return True
 
 
 def _quantity(number, *, minimum=0, maximum=float('inf')):
@@ -133,6 +168,7 @@ def evaluate(folder, candidate, version):
             ),
             'packaged_probability': packaged.get('executable_check', {}).get('checks', {}).get(
                 'packaged_probability_and_project') is True,
+            'statistical_evidence_integrity': science_artifacts(directories, science),
             **science_checks(science, candidate),
             **resource_checks(resources, candidate),
         }

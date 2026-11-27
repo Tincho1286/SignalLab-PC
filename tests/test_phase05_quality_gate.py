@@ -1,5 +1,6 @@
 """Prevent incomplete Phase 05 reports from qualifying or authorizing publication."""
 
+from hashlib import sha256
 import json
 from pathlib import Path
 import subprocess
@@ -50,6 +51,39 @@ class PhaseFiveGateTests(unittest.TestCase):
             self.assertEqual(self.gate(folder).returncode, 1)
             changed = json.loads((folder / 'out' / 'quality-gate-05.json').read_bytes())
             self.assertFalse(changed['platforms']['windows-2022']['checks']['scientific_interface_parity'])
+
+    def test_evidence_is_bound_to_the_integral_report_and_the_actual_demonstrators(self):
+        with TemporaryDirectory() as root:
+            folder = Path(root)
+            windows = folder/'engineering-baseline-windows-2022-1'
+            windows.mkdir()
+            integral = b'{"records":[]}'
+            (windows/'integral-checks.json').write_bytes(integral)
+            report = {'schema':1,'phase':'05','commit':SHA,'clean_checkout':True,
+                      'integral_sha256':sha256(integral).hexdigest(),'demonstrators':{}}
+            examples = windows/'demonstrators'
+            for key in 'ABCDE':
+                file = examples/key/'report.json'
+                file.parent.mkdir(parents=True)
+                contents = b'{"checks":[{"actual":0.5,"reference":0.5,"absolute_tolerance":1e-10}]}'
+                file.write_bytes(contents)
+                report['demonstrators'][key] = {'passed':True,'reference_cases':1,'report':f'{key}/report.json',
+                                                 'sha256':sha256(contents).hexdigest()}
+            (windows/'statistical-qualification.json').write_text(json.dumps(report),encoding='utf-8')
+
+            def integrity():
+                self.assertEqual(self.gate(folder).returncode,1)
+                data = json.loads((folder/'out'/'quality-gate-05.json').read_bytes())
+                return data['platforms']['windows-2022']['checks']['statistical_evidence_integrity']
+
+            self.assertTrue(integrity())
+            file = examples/'E'/'report.json'
+            modified = b'{"checks":[{"actual":0.6,"reference":0.5,"absolute_tolerance":1e-10}]}'
+            file.write_bytes(modified)
+            self.assertFalse(integrity())
+            report['demonstrators']['E']['sha256'] = sha256(modified).hexdigest()
+            (windows/'statistical-qualification.json').write_text(json.dumps(report),encoding='utf-8')
+            self.assertFalse(integrity())
 
     def test_rejects_non_phase_five_source_and_mismatched_release_evidence(self):
         with TemporaryDirectory() as root:

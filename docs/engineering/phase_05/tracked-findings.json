@@ -1,0 +1,15 @@
+{
+  "schema": 1,
+  "phase": "05",
+  "scope": "Hallazgos reproducidos durante la implementación. La auditoría integral del candidato revisará el registro antes de publicar.",
+  "findings": [
+    {
+      "id": "NAV-05",
+      "priority": "P2",
+      "internal": true,
+      "status": "closed",
+      "commit": "aecb4dd6ad5875ae83ebbee4a7d97de8e351bea5",
+      "title": "Trabajo repetido al cambiar entre herramientas abiertas"
+    }
+  ]
+}
