@@ -10,7 +10,7 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Generá uno o más registros y consultá la distribución que los modela. Podés evaluar densidad o masa, probabilidades acumuladas, colas, cuantiles y momentos."
+          "Generá uno o más registros y consultá la distribución o el proceso que los modela. Para una distribución, podés evaluar densidad o masa, probabilidades acumuladas, colas, cuantiles y momentos. Para un proceso, podés ver momentos en dos instantes y la transición entre ellos."
         ],
         [
           "Cómo preparar el cálculo",
@@ -19,6 +19,10 @@
         [
           "Covarianza y opciones avanzadas",
           "Para una gaussiana conjunta, cargá un vector de medias y una matriz de covarianza con una fila y columna por componente. En el caso complejo, dejar vacía la pseudocovarianza indica un modelo propio. En Opciones avanzadas podés elegir semilla, cantidad de réplicas, índice inicial y un reloj en Hz."
+        ],
+        [
+          "Condiciones iniciales de un proceso",
+          "La primera muestra representa el estado inicial. Wiener, Poisson, Ornstein–Uhlenbeck y el telegráfico requieren una frecuencia de muestreo para convertir pasos a segundos. En Markov, cada fila de la matriz da las probabilidades de pasar a cada estado en un paso. En Ornstein–Uhlenbeck y el telegráfico dejá el estado inicial vacío para comenzar en equilibrio."
         ],
         [
           "Cómo interpretar la salida",

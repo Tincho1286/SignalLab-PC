@@ -14,6 +14,7 @@ from signallab_pc.probability import Distribution, generate_realizations
 from signallab_pc.session import load
 from signallab_pc.session_fields import field_values
 from signallab_pc.statistical_inference import fit_distribution, infer_record
+from signallab_pc.stochastic_processes import Process, generate_process, process_transition
 from signallab_pc.workspaces import ROUTES
 from test_desktop_session import DesktopSessionFixture
 
@@ -156,3 +157,29 @@ class ProbabilityWorkbenchTests(DesktopSessionFixture):
         self.wait_for_calculation(window)
         self.assertTrue(panel.tabs.isTabEnabled(2))
         self.assertEqual(panel.plot_kind.currentData(), 'histogram')
+
+    def test_processes_extend_the_generator_and_expose_transition_theory(self):
+        window, panel = self.open_generators()
+        panel.distribution.setCurrentIndex(panel.distribution.findData('markov'))
+        panel.count.setText('17')
+        panel.advanced.setChecked(True)
+        panel.replicas.setText('2')
+        panel.seed.setText('23')
+        panel.fields['markov.transition'].setText('0,1;1,0')
+        panel.fields['markov.initial'].setText('1')
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        model = Process('markov', {'transition': [[0,1],[1,0]], 'initial': 1})
+        headers = window.project.headers()
+        parent = next(row for row in headers if row['operation'] == 'Modelo de proceso estocástico')
+        samples = [row for row in headers if row['parents'] == [parent['id']]]
+        self.assertEqual(len(samples), 2)
+        for record, expected in zip(samples, generate_process(model,17,23,replicas=2), strict=True):
+            np.testing.assert_array_equal(window.project.get(record['id']).values, expected.values)
+        panel.method.setCurrentIndex(panel.method.findData('population'))
+        panel.theory_second.setText('3')
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        row = window.project.headers()[-1]
+        self.assertEqual(window.project.get(row['id'])['transition'], process_transition(model,3))
+        self.assertIn('Matriz de transición', panel.report.toPlainText())

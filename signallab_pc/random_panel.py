@@ -17,6 +17,8 @@ from .result_summary import Section, Summary, number
 from .statistical_inference import (FIT_FAMILIES, FIT_INTERVALS, METHODS, NULL_PARAMETER,
                                     TWO_SAMPLES, fit_distribution, infer_record)
 from .statistics_results import store_statistics
+from .stochastic_processes import (PHYSICAL_PROCESSES, PROCESSES, Process, generate_process,
+                                  process_moments, process_transition, store_processes)
 from .tool_guide import ToolGuide
 
 
@@ -40,6 +42,22 @@ _PARAMETERS = {
     'log_std': ('Desviación del logaritmo', '1'), 'df': ('Grados de libertad', '5'),
     'df_num': ('Grados de libertad del numerador', '5'),
     'df_den': ('Grados de libertad del denominador', '10'), 'location': ('Ubicación', '0'),
+}
+_PROCESS_FIELDS = {
+    'initial': ('Valor o estado inicial', '0'), 'drift': ('Deriva', '0'),
+    'std': ('Intensidad de la fluctuación', '1'), 'event_rate': ('Eventos por segundo', '2'),
+    'mean': ('Nivel de equilibrio', '0'), 'reversion': ('Tasa de retorno (1/s)', '1'),
+    'low': ('Nivel bajo', '-1'), 'high': ('Nivel alto', '1'),
+    'rate_up': ('Tasa baja a alta (1/s)', '1'), 'rate_down': ('Tasa alta a baja (1/s)', '1'),
+    'transition': ('Probabilidades de transición por fila', '0.75, 0.25; 0.5, 0.5'),
+}
+_PROCESS_NOTES = {
+    'random_walk': 'La deriva y la desviación de los incrementos se expresan por muestra. El primer valor es la condición inicial.',
+    'wiener': 'La deriva se expresa por segundo. La desviación del incremento de duración Δt es la difusión multiplicada por √Δt.',
+    'poisson_process': 'La tasa fija el número medio de eventos por segundo. El resultado es un recuento acumulado.',
+    'ornstein_uhlenbeck': 'Dejá vacío el valor inicial para empezar en equilibrio. La intensidad se expresa por raíz de segundo.',
+    'telegraph': 'Estado inicial 0: nivel bajo. Estado 1: nivel alto. Dejá el campo vacío para empezar en equilibrio.',
+    'markov': 'Cada fila suma uno. Las filas y columnas representan estados desde 0. Cargá un estado o probabilidades iniciales separadas por comas. Dejá vacío el inicio para usar una distribución estacionaria única.',
 }
 _STATES = {'undefined': 'Indefinido', 'divergent': 'Divergente', 'unbounded': 'Sin cota',
            'singular_density': 'Densidad infinita en el borde', 'singular_measure': 'Distribución singular',
@@ -201,10 +219,13 @@ class RandomPanel(QWidget):
                                 if key not in ('uniform', 'normal', 'bernoulli')}, **_JOINT}
         for key, label in options.items():
             self.distribution.addItem(label, key)
+        self.distribution.insertSeparator(self.distribution.count())
+        for key, (label, _) in PROCESSES.items():
+            self.distribution.addItem(label, key)
         self.method = QComboBox()
         for key, label in _METHODS.items():
             self.method.addItem(label, key)
-        form.addRow('Distribución', self.distribution)
+        form.addRow('Distribución o proceso', self.distribution)
         form.addRow('Operación', self.method)
         self.mean, self.std, self.probability = QLineEdit('0'), QLineEdit('1'), QLineEdit('0.5')
         form.addRow('Media teórica', self.mean)
@@ -221,6 +242,17 @@ class RandomPanel(QWidget):
                 widget = QLineEdit(default)
                 self.fields[f'{family}.{key}'] = widget
                 form.addRow(label, widget)
+        for family, (_, keys) in PROCESSES.items():
+            for key in keys:
+                label, default = _PROCESS_FIELDS[key]
+                if key == 'initial' and family in ('ornstein_uhlenbeck', 'telegraph'):
+                    default = ''
+                widget = MatrixEditor(default) if key == 'transition' else QLineEdit(default)
+                self.fields[f'{family}.{key}'] = widget
+                form.addRow(label, widget)
+        self.theory_first, self.theory_second = QLineEdit('0'), QLineEdit('1')
+        form.addRow('Primera posición desde el inicio', self.theory_first)
+        form.addRow('Segunda posición desde el inicio', self.theory_second)
         self.location = QLineEdit('0, 0')
         self.covariance = MatrixEditor('1, 0; 0, 1')
         self.pseudocovariance = MatrixEditor()
@@ -253,9 +285,11 @@ class RandomPanel(QWidget):
         def update(*_):
             key = self.distribution.currentData()
             joint = key in _JOINT
+            process = key in PROCESSES
+            allowed = ('generate', 'population') if process else ('generate', 'population', 'density') if joint else _METHODS
             for index, option in enumerate(_METHODS):
-                self.method.model().item(index).setEnabled(not joint or option in ('generate', 'population', 'density'))
-            if joint and self.method.currentData() not in ('generate', 'population', 'density'):
+                self.method.model().item(index).setEnabled(option in allowed)
+            if self.method.currentData() not in allowed:
                 self.method.setCurrentIndex(0)
             mode = self.method.currentData()
             generating = mode == 'generate'
@@ -270,9 +304,14 @@ class RandomPanel(QWidget):
             form.setRowVisible(self.pseudocovariance, key == 'complex_vector')
             form.setRowVisible(self.count, generating)
             form.setRowVisible(self.advanced, generating)
-            for widget in (self.replicas, self.origin, self.sample_rate, self.seed, fresh):
+            for widget in (self.replicas, self.origin, self.seed, fresh):
                 form.setRowVisible(widget, advanced)
-            form.setRowVisible(self.argument, not joint and mode in ('density', 'cdf', 'survival', 'quantile', 'interval'))
+            physical = key in PHYSICAL_PROCESSES
+            form.setRowVisible(self.sample_rate, advanced or physical)
+            form.labelForField(self.sample_rate).setText('Frecuencia de muestreo (Hz)' if physical else 'Frecuencia de muestreo opcional (Hz)')
+            for widget in (self.theory_first, self.theory_second):
+                form.setRowVisible(widget, process and not generating)
+            form.setRowVisible(self.argument, not joint and not process and mode in ('density', 'cdf', 'survival', 'quantile', 'interval'))
             form.setRowVisible(self.upper, mode == 'interval')
             form.setRowVisible(self.order, mode == 'moment')
             form.setRowVisible(self.observation, joint and mode == 'density')
@@ -285,7 +324,8 @@ class RandomPanel(QWidget):
                 'multinomial': 'Cada observación contiene un recuento por categoría.',
                 'complex_vector': 'La pseudocovarianza vacía representa un modelo propio. La densidad usa coordenadas real e imaginaria.',
             }
-            self.distribution_note.setText(note.get(key, 'Una realización finita puede diferir de las propiedades de la distribución.'))
+            self.distribution_note.setText(_PROCESS_NOTES.get(key, note.get(key,
+                'Una realización finita puede diferir de las propiedades de la distribución.')))
 
         self.distribution.currentIndexChanged.connect(update)
         self.method.currentIndexChanged.connect(update)
@@ -336,6 +376,9 @@ class RandomPanel(QWidget):
     def _calculate_distribution(self):
         key, method = self.distribution.currentData(), self.method.currentData()
         label = self.distribution.currentText()
+        if key in PROCESSES:
+            self._calculate_process(key, method == 'generate')
+            return
         if method == 'generate':
             count, seed = integer_field(self.count), integer_field(self.seed)
             origin, replicas = integer_field(self.origin), integer_field(self.replicas)
@@ -414,6 +457,71 @@ class RandomPanel(QWidget):
             self.tabs.setCurrentIndex(0 if data.get('records') else 1)
 
         self.window._run_operation('Calculando probabilidad…', calculate, accept)
+
+    def _calculate_process(self, key, generating):
+        parameters = {}
+        for name in PROCESSES[key][1]:
+            field = self.fields[f'{key}.{name}']
+            if name == 'transition':
+                from .state_space_panel import matrix
+                transition = matrix(field.text())
+                if np.any(transition.imag):
+                    raise ValueError('Las probabilidades de transición deben ser reales.')
+                parameters[name] = transition.real
+            elif name == 'initial' and key == 'markov':
+                from .systems_panel import parse_list
+                start = field.text().strip()
+                if ',' in start:
+                    weights = parse_list(start)
+                    if np.any(weights.imag):
+                        raise ValueError('Las probabilidades iniciales deben ser reales.')
+                    parameters[name] = weights.real
+                else:
+                    parameters[name] = integer_field(field) if start else 'stationary'
+            elif name == 'initial' and key in ('telegraph', 'ornstein_uhlenbeck') and not field.text().strip():
+                parameters[name] = None
+            else:
+                parser = integer_field if name == 'initial' and key in ('telegraph', 'poisson_process') else real_field
+                parameters[name] = parser(field)
+        rate = real_field(self.sample_rate) if key in PHYSICAL_PROCESSES or (
+            generating and self.sample_rate.text().strip()) else None
+        if generating:
+            count, seed = integer_field(self.count, minimum=1), integer_field(self.seed)
+            replicas, origin = integer_field(self.replicas), integer_field(self.origin)
+            first, second = 0, min(1, count-1)
+        else:
+            first = integer_field(self.theory_first, minimum=0)
+            second = integer_field(self.theory_second, minimum=0)
+        label = PROCESSES[key][0]
+
+        def calculate():
+            model = Process(key, parameters)
+            moments = process_moments(model, first, second, rate=rate)
+            transition = process_transition(model, abs(second-first), rate=rate)
+            records = (generate_process(model, count, seed, replicas=replicas, origin=origin, rate=rate)
+                       if generating else ())
+            return {'moments': moments, 'transition': transition, 'records': records}
+
+        def accept(data):
+            records = data['records']
+            summary = _process_report(label, data)
+            journal = getattr(self.window, '_result_journal', None)
+            if journal is not None:
+                journal.reported(data, outputs_registered=True)
+            if records:
+                document = data['moments']['model']
+                parent, ids = store_processes(self.window.project, document, records, tool=journal.origin if journal else None)
+                self.window.register_publication(parent, document)
+                for key, record in zip(ids, records, strict=True):
+                    self.window.register_publication(key, record)
+                self._display_realizations(records)
+            else:
+                self.window.publish({'moments': data['moments'], 'transition': data['transition']},
+                                    title=label, operation='Propiedades teóricas de un proceso')
+            self.report.set_readable(summary)
+            self.tabs.setCurrentIndex(0 if records else 1)
+
+        self.window._run_operation('Calculando proceso estocástico…', calculate, accept)
 
     def _display_realizations(self, records):
         self._samples = records
@@ -640,6 +748,32 @@ def _inference_report(result):
 
 def _interval_text(bounds):
     return '[' + ', '.join(map(_result_text, bounds)) + ']'
+
+
+def _process_report(label, data):
+    moments, transition = data['moments'], data['transition']
+    rows = []
+    for offset, mean, variance in zip(moments['offsets'], moments['means'], moments['variances'], strict=True):
+        rows.extend(((f'Media en {offset}', _result_text(mean)), (f'Varianza en {offset}', _result_text(variance))))
+    rows.append(('Covarianza entre ambas posiciones', _result_text(moments['covariance'])))
+    rows.append(('Inicio en equilibrio', 'Sí' if moments['stationary_initialization'] else 'No'))
+    rate = moments['sample_rate_hz']
+    if rate is not None:
+        rows.append(('Frecuencia de muestreo (Hz)', number(rate)))
+    sections = [Section('Momentos teóricos', rows=rows, paragraphs=[moments['scope']])]
+    rows = [('Pasos desde un estado al otro', transition['steps'])]
+    labels = {'transition': 'Matriz de transición', 'state_values': 'Valores de los estados',
+              'initial_distribution': 'Probabilidades iniciales', 'stationary_distribution': 'Distribución estacionaria única',
+              'conditional_std': 'Desviación condicional', 'stationary_std': 'Desviación en equilibrio',
+              'location_increment': 'Término independiente de la media', 'state_coefficient': 'Coeficiente del estado previo',
+              'event_mean': 'Media de eventos en el intervalo'}
+    rows.extend((label, _result_text(transition[key]) if transition[key] is not None else 'No identificada')
+                for key, label in labels.items() if key in transition)
+    sections.append(Section('Transición', rows=rows))
+    if data['records']:
+        sections.append(Section('Trayectorias', rows=[('Réplicas independientes', len(data['records'])),
+                                                     ('Muestras por réplica', len(data['records'][0].values))]))
+    return Summary(label, sections)
 
 
 def _statistical_plot(axis,choice,data):

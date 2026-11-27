@@ -13,5 +13,6 @@
 | --- | --- |
 | WP-01 | `probability.py`, `multivariate_probability.py` y el adaptador headless `probability_cli.py`. |
 | WP-02 | `descriptive_statistics.py`, `statistical_inference.py`, `statistics_results.py` para entrega y el adaptador headless `statistics_cli.py`. |
+| WP-03 | `stochastic_processes.py` para transiciones y realizaciones, `stochastic_noise.py` para ruido, `stochastic_covariance.py` para correlación y covarianza, la CLI `stochastic_cli.py` y la entrega `realization_batch.py`. |
 
 [Protocolo estadístico](STATISTICAL_VALIDATION_PROTOCOL.md) · [Validación permanente](../VALIDATION_MATRIX.md#criterios-vigentes) · [Política de entregas](../RELEASE_POLICY.md)

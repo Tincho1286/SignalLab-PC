@@ -12,6 +12,7 @@ from .communications_data import MAX_SEED, integer, real
 from .execution import ExecutionContext
 from .model import Signal
 from .operation_provenance import content_digest, settings_digest
+from .realization_batch import store_batch
 from .system_clock import CLOCK_MAPPING, validate_clock_resolution
 
 
@@ -322,7 +323,7 @@ def _sample_records(draw, document, label, count, seed, replicas, origin, rate, 
                     name += f' · componente {column + 1}'
                 record = Signal(samples[column], origin=origin, name=name,
                                 metadata={**metadata, 'substream': [index], 'component': column})
-                record._probability_digest = content_digest(record, context.checkpoint)
+                record._realization_digest = content_digest(record, context.checkpoint)
                 output.append(record)
         context.checkpoint()
     return tuple(output)
@@ -341,19 +342,5 @@ def generate_realizations(distribution: Distribution, count, seed, *, replicas=1
 
 def store_realizations(project, document, records, execution: ExecutionContext | None = None, *, tool=None):
     """Register the law and its complete batch with verified parent links."""
-    context = execution or ExecutionContext()
-    parameters_digest = settings_digest(document)
-    model_digest = settings_digest(['calculation', document])
-    with project.stage_records(before_commit=context.checkpoint) as staged:
-        parent = staged.add(document, title='Distribución generadora', operation='Modelo de probabilidad',
-                            tool=tool, verification=(model_digest, (), context.checkpoint))
-        ids = []
-        for record in records:
-            digest = getattr(record, '_probability_digest', None)
-            if not digest or record.metadata.get('settings_sha256') != parameters_digest:
-                raise ValueError('La realización carece de procedencia válida para esta distribución.')
-            ids.append(staged.add(record, operation='Generar realización', parents=(parent,), tool=tool,
-                                  verification=(digest, (model_digest,), context.checkpoint)))
-        if not ids:
-            raise ValueError('Se requiere al menos una realización.')
-    return parent, ids
+    return store_batch(project, document, records, execution, title='Distribución generadora',
+                       operation='Modelo de probabilidad', tool=tool)

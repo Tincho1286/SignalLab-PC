@@ -94,7 +94,7 @@ add('transforms','Transformadas',('transform_lab','z'),'Transformada Z','Directa
 add('transforms','Ecuaciones',('symbolic',4),'Ecuaciones diferenciales','Solución algebraica y condiciones iniciales.','edo')
 add('transforms','Ecuaciones',('difference_equation',0),'Ecuaciones en diferencias','Solución en n, condiciones iniciales y respuesta forzada.','recurrencia discreta edd recursiva ecuacion historial entrada estado cero')
 for key,title,summary in [
- (('random','generate'),'Generar realización','Distribución y semilla.'),
+ (('random','generate'),'Generar realización','Distribuciones, procesos y trayectorias reproducibles.'),
  (('random','statistics'),'Estadísticas e histograma','Explorá un registro, ajustá distribuciones y contrastá hipótesis.'),
  (('random_correlation',0),'Correlación y covarianza','Auto y cruzada: estimaciones a partir de uno o dos registros.')]:add('random','Generación y análisis',key,title,summary)
 add('random','Modelos',('random_model','model'),'Analizar modelo AR, MA o ARMA','Media, varianza, correlación y PSD teóricas; realización estacionaria.','proceso estocastico autorregresivo promedio movil ruido blanco filtrado lyapunov')

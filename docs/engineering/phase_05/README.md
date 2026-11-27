@@ -44,3 +44,14 @@ python -m signallab_pc statistics infer --session normales.slproj --record ID_NO
 ```
 
 El segundo ejemplo requiere un registro continuo sin empates que se quiera contrastar contra una normal estándar conocida. Si querés contrastar normalidad con media y desviación desconocidas, usá `--method shapiro` o `--method ad`. Las funciones equivalentes de Python son `fit_distribution` e `infer_record` en `signallab_pc.statistical_inference`. Los informes se publican en Resultados con sus entradas. [Supuestos y fórmulas](MATHEMATICAL_FOUNDATIONS.md#inferencia-y-ajuste)
+
+### Generar y examinar procesos
+
+En **Generar realización**, elegí un proceso en el mismo selector de distribuciones. Para una cadena de Markov, cada fila de la matriz indica las probabilidades de pasar del estado de esa fila a cada columna. Elegí un estado inicial desde 0, ingresá sus probabilidades iniciales o dejalo vacío para usar una distribución estacionaria única. En **Propiedades poblacionales** podés indicar dos posiciones desde el inicio para ver sus medias, varianzas y covarianza junto con la transición entre ellas.
+
+```sh
+python -m signallab_pc stochastic inspect --family ornstein_uhlenbeck --parameters '{"initial":0,"mean":2,"reversion":0.5,"std":1}' --rate 4 --first 4 --second 8
+python -m signallab_pc stochastic generate --family markov --parameters '{"initial":0,"transition":[[0.75,0.25],[0.5,0.5]]}' --count 64 --seed 321 --replicas 2 --output trayectorias.slproj
+```
+
+La primera muestra contiene el estado inicial y, si se indicó un reloj, representa el tiempo cero. El generador conserva cada trayectoria como una señal reutilizable y referencia el modelo en el proyecto. Para usar los servicios directamente, importá `Process`, `generate_process`, `process_moments` y `process_transition` desde `signallab_pc.stochastic_processes`. [Transiciones y alcance](MATHEMATICAL_FOUNDATIONS.md#trayectorias-y-transiciones)
