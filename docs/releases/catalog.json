@@ -1,6 +1,21 @@
 {
   "releases": [
     {
+      "tag": "v2.3.1",
+      "title": "Gráficos de estadística y recepción",
+      "channel": "preview",
+      "summary": "Apertura coherente de figuras de resultados y visualización de la medición de recepción.",
+      "changes": [
+        "Curva de Monte Carlo e histograma bootstrap disponibles desde Resultados.",
+        "Apertura verificada de las figuras de Wiener con registros, filtrado adaptativo y Kalman.",
+        "BER y SER acumulados y vectores de error I/Q con la misma alineación del informe."
+      ],
+      "limits": [
+        "Wiener por correlaciones reutiliza su filtro en Análisis LTI. La LTS vigente es la 2.0.0."
+      ],
+      "notes": "docs/releases/v2.3.1.md"
+    },
+    {
       "tag": "v2.3.0",
       "title": "Probabilidad, estadística y procesos estocásticos",
       "channel": "preview",

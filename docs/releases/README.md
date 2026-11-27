@@ -2,12 +2,13 @@
 
 [← Documentación](../README.md)
 
-La **2.0.0** es la versión LTS. La **2.3.0 Preview** amplía el laboratorio de probabilidad, estimación y experimentos estadísticos. [Descargas de la LTS](https://github.com/Tincho1286/SignalLab-PC/releases/latest) · [Notas de la LTS](v2.0.0.md) · [Descargas y notas de Preview](v2.3.0.md)
+La **2.0.0** es la versión LTS. La **2.3.1 Preview** mejora la apertura de figuras de estadística y agrega gráficos a la medición de recepción. [Descargas de la LTS](https://github.com/Tincho1286/SignalLab-PC/releases/latest) · [Notas de la LTS](v2.0.0.md) · [Descargas y notas de Preview](v2.3.1.md)
 
 Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [2.3.1](v2.3.1.md) | Gráficos de estadística, filtrado y medición de recepción | Preview |
 | [2.3.0](v2.3.0.md) | Probabilidad, procesos estocásticos, estimación y campañas reproducibles | Preview |
 | [2.2.1](v2.2.1.md) | Ajuste de ventanas con escalado alto y certificados del sistema para el actualizador en Linux | Preview |
 | [2.2.0](v2.2.0.md) | Modelado de canales, Doppler, interferencia y barridos con réplicas | Preview |

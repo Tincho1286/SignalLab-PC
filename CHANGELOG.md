@@ -2,6 +2,12 @@
 
 La versión LTS es la [2.0.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.0.0). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 2.3.1 · Preview
+
+La cabecera de resultados habilita los gráficos de Monte Carlo, bootstrap y las herramientas de filtrado estadístico cuando hay datos. Medir BER, SER y EVM muestra las tasas acumuladas y los vectores de error I/Q del tramo alineado.
+
+[Novedades y descargas](docs/releases/v2.3.1.md)
+
 ## 2.3.0 · Preview
 
 La ampliación del laboratorio incorpora distribuciones multivariadas, inferencia, identificación temporal y nuevos estimadores de potencia. Las campañas Monte Carlo conservan sus bloques completos y pueden retomarse. La navegación reutiliza los borradores y difiere el dibujo de los gráficos cerrados.

@@ -13,7 +13,7 @@ SignalLab PC es un laboratorio de escritorio en español para **Sistemas y Seña
 | Canal | Cuándo elegirlo | Descarga |
 | --- | --- | --- |
 | **Estable / LTS** | Para clases, ejercicios y uso habitual. La versión estable vigente es **2.0.0**. | [Descargar estable](https://github.com/Tincho1286/SignalLab-PC/releases/latest) |
-| **Preview** | Para probar el laboratorio de probabilidad, estadística y procesos de **2.3.0**, junto con comunicaciones y canales. | [Descargar Preview](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.3.0) |
+| **Preview** | Para probar probabilidad, estadística y comunicaciones. **2.3.1** mejora las figuras de resultados y agrega gráficos de BER, SER e I/Q. | [Descargar Preview](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.3.1) |
 
 Cada versión ofrece un **instalador** y un **portable** para **Windows x64** y **Linux x86_64**. Ambos incluyen Python y las dependencias. Elegí el instalador para actualizar desde **Ayuda → Buscar actualizaciones**, o el portable para ejecutar la aplicación desde una carpeta. El canal estable es el predeterminado. Podés habilitar las preliminares desde el actualizador. [Instalación y requisitos](docs/installation.md) · [Cómo actualizar](docs/installed-updates.md)
 
@@ -48,7 +48,7 @@ La guía de inicio muestra cómo generar una ventana Hann, ver sus muestras y en
 
 - **Uso diario** · Entradas, teclas rápidas, gráficos y mediciones. [Biblioteca de guías](docs/README.md) · [Gráficos y cursores](docs/cursors.md)
 - **Datos y cálculo** · Formatos de intercambio, sesiones y criterios para interpretar resultados. [Archivos y sesiones](docs/file-formats.md) · [Convenciones matemáticas](docs/conventions.md)
-- **Versiones** · Cambios y correcciones de cada entrega. [Historial de versiones](docs/releases/README.md) · [Novedades de 2.3.0](docs/releases/v2.3.0.md)
+- **Versiones** · Cambios y correcciones de cada entrega. [Historial de versiones](docs/releases/README.md) · [Novedades de 2.3.1](docs/releases/v2.3.1.md)
 
 ## Desarrollo y contribuciones
 
