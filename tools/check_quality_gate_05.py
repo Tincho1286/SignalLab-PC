@@ -13,7 +13,8 @@ CRITICAL = ('probability.py', 'multivariate_probability.py', 'probability_cli.py
             'descriptive_statistics.py', 'statistics_cli.py', 'statistical_inference.py',
             'statistics_results.py', 'stochastic_processes.py', 'stochastic_cli.py', 'realization_batch.py',
             'stochastic_noise.py', 'stochastic_covariance.py', 'ar_estimation.py', 'random_models.py',
-            'time_series_identification.py', 'statistical_spectra.py', 'optimal_estimation.py', 'wiener_filter.py')
+            'time_series_identification.py', 'statistical_spectra.py', 'optimal_estimation.py',
+            'wiener_filter.py', 'kalman_filter.py')
 SCIENTIFIC_REQUIREMENTS = tuple(f'ST-{number:02}' for number in range(1, 10))
 DEMONSTRATORS = ('A', 'B', 'C', 'D', 'E')
 RESOURCE_PROFILES = (
@@ -126,7 +127,7 @@ def evaluate(folder, candidate, version):
                                'test_statistical_inference.', 'test_stochastic_processes.', 'test_stochastic_noise.',
                                'test_stochastic_covariance.', 'test_ar_estimation.', 'test_time_series_identification.',
                                'test_arma_desktop.', 'test_statistical_spectra.', 'test_optimal_estimation.',
-                               'test_estimation_desktop.')
+                               'test_estimation_desktop.', 'test_kalman_filter.')
             ),
             'packaged_probability': packaged.get('executable_check', {}).get('checks', {}).get(
                 'packaged_probability_and_project') is True,

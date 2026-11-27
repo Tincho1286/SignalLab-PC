@@ -1,5 +1,6 @@
 import numpy as np
 
+from signallab_pc.state_space import StateModel
 from signallab_pc.workspaces import ROUTES
 from test_desktop_session import DesktopSessionFixture
 from test_optimal_estimation import matched_records
@@ -55,3 +56,28 @@ class EstimationWorkbenchTests(DesktopSessionFixture):
         np.testing.assert_allclose(report['coefficients']['real'], [1/3,1/3], atol=2e-14)
         self.assertAlmostEqual(report['theoretical_mse']['value'], 1/3)
         self.assertFalse(panel.tabs.isTabVisible(1))
+
+    def test_kalman_reuses_a_discrete_model_and_shows_prediction_when_measurement_missing(self):
+        window = self.window()
+        route = ROUTES['estimation','kalman']
+        model = StateModel([[1]],[[0]],[[1]],[[0]],.5,name='Constante medida')
+        parent = window.publish(model)
+        window.send_model(model,parent,route)
+        panel = window.pages[route].panel
+        panel.origin.setText('-6')
+        panel.initial.setText('0')
+        for name,text in [('Q','0'),('R','1'),('P','1'),('y','2; 100; 10'),('mask','1; 0; 1')]:
+            panel.matrices[name].setText(text)
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        self.warning.assert_not_called()
+        report = next(header for header in window.project.headers('calculation') if header['operation']=='Estimar estados')
+        self.assertEqual(report['parents'],[parent])
+        self.assertEqual(window.project.get(report['id'])['prediction_only_steps'],1)
+        prior, updated = panel.output.displayed_signals()
+        np.testing.assert_allclose(prior.values,[0,1,1])
+        np.testing.assert_allclose(updated.values,[1,1,4])
+        self.assertEqual((updated.origin,updated.metadata['time_start_s']),(-6,-3.))
+        panel.selector.setCurrentIndex(1)
+        np.testing.assert_allclose(panel.output.displayed_signals()[0].values,[.5,.5,1/3])
+        self.assertIn('Última corrección disponible',panel.report.toPlainText())

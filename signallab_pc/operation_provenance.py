@@ -56,13 +56,17 @@ def content_digest(value, checkpoint):
     elif isinstance(value, Transfer):
         kind, arrays = 'system', ('b', 'a', 'sos')
     else:
-        raise TypeError('Se esperaba una señal o un sistema para verificar la procedencia.')
+        from .state_space import StateModel
+        if not isinstance(value, StateModel):
+            raise TypeError('Se esperaba una señal o un sistema para verificar la procedencia.')
+        from .project import encode
+        return encoded_digest(*encode(value), checkpoint)
     data = {key: getattr(value, key) for key in (*_FIELDS[kind], *arrays)}
     return _content(kind, data, checkpoint, encoded=False)
 
 
 def encoded_digest(kind, data, checkpoint):
-    if kind == 'calculation':
+    if kind in ('calculation', 'state_space'):
         checkpoint()
         return settings_digest([kind, data])
     if kind not in _FIELDS:

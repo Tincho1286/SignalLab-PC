@@ -59,6 +59,8 @@ class StateModelResultActions(ResultActionBar):
         for title,action in [('Estructura y estabilidad','analysis'),('Respuesta temporal','simulation'),('Respuesta en frecuencia','frequency'),('Obtener transferencia','transfer'),('Discretizar modelo','discretize')]:
             if action==self.source_action or (action=='discretize' and self.model.dt is not None):continue
             self.menu.addAction(title,lambda checked=False,destination=action:self.send_to(destination))
+        if self.model.dt is not None:
+            self.menu.addAction('Filtro de Kalman', lambda: self.owner.send_model(self.model,self.key,ROUTES['estimation','kalman']))
     def send_to(self,action):
         if self.model is not None:self.owner.send_model(self.model,self.key,ROUTES['state_space',action])
     def export(self):

@@ -36,6 +36,22 @@ def _parts(values):
     return values.tolist()
 
 
+def array_from_parts(value):
+    """Accept real numeric arrays or a JSON object with real and imaginary arrays."""
+    if not isinstance(value, dict):
+        return value
+    if set(value) != {'real', 'imag'}:
+        raise ValueError('Una matriz compleja requiere las partes real e imag.')
+    real = np.asarray(value['real'], dtype=float)
+    imaginary = np.asarray(value['imag'], dtype=float)
+    if real.shape != imaginary.shape:
+        raise ValueError('Las partes real e imaginaria deben tener las mismas dimensiones.')
+    result = np.empty(real.shape, dtype=complex)
+    result.real = real
+    result.imag = imaginary
+    return result
+
+
 def _scale(values):
     return float(max(np.max(abs(values.real)), np.max(abs(values.imag))))
 

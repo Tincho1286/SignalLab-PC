@@ -6,8 +6,11 @@ from pathlib import Path
 from . import session
 from .cli_session import add_output_arguments, add_session_arguments, load_input, load_signal_file, run_command, timeout_seconds
 from .input_files import decode_finite_json, read_json
+from .kalman_filter import kalman_filter, store_kalman
+from .multivariate_probability import array_from_parts
 from .optimal_estimation import linear_gaussian, store_gaussian_estimate
 from .project import Project
+from .state_space import StateModel
 from .statistics_results import store_statistics
 from .statistical_spectra import cross_spectra, lomb_periodogram, store_cross_spectra
 from .stochastic_covariance import METHODS, covariance_matrix, ensemble_moments, estimate_correlation
@@ -118,13 +121,24 @@ def _optimization_model(args, context):
     if args.engine == 'gaussian':
         result = linear_gaussian(**model, execution=context)
         receipt = {'report': store_gaussian_estimate(project, result, execution=context)}
-    else:
+    elif args.engine == 'wiener':
         for key in ('autocorrelation', 'cross_correlation'):
-            if isinstance(model.get(key), dict):
-                parts = model[key]
-                model[key] = [complex(re, im) for re, im in zip(parts['real'], parts['imag'], strict=True)]
+            if key in model:
+                model[key] = array_from_parts(model[key])
         result = wiener_hopf(**model, execution=context)
         receipt = store_wiener_model(project, result, execution=context)
+    else:
+        state = model.pop('state_model', None)
+        if not isinstance(state, dict):
+            raise ValueError('Indicá A, B, C, D y dt dentro del objeto state_model.')
+        for key in ('A', 'B', 'C', 'D'):
+            state[key] = array_from_parts(state[key])
+        dynamical = StateModel(**state)
+        origin = model.pop('origin', 0)
+        arguments = {key: array_from_parts(value) for key,value in model.items()}
+        data = kalman_filter(dynamical, **arguments, execution=context)
+        saved = store_kalman(project, dynamical, data, origin=origin, execution=context)
+        receipt = {**saved, 'outputs': [key for key,_ in saved['outputs']]}
     session.save(args.output, project, session.empty_workspace(), checkpoint=context.checkpoint)
     return receipt
 
@@ -227,6 +241,7 @@ def main(argv):
     for name, engine, description in (
         ('estimate-gaussian', 'gaussian', 'Estimar parámetros de un modelo gaussiano por ML, MAP y MMSE.'),
         ('wiener-model', 'wiener', 'Resolver Wiener–Hopf desde correlaciones y potencia conocidas.'),
+        ('kalman', 'kalman', 'Estimar estados de un modelo lineal discreto.'),
     ):
         command = commands.add_parser(name, help=description)
         command.add_argument('--model', type=Path, required=True, help='Archivo JSON de parámetros del modelo.')

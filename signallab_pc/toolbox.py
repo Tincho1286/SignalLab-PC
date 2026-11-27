@@ -704,8 +704,13 @@ class ToolPage(QWidget):
             from .random_panel import RandomPanel
             self.panel=RandomPanel(window,index);root.addWidget(self.panel);return
         if kind=='estimation':
-            from .estimation_panel import EstimationPanel
-            self.panel=EstimationPanel(window,index);root.addWidget(self.panel);return
+            if index=='kalman':
+                from .kalman_panel import KalmanPanel
+                self.panel=KalmanPanel(window)
+            else:
+                from .estimation_panel import EstimationPanel
+                self.panel=EstimationPanel(window,index)
+            root.addWidget(self.panel);return
         if kind=='communications':
             from .communications_panel import CommunicationsPanel
             self.panel=CommunicationsPanel(window,index);root.addWidget(self.panel);return
@@ -1407,7 +1412,9 @@ class ToolboxWindow(SignalLabWindow):
         except Exception as exc:QMessageBox.warning(self,'No se pudo exportar',str(exc))
 
     def send_model(self,value,key,item):
-        if not isinstance(value,StateModel) or item[1]!='state_space':raise ValueError('El destino requiere un modelo de estados.')
+        kalman = item[1:3] == ('estimation','kalman')
+        if not isinstance(value,StateModel) or not (item[1]=='state_space' or kalman):raise ValueError('El destino requiere un modelo de estados.')
+        if kalman and value.dt is None:raise ValueError('Kalman requiere un modelo discreto.')
         if item[2]=='discretize' and value.dt is not None:raise ValueError('Discretizar requiere un modelo continuo.')
         self.open_tool(item);page=self.pages.get(tuple(item),self.stack.currentWidget());panel=page.panel
         if key is None:key=self.publish(value,operation='Modelo enviado a otro estudio')
@@ -1543,7 +1550,9 @@ class ToolboxWindow(SignalLabWindow):
             self.reuse_menu.addSeparator()
         if isinstance(value,Signal):candidates=signal_destinations(value,items)
         elif isinstance(value,Transfer):candidates=system_destinations(value,items)
-        elif isinstance(value,StateModel):candidates=[item for item in items if item[1]=='state_space' and (item[2]!='discretize' or value.dt is None)]
+        elif isinstance(value,StateModel):
+            candidates=[item for item in items if item[1]=='state_space' and (item[2]!='discretize' or value.dt is None)
+                        or item[1:3]==('estimation','kalman') and value.dt is not None]
         else:candidates=[]
         groups={}
         for entry,item in compact_destinations(candidates):

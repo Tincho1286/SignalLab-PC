@@ -205,6 +205,15 @@
         ["Cómo interpretar la salida", "El informe muestra los coeficientes y el error cuadrático medio. Con dos registros, la gráfica compara lo observado, lo deseado, la estimación y el residuo."],
         ["Qué tener en cuenta", "Usá una reserva final para evaluar el error fuera del ajuste. La constante opcional se guarda en el informe y se aplica aparte al reutilizar la transferencia."]
       ]
+    },
+    {
+      "key": ["estimation", "kalman"],
+      "blocks": [
+        ["Qué podés hacer", "Estimá el estado de un modelo discreto a partir de mediciones ruidosas. Podés indicar qué datos faltan en cada instante."],
+        ["Cómo preparar el cálculo", "Cargá A, B, C, D y su período. Agregá las covarianzas Q y R, la media inicial y su covarianza P₀. Usá una fila por instante en las mediciones y controles."],
+        ["Cómo interpretar la salida", "La predicción usa mediciones anteriores. La corrección usa además las mediciones disponibles en el instante actual. La varianza posterior mide la incertidumbre de la estimación."],
+        ["Qué tener en cuenta", "El modelo supone ruido independiente, blanco y de media cero. Si todas las mediciones de un instante faltan, se conserva solo la predicción."]
+      ]
     }
   ],
   "guides": [
@@ -448,6 +457,17 @@
         ["Correlaciones teóricas", "Para diseñar sin registros, ingresá Rxx[k], Rdx[k] y la potencia media cuadrática de d. Comenzá ambas listas en k = 0. Rdx correlaciona d[n] con la entrada conjugada en n−k."]
       ],
       "reading": "El informe distingue el MSE teórico del medido en entrenamiento o validación. Podés abrir la comparación de las señales observada, deseada y estimada junto al residuo. Si ajustaste una constante, sumala a la salida para reproducir la estimación al reutilizar el filtro FIR."
+    },
+    {
+      "key": ["estimation", "kalman"],
+      "flow": ["Modelo y observaciones", "Predicción y corrección", "Estados e incertidumbre"],
+      "parameters": [
+        ["Modelo discreto y período", "A describe cómo evoluciona el estado, B cómo lo modifica la entrada, C qué combinación de estados se mide y D cómo entra u directamente en la medición. El período fija el intervalo físico entre filas."],
+        ["Covarianzas Q y R", "Q tiene una fila por estado y describe el ruido del proceso. R tiene una fila por canal medido. Ambas admiten varianzas nulas si las mediciones respetan las restricciones deterministas."],
+        ["Media inicial y P₀", "Son estimaciones previas al primer dato. Cada componente de la media corresponde a una fila de A. P₀ describe la incertidumbre inicial por componente y sus covarianzas."],
+        ["Mediciones, controles y máscara", "y tiene una columna por canal. u tiene una columna por entrada conocida y puede quedar vacía para entrada cero. La máscara usa 1 para medición disponible y 0 para ausente, con las mismas dimensiones que y."]
+      ],
+      "reading": "La innovación es la diferencia entre la medición y su predicción. La ganancia controla cuánto cambia cada estado al corregirlo. Resultados conserva los estados, las varianzas y las matrices por instante."
     }
   ]
 }

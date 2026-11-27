@@ -156,3 +156,23 @@ python -m signallab_pc stochastic wiener-model --model correlaciones.json --outp
 ```
 
 El JSON del caso gaussiano usa los nombres del ejemplo Python. Para Wiener–Hopf, usá `autocorrelation`, `cross_correlation` y `target_power`. Una correlación compleja admite el objeto `{"real":[...],"imag":[...]}`. Las funciones `wiener_fir` y `wiener_hopf` están en `signallab_pc.wiener_filter`. [Modelo gaussiano](MATHEMATICAL_FOUNDATIONS.md#estimación-gaussiana-lineal) · [Wiener causal](MATHEMATICAL_FOUNDATIONS.md#wiener-fir-causal)
+
+### Estimar estados con Kalman
+
+Desde un modelo de estados discreto podés elegir **Usar modelo en… › Filtro de Kalman**. También podés cargar A, B, C y D en las tablas de la herramienta. La primera fila de las observaciones corresponde al primer índice y cada columna corresponde a un sensor. La máscara usa 0 para los datos ausentes y 1 para los disponibles. En **Trayectorias**, compará predicción y corrección o elegí la varianza posterior de cada estado. La biblioteca de resultados guarda, además, ganancias, innovaciones y matrices de covarianza por instante.
+
+```sh
+python -m signallab_pc stochastic kalman --model kalman.json --output estados.slproj
+```
+
+```json
+{
+  "state_model": {"A":[[1]], "B":[[0]], "C":[[1]], "D":[[0]], "dt":0.5},
+  "observations": [[2], [0], [10]],
+  "mask": [[true], [false], [true]],
+  "process_covariance": [[0]], "measurement_covariance": [[1]],
+  "initial_mean": [0], "initial_covariance": [[1]]
+}
+```
+
+Con este ejemplo, la estimación corregida es 1, 1, 4. En el segundo instante solo se predice. El API usa `kalman_filter` de `signallab_pc.kalman_filter` con un `StateModel` discreto. [Modelo y estabilidad numérica](MATHEMATICAL_FOUNDATIONS.md#kalman-lineal-discreto)
