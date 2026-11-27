@@ -1,6 +1,7 @@
 """Run the engineering baseline on one clean Git revision and retain its evidence."""
 
 import argparse
+from collections import deque
 from importlib.metadata import distributions, version
 import json
 import os
@@ -45,10 +46,14 @@ def isolated_integral(output):
 
 def run_stage(output, name, env, *arguments):
     print(name, flush=True)
-    with (output/(name+'.log')).open('wb') as log:
+    log_path = output/(name+'.log')
+    with log_path.open('wb') as log:
         result = subprocess.run([sys.executable, '-B', '-X', 'utf8', *arguments], cwd=ROOT,
                                 env=env, stdout=log, stderr=subprocess.STDOUT)
     print(f'{name}: {result.returncode}', flush=True)
+    if result.returncode:
+        with log_path.open(encoding='utf-8', errors='replace') as log:
+            print(''.join(deque(log, maxlen=45)), end='', flush=True)
     return result.returncode
 
 

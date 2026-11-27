@@ -15,7 +15,7 @@ from signallab_pc import session
 from signallab_pc.dsp_application import PSDRequest, estimate_psd
 from signallab_pc.dsp_cli import main
 from signallab_pc.execution import ExecutionContext, ResourceLimitError
-from signallab_pc.fourier import require_complex_spectrum
+from signallab_pc.fourier import ictft
 from signallab_pc.model import Signal
 from signallab_pc.project import Project
 from signallab_pc.spectral_measurements import supported
@@ -199,8 +199,8 @@ class CrossSpectrumTests(unittest.TestCase):
         np.testing.assert_allclose(result.coherence['values'],expected,atol=2e-12)
         self.assertEqual(result.cross.data_kind,'cross_density')
         self.assertFalse(supported(result.cross))
-        with self.assertRaises(ValueError):
-            require_complex_spectrum(result.cross)
+        with self.assertRaisesRegex(ValueError,'densidad espectral cruzada'):
+            ictft(result.cross,0,1,16)
         self.assertEqual(result.coherence['common_origin'],0)
         self.assertEqual(result.coherence['common_last_index'],6)
 
@@ -307,8 +307,8 @@ class AdvancedSpectralTests(unittest.TestCase):
         np.testing.assert_allclose(curve.values,expected,atol=2e-12)
         self.assertAlmostEqual(curve.axis[np.argmax(curve.values.real)],.8)
         self.assertFalse(supported(curve))
-        with self.assertRaises(ValueError):
-            require_complex_spectrum(curve)
+        with self.assertRaisesRegex(ValueError,'Lomb–Scargle normalizado'):
+            ictft(curve,0,1,16)
 
     def test_invalid_advanced_settings_and_timestamps_fail_with_observable_diagnostics(self):
         source=Signal([1,2,0,-1,4,3],metadata={'sample_rate_hz':6})

@@ -45,7 +45,8 @@ class TimeSeriesWorkbenchTests(DesktopSessionFixture):
         panel.minimum.setText('0')
         panel.maximum.setText('2')
         window.calculate_active()
-        self.wait_for_calculation(window)
+        # This worker fits three candidates with native optimization under coverage.
+        self.wait_for_calculation(window, timeout_ms=12_000)
         self.assertEqual({row['fitted_samples'] for row in panel.comparison['rows']},{18})
         panel.choose_order(1)
         self.wait_for_calculation(window)

@@ -139,9 +139,12 @@ def is_power_spectrum(source):
 
 
 def require_complex_spectrum(source):
-    if source.data_kind=='spectral_measurement':raise ValueError('Una medida acumulada no es X: no conserva amplitud compleja ni fase para una inversa.')
-    if source.data_kind=='cross_density':raise ValueError('La densidad espectral cruzada describe la relación entre dos registros. La inversa de una señal requiere su espectro original X.')
-    if source.data_kind=='irregular_periodogram':raise ValueError('Lomb–Scargle normalizado describe la fracción de error explicada por cada senoide. La inversa requiere el espectro complejo original.')
+    if source.data_kind=='spectral_measurement':
+        raise ValueError('Una medida acumulada no es X: no conserva amplitud compleja ni fase para una inversa.')
+    if source.data_kind=='cross_density':
+        raise ValueError('La densidad espectral cruzada describe la relación entre dos registros. La inversa de una señal requiere su espectro original X.')
+    if source.data_kind=='irregular_periodogram':
+        raise ValueError('Lomb–Scargle normalizado describe la fracción de error explicada por cada senoide. La inversa requiere el espectro complejo original.')
     if is_power_spectrum(source):
         raise ValueError('La inversa necesita el espectro complejo original X. La densidad espectral conserva el módulo al cuadrado y pierde la fase.')
 
