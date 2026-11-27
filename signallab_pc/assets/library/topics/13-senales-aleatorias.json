@@ -10,19 +10,23 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Un proceso aleatorio describe muchas señales posibles; esta herramienta genera una de ellas, llamada realización."
+          "Generá uno o más registros y consultá la distribución que los modela. Podés evaluar densidad o masa, probabilidades acumuladas, colas, cuantiles y momentos."
         ],
         [
           "Cómo preparar el cálculo",
-          "Elegí distribución, cantidad de muestras y semilla. Gaussiana y uniforme usan media y desviación estándar; Bernoulli usa la probabilidad de obtener uno."
+          "Elegí la distribución y la operación. Gaussiana y uniforme usan media y desviación estándar. En la uniforme, los límites son media ± √3 veces la desviación. Bernoulli usa la probabilidad de obtener uno. La geométrica cuenta ensayos hasta el primer éxito. La binomial negativa cuenta fallos antes de alcanzar la cantidad de éxitos pedida. Las probabilidades categóricas suman uno."
+        ],
+        [
+          "Covarianza y opciones avanzadas",
+          "Para una gaussiana conjunta, cargá un vector de medias y una matriz de covarianza con una fila y columna por componente. En el caso complejo, dejar vacía la pseudocovarianza indica un modelo propio. En Opciones avanzadas podés elegir semilla, cantidad de réplicas, índice inicial y un reloj en Hz."
         ],
         [
           "Cómo interpretar la salida",
-          "La salida es un registro que podés medir, filtrar o comparar. Usar la misma semilla y los mismos parámetros permite repetirlo."
+          "Una masa es la probabilidad de un recuento. Una densidad se integra sobre un intervalo para obtener su probabilidad. La CDF da P(X ≤ x), la CCDF da P(X > x) y el cuantil devuelve el umbral asociado a una probabilidad. En Realizaciones podés elegir la réplica y componente que quieras medir o filtrar."
         ],
         [
           "Qué tener en cuenta",
-          "La media y varianza medidas de un registro finito pueden diferir de los parámetros teóricos. Esa fluctuación no implica, por sí sola, un error de generación."
+          "Los momentos pedidos son no centrales, E[Xᵏ], para órdenes de 0 a 4. Si un momento diverge o es indefinido, el informe conserva ese estado. La media y varianza medidas de un registro finito pueden diferir de los parámetros poblacionales. La semilla, los parámetros y las versiones de los generadores permiten reproducir el registro."
         ],
         [
           "Indeterminaciones y valores por continuidad",

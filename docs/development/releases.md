@@ -73,9 +73,9 @@ Para Preview, comprobá la nueva etiqueta, los hashes de los adjuntos, el manifi
 
 El publicador ya admite versiones numéricas Preview desde 2.1.0. Valida canal, SHA, recibos de ambas plataformas, firma y procedencia. La política permanente no exige sustituir el publicador ni cambiar el firmador, los permisos o las claves.
 
-La [matriz de Actions](../../.github/workflows/mathematics.yml) aún selecciona controles y paquetes mediante `phase_03` y `phase_04`. [El verificador de Fase 04](../../tools/check_quality_gate_04.py) exige evidencia específica de canales. Antes de calificar 2.3.x, se deberá autorizar la habilitación de un Quality Gate de Fase 05. La adaptación deberá seleccionar sus pruebas y oráculos, conservar los controles acumulados y producir los recibos que consume el publicador desde el mismo SHA en Windows y Linux.
+La matriz de Actions dispone de un selector `phase_05`. Verifica la fuente Preview 2.3.x, ejecuta los controles acumulados y conserva los paquetes y recibos del mismo SHA en Windows y Linux. El verificador añade calificación científica, demostradores y perfiles estadísticos. El candidato requiere informes de ciencia y recursos, cuya generación se incorporará durante la fase. [Matriz](../../.github/workflows/mathematics.yml) · [Verificador](../../tools/check_quality_gate_05.py)
 
-La comprobación de la familia prevista por fase también es documental. [El control de versión](../../signallab_pc/release_policy.py) separa 2.0.x de las versiones Preview igual o superiores a 2.1.0. Revisar la familia en la preparación de cada entrega. Si se decide automatizar esa comprobación junto con la evidencia de fase, pedir autorización para el cambio funcional y preservar las reglas de canal, firma e inmutabilidad. Las pruebas de escritorio automatizadas deben mantenerse dentro del Quality Gate, con escalado específico como diagnóstico.
+Para 2.3.x, el publicador comprueba que el Quality Gate corresponda a Fase 05 y a la misma versión. El control general sigue separando 2.0.x de las versiones Preview desde 2.1.0. Las pruebas de escritorio automatizadas se mantienen dentro del Quality Gate. El escalado específico se usa como diagnóstico. [Criterios](../engineering/phase_05/QUALITY_GATE_CRITERIA.md)
 
 ## Mantener las notas y el historial
 

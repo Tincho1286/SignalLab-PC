@@ -158,6 +158,24 @@ def run(destination):
             np.testing.assert_array_equal(coefficients.values, original.coefficients.values)
             at_los = math.exp(-4)/math.tau + math.sqrt(4/math.pi)*(1+math.erf(2))/2
             np.testing.assert_allclose(original.distributions().phase.theoretical[256], at_los, rtol=1e-14)
+            from .probability import Distribution, distribution_value, generate_realizations, store_realizations
+            law = Distribution('poisson', {'rate': 2})
+            np.testing.assert_allclose(distribution_value(law, 'cdf', 1)['value'], 3 * math.exp(-2))
+            records = generate_realizations(law, 64, 79, replicas=2, rate=360)
+            probability_project = Project()
+            _, ids = store_realizations(probability_project, law.document(), records)
+            session.save(archive, probability_project, session.empty_workspace())
+            reloaded, _ = session.load(archive)
+            for key, expected in zip(ids, records, strict=True):
+                actual = reloaded.get(key)
+                np.testing.assert_array_equal(actual.values, expected.values)
+                assert actual.metadata == expected.metadata
+        probability_item = ROUTES['random', 'generate']
+        window.open_tool(probability_item)
+        app.processEvents()
+        selector = window.pages[probability_item].panel.distribution
+        assert selector.findData('poisson') >= 0 and selector.findData('complex_vector') >= 0
+        report['checks']['packaged_probability_and_project'] = True
         communications_item = ROUTES['communications', 'link']
         window.open_tool(communications_item)
         app.processEvents()

@@ -4,7 +4,7 @@
 
 La regresión al 200 % con escala de Qt y la conexión del portable a GitHub en Fedora 44 se verificaron. El DPI nativo de Windows al 150 % y 200 % y la revisión interactiva en Fedora Plasma se conservan como seguimiento histórico de Fase 04. La política vigente usa las pruebas específicas de escalado como evidencia diagnóstica. [Riesgos residuales de Fase 04](phase_04/RESIDUAL_RISK_REGISTER.md) · [Criterios vigentes](VALIDATION_MATRIX.md#criterios-vigentes)
 
-La última publicación es **2.2.1 Preview** y **2.0.0** es la LTS vigente. La Fase 05, **Probability, Statistics & Stochastic Processes**, requiere autorización de inicio. La actualización de estrategia y políticas se gestiona en `develop`. [Descargas 2.2.1](../releases/v2.2.1.md) · [Roadmap](ROADMAP.md) · [Política de distribución](RELEASE_POLICY.md) · [Informe de actualización](STRATEGIC_UPDATE_REPORT.md)
+La **Fase 05, Probability, Statistics & Stochastic Processes**, está autorizada y en desarrollo en `develop`. La última publicación es **2.2.1 Preview** y **2.0.0** es la LTS vigente. [Expediente de Fase 05](phase_05/README.md) · [Descargas 2.2.1](../releases/v2.2.1.md) · [Roadmap](ROADMAP.md) · [Política de distribución](RELEASE_POLICY.md)
 
 ## Línea base histórica de Fase 01
 

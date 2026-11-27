@@ -4,12 +4,43 @@ from .numeric_input import real_field,integer_field
 import secrets
 import numpy as np
 from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QLineEdit,QComboBox,QPushButton,QLabel,QScrollArea,QSplitter,QTabWidget
+from PySide6.QtWidgets import QWidget,QVBoxLayout,QHBoxLayout,QFormLayout,QLineEdit,QComboBox,QPushButton,QLabel,QScrollArea,QSplitter,QTabWidget,QCheckBox
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg,NavigationToolbar2QT
 from . import random_signals
+from .probability import FAMILIES, Distribution, distribution_value, generate_realizations, interval_probability, moment, population, store_realizations
+from .multivariate_probability import Gaussian, Multinomial, gaussian_density, generate_gaussian, generate_multinomial
+from .matrix_editor import MatrixEditor
 from .report_view import ReportView,report_panel
+from .result_summary import Section, Summary, number
 from .tool_guide import ToolGuide
+
+
+_LEGACY = {'gaussian': 'Gaussiana', 'uniform': 'Uniforme', 'bernoulli': 'Bernoulli (0 o 1)'}
+_JOINT = {'normal_vector': 'Normal multivariada', 'complex_vector': 'Normal compleja',
+          'multinomial': 'Multinomial'}
+_METHODS = {'generate': 'Generar realización', 'population': 'Propiedades poblacionales',
+            'density': 'Densidad o masa', 'cdf': 'Probabilidad acumulada (CDF)',
+            'survival': 'Probabilidad de excedencia (CCDF)', 'quantile': 'Cuantil',
+            'interval': 'Probabilidad en un intervalo', 'moment': 'Momento no central'}
+_PARAMETERS = {
+    'trials': ('Cantidad de ensayos', '10'), 'successes': ('Cantidad de éxitos', '3'),
+    'population': ('Tamaño de la población', '20'), 'draws': ('Extracciones sin reemplazo', '5'),
+    'p': ('Probabilidad de éxito', '0.5'), 'rate': ('Media de recuentos λ', '4'),
+    'low': ('Límite inferior', '0'), 'high': ('Límite superior', '5'),
+    'probabilities': ('Probabilidades por categoría', '0.25, 0.50, 0.25'),
+    'shape': ('Parámetro de forma', '2'), 'scale': ('Escala', '1'),
+    'ratio': ('Relación amplitud fija / desviación', '1'), 'alpha': ('Forma α', '2'),
+    'beta': ('Forma β', '3'), 'log_mean': ('Media del logaritmo', '0'),
+    'log_std': ('Desviación del logaritmo', '1'), 'df': ('Grados de libertad', '5'),
+    'df_num': ('Grados de libertad del numerador', '5'),
+    'df_den': ('Grados de libertad del denominador', '10'), 'location': ('Ubicación', '0'),
+}
+_STATES = {'undefined': 'Indefinido', 'divergent': 'Divergente', 'unbounded': 'Sin cota',
+           'singular_density': 'Densidad infinita en el borde', 'singular_measure': 'Distribución singular',
+           'out_of_range': 'Fuera del rango numérico', 'numerically_unavailable': 'Sin valor numérico fiable',
+           'underflow': 'Por debajo del rango numérico', 'zero_or_underflow': 'Cero o por debajo del rango'}
+
 
 class RandomPanel(QWidget):
     def __init__(self,window,action):
@@ -19,36 +50,283 @@ class RandomPanel(QWidget):
         controls=QWidget();form=QFormLayout(controls);form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows)
         form.addRow(ToolGuide('Generá una realización reproducible y usala en filtrado o análisis espectral.' if action=='generate' else 'Medí un registro finito. Sus estadísticas no prueban las propiedades de todo un proceso aleatorio.',('Distribución','Muestras','Análisis') if action=='generate' else ('Registro','Estadísticas','Histograma')))
         if action=='generate':
-            self.distribution=QComboBox();self.distribution.addItems(['Gaussiana','Uniforme','Bernoulli (0 o 1)']);form.addRow('Distribución',self.distribution)
-            self.mean=QLineEdit('0');self.std=QLineEdit('1');self.probability=QLineEdit('0.5');self.count=QLineEdit('1024');self.origin=QLineEdit('0');self.seed=QLineEdit('12345')
-            for label,field in [('Media teórica',self.mean),('Desviación estándar',self.std),('Probabilidad de obtener 1',self.probability),('Cantidad de muestras',self.count),('Índice inicial',self.origin),('Semilla reproducible',self.seed)]:form.addRow(label,field)
-            fresh=QPushButton('Elegir otra semilla');fresh.clicked.connect(lambda:self.seed.setText(str(secrets.randbits(32))));form.addRow(fresh)
-            def update(*_):
-                bernoulli=self.distribution.currentIndex()==2
-                form.setRowVisible(self.mean,not bernoulli);form.setRowVisible(self.std,not bernoulli);form.setRowVisible(self.probability,bernoulli)
-            self.distribution.currentIndexChanged.connect(update);update()
-            note=QLabel('La misma semilla y parámetros reproducen el registro en esta versión. En uniforme, los límites son media ± √3·desviación. La media medida puede diferir de la teórica.');note.setWordWrap(True);form.addRow(note)
+            self._generation_controls(form)
         else:
             self.source=LocalInput('Registro para analizar');self.source.bind_project(window);form.addRow(self.source)
             self.component=QComboBox();self.component.addItems(['Parte real','Parte imaginaria','Módulo']);form.addRow('Componente del histograma',self.component)
             self.bins=QLineEdit('30');form.addRow('Intervalos del histograma',self.bins)
-        button=QPushButton('Generar señal' if action=='generate' else 'Calcular estadísticas');button.setObjectName('primary');button.clicked.connect(self.calculate);form.addRow(button)
+        button=QPushButton('Calcular' if action=='generate' else 'Calcular estadísticas');button.setObjectName('primary');button.clicked.connect(self.calculate);form.addRow(button)
         scroll=QScrollArea();scroll.setWidgetResizable(True);scroll.setWidget(controls);scroll.setMinimumWidth(320);split.addWidget(scroll)
         self.tabs=QTabWidget();split.addWidget(self.tabs);split.setSizes([350,740]);split.setStretchFactor(1,1)
-        self.output=ResultView();self.tabs.addTab(self.output,'Señal')
-        self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Estadísticas')
+        self.output=ResultView()
+        if action=='generate':
+            signals=QWidget(); signal_layout=QVBoxLayout(signals)
+            self.sample_choice=QComboBox()
+            self.sample_choice.setAccessibleName('Realización o componente mostrada')
+            self.sample_choice.setProperty('sessionTransient', True)
+            self.sample_choice.currentIndexChanged.connect(self._show_sample)
+            self.sample_choice.hide()
+            signal_layout.addWidget(self.sample_choice);signal_layout.addWidget(self.output,1)
+            self.tabs.addTab(signals,'Realizaciones')
+            self._samples=()
+        else:
+            self.tabs.addTab(self.output,'Señal')
+        self.report=ReportView();self.tabs.addTab(report_panel(self.report),'Informe' if action=='generate' else 'Estadísticas')
         self.report.setPlainText('Completá los datos y calculá. Los resultados describen una realización finita, no toda la distribución.')
         if action!='generate':
             plot=QWidget();box=QVBoxLayout(plot);self.figure=Figure(figsize=(7,4));self.canvas=FigureCanvasQTAgg(self.figure);self.canvas.setMinimumHeight(280);box.addWidget(NavigationToolbar2QT(self.canvas,self));box.addWidget(self.canvas,1);self.tabs.addTab(plot,'Histograma')
+
+    def _generation_controls(self, form):
+        self.distribution = QComboBox()
+        options = {**_LEGACY, **{key: family.label for key, family in FAMILIES.items()
+                                if key not in ('uniform', 'normal', 'bernoulli')}, **_JOINT}
+        for key, label in options.items():
+            self.distribution.addItem(label, key)
+        self.method = QComboBox()
+        for key, label in _METHODS.items():
+            self.method.addItem(label, key)
+        form.addRow('Distribución', self.distribution)
+        form.addRow('Operación', self.method)
+        self.mean, self.std, self.probability = QLineEdit('0'), QLineEdit('1'), QLineEdit('0.5')
+        form.addRow('Media teórica', self.mean)
+        form.addRow('Desviación estándar', self.std)
+        form.addRow('Probabilidad de obtener 1', self.probability)
+        self.fields = {}
+        for family in options:
+            if (family in _JOINT and family != 'multinomial') or family in _LEGACY:
+                continue
+            keys = ('trials', 'probabilities') if family == 'multinomial' else (
+                entry[0] for entry in FAMILIES[family].parameters)
+            for key in keys:
+                label, default = _PARAMETERS[key]
+                widget = QLineEdit(default)
+                self.fields[f'{family}.{key}'] = widget
+                form.addRow(label, widget)
+        self.location = QLineEdit('0, 0')
+        self.covariance = MatrixEditor('1, 0; 0, 1')
+        self.pseudocovariance = MatrixEditor()
+        form.addRow('Vector de medias', self.location)
+        form.addRow('Covarianza', self.covariance)
+        form.addRow('Pseudocovarianza opcional', self.pseudocovariance)
+
+        self.argument, self.upper, self.order = QLineEdit('0'), QLineEdit('1'), QLineEdit('2')
+        self.observation = QLineEdit()
+        form.addRow('Punto o extremo inferior', self.argument)
+        form.addRow('Extremo superior', self.upper)
+        form.addRow('Orden del momento (0–4)', self.order)
+        form.addRow('Punto conjunto', self.observation)
+        self.count, self.seed, self.origin = QLineEdit('1024'), QLineEdit('12345'), QLineEdit('0')
+        self.replicas, self.sample_rate = QLineEdit('1'), QLineEdit()
+        form.addRow('Cantidad de muestras', self.count)
+        self.advanced = QCheckBox('Opciones avanzadas')
+        form.addRow(self.advanced)
+        form.addRow('Réplicas independientes', self.replicas)
+        form.addRow('Índice inicial', self.origin)
+        form.addRow('Frecuencia de muestreo opcional (Hz)', self.sample_rate)
+        form.addRow('Semilla reproducible', self.seed)
+        fresh = QPushButton('Elegir otra semilla')
+        fresh.clicked.connect(lambda: self.seed.setText(str(secrets.randbits(32))))
+        form.addRow(fresh)
+        self.distribution_note = QLabel()
+        self.distribution_note.setWordWrap(True)
+        form.addRow(self.distribution_note)
+
+        def update(*_):
+            key = self.distribution.currentData()
+            joint = key in _JOINT
+            for index, option in enumerate(_METHODS):
+                self.method.model().item(index).setEnabled(not joint or option in ('generate', 'population', 'density'))
+            if joint and self.method.currentData() not in ('generate', 'population', 'density'):
+                self.method.setCurrentIndex(0)
+            mode = self.method.currentData()
+            generating = mode == 'generate'
+            advanced = generating and self.advanced.isChecked()
+            for widget in (self.mean, self.std):
+                form.setRowVisible(widget, key in ('gaussian', 'uniform'))
+            form.setRowVisible(self.probability, key == 'bernoulli')
+            for name, widget in self.fields.items():
+                form.setRowVisible(widget, name.split('.', 1)[0] == key)
+            for widget in (self.location, self.covariance):
+                form.setRowVisible(widget, key in ('normal_vector', 'complex_vector'))
+            form.setRowVisible(self.pseudocovariance, key == 'complex_vector')
+            form.setRowVisible(self.count, generating)
+            form.setRowVisible(self.advanced, generating)
+            for widget in (self.replicas, self.origin, self.sample_rate, self.seed, fresh):
+                form.setRowVisible(widget, advanced)
+            form.setRowVisible(self.argument, not joint and mode in ('density', 'cdf', 'survival', 'quantile', 'interval'))
+            form.setRowVisible(self.upper, mode == 'interval')
+            form.setRowVisible(self.order, mode == 'moment')
+            form.setRowVisible(self.observation, joint and mode == 'density')
+            self.argument.setToolTip('Probabilidad entre 0 y 1.' if mode == 'quantile' else 'Valor de la variable aleatoria.')
+            note = {
+                'uniform': 'Los límites son media ± √3·desviación. La teoría continua requiere desviación positiva.',
+                'geometric': 'Cuenta ensayos hasta el primer éxito, empezando en 1.',
+                'negative_binomial': 'Cuenta fallos anteriores al último éxito necesario.',
+                'categorical': 'Las probabilidades suman uno y las categorías se numeran desde 0.',
+                'multinomial': 'Cada observación contiene un recuento por categoría.',
+                'complex_vector': 'La pseudocovarianza vacía representa un modelo propio. La densidad usa coordenadas real e imaginaria.',
+            }
+            self.distribution_note.setText(note.get(key, 'Una realización finita puede diferir de las propiedades de la distribución.'))
+
+        self.distribution.currentIndexChanged.connect(update)
+        self.method.currentIndexChanged.connect(update)
+        self.advanced.toggled.connect(update)
+        update()
+
+    def _model_inputs(self, key):
+        from .systems_panel import parse_list
+
+        def weights(text):
+            values = parse_list(text)
+            if np.any(values.imag):
+                raise ValueError('Las probabilidades por categoría deben ser reales.')
+            return values.real
+
+        if key in ('normal_vector', 'complex_vector'):
+            from .state_space_panel import matrix
+            pseudo = self.pseudocovariance.text().strip()
+            return Gaussian, (parse_list(self.location.text()), matrix(self.covariance.text()),
+                              key == 'complex_vector', matrix(pseudo) if pseudo and key == 'complex_vector' else None)
+        if key == 'multinomial':
+            return Multinomial, (integer_field(self.fields[f'{key}.trials']),
+                                 weights(self.fields[f'{key}.probabilities'].text()))
+        if key == 'bernoulli':
+            return Distribution, (key, {'p': real_field(self.probability)})
+        if key in ('gaussian', 'uniform'):
+            mean, deviation = real_field(self.mean), real_field(self.std)
+            if key == 'gaussian':
+                return Distribution, ('normal', {'mean': mean, 'std': deviation})
+            if deviation <= 0:
+                raise ValueError('La desviación de la uniforme continua debe ser positiva.')
+            width = np.sqrt(3) * deviation
+            return Distribution, (key, {'low': mean - width, 'high': mean + width})
+        parameters = {}
+        for name, _, rule in FAMILIES[key].parameters:
+            field = self.fields[f'{key}.{name}']
+            if rule == 'vector':
+                parameters[name] = weights(field.text())
+            else:
+                parser = integer_field if rule in ('integer', 'count', 'positive_count') else real_field
+                parameters[name] = parser(field)
+        return Distribution, (key, parameters)
+
+    def _show_sample(self, index):
+        if 0 <= index < len(self._samples):
+            self.output.show_result(self._samples[index])
+
+    def _calculate_distribution(self):
+        key, method = self.distribution.currentData(), self.method.currentData()
+        label = self.distribution.currentText()
+        if method == 'generate':
+            count, seed = integer_field(self.count), integer_field(self.seed)
+            origin, replicas = integer_field(self.origin), integer_field(self.replicas)
+            rate = real_field(self.sample_rate) if self.sample_rate.text().strip() else None
+            if key in _LEGACY and replicas == 1 and rate is None:
+                args = (key, count, real_field(self.mean) if key != 'bernoulli' else 0,
+                        real_field(self.std) if key != 'bernoulli' else 1,
+                        real_field(self.probability) if key == 'bernoulli' else .5, seed, origin)
+
+                def accept(signal):
+                    self.window.publish(signal, operation='Generación aleatoria')
+                    self._display_realizations((signal,))
+                    self._population_report(label, {
+                        'mean': {'value': signal.metadata['theoretical_mean'], 'status': 'finite'},
+                        'variance': {'value': signal.metadata['theoretical_variance'], 'status': 'finite'},
+                    }, (signal,))
+
+                self.window._run_operation('Generando señal aleatoria…', lambda: random_signals.generate(*args), accept)
+                return
+        builder, args = self._model_inputs(key)
+        argument = real_field(self.argument) if method in ('density','cdf','survival','quantile','interval') and key not in _JOINT else None
+        upper = real_field(self.upper) if method == 'interval' else None
+        order = integer_field(self.order) if method == 'moment' else None
+        observation = None
+        if method == 'density' and key in _JOINT:
+            from .systems_panel import parse_list
+            observation = parse_list(self.observation.text())
+            if key == 'multinomial':
+                if np.any(observation.imag) or np.any(observation.real != np.floor(observation.real)):
+                    raise ValueError('Ingresá un recuento entero por categoría.')
+                observation = [int(value) for value in observation.real]
+
+        def calculate():
+            model = builder(*args)
+            if method in ('population', 'generate'):
+                theory = {Distribution: population, Gaussian: Gaussian.document,
+                          Multinomial: Multinomial.population}[type(model)](model)
+                records = ()
+                if method == 'generate':
+                    generator = {Distribution: generate_realizations, Gaussian: generate_gaussian,
+                                 Multinomial: generate_multinomial}[type(model)]
+                    records = generator(model, count, seed, replicas=replicas, origin=origin, rate=rate)
+                return {'population': theory, 'records': records, 'distribution': model.document()}
+            if isinstance(model, Gaussian):
+                result = gaussian_density(model, observation)
+            elif isinstance(model, Multinomial):
+                result = model.mass(observation)
+            elif method == 'interval':
+                result = interval_probability(model, argument, upper)
+            elif method == 'moment':
+                result = moment(model, order)
+            else:
+                result = distribution_value(model, method, argument)
+            return {'result': result, 'distribution': model.document()}
+
+        def accept(data):
+            if 'population' in data:
+                records = data['records']
+                if records:
+                    journal = getattr(self.window, '_result_journal', None)
+                    parent, ids = store_realizations(self.window.project, data['distribution'], records,
+                                                     tool=journal.origin if journal else None)
+                    self.window.register_publication(parent, data['distribution'])
+                    for record_id, record in zip(ids, records, strict=True):
+                        self.window.register_publication(record_id, record)
+                    self._display_realizations(records)
+                self._population_report(label, data['population'], records)
+            else:
+                result = data['result']
+                rows = [('Valor', _result_text(result))] if 'status' in result else [
+                    ({'density': 'Densidad conjunta', 'log_density': 'Log densidad', 'mass': 'Masa conjunta',
+                      'log_mass': 'Log masa'}[name], _result_text(value)) for name, value in result.items()]
+                if result.get('log_value') is not None:
+                    rows.append(('Log probabilidad', number(result['log_value'])))
+                self.report.set_readable(Summary(label, [Section(_METHODS[method], rows=rows)]))
+            self.tabs.setCurrentIndex(0 if data.get('records') else 1)
+
+        self.window._run_operation('Calculando probabilidad…', calculate, accept)
+
+    def _display_realizations(self, records):
+        self._samples = records
+        self.sample_choice.blockSignals(True)
+        self.sample_choice.clear()
+        self.sample_choice.addItems([record.name for record in records])
+        self.sample_choice.blockSignals(False)
+        self.sample_choice.setVisible(len(records) > 1)
+        self._show_sample(0)
+        self.tabs.setCurrentIndex(0)
+
+    def _population_report(self, label, theory, records):
+        keys = {'mean': 'Media', 'variance': 'Varianza', 'covariance': 'Covarianza',
+                'pseudocovariance': 'Pseudocovarianza', 'real_rank': 'Rango en coordenadas reales'}
+        rows = [(title, _result_text(theory[name])) for name, title in keys.items()
+                if name in theory and theory[name] is not None]
+        sections = [Section('Propiedades poblacionales', rows=rows)]
+        if records:
+            sample_rows = [
+                ('Registros', len(records)), ('Muestras por registro', len(records[0].values)),
+                ('Semilla', records[0].metadata['seed']),
+            ]
+            if 'sample_rate_hz' in records[0].metadata:
+                sample_rows.append(('Frecuencia de muestreo (Hz)', number(records[0].metadata['sample_rate_hz'])))
+            sections.append(Section('Muestras generadas', rows=sample_rows,
+                                    paragraphs=['Elegí una realización en la pestaña de resultados o reutilizala desde la biblioteca.']))
+        self.report.set_readable(Summary(label, sections))
+
     def calculate(self):
         try:
             if self.action=='generate':
-                kind=['gaussian','uniform','bernoulli'][self.distribution.currentIndex()]
-                args=(kind,integer_field(self.count),real_field(self.mean) if kind!='bernoulli' else 0,real_field(self.std) if kind!='bernoulli' else 1,real_field(self.probability) if kind=='bernoulli' else .5,integer_field(self.seed),integer_field(self.origin))
-                def accept(signal):
-                    self.window.publish(signal,operation='Generación aleatoria');self.output.show_result(signal);self.tabs.setCurrentIndex(0)
-                    meta=signal.metadata;self.report.setPlainText(f"Distribución: { {'gaussian':'Gaussiana','uniform':'Uniforme','bernoulli':'Bernoulli'}[kind] }\nMuestras: {signal.values.size}\nSemilla: {meta['seed']}\nMedia teórica: {meta['theoretical_mean']}\nVarianza teórica: {meta['theoretical_variance']}\n\nLa generación produce muestras independientes del modelo elegido. Usá Estadísticas e histograma para medir esta realización, o Usar señal en… para filtrarla.")
-                self.window._run_operation('Generando señal aleatoria…',lambda:random_signals.generate(*args),accept)
+                self._calculate_distribution()
             else:
                 source=self.source.read();parent=self.source.reference_id;component=['real','imag','magnitude'][self.component.currentIndex()]
                 from .auxiliary import optional
@@ -72,3 +350,11 @@ class RandomPanel(QWidget):
                         axis.clear();axis.set_axis_off();axis.text(.5,.5,data['histogram_notice'],ha='center',va='center',wrap=True,transform=axis.transAxes);self.canvas.draw_idle()
                 self.window._run_operation('Calculando estadísticas…',lambda:random_signals.statistics(source,component,bins,histogram_notice=bins_notice),accept)
         except Exception as exc:show_input_error(self,'Revisá las entradas',exc)
+
+
+def _result_text(result):
+    if isinstance(result, dict) and 'status' in result:
+        return number(result['value']) if result['status'] == 'finite' else _STATES.get(result['status'], result['status'])
+    if isinstance(result, dict) and set(result) == {'real', 'imag'}:
+        result = np.asarray(result['real']) + 1j * np.asarray(result['imag'])
+    return np.array2string(np.asarray(result), precision=6, threshold=24)
