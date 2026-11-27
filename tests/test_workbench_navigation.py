@@ -18,6 +18,28 @@ from test_desktop_session import DesktopSessionFixture
 
 
 class WorkbenchNavigationContracts(DesktopSessionFixture):
+    def test_returning_to_tools_keeps_the_draft_without_preparing_the_workspace_again(self):
+        window = self.window()
+        window.show()
+        dft = ROUTES['basic', 'dft']
+        inverse = ROUTES['basic', 'idft']
+        other = ROUTES['estimation', 'kalman']
+        with patch.object(window, '_configure_readable_layouts', wraps=window._configure_readable_layouts) as prepare:
+            window.open_tool(dft)
+            page = window.pages[dft]
+            page.first.expression.setText('3*n-2')
+            window.open_tool(inverse)
+            window.open_tool(other)
+            self.assertEqual([call.args[0].tool_item for call in prepare.call_args_list], [dft, inverse, other])
+            window.open_tool(dft)
+            window.show_area('spectra')
+            window.open_tool(other)
+            window.open_tool(dft)
+            self.assertEqual(prepare.call_count, 3)
+        self.assertIs(window.pages[dft], page)
+        self.assertEqual(page.first.expression.text(), '3*n-2')
+        self.assertIs(window.current_calculate.window(), window)
+
     def choose(self, window, query, target):
         def keyboard_select(dialog):
             expected_row = next(index for index in range(dialog.list.count())

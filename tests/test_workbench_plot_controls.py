@@ -14,7 +14,7 @@ from PySide6.QtCore import QCoreApplication, QEvent, QItemSelectionModel, QModel
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from signallab_pc.plot_view import install_enlarge
+from signallab_pc.plot_view import enlarge_plot, install_enlarge
 from signallab_pc.model import Signal
 from signallab_pc.result_table import ResultTable
 
@@ -23,6 +23,32 @@ class PlotControlContracts(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.app = QApplication.instance() or QApplication([])
+
+    def test_detached_figure_tracks_results_without_rendering_while_closed(self):
+        owner = QWidget()
+        layout = QVBoxLayout(owner)
+        figure = Figure()
+        canvas = FigureCanvasQTAgg(figure)
+        toolbar = NavigationToolbar2QT(canvas, owner)
+        layout.addWidget(toolbar)
+        layout.addWidget(canvas)
+        canvas._signallab_explicit_plot = True
+        draws = []
+        canvas.mpl_connect('draw_event', lambda _event: draws.append(True))
+        install_enlarge(toolbar, standalone=True)
+        window = canvas._signallab_window
+        self.addCleanup(owner.deleteLater)
+        self.addCleanup(window.close)
+        axes = figure.add_subplot()
+        axes.plot([0, 1], [0, 3])
+        canvas.draw_idle()
+        self.app.processEvents()
+        self.assertTrue(canvas._signallab_has_plot_result)
+        self.assertEqual(draws, [])
+        enlarge_plot(canvas, owner)
+        self.app.processEvents()
+        self.assertTrue(window.isVisible())
+        self.assertTrue(draws)
 
     def figure(self, setup):
         parent = QWidget()
