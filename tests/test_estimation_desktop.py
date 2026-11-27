@@ -28,9 +28,11 @@ class EstimationWorkbenchTests(DesktopSessionFixture):
 
     def test_wiener_reuses_records_and_exposes_model_and_aligned_graph(self):
         window = self.window()
+        window.show()
         route = ROUTES['estimation','wiener']
         window.open_tool(route)
-        panel = window.pages[route].panel
+        page = window.pages[route]
+        panel = page.panel
         x,d,h,_ = matched_records()
         first, second = window.publish(x), window.publish(d)
         panel.observed.set_source(window.project.get(first), first)
@@ -47,6 +49,12 @@ class EstimationWorkbenchTests(DesktopSessionFixture):
             self.assertEqual(curve.metadata['time_start_s'], 2.25)
         self.assertTrue(panel.actions.reuse.isEnabled())
         self.assertIn('fuera del entrenamiento', panel.report.toPlainText())
+        launcher = page.workspace.results.graph_launcher
+        self.assertTrue(launcher.isEnabled())
+        launcher.click()
+        figure = panel.output.canvas._signallab_window
+        self.assertTrue(figure.isVisible())
+        figure.hide()
         panel.mode.setCurrentIndex(1)
         panel.autocorrelation.setText('2, 1')
         panel.cross.setText('1, 1')
@@ -57,14 +65,18 @@ class EstimationWorkbenchTests(DesktopSessionFixture):
         np.testing.assert_allclose(report['coefficients']['real'], [1/3,1/3], atol=2e-14)
         self.assertAlmostEqual(report['theoretical_mse']['value'], 1/3)
         self.assertFalse(panel.tabs.isTabVisible(1))
+        self.assertFalse(launcher.isEnabled())
+        self.assertTrue(panel.actions.reuse.isEnabled())
 
     def test_kalman_reuses_a_discrete_model_and_shows_prediction_when_measurement_missing(self):
         window = self.window()
+        window.show()
         route = ROUTES['estimation','kalman']
         model = StateModel([[1]],[[0]],[[1]],[[0]],.5,name='Constante medida')
         parent = window.publish(model)
         window.send_model(model,parent,route)
-        panel = window.pages[route].panel
+        page = window.pages[route]
+        panel = page.panel
         panel.origin.setText('-6')
         panel.initial.setText('0')
         for name,text in [('Q','0'),('R','1'),('P','1'),('y','2; 100; 10'),('mask','1; 0; 1')]:
@@ -79,15 +91,21 @@ class EstimationWorkbenchTests(DesktopSessionFixture):
         np.testing.assert_allclose(prior.values,[0,1,1])
         np.testing.assert_allclose(updated.values,[1,1,4])
         self.assertEqual((updated.origin,updated.metadata['time_start_s']),(-6,-3.))
+        launcher = page.workspace.results.graph_launcher
+        self.assertTrue(launcher.isEnabled())
+        launcher.click()
+        self.assertTrue(panel.output.canvas._signallab_window.isVisible())
         panel.selector.setCurrentIndex(1)
         np.testing.assert_allclose(panel.output.displayed_signals()[0].values,[.5,.5,1/3])
         self.assertIn('Última corrección disponible',panel.report.toPlainText())
 
     def test_adaptive_sensitivity_uses_same_observations_and_exports_selected_fir(self):
         window = self.window()
+        window.show()
         route = ROUTES['estimation','adaptive']
         window.open_tool(route)
-        panel=window.pages[route].panel
+        page = window.pages[route]
+        panel = page.panel
         source=Signal([1,2,3,-2,1,0,5,-6,1])
         target=Signal(source.values*2)
         source_key,target_key=window.publish(source),window.publish(target)
@@ -107,3 +125,7 @@ class EstimationWorkbenchTests(DesktopSessionFixture):
         self.assertNotEqual(panel.actions.key,first)
         self.assertIn('MSE por configuración',panel.report.toPlainText())
         self.assertEqual(panel.output.displayed_signals()[0].origin,0)
+        launcher = page.workspace.results.graph_launcher
+        self.assertTrue(launcher.isEnabled())
+        launcher.click()
+        self.assertTrue(panel.output.canvas._signallab_window.isVisible())

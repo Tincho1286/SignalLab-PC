@@ -129,6 +129,45 @@ def _validate_iq(signal, size):
     return signal.metadata.get('amplitude_units')
 
 
+def _label_errors(transmitted, received, padding):
+    differences = transmitted ^ received
+    symbol_errors = differences != 0
+    if padding:
+        differences[-1] >>= padding
+    return np.bitwise_count(differences), symbol_errors
+
+
+def quality_error_trace(transmitted, received, metrics):
+    """Sample the cumulative rates of an already validated measurement."""
+    count = metrics.ser.evaluated
+    width = transmitted.bits_per_symbol
+    points = min(count, 4096)
+    spec = metrics.specification
+    ctx = ExecutionContext()
+    ctx.checkpoint(0)
+    with ctx.reserve(64 * min(count, _BLOCK) + 64 * points):
+        counts = np.linspace(1, count, points, dtype=np.int64)
+        ber, ser = np.empty(points), np.empty(points)
+        bit_total = symbol_total = index = 0
+        for start in range(0, count, _BLOCK):
+            ctx.checkpoint(100 * start // count)
+            stop = min(count, start + _BLOCK)
+            tx = transmitted.labels[spec.transmitted_start + start:spec.transmitted_start + stop]
+            rx = received.labels[spec.received_start + start:spec.received_start + stop]
+            bits, symbols = _label_errors(tx, rx, metrics.excluded_padding_bits if stop == count else 0)
+            bit_counts, symbol_counts = np.cumsum(bits), np.cumsum(symbols)
+            end = int(counts.searchsorted(stop, side='right'))
+            selected = counts[index:end]
+            offsets = selected - start - 1
+            ber[index:end] = (bit_total + bit_counts[offsets]) / np.minimum(selected * width, metrics.ber.evaluated)
+            ser[index:end] = (symbol_total + symbol_counts[offsets]) / selected
+            bit_total += int(bit_counts[-1])
+            symbol_total += int(symbol_counts[-1])
+            index = end
+        ctx.checkpoint(100)
+    return counts, ber, ser
+
+
 def _log_squared_norm(values):
     scale = max(float(np.max(np.abs(values.real))), float(np.max(np.abs(values.imag))))
     if scale == 0:
@@ -204,11 +243,10 @@ def measure_quality(transmitted: SymbolSequence, received: SymbolSequence, *,
             stop = min(count, start + _BLOCK)
             tx_slice = slice(tx_start+start, tx_start+stop)
             rx_slice = slice(rx_start+start, rx_start+stop)
-            diff = transmitted.labels[tx_slice] ^ received.labels[rx_slice]
-            symbol_errors += int(np.count_nonzero(diff))
-            if stop == count and padding:
-                diff[-1] >>= padding
-            bit_errors += int(np.bitwise_count(diff).sum())
+            bits, symbols = _label_errors(transmitted.labels[tx_slice], received.labels[rx_slice],
+                                          padding if stop == count else 0)
+            symbol_errors += int(np.count_nonzero(symbols))
+            bit_errors += int(bits.sum())
             if reference is not None:
                 re, ee = _evm_norms(reference.values[tx_slice], observation.values[rx_slice])
                 ref_energy = float(np.logaddexp(ref_energy, re))

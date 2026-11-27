@@ -155,3 +155,9 @@ La cobertura de ramas acumulada en `fourier.py` fue 78/92 en ambos sistemas. Los
 ### Calificación y publicación de 2.3.0 Preview
 
 El candidato `bde8eaa10bdfb878c22f6dad0c5a93a5e6c932fe` aprobó la matriz en Windows Server 2022 y Ubuntu 22.04. Se recalculó el Quality Gate con los informes descargados y se cotejaron las huellas de cada paquete con sus comprobantes. El manifiesto Ed25519 se verificó con el actualizador del producto después de publicar. La etiqueta apunta al candidato probado y la LTS 2.0.0 conserva sus instaladores. [Matriz](https://github.com/Tincho1286/SignalLab-PC/actions/runs/46059832440) · [Dictámenes](PHASE_05_CLOSEOUT.md)
+
+### Correcciones para 2.3.1 Preview
+
+Monte Carlo y bootstrap preparaban sus figuras cuando la pestaña aún estaba oculta. El lanzador registraba los datos y mantenía el botón deshabilitado porque la barra de pestañas oculta podía omitir los eventos de trazado que actualizaban su disponibilidad. El selector de resultados ahora avisa al lanzador cuando cambia la estructura, la visibilidad o la habilitación de la vista. La regresión abre la curva de una campaña de 128 réplicas y verifica el total de observaciones del histograma bootstrap. Las herramientas de Wiener con datos, Kalman y filtrado adaptativo abren sus figuras desde Resultados. Wiener por correlaciones conserva el envío a Análisis LTI.
+
+Medir BER, SER y EVM presentaba un informe sin figuras asociadas. Las tasas acumuladas reutilizan la comparación de etiquetas del medidor y descartan el relleno de BER con el mismo criterio. El cálculo de la vista recorre todos los pares por bloques y conserva un número acotado de puntos, incluido el último. La segunda figura usa el tramo I/Q con el mismo desplazamiento de cada registro. Las regresiones comprueban los recuentos de un registro que cruza el límite de bloque, los ceros medidos y las coordenadas de los vectores para entradas desfasadas.

@@ -43,7 +43,12 @@ class ResultSelector(QObject):
         for name in ('setTabVisible','setTabEnabled','setTabText','addTab','insertTab','removeTab'):
             original=getattr(tabs,name)
             def changed(*args,method=original):
-                value=method(*args);self.refresh();return value
+                value=method(*args)
+                self.refresh()
+                launcher=getattr(tabs,'_signallab_plot_actions',None)
+                if launcher is not None:
+                    launcher.refresh()
+                return value
             setattr(tabs,name,changed)
         tabs.installEventFilter(self);tabs.tabBar().installEventFilter(self);tabs.currentChanged.connect(self.refresh);self.refresh()
     def eventFilter(self,watched,event):

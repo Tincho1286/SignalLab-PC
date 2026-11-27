@@ -22,7 +22,7 @@ from .result_state import ResultState
 from .result_summary import Section, Summary, number
 from .scalar_expression import integer_value, real_value
 from .statistics_results import store_statistics
-from .validation import show_input_error
+from .validation import invalid, show_input_error
 
 
 _METRICS = {'mean':'Media','variance':'Varianza','probability':'Frecuencia del evento'}
@@ -128,7 +128,7 @@ class MonteCarloPanel(QWidget):
         self.fields.append(self.family)
         self.parameters = {name:self._line(label,default) for name,(label,default) in _PARAMETERS.items()}
         self.samples = self._line('Muestras por réplica','128')
-        self.directory = self._line('Carpeta para guardar y continuar')
+        self.directory = self._line('Carpeta de la campaña',placeholder='Elegí una carpeta para simular')
         folder_button = QPushButton('Elegir carpeta…')
         folder_button.clicked.connect(self.choose_directory)
         self.form.addRow(folder_button)
@@ -183,7 +183,7 @@ class MonteCarloPanel(QWidget):
 
     def _output_directory(self):
         if not self.directory.text().strip():
-            raise ValueError('Elegí una carpeta para guardar las réplicas y continuar si se interrumpe.')
+            invalid(self.directory,'elegí dónde guardar las réplicas para poder continuar la campaña.')
         return Path(self.directory.text().strip()).expanduser()
 
     def _recipe(self):
@@ -218,13 +218,13 @@ class MonteCarloPanel(QWidget):
 
     def calculate(self):
         try:
+            directory = self._output_directory() if self.task=='campaign' else None
             metrics = self._metrics()
             if self.task=='campaign':
                 spec = CampaignSpec(self._recipe(),**metrics,samples=integer_field(self.samples,minimum=1),
                                     common_random_numbers=self.common.isChecked(),batch=integer_field(self.batch,minimum=1),
                                     minimum_replicas=integer_field(self.minimum_replicas,minimum=2),
                                     target_half_width=real_field(self.width) if self.width.text().strip() else None)
-                directory = self._output_directory()
                 snapshot = self.state.snapshot()
                 self.window._run_operation('Simulando réplicas…',lambda:run_campaign(spec,directory),
                                            lambda result:self.accept_campaign(result,snapshot))

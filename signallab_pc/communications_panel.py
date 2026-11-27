@@ -26,7 +26,7 @@ from .communications_interference import (
     BandInterference, ExternalInterference, InterferenceSpec, ToneInterference, apply_interference,
     parse_interference_tone, store_interference,
 )
-from .communications_metrics import QualitySpec, measure_quality
+from .communications_metrics import QualitySpec, measure_quality, quality_error_trace
 from .communications_modulation import build_constellation, decide_symbols, generate_bits, group_bits, modulate, parse_bits, ungroup_symbols
 from .communications_pipeline import run_channel_pipeline, store_channel_pipeline
 from .communications_pipeline_editor import ChannelPipelineEditor, channel_stage_label
@@ -76,6 +76,8 @@ _PHASE_PATH = 'Trayectoria de fase'
 _INTERFERENCE_SPECTRA = 'Espectros de los componentes'
 _LINK_CHANNEL = 'I/Q después de la cadena'
 _ERRORS = 'Tasas de error'
+_ALIGNED_RATES = 'BER y SER acumulados'
+_EVM_VECTORS = 'Vectores de error I/Q'
 _COMPARISON = 'Comparación de corridas'
 _VIEWS = {
     'link': (_CONSTE, _IQ, _EYE, _SPECTRUM, _PSD, _IMPULSE, _FREQUENCY, _ERRORS, _LINK_CHANNEL),
@@ -86,7 +88,7 @@ _VIEWS = {
     'interference': (_IQ, _INTERFERENCE_SPECTRA),
     'propagation': (_IQ, _SPECTRUM),
     'channel_pipeline': (_IQ, _SPECTRUM),
-    'receive': (_IQ,), 'decide': (_CONSTE,), 'measure': (), 'sweep': (_COMPARISON,),
+    'receive': (_IQ,), 'decide': (_CONSTE,), 'measure': (_ALIGNED_RATES, _EVM_VECTORS), 'sweep': (_COMPARISON,),
 }
 
 
@@ -1303,10 +1305,16 @@ class CommunicationsPanel(QWidget):
         observation, register_obs = self.observation.capture_input() if capture else (None, None)
 
         def accept(metrics):
+            axes = {_ALIGNED_RATES: (figures.quality_rates_figure, partial(quality_error_trace, *chosen, metrics))}
             if capture:
                 parents.extend((register_ref(), register_obs()))
+                count = metrics.ser.evaluated
+                tx, rx = spec.transmitted_start, spec.received_start
+                draw = partial(figures.evm_vectors_figure, reference=reference.values[tx:tx+count],
+                               observed=observation.values[rx:rx+count], units=metrics.evm.amplitude_units or '1')
+                axes[_EVM_VECTORS] = (draw, None)
             self.window.publish(asdict(metrics), title='BER, SER y EVM', parents=tuple(parents))
-            self._display(Summary('Calidad de recepción', [_quality_section(metrics)]), {}, {})
+            self._display(Summary('Calidad de recepción', [_quality_section(metrics)]), axes, {})
 
         return lambda: measure_quality(*chosen, reference=reference, observation=observation, spec=spec), accept
 

@@ -8,7 +8,7 @@ import numpy as np
 from scipy.stats import binom
 
 from signallab_pc.communications_data import ConstellationSpec, SymbolSequence
-from signallab_pc.communications_metrics import QualitySpec, error_rate, measure_quality, theoretical_error
+from signallab_pc.communications_metrics import QualitySpec, error_rate, measure_quality, quality_error_trace, theoretical_error
 from signallab_pc.execution import ExecutionContext
 from signallab_pc.jobs import OperationCancelled
 from signallab_pc.model import Signal
@@ -48,6 +48,19 @@ class CommunicationsMetricsTests(unittest.TestCase):
         self.assertIsNone(result.ber.confidence)
         self.assertEqual(result.ser.errors, 1)
         self.assertEqual(result.evm.status, 'reference_unavailable')
+
+    def test_cumulative_error_rates_include_all_pairs_and_exclude_padding_from_ber(self):
+        size = 65_537
+        received = np.zeros(size, dtype=np.uint32)
+        received[[0, size-2, size-1]] = [3, 8, 9]
+        tx = SymbolSequence(np.zeros(size, dtype=np.uint32), 16, 4*size-2)
+        rx = SymbolSequence(received, 16, 4*size-2)
+        metrics = measure_quality(tx, rx)
+        counts, ber, ser = quality_error_trace(tx, rx, metrics)
+        self.assertEqual((counts[0], counts[-1], counts.size), (1, size, 4096))
+        np.testing.assert_array_equal(ber, (2+(counts>=size-1)+(counts==size))/np.minimum(4*counts, 4*size-2))
+        np.testing.assert_array_equal(ser, (1+(counts>=size-1)+(counts==size))/counts)
+        self.assertEqual((ber[-1], ser[-1]), (metrics.ber.value, metrics.ser.value))
 
     def test_evm_status_and_overflow_resistant_ratio(self):
         labels = SymbolSequence([1], 2)

@@ -473,7 +473,7 @@ class CommunicationsDesktopTests(unittest.TestCase):
         route = ROUTES['communications', 'decide']
         self.window.send_signal(observed, identifier, route)
         self.calculate()
-        _, quality = self.open('measure')
+        page, quality = self.open('measure')
         headers = self.window.project.headers('calculation')
         for field, title in (('tx_record', 'Etiquetas transmitidas'), ('rx_record', 'Etiquetas recibidas')):
             identifier = next(row['id'] for row in headers if row['title'] == title)
@@ -482,6 +482,43 @@ class CommunicationsDesktopTests(unittest.TestCase):
             combo.setCurrentIndex(combo.findData(identifier))
         self.calculate()
         self.assertIn('0 / 8', quality.result.text.toPlainText())
+        launcher = page.workspace.results.graph_launcher
+        self.assertEqual([entry[2] for entry in launcher.available()], ['BER y SER acumulados'])
+        launcher.click()
+        self.wait()
+        canvas, _ = quality.canvas['BER y SER acumulados']
+        self.assertTrue(canvas._signallab_window.isVisible())
+        for axes in canvas.figure.axes:
+            np.testing.assert_array_equal(axes.containers[0].markerline.get_ydata(), [0, 0, 0, 0])
+
+    def test_quality_figures_follow_the_same_alignment_as_the_report(self):
+        page, panel = self.open('measure')
+        for field, value in (('tx_labels', '3 0 1 2'), ('rx_labels', '3 2 3 1'),
+                             ('tx_start', '1'), ('rx_start', '2'), ('count', '2')):
+            panel.fields[field].setText(value)
+        ref = iq_signal([-100, 1+1j, -1-1j, 45], SymbolClock(1))
+        obs = iq_signal([500, 600, 1+1.25j, -0.5-1j], SymbolClock(1))
+        panel.fields['measure_evm'].setChecked(True)
+        panel.reference.set_source(ref)
+        panel.observation.set_source(obs)
+        self.calculate()
+
+        launcher = page.workspace.results.graph_launcher
+        rates, vectors = launcher.available()
+        launcher.open_entry(rates)
+        self.wait()
+        rates_figure = panel.canvas['BER y SER acumulados'][0].figure
+        for axes in rates_figure.axes:
+            line = axes.containers[0].markerline
+            np.testing.assert_array_equal(line.get_xdata(), [1, 2])
+            np.testing.assert_array_equal(line.get_ydata(), [1, .5])
+
+        launcher.open_entry(vectors)
+        self.wait()
+        canvas = panel.canvas['Vectores de error I/Q'][0]
+        self.assertTrue(canvas._signallab_window.isVisible())
+        np.testing.assert_array_equal(canvas.figure.axes[0].collections[-1].get_segments(),
+                                      [[[1, 1], [1, 1.25]], [[-1, -1], [-.5, -1]]])
 
     def test_fourier_figures_use_physical_frequency_or_rad_per_sample(self):
         rate, n, bin_index = 8000, 16, 3

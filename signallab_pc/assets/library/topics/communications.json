@@ -133,7 +133,7 @@
       "blocks": [
         ["Qué podés hacer", "Compará etiquetas transmitidas y recibidas para medir BER y SER. Para EVM aporta además los símbolos complejos de referencia y las observaciones."],
         ["Cómo preparar el cálculo", "Indicá los índices de inicio a partir de cero. El largo limita la comparación y permite descartar la cabecera del piloto o los transitorios. Podés elegir etiquetas del proyecto o escribirlas."],
-        ["Cómo interpretar la salida", "BER indica bits útiles erróneos sobre bits útiles evaluados. SER indica etiquetas erróneas sobre símbolos evaluados. EVM mide el error complejo RMS relativo a la referencia."],
+        ["Cómo interpretar la salida", "BER indica bits útiles erróneos sobre bits útiles evaluados. SER indica etiquetas erróneas sobre símbolos evaluados. Sus gráficos muestran cómo cambian las tasas a medida que se incluyen más símbolos. Con las dos entradas I/Q, la segunda figura une muestras de referencia y observadas para mostrar los vectores de error. La EVM del informe mide su error RMS relativo a la referencia."],
         ["Qué tener en cuenta", "Cero errores observados describe solo el registro medido. Los intervalos binomiales del experimento se muestran cuando su configuración justifica la independencia."]
       ]
     }
