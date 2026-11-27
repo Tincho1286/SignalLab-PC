@@ -31,6 +31,17 @@ from .state_space import StateModel
 
 from .navigation import MENUS
 from . import __version__
+
+
+def _available_signal_input(field, page):
+    if field.isVisibleTo(page):
+        return True
+    stack = field.parentWidget()
+    tabs = stack.parentWidget() if isinstance(stack,QStackedWidget) else None
+    if not isinstance(tabs,QTabWidget) or not tabs.isVisibleTo(page):
+        return False
+    index = tabs.indexOf(field)
+    return index >= 0 and tabs.isTabVisible(index) and tabs.isTabEnabled(index)
 from .tool_descriptions import describe_tool
 from .report_view import ReportView,report_panel
 from .expression_editor import ExpressionEditor
@@ -1393,7 +1404,7 @@ class ToolboxWindow(SignalLabWindow):
             panel.stimulus.setCurrentIndex(2)
         active=getattr(self.stack.currentWidget(),'active_page',self.stack.currentWidget())
         fields=[field for field in active.findChildren(LocalInput)
-                if field.isVisibleTo(active) and (
+                if _available_signal_input(field,active) and (
                     field.kind in ('import',value.domain)
                     or (getattr(field,'dft_input',False) and ops.is_centered_dft(value))
                     or value.data_kind in getattr(field,'cross_domain_kinds',()))]
