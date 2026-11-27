@@ -103,6 +103,8 @@ add('random','Estimación y filtrado',('estimation','gaussian'),'Estimación gau
 add('random','Estimación y filtrado',('estimation','wiener'),'Filtro de Wiener','Obtené un FIR causal desde dos registros o desde correlaciones conocidas.','wiener hopf lmmse ruido residual entrenamiento')
 add('random','Estimación y filtrado',('estimation','kalman'),'Filtro de Kalman','Estimá estados de un modelo discreto con ruido y mediciones incompletas.','prediccion correccion covarianza observacion innovacion estados')
 add('random','Estimación y filtrado',('estimation','adaptive'),'Filtrado adaptativo','Compará LMS, NLMS y RLS para identificar un FIR, predecir muestras o separar ruido.','sensibilidad olvido paso adaptacion ruido convergencia referencia semilla')
+add('random','Experimentos',('statistical_experiment','campaign'),'Monte Carlo','Simulá réplicas, variá parámetros y medí incertidumbre con campañas reanudables.','simulacion eventos raros sensibilidad barridos')
+add('random','Experimentos',('statistical_experiment','bootstrap'),'Incertidumbre por bootstrap','Remuestreá un registro por observaciones o bloques.','bootstrap percentil intervalo confianza varianza')
 add('spectra','Fourier discreta',('inverse_dtft',0),'DTFT inversa numérica','Obtener x[n] desde un período de X(ω) en rad/muestra.','inversa idtft periodo bilateral muestras')
 add('spectra','Fourier discreta',('dtft_symbolic',1),'DTFT inversa algebraica','Recuperar la expresión de x[n] por propiedades o integración.','inversa idtft expresion propiedades bilateral')
 add('signals','Transformar',('signal_product',0),'Multiplicar señales','Producto punto a punto para enventanar señales discretas o continuas.','multiplicacion producto ventana enventanado dos señales')

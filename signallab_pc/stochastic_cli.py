@@ -8,6 +8,8 @@ from .adaptive_filter import METHODS as ADAPTIVE_METHODS, PURPOSES, adaptive_fir
 from .cli_session import add_output_arguments, add_session_arguments, load_input, load_signal_file, run_command, timeout_seconds
 from .input_files import decode_finite_json, read_json
 from .kalman_filter import kalman_filter, store_kalman
+from .monte_carlo import METRICS, campaign_spec, export_campaign_csv, load_campaign, run_campaign, store_campaign
+from .monte_carlo_bootstrap import bootstrap_record
 from .multivariate_probability import array_from_parts
 from .optimal_estimation import linear_gaussian, store_gaussian_estimate
 from .project import Project
@@ -173,6 +175,36 @@ def _adaptive(args, context):
     return receipt
 
 
+def _campaign(args, context):
+    occupied = [args.output.resolve()]
+    if args.csv is not None:
+        occupied.append(args.csv.resolve())
+    if args.model is not None:
+        occupied.append(args.model.resolve())
+    if len(set(occupied))!=len(occupied) or (args.output.resolve().parent==args.directory.resolve()
+                                             and args.output.suffix.lower()!='.slproj'):
+        raise ValueError('Elegí rutas distintas para el proyecto, el CSV y la configuración de la campaña.')
+    if args.model is None:
+        result = load_campaign(args.directory,context)
+    else:
+        spec = campaign_spec(read_json(args.model,checkpoint=context.checkpoint))
+        result = run_campaign(spec,args.directory,context)
+    project = Project()
+    identifier = store_campaign(project,result,execution=context)
+    if args.csv is not None:
+        export_campaign_csv(result,args.csv,context)
+    session.save(args.output,project,session.empty_workspace(),checkpoint=context.checkpoint)
+    return {'result_id':identifier,'status':result.report['status'],'replicas':len(result.replicas)}
+
+
+def _bootstrap(args, context):
+    project, workspace, source = load_input(args,context)
+    result = bootstrap_record(source,metric=args.metric,seed=args.seed,replicas=args.replicas,
+                              block_length=args.block_length,confidence=args.confidence,low=args.low,high=args.high,
+                              execution=context)
+    return _save_analysis(args,project,workspace,result,[(source,args.record)],'Incertidumbre por bootstrap',context)
+
+
 def _ensemble(args, context):
     project, workspace = session.load(args.session, checkpoint=context.checkpoint)
     if len(set(args.records)) != len(args.records):
@@ -270,6 +302,22 @@ def main(argv):
     lomb.add_argument('--high',type=float,required=True)
     lomb.add_argument('--points',type=int,default=1025)
     lomb.set_defaults(execute=_lomb)
+    monte = commands.add_parser('monte-carlo',help='Ejecutar, reanudar o consultar una campaña de simulación.')
+    add_output_arguments(monte)
+    monte.add_argument('--directory',type=Path,required=True)
+    monte.add_argument('--model',type=Path,help='Definición JSON. Sin este argumento se verifica y exporta una campaña existente.')
+    monte.add_argument('--csv',type=Path)
+    monte.set_defaults(execute=_campaign)
+    bootstrap = commands.add_parser('bootstrap',help='Estimar incertidumbre desde un registro por remuestreo.')
+    add_session_arguments(bootstrap)
+    bootstrap.add_argument('--metric',choices=METRICS,default='mean')
+    bootstrap.add_argument('--seed',type=int,required=True)
+    bootstrap.add_argument('--replicas',type=int,default=1000)
+    bootstrap.add_argument('--block-length',type=int,default=1)
+    bootstrap.add_argument('--confidence',type=float,default=.95)
+    bootstrap.add_argument('--low',type=float)
+    bootstrap.add_argument('--high',type=float)
+    bootstrap.set_defaults(execute=_bootstrap)
     for name, engine, description in (
         ('estimate-gaussian', 'gaussian', 'Estimar parámetros de un modelo gaussiano por ML, MAP y MMSE.'),
         ('wiener-model', 'wiener', 'Resolver Wiener–Hopf desde correlaciones y potencia conocidas.'),

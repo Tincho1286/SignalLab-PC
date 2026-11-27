@@ -24,6 +24,8 @@ MENUS['Señales aleatorias'] += [('Estimación gaussiana','estimation','gaussian
                                ('Filtro de Wiener','estimation','wiener','pair'),
                                ('Filtro de Kalman','estimation','kalman',None),
                                ('Filtrado adaptativo','estimation','adaptive','pair')]
+MENUS['Señales aleatorias'] += [('Monte Carlo','statistical_experiment','campaign',None),
+                               ('Incertidumbre por bootstrap','statistical_experiment','bootstrap','discrete')]
 
 MENUS['Comunicaciones'] = [
     ('Enlace digital','communications','link',None),

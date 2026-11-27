@@ -187,3 +187,27 @@ python -m signallab_pc stochastic adaptive --session par.slproj --record ID_ENTR
 ```
 
 El archivo de comparación es una lista de objetos, por ejemplo `[{"method":"lms","step":0.01},{"method":"rls","forgetting":0.99}]`. Usá `adaptive_fir` y `compare_adaptive` para aplicar los mismos métodos desde Python. [Recursiones y condiciones](MATHEMATICAL_FOUNDATIONS.md#filtrado-adaptativo-fir)
+
+### Ejecutar una campaña y medir incertidumbre
+
+En **Señales aleatorias › Experimentos**, **Monte Carlo** estima media, varianza o probabilidad repitiendo registros simulados. La carpeta guarda la definición y los resultados resumidos de cada bloque. Después de interrumpir una campaña podés reabrirla y continuar desde el último bloque verificado. El gráfico muestra la evolución de la estimación con la cantidad de réplicas.
+
+En **Barrido y opciones de ejecución**, elegí un parámetro y sus valores para comparar escenarios. También podés cargar una definición JSON que combine familias. Para eventos raros, el informe conserva la cantidad observada, el total de observaciones y una cota superior aun cuando el recuento observado sea cero.
+
+```json
+{
+  "metric": "probability", "seed": 2026, "samples": 256, "replicas": 64,
+  "low": 1, "high": 1, "batch": 8, "common_random_numbers": true,
+  "scenarios": [
+    {"name":"Escenario A", "family":"bernoulli", "parameters":{"p":0.05}},
+    {"name":"Escenario B", "family":"bernoulli", "parameters":{"p":0.1}}
+  ]
+}
+```
+
+```sh
+python -m signallab_pc stochastic monte-carlo --model diseno.json --directory observaciones-mc --csv replicas.csv --output estudio.slproj
+python -m signallab_pc stochastic bootstrap --session registros.slproj --record ID_DATOS --metric mean --seed 2026 --block-length 8 --replicas 512 --output incertidumbre.slproj
+```
+
+**Incertidumbre por bootstrap** parte de un registro real. Con longitud de bloque uno remuestrea observaciones individuales. Con una longitud mayor conserva tramos contiguos para estudiar series dependientes. El informe indica los supuestos, el error estándar y los límites percentiles. En Python, los mismos servicios son `run_campaign` y `load_campaign` de `signallab_pc.monte_carlo` y `bootstrap_record` de `signallab_pc.monte_carlo_bootstrap`. [Métodos e interpretación](MATHEMATICAL_FOUNDATIONS.md#simulación-incertidumbre-y-remuestreo)

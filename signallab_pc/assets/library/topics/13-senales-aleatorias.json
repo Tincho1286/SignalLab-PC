@@ -223,6 +223,24 @@
         ["Cómo interpretar la salida", "La estimación y el error en cada muestra usan los coeficientes disponibles antes de actualizar. Compará el error durante la adaptación y en el tramo final reservado. Los coeficientes finales se pueden reutilizar como un filtro fijo."],
         ["Qué tener en cuenta", "La convergencia depende de la energía y excitación de la entrada, de los parámetros y de cuánto varíe el sistema. Una referencia correlacionada con la señal deseada puede eliminar también parte de esa señal."]
       ]
+    },
+    {
+      "key": ["statistical_experiment", "campaign"],
+      "blocks": [
+        ["Qué podés hacer", "Estimá una media, una varianza o la probabilidad de un evento repitiendo experimentos simulados."],
+        ["Cómo preparar el cálculo", "Elegí una distribución, cantidad de muestras por réplica y carpeta. Para comprobar sensibilidad, variá un parámetro y compará los resultados entre escenarios."],
+        ["Cómo interpretar la salida", "La curva muestra cómo evoluciona la media de las estimaciones al acumular réplicas. El intervalo expresa incertidumbre estadística. Si no observaste eventos, conservá la cota superior."],
+        ["Qué tener en cuenta", "Las réplicas tienen subflujos reproducibles de una semilla maestra. Para continuar tras la interrupción, reabrí la carpeta o ejecutá de nuevo con los mismos parámetros."]
+      ]
+    },
+    {
+      "key": ["statistical_experiment", "bootstrap"],
+      "blocks": [
+        ["Qué podés hacer", "Estimá la incertidumbre de una medida a partir de un registro real observado."],
+        ["Cómo preparar el cálculo", "Elegí media, varianza o evento. Si las observaciones son independientes usá bloques de longitud uno. Si hay dependencia temporal, elegí bloques contiguos más largos."],
+        ["Cómo interpretar la salida", "El histograma muestra el estadístico de cada nuevo registro remuestreado. El intervalo percentil toma cuantiles de esa distribución."],
+        ["Qué tener en cuenta", "La validez depende de cómo se obtuvieron los datos. El remuestreo conserva solo la dependencia que entra en los bloques y no puede aportar información sobre eventos que no aparecen en la muestra."]
+      ]
     }
   ],
   "guides": [
@@ -489,6 +507,28 @@
         ["Reserva y comparación", "El tramo reservado usa el filtro final fijo. Podés comparar tres algoritmos con sus parámetros iniciales o variar el paso de LMS/NLMS o el factor λ de RLS."]
       ],
       "reading": "Compará los MSE sobre el mismo intervalo. Durante el entrenamiento, cada error mide lo que se podía estimar antes de recibir el dato de ese instante. En cancelación de ruido, el residuo estima la señal limpia."
+    },
+    {
+      "key": ["statistical_experiment", "campaign"],
+      "flow": ["Distribución o escenarios", "Réplicas y precisión", "Estimaciones e intervalos"],
+      "parameters": [
+        ["Evento", "Se cuenta P(L ≤ X ≤ H) entre los extremos elegidos, incluyendo ambos límites."],
+        ["Réplicas y muestras", "Cada réplica toma un registro simulado nuevo con las muestras indicadas. El máximo de réplicas fija cuándo termina si no se alcanza antes el objetivo."],
+        ["Carpeta", "Contiene la definición y los bloques verificados. Para ver el progreso de una campaña interrumpida, elegí Reabrir campaña."],
+        ["Números aleatorios comunes", "Vincula los escenarios a los mismos cuantiles uniformes en cada réplica. Sirve para comparar, y la diferencia se calcula con las observaciones emparejadas."],
+        ["Semiancho objetivo", "Termina cuando los intervalos de todos los escenarios alcanzan la precisión elegida, desde la cantidad mínima de réplicas y al terminar cada bloque."]
+      ],
+      "reading": "Las probabilidades usan intervalos binomiales exactos con corrección por revisiones planificadas. Para media y varianza se usa un intervalo t aproximado sobre las réplicas. Podés guardar los resultados por réplica en CSV."
+    },
+    {
+      "key": ["statistical_experiment", "bootstrap"],
+      "flow": ["Registro y estadístico", "Remuestreo", "Distribución e intervalo"],
+      "parameters": [
+        ["Registro observado", "Usá una secuencia real con el orden de observación original. En el modo por bloques, el motor toma tramos contiguos con reposición."],
+        ["Longitud del bloque", "Uno corresponde al caso IID. Para registros estacionarios dependientes, elegí una longitud que cubra la dependencia relevante y compará varias longitudes."],
+        ["Réplicas y confianza", "Más réplicas estabilizan los cuantiles empíricos. La proporción de cola depende del porcentaje de confianza elegido."]
+      ],
+      "reading": "El error estándar se obtiene de la dispersión de las réplicas. Si solo se observa un tipo de resultado en un evento, el intervalo se informa indeterminado."
     }
   ]
 }

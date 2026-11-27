@@ -714,6 +714,9 @@ class ToolPage(QWidget):
                 from .estimation_panel import EstimationPanel
                 self.panel=EstimationPanel(window,index)
             root.addWidget(self.panel);return
+        if kind=='statistical_experiment':
+            from .monte_carlo_panel import MonteCarloPanel
+            self.panel=MonteCarloPanel(window,index);root.addWidget(self.panel);return
         if kind=='communications':
             from .communications_panel import CommunicationsPanel
             self.panel=CommunicationsPanel(window,index);root.addWidget(self.panel);return

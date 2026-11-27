@@ -17,5 +17,6 @@
 | WP-04 | `ar_estimation.py`, `time_series_identification.py` para ajuste, `random_models.py` para análisis teórico y el adaptador headless que exponga los ajustes y su procedencia. |
 | WP-05 | `statistical_spectra.py` para los estimadores ampliados y las fronteras existentes `dsp_application.py` y `fourier.py` donde corresponda. |
 | WP-06 | `optimal_estimation.py`, `wiener_filter.py`, `kalman_filter.py` y `adaptive_filter.py`. La CLI estocástica y la procedencia de proyectos conservan sus controles. |
+| WP-07 | `monte_carlo.py`, `monte_carlo_bootstrap.py` y el bloqueo compartido de campañas en `campaign_files.py`. |
 
 [Protocolo estadístico](STATISTICAL_VALIDATION_PROTOCOL.md) · [Validación permanente](../VALIDATION_MATRIX.md#criterios-vigentes) · [Política de entregas](../RELEASE_POLICY.md)
