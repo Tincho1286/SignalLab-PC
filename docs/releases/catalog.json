@@ -1,6 +1,21 @@
 {
   "releases": [
     {
+      "tag": "v2.2.1",
+      "title": "Escalado alto y actualización en Linux",
+      "channel": "preview",
+      "summary": "Ajuste de las ventanas al área útil y certificados del sistema para el actualizador de Linux.",
+      "changes": [
+        "Ajuste de la ventana principal y las figuras con escalado alto.",
+        "Controles de figura disponibles en escritorios de poco alto.",
+        "Uso de los certificados del sistema para consultar GitHub y descargar instaladores."
+      ],
+      "limits": [
+        "La comprobación interactiva en Fedora Plasma sigue pendiente."
+      ],
+      "notes": "docs/releases/v2.2.1.md"
+    },
+    {
       "tag": "v2.2.0",
       "title": "Modelado de canales",
       "channel": "preview",

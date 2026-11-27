@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://github.com/Tincho1286/SignalLab-PC/releases/latest"><strong>Descargar Stable/LTS</strong></a> ·
-  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.0"><strong>Descargar Preview 2.2.0</strong></a> ·
+  <a href="https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.1"><strong>Descargar Preview 2.2.1</strong></a> ·
   <a href="#engineering-core-en-develop">Engineering Core</a> ·
   <a href="docs/getting-started.md">Primeros pasos</a> ·
   <a href="docs/tools.md">Herramientas</a> ·
@@ -35,7 +35,9 @@ Los ejemplos reproducibles cubren DFT, IDFT y el flujo DSP. El expediente de Fas
 
 La Fase 03 incorpora modulación PSK y QAM, diseño de pulsos RC/RRC, ruido AWGN calibrado, recuperación asistida o con piloto y mediciones BER, SER y EVM. El enlace integrado guarda las muestras, el reloj y la procedencia del experimento. Podés comparar constelaciones, señales I/Q, diagramas de ojo y espectros, o ejecutar un barrido y retomarlo desde la última corrida verificada. [Expediente y ejemplos](docs/engineering/phase_03/README.md)
 
-La **2.2.0 Preview** amplía el enlace con multitrayecto, fading Rayleigh y Rician, Doppler, interferencia, pérdidas de propagación y errores de sincronización e I/Q. Podés aplicar cada modelo a una señal o encadenarlos antes del receptor. Los experimentos guardan las etapas y las fuentes del canal, y los barridos permiten comparar réplicas con semillas reproducibles. [Descargas y novedades](docs/releases/v2.2.0.md) · [Modelos y ejemplos](docs/engineering/phase_04/README.md)
+El laboratorio de canales amplía el enlace con multitrayecto, fading Rayleigh y Rician, Doppler, interferencia, pérdidas de propagación y errores de sincronización e I/Q. Podés aplicar cada modelo a una señal o encadenarlos antes del receptor. Los experimentos guardan las etapas y las fuentes del canal, y los barridos permiten comparar réplicas con semillas reproducibles. [Modelos y ejemplos](docs/engineering/phase_04/README.md)
+
+La **2.2.1 Preview** ajusta las ventanas al espacio disponible con escalado alto. También usa los certificados de confianza del sistema en Linux para que el actualizador se conecte a GitHub en distribuciones como Fedora. [Descargas y novedades](docs/releases/v2.2.1.md)
 
 ```bash
 python -m signallab_pc communications link --bits 4096 --seed 2026 --eb-n0 6 --output enlace.slproj

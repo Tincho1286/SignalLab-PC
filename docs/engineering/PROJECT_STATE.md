@@ -2,7 +2,7 @@
 
 **Fase 04 en curso en `develop`.** La validación funcional de la 2.1.1 Preview confirmó las dos correcciones de escritorio. La integración aprobada llevó `main` a `a94cd37`. El código, las pruebas y el empaquetado coinciden con `3ccb81a`, el candidato probado en Windows y Ubuntu. La versión LTS vigente es `v2.0.0`. [Publicación 2.1.1 Preview](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.1.1) · [Quality Gate de Fase 03](phase_03/QUALITY_GATE_REPORT.md) · [Fase 04](phase_04/README.md) · [Política de distribución](RELEASE_POLICY.md)
 
-La **2.2.0 Preview** ofrece el laboratorio de canales desde `a3026d2`, con la matriz de Windows y Linux aprobada y el manifiesto de actualización firmado. Se confirmó el funcionamiento en Linux. El cierre de Fase 04 conserva pendiente el recorte de ventanas observado al 200 % y la comprobación nativa de Windows al 150 % y 200 %. [Publicación 2.2.0 Preview](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.0) · [Quality Gate de Fase 04](phase_04/QUALITY_GATE_REPORT.md)
+La **2.2.1 Preview** se publicó desde `08cd1bc`, con la matriz aprobada y el manifiesto firmado. La ventana principal y las figuras de Clarke cupieron en el área útil con escalado de Qt al 200 %. El portable verificó ambos canales firmados en Fedora 44. Quedan la comprobación nativa de Windows al 150 % y 200 % y la prueba interactiva en Fedora Plasma. [Publicación 2.2.1 Preview](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.1) · [Matriz de 2.2.1](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45923696053/attempts/2)
 
 ## Línea base histórica de Fase 01
 

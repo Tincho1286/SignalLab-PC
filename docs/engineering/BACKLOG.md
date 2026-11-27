@@ -1,6 +1,6 @@
 # Backlog de SignalLab Engineering
 
-La 2.2.0 Preview se publicó sobre `a3026d2`. El candidato 2.2.1 corrige el recorte de ventanas en pantallas con poco alto disponible y permite que el actualizador use los certificados del sistema en Fedora. La corrección de interfaz se verificó al 200 % con escala de Qt en 1366 × 768. Quedan la prueba nativa de Windows y la comprobación funcional del paquete en Fedora Plasma. E-04 sigue su seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Matriz de 2.2.1](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45923696053)
+La 2.2.1 Preview se publicó sobre `08cd1bc`. La prueba de escritorio con escalado de Qt al 200 % y la conexión del portable a GitHub en Fedora 44 aprobaron. Quedan la prueba nativa de Windows y la comprobación funcional del paquete en Fedora Plasma. E-04 sigue su seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Descargas de 2.2.1](../releases/v2.2.1.md)
 
 La [matriz de Fase 02B](phase_02b/PHASE_02B_TRACEABILITY_MATRIX.md) registra los nuevos paquetes y sus criterios. Los controles y riesgos de estabilización siguen debajo como referencia.
 

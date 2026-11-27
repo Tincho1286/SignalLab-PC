@@ -14,8 +14,10 @@ El registro nativo de Windows cubre 1366 × 768 al 100 % con enlace, exportació
 
 | Decisión | Dictamen | Condición pendiente |
 | --- | --- | --- |
-| Cierre técnico de Fase 04 | **NO-GO** | Corregir el recorte y verificar Windows nativo al 150 % y 200 %. Completar los datos del perfil de escritorio Linux. |
+| Cierre técnico de Fase 04 | **NO-GO** | Verificar Windows nativo al 150 % y 200 % y el paquete 2.2.1 en Fedora Plasma. |
 | Preparación para Fase 05 | **NO-GO** | Cerrar Fase 04 y emitir la recomendación basada en la evidencia completa. El inicio tiene autorización propia. |
-| Distribución pública | **GO condicionado para 2.2.0 Preview** | Publicación autorizada con el recorte informado. La corrección y su verificación quedan para una Preview posterior. E-04 sigue como asunto independiente. |
+| Distribución pública | **GO para 2.2.1 Preview** | Publicación autorizada sobre el SHA verificado. La revisión de escritorio del propietario queda pendiente. E-04 sigue como asunto independiente. |
 
-La 2.2.0 Preview se publicó con 17 adjuntos verificados. El actualizador selecciona su manifiesto firmado cuando se incluyen preliminares. Stable/LTS selecciona `v2.0.0` y `main` conserva la integración aprobada de 2.1.1 Preview en `a94cd37`. [Publicación](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.0) · [Comprobante de publicación](evidence/candidate-a3026d2/publication-2.2.0.json) · [Política de entregas](../RELEASE_POLICY.md)
+La 2.2.0 Preview se publicó con 17 adjuntos verificados. La comprobación del actualizador en esa publicación validó su manifiesto firmado. [Publicación](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.0) · [Comprobante de publicación](evidence/candidate-a3026d2/publication-2.2.0.json)
+
+La 2.2.1 Preview se publicó con el manifiesto firmado y 18 adjuntos verificados. El código `08cd1bc` incorpora el ajuste de altura y valida los certificados de GitHub con el almacén de Fedora. El actualizador ofrece 2.2.1 al incluir preliminares. Stable/LTS selecciona `v2.0.0`, y `main` conserva la integración aprobada de 2.1.1 Preview en `a94cd37`. [Publicación 2.2.1](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.1) · [Comprobante de publicación](evidence/candidate-08cd1bc/publication-2.2.1.json) · [Política de entregas](../RELEASE_POLICY.md)

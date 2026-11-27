@@ -2,12 +2,13 @@
 
 [← Documentación](../README.md)
 
-La **2.0.0** es la versión LTS. La **2.2.0 Preview** incorpora el laboratorio de canales y amplía los barridos de comunicaciones. [Descargas de la LTS](https://github.com/Tincho1286/SignalLab-PC/releases/latest) · [Notas de la LTS](v2.0.0.md) · [Descargas y notas de Preview](v2.2.0.md)
+La **2.0.0** es la versión LTS. La **2.2.1 Preview** corrige el recorte al 200 % y la conexión del actualizador en Fedora. [Descargas de la LTS](https://github.com/Tincho1286/SignalLab-PC/releases/latest) · [Notas de la LTS](v2.0.0.md) · [Descargas y notas de Preview](v2.2.1.md)
 
 Este índice conserva el canal y las notas de cada publicación.
 
 | Versión | Cambios principales | Canal |
 | --- | --- | --- |
+| [2.2.1](v2.2.1.md) | Ajuste de ventanas con escalado alto y certificados del sistema para el actualizador en Linux | Preview |
 | [2.2.0](v2.2.0.md) | Modelado de canales, Doppler, interferencia y barridos con réplicas | Preview |
 | [2.1.1](v2.1.1.md) | Catálogo legible al cerrar herramientas y cierre de pestañas con más margen | Preview |
 | [2.1.0](v2.1.0.md) | Laboratorio de comunicaciones digitales, enlaces reproducibles y barridos recuperables | Preview |

@@ -1,0 +1,139 @@
+{
+  "id": 460103381,
+  "tag_name": "v2.2.1",
+  "target_commitish": "08cd1bc28189ef0c1cd6c5a36f2d9bd32f6f1a48",
+  "name": "SignalLab PC 2.2.1 · Preview",
+  "html_url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.1",
+  "published_at": "2026-11-27T02:44:27Z",
+  "prerelease": true,
+  "draft": false,
+  "assets": [
+    {
+      "id": 798666579,
+      "name": "candidate-linux.json",
+      "size": 893,
+      "digest": "sha256:4d346f27218d03dcf00cd721b5c72d2661485b6e5ea480ea7f308a27052b9982",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/candidate-linux.json"
+    },
+    {
+      "id": 798666755,
+      "name": "candidate-windows.json",
+      "size": 1054,
+      "digest": "sha256:b5a7f3d309e638ce928f0e692499f5cdcd0887b1d538e5c0c80820481efbad59",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/candidate-windows.json"
+    },
+    {
+      "id": 798666885,
+      "name": "fedora-updates.json",
+      "size": 132,
+      "digest": "sha256:3c3e5787a98f0eda6add3fc1b04895b999abc30f5beef1855f4c155256553416",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/fedora-updates.json"
+    },
+    {
+      "id": 798666983,
+      "name": "installer-linux.json",
+      "size": 396,
+      "digest": "sha256:e53da3d0460d830fd3447703f4206c2cc3039f7b30c9a0834ac80aee4933514d",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/installer-linux.json"
+    },
+    {
+      "id": 798667127,
+      "name": "installer-windows.json",
+      "size": 402,
+      "digest": "sha256:68c5f97ccbecc4b4e1be0b37abe8e8e9425d3e2a5d914ae6cf54480fe62429ab",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/installer-windows.json"
+    },
+    {
+      "id": 798667235,
+      "name": "linux-native-inventory.json",
+      "size": 141745,
+      "digest": "sha256:2258686b8f131a44e0204259e9524e7153e6a6695e277c09aa7c511809cc4b20",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/linux-native-inventory.json"
+    },
+    {
+      "id": 798667367,
+      "name": "linux-native.cdx.json",
+      "size": 201522,
+      "digest": "sha256:e739b7aa390241e9b8fdf074ff585488885aefa688894791022b767be2289940",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/linux-native.cdx.json"
+    },
+    {
+      "id": 798667483,
+      "name": "quality-gate-04.json",
+      "size": 74172,
+      "digest": "sha256:22d219829f01a3cf71e6a78a0565420d7fc93372ab8f888825388d6f689403e9",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/quality-gate-04.json"
+    },
+    {
+      "id": 798667592,
+      "name": "SHA256SUMS-2.2.1.txt",
+      "size": 1545,
+      "digest": "sha256:8856ac9fbaee4ecfffda1af40df82200bac70f5653fd719a0e02dcd5ef53a06a",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/SHA256SUMS-2.2.1.txt"
+    },
+    {
+      "id": 798667759,
+      "name": "SignalLab-PC-2.2.1-linux-x86_64.run",
+      "size": 160652043,
+      "digest": "sha256:91fd1feed6e20abff1d173396afe8470a025561ac844e8e30f724a31d8e43e91",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/SignalLab-PC-2.2.1-linux-x86_64.run"
+    },
+    {
+      "id": 798669131,
+      "name": "SignalLab-PC-2.2.1-linux-x86_64.tar.gz",
+      "size": 160702723,
+      "digest": "sha256:b5aba3eb65a700fe5bbbf133585985e44245a7fd1b026db5c2f51228c1fcc96d",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/SignalLab-PC-2.2.1-linux-x86_64.tar.gz"
+    },
+    {
+      "id": 798671044,
+      "name": "SignalLab-PC-2.2.1-setup.exe",
+      "size": 114591918,
+      "digest": "sha256:7f7cf40c86ae1c03a48896c4a6363b93e08deb279aa065e9ba057ea1dfb6df9d",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/SignalLab-PC-2.2.1-setup.exe"
+    },
+    {
+      "id": 798671841,
+      "name": "SignalLab-PC-2.2.1-source.zip",
+      "size": 5289923,
+      "digest": "sha256:51ee762dd37f9070843a6aaaf939bfb496994f589dac32eff4f0d71436cbbcdd",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/SignalLab-PC-2.2.1-source.zip"
+    },
+    {
+      "id": 798672004,
+      "name": "SignalLab-PC-2.2.1.exe",
+      "size": 113395609,
+      "digest": "sha256:78459ba3badda4be51e92edc1be6d93116bbc798781fe01ba4223243734a6178",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/SignalLab-PC-2.2.1.exe"
+    },
+    {
+      "id": 798672815,
+      "name": "SignalLab-updates.json",
+      "size": 1266,
+      "digest": "sha256:7408e2d2f519018949128b305778f5c63d14abd6edc8f0b23a1ebc5945c1cd44",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/SignalLab-updates.json"
+    },
+    {
+      "id": 798673154,
+      "name": "v2.2.1.md",
+      "size": 1436,
+      "digest": "sha256:4ec17f62109bf9fe7ccd9aec433cce885deaec7b1a534f6e9b93fbef02a17778",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/v2.2.1.md"
+    },
+    {
+      "id": 798673297,
+      "name": "windows-native-inventory.json",
+      "size": 81403,
+      "digest": "sha256:94edeab926c4a96c6efafb8a9d758e45d903e235b65c3a9275304cfa7337aa9a",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/windows-native-inventory.json"
+    },
+    {
+      "id": 798673387,
+      "name": "windows-native.cdx.json",
+      "size": 115235,
+      "digest": "sha256:086d689c83730dc77a74e2673e8a34b66519ecf2d9a1243f058554bfc1706cc9",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.2.1/windows-native.cdx.json"
+    }
+  ],
+  "stable": "v2.0.0"
+}
