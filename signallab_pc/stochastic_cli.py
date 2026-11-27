@@ -6,6 +6,7 @@ from pathlib import Path
 from . import session
 from .cli_session import add_output_arguments, add_session_arguments, load_input, load_signal_file, run_command, timeout_seconds
 from .input_files import decode_finite_json, read_json
+from .optimal_estimation import linear_gaussian, store_gaussian_estimate
 from .project import Project
 from .statistics_results import store_statistics
 from .statistical_spectra import cross_spectra, lomb_periodogram, store_cross_spectra
@@ -13,6 +14,7 @@ from .stochastic_covariance import METHODS, covariance_matrix, ensemble_moments,
 from .stochastic_noise import NOISES, Noise, generate_noise, noise_spectrum, store_noise
 from .stochastic_processes import PROCESSES, Process, generate_process, process_moments, process_transition, store_processes
 from .time_series_identification import arma_diagnostics, arma_forecast, arma_system, fit_arma, store_arma_result
+from .wiener_filter import store_wiener, store_wiener_model, wiener_fir, wiener_hopf
 
 
 def _inspect(args, context):
@@ -106,6 +108,35 @@ def _lomb(args, context):
     return _save_analysis(args,project,workspace,result,[(source,args.record)],result.name,context)
 
 
+def _optimization_model(args, context):
+    if args.model.resolve() == args.output.resolve():
+        raise ValueError('Elegí una salida distinta del archivo de modelo.')
+    model = read_json(args.model, checkpoint=context.checkpoint)
+    if not isinstance(model, dict):
+        raise ValueError('El modelo debe ser un objeto JSON.')
+    project = Project()
+    if args.engine == 'gaussian':
+        result = linear_gaussian(**model, execution=context)
+        receipt = {'report': store_gaussian_estimate(project, result, execution=context)}
+    else:
+        for key in ('autocorrelation', 'cross_correlation'):
+            if isinstance(model.get(key), dict):
+                parts = model[key]
+                model[key] = [complex(re, im) for re, im in zip(parts['real'], parts['imag'], strict=True)]
+        result = wiener_hopf(**model, execution=context)
+        receipt = store_wiener_model(project, result, execution=context)
+    session.save(args.output, project, session.empty_workspace(), checkpoint=context.checkpoint)
+    return receipt
+
+
+def _wiener(args, context):
+    project, workspace, observed, desired, records = _paired_input(args, context)
+    result = wiener_fir(observed, desired, args.length, fit_offset=args.offset, reserve=args.reserve, execution=context)
+    receipt = store_wiener(project, result, [(source, key, ()) for source, key in records], execution=context)
+    session.save(args.output, project, workspace, checkpoint=context.checkpoint)
+    return receipt
+
+
 def _ensemble(args, context):
     project, workspace = session.load(args.session, checkpoint=context.checkpoint)
     if len(set(args.records)) != len(args.records):
@@ -163,9 +194,14 @@ def main(argv):
     correlation.set_defaults(execute=_correlate)
     cross = commands.add_parser('spectral-cross', help='Calcular densidad cruzada y coherencia de Welch.')
     cross.set_defaults(execute=_spectral_cross)
-    for command in (correlation,cross):
+    wiener = commands.add_parser('wiener', help='Ajustar y validar un Wiener FIR desde dos registros.')
+    wiener.set_defaults(execute=_wiener)
+    wiener.add_argument('--length', type=int, required=True)
+    wiener.add_argument('--reserve', type=int, default=0)
+    wiener.add_argument('--offset', action='store_true')
+    for command in (correlation,cross,wiener):
         add_session_arguments(command)
-        second = command.add_mutually_exclusive_group(required=command is cross)
+        second = command.add_mutually_exclusive_group(required=command is not correlation)
         second.add_argument('--second-record')
         second.add_argument('--second-signal', type=Path)
     correlation.add_argument('--max-lag', type=int)
@@ -188,6 +224,14 @@ def main(argv):
     lomb.add_argument('--high',type=float,required=True)
     lomb.add_argument('--points',type=int,default=1025)
     lomb.set_defaults(execute=_lomb)
+    for name, engine, description in (
+        ('estimate-gaussian', 'gaussian', 'Estimar parámetros de un modelo gaussiano por ML, MAP y MMSE.'),
+        ('wiener-model', 'wiener', 'Resolver Wiener–Hopf desde correlaciones y potencia conocidas.'),
+    ):
+        command = commands.add_parser(name, help=description)
+        command.add_argument('--model', type=Path, required=True, help='Archivo JSON de parámetros del modelo.')
+        add_output_arguments(command)
+        command.set_defaults(execute=_optimization_model, engine=engine)
     matrix = commands.add_parser('matrix', help='Estimar matrices de covarianza de canales.')
     ensemble = commands.add_parser('ensemble', help='Comparar realizaciones independientes en dos posiciones.')
     ensemble.add_argument('--first', type=int, default=0)

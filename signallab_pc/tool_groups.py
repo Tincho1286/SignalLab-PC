@@ -30,7 +30,8 @@ GROUPS={
 'laplace':('Transformadas','Laplace y ecuaciones','laplace',[
  ('Operación', [('Transformada directa e inversa',('transform_lab','laplace')),('Resolver ecuación diferencial',('symbolic',4)),('Resolver ecuación en diferencias',('difference_equation',0))])]),
 'random':('Aleatorias','Realizaciones y estadística','random',[
- ('Operación', [('Generar realización',('random','generate')),('Estadísticas e histograma',('random','statistics')),('Correlación y covarianza',('random_correlation',0)),('Modelo AR / MA / ARMA',('random_model','model')),('Estimar modelo AR',('random_model','fit'))])]),
+ ('Operación', [('Generar realización',('random','generate')),('Estadísticas e histograma',('random','statistics')),('Correlación y covarianza',('random_correlation',0)),('Modelo AR / MA / ARMA',('random_model','model')),('Estimar modelo temporal',('random_model','fit'))]),
+ ('Estimación', [('ML, MAP y MMSE',('estimation','gaussian')),('Filtro de Wiener',('estimation','wiener'))])]),
 }
 GROUP_ROUTES={key:(title,'tool_group',key,None) for key,(_,title,_,_) in GROUPS.items()}
 GROUP_FOR={operation:GROUP_ROUTES[key] for key,(_,_,_,tabs) in GROUPS.items() for _,choices in tabs for _,operation in choices}

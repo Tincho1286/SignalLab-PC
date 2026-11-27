@@ -134,3 +134,25 @@ python -m signallab_pc stochastic lomb --session registros.slproj --record ID_RE
 ```
 
 Lomb–Scargle usa un tiempo en segundos por observación real, en orden estrictamente creciente. La salida normalizada mide la fracción de variación explicada por una sinusoide ajustada a cada frecuencia. Para Python, usá `estimate_psd` con `PSDRequest` y `lomb_periodogram` de `signallab_pc.statistical_spectra`. [Escalas y supuestos](MATHEMATICAL_FOUNDATIONS.md#estimación-espectral-avanzada)
+
+### Estimar parámetros y filtrar ruido
+
+En **Señales aleatorias › Estimación**, **ML, MAP y MMSE** trabaja con mediciones gaussianas reales. Ingresá el vector de observaciones, la matriz de diseño A y la covarianza R en sus pestañas. Si llenás los campos del modelo a priori, el informe agrega el posterior y su MSE. Desde Python, `linear_gaussian` de `signallab_pc.optimal_estimation` recibe estos mismos datos.
+
+```python
+from signallab_pc.optimal_estimation import linear_gaussian
+
+fit = linear_gaussian([3, 1], [[1], [2]], [[2, 1], [1, 3]],
+                      prior_mean=[2], prior_covariance=[[4]])
+print(fit['ml']['estimate'], fit['posterior']['mmse'])
+```
+
+**Filtro de Wiener** puede entrenar un FIR con la entrada medida y la señal objetivo, o resolverlo desde correlaciones y potencia conocidas. En el ajuste desde registros, indicá una reserva final para medir el error con muestras fuera del entrenamiento. El informe, la transferencia y las secuencias resultantes quedan en el proyecto. La transferencia contiene la parte FIR y el informe conserva la constante opcional.
+
+```sh
+python -m signallab_pc stochastic estimate-gaussian --model gaussiano.json --output estimacion.slproj
+python -m signallab_pc stochastic wiener --session par.slproj --record ID_OBSERVADA --second-record ID_DESEADA --length 8 --reserve 32 --output wiener.slproj
+python -m signallab_pc stochastic wiener-model --model correlaciones.json --output diseno.slproj
+```
+
+El JSON del caso gaussiano usa los nombres del ejemplo Python. Para Wiener–Hopf, usá `autocorrelation`, `cross_correlation` y `target_power`. Una correlación compleja admite el objeto `{"real":[...],"imag":[...]}`. Las funciones `wiener_fir` y `wiener_hopf` están en `signallab_pc.wiener_filter`. [Modelo gaussiano](MATHEMATICAL_FOUNDATIONS.md#estimación-gaussiana-lineal) · [Wiener causal](MATHEMATICAL_FOUNDATIONS.md#wiener-fir-causal)

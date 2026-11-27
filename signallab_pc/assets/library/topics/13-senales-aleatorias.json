@@ -187,6 +187,24 @@
           }
         ]
       ]
+    },
+    {
+      "key": ["estimation", "gaussian"],
+      "blocks": [
+        ["Qué podés hacer", "Estimá una amplitud o varios parámetros a partir de observaciones gaussianas y compará los estimadores."],
+        ["Cómo preparar el cálculo", "Ingresá una medición por fila de A y la covarianza R del ruido. Para calcular el posterior agregá la media a priori y su covarianza."],
+        ["Cómo interpretar la salida", "El informe compara las estimaciones y muestra cómo cambia su error. Fisher mide la información aportada por las observaciones y la cota de Cramér–Rao limita la varianza de estimadores insesgados."],
+        ["Qué tener en cuenta", "La equivalencia entre MAP y MMSE depende del modelo gaussiano. Las matrices de covarianza de esta herramienta deben ser positivas definidas."]
+      ]
+    },
+    {
+      "key": ["estimation", "wiener"],
+      "blocks": [
+        ["Qué podés hacer", "Diseñá un filtro FIR causal para aproximar una señal de interés con una entrada observada."],
+        ["Cómo preparar el cálculo", "Ajustá el FIR desde dos registros alineados o cargá las correlaciones teóricas en retardos consecutivos desde cero."],
+        ["Cómo interpretar la salida", "El informe muestra los coeficientes y el error cuadrático medio. Con dos registros, la gráfica compara lo observado, lo deseado, la estimación y el residuo."],
+        ["Qué tener en cuenta", "Usá una reserva final para evaluar el error fuera del ajuste. La constante opcional se guarda en el informe y se aplica aparte al reutilizar la transferencia."]
+      ]
     }
   ],
   "guides": [
@@ -407,6 +425,29 @@
         ]
       ],
       "reading": "Las curvas conservan índices y reloj. La predicción de un paso y el pronóstico recursivo son salidas distintas. Consultá el informe para distinguir datos de entrenamiento, reserva y futuro. Las tablas CSV conservan la interpretación del cálculo."
+    },
+    {
+      "key": ["estimation", "gaussian"],
+      "flow": ["Modelo lineal", "Ruido y distribución previa", "Estimaciones y error"],
+      "parameters": [
+        ["Observaciones y", "Ingresá los valores medidos en el mismo orden que las filas de A."],
+        ["Diseño A", "Usá una fila por medición y una columna por parámetro. Para medir una amplitud con dos observaciones directas, A tiene dos filas con el valor 1."],
+        ["Ruido R", "La diagonal contiene las varianzas de medición. Fuera de la diagonal, usá las covarianzas conocidas. R debe ser real, simétrica y positiva definida."],
+        ["Distribución previa", "Para MAP y MMSE, cargá una media por parámetro y la covarianza previa en la pestaña P. Para calcular solo ML, dejá ambos campos vacíos."],
+        ["Parámetro fijo para comparar", "Si conocés el valor usado en un experimento, ingresalo para evaluar la verosimilitud y el sesgo, varianza y MSE del estimador en ese valor."]
+      ],
+      "reading": "Con este modelo gaussiano, la media posterior es MMSE y LMMSE y también coincide con la moda MAP. ML usa la información de las observaciones. Si el diseño no identifica todos los parámetros, el informe conserva la estimación posterior cuando hay un modelo previo. Fisher y Cramér–Rao describen la información de mediciones repetidas."
+    },
+    {
+      "key": ["estimation", "wiener"],
+      "flow": ["Registros o momentos", "FIR causal", "Estimación y error"],
+      "parameters": [
+        ["Registros observados y deseados", "x[n] es la entrada medida del filtro y d[n] es la señal objetivo, por ejemplo una referencia limpia. Las secuencias deben corresponder a los mismos índices y relojes."],
+        ["Cantidad de coeficientes", "L es la cantidad de muestras usadas en cada ventana, desde x[n] hasta x[n−L+1]. La salida empieza donde está disponible la primera ventana completa."],
+        ["Reserva y constante", "La reserva usa las muestras finales para medir el MSE fuera del entrenamiento. La constante ajusta un desplazamiento adicional a la salida FIR."],
+        ["Correlaciones teóricas", "Para diseñar sin registros, ingresá Rxx[k], Rdx[k] y la potencia media cuadrática de d. Comenzá ambas listas en k = 0. Rdx correlaciona d[n] con la entrada conjugada en n−k."]
+      ],
+      "reading": "El informe distingue el MSE teórico del medido en entrenamiento o validación. Podés abrir la comparación de las señales observada, deseada y estimada junto al residuo. Si ajustaste una constante, sumala a la salida para reproducir la estimación al reutilizar el filtro FIR."
     }
   ]
 }

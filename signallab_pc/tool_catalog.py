@@ -99,6 +99,8 @@ for key,title,summary in [
  (('random_correlation',0),'Correlación y covarianza','Auto y cruzada: estimaciones a partir de uno o dos registros.')]:add('random','Generación y análisis',key,title,summary)
 add('random','Modelos',('random_model','model'),'Analizar modelo AR, MA o ARMA','Media, varianza, correlación y PSD teóricas; realización estacionaria.','proceso estocastico autorregresivo promedio movil ruido blanco filtrado lyapunov')
 add('random','Modelos',('random_model','fit'),'Estimar modelo temporal','Ajustá AR, MA, ARMA o ARIMA y examiná pronósticos y residuos.','ar ma arma arima yule walker burg verosimilitud identificacion aic aicc bic ljung box prediccion pronostico validacion residuos')
+add('random','Estimación y filtrado',('estimation','gaussian'),'Estimación gaussiana','Compará ML, MAP y MMSE con observaciones de ruido correlacionado.','lmmse verosimilitud fisher cramer rao sesgo varianza bayes')
+add('random','Estimación y filtrado',('estimation','wiener'),'Filtro de Wiener','Obtené un FIR causal desde dos registros o desde correlaciones conocidas.','wiener hopf lmmse ruido residual entrenamiento')
 add('spectra','Fourier discreta',('inverse_dtft',0),'DTFT inversa numérica','Obtener x[n] desde un período de X(ω) en rad/muestra.','inversa idtft periodo bilateral muestras')
 add('spectra','Fourier discreta',('dtft_symbolic',1),'DTFT inversa algebraica','Recuperar la expresión de x[n] por propiedades o integración.','inversa idtft expresion propiedades bilateral')
 add('signals','Transformar',('signal_product',0),'Multiplicar señales','Producto punto a punto para enventanar señales discretas o continuas.','multiplicacion producto ventana enventanado dos señales')

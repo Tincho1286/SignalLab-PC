@@ -703,6 +703,9 @@ class ToolPage(QWidget):
         if kind=='random':
             from .random_panel import RandomPanel
             self.panel=RandomPanel(window,index);root.addWidget(self.panel);return
+        if kind=='estimation':
+            from .estimation_panel import EstimationPanel
+            self.panel=EstimationPanel(window,index);root.addWidget(self.panel);return
         if kind=='communications':
             from .communications_panel import CommunicationsPanel
             self.panel=CommunicationsPanel(window,index);root.addWidget(self.panel);return
@@ -1353,6 +1356,8 @@ class ToolboxWindow(SignalLabWindow):
             target=self.stack.currentWidget().panel.receive(self.project.get(key),key)
             self.statusBar().showMessage('Entrada cargada en Densidad de energía.')
             return target
+        if item[1:3]==('estimation','wiener'):
+            self.stack.currentWidget().panel.mode.setCurrentIndex(0)
         if item[1]=='dsp_extensions' and item[2] in ('hilbert','stft'):
             panel=self.stack.currentWidget().panel
             if key is None:key=self.publish(value,operation='Resultado enviado a '+item[0])
