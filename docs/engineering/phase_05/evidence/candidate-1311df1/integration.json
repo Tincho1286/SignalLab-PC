@@ -1,0 +1,68 @@
+{
+  "candidate": "1311df1f0f954f06eaf5f20c33f645d15748660a",
+  "approved_develop": "e0ca1aff1a002d4417ec1fbcdfb35569b40e65a3",
+  "previous_main": "0c9e3bcdafd89dfd4437b28a93f0606fa5116542",
+  "merge": "9474626bd79b0131c2fd7d584a2f4fe2c44f48c8",
+  "tree": "6ab082c355ec1f672b4675466ad40678a20c20b8",
+  "changed_paths_since_candidate": [
+    "CHANGELOG.md",
+    "README.md",
+    "docs/engineering/PROJECT_STATE.md",
+    "docs/engineering/phase_05/CORRECTIVE_PREVIEW_2_3_1.md",
+    "docs/engineering/phase_05/DECISION_LOG.md",
+    "docs/engineering/phase_05/README.md",
+    "docs/engineering/phase_05/evidence/candidate-1311df1/publication.json",
+    "docs/engineering/phase_05/evidence/candidate-1311df1/verified-build.json",
+    "docs/releases/README.md",
+    "docs/releases/catalog.json",
+    "docs/releases/index.json",
+    "docs/releases/v2.3.1.md"
+  ],
+  "run_id": 46076665338,
+  "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46076665338",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "id": 140765873233,
+      "name": "core-mathematics (ubuntu-22.04)",
+      "conclusion": "success",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46076665338/job/140765873233",
+      "started_at": "2026-11-27T22:26:38Z",
+      "completed_at": "2026-11-27T22:28:49Z"
+    },
+    {
+      "id": 140765873214,
+      "name": "core-mathematics (windows-2022)",
+      "conclusion": "success",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46076665338/job/140765873214",
+      "started_at": "2026-11-27T22:26:38Z",
+      "completed_at": "2026-11-27T22:29:21Z"
+    },
+    {
+      "id": 140765873306,
+      "name": "static-actions",
+      "conclusion": "success",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46076665338/job/140765873306",
+      "started_at": "2026-11-27T22:26:38Z",
+      "completed_at": "2026-11-27T22:26:59Z"
+    },
+    {
+      "id": 140765873420,
+      "name": "workflow-integration (ubuntu-22.04)",
+      "conclusion": "success",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46076665338/job/140765873420",
+      "started_at": "2026-11-27T22:26:38Z",
+      "completed_at": "2026-11-27T22:36:26Z"
+    },
+    {
+      "id": 140765872941,
+      "name": "workflow-integration (windows-2022)",
+      "conclusion": "success",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46076665338/job/140765872941",
+      "started_at": "2026-11-27T22:26:38Z",
+      "completed_at": "2026-11-27T22:36:28Z"
+    }
+  ],
+  "stable": "v2.0.0",
+  "preview": "v2.3.1"
+}

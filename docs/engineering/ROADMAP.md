@@ -19,7 +19,7 @@ SignalLab amplía sus dominios científicos y moderniza las herramientas de señ
 | 10 | SDR & Experimental Engineering | 2.8.x |
 | 11 | Final Engineering Consolidation & Qualification | Por determinar |
 
-La Fase 02A corresponde al piloto DFT que el expediente histórico identifica como Fase 02. Las fases 03 y 04 están cerradas e integradas. Stable/LTS 2.0.x conserva su línea de mantenimiento desde `v2.0.0`. [Piloto DFT](PHASE_02_DFT_PILOT.md) · [Cierre de Fase 02C](phase_02c/validation/QUALITY_GATE_REPORT.md) · [Cierre de Fase 03](phase_03/PHASE_03_CLOSEOUT.md) · [Cierre de Fase 04](phase_04/PHASE_04_CLOSEOUT.md)
+La Fase 02A corresponde al piloto DFT que el expediente histórico identifica como Fase 02. Las fases 03, 04 y 05 están cerradas e integradas. Stable/LTS 2.0.x conserva su línea de mantenimiento desde `v2.0.0`. [Piloto DFT](PHASE_02_DFT_PILOT.md) · [Cierre de Fase 02C](phase_02c/validation/QUALITY_GATE_REPORT.md) · [Cierre de Fase 03](phase_03/PHASE_03_CLOSEOUT.md) · [Cierre de Fase 04](phase_04/PHASE_04_CLOSEOUT.md) · [Cierre de Fase 05](phase_05/PHASE_05_INTEGRATION.md)
 
 ## Cómo se define una fase
 

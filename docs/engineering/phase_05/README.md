@@ -1,6 +1,6 @@
 # Fase 05 · Probabilidad, estadística y procesos estocásticos
 
-La Fase 05 amplía las herramientas de señales aleatorias y comparte sus cálculos entre Workbench, Python y la consola. **2.3.1 Preview** está publicada y calificada en Windows y Linux. La aceptación funcional sigue pendiente. [Descargas](../../releases/v2.3.1.md) · [Validación de las correcciones](CORRECTIVE_PREVIEW_2_3_1.md) · [Informe de cierre de la primera Preview](PHASE_05_CLOSEOUT.md)
+La Fase 05 amplía las herramientas de señales aleatorias y comparte sus cálculos entre Workbench, Python y la consola. **2.3.1 Preview** está publicada y calificada en Windows y Linux. La Fase 05 quedó cerrada tras su aceptación funcional y la verificación del merge en `main`. [Descargas](../../releases/v2.3.1.md) · [Validación de las correcciones](CORRECTIVE_PREVIEW_2_3_1.md) · [Cierre e integración](PHASE_05_INTEGRATION.md)
 
 - [Línea base](PHASE_05_BASELINE.md) y [paquetes de trabajo](PHASE_05_PLAN.md)
 - [Requisitos y demostradores](PHASE_05_REQUIREMENTS.md)

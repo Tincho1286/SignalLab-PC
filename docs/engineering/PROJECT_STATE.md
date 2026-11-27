@@ -4,7 +4,7 @@
 
 La regresión al 200 % con escala de Qt y la conexión del portable a GitHub en Fedora 44 se verificaron. El DPI nativo de Windows al 150 % y 200 % y la revisión interactiva en Fedora Plasma se conservan como seguimiento histórico de Fase 04. La política vigente usa las pruebas específicas de escalado como evidencia diagnóstica. [Riesgos residuales de Fase 04](phase_04/RESIDUAL_RISK_REGISTER.md) · [Criterios vigentes](VALIDATION_MATRIX.md#criterios-vigentes)
 
-La **Fase 05, Probability, Statistics & Stochastic Processes**, está calificada técnicamente y disponible como **2.3.1 Preview** desde `develop`. La corrección contempla las figuras de estadística, filtrado y medición de recepción. La aceptación funcional y la autorización de integración siguen pendientes. **2.0.0** es la LTS vigente. [Expediente de Fase 05](phase_05/README.md) · [Descargas 2.3.1](../releases/v2.3.1.md) · [Roadmap](ROADMAP.md)
+La **Fase 05, Probability, Statistics & Stochastic Processes**, quedó cerrada e integrada en `main` el 27 de noviembre de 2026. El cierre incorpora la **2.3.1 Preview** aceptada y la verificación posterior del merge `9474626`. **2.0.0** es la LTS vigente. [Cierre e integración de Fase 05](phase_05/PHASE_05_INTEGRATION.md) · [Descargas 2.3.1](../releases/v2.3.1.md) · [Roadmap](ROADMAP.md)
 
 ## Línea base histórica de Fase 01
 
