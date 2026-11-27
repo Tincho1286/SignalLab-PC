@@ -3,7 +3,7 @@ import math
 import numpy as np
 from .model import Signal
 from .resources import ensure_working_set
-from .spectral_scaling import bounded, centered_bounded, range_status, restore_scalar, restore_scale
+from .spectral_scaling import bounded, centered_bounded, range_status, restore_scalar
 
 def generate(kind,count,mean,std,probability,seed,origin=0):
     if count<1:raise ValueError('La cantidad de muestras debe ser positiva.')
@@ -63,36 +63,7 @@ def statistics(source,component,bins,*,histogram_notice=None):
         'scope':'Estadísticas del registro: varianza = promedio de |x−media|². N−1 es la corrección habitual bajo hipótesis de muestras independientes e idénticamente distribuidas; no demuestra esas hipótesis.'}
 
 
-def autocorrelation(source,max_lag=None,remove_mean=False,denominator='N',normalize=False):
-    from scipy.signal import correlate
-    from .system_clock import common_rate, lag_clock
-    if source.domain!='discrete':raise ValueError('Se requiere un registro discreto.')
-    n=source.values.size;lag=min(50,n-1) if max_lag is None else max_lag
-    if lag<0 or lag>=n:raise ValueError(f'El retardo máximo debe estar entre 0 y {n-1}.')
-    if denominator not in ('N','overlap'):raise ValueError('Normalización desconocida.')
-    ensure_working_set(2*n,live_arrays=16)
-    from .record_measurements import _average
-    measured_mean = _average(source.values, True)
-    values, exponent = (centered_bounded(source.values) if remove_mean
-                        else bounded(source.values, normalize=True))
-    zero=float(np.mean(np.abs(values)**2))
-    if normalize and zero==0:raise ValueError('No se puede normalizar: la potencia o varianza del registro es cero.')
-    raw=correlate(values,values,mode='full',method='fft')
-    delays=np.arange(-lag,lag+1);counts=n-np.abs(delays)
-    result=raw[n-1-lag:n+lag]/(n if denominator=='N' else counts)
-    result[lag]=zero
-    underflow = 0
-    if normalize:result=result/zero;result[lag]=1
-    else:
-        normalized = result
-        result = restore_scale(normalized, 2*exponent)
-        underflow = int(np.count_nonzero((result == 0) & (normalized != 0)))
-    if not np.isfinite(result).all():raise ValueError('La correlación excede la precisión numérica disponible.')
-    title='Autocovarianza estimada' if remove_mean else 'Autocorrelación estimada'
-    if normalize:title+=' normalizada'
-    metadata={'operation':'estimated_autocovariance' if remove_mean else 'estimated_autocorrelation','input_samples':int(n),'maximum_lag':int(lag),'remove_sample_mean':bool(remove_mean),'sample_mean':[float(measured_mean.real),float(measured_mean.imag)],'denominator':'N' if denominator=='N' else 'N−|k|','divide_by_zero_lag':bool(normalize),'convention':'sum x[n+k]*conj(x[n]) over the overlap, divided by N or N−|k|; optional subtraction of the sample mean','method':'FFT; finite precision','scope':'Estimación sobre un registro finito. Restar la media muestral altera el sesgo; N−|k| no garantiza insesgamiento cuando la media se estima con este registro. Los retardos grandes usan menos pares.'}
-    if underflow:
-        metadata['scope'] += f' {underflow} retardos no nulos se redondearon a cero por el rango de float64.'
-        metadata['underflowed_samples'] = underflow
-    metadata.update(lag_clock(common_rate(source), -lag, result.size))
-    return Signal(result,-lag,1,'retardo k',title,'discrete','',metadata)
+def autocorrelation(source,max_lag=None,remove_mean=False,denominator='N',normalize=False,*,method='fft',execution=None):
+    from .stochastic_covariance import estimate_correlation
+    return estimate_correlation(source, max_lag=max_lag, remove_mean=remove_mean,
+                                denominator=denominator, normalize=normalize, method=method, execution=execution)

@@ -459,7 +459,7 @@ class ResultView(QWidget):
         refresh=getattr(self.canvas,'_signallab_plot_action_refresh',None)
         if refresh is not None:refresh()
         self.table_view.set_signals(());self.dft_axis.hide();self.views.hide();self.actions.setVisible(self.show_action_bar);self.empty.setText(message);self.empty.show();self.label.hide()
-    def show_result(self,result,*,source=None,operation=None):
+    def show_result(self,result,*,source=None,operation=None,summary=None):
         self.operation=operation
         candidates=result if isinstance(result,tuple) else (result,)
         if all(isinstance(value,Signal) for value in candidates):validate_overlay(candidates)
@@ -486,15 +486,21 @@ class ResultView(QWidget):
             self.draw_signal()
             self.label.setText(f'Resultado · {signals[0].values.size:,} valores')
             from .result_summary import signal_summary
-            self.text.set_readable(signal_summary(result,operation));self.details_view.setPlainText('\n\n'.join(f'{x.name}\n'+json.dumps(x.metadata,ensure_ascii=False,indent=2) for x in signals))
+            self.text.set_readable(summary or signal_summary(result,operation));self.details_view.setPlainText('\n\n'.join(f'{x.name}\n'+json.dumps(x.metadata,ensure_ascii=False,indent=2) for x in signals))
         else:
             from dataclasses import is_dataclass
             from .result_summary import measurement_summary,calculation_summary
             payload=asdict(result) if is_dataclass(result) else result
-            summary=measurement_summary(payload,source) or calculation_summary(payload)
-            if summary is not None:self.text.set_readable(summary)
-            else:self.text.setPlainText(json.dumps(payload,ensure_ascii=False,indent=2))
-            self.details_view.setPlainText(json.dumps(payload,ensure_ascii=False,indent=2));self.label.setText('Resultado del cálculo');self.views.setCurrentIndex(1)
+            if summary is None:
+                structured=measurement_summary(payload,source) or calculation_summary(payload)
+                document=json.dumps(payload,ensure_ascii=False,indent=2)
+                if structured is not None:self.text.set_readable(structured)
+                else:self.text.setPlainText(document)
+                self.details_view.setPlainText(document)
+            else:
+                self.text.set_readable(summary)
+                self.details_view.clear()
+            self.label.setText('Resultado del cálculo');self.views.setCurrentIndex(1)
         steps=[step for value in signals if isinstance(value,Signal) for step in value.metadata.get('derivation',[]) if value.metadata.get('derivation_operation',value.metadata.get('operation'))==value.metadata.get('operation')]
         if isinstance(result,dict) and result.get('procedure'):
             from .procedure import views
@@ -1372,7 +1378,7 @@ class ToolboxWindow(SignalLabWindow):
         active=getattr(self.stack.currentWidget(),'active_page',self.stack.currentWidget())
         fields=[field for field in active.findChildren(LocalInput)
                 if field.kind in ('import',value.domain) or (getattr(field,'dft_input',False) and ops.is_centered_dft(value)) or value.data_kind in getattr(field,'cross_domain_kinds',())]
-        if item[1:3] == ('random', 'statistics'):
+        if item[1:3] in (('random', 'statistics'), ('random_correlation', 0)):
             fields = [field for field in fields if not field.isHidden()]
         if not fields:return
         target=fields[0]

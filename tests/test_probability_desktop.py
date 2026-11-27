@@ -14,6 +14,7 @@ from signallab_pc.probability import Distribution, generate_realizations
 from signallab_pc.session import load
 from signallab_pc.session_fields import field_values
 from signallab_pc.statistical_inference import fit_distribution, infer_record
+from signallab_pc.stochastic_covariance import covariance_matrix, ensemble_moments, estimate_correlation
 from signallab_pc.stochastic_noise import Noise, generate_noise, noise_spectrum
 from signallab_pc.stochastic_processes import Process, generate_process, process_transition
 from signallab_pc.workspaces import ROUTES
@@ -207,3 +208,34 @@ class ProbabilityWorkbenchTests(DesktopSessionFixture):
         self.assertEqual(theory.data_kind, 'density')
         np.testing.assert_array_equal(theory.values, noise_spectrum(model,16,rate=64).values)
         self.assertIn('bilateral', panel.report.toPlainText())
+
+    def test_correlation_tool_uses_the_same_covariance_and_ensemble_reports(self):
+        window = self.window()
+        route = ROUTES['random_correlation', 0]
+        sources = [Signal([base, 2*base], name=f'Canal {base}') for base in (1, 2, 4)]
+        keys = [window.publish(value, operation='Entrada de prueba') for value in sources]
+        window.send_signal(sources[0], keys[0], route)
+        panel = window.pages[route].panel
+        panel.lag.setText('1')
+        panel.method.setCurrentIndex(panel.method.findData('direct'))
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        row = window.project.headers()[-1]
+        np.testing.assert_array_equal(window.project.get(row['id']).values,
+                                      estimate_correlation(sources[0], max_lag=1, method='direct').values)
+        self.assertIn('Suma directa', panel.output.text.toPlainText())
+        panel.mode.setCurrentIndex(panel.mode.findData('matrix'))
+        panel.select_records(keys)
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        row = window.project.headers()[-1]
+        self.assertEqual(row['parents'], keys)
+        self.assertEqual(window.project.get(row['id']), covariance_matrix(sources))
+        self.assertIn('Pseudocovarianza', panel.output.text.toPlainText())
+        panel.mode.setCurrentIndex(panel.mode.findData('ensemble'))
+        panel.independent.setChecked(True)
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        row = window.project.headers()[-1]
+        self.assertEqual(window.project.get(row['id']), ensemble_moments(sources,0,1))
+        self.assertIn('Varianza del incremento', panel.output.text.toPlainText())

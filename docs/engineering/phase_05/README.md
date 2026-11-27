@@ -66,3 +66,14 @@ python -m signallab_pc stochastic generate --family colored_noise --parameters '
 ```
 
 Con la misma frecuencia y cantidad de muestras o bins, la densidad de consulta coincide con la usada para sintetizar el ruido. En rosa y marrón, un corte inferior positivo regulariza la potencia próxima a DC. En Python podés usar `Noise`, `generate_noise` y `noise_spectrum` de `signallab_pc.stochastic_noise`. [Normalización y condiciones](MATHEMATICAL_FOUNDATIONS.md#modelos-de-ruido)
+
+### Comparar canales y trayectorias
+
+En **Correlación y covarianza**, elegí **Correlación cruzada** y cargá dos registros. El informe indica el intervalo común, el divisor y el método directo o FFT. **Matrices de covarianza y correlación** usa varios registros del proyecto como canales simultáneos. **Momentos de conjunto** usa esos registros como réplicas independientes y compara dos posiciones de cada trayectoria. Cuando comparten un modelo de proceso registrado, el informe agrega sus medias, varianzas y covarianza teóricas.
+
+```sh
+python -m signallab_pc stochastic correlate --session trayectorias.slproj --record ID_1 --center --method direct --output correlacion.slproj
+python -m signallab_pc stochastic ensemble --session trayectorias.slproj --records ID_1 ID_2 --first 0 --second 4 --independent --output conjunto.slproj
+```
+
+Usá los identificadores que devuelve el generador. El motor sin Qt está en `signallab_pc.stochastic_covariance`, con `estimate_correlation`, `covariance_matrix` y `ensemble_moments`. [Convenciones](MATHEMATICAL_FOUNDATIONS.md#correlación-covarianza-y-conjunto)

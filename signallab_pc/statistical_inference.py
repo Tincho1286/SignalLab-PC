@@ -272,7 +272,7 @@ def infer_record(source: Signal, method: str, *, iid: bool, component='real', se
                 raise ValueError('Ljung–Box requiere un registro discreto contiguo sin observaciones excluidas.')
             lag = integer(10 if lags is None else lags, 'Retardos', maximum=len(values) - 1)
             fitted = integer(0 if fitted_parameters is None else fitted_parameters, 'Parámetros ajustados', minimum=0, maximum=lag - 1)
-            rho = autocorrelation(Signal(values), lag, remove_mean=True, normalize=True)
+            rho = autocorrelation(Signal(values), lag, remove_mean=True, normalize=True, method='auto', execution=context)
             # autocorrelation returns a symmetric Signal centered at lag zero.
             positive = rho.values[lag + 1:].real
             statistic = len(values) * (len(values) + 2) * np.sum(positive**2 / (len(values) - np.arange(1, lag + 1)))

@@ -90,15 +90,15 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Esta herramienta estima la relación de un registro con sí mismo o de dos registros entre sí. Al restar sus medias se obtiene covarianza en lugar de correlación."
+          "Esta herramienta estima la relación de uno o dos registros a distintos retardos. También calcula las matrices de covarianza, pseudocovarianza y correlación de varios canales. Con trayectorias independientes puede comparar dos instantes e informar los momentos de su incremento."
         ],
         [
           "Cómo preparar el cálculo",
-          "Elegí Auto o Cruzada. En cruzada cargá x[n] e y[n] con sus índices reales: se usa el intervalo observado en ambos. Luego elegí retardo máximo, divisor N o N−|k| y normalización opcional. El programa no inventa datos en regiones sin observación."
+          "En Auto o Cruzada elegí el retardo máximo, el divisor y la normalización. La suma directa evalúa solo los retardos pedidos. FFT es útil para intervalos de retardos amplios. En Matrices y Momentos de conjunto elegí los registros desde Resultados. En Matrices cada registro es un canal simultáneo. En Momentos de conjunto cada registro es una trayectoria independiente con el mismo eje y unidades."
         ],
         [
           "Cómo interpretar la salida",
-          "Se representa Rxy[k]=promedio de x[n+k]·conj(y[n]). Un k positivo compara una muestra posterior de x con y. La autocorrelación en cero estima potencia; al centrar, varianza. La cruzada en cero no es una potencia y puede ser compleja; tampoco tiene por qué ser par."
+          "En Rxy[k] un retardo positivo compara una muestra posterior de x con y. En cero, la autocorrelación estima potencia y la autocovarianza estima varianza. La cruzada puede ser compleja y asimétrica. En la matriz de correlación, un canal constante deja indefinida la normalización. En un conjunto, las dos posiciones se cuentan desde la primera muestra. Si las trayectorias comparten un modelo registrado, el informe incluye la referencia teórica."
         ],
         [
           "Qué tener en cuenta",
