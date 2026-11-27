@@ -25,6 +25,10 @@
           "La primera muestra representa el estado inicial. Wiener, Poisson, Ornstein–Uhlenbeck y el telegráfico requieren una frecuencia de muestreo para convertir pasos a segundos. En Markov, cada fila de la matriz da las probabilidades de pasar a cada estado en un paso. En Ornstein–Uhlenbeck y el telegráfico dejá el estado inicial vacío para comenzar en equilibrio."
         ],
         [
+          "Usar ruido por color o densidad",
+          "Para un color, indicá la banda en Hz y la varianza deseada. En rosa y marrón elegí un corte inferior positivo. Para una densidad propia, cargá frecuencias crecientes y sus valores bilaterales por Hz. La versión real refleja la parte positiva. La versión compleja admite distinta potencia a cada lado de cero. En Propiedades poblacionales obtenés la PSD teórica. Usá la misma cantidad de bins que de muestras para compararla con la grilla de generación."
+        ],
+        [
           "Cómo interpretar la salida",
           "Una masa es la probabilidad de un recuento. Una densidad se integra sobre un intervalo para obtener su probabilidad. La CDF da P(X ≤ x), la CCDF da P(X > x) y el cuantil devuelve el umbral asociado a una probabilidad. En Realizaciones podés elegir la réplica y componente que quieras medir o filtrar."
         ],

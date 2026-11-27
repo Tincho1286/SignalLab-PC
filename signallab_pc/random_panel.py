@@ -17,6 +17,7 @@ from .result_summary import Section, Summary, number
 from .statistical_inference import (FIT_FAMILIES, FIT_INTERVALS, METHODS, NULL_PARAMETER,
                                     TWO_SAMPLES, fit_distribution, infer_record)
 from .statistics_results import store_statistics
+from .stochastic_noise import COLORS as NOISE_COLORS, FREQUENCY_NOISES, NOISES, Noise, generate_noise, noise_spectrum, store_noise
 from .stochastic_processes import (PHYSICAL_PROCESSES, PROCESSES, Process, generate_process,
                                   process_moments, process_transition, store_processes)
 from .tool_guide import ToolGuide
@@ -58,6 +59,21 @@ _PROCESS_NOTES = {
     'ornstein_uhlenbeck': 'Dejá vacío el valor inicial para empezar en equilibrio. La intensidad se expresa por raíz de segundo.',
     'telegraph': 'Estado inicial 0: nivel bajo. Estado 1: nivel alto. Dejá el campo vacío para empezar en equilibrio.',
     'markov': 'Cada fila suma uno. Las filas y columnas representan estados desde 0. Cargá un estado o probabilidades iniciales separadas por comas. Dejá vacío el inicio para usar una distribución estacionaria única.',
+}
+_NOISE_FIELDS = {
+    'color': ('Color espectral', ''), 'variance': ('Varianza', '1'), 'complex': ('Salida compleja propia', ''),
+    'low_hz': ('Corte inferior (Hz)', '1'), 'high_hz': ('Corte superior (Hz)', '40'),
+    'background_std': ('Desviación de fondo', '0.2'), 'impulse_std': ('Desviación de los impulsos', '2'),
+    'impulse_probability': ('Probabilidad de impulso', '0.01'),
+    'frequency_hz': ('Frecuencias en Hz', '0, 40'), 'density': ('PSD bilateral por Hz', '0.01, 0.01'),
+    'taps': ('Coeficientes h[n] del FIR', '0.5, 0.5'),
+}
+_NOISE_NOTES = {
+    'white_noise': 'Cada muestra es independiente. Para ruido complejo propio, I y Q tienen la mitad de la varianza indicada.',
+    'colored_noise': 'Elegí la banda y el color. Rosa y marrón requieren un corte inferior positivo. La varianza se ajusta en esperanza sobre la grilla de la realización.',
+    'impulsive_noise': 'En cada muestra se elige la desviación de fondo o de impulso. El color de la mezcla sigue siendo blanco.',
+    'specified_noise': 'Escribí una densidad bilateral por Hz en cada frecuencia. Usá solo f ≥ 0 para una señal real. La aplicación interpola y usa cero fuera del intervalo.',
+    'fir_noise': 'La varianza corresponde al ruido blanco de entrada. Se genera una prehistoria independiente para que la salida empiece en régimen estacionario.',
 }
 _STATES = {'undefined': 'Indefinido', 'divergent': 'Divergente', 'unbounded': 'Sin cota',
            'singular_density': 'Densidad infinita en el borde', 'singular_measure': 'Distribución singular',
@@ -222,6 +238,9 @@ class RandomPanel(QWidget):
         self.distribution.insertSeparator(self.distribution.count())
         for key, (label, _) in PROCESSES.items():
             self.distribution.addItem(label, key)
+        self.distribution.insertSeparator(self.distribution.count())
+        for key, (label, _) in NOISES.items():
+            self.distribution.addItem(label, key)
         self.method = QComboBox()
         for key, label in _METHODS.items():
             self.method.addItem(label, key)
@@ -250,6 +269,22 @@ class RandomPanel(QWidget):
                 widget = MatrixEditor(default) if key == 'transition' else QLineEdit(default)
                 self.fields[f'{family}.{key}'] = widget
                 form.addRow(label, widget)
+        for family, (_, keys) in NOISES.items():
+            for key in keys:
+                label, default = _NOISE_FIELDS[key]
+                if key == 'color':
+                    widget = QComboBox()
+                    for color, title in zip(NOISE_COLORS, ('Rosa', 'Marrón', 'Azul', 'Violeta'), strict=True):
+                        widget.addItem(title, color)
+                elif key == 'complex':
+                    widget = QCheckBox(label)
+                else:
+                    widget = QLineEdit(default)
+                self.fields[f'{family}.{key}'] = widget
+                if key == 'complex':
+                    form.addRow(widget)
+                else:
+                    form.addRow(label, widget)
         self.theory_first, self.theory_second = QLineEdit('0'), QLineEdit('1')
         form.addRow('Primera posición desde el inicio', self.theory_first)
         form.addRow('Segunda posición desde el inicio', self.theory_second)
@@ -286,7 +321,8 @@ class RandomPanel(QWidget):
             key = self.distribution.currentData()
             joint = key in _JOINT
             process = key in PROCESSES
-            allowed = ('generate', 'population') if process else ('generate', 'population', 'density') if joint else _METHODS
+            noise = key in NOISES
+            allowed = ('generate', 'population') if process or noise else ('generate', 'population', 'density') if joint else _METHODS
             for index, option in enumerate(_METHODS):
                 self.method.model().item(index).setEnabled(option in allowed)
             if self.method.currentData() not in allowed:
@@ -302,11 +338,12 @@ class RandomPanel(QWidget):
             for widget in (self.location, self.covariance):
                 form.setRowVisible(widget, key in ('normal_vector', 'complex_vector'))
             form.setRowVisible(self.pseudocovariance, key == 'complex_vector')
-            form.setRowVisible(self.count, generating)
+            form.setRowVisible(self.count, generating or noise)
+            form.labelForField(self.count).setText('Bins de la PSD' if noise and not generating else 'Cantidad de muestras')
             form.setRowVisible(self.advanced, generating)
             for widget in (self.replicas, self.origin, self.seed, fresh):
                 form.setRowVisible(widget, advanced)
-            physical = key in PHYSICAL_PROCESSES
+            physical = key in PHYSICAL_PROCESSES or key in FREQUENCY_NOISES or (noise and not generating)
             form.setRowVisible(self.sample_rate, advanced or physical)
             form.labelForField(self.sample_rate).setText('Frecuencia de muestreo (Hz)' if physical else 'Frecuencia de muestreo opcional (Hz)')
             for widget in (self.theory_first, self.theory_second):
@@ -324,8 +361,8 @@ class RandomPanel(QWidget):
                 'multinomial': 'Cada observación contiene un recuento por categoría.',
                 'complex_vector': 'La pseudocovarianza vacía representa un modelo propio. La densidad usa coordenadas real e imaginaria.',
             }
-            self.distribution_note.setText(_PROCESS_NOTES.get(key, note.get(key,
-                'Una realización finita puede diferir de las propiedades de la distribución.')))
+            fallback = 'Una realización finita puede diferir de las propiedades de la distribución.'
+            self.distribution_note.setText(_NOISE_NOTES.get(key) or _PROCESS_NOTES.get(key) or note.get(key, fallback))
 
         self.distribution.currentIndexChanged.connect(update)
         self.method.currentIndexChanged.connect(update)
@@ -378,6 +415,9 @@ class RandomPanel(QWidget):
         label = self.distribution.currentText()
         if key in PROCESSES:
             self._calculate_process(key, method == 'generate')
+            return
+        if key in NOISES:
+            self._calculate_noise(key, method == 'generate')
             return
         if method == 'generate':
             count, seed = integer_field(self.count), integer_field(self.seed)
@@ -505,23 +545,78 @@ class RandomPanel(QWidget):
         def accept(data):
             records = data['records']
             summary = _process_report(label, data)
-            journal = getattr(self.window, '_result_journal', None)
-            if journal is not None:
-                journal.reported(data, outputs_registered=True)
             if records:
-                document = data['moments']['model']
-                parent, ids = store_processes(self.window.project, document, records, tool=journal.origin if journal else None)
-                self.window.register_publication(parent, document)
-                for key, record in zip(ids, records, strict=True):
-                    self.window.register_publication(key, record)
-                self._display_realizations(records)
+                self._publish_batch(store_processes, data['moments']['model'], data)
             else:
-                self.window.publish({'moments': data['moments'], 'transition': data['transition']},
-                                    title=label, operation='Propiedades teóricas de un proceso')
+                self.window.publish(data, title=label, operation='Propiedades teóricas de un proceso')
             self.report.set_readable(summary)
             self.tabs.setCurrentIndex(0 if records else 1)
 
         self.window._run_operation('Calculando proceso estocástico…', calculate, accept)
+
+    def _calculate_noise(self, key, generating):
+        from .systems_panel import parse_list
+
+        label, names = NOISES[key]
+        parameters = {}
+        for name in names:
+            field = self.fields[f'{key}.{name}']
+            if name == 'complex':
+                parameters[name] = field.isChecked()
+            elif name == 'color':
+                parameters[name] = field.currentData()
+            elif name in ('frequency_hz', 'density', 'taps'):
+                values = parse_list(field.text())
+                if name != 'taps' and np.any(values.imag):
+                    raise ValueError('La frecuencia y la densidad deben contener valores reales.')
+                parameters[name] = values if name == 'taps' else values.real
+            else:
+                parameters[name] = real_field(field)
+        rate = real_field(self.sample_rate) if (self.sample_rate.text().strip() or key in FREQUENCY_NOISES
+                                               or not generating) else None
+        count = integer_field(self.count, minimum=1)
+        if generating:
+            seed, replicas = integer_field(self.seed), integer_field(self.replicas)
+            origin = integer_field(self.origin)
+
+        def calculate():
+            model = Noise(key, parameters)
+            if not generating:
+                return noise_spectrum(model, count, rate=rate)
+            records = generate_noise(model, count, seed, replicas=replicas, origin=origin, rate=rate)
+            return {'model': model.document(), 'records': records}
+
+        def accept(result):
+            if generating:
+                records = result['records']
+                variance = records[0].metadata['theoretical_variance']
+                self._publish_batch(store_noise, result['model'], result)
+                sections = [Section('Modelo', rows=[('Media teórica', '0'), ('Varianza teórica', number(variance)),
+                                                   ('Réplicas independientes', len(records))])]
+            else:
+                key = self.window.publish(result, operation='PSD teórica de ruido')
+                self.output.show_result(result)
+                self.output.result_ids = [key]
+                self.sample_choice.hide()
+                sections = [Section('Densidad espectral de potencia',
+                                    rows=[('Varianza teórica', number(result.metadata['variance'])),
+                                          ('Espaciado (Hz)', number(result.step))],
+                                    paragraphs=['La PSD es bilateral y se expresa en unidades de amplitud al cuadrado por Hz.'])]
+            self.report.set_readable(Summary(label, sections))
+            self.tabs.setCurrentIndex(0)
+
+        self.window._run_operation('Calculando ruido estocástico…', calculate, accept)
+
+    def _publish_batch(self, store, document, data):
+        records = data['records']
+        journal = getattr(self.window, '_result_journal', None)
+        if journal is not None:
+            journal.reported(data, outputs_registered=True)
+        parent, ids = store(self.window.project, document, records, tool=journal.origin if journal else None)
+        self.window.register_publication(parent, document)
+        for key, record in zip(ids, records, strict=True):
+            self.window.register_publication(key, record)
+        self._display_realizations(records)
 
     def _display_realizations(self, records):
         self._samples = records

@@ -10,4 +10,8 @@ Una realización registra su huella al generarse. La entrega guarda la distribuc
 
 `descriptive_statistics.py` analiza una proyección real declarada de `Signal`. El Workbench compone sus resultados con las medidas globales históricas y el histograma. La CLI `statistics describe` guarda el mismo análisis de proyección como cálculo con enlace al registro padre. Los diagnósticos conservan la CDF empírica exacta en las muestras únicas. Para las curvas de referencia y Q–Q se eligen posiciones de dibujo acotadas sin cambiar los cuantiles ni los estadísticos principales.
 
+El motor `statistical_inference.py` comparte ajustes e intervalos entre Workbench, Python y CLI. Carga cada muestra con su componente, unidades y reloj. `statistics_results.py` asocia y verifica las entradas del informe dentro de una misma transacción, también cuando una entrada todavía era un borrador.
+
+`stochastic_processes.py` implementa transiciones, momentos y simulación por subflujos. `stochastic_noise.py` sintetiza ruido IID, por FIR o por densidad bilateral. El generador existente integra ambos como opciones contextuales. La CLI `stochastic` usa los mismos motores y conserva el reloj físico y la procedencia de cada trayectoria. `realization_batch.py` comparte la entrega atómica con el generador de distribuciones.
+
 La futura estimación, identificación, PSD y campañas tomarán estos contratos como punto de partida, y seguirán usando las primitivas acreditadas de Engineering Core y canales. [Plan](PHASE_05_PLAN.md)

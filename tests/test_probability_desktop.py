@@ -14,6 +14,7 @@ from signallab_pc.probability import Distribution, generate_realizations
 from signallab_pc.session import load
 from signallab_pc.session_fields import field_values
 from signallab_pc.statistical_inference import fit_distribution, infer_record
+from signallab_pc.stochastic_noise import Noise, generate_noise, noise_spectrum
 from signallab_pc.stochastic_processes import Process, generate_process, process_transition
 from signallab_pc.workspaces import ROUTES
 from test_desktop_session import DesktopSessionFixture
@@ -183,3 +184,26 @@ class ProbabilityWorkbenchTests(DesktopSessionFixture):
         row = window.project.headers()[-1]
         self.assertEqual(window.project.get(row['id'])['transition'], process_transition(model,3))
         self.assertIn('Matriz de transición', panel.report.toPlainText())
+
+    def test_noise_modes_share_the_generator_and_offer_a_reusable_psd(self):
+        window, panel = self.open_generators()
+        panel.distribution.setCurrentIndex(panel.distribution.findData('colored_noise'))
+        panel.count.setText('16')
+        panel.sample_rate.setText('64')
+        panel.fields['colored_noise.low_hz'].setText('4')
+        panel.fields['colored_noise.high_hz'].setText('32')
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        model = Noise('colored_noise', dict(color='pink',variance=1,low_hz=4,high_hz=32,complex=False))
+        samples = [row for row in window.project.headers() if row['operation'] == 'Generar realización']
+        record = window.project.get(samples[-1]['id'])
+        np.testing.assert_array_equal(record.values,generate_noise(model,16,12345,rate=64)[0].values)
+        panel.method.setCurrentIndex(panel.method.findData('population'))
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        row = window.project.headers()[-1]
+        self.assertEqual(row['operation'], 'PSD teórica de ruido')
+        theory = window.project.get(row['id'])
+        self.assertEqual(theory.data_kind, 'density')
+        np.testing.assert_array_equal(theory.values, noise_spectrum(model,16,rate=64).values)
+        self.assertIn('bilateral', panel.report.toPlainText())

@@ -55,3 +55,14 @@ python -m signallab_pc stochastic generate --family markov --parameters '{"initi
 ```
 
 La primera muestra contiene el estado inicial y, si se indicó un reloj, representa el tiempo cero. El generador conserva cada trayectoria como una señal reutilizable y referencia el modelo en el proyecto. Para usar los servicios directamente, importá `Process`, `generate_process`, `process_moments` y `process_transition` desde `signallab_pc.stochastic_processes`. [Transiciones y alcance](MATHEMATICAL_FOUNDATIONS.md#trayectorias-y-transiciones)
+
+### Generar ruido y consultar su PSD
+
+En **Generar realización**, seleccioná ruido blanco real o complejo, impulsivo, por color, por FIR o con PSD especificada. **Propiedades poblacionales** muestra la densidad bilateral en Hz y permite reutilizarla desde Resultados. Para una PSD real simétrica, escribí los pares de la mitad positiva como valores de la densidad bilateral. Para una salida compleja, podés cargar una PSD asimétrica con frecuencias positivas y negativas.
+
+```sh
+python -m signallab_pc stochastic inspect --family colored_noise --parameters '{"color":"pink","variance":1,"low_hz":8,"high_hz":120,"complex":false}' --rate 256 --bins 256
+python -m signallab_pc stochastic generate --family colored_noise --parameters '{"color":"pink","variance":1,"low_hz":8,"high_hz":120,"complex":false}' --rate 256 --count 256 --seed 123 --output ruido.slproj
+```
+
+Con la misma frecuencia y cantidad de muestras o bins, la densidad de consulta coincide con la usada para sintetizar el ruido. En rosa y marrón, un corte inferior positivo regulariza la potencia próxima a DC. En Python podés usar `Noise`, `generate_noise` y `noise_spectrum` de `signallab_pc.stochastic_noise`. [Normalización y condiciones](MATHEMATICAL_FOUNDATIONS.md#modelos-de-ruido)
