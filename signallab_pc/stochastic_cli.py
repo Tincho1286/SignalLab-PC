@@ -8,6 +8,7 @@ from .cli_session import add_output_arguments, add_session_arguments, load_input
 from .input_files import decode_finite_json
 from .project import Project
 from .statistics_results import store_statistics
+from .statistical_spectra import cross_spectra, store_cross_spectra
 from .stochastic_covariance import METHODS, covariance_matrix, ensemble_moments, estimate_correlation
 from .stochastic_noise import NOISES, Noise, generate_noise, noise_spectrum, store_noise
 from .stochastic_processes import PROCESSES, Process, generate_process, process_moments, process_transition, store_processes
@@ -57,7 +58,7 @@ def _save_analysis(args, project, workspace, result, records, operation, context
     return {'source_ids': keys, 'result_id': result_id}
 
 
-def _correlate(args, context):
+def _paired_input(args, context):
     project, workspace, first = load_input(args, context)
     records = [(first, args.record)]
     second = None
@@ -71,9 +72,26 @@ def _correlate(args, context):
             raise ValueError('Elegí una salida distinta de la segunda señal de entrada.')
         second = load_signal_file(args.second_signal, context)
         records.append((second, None))
+    return project, workspace, first, second, records
+
+
+def _correlate(args, context):
+    project, workspace, first, second, records = _paired_input(args,context)
     result = estimate_correlation(first, second, max_lag=args.max_lag, remove_mean=args.center,
                                   denominator=args.divisor, normalize=args.normalize, method=args.method, execution=context)
     return _save_analysis(args, project, workspace, result, records, result.name, context)
+
+
+def _spectral_cross(args, context):
+    project, workspace, first, second, records = _paired_input(args,context)
+    if second is None:
+        raise ValueError('El espectro cruzado requiere dos registros.')
+    result = cross_spectra(first,second,rate=args.rate,segment=args.segment,overlap=args.overlap,
+                           window=args.window,beta=args.beta,remove_mean=args.center,execution=context)
+    sources = tuple((value,key,()) for value,key in records)
+    receipt = store_cross_spectra(project,result,sources,execution=context)
+    session.save(args.output,project,workspace,checkpoint=context.checkpoint)
+    return receipt
 
 
 def _ensemble(args, context):
@@ -131,15 +149,24 @@ def main(argv):
     generate.set_defaults(execute=_generate)
     correlation = commands.add_parser('correlate', help='Estimar correlación temporal auto o cruzada.')
     correlation.set_defaults(execute=_correlate)
-    add_session_arguments(correlation)
-    second = correlation.add_mutually_exclusive_group()
-    second.add_argument('--second-record')
-    second.add_argument('--second-signal', type=Path)
+    cross = commands.add_parser('spectral-cross', help='Calcular densidad cruzada y coherencia de Welch.')
+    cross.set_defaults(execute=_spectral_cross)
+    for command in (correlation,cross):
+        add_session_arguments(command)
+        second = command.add_mutually_exclusive_group(required=command is cross)
+        second.add_argument('--second-record')
+        second.add_argument('--second-signal', type=Path)
     correlation.add_argument('--max-lag', type=int)
     correlation.add_argument('--center', action='store_true', help='Restar las medias para estimar covarianza.')
     correlation.add_argument('--divisor', default='N', choices=('N', 'overlap'))
     correlation.add_argument('--normalize', action='store_true')
     correlation.add_argument('--method', default='auto', choices=METHODS)
+    cross.add_argument('--rate',type=float)
+    cross.add_argument('--segment',type=int)
+    cross.add_argument('--overlap',type=int)
+    cross.add_argument('--window',choices=('boxcar','hann','hamming','blackman','kaiser'),default='hann')
+    cross.add_argument('--beta',type=float,default=5.)
+    cross.add_argument('--center',action='store_true')
     matrix = commands.add_parser('matrix', help='Estimar matrices de covarianza de canales.')
     ensemble = commands.add_parser('ensemble', help='Comparar realizaciones independientes en dos posiciones.')
     ensemble.add_argument('--first', type=int, default=0)

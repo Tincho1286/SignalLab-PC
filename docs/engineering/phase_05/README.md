@@ -113,3 +113,13 @@ python -m signallab_pc dsp psd --session ruido-blanco.slproj --record ID_REALIZA
 ```
 
 El informe y su PSD quedan vinculados en Resultados. Para Python, usá `estimate_psd` de `signallab_pc.dsp_application` y `white_noise_confidence` de `signallab_pc.statistical_spectra`. [Normalización y cobertura](MATHEMATICAL_FOUNDATIONS.md#bartlett-y-cobertura-de-ruido-blanco)
+
+### Comparar dos espectros
+
+En **Densidad de potencia** elegí **Espectro cruzado y coherencia**. Cargá los registros x e y y elegí la longitud, el solape y la ventana. La aplicación toma el intervalo de índices observado en ambos. El gráfico comparte el eje de frecuencia para fase y coherencia. La biblioteca conserva la densidad cruzada, las dos densidades individuales disponibles y el informe de coherencia.
+
+```sh
+python -m signallab_pc stochastic spectral-cross --session par.slproj --record ID_X --second-record ID_Y --segment 64 --overlap 32 --output cruzada.slproj
+```
+
+Usá una sesión con dos registros discretos y reloj compatible. En Python podés usar `cross_spectra` de `signallab_pc.statistical_spectra`. [Convención y condiciones](MATHEMATICAL_FOUNDATIONS.md#espectro-cruzado-y-coherencia)

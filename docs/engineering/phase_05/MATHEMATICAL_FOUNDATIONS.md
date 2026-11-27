@@ -69,3 +69,9 @@ AIC, AICc y BIC cuentan p coeficientes autorregresivos, q coeficientes de media 
 Bartlett divide el registro en bloques rectangulares disjuntos de M muestras. Promedia $|\mathrm{DFT}(x_b)|^2/(F_s M)$ de los bloques completos. La integral discreta de la densidad bilateral recupera la potencia media de las muestras utilizadas. En una densidad unilateral de señal real se suman los pares de frecuencias, y DC y Nyquist conservan su potencia. [Escalas espectrales](https://docs.scipy.org/doc/scipy/tutorial/signal.html#spectral-analysis)
 
 Para L bloques independientes de ruido gaussiano blanco de media cero, $\nu\widehat S/S$ sigue χ² con $\nu=2L$ en los bins complejos. En señales reales, DC y Nyquist par tienen solo una coordenada real y $\nu=L$. Si se retiró la media del bloque, el intervalo en DC se omite. La banda del gráfico representa la cobertura marginal por frecuencia. El solape o una ventana no rectangular requieren otra calibración.
+
+## Espectro cruzado y coherencia
+
+La densidad cruzada bilateral usa el promedio de $X_b(f)\overline{Y_b(f)}$ dividido por $F_s\sum_n w_n^2$. Se aplican la misma ventana, segmentos y normalización a las densidades individuales. Bajo esta convención, un retardo de x respecto de y introduce fase negativa en la componente de frecuencia positiva. La densidad cruzada compleja conserva su fase y unidades de amplitud de x por amplitud de y por Hz.
+
+La coherencia de magnitud al cuadrado es $|S_{xy}|^2/(S_{xx}S_{yy})$. Se calcula sobre los productos ya promediados. Para un solo bloque queda indefinida porque el cociente sería uno en cualquier bin de potencia no nula. Con dos o más bloques sigue sin definirse en los bins de potencia nula. El solape puede reducir la cantidad de observaciones independientes. El cálculo conserva coherencia y espectro cruzado representable cuando las unidades de uno de los canales llevan su propio PSD fuera del rango numérico.
