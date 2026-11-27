@@ -1,6 +1,15 @@
 # Backlog de SignalLab Engineering
 
-La 2.2.1 Preview se publicó sobre `08cd1bc`. La prueba de escritorio con escalado de Qt al 200 % y la conexión del portable a GitHub en Fedora 44 aprobaron. Quedan la prueba nativa de Windows y la comprobación funcional del paquete en Fedora Plasma. E-04 sigue su seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Descargas de 2.2.1](../releases/v2.2.1.md)
+## Próximas decisiones
+
+| Momento | Trabajo de planificación o seguimiento | Evidencia esperada |
+| --- | --- | --- |
+| Tras autorizar Fase 05 | Confirmar el alcance estadístico, las capacidades reutilizables y el primer recorrido con complejidad progresiva. | Requisitos, contratos, oráculos, presupuesto y plan de regresiones antes de implementar. [Plan de modernización](TOOL_MODERNIZATION_PLAN.md#fase-05--probabilidad-y-estadística) |
+| Antes de calificar la primera 2.3.x | Evaluar la habilitación del Quality Gate y empaquetado para la fase nueva. Las modificaciones funcionales de infraestructura requieren autorización. | Informes, paquetes, SHA y manifiesto verificados con los controles vigentes. [Brechas del flujo](../development/releases.md#adaptaciones-pendientes-del-flujo) |
+| Durante fases autorizadas | Revisar solapamientos, rendimientos y riesgos del dominio antes de añadir métodos, motores o dependencias. | Trazabilidad, reutilización o justificación de una herramienta independiente, y validación con oráculos. [Roadmap](ROADMAP.md) · [Catálogo de integración](INTEGRATION_CATALOG.md) |
+| Seguimiento | Preservar E-04 y los pendientes nativos de Fase 04. Las pruebas específicas de escalado sirven de diagnóstico. | Alcance de cada comprobación y registro de defectos reproducibles. [Estado vigente](PROJECT_STATE.md) · [Riesgos de Fase 04](phase_04/RESIDUAL_RISK_REGISTER.md) |
+
+## Registros históricos
 
 La [matriz de Fase 02B](phase_02b/PHASE_02B_TRACEABILITY_MATRIX.md) registra los nuevos paquetes y sus criterios. Los controles y riesgos de estabilización siguen debajo como referencia.
 

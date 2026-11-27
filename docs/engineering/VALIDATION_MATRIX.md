@@ -1,4 +1,29 @@
-# Matriz de validación de estabilización
+# Matriz de validación de SignalLab Engineering
+
+## Criterios vigentes
+
+El Quality Gate de expansión rige las fases autorizadas hasta la 10. Cada fase agrega oráculos y controles por dominio antes de ejecutar sus pruebas. La matriz se evalúa en Windows y Linux sobre **el mismo SHA limpio**, con resultados por plataforma y requisitos trazables.
+
+| Control | Evidencia mínima |
+| --- | --- |
+| Cobertura global | ≥85 % de líneas y ≥75 % de ramas en cada plataforma. |
+| Componentes críticos | ≥90 % de líneas y ≥85 % de ramas por componente crítico. Inventariar los componentes antes de medir y justificar exclusiones. |
+| Defectos y regresiones | Cero P0 y cero P1 internos sin resolver. Pruebas con resultados observables en motores y recorridos viejos y nuevos. |
+| Validación matemática | Oráculos independientes y tolerancias fijadas antes de medir. Identidades, casos límite, errores y contraste simbólico, numérico o estadístico según el dominio. |
+| Compatibilidad e integridad | Carga histórica, conservación de unidades/reloj/condiciones, procedencia, integridad, atomicidad y recuperación. |
+| Reproducibilidad | Solicitudes, parámetros, fuentes, huellas, versiones, semillas y rutas auditables. Contrastar resultados entre interfaces cuando compartan una operación. |
+| Seguridad y recursos | Revisar dependencias, formatos externos y límites del perfil. Medir memoria, tiempo, concurrencia, cancelación y recuperación. Distinguir estimaciones de cuotas estrictas. |
+| Interfaz | Pruebas automatizadas funcionales en Windows y Linux. Incluir entrada, cambio de método, cálculo, errores, resultados, gráficos y reuso donde aplique. |
+| Distribución | Instaladores, portables, fuentes, inventarios, procedencia, hashes y manifiesto firmado comprobados. Verificar separación Stable/LTS y Preview. |
+| Documentación | Requisitos, contratos, causas de defectos, casos, resultados, riesgos y SHA. Registrar por separado el dictamen técnico, la aceptación funcional y el permiso de integración. |
+
+Las comprobaciones específicas a 100 %, 125 %, 150 % y 200 %, las matrices DPI, resoluciones físicas, monitores múltiples y los escritorios Linux manuales pasan a ser evidencia diagnóstica y de seguimiento. Los fallos funcionales conocidos y las regresiones automatizadas conservan su tratamiento por severidad. La aceptación funcional corresponde al propietario después de publicar la Preview. [Gates A, B y C](RELEASE_POLICY.md#de-una-fase-autorizada-a-su-cierre) · [Protocolo de interfaz](UX_DESIGN_PRINCIPLES.md#comprobar-el-recorrido)
+
+## Calificación de Fase 11
+
+La calificación definitiva eleva a ≥99 % las líneas, ramas y funciones globales, y las líneas y ramas de componentes críticos. El protocolo fija el inventario de funciones, denominadores, exclusiones justificadas y reconciliación por plataforma antes de medir. La cobertura complementa oráculos independientes y pruebas que comprueban resultados. Mantener métricas auditables y resolver en cada fase los defectos que le corresponden. [Paquetes y dictámenes de Fase 11](ROADMAP.md#fase-11--consolidación-y-calificación-definitiva)
+
+## Matriz histórica de estabilización
 
 **Estados** verificado, corregido y verificado, mitigado parcialmente, pendiente, bloqueado y no aplicable. El [informe de línea base](BASELINE_REPORT.md) identifica la revisión exacta de cada prueba.
 

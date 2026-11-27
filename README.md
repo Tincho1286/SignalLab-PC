@@ -52,7 +52,9 @@ La guía de inicio muestra cómo generar una ventana Hann, ver sus muestras y en
 
 ## Desarrollo y contribuciones
 
-Engineering Core ofrece operaciones DSP desde Python y la consola. La documentación de desarrollo incluye ejemplos de DFT, FIR y cambio de tasa, además del trabajo en comunicaciones digitales y modelos de canal. [Guía de desarrollo](docs/development/README.md) · [Ejemplos de Python y CLI](docs/engineering/phase_02b/ENGINEERING_CORE_EXAMPLES.md) · [Roadmap](docs/engineering/ROADMAP.md)
+Engineering Core ofrece operaciones DSP desde Python y la consola. La documentación de desarrollo incluye ejemplos de DFT, FIR y cambio de tasa, además del trabajo en comunicaciones digitales y modelos de canal. [Guía de desarrollo](docs/development/README.md) · [Ejemplos de Python y CLI](docs/engineering/phase_02b/ENGINEERING_CORE_EXAMPLES.md)
+
+La hoja de ruta de Engineering organiza la ampliación de laboratorios y las mejoras de las herramientas actuales. Las fases autorizadas y calificadas llegan a Preview. La familia 2.0.x conserva su canal estable. [Roadmap](docs/engineering/ROADMAP.md) · [Plan de modernización](docs/engineering/TOOL_MODERNIZATION_PLAN.md) · [Política de entregas](docs/engineering/RELEASE_POLICY.md)
 
 Si encontrás un problema, incluí la versión de SignalLab, los datos de entrada y el resultado esperado. [Informar un problema](https://github.com/Tincho1286/SignalLab-PC/issues/new/choose) · [Cómo contribuir](CONTRIBUTING.md)
 

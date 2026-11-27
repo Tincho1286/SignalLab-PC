@@ -41,6 +41,8 @@ Los directorios `.venv/`, `work/`, `build/`, `dist/`, `outputs/` y los ejecutabl
 
 La interfaz, el modelo de datos y los motores compartidos evolucionan conservando las convenciones de señales, sistemas y resultados. Las variantes nuevas se integran en el catálogo existente antes de crear herramientas duplicadas.
 
+La planificación de Engineering combina laboratorios nuevos con la modernización de las herramientas de cada dominio. Los criterios de validación y la separación entre publicación Preview, aceptación e integración se aplican a todas las fases autorizadas. [Roadmap](../engineering/ROADMAP.md) · [Arquitectura objetivo](../engineering/ARCHITECTURE_TO_BE.md) · [Validación](../engineering/VALIDATION_MATRIX.md#criterios-vigentes) · [Política de entregas](../engineering/RELEASE_POLICY.md)
+
 La [auditoría incremental de noviembre de 2026](audit-2026-11.md) documenta las correcciones, el mapa de módulos, los ejemplos educativos y la comprobación integral con `python tools/check_integral.py`.
 
 ## Cambios de documentación
