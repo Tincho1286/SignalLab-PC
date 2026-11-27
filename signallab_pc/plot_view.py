@@ -310,27 +310,44 @@ def install_enlarge(toolbar, *, standalone=False):
     from .figure_controls import install as install_controls
     install_controls(toolbar,window.tools_layout,canvas)
     install_figure_layout(canvas)
-    original_draw=canvas.draw;last=[None];pending=[False]
+    original_draw=canvas.draw
+    original_draw_idle=canvas.draw_idle
+    last=[None];pending=[False]
     def open_result():
         pending[0]=False
         if not window.isVisible():enlarge_plot(canvas, parent)
-    def draw(*args,**kwargs):
-        result=original_draw(*args,**kwargs)
+    def refresh_result():
         # New plot objects identify a new result; repainting/zooming a closed
         # figure must not reopen it. An empty placeholder is not a result.
         artists=[artist for axis in canvas.figure.axes for artist in [*axis.lines,*axis.collections,*axis.images,*axis.patches]
                  if artist is not axis.patch and not getattr(artist,'_signallab_probe',False)]
-        canvas._signallab_has_plot_result=bool(artists)
-        refresh=getattr(canvas,'_signallab_plot_action_refresh',None)
-        if refresh is not None:refresh()
+        ready=bool(artists)
+        if ready != getattr(canvas,'_signallab_has_plot_result',None):
+            canvas._signallab_has_plot_result=ready
+            refresh=getattr(canvas,'_signallab_plot_action_refresh',None)
+            if refresh is not None:refresh()
         signature=tuple(id(artist) for artist in artists)
         if artists and signature!=last[0] and not getattr(canvas, '_signallab_explicit_plot', False):
             last[0]=signature
             if not pending[0]:pending[0]=True;QTimer.singleShot(0,window,open_result)
+    def draw(*args,**kwargs):
+        # Qt may have queued a draw while this canvas still belonged to the page.
+        if getattr(canvas,'_is_idle_drawing',False) and not window.isVisible():
+            refresh_result()
+            return
+        result=original_draw(*args,**kwargs)
+        refresh_result()
         return result
+    def draw_idle():
+        if window.isVisible():
+            original_draw_idle()
+        else:
+            # Hidden figures only need to report availability. Qt draws them
+            # at their actual viewport size when the user opens the window.
+            refresh_result()
     canvas.draw=draw
-    # draw_idle works even while the canvas belongs to a hidden window.
-    canvas.draw_idle()
+    canvas.draw_idle=draw_idle
+    refresh_result()
 
 
 

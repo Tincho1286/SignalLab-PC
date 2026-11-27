@@ -13,7 +13,7 @@ SignalLab PC es un laboratorio de escritorio en español para **Sistemas y Seña
 | Canal | Cuándo elegirlo | Descarga |
 | --- | --- | --- |
 | **Estable / LTS** | Para clases, ejercicios y uso habitual. La versión estable vigente es **2.0.0**. | [Descargar estable](https://github.com/Tincho1286/SignalLab-PC/releases/latest) |
-| **Preview** | Para probar el laboratorio de comunicaciones digitales y los modelos de canal. La preliminar actual es **2.2.1**. | [Descargar Preview](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.1) |
+| **Preview** | Para probar probabilidad, estadística y comunicaciones. **2.3.1** mejora las figuras de resultados y agrega gráficos de BER, SER e I/Q. | [Descargar Preview](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.3.1) |
 
 Cada versión ofrece un **instalador** y un **portable** para **Windows x64** y **Linux x86_64**. Ambos incluyen Python y las dependencias. Elegí el instalador para actualizar desde **Ayuda → Buscar actualizaciones**, o el portable para ejecutar la aplicación desde una carpeta. El canal estable es el predeterminado. Podés habilitar las preliminares desde el actualizador. [Instalación y requisitos](docs/installation.md) · [Cómo actualizar](docs/installed-updates.md)
 
@@ -48,11 +48,15 @@ La guía de inicio muestra cómo generar una ventana Hann, ver sus muestras y en
 
 - **Uso diario** · Entradas, teclas rápidas, gráficos y mediciones. [Biblioteca de guías](docs/README.md) · [Gráficos y cursores](docs/cursors.md)
 - **Datos y cálculo** · Formatos de intercambio, sesiones y criterios para interpretar resultados. [Archivos y sesiones](docs/file-formats.md) · [Convenciones matemáticas](docs/conventions.md)
-- **Versiones** · Cambios y correcciones de cada entrega. [Historial de versiones](docs/releases/README.md) · [Novedades de 2.2.1](docs/releases/v2.2.1.md)
+- **Versiones** · Cambios y correcciones de cada entrega. [Historial de versiones](docs/releases/README.md) · [Novedades de 2.3.1](docs/releases/v2.3.1.md)
 
 ## Desarrollo y contribuciones
 
-Engineering Core ofrece operaciones DSP desde Python y la consola. La documentación de desarrollo incluye ejemplos de DFT, FIR y cambio de tasa, además del trabajo en comunicaciones digitales y modelos de canal. [Guía de desarrollo](docs/development/README.md) · [Ejemplos de Python y CLI](docs/engineering/phase_02b/ENGINEERING_CORE_EXAMPLES.md) · [Roadmap](docs/engineering/ROADMAP.md)
+Engineering Core ofrece operaciones DSP desde Python y la consola. La documentación de desarrollo incluye ejemplos de DFT, FIR y cambio de tasa, además del trabajo en comunicaciones digitales y modelos de canal. [Guía de desarrollo](docs/development/README.md) · [Ejemplos de Python y CLI](docs/engineering/phase_02b/ENGINEERING_CORE_EXAMPLES.md)
+
+La hoja de ruta de Engineering organiza la ampliación de laboratorios y las mejoras de las herramientas actuales. Las fases autorizadas y calificadas llegan a Preview. La familia 2.0.x conserva su canal estable. [Roadmap](docs/engineering/ROADMAP.md) · [Plan de modernización](docs/engineering/TOOL_MODERNIZATION_PLAN.md) · [Política de entregas](docs/engineering/RELEASE_POLICY.md)
+
+El laboratorio estadístico de la Preview ofrece generación, inferencia y experimentos reproducibles desde el escritorio, Python y la consola. El expediente incluye ejemplos de generación, ajuste y análisis de señales de canal. [Fase 05](docs/engineering/phase_05/README.md)
 
 Si encontrás un problema, incluí la versión de SignalLab, los datos de entrada y el resultado esperado. [Informar un problema](https://github.com/Tincho1286/SignalLab-PC/issues/new/choose) · [Cómo contribuir](CONTRIBUTING.md)
 

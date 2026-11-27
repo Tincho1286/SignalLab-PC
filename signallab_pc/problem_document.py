@@ -21,6 +21,8 @@ class ProblemDocument(QWidget):
             heights.append(max(0,height))
         return margins.top()+margins.bottom()+sum(heights)+max(0,len(heights)-1)*layout.spacing()
     def select_page(self,page):
+        if page is self.current_page:
+            return
         route=page.tool_item
         if route not in self.pages:self.pages[route]=page;self.stack.addWidget(page)
         self.current_page=page;self.current_route=route;self.stack.setCurrentWidget(page);self.stack.updateGeometry()

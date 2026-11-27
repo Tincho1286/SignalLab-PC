@@ -181,19 +181,25 @@ def stylesheet():
     return '\n'.join(rules)
 
 
-def refresh(window):
+def refresh(window, *, content=None):
     from PySide6.QtWidgets import QScrollArea,QLabel
     # Some QScrollArea viewports fill their palette before their contents.
     # Restore that flag when leaving the photo theme.
     from . import theme_presets
     active=theme_presets.CURRENT=='custom' and bool(theme_presets.CUSTOM.get('photo'))
     protect=active and reading_opacity(theme_presets.CUSTOM)>theme_presets.CUSTOM.get('surface_opacity',100)
-    for label in window.findChildren(QLabel):protect_label(label,window,protect)
-    for scroll in window.findChildren(QScrollArea):
+    scope = window if content is None else content
+    if content is None or protect:
+        for label in scope.findChildren(QLabel):protect_label(label,window,protect)
+    scrolls = scope.findChildren(QScrollArea)
+    if isinstance(scope,QScrollArea):
+        scrolls.insert(0,scope)
+    for scroll in scrolls:
         viewport=scroll.viewport()
         if active:
             if not hasattr(viewport,'_signallab_original_fill'):viewport._signallab_original_fill=viewport.autoFillBackground()
             viewport.setAutoFillBackground(False)
         elif hasattr(viewport,'_signallab_original_fill'):
             viewport.setAutoFillBackground(viewport._signallab_original_fill);del viewport._signallab_original_fill
-    window.update()
+    if content is None:
+        window.update()

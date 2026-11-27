@@ -22,11 +22,14 @@ def validate_publication_files(tag, target, channel, paths, gate):
     if not isinstance(tag, str) or not tag.startswith('v'):
         raise ValueError('La etiqueta debe comenzar con v y contener la versión numérica.')
     version = tag[1:]
-    publication_version(version, channel)
+    version_numbers = publication_version(version, channel)
     if not re.fullmatch(r'[0-9a-f]{40}', target):
         raise ValueError('Indicá el SHA completo validado.')
     if not isinstance(gate, dict) or gate.get('commit') != target or gate.get('automated_passed') is not True:
         raise ValueError('La evidencia del Quality Gate debe aprobar el SHA de la publicación.')
+    if version_numbers[:2] == (2, 3) or gate.get('phase') == '05':
+        if version_numbers[:2] != (2, 3) or gate.get('phase') != '05' or gate.get('version') != version:
+            raise ValueError('La versión Preview 2.3.x requiere su Quality Gate de Fase 05.')
     platforms = gate.get('platforms', {})
     runners = {'windows': 'windows-2022', 'linux': 'ubuntu-22.04'}
     if not isinstance(platforms, dict) or not set(runners.values()) <= platforms.keys():

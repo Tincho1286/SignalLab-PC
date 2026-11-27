@@ -308,17 +308,17 @@ class WorkbenchWindow(ToolboxWindow):
         if view is not None and self.stack.currentWidget() is view:
             page=getattr(view,'active_page',view.widget())
             if locate(page.tool_item) is entry:
-                for index in range(self.documents.count()):
-                    if self.documents.tabData(index)==self.active_route:self.documents.setTabText(index,entry['title']);self.documents.setTabToolTip(index,detail_label)
+                index = self._document_index(self.active_route)
+                if index >= 0:
+                    if self.documents.tabText(index) != entry['title']:
+                        self.documents.setTabText(index,entry['title'])
+                    if self.documents.tabToolTip(index) != detail_label:
+                        self.documents.setTabToolTip(index,detail_label)
         self.current_operation=tuple(item);self.variant_strip.set_entry(entry,item)
         self.current_entry=entry;self.title.setText(entry['title']);self.title.setToolTip(entry['summary']);self.category=AREA_BY_ID[entry['area']][1];self._sync_navigation();self.help.show()
         self.refresh_favorite(normalized_key(item))
         self.area_path.setText(self.category+'  ›');self.area_path.setAccessibleName('Ver herramientas de '+self.category);self.refresh_context_path()
-        self.operation_menu.hide();page=self.pages.get(tuple(item));self.current_calculate=None
-        if page is not None:
-            buttons=calculation_buttons(page)
-            if buttons:self.current_calculate=buttons[0]
-        self.refresh_result_layout_action()
+        self.operation_menu.hide()
         self._refresh_primary_action();self.statusBar().showMessage(self.category+' / '+entry['title'])
 
     def refresh_context_path(self):
@@ -339,8 +339,10 @@ class WorkbenchWindow(ToolboxWindow):
             if state is not None:state.set_button(button)
             label = button.text()
             compact = self.width() < 850
-            button.setProperty('commandBarAction', True)
-            button.hide()
+            if not button.property('commandBarAction'):
+                button.setProperty('commandBarAction', True)
+            if not button.isHidden():
+                button.hide()
             self.calculate_action.setText(label if len(label) <= (12 if compact else 27) else 'Calcular')
             self.calculate_action.setAccessibleName(label)
             self.calculate_action.setToolTip(label + ' · Ctrl+Enter')
@@ -447,29 +449,35 @@ class WorkbenchWindow(ToolboxWindow):
             document=ProblemDocument(entry);self.pages[doc_route]=document
             view=QScrollArea();view.setWidgetResizable(True);view.setFrameShape(QFrame.Shape.NoFrame);view.setWidget(document);self.views[doc_route]=view;self.stack.addWidget(view)
         document=self.pages[doc_route]
-        if route not in self.pages:self.pages[route]=ToolPage(self,route)
+        new_page = route not in self.pages
+        if new_page:self.pages[route]=ToolPage(self,route)
         page=self.pages[route];document.select_page(page);self.pages[requested]=page if requested[1]!='workspace' else document
-        from .tool_workspace import install as install_workspace
-        workspace=install_workspace(page)
         view=self.views[doc_route];view.active_page=page;view.panel=getattr(page,'panel',None);view.context=getattr(page,'context',None)
+        if new_page:
+            from .tool_workspace import install as install_workspace
+            workspace=install_workspace(page)
+            if workspace is not None:
+                view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+                view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         from .navigation import TRANSFORM_ALIASES
         if item[1:3] in TRANSFORM_ALIASES:page.panel.select_legacy(item[1:3])
         if item[1:3]==('systems',7):page.panel.fields['method'].setCurrentIndex(1)
         self.active_route=doc_route;self.category=AREA_BY_ID[entry['area']][1];self.activate_view(doc_route,entry['title'],view);self.back.hide();self.help.show()
-        self._configure_readable_layouts();self.operation_changed(route)
+        if new_page:
+            self._configure_readable_layouts(page, view)
+        self.operation_changed(route)
         self._remember_tool(key, entry)
-        if workspace is not None:
-            view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded);view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
     def ensure_cas(self):
         from .cas_panel import CasWorksheet
         if CAS_ROUTE not in self.pages:
             page=CasWorksheet(self);self.pages[CAS_ROUTE]=page;self._add_auxiliary_view(CAS_ROUTE,page,scroll=False)
+            self._configure_readable_layouts(page, self.views[CAS_ROUTE])
         return self.pages[CAS_ROUTE]
 
     def open_cas(self,*_):
         page=self.ensure_cas();self.active_route=CAS_ROUTE;self.current_operation=CAS_ROUTE;self.current_entry=None;self.category='CAS';self.navigation_area=None
         self.variant_strip.hide();self.operation_menu.hide();self.back.hide();self.help.show();self.activate_view(CAS_ROUTE,'Calculadora CAS',self.views[CAS_ROUTE])
-        self._render_tools(self.search.text());self._configure_readable_layouts();self._refresh_primary_action();page.input.setFocus()
+        self._render_tools(self.search.text());self._refresh_primary_action();page.input.setFocus()
 
     def open_station(self,index):self.open_tool(ROUTES[STATIONS[index][3][0]])
     def _add_auxiliary_view(self,key,page,*,scroll=True):
@@ -485,7 +493,7 @@ class WorkbenchWindow(ToolboxWindow):
                 page=self.build_project_page();self._add_auxiliary_view(key,page)
             else:
                 page=TheoryPanel(self.open_tool,self.open_library_example);self._add_auxiliary_view(key,page,scroll=False)
-            self.pages[key]=page;self._configure_readable_layouts()
+            self.pages[key]=page;self._configure_readable_layouts(page, self.views[key])
         if category=='Biblioteca' and browse is not None:self.pages[key].set_return_route(None)
         self.variant_strip.hide();self.current_calculate=None;self.operation_menu.hide();self.calculate_action.hide()
         self.category=category;self.activate_view(key,'Resultados' if category=='Proyecto' else 'Biblioteca',self.views[key]);self.help.hide();self.back.hide()
@@ -745,14 +753,19 @@ class WorkbenchWindow(ToolboxWindow):
             self.sessions.finish()
             self.settings.setValue('geometry',self.saveGeometry())
             self.settings.setValue('studio/panels',self.saveState())
-    def _configure_readable_layouts(self):
+    def _configure_readable_layouts(self, page=None, view=None):
+        """Prepare one document when its workspace is created."""
         from PySide6.QtWidgets import QFormLayout,QScrollArea,QSizePolicy,QTabWidget
         from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
         from .plot_view import install_enlarge
         from .tool_guide import ToolGuide
-        # Each registered document owns its form layout. The catalog has its own responsive cards.
-        def document_widgets(widget_type):
-            return [widget for view in self.views.values() for widget in view.findChildren(widget_type)]
+        if view is None:
+            view = self.stack.currentWidget()
+        if page is None:
+            page = getattr(view, 'active_page', view)
+        if page is None:
+            return
+        document_widgets = page.findChildren
 
         for toolbar in document_widgets(NavigationToolbar2QT):install_enlarge(toolbar)
         for guide in document_widgets(ToolGuide):guide.hide()
@@ -785,13 +798,11 @@ class WorkbenchWindow(ToolboxWindow):
                 label.setWordWrap(True);label.setSizePolicy(label.sizePolicy().horizontalPolicy(),QSizePolicy.Policy.Fixed)
         for scroll in document_widgets(QScrollArea):scroll.setWidgetResizable(True)
         from .wallpaper import refresh
-        refresh(self)
-        from .responsive_tools import install_tool_columns
-        for view in self.views.values():
-            page=getattr(view,'active_page',view)
-            workspace=getattr(page,'workspace',None)
-            if workspace is None:
-                if not view.property('auxiliaryDocument'):install_tool_columns(view)
-            else:
-                from .result_action_dock import install as install_action_dock
-                install_action_dock(workspace.results)
+        refresh(self, content=view if view is not None else page)
+        workspace = getattr(page, 'workspace', None)
+        if workspace is not None:
+            from .result_action_dock import install as install_action_dock
+            install_action_dock(workspace.results)
+        elif view is not None and not view.property('auxiliaryDocument'):
+            from .responsive_tools import install_tool_columns
+            install_tool_columns(view)

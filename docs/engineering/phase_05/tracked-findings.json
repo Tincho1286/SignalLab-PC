@@ -1,0 +1,39 @@
+{
+  "schema": 1,
+  "phase": "05",
+  "scope": "Hallazgos reproducidos durante la implementación. La auditoría integral del candidato revisará el registro antes de publicar.",
+  "findings": [
+    {
+      "id": "NAV-05",
+      "priority": "P2",
+      "internal": true,
+      "status": "closed",
+      "commit": "aecb4dd6ad5875ae83ebbee4a7d97de8e351bea5",
+      "title": "Trabajo repetido al cambiar entre herramientas abiertas"
+    },
+    {
+      "id": "NAV-06",
+      "priority": "P1",
+      "internal": true,
+      "status": "closed",
+      "commit": "f33c304",
+      "title": "El traspaso a Serie de Fourier ofrecía una entrada oculta de otra operación"
+    },
+    {
+      "id": "ARMA-SCALE-05",
+      "priority": "P1",
+      "internal": true,
+      "status": "closed",
+      "commit": "53a30516458c6f6402ffcbbefc84d8218d1949c9",
+      "title": "La escala intermedia podía alterar la covarianza o silenciar la varianza de ARMA"
+    },
+    {
+      "id": "CAMPAIGN-05",
+      "priority": "P2",
+      "internal": true,
+      "status": "closed",
+      "commit": "53a30516458c6f6402ffcbbefc84d8218d1949c9",
+      "title": "Destinos comprobados tarde y escritura previa a la exclusión nativa"
+    }
+  ]
+}

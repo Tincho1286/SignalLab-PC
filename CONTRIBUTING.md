@@ -15,10 +15,10 @@ Enviá una [propuesta](https://github.com/Tincho1286/SignalLab-PC/issues/new?tem
 
 ## Preparar un cambio de código
 
-`main` reúne el código de la versión estable. Las correcciones y mejoras se integran en `develop`. Los cambios pasan a `main` cuando se aprueba su promoción después de comprobarlos en Windows y Linux.
+`main` contiene el último estado integrado y aprobado. `develop` reúne la ingeniería autorizada. Las dos son las ramas oficiales. Una fase calificada en Windows y Linux se comparte como Preview desde `develop`. La aceptación funcional y el permiso para integrar en `main` corresponden al propietario. Las entregas Stable/LTS 2.0.x usan su propia línea de mantenimiento. [Política de entregas](docs/engineering/RELEASE_POLICY.md)
 
 1. Partí de `develop` y configurá el entorno con la [guía de desarrollo](docs/development/README.md).
-2. Respetá las [convenciones matemáticas](docs/conventions.md) y conservá las condiciones junto con el resultado. Para una corrección de cálculo, incluí un caso que reproduzca el error y cubra la regla que se modificó.
+2. Para ampliar una capacidad, revisá primero si encaja como variante de una herramienta existente. Respetá las convenciones matemáticas y conservá las condiciones junto con el resultado. Para una corrección de cálculo, incluí un caso que reproduzca el error y cubra la regla que se modificó. [Plan de modernización](docs/engineering/TOOL_MODERNIZATION_PLAN.md) · [Convenciones matemáticas](docs/conventions.md)
 3. Si cambia el uso o el significado de un resultado, actualizá la ayuda y la guía correspondiente.
 4. En el pull request, describí el efecto en la aplicación y las comprobaciones que ejecutaste.
 

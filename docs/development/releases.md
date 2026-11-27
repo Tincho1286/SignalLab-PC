@@ -8,13 +8,15 @@ Las entregas ofrecen instaladores y portables para Windows x64 y Linux x86_64. S
 
 Actualizá la versión en `signallab_pc/__init__.py`, redactá `docs/releases/vVERSION.md` y revisá las descargas del README, el changelog y los índices de versiones. Las notas deben explicar el problema o capacidad que cambia, el comportamiento resultante y sus límites, agrupando las áreas relacionadas en párrafos conectados. Los objetivos pendientes pertenecen a la hoja de ruta, sin prometer una versión futura.
 
-Para Preview, prepará el commit limpio en `develop` y verificá el mismo SHA en Windows y Linux. Para mantenimiento LTS, trabajá desde la última etiqueta estable en un checkout desacoplado. El commit de mantenimiento puede incorporar las adaptaciones de infraestructura necesarias para repetir los controles. La versión de los archivos, los metadatos y el código deben coincidir. El propietario autoriza la publicación y la creación de su etiqueta después de revisar el candidato.
+Para una fase autorizada, prepará un commit limpio en `develop` y verificá el mismo SHA en Windows y Linux. La aprobación del Quality Gate habilita la publicación Preview con su nueva etiqueta numérica. Usá la familia asignada a la fase y una versión nueva para cada corrección. [Familias por fase](../engineering/ROADMAP.md)
+
+Para mantenimiento LTS, trabajá desde la última etiqueta estable en un checkout desacoplado y obtené autorización específica para publicar, firmar y crear su etiqueta. La versión, los metadatos y la procedencia deben coincidir en todos los archivos de cada canal.
 
 ## Construir portables e instaladores
 
 El [flujo de distribuciones](../../.github/workflows/portable.yml) recibe el canal, el SHA completo y las plataformas. Preview se ejecuta sobre `develop` y comprueba que el SHA elegido esté en su historial. Así podés identificar el candidato aunque haya commits posteriores de documentación. Stable/LTS admite el SHA exacto de `main` cuando contiene código de esa familia o de una etiqueta LTS coincidente con el código. Un candidato LTS desacoplado que todavía no tiene etiqueta se compila y valida desde ese mismo commit en cada sistema. Usá `request_signing=false` mientras no haya un servicio Authenticode aprobado.
 
-El Quality Gate de Fase 03 produce directamente los adjuntos del candidato para ambos sistemas. Guardá los comprobantes `candidate-windows.json` y `candidate-linux.json` con sus paquetes y el informe de la misma ejecución. Así se puede preparar la entrega a partir de lo que se probó. Los artefactos de Actions tienen retención temporal.
+Los Quality Gates de Fases 03 y 04 producen los adjuntos del candidato para ambos sistemas. Guardá `candidate-windows.json` y `candidate-linux.json` con sus paquetes y el informe de la misma ejecución. Esto vincula la entrega a lo evaluado. Los artefactos de Actions tienen retención temporal. [Adaptaciones pendientes para fases nuevas](#adaptaciones-pendientes-del-flujo)
 
 Para construir localmente un portable Windows con el entorno preparado:
 
@@ -55,7 +57,7 @@ Las entregas nuevas requieren un único SHA validado en las dos plataformas. La 
 
 ## Publicar en GitHub
 
-Con la autorización del propietario, usá `tools/github_release.py` con `--candidate SHA_COMPLETO`, `--quality-gate INFORME.json`, el archivo de notas y un `--file` por adjunto. `--allow-public` habilita el repositorio público configurado. Preview comprueba que el SHA pertenezca a `develop`. Para Stable/LTS usá `--stable --lts-base v2.0.X` desde el checkout desacoplado que contiene el candidato.
+Para una Preview técnicamente calificada de una fase autorizada, usá `tools/github_release.py` con `--candidate SHA_COMPLETO`, `--quality-gate INFORME.json`, el archivo de notas y un `--file` por adjunto. `--allow-public` habilita el repositorio público configurado. Preview comprueba que el SHA pertenezca a `develop`. Para Stable/LTS se requiere autorización específica y se usan `--stable --lts-base v2.0.X` desde el checkout desacoplado que contiene el candidato. Si la firma o la publicación necesita intervención del propietario, solicitá esa acción mediante el flujo vigente. [Política de autorización](../engineering/RELEASE_POLICY.md#publicar-preview)
 
 El informe acredita los controles de la entrega y lleva `commit`, `automated_passed` y `platforms`. Los nodos `windows-2022` y `ubuntu-22.04` deben incluir cada uno su objeto `candidate_bundle` emitido en la construcción correspondiente. El publicador coteja esos objetos con los dos comprobantes adjuntos. Para una corrección LTS, usá la evidencia del mantenimiento y de sus regresiones sobre el SHA desacoplado. Los controles científicos de una fase de Engineering corresponden a su propio candidato.
 
@@ -64,6 +66,16 @@ Las entregas con instaladores necesitan un manifiesto firmado entre sus adjuntos
 El publicador crea un borrador, sube y verifica los archivos y luego activa la publicación. Conserva el commit exacto de construcción y rechaza una etiqueta que apunte a otro commit. También conserva las entregas que ya están públicas.
 
 Después de publicar una estable, comprobá que sea la descarga principal y que `releases/latest/download/SignalLab-updates.json` entregue el manifiesto esperado con una firma válida. Las preliminares no deben reemplazar ese canal. Revisá también que todos los enlaces del README apunten a adjuntos realmente disponibles.
+
+Para Preview, comprobá la nueva etiqueta, los hashes de los adjuntos, el manifiesto de ambos instaladores y la selección desde el actualizador con preliminares habilitadas. Después se realiza la aceptación funcional del propietario. La integración y el inicio de la fase siguiente se autorizan por separado. [Gates A, B y C](../engineering/RELEASE_POLICY.md#de-una-fase-autorizada-a-su-cierre)
+
+## Adaptaciones pendientes del flujo
+
+El publicador ya admite versiones numéricas Preview desde 2.1.0. Valida canal, SHA, recibos de ambas plataformas, firma y procedencia. La política permanente no exige sustituir el publicador ni cambiar el firmador, los permisos o las claves.
+
+La matriz de Actions dispone de un selector `phase_05`. Verifica la fuente Preview 2.3.x, ejecuta los controles acumulados y conserva los paquetes y recibos del mismo SHA en Windows y Linux. Los controles estadísticos generan los informes de calificación, los demostradores y los perfiles de memoria, cancelación y recuperación. El verificador exige estas evidencias de cada plataforma. [Matriz](../../.github/workflows/mathematics.yml) · [Verificador](../../tools/check_quality_gate_05.py)
+
+Para 2.3.x, el publicador comprueba que el Quality Gate corresponda a Fase 05 y a la misma versión. El control general sigue separando 2.0.x de las versiones Preview desde 2.1.0. Las pruebas de escritorio automatizadas se mantienen dentro del Quality Gate. El escalado específico se usa como diagnóstico. [Criterios](../engineering/phase_05/QUALITY_GATE_CRITERIA.md)
 
 ## Mantener las notas y el historial
 

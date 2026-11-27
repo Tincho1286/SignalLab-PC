@@ -1,5 +1,8 @@
 """Draft handoffs remain explicit across related tools with different outputs."""
+from unittest.mock import patch
+
 import numpy as np
+from PySide6.QtWidgets import QInputDialog
 
 from signallab_pc.filters import Transfer
 from signallab_pc.model import Signal
@@ -30,7 +33,9 @@ class VariantInputContracts(DesktopSessionFixture):
         headers = window.project.headers('signal')
         key = headers[-1]['id']
         series_route = ROUTES['fourier',5]
-        window.send_signal(preview,key,series_route)
+        with patch.object(QInputDialog,'getItem',return_value=('',False)) as chooser:
+            window.send_signal(preview,key,series_route)
+        chooser.assert_not_called()
         page = window.pages[series_route]
         window.calculate_active()
         self.wait_for_calculation(window)

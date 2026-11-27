@@ -25,11 +25,13 @@ from .storage import save_csv, save_json
 class FourierPanel(QWidget):
     def __init__(self, owner):
         super().__init__(); self.owner = owner; self.result = None
+        host=getattr(owner,'window',None)
+        self._project_host=host if hasattr(host,'project') else None
         root = QHBoxLayout(self)
         scroll = QScrollArea(); scroll.setWidgetResizable(True)
         controls = QWidget(); form = QFormLayout(controls); scroll.setWidget(controls); root.addWidget(scroll, 1)
         right = QWidget(); layout = QVBoxLayout(right); root.addWidget(right, 2)
-        self.comparison=None;self.plot_mode=QComboBox();self.plot_mode.addItems(['Módulo y fase','Parte real e imaginaria','Análisis ampliado: dB y retardo']);self.plot_mode.currentIndexChanged.connect(self.draw_result);layout.addWidget(self.plot_mode)
+        self.comparison=None;self.spectral_interval=None;self.cross_report=None;self.psd_reference=None;self.plot_mode=QComboBox();self.plot_mode.addItems(['Módulo y fase','Parte real e imaginaria','Análisis ampliado: dB y retardo']);self.plot_mode.currentIndexChanged.connect(self.draw_result);layout.addWidget(self.plot_mode)
         self.figure = Figure(figsize=(8, 6)); self.canvas = FigureCanvasQTAgg(self.figure)
         empty = self.figure.add_subplot(111); empty.set_axis_off()
         empty.text(0.5, 0.5, 'El espectro de tu señal aparecerá aquí', ha="center", va="center", color="#8194ae", transform=empty.transAxes)
@@ -71,16 +73,71 @@ class FourierPanel(QWidget):
         self._button(form, "Reconstruir serie discreta cargada", self.discrete_synthesis)
         self._section(form, "PSD / periodograma")
         self.rate = self._field(form, "Fs para señales sin reloj (Hz)", "100")
-        self.estimator = QComboBox(); self.estimator.addItems(["Welch calibrado", "Un segmento calibrado", "Periodograma sin calibración: |DFT|²/N"])
+        self.estimator = QComboBox()
+        for label,key in [('Welch calibrado','welch'),('Un segmento calibrado','periodogram'),
+                          ('Periodograma sin calibración','legacy'),('Bartlett · bloques disjuntos','bartlett')]:
+            self.estimator.addItem(label,key)
+        if self._project_host is not None and getattr(owner,'source',None) is not None:
+            self.estimator.addItem('Espectro cruzado y coherencia','cross')
+        for label,key in [('Blackman–Tukey','blackman_tukey'),('Multitaper DPSS','multitaper'),
+                          ('PSD autorregresiva','ar'),('Lomb–Scargle irregular','lomb')]:
+            self.estimator.addItem(label,key)
         form.addRow("Estimador", self.estimator)
-        self.segment = self._field(form, "Muestras por segmento Welch", "")
+        from .toolbox import LocalInput
+        self.second_spectrum = LocalInput('Segundo registro y[n]','discrete')
+        if self._project_host is not None:
+            self.second_spectrum.bind_project(self._project_host)
+        form.addRow(self.second_spectrum)
+        self.segment = self._field(form, "Muestras por segmento", "")
         self.segment.setPlaceholderText('Automático · hasta 256 muestras')
-        self.overlap = self._field(form, "Solape Welch", "")
+        self.overlap = self._field(form, "Solape de Welch", "")
         self.overlap.setPlaceholderText('Automático · mitad del segmento')
         self.window = QComboBox(); self.window.addItems(["Rectangular", "Hann", "Hamming", "Blackman", "Kaiser"])
         form.addRow("Ventana simétrica", self.window)
         self.beta = self._field(form, "Beta Kaiser", "5")
         self.demean = QCheckBox("Restar media de cada segmento"); form.addRow(self.demean)
+        self.confidence = QComboBox()
+        for label,key in [('Sin intervalo',None),('Ruido blanco gaussiano real','real_gaussian_white'),
+                          ('Ruido blanco gaussiano complejo propio','proper_complex_gaussian_white')]:
+            self.confidence.addItem(label,key)
+        self.confidence.setToolTip('Intervalos por bin para ruido blanco gaussiano de media cero y bloques rectangulares disjuntos.')
+        form.addRow('Modelo para intervalo de PSD',self.confidence)
+        self.confidence_level = self._field(form,'Cobertura (0 a 1)','0.95')
+        self.fft_bins=self._field(form,'Bins de la PSD','')
+        self.lag_maximum=self._field(form,'Retardo máximo de la covarianza','')
+        self.bandwidth=self._field(form,'Producto tiempo-ancho de banda NW','')
+        self.tapers=self._field(form,'Cantidad de ventanas DPSS','')
+        self.ar_order=self._field(form,'Orden AR','')
+        for field in (self.fft_bins,self.lag_maximum,self.bandwidth,self.tapers,self.ar_order):
+            field.setPlaceholderText('Automático')
+        self.observation_times=self._field(form,'Un tiempo en segundos por muestra','')
+        self.minimum_hz=self._field(form,'Frecuencia mínima (Hz)','0.1')
+        self.maximum_hz=self._field(form,'Frecuencia máxima (Hz)','10')
+        self.frequency_points=self._field(form,'Puntos de frecuencia','1025')
+        self.compare_welch=QCheckBox('Comparar con Welch en el mismo eje');form.addRow(self.compare_welch)
+        def spectral_controls(*_):
+            method=self.estimator.currentData()
+            advanced=method in ('blackman_tukey','multitaper','ar')
+            irregular=method=='lomb'
+            nominal=method in ('welch','periodogram','legacy','cross')
+            confidence=method in ('welch','periodogram','bartlett')
+            rows=[(self.rate,not irregular),(self.second_spectrum,method=='cross'),
+                  (self.segment,method in ('welch','bartlett','cross')),(self.overlap,method in ('welch','cross')),
+                  (self.window,nominal),(self.beta,nominal and self.window.currentIndex()==4),
+                  (self.demean,method not in ('ar','lomb')),(self.confidence,confidence),
+                  (self.confidence_level,confidence and self.confidence.currentData() is not None),
+                  (self.fft_bins,advanced),(self.lag_maximum,method=='blackman_tukey'),
+                  (self.bandwidth,method=='multitaper'),(self.tapers,method=='multitaper'),
+                  (self.ar_order,method=='ar'),(self.compare_welch,advanced)]
+            rows.extend((field,irregular) for field in (self.observation_times,self.minimum_hz,self.maximum_hz,self.frequency_points))
+            for field,visible in rows:
+                active=visible and not self.estimator.isHidden()
+                form.setRowVisible(field,active)
+                field.setProperty('calculationInput',active)
+        self.estimator.currentIndexChanged.connect(spectral_controls)
+        self.window.currentIndexChanged.connect(spectral_controls)
+        self.confidence.currentIndexChanged.connect(spectral_controls)
+        spectral_controls()
         self._button(form, "Calcular densidad espectral", self.psd)
         self._section(form, "Resultado del panel")
         self._button(form, "Usar resultado en tabla / otras operaciones", self.use_result)
@@ -102,10 +159,14 @@ class FourierPanel(QWidget):
             ("Densidad de energía", "Obtené |X|² del último espectro calculado en este panel.",
              [],["Densidad de energía del último espectro"]),
             ("PSD y Welch", "Elegí un estimador de potencia, su ventana y la frecuencia de muestreo.",
-             [self.rate,self.estimator,self.segment,self.overlap,self.window,self.beta,self.demean],["Calcular densidad espectral"]),
+             [self.rate,self.estimator,self.second_spectrum,self.segment,self.overlap,self.window,self.beta,self.demean,self.confidence,self.confidence_level,
+              self.fft_bins,self.lag_maximum,self.bandwidth,self.tapers,self.ar_order,self.compare_welch,self.observation_times,
+              self.minimum_hz,self.maximum_hz,self.frequency_points],["Calcular densidad espectral"]),
             ("Usar o guardar resultado", "Enviá el resultado a la tabla, reutilizalo o exportalo.",
              [],["Usar resultado en tabla / otras operaciones","Exportar resultado CSV…","Guardar resultado JSON…"]),
         ])
+        self.task_selector.currentIndexChanged.connect(spectral_controls)
+        spectral_controls()
 
 
     @staticmethod
@@ -200,25 +261,164 @@ class FourierPanel(QWidget):
 
     def psd(self):
         from .dsp_application import PSDRequest, estimate_psd
+        method=self.estimator.currentData()
+        if method=='cross':
+            self._cross_psd()
+            return
+        if method=='lomb':
+            self._lomb_psd()
+            return
         source,register = self._source()
         rate=source.metadata.get('sample_rate_hz')
         if rate is None:rate=real_field(self.rate)
-        method=["welch", "periodogram", "legacy"][self.estimator.currentIndex()]
+        if method in ('blackman_tukey','multitaper','ar'):
+            self._advanced_psd(source,register,rate,method)
+            return
         window=["boxcar", "hann", "hamming", "blackman", "kaiser"][self.window.currentIndex()]
-        kwargs=dict(method=method,window=window,beta=real_field(self.beta) if window=='kaiser' else 0.,
+        kwargs=dict(method=method,window=window,beta=real_field(self.beta) if window=='kaiser' and method!='bartlett' else 0.,
                     remove_mean=self.demean.isChecked())
-        if method=='welch':
+        if method in ('welch','bartlett'):
             from .validation import invalid
             count = source.values.size
             segment = integer_field(self.segment, minimum=1) if self.segment.text().strip() else min(256, count)
             if segment > count:
                 invalid(self.segment, f'el segmento debe tener como máximo {count} muestras.')
-            overlap = integer_field(self.overlap, minimum=0) if self.overlap.text().strip() else segment // 2
+            overlap = (integer_field(self.overlap, minimum=0) if self.overlap.text().strip() else segment // 2) if method=='welch' else 0
             if overlap >= segment:
                 invalid(self.overlap, f'el solape debe ser menor que {segment}.')
             kwargs.update(segment=segment, overlap=overlap)
         request = PSDRequest(source, rate, **kwargs)
-        self._job(lambda: estimate_psd(request),register)
+        model = self.confidence.currentData() if method!='legacy' else None
+        if model is None:
+            self._job(lambda: estimate_psd(request),register)
+            return
+        coverage = real_field(self.confidence_level,minimum=0,maximum=1)
+        from .auxiliary import optional
+        from .statistical_spectra import white_noise_confidence
+        from .statistics_results import store_statistics
+        def calculate():
+            result = estimate_psd(request)
+            interval,notice = optional('Intervalos de PSD',lambda:white_noise_confidence(result,model=model,coverage=coverage))
+            return result,interval,notice
+        def accept(data):
+            result,interval,notice = data
+            self._accept(result)
+            window=self._project_host
+            journal=getattr(window,'_result_journal',None)
+            if journal is not None:journal.reported(data,outputs_registered=True)
+            if interval is not None:
+                if window is not None:
+                    parent=window.published_signal_id(result)
+                    _,key=store_statistics(window.project,interval,((result,parent,()),),'Intervalos de densidad',
+                                           tool=journal.origin if journal else None)
+                    window.register_publication(key,interval)
+                self.spectral_interval=interval
+                self.report.appendPlainText(f"\nCobertura marginal: {100*coverage:g} %. {interval['scope']}")
+                self.draw_result()
+            elif notice:
+                self.report.appendPlainText('\n'+notice)
+        self._job(calculate,register,accept=accept)
+
+    def _advanced_psd(self,source,register,rate,method):
+        from .auxiliary import optional
+        from .dsp_application import PSDRequest, estimate_psd
+        parameters={}
+        selected={'blackman_tukey':('maximum_lag',self.lag_maximum),'multitaper':('tapers',self.tapers),'ar':('ar_order',self.ar_order)}
+        for key,field in [('nfft',self.fft_bins),selected[method]]:
+            if field.text().strip():
+                parameters[key]=integer_field(field,minimum=0 if key in ('maximum_lag','ar_order') else 1)
+        if method=='multitaper' and self.bandwidth.text().strip():
+            parameters['time_bandwidth']=real_field(self.bandwidth)
+        compare=self.compare_welch.isChecked()
+        center=self.demean.isChecked() or method=='ar'
+
+        def calculate():
+            result=estimate_psd(PSDRequest(source,rate,method=method,remove_mean=center,**parameters))
+            if not compare:
+                return result,None,None
+            length=min(256,len(source.values))
+            spectrum,notice=optional('Referencia Welch',lambda:estimate_psd(PSDRequest(
+                source,rate,segment=length,overlap=length//2,window='hann' if length>2 else 'boxcar',remove_mean=center)))
+            return result,spectrum,notice
+
+        def accept(data):
+            result,reference,notice=data
+            self._accept(result)
+            if reference is not None:
+                self.psd_reference=reference
+                if self._project_host is not None:
+                    from .dsp_application import store_signal
+                    window=self._project_host
+                    key=store_signal(window.project,reference,parents=self.owner.parents)
+                    window.register_publication(key,reference)
+                    journal=getattr(window,'_result_journal',None)
+                    if journal is not None:journal.reported(data,outputs_registered=True)
+                self.report.appendPlainText(f'\nTrazo discontinuo: Welch de referencia · Δf = {reference.step:.6g} Hz.')
+                self.draw_result()
+            elif notice:
+                self.report.appendPlainText('\n'+notice)
+
+        self._job(calculate,register,accept=accept)
+
+    def _lomb_psd(self):
+        from .statistical_spectra import lomb_periodogram
+        from .systems_panel import parse_list
+        source,register=self._source()
+        times=parse_list(self.observation_times.text())
+        if np.any(times.imag):
+            raise ValueError('Ingresá un tiempo real por observación.')
+        low,high=real_field(self.minimum_hz),real_field(self.maximum_hz)
+        points=integer_field(self.frequency_points,minimum=2)
+        self._job(lambda:lomb_periodogram(source,times.real,low=low,high=high,points=points),register,
+                  title='Calculando Lomb–Scargle…')
+
+    def _cross_psd(self):
+        from .statistical_spectra import cross_spectra,store_cross_spectra
+        fields=(self.owner.source,self.second_spectrum)
+        values=tuple(field.read(register=False) for field in fields)
+        registrations=tuple(field.input_registration(value) for field,value in zip(fields,values,strict=True))
+        revisions=tuple((field.entry_modes.view,getattr(field,'source_revision',0)) for field in fields)
+        records=tuple((value,key,parents) for value,(key,_,parents) in zip(values,registrations,strict=True))
+        rate=None if any(value.metadata.get('sample_rate_hz') is not None for value in values) else real_field(self.rate)
+        count=min(value.origin+len(value.values) for value in values)-max(value.origin for value in values)
+        segment=integer_field(self.segment,minimum=1) if self.segment.text().strip() else min(256,max(1,count//2))
+        overlap=integer_field(self.overlap,minimum=0) if self.overlap.text().strip() else segment//2
+        window=['boxcar','hann','hamming','blackman','kaiser'][self.window.currentIndex()]
+        beta=real_field(self.beta) if window=='kaiser' else 0.
+        center=self.demean.isChecked()
+
+        def accept(result):
+            host=self._project_host
+            journal=getattr(host,'_result_journal',None)
+            if journal is not None:journal.reported(result,outputs_registered=True)
+            receipt=store_cross_spectra(host.project,result,records,tool=journal.origin if journal else None)
+            for field,value,key,(_,signature,_),(view,revision) in zip(fields,values,receipt['source_ids'],registrations,revisions,strict=True):
+                host.register_publication(key,value)
+                if field.entry_modes.view==view and getattr(field,'source_revision',0)==revision:
+                    field.remember_registration(key,signature)
+            report=result.coherence
+            host.register_publication(receipt['report_id'],report)
+            for label,key in receipt['spectrum_ids'].items():
+                host.register_publication(key,getattr(result,label))
+            self.comparison=None;self.spectral_interval=None;self.psd_reference=None;self.cross_report=report
+            primary=next(iter(receipt['spectrum_ids']),None)
+            self.result=getattr(result,primary) if primary is not None else None
+            if self.result is not None:
+                self.owner.saved.append(self.result);self.owner.result=self.result
+                self.owner.output.bind_action_result(self.result,[receipt['spectrum_ids'][primary]])
+            else:
+                self.owner.result=None
+                self.owner.output.bind_action_result(report,[receipt['report_id']],exportable=False)
+            text=(f"{report['segments_used']} bloques · {report['segment']} muestras por bloque\n"
+                  f"Intervalo común: {report['common_origin']} a {report['common_last_index']}\n"
+                  'Convención del espectro cruzado: X por el conjugado de Y.\n\n'+report['scope'])
+            if report['unrepresentable_outputs']:
+                text+='\nFuera de rango numérico: '+', '.join(report['unrepresentable_outputs'])
+            self.report.setPlainText(text)
+            self.draw_result()
+
+        self._job(lambda:cross_spectra(*values,rate=rate,segment=segment,overlap=overlap,window=window,beta=beta,
+                                      remove_mean=center),title='Calculando espectro cruzado…',accept=accept)
 
     def compare(self):
         source,register=self._source()
@@ -230,14 +430,25 @@ class FourierPanel(QWidget):
         self._job(lambda:fourier.dtft_with_dft(*args),register,title='Superponiendo DFT y DTFT…',accept=accept)
 
     def _accept(self, result):
-        self.result = result; self.comparison=None;self.owner._remember_signal(result)
-        self.report.setPlainText(f"{result.name}\n{result.values.size} puntos · eje {result.units}\n\n" + json.dumps(result.metadata, ensure_ascii=False, indent=2))
+        self.result = result; self.comparison=None;self.spectral_interval=None;self.cross_report=None;self.psd_reference=None;self.owner._remember_signal(result)
+        metadata=dict(result.metadata)
+        if times:=metadata.pop('timestamps_s',None):
+            metadata.update(observaciones=len(times),tiempo_inicial_s=times[0],tiempo_final_s=times[-1])
+        self.report.setPlainText(f"{result.name}\n{result.values.size} puntos · eje {result.units}\n\n" + json.dumps(metadata, ensure_ascii=False, indent=2))
         self.draw_result()
 
     def draw_result(self,*_):
         result=self.result
+        if self.cross_report is not None:
+            self._draw_cross();return
         if result is None:return
         self.figure.clear()
+        if result.data_kind=='irregular_periodogram':
+            axis=self.figure.add_subplot(111)
+            index=self.owner._plot_indices(result.values)
+            axis.plot(result.axis[index],result.values.real[index]);axis.set_ylim(-.025,1.025)
+            axis.set_xlabel('Frecuencia (Hz)');axis.set_ylabel('Fracción de varianza explicada');axis.grid(alpha=.2)
+            self.canvas.draw_idle();return
         if self.plot_mode.currentIndex()!=2:
             axes=self.figure.subplots(2,1,sharex=True);index=self.owner._plot_indices(result.values)
             coordinates=result.axis[index];values=result.values[index]
@@ -252,6 +463,12 @@ class FourierPanel(QWidget):
             for axis,data,label in zip(axes,(first,second),labels):
                 component='real' if label in ('Parte real','Densidad') else 'imag' if label=='Parte imaginaria' else 'density_db' if power else 'magnitude' if label=='Módulo' else 'phase'
                 plot_samples(axis,coordinates,data,discrete=discrete,label=result.name,phase=polar and not power and label.startswith('Fase'),source=result,component=component);axis.set_ylabel(label);axis.grid(alpha=.2)
+                if power and axis is axes[0]:
+                    self._draw_spectral_interval(axis,coordinates,index)
+                    self._draw_psd_reference(axis)
+                elif power and polar:
+                    self._draw_spectral_interval(axis,coordinates,index,decibels=True)
+                    self._draw_psd_reference(axis,decibels=True)
             if self.comparison is not None:
                 bins=self.comparison[1]
                 parts=(np.abs(bins),np.angle(bins)) if polar else (bins.real,bins.imag)
@@ -289,6 +506,10 @@ class FourierPanel(QWidget):
         else:
             plot_samples(axes[1, 0],coordinate, result.values.real[index],discrete=discrete,source=result,component='real');axes[1, 0].set_title("Vista lineal")
             axes[1, 1].axis("off")
+            self._draw_spectral_interval(axes[0,0],coordinate,index)
+            self._draw_spectral_interval(axes[0,1],coordinate,index,decibels=True)
+            self._draw_psd_reference(axes[0,0])
+            self._draw_psd_reference(axes[0,1],decibels=True)
         if self.comparison is not None:
             magnitude_dft=np.abs(self.comparison[1]);db_dft=np.full(magnitude_dft.shape,np.nan)
             valid_dft=magnitude_dft>0;db_dft[valid_dft]=20*np.log10(magnitude_dft[valid_dft])
@@ -296,6 +517,59 @@ class FourierPanel(QWidget):
         for axis in axes.flat: configure_signal_axis(axis,result); axis.grid(alpha=.2)
         if not getattr(self.canvas,'_signallab_layout',False):self.figure.tight_layout()
         self.canvas.draw_idle()
+
+    def _draw_cross(self):
+        self.figure.clear()
+        report=self.cross_report
+        result=self.result
+        count=3 if result is not None else 1
+        axes=self.figure.subplots(count,1,sharex=True,squeeze=False)[:,0]
+        if result is not None:
+            index=self.owner._plot_indices(result.values)
+            values=result.values[index]
+            polar=self.plot_mode.currentIndex()!=1
+            if polar:
+                parts=(abs(values),np.where(values!=0,np.angle(values),np.nan))
+                labels=('Módulo','Fase (rad)')
+            else:
+                parts,labels=(values.real,values.imag),('Parte real','Parte imaginaria')
+            for axis,part,label in zip(axes[:2],parts,labels,strict=True):
+                axis.plot(result.axis[index],part)
+                axis.set_ylabel(label)
+            axes[0].set_title(result.name)
+        axis=axes[-1]
+        if report['values'] is not None and any(value is not None for value in report['values']):
+            x=report['start_hz']+report['step_hz']*np.arange(report['segment'])
+            y=np.asarray(report['values'],dtype=float)
+            index=self.owner._plot_indices(y)
+            axis.plot(x[index],y[index]);axis.set_ylim(-.025,1.025)
+        else:
+            axis.text(.5,.5,'Coherencia no disponible. Consultá el informe.',ha='center',transform=axis.transAxes)
+        axis.set_ylabel('Coherencia');axis.set_xlabel('Frecuencia (Hz)')
+        for item in axes:item.grid(alpha=.2)
+        if not getattr(self.canvas,'_signallab_layout',False):self.figure.tight_layout()
+        self.canvas.draw_idle()
+
+    def _draw_spectral_interval(self,axis,coordinates,index,*,decibels=False):
+        if self.spectral_interval is None:
+            return
+        rows=self.spectral_interval['bounds']
+        bounds=np.asarray([(rows[i]['lower'],rows[i]['upper']) if rows[i] else (np.nan,np.nan) for i in index])
+        if decibels:
+            with np.errstate(divide='ignore',invalid='ignore'):
+                bounds=10*np.log10(np.where(bounds>0,bounds,np.nan))
+        axis.fill_between(coordinates,bounds[:,0],bounds[:,1],alpha=.19,color='#6fa8dc')
+
+    def _draw_psd_reference(self,axis,*,decibels=False):
+        reference=self.psd_reference
+        if reference is None:
+            return
+        index=self.owner._plot_indices(reference.values)
+        values=reference.values.real[index]
+        if decibels:
+            with np.errstate(divide='ignore',invalid='ignore'):
+                values=10*np.log10(np.where(values>0,values,np.nan))
+        axis.plot(reference.axis[index],values,linestyle='--',label='Referencia Welch')
 
     def draw_dft_bins(self, result, panels):
         from .plot_inspection import stored_curve

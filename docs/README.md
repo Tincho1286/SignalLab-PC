@@ -39,3 +39,5 @@ El alcance académico está organizado por materia en [Sistemas y Señales I/II]
 [Notas por versión](releases/README.md) · [Historial](../CHANGELOG.md) · [Objetivos](roadmap.md) · [Archivo histórico](history/README.md)
 
 [Guía de desarrollo](development/README.md) · [Cómo contribuir](../CONTRIBUTING.md) · [Licencia](license.md) · [Privacidad](privacy.md)
+
+[Roadmap de Engineering](engineering/ROADMAP.md) · [Modernización de herramientas](engineering/TOOL_MODERNIZATION_PLAN.md) · [Estado de fases](engineering/PROJECT_STATE.md)

@@ -1,6 +1,15 @@
 # Backlog de SignalLab Engineering
 
-La 2.2.1 Preview se publicó sobre `08cd1bc`. La prueba de escritorio con escalado de Qt al 200 % y la conexión del portable a GitHub en Fedora 44 aprobaron. Quedan la prueba nativa de Windows y la comprobación funcional del paquete en Fedora Plasma. E-04 sigue su seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Descargas de 2.2.1](../releases/v2.2.1.md)
+## Próximas decisiones
+
+| Momento | Trabajo de planificación o seguimiento | Evidencia esperada |
+| --- | --- | --- |
+| Fase 05 en desarrollo | Completar los paquetes de identificación, estimación espectral, filtrado y Monte Carlo. | Oráculos, campañas, paridad entre interfaces y regresiones trazadas. [Seguimiento de Fase 05](phase_05/TRACEABILITY_MATRIX.md) |
+| Antes de calificar la primera 2.3.x | Completar la evidencia de ciencia y recursos en el Quality Gate acumulativo y ejecutar la matriz sobre el candidato. | Evidencia Windows y Linux sobre un mismo SHA, paquetes verificados y manifiesto firmado. [Criterios](phase_05/QUALITY_GATE_CRITERIA.md) |
+| Durante fases autorizadas | Revisar solapamientos, rendimientos y riesgos del dominio antes de añadir métodos, motores o dependencias. | Trazabilidad, reutilización o justificación de una herramienta independiente, y validación con oráculos. [Roadmap](ROADMAP.md) · [Catálogo de integración](INTEGRATION_CATALOG.md) |
+| Seguimiento | Preservar E-04 y los pendientes nativos de Fase 04. Las pruebas específicas de escalado sirven de diagnóstico. | Alcance de cada comprobación y registro de defectos reproducibles. [Estado vigente](PROJECT_STATE.md) · [Riesgos de Fase 04](phase_04/RESIDUAL_RISK_REGISTER.md) |
+
+## Registros históricos
 
 La [matriz de Fase 02B](phase_02b/PHASE_02B_TRACEABILITY_MATRIX.md) registra los nuevos paquetes y sus criterios. Los controles y riesgos de estabilización siguen debajo como referencia.
 

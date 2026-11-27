@@ -1,0 +1,131 @@
+import numpy as np
+
+from signallab_pc.state_space import StateModel
+from signallab_pc.model import Signal
+from signallab_pc.workspaces import ROUTES
+from test_desktop_session import DesktopSessionFixture
+from test_optimal_estimation import matched_records
+
+
+class EstimationWorkbenchTests(DesktopSessionFixture):
+    def test_gaussian_measurement_design_retains_prior_and_reports_cramer_rao(self):
+        window = self.window()
+        route = ROUTES['estimation','gaussian']
+        window.open_tool(route)
+        panel = window.pages[route].panel
+        panel.data.setText('3, 1')
+        panel.design.setText('1; 2')
+        panel.noise.setText('2, 1; 1, 3')
+        panel.prior.setText('2')
+        panel.prior_covariance.setText('4')
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        report = window.project.get(window.project.headers('calculation')[-1]['id'])
+        self.assertAlmostEqual(report['posterior']['map'][0], 34/33)
+        self.assertIn('Cramér–Rao', panel.report.toPlainText())
+        panel.design.setText('1; 3')
+        self.assertTrue(panel.state.property('resultStale'))
+
+    def test_wiener_reuses_records_and_exposes_model_and_aligned_graph(self):
+        window = self.window()
+        window.show()
+        route = ROUTES['estimation','wiener']
+        window.open_tool(route)
+        page = window.pages[route]
+        panel = page.panel
+        x,d,h,_ = matched_records()
+        first, second = window.publish(x), window.publish(d)
+        panel.observed.set_source(window.project.get(first), first)
+        panel.desired.set_source(window.project.get(second), second)
+        panel.length.setText('2')
+        panel.reserve.setText('3')
+        panel.offset.setChecked(True)
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        records = window.project.headers('system')
+        np.testing.assert_allclose(window.project.get(records[-1]['id']).b, h, atol=2e-14)
+        for curve in panel.output.displayed_signals():
+            self.assertEqual(curve.origin, -2)
+            self.assertEqual(curve.metadata['time_start_s'], 2.25)
+        self.assertTrue(panel.actions.reuse.isEnabled())
+        self.assertIn('fuera del entrenamiento', panel.report.toPlainText())
+        launcher = page.workspace.results.graph_launcher
+        self.assertTrue(launcher.isEnabled())
+        launcher.click()
+        figure = panel.output.canvas._signallab_window
+        self.assertTrue(figure.isVisible())
+        figure.hide()
+        panel.mode.setCurrentIndex(1)
+        panel.autocorrelation.setText('2, 1')
+        panel.cross.setText('1, 1')
+        panel.power.setText('1')
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        report = window.project.get(window.project.headers('calculation')[-1]['id'])
+        np.testing.assert_allclose(report['coefficients']['real'], [1/3,1/3], atol=2e-14)
+        self.assertAlmostEqual(report['theoretical_mse']['value'], 1/3)
+        self.assertFalse(panel.tabs.isTabVisible(1))
+        self.assertFalse(launcher.isEnabled())
+        self.assertTrue(panel.actions.reuse.isEnabled())
+
+    def test_kalman_reuses_a_discrete_model_and_shows_prediction_when_measurement_missing(self):
+        window = self.window()
+        window.show()
+        route = ROUTES['estimation','kalman']
+        model = StateModel([[1]],[[0]],[[1]],[[0]],.5,name='Constante medida')
+        parent = window.publish(model)
+        window.send_model(model,parent,route)
+        page = window.pages[route]
+        panel = page.panel
+        panel.origin.setText('-6')
+        panel.initial.setText('0')
+        for name,text in [('Q','0'),('R','1'),('P','1'),('y','2; 100; 10'),('mask','1; 0; 1')]:
+            panel.matrices[name].setText(text)
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        self.warning.assert_not_called()
+        report = next(header for header in window.project.headers('calculation') if header['operation']=='Estimar estados')
+        self.assertEqual(report['parents'],[parent])
+        self.assertEqual(window.project.get(report['id'])['prediction_only_steps'],1)
+        prior, updated = panel.output.displayed_signals()
+        np.testing.assert_allclose(prior.values,[0,1,1])
+        np.testing.assert_allclose(updated.values,[1,1,4])
+        self.assertEqual((updated.origin,updated.metadata['time_start_s']),(-6,-3.))
+        launcher = page.workspace.results.graph_launcher
+        self.assertTrue(launcher.isEnabled())
+        launcher.click()
+        self.assertTrue(panel.output.canvas._signallab_window.isVisible())
+        panel.selector.setCurrentIndex(1)
+        np.testing.assert_allclose(panel.output.displayed_signals()[0].values,[.5,.5,1/3])
+        self.assertIn('Última corrección disponible',panel.report.toPlainText())
+
+    def test_adaptive_sensitivity_uses_same_observations_and_exports_selected_fir(self):
+        window = self.window()
+        window.show()
+        route = ROUTES['estimation','adaptive']
+        window.open_tool(route)
+        page = window.pages[route]
+        panel = page.panel
+        source=Signal([1,2,3,-2,1,0,5,-6,1])
+        target=Signal(source.values*2)
+        source_key,target_key=window.publish(source),window.publish(target)
+        panel.drive.set_source(window.project.get(source_key),source_key)
+        panel.target.set_source(window.project.get(target_key),target_key)
+        panel.length.setText('1')
+        panel.reserve.setText('2')
+        panel.method.setCurrentIndex(panel.method.findData('lms'))
+        panel.mode.setCurrentIndex(panel.mode.findData('sweep'))
+        panel.sweep.setText('0.01, 0.05')
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        self.warning.assert_not_called()
+        self.assertEqual(panel.choice.count(),2)
+        first = panel.actions.key
+        panel.choice.setCurrentIndex(1)
+        self.assertNotEqual(panel.actions.key,first)
+        self.assertIn('MSE por configuración',panel.report.toPlainText())
+        self.assertEqual(panel.output.displayed_signals()[0].origin,0)
+        launcher = page.workspace.results.graph_launcher
+        self.assertTrue(launcher.isEnabled())
+        launcher.click()
+        self.assertTrue(panel.output.canvas._signallab_window.isVisible())

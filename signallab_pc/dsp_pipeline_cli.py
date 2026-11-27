@@ -32,7 +32,7 @@ def main(argv):
     parser.add_argument('--fir', type=float, nargs='+', required=True)
     parser.add_argument('--fir-mode', choices=('same', 'full'), default='same')
     parser.add_argument('--length', type=int)
-    parser.add_argument('--psd-method', choices=('welch', 'periodogram'), default='welch')
+    parser.add_argument('--psd-method', choices=('welch', 'periodogram', 'bartlett'), default='welch')
     parser.add_argument('--segment', type=int)
     parser.add_argument('--overlap', type=int)
     parser.add_argument('--window', choices=('boxcar','hann','hamming','blackman','kaiser'), default='hann')

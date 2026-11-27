@@ -1,10 +1,10 @@
 # Estado de SignalLab Engineering
 
-**Fase 04 cerrada con aprobación del propietario el 27 de noviembre de 2026.** El cierre autoriza integrar en `main` el laboratorio de canales y las correcciones de 2.2.1 Preview. El candidato `08cd1bc` aprobó la matriz de Windows y Ubuntu. [Expediente de cierre](phase_04/PHASE_04_CLOSEOUT.md) · [Matriz de 2.2.1](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45923696053/attempts/2)
+**Fase 04 cerrada e integrada en `main` el 27 de noviembre de 2026.** La integración aprobada es `0c9e3bc`. Contiene el código del release 2.2.1 Preview, construido y validado en Windows y Ubuntu desde `08cd1bc`. Los controles posteriores al merge también aprobaron en ambos sistemas. [Expediente de cierre](phase_04/PHASE_04_CLOSEOUT.md) · [Matriz del candidato](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45923696053/attempts/2) · [Controles del merge](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45994467778)
 
-El escalado de Qt al 200 % y la conexión del portable con GitHub en Fedora 44 se verificaron. El DPI nativo de Windows al 150 % y 200 % y la prueba interactiva en Fedora Plasma quedan registrados para seguimiento. La Fase 05 requiere autorización independiente. [Riesgos residuales](phase_04/RESIDUAL_RISK_REGISTER.md) · [Roadmap](ROADMAP.md)
+La regresión al 200 % con escala de Qt y la conexión del portable a GitHub en Fedora 44 se verificaron. El DPI nativo de Windows al 150 % y 200 % y la revisión interactiva en Fedora Plasma se conservan como seguimiento histórico de Fase 04. La política vigente usa las pruebas específicas de escalado como evidencia diagnóstica. [Riesgos residuales de Fase 04](phase_04/RESIDUAL_RISK_REGISTER.md) · [Criterios vigentes](VALIDATION_MATRIX.md#criterios-vigentes)
 
-La versión publicada **2.2.1** pertenece al canal Preview. **2.0.0** es la LTS vigente. [Descargas 2.2.1](../releases/v2.2.1.md) · [Política de distribución](RELEASE_POLICY.md)
+La **Fase 05, Probability, Statistics & Stochastic Processes**, está calificada técnicamente y disponible como **2.3.1 Preview** desde `develop`. La corrección contempla las figuras de estadística, filtrado y medición de recepción. La aceptación funcional y la autorización de integración siguen pendientes. **2.0.0** es la LTS vigente. [Expediente de Fase 05](phase_05/README.md) · [Descargas 2.3.1](../releases/v2.3.1.md) · [Roadmap](ROADMAP.md)
 
 ## Línea base histórica de Fase 01
 

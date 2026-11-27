@@ -1,6 +1,5 @@
 """Resumable communication campaigns built on transactional project archives."""
 
-from contextlib import contextmanager
 import csv
 from dataclasses import asdict, dataclass, replace
 import io
@@ -17,6 +16,7 @@ from scipy.stats import t as student_t
 
 from . import session
 from .atomic_file import atomic_binary_file, write_json
+from .campaign_files import campaign_writer as _locked, safe_file as _safe_file
 from .communications_channel import discrete_channel_size
 from .communications_data import integer, real
 from .communications_experiment import ExperimentSpec, run_experiment
@@ -244,39 +244,6 @@ def _decode_definition(document):
                          tuple(SweepAxis(**row) for row in data['axes']), data['seed_policy'], data.get('repetitions', 1))
     except (KeyError, TypeError) as exc:
         raise ValueError('La configuración del barrido está incompleta.') from exc
-
-
-def _safe_file(folder, name):
-    path = folder/name
-    if path.is_symlink() or path.exists() and not path.is_file():
-        raise ValueError('El catálogo requiere archivos regulares dentro de la carpeta del barrido.')
-    return path
-
-
-@contextmanager
-def _locked(folder):
-    path = _safe_file(folder, 'campaign.lock')
-    with path.open('a+b') as handle:
-        if os.name == 'nt':
-            from msvcrt import LK_NBLCK, LK_UNLCK, locking
-            if handle.tell() == 0:
-                handle.write(b'\x00')
-                handle.flush()
-            handle.seek(0)
-            lock = lambda: locking(handle.fileno(), LK_NBLCK, 1)
-            unlock = lambda: locking(handle.fileno(), LK_UNLCK, 1)
-        else:
-            from fcntl import LOCK_EX, LOCK_NB, LOCK_UN, flock
-            lock = lambda: flock(handle, LOCK_EX | LOCK_NB)
-            unlock = lambda: flock(handle, LOCK_UN)
-        try:
-            lock()
-        except OSError as exc:
-            raise ValueError('Otro proceso está escribiendo este barrido o la carpeta impide obtener el bloqueo.') from exc
-        try:
-            yield
-        finally:
-            unlock()
 
 
 def _filename(index):

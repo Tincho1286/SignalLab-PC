@@ -57,7 +57,7 @@ def describe_tool(item):
  return 'Ingresá los datos en esta herramienta; reutilizar resultados anteriores es opcional.'
 
 DETAILS[('random','generate')]='Distribución, parámetros y semilla → realización reproducible para analizar o filtrar.'
-DETAILS[('random','statistics')]='Registro finito → media, varianza, RMS e histograma de amplitudes.'
+DETAILS[('random','statistics')]='Describí un registro finito, estimá los parámetros de una distribución o comprobá una hipótesis.'
 
 DETAILS[('random_correlation',0)]='Registro y retardos → estimaciones de correlación o covarianza con divisor explícito.'
 

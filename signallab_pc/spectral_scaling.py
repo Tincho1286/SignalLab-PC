@@ -1,4 +1,5 @@
 """Binary scaling for sums and FFTs whose final normalization can be finite."""
+from fractions import Fraction
 import math
 import numpy as np
 
@@ -62,6 +63,26 @@ def centered_bounded(values):
         for (part, offset), target in zip(parts, (result.real, result.imag)):
             target[:] = part if offset is None else np.ldexp(part, offset-exponent)
     return result, exponent
+
+
+def exact_real_mean(values, checkpoint):
+    """Accumulate in units of the smallest binary64 value before division."""
+    total = 0
+    for start in range(0, len(values), 8192):
+        checkpoint()
+        for value in values[start:start + 8192]:
+            numerator, denominator = float(value).as_integer_ratio()
+            total += numerator << (1075 - denominator.bit_length())
+    return Fraction(total, len(values) << 1074)
+
+
+def finite_real_mean(values, checkpoint):
+    """Keep a representable mean when an unnormalized sum overflows."""
+    try:
+        total = math.fsum(values)
+    except OverflowError:
+        return float(exact_real_mean(values, checkpoint))
+    return total / len(values)
 
 
 def fft_values(values, *, size=None, inverse=False):

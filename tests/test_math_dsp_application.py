@@ -89,6 +89,27 @@ class DSPApplicationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'separación entre bins'):
             estimate_psd(PSDRequest(source, 5e-324, method='periodogram', window='boxcar'))
 
+    def test_bartlett_matches_disjoint_dfts_and_preserves_density_calibration(self):
+        source_data = np.array([1,-2,7,4,2,1,-2,1,3,4,9,8,1000.])
+        fs = 24.
+        for length in (5,6):
+            count = len(source_data)//length
+            bins = range(-(length//2),(length+1)//2)
+            blocks = np.split(source_data[:count*length],count)
+            expected = [sum(abs(sum(v*exp(-1j*tau*k*n/length) for n,v in enumerate(block)))**2
+                            for block in blocks)/(fs*length*count) for k in bins]
+            source = Signal(source_data,origin=7,metadata={'sample_rate_hz':fs,'amplitude_units':'mV'})
+            spec = estimate_psd(PSDRequest(source,method='bartlett',segment=length,window='kaiser',overlap=20))
+            assert_allclose(spec.axis,np.asarray(list(bins))*fs/length,atol=1e-14)
+            assert_allclose(spec.values,expected,atol=1e-14)
+            self.assertEqual(spec.metadata['window'],'boxcar')
+            self.assertEqual(spec.metadata['overlap'],0)
+            self.assertEqual(spec.metadata['unused_tail'],len(source_data)-count*length)
+            self.assertEqual(spec.metadata['density_units'],'mV²/Hz')
+            folded = estimate_psd(PSDRequest(source,method='bartlett',segment=length,sidedness='one-sided'))
+            self.assertAlmostEqual(float(spec.values.real.sum()*spec.step),float(np.mean(source_data[:count*length]**2)))
+            self.assertAlmostEqual(float(folded.values.real.sum()*folded.step),float(spec.values.real.sum()*spec.step))
+
     def test_invalid_constraints_and_budgets(self):
         x = Signal([1j, 1], metadata={'sample_rate_hz':8})
         with self.assertRaisesRegex(ValueError,'unilateral'):

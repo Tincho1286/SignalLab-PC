@@ -10,19 +10,31 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Un proceso aleatorio describe muchas señales posibles; esta herramienta genera una de ellas, llamada realización."
+          "Generá uno o más registros y consultá la distribución o el proceso que los modela. Para una distribución, podés evaluar densidad o masa, probabilidades acumuladas, colas, cuantiles y momentos. Para un proceso, podés ver momentos en dos instantes y la transición entre ellos."
         ],
         [
           "Cómo preparar el cálculo",
-          "Elegí distribución, cantidad de muestras y semilla. Gaussiana y uniforme usan media y desviación estándar; Bernoulli usa la probabilidad de obtener uno."
+          "Elegí la distribución y la operación. Gaussiana y uniforme usan media y desviación estándar. En la uniforme, los límites son media ± √3 veces la desviación. Bernoulli usa la probabilidad de obtener uno. La geométrica cuenta ensayos hasta el primer éxito. La binomial negativa cuenta fallos antes de alcanzar la cantidad de éxitos pedida. Las probabilidades categóricas suman uno."
+        ],
+        [
+          "Covarianza y opciones avanzadas",
+          "Para una gaussiana conjunta, cargá un vector de medias y una matriz de covarianza con una fila y columna por componente. En el caso complejo, dejar vacía la pseudocovarianza indica un modelo propio. En Opciones avanzadas podés elegir semilla, cantidad de réplicas, índice inicial y un reloj en Hz."
+        ],
+        [
+          "Condiciones iniciales de un proceso",
+          "La primera muestra representa el estado inicial. Wiener, Poisson, Ornstein–Uhlenbeck y el telegráfico requieren una frecuencia de muestreo para convertir pasos a segundos. En Markov, cada fila de la matriz da las probabilidades de pasar a cada estado en un paso. En Ornstein–Uhlenbeck y el telegráfico dejá el estado inicial vacío para comenzar en equilibrio."
+        ],
+        [
+          "Usar ruido por color o densidad",
+          "Para un color, indicá la banda en Hz y la varianza deseada. En rosa y marrón elegí un corte inferior positivo. Para una densidad propia, cargá frecuencias crecientes y sus valores bilaterales por Hz. La versión real refleja la parte positiva. La versión compleja admite distinta potencia a cada lado de cero. En Propiedades poblacionales obtenés la PSD teórica. Usá la misma cantidad de bins que de muestras para compararla con la grilla de generación."
         ],
         [
           "Cómo interpretar la salida",
-          "La salida es un registro que podés medir, filtrar o comparar. Usar la misma semilla y los mismos parámetros permite repetirlo."
+          "Una masa es la probabilidad de un recuento. Una densidad se integra sobre un intervalo para obtener su probabilidad. La CDF da P(X ≤ x), la CCDF da P(X > x) y el cuantil devuelve el umbral asociado a una probabilidad. En Realizaciones podés elegir la réplica y componente que quieras medir o filtrar."
         ],
         [
           "Qué tener en cuenta",
-          "La media y varianza medidas de un registro finito pueden diferir de los parámetros teóricos. Esa fluctuación no implica, por sí sola, un error de generación."
+          "Los momentos pedidos son no centrales, E[Xᵏ], para órdenes de 0 a 4. Si un momento diverge o es indefinido, el informe conserva ese estado. La media y varianza medidas de un registro finito pueden diferir de los parámetros poblacionales. La semilla, los parámetros y las versiones de los generadores permiten reproducir el registro."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -40,19 +52,27 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Esta opción resume las amplitudes de un registro mediante media, varianza, RMS e histograma."
+          "Describí una componente del registro, ajustá una distribución o contrastá una hipótesis. En la descripción podés ver medidas de centro y dispersión, momentos, cuantiles y gráficos. En el ajuste obtenés parámetros. En el contraste evaluás qué tan compatible es un estadístico con una hipótesis y un modelo de muestreo."
         ],
         [
           "Cómo preparar el cálculo",
-          "Cargá la secuencia y elegí la componente del histograma y su cantidad de intervalos. Para datos complejos, distinguí parte real, imaginaria y módulo."
+          "Cargá la secuencia y elegí parte real, parte imaginaria, módulo o fase. En Estadística descriptiva, los diagnósticos habilitan CDF, CCDF y caja. Elegí una distribución con sus parámetros conocidos para superponer la referencia y sumar un gráfico Q–Q. En una distribución discreta se marcan las probabilidades en los valores evaluados. En Ajustar una distribución elegí la familia y el estimador. Para un ajuste binomial indicá cuántos ensayos representa cada recuento."
         ],
         [
           "Cómo interpretar la salida",
-          "La varianza mide el promedio de |x−media|². El histograma agrupa amplitudes y estima una densidad: el área representa probabilidad, por lo que una altura puede superar uno."
+          "El informe distingue las medidas del registro complejo de las medidas de la componente. En el histograma, el área representa probabilidad y una altura puede superar uno. La CDF y la CCDF cuentan observaciones a cada lado de un umbral. La caja resume cuartiles y el gráfico Q–Q compara cuantiles de la muestra y la referencia."
+        ],
+        [
+          "Cómo contrastar una hipótesis",
+          "Elegí el contraste según la pregunta. Media t usa la desviación calculada del registro y Z pide la desviación de la población. Welch y F requieren dos registros independientes. En proporciones cada observación es 0 o 1. En KS cargá una distribución continua con parámetros conocidos antes de tomar la muestra. Para normalidad con parámetros desconocidos usá Shapiro–Wilk o Anderson–Darling. Ljung–Box examina autocorrelaciones hasta la cantidad de retardos indicada."
+        ],
+        [
+          "Qué significa el valor p",
+          "El valor p mide la probabilidad, bajo la hipótesis nula, de un resultado al menos tan extremo como el observado. Se compara con la significación α elegida. La falta de rechazo indica evidencia insuficiente para ese contraste. El informe indica si el valor p es exacto, aproximado o si queda acotado por la tabla de calibración. Los intervalos informados son bilaterales."
         ],
         [
           "Qué tener en cuenta",
-          "La corrección con N−1 presupone muestras independientes e idénticamente distribuidas. Las medidas del registro y su histograma no prueban normalidad, estacionariedad ni independencia."
+          "La corrección con N−1 se interpreta bajo un modelo de muestras independientes e idénticamente distribuidas. La fase usa la rama de −π a π y excluye muestras nulas. La dirección media y la varianza circular consideran que ambos extremos de la rama representan el mismo ángulo. Los gráficos describen este registro y no demuestran sus hipótesis poblacionales."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -70,15 +90,15 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Esta herramienta estima la relación de un registro con sí mismo o de dos registros entre sí. Al restar sus medias se obtiene covarianza en lugar de correlación."
+          "Esta herramienta estima la relación de uno o dos registros a distintos retardos. También calcula las matrices de covarianza, pseudocovarianza y correlación de varios canales. Con trayectorias independientes puede comparar dos instantes e informar los momentos de su incremento."
         ],
         [
           "Cómo preparar el cálculo",
-          "Elegí Auto o Cruzada. En cruzada cargá x[n] e y[n] con sus índices reales: se usa el intervalo observado en ambos. Luego elegí retardo máximo, divisor N o N−|k| y normalización opcional. El programa no inventa datos en regiones sin observación."
+          "En Auto o Cruzada elegí el retardo máximo, el divisor y la normalización. La suma directa evalúa solo los retardos pedidos. FFT es útil para intervalos de retardos amplios. En Matrices y Momentos de conjunto elegí los registros desde Resultados. En Matrices cada registro es un canal simultáneo. En Momentos de conjunto cada registro es una trayectoria independiente con el mismo eje y unidades."
         ],
         [
           "Cómo interpretar la salida",
-          "Se representa Rxy[k]=promedio de x[n+k]·conj(y[n]). Un k positivo compara una muestra posterior de x con y. La autocorrelación en cero estima potencia; al centrar, varianza. La cruzada en cero no es una potencia y puede ser compleja; tampoco tiene por qué ser par."
+          "En Rxy[k] un retardo positivo compara una muestra posterior de x con y. En cero, la autocorrelación estima potencia y la autocovarianza estima varianza. La cruzada puede ser compleja y asimétrica. En la matriz de correlación, un canal constante deja indefinida la normalización. En un conjunto, las dos posiciones se cuentan desde la primera muestra. Si las trayectorias comparten un modelo registrado, el informe incluye la referencia teórica."
         ],
         [
           "Qué tener en cuenta",
@@ -100,19 +120,19 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Un modelo AR, MA o ARMA relaciona una entrada de ruido blanco con un proceso cuya evolución depende de coeficientes conocidos. Esta herramienta obtiene las estadísticas del modelo y permite generar una realización gaussiana estacionaria."
+          "Un modelo AR, MA o ARMA relaciona una entrada de ruido blanco con un proceso cuya evolución depende de coeficientes conocidos. Esta herramienta obtiene las estadísticas estacionarias del modelo y simula registros con distintas condiciones iniciales."
         ],
         [
           "Cómo preparar el cálculo",
-          "Elegí AR, MA o ARMA y cargá los coeficientes por potencias de z⁻¹. Para AR, b es 1; para MA, a es 1. Definí la media y la desviación del ruido, los retardos de interés y la rejilla espectral. También podés cargar un sistema digital desde archivo o Resultados."
+          "Elegí AR, MA o ARMA y cargá los coeficientes por potencias de z⁻¹. En AR, b vale 1. En MA, a vale 1. Definí la media y la desviación del ruido, los retardos de interés y la rejilla espectral. También podés cargar un sistema digital desde archivo o Resultados.\n\nAl simular, elegí estado estacionario para sortear el estado con la covarianza de Lyapunov. Reposo inicia las fluctuaciones x−media con estado cero. Estado manual acepta los componentes reales de la forma directa II transpuesta. Por ejemplo, para x[n]−media = 0,8·(x[n−1]−media)+e[n], el estado inicial es 0,8·(x[n−1]−media). El calentamiento simula y descarta muestras anteriores al índice inicial."
         ],
         [
           "Cómo interpretar la salida",
-          "El informe muestra la recurrencia, H(z), media, varianza y potencia del proceso. El selector ofrece autocovarianza, autocorrelación, densidad de potencia y la realización opcional. Cada salida se guarda por separado en Resultados; H(z) puede analizarse como cualquier otro sistema."
+          "El informe muestra la recurrencia, H(z), media, varianza y potencia del proceso. Podés abrir autocovarianza, autocorrelación, PSD y, si lo pediste, autocorrelación parcial o una realización. Cada curva se guarda en Resultados y H(z) se puede reutilizar en el análisis de sistemas.\n\nPara estudiar sensibilidad, elegí un coeficiente o un parámetro del ruido y cargá sus valores separados por coma. Para b[k] o a[k], k corresponde a z⁻ᵏ. El informe compara media, varianza y mayor módulo de polo. Las PSD de los casos válidos se pueden superponer en la misma grilla."
         ],
         [
           "Qué tener en cuenta",
-          "Usá un modelo real, causal y estable. Para generar el registro, el estado inicial gaussiano usa la covarianza estacionaria obtenida mediante la ecuación de Lyapunov. La semilla permite repetir ese registro, cuyas estadísticas pueden diferir de las del modelo.\n\nLa densidad de potencia describe x menos su media. Su integral en un período, dividida por 2π, da la varianza. Con media distinta de cero, el espectro completo agrega una línea ideal en ω=0 con peso 2π·media². La línea se registra por separado."
+          "Usá un modelo real, causal y estable. La semilla permite repetir el registro con el mismo estado y calentamiento. Si arrancás desde reposo o desde un estado manual, la realización puede incluir un transitorio. Las estadísticas teóricas describen el régimen estacionario.\n\nLa densidad de potencia describe x menos su media. Su integral en un período, dividida por 2π, da la varianza. Con media distinta de cero, el espectro completo agrega una línea ideal en ω=0 con peso 2π·media². La línea se registra por separado."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -130,11 +150,15 @@
       "blocks": [
         [
           "Qué podés hacer",
-          "Ajustá un modelo AR a un registro discreto real. Podés elegir un orden, comparar varios, reservar datos para validar, pronosticar valores futuros y estudiar los residuos. Todo describe un modelo estimado, no una identidad exacta del proceso desconocido."
+          "Ajustá un modelo AR, MA, ARMA o ARIMA a un registro discreto real. Podés comparar órdenes, reservar observaciones, pronosticar valores futuros y estudiar las innovaciones. El informe distingue el resultado estimado de las propiedades del modelo que propone."
         ],
         [
           "Cómo preparar el cálculo",
-          "Elegí Un orden elegido para usar Yule–Walker o mínimos cuadrados condicionales. El orden p indica cuántos valores anteriores intervienen; p=0 conserva sólo una constante y ruido. Las primeras p muestras proporcionan antecedentes.\n\nMuestras finales reservadas separa el final antes de estimar los coeficientes. Con cero se utiliza todo el registro. La reserva no cambia el ajuste; permite medir su error de predicción a un paso. Las opciones de generación siguen creando una realización nueva del modelo estacionario, con semilla reproducible."
+          "Elegí Un orden elegido para usar Yule–Walker, mínimos cuadrados condicionales o Burg. Burg combina errores de predicción de avance y retroceso. El orden p indica cuántos valores anteriores intervienen. Con p=0 queda una constante más ruido.\n\nReservá muestras finales para medir el error de predicción sin usarlas al ajustar. Con cero se utiliza todo el registro. Podés generar una nueva realización estacionaria del modelo con una semilla reproducible."
+        ],
+        [
+          "Parámetros de MA, ARMA y ARIMA",
+          "p cuenta retardos de la señal y q cuenta retardos de las innovaciones. d indica cuántas diferencias sucesivas aplicar antes del ajuste. La verosimilitud condicional parte con el filtro de innovaciones en reposo. Cuando se comparan modelos se usa el mismo tramo de ajuste. En ARIMA el pronóstico y sus límites vuelven a los niveles originales. La PSD y la realización opcional describen el núcleo estacionario de las diferencias."
         ],
         [
           "Comparar órdenes",
@@ -150,11 +174,11 @@
         ],
         [
           "Diagnosticar los residuos",
-          "Residuos muestra la autocorrelación del error de entrenamiento y Q de Ljung–Box para cada retardo. El valor p utiliza k−p grados de libertad; con k≤p no se calcula. Es una aproximación asintótica que puede ser pobre en muestras cortas.\n\nUn valor p pequeño señala incompatibilidad con la ausencia de correlación bajo esas hipótesis. Un valor p grande no demuestra blancura ni independencia. Un residuo nulo o compatible con redondeo no recibe una autocorrelación normalizada ni valores p ficticios."
+          "Residuos muestra la ACF y la PACF del error de entrenamiento y Q de Ljung–Box para cada retardo. El valor p usa k−p−q grados de libertad positivos. En un AR, q es cero. En muestras cortas la aproximación puede ser pobre.\n\nUn valor p pequeño señala incompatibilidad con la ausencia de correlación bajo el modelo. Un residuo compatible con redondeo queda sin autocorrelación normalizada ni prueba de blancura."
         ],
         [
           "Qué se conserva",
-          "H(z)=1/A(z⁻¹) representa el paso de innovaciones a la salida; la constante de la recurrencia se informa aparte. Los coeficientes, tablas, predicciones y curvas quedan en Resultados y admiten exportación o CAS según su tipo. Los índices y Fs disponibles se conservan.\n\nUn ajuste no estacionario conserva sus coeficientes y predicciones finitas, pero no recibe una varianza ni PSD estacionarias. Si una gráfica, pronóstico, realización o diagnóstico complementario no puede obtenerse, el ajuste principal sigue disponible."
+          "H(z)=B(z⁻¹)/A(z⁻¹) representa el paso de innovaciones al núcleo estacionario. En un AR, B es uno. La media o constante se informa por separado. Los coeficientes, tablas, predicciones y curvas quedan en Resultados con los índices y Fs disponibles. Si una salida complementaria queda fuera de rango, el informe conserva el ajuste principal."
         ],
         [
           "Indeterminaciones y valores por continuidad",
@@ -162,6 +186,60 @@
             "ref": "indeterminaciones-y-valores-por-continuidad-96a71885"
           }
         ]
+      ]
+    },
+    {
+      "key": ["estimation", "gaussian"],
+      "blocks": [
+        ["Qué podés hacer", "Estimá una amplitud o varios parámetros a partir de observaciones gaussianas y compará los estimadores."],
+        ["Cómo preparar el cálculo", "Ingresá una medición por fila de A y la covarianza R del ruido. Para calcular el posterior agregá la media a priori y su covarianza."],
+        ["Cómo interpretar la salida", "El informe compara las estimaciones y muestra cómo cambia su error. Fisher mide la información aportada por las observaciones y la cota de Cramér–Rao limita la varianza de estimadores insesgados."],
+        ["Qué tener en cuenta", "La equivalencia entre MAP y MMSE depende del modelo gaussiano. Las matrices de covarianza de esta herramienta deben ser positivas definidas."]
+      ]
+    },
+    {
+      "key": ["estimation", "wiener"],
+      "blocks": [
+        ["Qué podés hacer", "Diseñá un filtro FIR causal para aproximar una señal de interés con una entrada observada."],
+        ["Cómo preparar el cálculo", "Ajustá el FIR desde dos registros alineados o cargá las correlaciones teóricas en retardos consecutivos desde cero."],
+        ["Cómo interpretar la salida", "El informe muestra los coeficientes y el error cuadrático medio. Con dos registros, la gráfica compara lo observado, lo deseado, la estimación y el residuo."],
+        ["Qué tener en cuenta", "Usá una reserva final para evaluar el error fuera del ajuste. La constante opcional se guarda en el informe y se aplica aparte al reutilizar la transferencia."]
+      ]
+    },
+    {
+      "key": ["estimation", "kalman"],
+      "blocks": [
+        ["Qué podés hacer", "Estimá el estado de un modelo discreto a partir de mediciones ruidosas. Podés indicar qué datos faltan en cada instante."],
+        ["Cómo preparar el cálculo", "Cargá A, B, C, D y su período. Agregá las covarianzas Q y R, la media inicial y su covarianza P₀. Usá una fila por instante en las mediciones y controles."],
+        ["Cómo interpretar la salida", "La predicción usa mediciones anteriores. La corrección usa además las mediciones disponibles en el instante actual. La varianza posterior mide la incertidumbre de la estimación."],
+        ["Qué tener en cuenta", "El modelo supone ruido independiente, blanco y de media cero. Si todas las mediciones de un instante faltan, se conserva solo la predicción."]
+      ]
+    },
+    {
+      "key": ["estimation", "adaptive"],
+      "blocks": [
+        ["Qué podés hacer", "Estimá un FIR que cambia mientras recibe muestras. Podés identificar un sistema, predecir una secuencia o cancelar ruido con una referencia."],
+        ["Cómo preparar el cálculo", "Elegí el objetivo y cargá las señales. Para identificar, usá entrada y salida del sistema. Para cancelar ruido, cargá una referencia del ruido y el registro contaminado. Para predecir, cargá un solo registro y un retardo positivo."],
+        ["Cómo interpretar la salida", "La estimación y el error en cada muestra usan los coeficientes disponibles antes de actualizar. Compará el error durante la adaptación y en el tramo final reservado. Los coeficientes finales se pueden reutilizar como un filtro fijo."],
+        ["Qué tener en cuenta", "La convergencia depende de la energía y excitación de la entrada, de los parámetros y de cuánto varíe el sistema. Una referencia correlacionada con la señal deseada puede eliminar también parte de esa señal."]
+      ]
+    },
+    {
+      "key": ["statistical_experiment", "campaign"],
+      "blocks": [
+        ["Qué podés hacer", "Estimá una media, una varianza o la probabilidad de un evento repitiendo experimentos simulados."],
+        ["Cómo preparar el cálculo", "Elegí una distribución, cantidad de muestras por réplica y carpeta. Para comprobar sensibilidad, variá un parámetro y compará los resultados entre escenarios."],
+        ["Cómo interpretar la salida", "La curva muestra cómo evoluciona la media de las estimaciones al acumular réplicas. El intervalo expresa incertidumbre estadística. Si no observaste eventos, conservá la cota superior."],
+        ["Qué tener en cuenta", "Las réplicas tienen subflujos reproducibles de una semilla maestra. Para continuar tras la interrupción, reabrí la carpeta o ejecutá de nuevo con los mismos parámetros."]
+      ]
+    },
+    {
+      "key": ["statistical_experiment", "bootstrap"],
+      "blocks": [
+        ["Qué podés hacer", "Estimá la incertidumbre de una medida a partir de un registro real observado."],
+        ["Cómo preparar el cálculo", "Elegí media, varianza o evento. Si las observaciones son independientes usá bloques de longitud uno. Si hay dependencia temporal, elegí bloques contiguos más largos."],
+        ["Cómo interpretar la salida", "El histograma muestra el estadístico de cada nuevo registro remuestreado. El intervalo percentil toma cuantiles de esa distribución."],
+        ["Qué tener en cuenta", "La validez depende de cómo se obtuvieron los datos. El remuestreo conserva solo la dependencia que entra en los bloques y no puede aportar información sobre eventos que no aparecen en la muestra."]
       ]
     }
   ],
@@ -355,7 +433,7 @@
       "parameters": [
         [
           "Método y orden",
-          "Yule–Walker estima covarianzas con divisor N; mínimos cuadrados ajusta la recurrencia con una constante. Orden cero es una referencia de media y ruido."
+          "Yule–Walker usa covarianzas con divisor N. Mínimos cuadrados ajusta la recurrencia con una constante. Burg ajusta errores hacia adelante y atrás mediante coeficientes de reflexión. El orden cero sirve como referencia de media y ruido."
         ],
         [
           "Comparar órdenes",
@@ -383,6 +461,74 @@
         ]
       ],
       "reading": "Las curvas conservan índices y reloj. La predicción de un paso y el pronóstico recursivo son salidas distintas. Consultá el informe para distinguir datos de entrenamiento, reserva y futuro. Las tablas CSV conservan la interpretación del cálculo."
+    },
+    {
+      "key": ["estimation", "gaussian"],
+      "flow": ["Modelo lineal", "Ruido y distribución previa", "Estimaciones y error"],
+      "parameters": [
+        ["Observaciones y", "Ingresá los valores medidos en el mismo orden que las filas de A."],
+        ["Diseño A", "Usá una fila por medición y una columna por parámetro. Para medir una amplitud con dos observaciones directas, A tiene dos filas con el valor 1."],
+        ["Ruido R", "La diagonal contiene las varianzas de medición. Fuera de la diagonal, usá las covarianzas conocidas. R debe ser real, simétrica y positiva definida."],
+        ["Distribución previa", "Para MAP y MMSE, cargá una media por parámetro y la covarianza previa en la pestaña P. Para calcular solo ML, dejá ambos campos vacíos."],
+        ["Parámetro fijo para comparar", "Si conocés el valor usado en un experimento, ingresalo para evaluar la verosimilitud y el sesgo, varianza y MSE del estimador en ese valor."]
+      ],
+      "reading": "Con este modelo gaussiano, la media posterior es MMSE y LMMSE y también coincide con la moda MAP. ML usa la información de las observaciones. Si el diseño no identifica todos los parámetros, el informe conserva la estimación posterior cuando hay un modelo previo. Fisher y Cramér–Rao describen la información de mediciones repetidas."
+    },
+    {
+      "key": ["estimation", "wiener"],
+      "flow": ["Registros o momentos", "FIR causal", "Estimación y error"],
+      "parameters": [
+        ["Registros observados y deseados", "x[n] es la entrada medida del filtro y d[n] es la señal objetivo, por ejemplo una referencia limpia. Las secuencias deben corresponder a los mismos índices y relojes."],
+        ["Cantidad de coeficientes", "L es la cantidad de muestras usadas en cada ventana, desde x[n] hasta x[n−L+1]. La salida empieza donde está disponible la primera ventana completa."],
+        ["Reserva y constante", "La reserva usa las muestras finales para medir el MSE fuera del entrenamiento. La constante ajusta un desplazamiento adicional a la salida FIR."],
+        ["Correlaciones teóricas", "Para diseñar sin registros, ingresá Rxx[k], Rdx[k] y la potencia media cuadrática de d. Comenzá ambas listas en k = 0. Rdx correlaciona d[n] con la entrada conjugada en n−k."]
+      ],
+      "reading": "El informe distingue el MSE teórico del medido en entrenamiento o validación. Podés abrir la comparación de las señales observada, deseada y estimada junto al residuo. Si ajustaste una constante, sumala a la salida para reproducir la estimación al reutilizar el filtro FIR."
+    },
+    {
+      "key": ["estimation", "kalman"],
+      "flow": ["Modelo y observaciones", "Predicción y corrección", "Estados e incertidumbre"],
+      "parameters": [
+        ["Modelo discreto y período", "A describe cómo evoluciona el estado, B cómo lo modifica la entrada, C qué combinación de estados se mide y D cómo entra u directamente en la medición. El período fija el intervalo físico entre filas."],
+        ["Covarianzas Q y R", "Q tiene una fila por estado y describe el ruido del proceso. R tiene una fila por canal medido. Ambas admiten varianzas nulas si las mediciones respetan las restricciones deterministas."],
+        ["Media inicial y P₀", "Son estimaciones previas al primer dato. Cada componente de la media corresponde a una fila de A. P₀ describe la incertidumbre inicial por componente y sus covarianzas."],
+        ["Mediciones, controles y máscara", "y tiene una columna por canal. u tiene una columna por entrada conocida y puede quedar vacía para entrada cero. La máscara usa 1 para medición disponible y 0 para ausente, con las mismas dimensiones que y."]
+      ],
+      "reading": "La innovación es la diferencia entre la medición y su predicción. La ganancia controla cuánto cambia cada estado al corregirlo. Resultados conserva los estados, las varianzas y las matrices por instante."
+    },
+    {
+      "key": ["estimation", "adaptive"],
+      "flow": ["Objetivo y registro", "Algoritmo y parámetros", "Coeficientes y errores"],
+      "parameters": [
+        ["Muestras del FIR", "La longitud determina cuántos coeficientes se adaptan. El retardo indica cuántas muestras hacia atrás empieza la ventana. Para predecir, el retardo mínimo es 1."],
+        ["LMS", "Reducí el paso μ si el error crece. El mismo valor de μ puede funcionar con una escala de amplitud y divergir con otra."],
+        ["NLMS", "μ está entre 0 y 2. Divide la corrección por la energía de la ventana más un piso positivo para evitar una actualización excesiva con señales débiles."],
+        ["RLS", "λ es el peso que se conserva por cada muestra transcurrida y admite 0 < λ ≤ 1. La regularización inicial estabiliza un ajuste con pocas observaciones."],
+        ["Reserva y comparación", "El tramo reservado usa el filtro final fijo. Podés comparar tres algoritmos con sus parámetros iniciales o variar el paso de LMS/NLMS o el factor λ de RLS."]
+      ],
+      "reading": "Compará los MSE sobre el mismo intervalo. Durante el entrenamiento, cada error mide lo que se podía estimar antes de recibir el dato de ese instante. En cancelación de ruido, el residuo estima la señal limpia."
+    },
+    {
+      "key": ["statistical_experiment", "campaign"],
+      "flow": ["Distribución o escenarios", "Réplicas y precisión", "Estimaciones e intervalos"],
+      "parameters": [
+        ["Evento", "Se cuenta P(L ≤ X ≤ H) entre los extremos elegidos, incluyendo ambos límites."],
+        ["Réplicas y muestras", "Cada réplica toma un registro simulado nuevo con las muestras indicadas. El máximo de réplicas fija cuándo termina si no se alcanza antes el objetivo."],
+        ["Carpeta", "Contiene la definición y los bloques verificados. Para ver el progreso de una campaña interrumpida, elegí Reabrir campaña."],
+        ["Números aleatorios comunes", "Vincula los escenarios a los mismos cuantiles uniformes en cada réplica. Sirve para comparar, y la diferencia se calcula con las observaciones emparejadas."],
+        ["Semiancho objetivo", "Termina cuando los intervalos de todos los escenarios alcanzan la precisión elegida, desde la cantidad mínima de réplicas y al terminar cada bloque."]
+      ],
+      "reading": "Las probabilidades usan intervalos binomiales exactos con corrección por revisiones planificadas. Para media y varianza se usa un intervalo t aproximado sobre las réplicas. Podés guardar los resultados por réplica en CSV."
+    },
+    {
+      "key": ["statistical_experiment", "bootstrap"],
+      "flow": ["Registro y estadístico", "Remuestreo", "Distribución e intervalo"],
+      "parameters": [
+        ["Registro observado", "Usá una secuencia real con el orden de observación original. En el modo por bloques, el motor toma tramos contiguos con reposición."],
+        ["Longitud del bloque", "Uno corresponde al caso IID. Para registros estacionarios dependientes, elegí una longitud que cubra la dependencia relevante y compará varias longitudes."],
+        ["Réplicas y confianza", "Más réplicas estabilizan los cuantiles empíricos. La proporción de cola depende del porcentaje de confianza elegido."]
+      ],
+      "reading": "El error estándar se obtiene de la dispersión de las réplicas. Si solo se observa un tipo de resultado en un evento, el intervalo se informa indeterminado."
     }
   ]
 }

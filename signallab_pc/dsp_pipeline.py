@@ -68,7 +68,7 @@ class PipelineMemory:
 
 
 def _psd_segment(request, count):
-    if request.psd_method != 'welch':
+    if request.psd_method not in ('welch','bartlett'):
         return count
     return (positive_integer(request.psd_segment,'Longitud de segmento')
             if request.psd_segment is not None else min(256,count))

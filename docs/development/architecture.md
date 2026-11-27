@@ -1,5 +1,7 @@
 # Arquitectura
 
+La referencia para futuras fases es la evolución incremental del monolito modular. [Arquitectura objetivo](../engineering/ARCHITECTURE_TO_BE.md) · [Decisión de arquitectura](../engineering/ADR-004-INCREMENTAL-ENGINEERING.md)
+
 [← Desarrollo](README.md)
 
 SignalLab PC separa la definición de entrada, el modelo matemático, el cálculo y su presentación. Esa separación permite que un resultado conserve sus datos y condiciones aunque cambie de vista o se reutilice en otra herramienta.

@@ -3,6 +3,7 @@
 import math
 
 import numpy as np
+from matplotlib.collections import LineCollection
 from scipy.signal import freqz
 
 from .dft_application import DFTRequest, calculate_dft
@@ -32,6 +33,33 @@ def constellation_figure(figure, points, observations=(), units='1'):
     axis.set(xlabel=f'I ({units})', ylabel=f'Q ({units})')
     axis.set_aspect('equal', adjustable='box')
     axis.legend()
+
+
+def evm_vectors_figure(figure, reference, observed, units='1'):
+    total = reference.size
+    reference, observed = _selection(reference, 256), _selection(observed, 256)
+    constellation_figure(figure, reference, observed, units)
+    axis = figure.axes[0]
+    segments = np.stack((np.column_stack((reference.real, reference.imag)),
+                         np.column_stack((observed.real, observed.imag))), axis=1)
+    axis.add_collection(LineCollection(segments, colors=COLORS['amber'], alpha=.75, linewidths=.8,
+                                       label='Vectores de error I/Q'))
+    if reference.size < total:
+        axis.set_title(f'{reference.size:,} de {total:,} pares I/Q alineados')
+    axis.legend()
+
+
+def quality_rates_figure(figure, trace):
+    counts, ber, ser = trace
+    axes = figure.subplots(2, 1, sharex=True)
+    for axis, rates, label, color in ((axes[0], ber, 'BER', 'blue'), (axes[1], ser, 'SER', 'green')):
+        if counts.size <= 64:
+            plot_samples(axis, counts, rates, discrete=True, color=COLORS[color])
+        else:
+            axis.plot(counts, rates, color=COLORS[color])
+        axis.set_ylabel(label)
+        axis.grid(alpha=.22)
+    configure_axis(axes[-1], discrete_index=True, label='Símbolos comparados')
 
 
 def iq_figure(figure, signal):

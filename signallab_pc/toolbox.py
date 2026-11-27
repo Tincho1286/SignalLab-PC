@@ -31,6 +31,17 @@ from .state_space import StateModel
 
 from .navigation import MENUS
 from . import __version__
+
+
+def _available_signal_input(field, page):
+    if field.isVisibleTo(page):
+        return True
+    stack = field.parentWidget()
+    tabs = stack.parentWidget() if isinstance(stack,QStackedWidget) else None
+    if not isinstance(tabs,QTabWidget) or not tabs.isVisibleTo(page):
+        return False
+    index = tabs.indexOf(field)
+    return index >= 0 and tabs.isTabVisible(index) and tabs.isTabEnabled(index)
 from .tool_descriptions import describe_tool
 from .report_view import ReportView,report_panel
 from .expression_editor import ExpressionEditor
@@ -459,7 +470,7 @@ class ResultView(QWidget):
         refresh=getattr(self.canvas,'_signallab_plot_action_refresh',None)
         if refresh is not None:refresh()
         self.table_view.set_signals(());self.dft_axis.hide();self.views.hide();self.actions.setVisible(self.show_action_bar);self.empty.setText(message);self.empty.show();self.label.hide()
-    def show_result(self,result,*,source=None,operation=None):
+    def show_result(self,result,*,source=None,operation=None,summary=None):
         self.operation=operation
         candidates=result if isinstance(result,tuple) else (result,)
         if all(isinstance(value,Signal) for value in candidates):validate_overlay(candidates)
@@ -486,15 +497,21 @@ class ResultView(QWidget):
             self.draw_signal()
             self.label.setText(f'Resultado · {signals[0].values.size:,} valores')
             from .result_summary import signal_summary
-            self.text.set_readable(signal_summary(result,operation));self.details_view.setPlainText('\n\n'.join(f'{x.name}\n'+json.dumps(x.metadata,ensure_ascii=False,indent=2) for x in signals))
+            self.text.set_readable(summary or signal_summary(result,operation));self.details_view.setPlainText('\n\n'.join(f'{x.name}\n'+json.dumps(x.metadata,ensure_ascii=False,indent=2) for x in signals))
         else:
             from dataclasses import is_dataclass
             from .result_summary import measurement_summary,calculation_summary
             payload=asdict(result) if is_dataclass(result) else result
-            summary=measurement_summary(payload,source) or calculation_summary(payload)
-            if summary is not None:self.text.set_readable(summary)
-            else:self.text.setPlainText(json.dumps(payload,ensure_ascii=False,indent=2))
-            self.details_view.setPlainText(json.dumps(payload,ensure_ascii=False,indent=2));self.label.setText('Resultado del cálculo');self.views.setCurrentIndex(1)
+            if summary is None:
+                structured=measurement_summary(payload,source) or calculation_summary(payload)
+                document=json.dumps(payload,ensure_ascii=False,indent=2)
+                if structured is not None:self.text.set_readable(structured)
+                else:self.text.setPlainText(document)
+                self.details_view.setPlainText(document)
+            else:
+                self.text.set_readable(summary)
+                self.details_view.clear()
+            self.label.setText('Resultado del cálculo');self.views.setCurrentIndex(1)
         steps=[step for value in signals if isinstance(value,Signal) for step in value.metadata.get('derivation',[]) if value.metadata.get('derivation_operation',value.metadata.get('operation'))==value.metadata.get('operation')]
         if isinstance(result,dict) and result.get('procedure'):
             from .procedure import views
@@ -697,6 +714,20 @@ class ToolPage(QWidget):
         if kind=='random':
             from .random_panel import RandomPanel
             self.panel=RandomPanel(window,index);root.addWidget(self.panel);return
+        if kind=='estimation':
+            if index=='kalman':
+                from .kalman_panel import KalmanPanel
+                self.panel=KalmanPanel(window)
+            elif index=='adaptive':
+                from .adaptive_panel import AdaptivePanel
+                self.panel=AdaptivePanel(window)
+            else:
+                from .estimation_panel import EstimationPanel
+                self.panel=EstimationPanel(window,index)
+            root.addWidget(self.panel);return
+        if kind=='statistical_experiment':
+            from .monte_carlo_panel import MonteCarloPanel
+            self.panel=MonteCarloPanel(window,index);root.addWidget(self.panel);return
         if kind=='communications':
             from .communications_panel import CommunicationsPanel
             self.panel=CommunicationsPanel(window,index);root.addWidget(self.panel);return
@@ -1347,6 +1378,8 @@ class ToolboxWindow(SignalLabWindow):
             target=self.stack.currentWidget().panel.receive(self.project.get(key),key)
             self.statusBar().showMessage('Entrada cargada en Densidad de energía.')
             return target
+        if item[1:3]==('estimation','wiener'):
+            self.stack.currentWidget().panel.mode.setCurrentIndex(0)
         if item[1]=='dsp_extensions' and item[2] in ('hilbert','stft'):
             panel=self.stack.currentWidget().panel
             if key is None:key=self.publish(value,operation='Resultado enviado a '+item[0])
@@ -1371,7 +1404,10 @@ class ToolboxWindow(SignalLabWindow):
             panel.stimulus.setCurrentIndex(2)
         active=getattr(self.stack.currentWidget(),'active_page',self.stack.currentWidget())
         fields=[field for field in active.findChildren(LocalInput)
-                if field.kind in ('import',value.domain) or (getattr(field,'dft_input',False) and ops.is_centered_dft(value)) or value.data_kind in getattr(field,'cross_domain_kinds',())]
+                if _available_signal_input(field,active) and (
+                    field.kind in ('import',value.domain)
+                    or (getattr(field,'dft_input',False) and ops.is_centered_dft(value))
+                    or value.data_kind in getattr(field,'cross_domain_kinds',()))]
         if not fields:return
         target=fields[0]
         if len(fields)>1:
@@ -1394,7 +1430,9 @@ class ToolboxWindow(SignalLabWindow):
         except Exception as exc:QMessageBox.warning(self,'No se pudo exportar',str(exc))
 
     def send_model(self,value,key,item):
-        if not isinstance(value,StateModel) or item[1]!='state_space':raise ValueError('El destino requiere un modelo de estados.')
+        kalman = item[1:3] == ('estimation','kalman')
+        if not isinstance(value,StateModel) or not (item[1]=='state_space' or kalman):raise ValueError('El destino requiere un modelo de estados.')
+        if kalman and value.dt is None:raise ValueError('Kalman requiere un modelo discreto.')
         if item[2]=='discretize' and value.dt is not None:raise ValueError('Discretizar requiere un modelo continuo.')
         self.open_tool(item);page=self.pages.get(tuple(item),self.stack.currentWidget());panel=page.panel
         if key is None:key=self.publish(value,operation='Modelo enviado a otro estudio')
@@ -1530,7 +1568,9 @@ class ToolboxWindow(SignalLabWindow):
             self.reuse_menu.addSeparator()
         if isinstance(value,Signal):candidates=signal_destinations(value,items)
         elif isinstance(value,Transfer):candidates=system_destinations(value,items)
-        elif isinstance(value,StateModel):candidates=[item for item in items if item[1]=='state_space' and (item[2]!='discretize' or value.dt is None)]
+        elif isinstance(value,StateModel):
+            candidates=[item for item in items if item[1]=='state_space' and (item[2]!='discretize' or value.dt is None)
+                        or item[1:3]==('estimation','kalman') and value.dt is not None]
         else:candidates=[]
         groups={}
         for entry,item in compact_destinations(candidates):

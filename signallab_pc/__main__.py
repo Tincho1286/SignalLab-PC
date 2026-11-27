@@ -14,6 +14,15 @@ def main(argv=None):
     if args[:1] == ['dsp']:
         from .dsp_cli import main as dsp
         return dsp(args[1:])
+    if args[:1] == ['probability']:
+        from .probability_cli import main as probability
+        return probability(args[1:])
+    if args[:1] == ['statistics']:
+        from .statistics_cli import main as statistics
+        return statistics(args[1:])
+    if args[:1] == ['stochastic']:
+        from .stochastic_cli import main as stochastic
+        return stochastic(args[1:])
     if args[:1] == ['communications']:
         from .communications_cli import main as communications
         return communications(args[1:])
