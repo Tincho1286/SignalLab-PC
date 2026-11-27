@@ -107,6 +107,19 @@ def realization(model,count,seed,origin=0):
     return result
 
 
+def model_pacf(model):
+    """PACF of the stationary covariance already calculated by analyze."""
+    from .system_clock import lag_clock
+    from .time_series_identification import partial_autocorrelation
+    covariance = next(value for value in model.signals if value.metadata.get('operation') == 'model_autocovariance')
+    center = -covariance.origin
+    values = partial_autocorrelation(covariance.values[center:])
+    period = model.system.sample_period_s
+    clock = lag_clock(None if period is None else 1/period,0,len(values))
+    return Signal(values, 0, 1, 'retardo k', 'Autocorrelación parcial teórica', 'discrete',
+                  metadata={'operation': 'model_pacf', 'model': model.system.name, 'theoretical': True, **clock})
+
+
 def fit_ar(source,order,max_lag=40,points=2049):
     """Yule-Walker, biased sample covariance, estimated mean, real data."""
     if source.domain!='discrete' or np.any(source.values.imag):raise ValueError('La estimación AR requiere un registro discreto real.')

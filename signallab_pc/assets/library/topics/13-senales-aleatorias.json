@@ -128,7 +128,7 @@
         ],
         [
           "Cómo interpretar la salida",
-          "El informe muestra la recurrencia, H(z), media, varianza y potencia del proceso. El selector ofrece autocovarianza, autocorrelación, densidad de potencia y la realización opcional. Cada salida se guarda por separado en Resultados; H(z) puede analizarse como cualquier otro sistema."
+          "El informe muestra la recurrencia, H(z), media, varianza y potencia del proceso. Podés abrir autocovarianza, autocorrelación, PSD y, si lo pediste, autocorrelación parcial o una realización. Cada curva se guarda en Resultados y H(z) se puede reutilizar en el análisis de sistemas."
         ],
         [
           "Qué tener en cuenta",
@@ -154,7 +154,7 @@
         ],
         [
           "Cómo preparar el cálculo",
-          "Elegí Un orden elegido para usar Yule–Walker o mínimos cuadrados condicionales. El orden p indica cuántos valores anteriores intervienen; p=0 conserva sólo una constante y ruido. Las primeras p muestras proporcionan antecedentes.\n\nMuestras finales reservadas separa el final antes de estimar los coeficientes. Con cero se utiliza todo el registro. La reserva no cambia el ajuste; permite medir su error de predicción a un paso. Las opciones de generación siguen creando una realización nueva del modelo estacionario, con semilla reproducible."
+          "Elegí Un orden elegido para usar Yule–Walker, mínimos cuadrados condicionales o Burg. Burg combina errores de predicción de avance y retroceso. El orden p indica cuántos valores anteriores intervienen. Con p=0 queda una constante más ruido.\n\nReservá muestras finales para medir el error de predicción sin usarlas al ajustar. Con cero se utiliza todo el registro. Podés generar una nueva realización estacionaria del modelo con una semilla reproducible."
         ],
         [
           "Comparar órdenes",
@@ -375,7 +375,7 @@
       "parameters": [
         [
           "Método y orden",
-          "Yule–Walker estima covarianzas con divisor N; mínimos cuadrados ajusta la recurrencia con una constante. Orden cero es una referencia de media y ruido."
+          "Yule–Walker usa covarianzas con divisor N. Mínimos cuadrados ajusta la recurrencia con una constante. Burg ajusta errores hacia adelante y atrás mediante coeficientes de reflexión. El orden cero sirve como referencia de media y ruido."
         ],
         [
           "Comparar órdenes",

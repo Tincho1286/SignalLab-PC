@@ -53,7 +53,9 @@ class ARFitPanel(QWidget):
         root=QHBoxLayout(self);controls=QWidget();left=QVBoxLayout(controls);self.source=LocalInput('Registro real x[n]','discrete');self.source.bind_project(window);left.addWidget(self.source)
         form=QFormLayout();form.setRowWrapPolicy(QFormLayout.RowWrapPolicy.WrapAllRows);left.addLayout(form)
         self.mode=QComboBox();self.mode.addItems(['Un orden elegido','Comparar órdenes']);form.addRow('Cálculo',self.mode)
-        self.method=QComboBox();self.method.addItems(['Yule–Walker','Mínimos cuadrados condicionales']);form.addRow('Método',self.method)
+        self.method=QComboBox()
+        for title,key in [('Yule–Walker','yw'),('Mínimos cuadrados condicionales','ols'),('Burg','burg')]:self.method.addItem(title,key)
+        form.addRow('Método',self.method)
         self.order=QLineEdit('2');form.addRow('Orden AR p (0: sólo media y ruido)',self.order)
         self.minimum=QLineEdit('0');self.maximum=QLineEdit('12');form.addRow('Desde el orden',self.minimum);form.addRow('Hasta el orden',self.maximum)
         self.criterion=QComboBox()
@@ -109,7 +111,7 @@ class ARFitPanel(QWidget):
                     comparison=calc.compare(source,maximum,minimum,validation=reserve,criterion=criterion);index=comparison['selected'];result=details(source,comparison['rows'][index],options) if index is not None else None
                     return dict(comparison=comparison,detail=result)
             else:
-                order=integer_field(self.order,minimum=0);method='yw' if self.method.currentIndex()==0 else 'ols'
+                order=integer_field(self.order,minimum=0);method=self.method.currentData()
                 def compute():
                     row=calc.fit(source,order,method=method,validation=reserve)
                     return dict(comparison=dict(rows=[row],selected=0,criterion=None,scope='Orden elegido por el usuario. La reserva queda fuera del ajuste.'),detail=details(source,row,options))

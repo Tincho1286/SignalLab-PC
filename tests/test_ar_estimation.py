@@ -11,6 +11,58 @@ from signallab_pc import ar_estimation as ar
 
 
 class Arithmetic(unittest.TestCase):
+    def test_burg_second_order_against_scalar_errors(self):
+        x=[-2.,0.,1.,5.,-4.]
+        previous, following = x[:-1], x[1:]
+        first = -2*sum(a*b for a,b in zip(previous, following)) / sum(a*a+b*b for a,b in zip(previous, following))
+        f = [x[i]+first*x[i-1] for i in (2,3,4)]
+        b = [x[i-2]+first*x[i-1] for i in (2,3,4)]
+        second = -2*sum(a*c for a,c in zip(f,b)) / sum(a*a+c*c for a,c in zip(f,b))
+        row = ar.fit(Signal(x),2,method='burg')
+        assert_allclose(row['a'],[1.,first*(1+second),second],atol=2e-12)
+        assert_allclose(row['reflection_coefficients'],[first,second],atol=2e-12)
+        self.assertAlmostEqual(row['innovation_variance']['value'],sum(v*v for v in x)/len(x)*(1-first**2)*(1-second**2))
+        self.assertIsNone(row['aic'])
+        self.assertTrue(row['stationary'])
+
+    def test_burg_recovers_known_ar_without_validation_leakage(self):
+        generator = np.random.Generator(np.random.PCG64(2026112905))
+        innovations = generator.standard_normal(2048+256)
+        series = np.empty(len(innovations))
+        previous = 0.
+        for i,e in enumerate(innovations):
+            previous = .6*previous+e
+            series[i] = previous
+        training = series[256:]
+        first = ar.fit(Signal(np.r_[training,1,2]),1,method='burg',validation=2)
+        second = ar.fit(Signal(np.r_[training,90,-89]),1,method='burg',validation=2)
+        self.assertAlmostEqual(first['phi'][0],.6,delta=6*math.sqrt((1-.6**2)/len(training)))
+        self.assertEqual(first['a'],second['a'])
+        self.assertNotEqual(first['validation_mse'],second['validation_mse'])
+        for x,order in [([2,2,2,2],1), ([1,-1,1,-1],1),([1,2,4],2)]:
+            with self.assertRaises(ValueError):
+                ar.fit(Signal(x),order,method='burg')
+        prepared = ar.prepare(Signal([0.,2.,3.,1.,5.,2.]))
+        with self.assertRaises(ValueError):
+            ar.fit_prepared(prepared,1,'burg',hold_back=2)
+
+    def test_partial_autocorrelation_matches_direct_toeplitz_by_order(self):
+        from signallab_pc.random_models import analyze,model_pacf
+        from signallab_pc.time_series_identification import partial_autocorrelation
+        phi,theta = .6,-.3
+        gamma = [1+(phi+theta)**2/(1-phi**2)] + [
+            (phi+theta)*phi**(k-1) + (phi+theta)**2*phi**k/(1-phi**2) for k in range(1,9)]
+        expected=[1.]
+        for order in range(1,len(gamma)):
+            toeplitz=np.asarray([[gamma[abs(i-j)] for j in range(order)] for i in range(order)])
+            expected.append(np.linalg.solve(toeplitz,gamma[1:order+1])[-1])
+        assert_allclose(partial_autocorrelation(gamma),expected,atol=2e-12)
+        assert_allclose(model_pacf(analyze([1,theta],[1,-phi],max_lag=8,points=5)).values,expected,atol=2e-12)
+        assert_allclose(partial_autocorrelation(gamma,max_lag=0),[1.])
+        for covariance in ([0,0],[1,2],[1,1],[1,-1j],[] , [1,np.inf]):
+            with self.assertRaises(ValueError):
+                partial_autocorrelation(covariance)
+
     def test_ols_ar1_against_scalar_regression_and_gaussian_scores(self):
         x=np.array([2.,-1,4,1,3,2,6,-2,1,5]);source=Signal(x);row=ar.fit(source,1)
         previous=x[:-1];target=x[1:];phi=float(sum((previous-previous.mean())*(target-target.mean()))/sum((previous-previous.mean())**2));c=float(target.mean()-phi*previous.mean());errors=target-c-phi*previous
@@ -47,6 +99,9 @@ class Arithmetic(unittest.TestCase):
         residual=data['signals'][1].values.real[:row['nfit']].copy();residual-=residual.mean();n=len(residual);rho=np.array([np.dot(residual[k:],residual[:n-k])/np.dot(residual,residual) for k in range(7)])
         q=n*(n+2)*sum(rho[1:]**2/(n-np.arange(1,7)))
         assert_allclose([r['correlation'] for r in data['rows']],rho[1:],atol=1e-13);self.assertAlmostEqual(data['rows'][-1]['Q'],q);self.assertAlmostEqual(data['rows'][-1]['p_value'],stats.chi2.sf(q,4));self.assertIsNone(data['rows'][1]['p_value']);self.assertAlmostEqual(data['signals'][0].metadata['time_start_s'],3.1)
+        partial=next(value for value in data['signals'] if value.metadata['operation']=='ar_residual_pacf')
+        self.assertAlmostEqual(partial.values[1].real,rho[1],delta=2e-12)
+        self.assertEqual(partial.metadata['sample_rate_hz'],20.)
 
     def test_recursive_forecast_and_intervals_against_closed_ar1(self):
         from signallab_pc.spectral_measurements import quantity
@@ -81,6 +136,26 @@ class Interface(unittest.TestCase):
         self.panel.source.set_source(Signal(np.random.default_rng(30).normal(size=120),metadata={'sample_rate_hz':100.,'time_start_s':2.}))
     def tearDown(self):
         self.warning.stop();self.panel.close();self.panel.deleteLater();self.host.bar.deleteLater();self.app.processEvents()
+    def test_burg_fit_through_existing_workflow(self):
+        self.panel.method.setCurrentIndex(self.panel.method.findData('burg'))
+        self.panel.calculate()
+        self.assertFalse(self.errors)
+        self.assertEqual(self.panel.result['fit']['method'],'burg')
+        self.assertIn('coeficientes de reflexión',self.panel.report.toPlainText())
+    def test_theoretical_partial_curve_uses_existing_model_results(self):
+        from signallab_pc.random_model_panel import RandomModelPanel
+        view=RandomModelPanel(self.host,'model')
+        try:
+            view.generate.setChecked(False)
+            view.partial.setChecked(True)
+            view.lag.setText('5')
+            view.calculate()
+            self.assertFalse(self.errors)
+            curve=next(value for value in view.signals if value.metadata['operation']=='model_pacf')
+            assert_allclose(curve.values,[1,.8,0,0,0,0],atol=2e-12)
+        finally:
+            view.close()
+            view.deleteLater()
     def test_comparison_selection_cas_payload_and_edited_form_snapshot(self):
         from signallab_pc.cas_transfer import payload
         from signallab_pc.cas_import import import_result

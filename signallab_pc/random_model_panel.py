@@ -5,6 +5,7 @@ from .numeric_input import real_field,integer_field
 from .systems_panel import parse_list,list_text
 from .result_state import ResultState
 from .report_view import ReportView,report_panel
+from .result_summary import Section
 from .system_result_actions import SystemResultActions
 from . import random_models as models
 
@@ -21,7 +22,8 @@ class RandomModelPanel(QWidget):
         self.count=QLineEdit('1024');self.seed=QLineEdit('12345');self.origin=QLineEdit('0')
         self.lag=QLineEdit('40');self.points=QLineEdit('2049');self.order=QLineEdit('2')
         self.generate=QCheckBox('Generar una realización estacionaria');self.generate.setChecked(action=='model')
-        self.sources=[];widgets=[self.lag,self.points,self.generate,self.count,self.seed,self.origin]
+        self.partial=QCheckBox('Incluir autocorrelación parcial (PACF)')
+        self.sources=[];widgets=[self.lag,self.points,self.generate,self.partial,self.count,self.seed,self.origin]
         if action=='model':
             form.addRow('Modelo',self.kind);form.addRow('Numerador b (1, z⁻¹, z⁻²…)',self.b);form.addRow('Denominador a (1, z⁻¹, z⁻²…)',self.a)
             form.addRow('Media del ruido e[n]',self.mean);form.addRow('Desviación del ruido e[n]',self.std)
@@ -36,7 +38,7 @@ class RandomModelPanel(QWidget):
         else:
             self.source=LocalInput('Registro real x[n]','discrete');self.source.bind_project(window);form.addRow(self.source);self.sources=[self.source]
             form.addRow('Orden AR p',self.order);widgets.append(self.order)
-        form.addRow('Retardo máximo k (muestras)',self.lag);form.addRow('Puntos del espectro',self.points);form.addRow(self.generate)
+        form.addRow('Retardo máximo k (muestras)',self.lag);form.addRow('Puntos del espectro',self.points);form.addRow(self.partial);form.addRow(self.generate)
         form.addRow('Muestras de la realización',self.count);form.addRow('Índice inicial',self.origin);form.addRow('Semilla reproducible',self.seed)
         def generation_fields(*_):
             for field in (self.count,self.seed,self.origin):
@@ -75,6 +77,7 @@ class RandomModelPanel(QWidget):
                 source=self.source.read();args=(source,integer_field(self.order),lag,points);job=lambda:models.fit_ar(*args);parents=[self.source.reference_id] if self.source.reference_id else []
             from .auxiliary import optional
             generate=self.generate.isChecked()
+            include_partial=self.partial.isChecked()
             generation,generation_notice=optional('Datos de la realización',lambda:(integer_field(self.count),integer_field(self.seed),integer_field(self.origin))) if generate else (None,None)
             snapshot=self.state.snapshot()
             computed={}
@@ -86,6 +89,10 @@ class RandomModelPanel(QWidget):
                 realization,notice=optional('Realización del proceso',lambda:models.realization(model,*generation)) if generation is not None else (None,generation_notice)
                 if realization is not None:values.insert(0,realization)
                 computed['generation_notice']=notice
+                if include_partial:
+                    partial,notice=optional('Autocorrelación parcial',lambda:models.model_pacf(model))
+                    if partial is not None:values.append(partial)
+                    computed['partial_notice']=notice
                 return {'system':model.system,'signals':values,'noise_mean':model.noise_mean,'noise_variance':model.noise_variance,'process_mean':model.mean,'process_variance':model.variance,'fit':model.fit}
             def accept(result):
                 model=computed.pop('model');values=result['signals'];self.model=model;self.signals=values
@@ -94,8 +101,10 @@ class RandomModelPanel(QWidget):
                 summary=models.summary(model)
                 notice=computed.pop('generation_notice',None)
                 if notice:
-                    from .result_summary import Section
                     summary.sections.append(Section('Realización no generada',paragraphs=[notice]))
+                partial_notice=computed.pop('partial_notice',None)
+                if partial_notice:
+                    summary.sections.append(Section('Autocorrelación parcial',paragraphs=[partial_notice]))
                 self.report.set_readable(summary)
                 self.selector.blockSignals(True);self.selector.clear();self.selector.addItems([value.name for value in values]);self.selector.blockSignals(False)
                 self.actions.set_result(model.system,system_key);self.actions.show();self.tabs.setCurrentIndex(0);self.state.accept(snapshot)

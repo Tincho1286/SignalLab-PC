@@ -77,3 +77,17 @@ python -m signallab_pc stochastic ensemble --session trayectorias.slproj --recor
 ```
 
 Usá los identificadores que devuelve el generador. El motor sin Qt está en `signallab_pc.stochastic_covariance`, con `estimate_correlation`, `covariance_matrix` y `ensemble_moments`. [Convenciones](MATHEMATICAL_FOUNDATIONS.md#correlación-covarianza-y-conjunto)
+
+### Estimar un modelo AR con Burg
+
+En **Estimar modelo AR**, elegí **Un orden elegido** y seleccioná **Burg**. El informe distingue su varianza de innovación del error cuadrático de predicción a un paso. Si reservás las muestras finales, se usan para medir el error de validación. Los coeficientes permanecen fijados por el entrenamiento. En **Analizar modelo AR, MA o ARMA** podés solicitar la PACF teórica. El diagnóstico de ajuste incluye la PACF de los residuos de entrenamiento.
+
+```python
+from signallab_pc.ar_estimation import fit
+from signallab_pc.model import Signal
+
+record = Signal([-2, 0, 1, 5, -4])
+print(fit(record, 2, method='burg')['a'])
+```
+
+La comparación automática de órdenes mantiene mínimos cuadrados sobre el mismo intervalo de observaciones para poder interpretar sus criterios. [Recursiones y alcance](MATHEMATICAL_FOUNDATIONS.md#identificación-autorregresiva)

@@ -76,6 +76,13 @@ def fit_prepared(data,order,method='ols',hold_back=None):
             residual=toeplitz(cov[:p])@phi-cov[1:]
             if not np.isfinite(phi).all() or np.linalg.norm(residual)>1e-9*max(np.linalg.norm(cov),np.finfo(float).tiny):raise ValueError('Las ecuaciones de Yule–Walker no tienen precisión suficiente.')
         method_name='Yule–Walker (covarianza con divisor N)'
+    elif method=='burg':
+        if hold_back is not None and hold_back != p:
+            raise ValueError('Burg usa sus tramos de predicción de avance y retroceso. La comparación común usa mínimos cuadrados.')
+        from .time_series_identification import burg_coefficients
+        polynomial, burg_variance, reflection = burg_coefficients(centered[:train], p, checkpoint=checkpoint)
+        phi,offset=-polynomial[1:],0.
+        method_name='Burg (errores de avance y retroceso)'
     else:raise ValueError('Método AR no reconocido.')
     intercept_scaled=float(offset+mean*(1-float(np.sum(phi))));intercept=intercept_scaled*scale
     if not math.isfinite(intercept):raise ValueError('La constante del modelo excede el rango numérico.')
@@ -88,6 +95,9 @@ def fit_prepared(data,order,method='ols',hold_back=None):
         innovation=float(np.mean(centered[:train]**2)) if not p else float(cov[0]-np.dot(phi,cov[1:]))
         if innovation<0:raise ValueError('La varianza de innovación de Yule–Walker no es válida.')
         row['innovation_variance']=quantity(-np.inf if innovation==0 else 2*math.log(scale)+math.log(innovation))
+    elif method=='burg':
+        row['reflection_coefficients']=list(reflection)
+        row['innovation_variance']=quantity(2*math.log(scale)+burg_variance)
     else:row['innovation_variance']=measure
     # Conditional Gaussian ML scores are valid here only for conditional OLS.
     scores={key:None for key in ('aic','aicc','bic')}
@@ -141,9 +151,20 @@ def diagnostics(source,row,max_lag=20):
     # Ljung–Box: residuals centered, estimated AR degrees of freedom p.
     terms=rho[1:]**2/(n-np.arange(1,lag+1));q=n*(n+2)*np.cumsum(terms);p=row['order']
     for k in range(1,lag+1):rows.append(dict(lag=k,correlation=float(rho[k]),Q=float(q[k-1]),dof=k-p,p_value=float(stats.chi2.sf(q[k-1],k-p)) if k>p else None))
-    acf=Signal(np.r_[rho[:0:-1],rho],-lag,1,'retardo k','Autocorrelación del residuo de entrenamiento','discrete',metadata=dict(operation='ar_residual_acf',model_order=p,input_samples=n,scope='Divisor N; residuo centrado. Sólo entrenamiento.'))
+    from .system_clock import common_rate,lag_clock
+    rate=common_rate(source)
+    acf=Signal(np.r_[rho[:0:-1],rho],-lag,1,'retardo k','Autocorrelación del residuo de entrenamiento','discrete',metadata=dict(operation='ar_residual_acf',model_order=p,input_samples=n,scope='Divisor N; residuo centrado. Sólo entrenamiento.',**lag_clock(rate,-lag,2*lag+1)))
     outputs.append(acf)
-    return dict(signals=outputs,rows=rows,lags=lag,report='El diagnóstico usa sólo '+str(n)+' residuos de entrenamiento, centrados y con divisor N. Q de Ljung–Box es acumulativo; sus grados de libertad son k−p. El valor p es asintótico y presupone un modelo apropiado con innovaciones independientes. Un valor p grande no demuestra blancura ni independencia. Con k≤p no se calcula valor p; en muestras cortas la aproximación puede ser pobre.')
+    from .time_series_identification import partial_autocorrelation
+    report='El diagnóstico usa sólo '+str(n)+' residuos de entrenamiento, centrados y con divisor N. Q de Ljung–Box es acumulativo; sus grados de libertad son k−p. El valor p es asintótico y presupone un modelo apropiado con innovaciones independientes. Un valor p grande no demuestra blancura ni independencia. Con k≤p no se calcula valor p y en muestras cortas la aproximación puede ser pobre.'
+    try:
+        partial=partial_autocorrelation(rho)
+        outputs.append(Signal(partial,0,1,'retardo k','Autocorrelación parcial de los residuos','discrete',
+                              metadata=dict(operation='ar_residual_pacf',model_order=p,input_samples=n,
+                                            **lag_clock(rate,0,len(partial)))))
+    except ValueError as error:
+        report+='\nPACF no disponible. '+str(error)
+    return dict(signals=outputs,rows=rows,lags=lag,report=report)
 
 
 def forecast(source,row,horizon=16,coverage=95):
@@ -187,6 +208,7 @@ def report(row):
     if row['validation_mse'] is not None:text+='\nMSE de validación a un paso: '+row['validation_mse']['text']
     if row['validation_notice']:text+='\nValidación no disponible: '+row['validation_notice']+' El ajuste se conserva.'
     if row['method']=='ols':text+='\nAIC: '+value('aic')+'\nAICc: '+value('aicc')+'\nBIC: '+value('bic')+'\nParámetros contados: p+2 (coeficientes, constante y varianza). AICc exige N_ajuste > p+3.'
+    if row['method']=='burg':text+='\nBurg estima la varianza de innovación a partir de sus coeficientes de reflexión. El MSE calcula el residuo observado de avance sobre el entrenamiento.'
     if row['near_exact']:text+='\n\nResiduo compatible con redondeo: no se utilizan criterios gaussianos degenerados ni valores p.'
     text+='\n\nEl ajuste no prueba que el proceso sea AR. La predicción a un paso usa el pasado observado; la recursiva utiliza sus propias salidas futuras.'
     if not row['stationary']:text+='\n\nEste ajuste no es estable como modelo causal estacionario. Se conservan coeficientes y predicciones; no se le asignan estadísticas estacionarias.'
