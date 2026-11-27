@@ -1,6 +1,21 @@
 {
   "releases": [
     {
+      "tag": "v2.2.0",
+      "title": "Modelado de canales",
+      "channel": "preview",
+      "summary": "Modelos de propagación, interferencia e imperfecciones para el laboratorio de comunicaciones digitales.",
+      "changes": [
+        "Canales multitrayecto, Rayleigh, Rician y Clarke con informes y figuras.",
+        "Composición de canales y simulación de imperfecciones de frecuencia, fase, reloj e I/Q.",
+        "Barridos reproducibles con réplicas, recuperación y exportación CSV."
+      ],
+      "limits": [
+        "En 1366 × 768, con escalado de Qt al 200 %, la parte inferior de las ventanas puede quedar fuera del escritorio."
+      ],
+      "notes": "docs/releases/v2.2.0.md"
+    },
+    {
       "tag": "v2.1.1",
       "title": "Correcciones de interfaz",
       "channel": "preview",

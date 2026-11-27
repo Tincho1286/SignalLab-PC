@@ -35,12 +35,14 @@ La espera de la prueba retenía el intérprete mientras el barrido avanzaba en u
 
 La revisión comparó el SHA-256 de cada ZIP de Actions y de cada archivo interno con su recibo. El ZIP de fuentes identifica el mismo commit que los instaladores y portables. Las pruebas de distribución de ambos sistemas aprobaron la actualización aislada desde 2.0.0, la conservación de la sesión y el rechazo de una descarga alterada. Ambos sistemas aprobaron también los controles de recursos y cancelación. Los artefactos de Actions tienen retención hasta el 3 de diciembre de 2026. [Notas de 2.2.0 Preview](PREVIEW_NOTES.md) · [Recibo de paquetes](evidence/candidate-a3026d2/verified-package-receipt.json) · [SHA-256](evidence/candidate-a3026d2/SHA256SUMS-2.2.0-CANDIDATE.txt)
 
+La 2.2.0 se publicó en el canal Preview con los archivos de ese candidato. Se verificaron los 17 adjuntos públicos y la firma del manifiesto descargado. El actualizador eligió 2.2.0 Preview para Windows y Linux y mantuvo 2.0.0 en Stable/LTS. [Publicación](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.0) · [Comprobante de publicación](evidence/candidate-a3026d2/publication-2.2.0.json)
+
 ## Dictámenes vigentes
 
 | Decisión | Dictamen | Condición para reconsiderarlo |
 | --- | --- | --- |
-| Cierre técnico de Fase 04 | **NO-GO** | Completar Windows nativo a 150 % y 200 %, resolver o delimitar el recorte observado al 200 % con Qt y registrar el escritorio Linux. |
+| Cierre técnico de Fase 04 | **NO-GO** | Resolver el recorte al 200 % y completar la comprobación nativa de Windows a 150 % y 200 %. Documentar resolución, escala y pasos de la prueba Linux confirmada. |
 | Preparación técnica para Fase 05 | **NO-GO** | Completar el Quality Gate de Fase 04 y revisar la continuidad. El inicio requiere autorización específica. |
-| Distribución pública de la Preview | **NO-GO** | Completar el Quality Gate y obtener autorización para publicar, etiquetar y firmar. Stable/LTS conserva la familia 2.0.x. |
+| Distribución pública de la Preview | **GO condicionado para 2.2.0 Preview** | El propietario autorizó publicar y firmar con el recorte informado. La corrección se programó para la próxima Preview. |
 
 Los ensayos de actualización usan manifiestos de prueba y el seguimiento E-04 conserva su tratamiento independiente. La aprobación funcional del propietario se registra por separado de la matriz. [Expediente de cierre](PHASE_04_CLOSEOUT.md) · [Protocolo real](VALIDATION_MATRIX.md#protocolo-de-escritorio-real) · [Riesgos residuales](RESIDUAL_RISK_REGISTER.md) · [Política de entregas](../RELEASE_POLICY.md).

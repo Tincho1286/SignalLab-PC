@@ -6,4 +6,4 @@ Las herramientas permiten comparar la respuesta impulsional, el perfil de potenc
 
 Podés barrer parámetros de la transmisión y del canal en un mismo experimento. Cada corrida guarda la configuración, la semilla y las señales que intervienen, de modo que se puede reabrir o incorporar al proyecto. El catálogo permite retomar una campaña y exportar las comparaciones en CSV. Workbench, Python y la consola usan los mismos motores. [Ejemplos y condiciones de uso](README.md)
 
-La edición se prepara para Windows x64 y Linux x86_64 como portable e instalador dentro del canal Preview. Stable/LTS conserva la familia 2.0.x y sus actualizaciones de mantenimiento. [Política de distribución](../RELEASE_POLICY.md)
+La edición está disponible para Windows x64 y Linux x86_64 como portable e instalador en el canal Preview. En una pantalla de 1366 × 768, el escalado de Qt al 200 % puede recortar la parte inferior de la ventana y de las figuras. Stable/LTS conserva la familia 2.0.x. [Descargas y notas publicadas](../../releases/v2.2.0.md) · [Política de distribución](../RELEASE_POLICY.md)

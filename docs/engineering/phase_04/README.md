@@ -165,4 +165,4 @@ Los informes indican cuántas réplicas dieron mediciones válidas. El catálogo
 
 ## Calificación de 2.2.0 Preview
 
-El candidato `a3026d2` pasó la matriz integral de Windows y Linux con los portables, instaladores y fuentes verificados. El expediente vincula los resultados científicos con la comprobación de escritorio real pendiente. [Quality Gate](QUALITY_GATE_REPORT.md) · [Expediente de cierre](PHASE_04_CLOSEOUT.md) · [Servicios](INTEGRATION_CATALOG.md) · [Validación](VALIDATION_MATRIX.md) · [Riesgos residuales](RESIDUAL_RISK_REGISTER.md) · [Límites técnicos](TECHNICAL_DEBT_REGISTER.md).
+La 2.2.0 Preview se publicó sobre `a3026d2`, que pasó la matriz integral de Windows y Linux con portables, instaladores y fuentes verificados. El expediente registra la confirmación de Linux y el recorte al 200 % que queda pendiente en Windows. [Descargas](../../releases/v2.2.0.md) · [Quality Gate](QUALITY_GATE_REPORT.md) · [Expediente de cierre](PHASE_04_CLOSEOUT.md) · [Servicios](INTEGRATION_CATALOG.md) · [Validación](VALIDATION_MATRIX.md) · [Riesgos residuales](RESIDUAL_RISK_REGISTER.md) · [Límites técnicos](TECHNICAL_DEBT_REGISTER.md).

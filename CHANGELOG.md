@@ -2,6 +2,12 @@
 
 La versión LTS es la [2.0.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.0.0). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 2.2.0 · Preview
+
+El laboratorio de comunicaciones permite combinar multitrayecto, fading Rayleigh y Rician, Doppler, interferencia, pérdidas e imperfecciones de frecuencia, fase, reloj e I/Q. Los experimentos guardan cada etapa del canal y los barridos permiten comparar réplicas, retomar corridas y exportar métricas a CSV.
+
+[Novedades, descargas y limitación de escalado](docs/releases/v2.2.0.md)
+
 ## 2.1.1 · Preview
 
 Al cerrar una herramienta después de calcular, el catálogo conserva la disposición de sus tarjetas y los resultados siguen en el proyecto. Los botones de cierre ganaron margen dentro de las pestañas y un área de clic más amplia.

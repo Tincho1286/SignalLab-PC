@@ -10,7 +10,7 @@ Windows Server 2022 y Ubuntu 22.04 aprobaron la suite integral, cobertura y paqu
 | Compatibilidad y recuperación | Los ensayos abren registros históricos y proyectos compuestos. Comparan reloj, señales y huellas, reanudan barridos y conservan el archivo previo si se cancela la entrega. | Matriz aprobada |
 | Cobertura global y crítica | Ambas plataformas alcanzaron los umbrales de líneas y ramas con conteos exactos. [Cobertura](QUALITY_GATE_REPORT.md) | Matriz aprobada |
 | Recursos | Los perfiles de seis etapas y 128, 2 048 y 65 536 símbolos se verificaron en ambos runners sobre `a3026d2`. Se comprobaron memoria, archivo previo, cancelación, concurrencia y respuesta offscreen. [Mediciones](PERFORMANCE_REPORT.md#repetición-sobre-a3026d2) | Perfiles medidos aprobados |
-| Escritorio y distribución | La sesión real de Windows verificó enlace, exportación, cierre de pestaña y distribuciones. Clarke calculó y abrió ambas figuras al 125 % nativo. Ambos sistemas aprobaron instalador y actualización aislada desde 2.0.0. [Distribución](QUALITY_GATE_REPORT.md#paquetes-de-revisión-de-a3026d2) | Pendientes 150 % y 200 % nativos y escritorio Linux. Se observó recorte al 200 % con escalado de Qt. |
+| Escritorio y distribución | Windows verificó enlace, exportación, cierre de pestaña y distribuciones. Clarke calculó y abrió ambas figuras al 125 % nativo. El propietario confirmó el funcionamiento en Linux. Ambos sistemas aprobaron instalador y actualización aislada desde 2.0.0. [Distribución](QUALITY_GATE_REPORT.md#paquetes-de-revisión-de-a3026d2) | Pendientes 150 % y 200 % nativos en Windows y el detalle del perfil Linux. Se observó recorte al 200 % con escalado de Qt. |
 
 ## Observación de escritorio Windows
 
@@ -27,6 +27,10 @@ Se retomó Clarke desde el código candidato `a3026d2` con Qt 6.12.0, dos trayec
 | 200 % | Escalado de Qt sobre Windows al 100 %. | En 683 × 360 unidades lógicas útiles, la ventana principal excedió el borde inferior en 88 unidades. Las figuras lo excedieron en 81 y 50. [Registro](evidence/candidate-a3026d2/windows-clarke-qt-200.json) |
 
 El panel integrado ofreció 100 % y 125 % en el selector directo de Windows. Se restauró el 100 % al terminar la sesión. Las escalas de Qt se registran como comprobaciones de interfaz y dejan pendiente la observación nativa al 150 % y 200 %.
+
+## Confirmación de Linux
+
+El propietario confirmó el 26 de noviembre de 2026 que el candidato funciona en Linux. La resolución, la escala y los resultados de cada paso del protocolo quedan pendientes de registro.
 
 ## Protocolo de escritorio real
 

@@ -125,3 +125,7 @@ La matriz `45905864702` terminó con los cuatro trabajos de plataforma y la eval
 ## Reproducción de la guía
 
 La guía incluye el código para generar `entrada.slbin` y `externa.slbin` y el nombre del archivo JSON de la cadena. En una carpeta temporal se ejecutaron los dos bloques Python y los 17 comandos `python -m signallab_pc communications` de la guía. Cada ejecución bloqueó las importaciones de PySide6 y PyQt. Se reabrieron los 15 proyectos producidos y se verificaron las 18 corridas de la campaña y sus filas en el CSV. Las dos señales de entrada conservaron 16 384 muestras a 96 kHz. El código y las dependencias declaradas coinciden con `a3026d2`. [Guía reproducible](README.md#preparar-las-señales-de-ejemplo)
+
+## Publicación de 2.2.0 Preview
+
+Tras la confirmación de funcionamiento en Linux, el propietario autorizó publicar con el recorte al 200 % documentado. Se firmó el manifiesto de actualización Preview y se verificaron los 17 adjuntos públicos y el destino exacto de la etiqueta `v2.2.0`. El cliente seleccionó 2.2.0 al incluir preliminares en ambas plataformas y 2.0.0 al usar el canal estable. [Publicación](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.0) · [Recibo](evidence/candidate-a3026d2/publication-2.2.0.json)

@@ -1,6 +1,6 @@
 # Backlog de SignalLab Engineering
 
-La matriz de Windows y Linux y los paquetes de 2.2.0 Preview están verificados sobre `a3026d2`. Quedan Clarke en escritorio real, un segundo escalado nativo de Windows y el protocolo en un escritorio Linux. E-04 sigue como seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Protocolo de escritorio](phase_04/VALIDATION_MATRIX.md#protocolo-de-escritorio-real)
+La 2.2.0 Preview se publicó sobre `a3026d2`. Para la próxima Preview queda corregir el recorte inferior de la ventana principal y las figuras en pantallas con poco alto disponible, reproducido en 1366 × 768 con escalado de Qt al 200 %. Repetir Clarke y verificar el acceso a los controles al 150 % y 200 % en Windows nativo. E-04 sigue su seguimiento de distribución. [Estado vigente](PROJECT_STATE.md) · [Registro de escritorio](phase_04/VALIDATION_MATRIX.md#observación-de-escritorio-windows)
 
 La [matriz de Fase 02B](phase_02b/PHASE_02B_TRACEABILITY_MATRIX.md) registra los nuevos paquetes y sus criterios. Los controles y riesgos de estabilización siguen debajo como referencia.
 
