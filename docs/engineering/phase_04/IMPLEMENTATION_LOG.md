@@ -129,3 +129,9 @@ La guía incluye el código para generar `entrada.slbin` y `externa.slbin` y el 
 ## Publicación de 2.2.0 Preview
 
 Tras la confirmación de funcionamiento en Linux, el propietario autorizó publicar con el recorte al 200 % documentado. Se firmó el manifiesto de actualización Preview y se verificaron los 17 adjuntos públicos y el destino exacto de la etiqueta `v2.2.0`. El cliente seleccionó 2.2.0 al incluir preliminares en ambas plataformas y 2.0.0 al usar el canal estable. [Publicación](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.2.0) · [Recibo](evidence/candidate-a3026d2/publication-2.2.0.json)
+
+## Candidato 2.2.1
+
+Al 200 % en la pantalla de 1366 × 768, Windows deja 683 × 360 unidades lógicas útiles. La altura mínima de 420 de la ventana principal y el reajuste de contenido de las figuras superaban ese espacio. Las ventanas ahora descuentan el marco y vuelven a ajustar su tamaño al cambiar el área útil del monitor. Las figuras reservan espacio para las curvas y permiten desplegar sus controles en pantallas cortas.
+
+El OpenSSL incluido en el portable 2.2.0 contiene la ruta de certificados `/usr/lib/ssl` de Ubuntu. En Fedora esa ruta puede faltar aunque el almacén de confianza esté instalado. El catálogo, el manifiesto y la descarga ahora comparten un contexto TLS que usa el almacén del sistema y conserva las rutas indicadas explícitamente mediante `SSL_CERT_FILE` o `SSL_CERT_DIR`. La prueba de distribución ejecuta el binario empaquetado en una imagen Fedora fijada por SHA-256 y consulta los dos canales firmados. [Almacén de confianza de Fedora](https://fedoraproject.org/wiki/Changes/droppingOfCertPemFile) · [Notas del candidato](../../releases/v2.2.1.md)

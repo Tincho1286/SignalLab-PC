@@ -11,6 +11,7 @@ import urllib.parse
 import urllib.request
 from .release_policy import LTS_FAMILY
 from .update_manifest import FEED_URL, MAX_MANIFEST, UpdateError, verify_manifest, version_tuple
+from .update_tls import certificate_error, https_handler
 
 HOSTS = {'github.com', 'release-assets.githubusercontent.com', 'objects.githubusercontent.com'}
 
@@ -41,7 +42,7 @@ def open_url(url):
     check_url(url)
     from . import __version__
     request = urllib.request.Request(url, headers={'User-Agent': 'SignalLab-PC/' + __version__, 'Accept': 'application/octet-stream'})
-    return urllib.request.build_opener(Redirect()).open(request, timeout=15)
+    return urllib.request.build_opener(Redirect(), https_handler()).open(request, timeout=15)
 
 
 def checkpoint(cancel):
@@ -86,6 +87,8 @@ def _fetch_manifest(url, *, cancel=None, opener=open_url, key=None, now=None, ex
             raise UpdateError('Todavía no hay un canal de actualizaciones firmado publicado. Podés consultar las versiones en GitHub.') from exc
         raise UpdateError('GitHub no pudo entregar la actualización. Intentá nuevamente más tarde.') from exc
     except (TimeoutError, OSError, http.client.HTTPException) as exc:
+        if certificate_error(exc):
+            raise UpdateError('No se pudo verificar el certificado de GitHub con los certificados de confianza del sistema.') from exc
         raise UpdateError('No se pudo conectar con GitHub. Revisá la conexión e intentá nuevamente.') from exc
 
 
@@ -146,6 +149,8 @@ def download(asset, cache, *, cancel=None, progress=None, opener=open_url):
             folder.rmdir()
         except OSError:
             pass
+        if certificate_error(exc):
+            raise UpdateError('No se pudo verificar el certificado del servidor de descarga con los certificados del sistema.') from exc
         if isinstance(exc, (urllib.error.URLError, TimeoutError, http.client.HTTPException)):
             raise UpdateError('No se pudo completar la descarga. Revisá la conexión e intentá nuevamente.') from exc
         raise

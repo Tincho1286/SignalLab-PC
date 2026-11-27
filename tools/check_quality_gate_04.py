@@ -48,7 +48,7 @@ def assess_resource_evidence(report, candidate):
     }
 
 
-def evaluate(folder, candidate):
+def evaluate(folder, candidate, version='2.2.0'):
     platforms = {}
     for platform, label in PLATFORMS.items():
         folders = sorted(path for path in folder.glob('engineering-*') if path.is_dir() and f'-{platform}-' in path.name)
@@ -63,11 +63,17 @@ def evaluate(folder, candidate):
         checks = {
             'phase_03_controls': all(historical['checks'].values()),
             'critical_coverage': all(cell['state'] == 'pass' for group in critical.values() for cell in group.values()),
-            'preview_2_2_0': historical['portable_version'] == '2.2.0',
+            'preview_' + version.replace('.', '_'): historical['portable_version'] == version,
             'packaged_channel_chain': portable.get('executable_check', {}).get('checks', {}).get(
                 'packaged_channel_chain') is True,
             **assess_resource_evidence(performance, candidate),
         }
+        if platform == 'ubuntu-22.04' and version != '2.2.0':
+            fedora = read(folders, 'fedora-updates.json') or {}
+            checks['fedora_packed_updates'] = (
+                fedora.get('passed') is True and fedora.get('frozen') is True
+                and fedora.get('version') == version and fedora.get('target') == 'linux-x86_64'
+            )
         platforms[platform] = {'checks': checks, 'critical': critical, 'historical': historical,
                                'performance': performance}
     sources = {(entry['historical']['candidate_bundle'] or {}).get('source_fingerprint')
@@ -83,8 +89,9 @@ def main():
     parser.add_argument('--input', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--candidate', required=True)
+    parser.add_argument('--version', default='2.2.0')
     args = parser.parse_args()
-    report = evaluate(args.input, args.candidate)
+    report = evaluate(args.input, args.candidate, args.version)
     args.output.mkdir(parents=True, exist_ok=True)
     (args.output/'quality-gate-04.json').write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
     lines = ['# Quality Gate automatizado de Fase 04', '', f"SHA `{args.candidate}`.", '',

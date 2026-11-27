@@ -17,6 +17,7 @@ from .result_summary import operation_label
 from . import __version__
 from .theme_tokens import COLORS as C,AREA_COLORS
 from .cas_reference import CAS_ROUTE,CAS_SEARCH
+from .window_fit import WatchWorkArea, fit_window
 
 
 def calculation_buttons(page):
@@ -34,7 +35,7 @@ def calculation_buttons(page):
 class WorkbenchWindow(ToolboxWindow):
     _signallab_wallpaper_host=True
     def __init__(self, *, recovery_directory=None):
-        QMainWindow.__init__(self);self.setWindowTitle('SignalLab '+__version__+' · Escritorio de señales y sistemas');self.resize(1440,900);self.setMinimumSize(640,420)
+        QMainWindow.__init__(self);self.setWindowTitle('SignalLab '+__version__+' · Escritorio de señales y sistemas');self.resize(1440,900)
         self.project=Project();self._published_signals={};self._workers=[];self._thread_pool=QThreadPool(self);self._thread_pool.setMaxThreadCount(1)
         self.current_operation=None;self.pages={};self.views={};self.category='Inicio';self.active_route=None
         from .theme_presets import restore
@@ -99,9 +100,7 @@ class WorkbenchWindow(ToolboxWindow):
         if geometry:self.restoreGeometry(geometry)
         if state:self.restoreState(state)
         self.explorer_dock.hide()
-        available=self.screen().availableGeometry()
-        self.resize(min(self.width(),available.width()),min(self.height(),available.height()))
-        self.move(max(available.left(),min(self.x(),available.right()-self.width()+1)),max(available.top(),min(self.y(),available.bottom()-self.height()+1)))
+        self._fit_to_screen()
         self.show_home()
         from .update_ui import UpdateController
         self.updates=UpdateController(self)
@@ -109,6 +108,9 @@ class WorkbenchWindow(ToolboxWindow):
         refresh(self)
         from .session_desktop import SessionController
         self.sessions = SessionController(self, recovery_directory)
+        self._work_area_watch = WatchWorkArea(self, self._fit_to_screen)
+    def _fit_to_screen(self):
+        fit_window(self, QSize(640, 420))
     def paintEvent(self,event):
         super().paintEvent(event)
         from .wallpaper import paint_window

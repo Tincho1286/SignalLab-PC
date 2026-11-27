@@ -50,10 +50,12 @@ class DesktopNavigation(QScrollArea):
 
     def adapt(self, width, height):
         compact = width < 930 or height < 640
-        button_height = 36 if height < 530 else 40 if compact else 55
+        button_height = 30 if height < 400 else 36 if height < 530 else 40 if compact else 55
         if getattr(self, '_button_height', None) == button_height:
             return
         self._button_height = button_height
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded if button_height == 30
+                                        else Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self.setFixedWidth(55 if compact else 94)
         style = Qt.ToolButtonStyle.ToolButtonIconOnly if compact else Qt.ToolButtonStyle.ToolButtonTextUnderIcon
         for button, _ in self.buttons.values():

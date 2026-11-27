@@ -1,9 +1,10 @@
 """The shared detached workspace for scientific figures."""
 from PySide6.QtCore import QSize, Qt
 from PySide6.QtGui import QAction, QKeySequence
-from PySide6.QtWidgets import QDialog, QFrame, QHBoxLayout, QLabel, QMenu, QSizePolicy, QSplitter, QToolButton, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QDialog, QFrame, QHBoxLayout, QLabel, QLayout, QMenu, QSizePolicy, QSplitter, QToolButton, QVBoxLayout, QWidget
 from .design import icon
 from .theme_tokens import COLORS as C
+from .window_fit import WatchWorkArea, fit_window
 from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 
 class FigureWindow(QDialog):
@@ -17,11 +18,13 @@ class FigureWindow(QDialog):
         self.inspector = None
         self.inspector_requested = False
         self.inspector_sizes = {}
+        self._short_screen = False
         self.setModal(False)
         self.setWindowTitle(title)
         self.setWindowIcon(parent.window().windowIcon())
 
         root = QVBoxLayout(self)
+        root.setSizeConstraint(QLayout.SizeConstraint.SetNoConstraint)
         root.setContentsMargins(11, 9, 11, 9)
         root.setSpacing(7)
         header = QWidget()
@@ -100,6 +103,7 @@ class FigureWindow(QDialog):
         self.windowTitleChanged.connect(self.update_heading)
         self.update_heading()
         self.set_focus_mode(False)
+        self._work_area_watch = WatchWorkArea(self, self._fit_to_screen)
 
     @staticmethod
     def section(name):
@@ -139,11 +143,7 @@ class FigureWindow(QDialog):
         self.alternatives.setVisible(len(choices) > 1)
 
     def set_focus_mode(self, enabled):
-        if enabled:
-            self.readouts.hide()
         self.update_inspector()
-        if not enabled:
-            self.readouts.show()
         title = 'Mostrar controles' if enabled else 'Solo figura'
         self.focus_action.setText(title)
         self.focus_action.setIcon(icon('restore' if enabled else 'expand'))
@@ -171,10 +171,12 @@ class FigureWindow(QDialog):
         orientation = Qt.Orientation.Horizontal if self.width() >= 955 else Qt.Orientation.Vertical
         compact = visible and orientation == Qt.Orientation.Vertical
         self.canvas.figure._signallab_compact_labels = compact
-        self.controls_action.setVisible(compact)
-        show_controls = not focused and (not compact or self.controls_action.isChecked())
+        hide_controls = compact or self._short_screen
+        self.controls_action.setVisible(not focused and hide_controls)
+        show_controls = not focused and (not hide_controls or self.controls_action.isChecked())
         self.tools.setVisible(show_controls)
         self.options.setVisible(show_controls)
+        self.readouts.setVisible(not focused and (not self._short_screen or show_controls))
         if self.inspector is None:
             return
         orientation_changed = self.body.orientation() != orientation
@@ -202,6 +204,11 @@ class FigureWindow(QDialog):
         self.controls_action.setToolButtonStyle(style)
         self.update_inspector()
 
+    def _fit_to_screen(self):
+        self._short_screen = self.screen().availableGeometry().height() < 440
+        self.update_inspector()
+        fit_window(self, QSize(360, 280))
+
     def closeEvent(self,event):
         self.hide();event.ignore()
 
@@ -213,7 +220,10 @@ def enlarge_plot(canvas,owner):
         from .plot_actions import PlotLauncher
         if isinstance(launcher, PlotLauncher):
             launcher.sync_window(canvas)
-        window.show();window.raise_();window.activateWindow();canvas.draw_idle()
+        window._fit_to_screen()
+        window.show()
+        window._fit_to_screen()
+        window.raise_();window.activateWindow();canvas.draw_idle()
     return window
 
 
@@ -290,7 +300,7 @@ def install_enlarge(toolbar, *, standalone=False):
         set_vertical_detail(canvas.figure,enabled);canvas.draw_idle()
     detail.toggled.connect(vertical_detail)
     canvas.setMinimumSize(0,0);canvas.setSizePolicy(QSizePolicy.Policy.Expanding,QSizePolicy.Policy.Expanding)
-    available=parent.screen().availableGeometry();window.resize(min(1000,available.width()-32),min(700,available.height()-48));window.setMinimumSize(360,280)
+    available=parent.screen().availableGeometry();window.resize(min(1000,available.width()-32),min(700,available.height()-48))
     canvas._signallab_window=window;canvas._signallab_launcher=launcher
     if not standalone:
         from .plot_actions import bind_canvas

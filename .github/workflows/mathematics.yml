@@ -364,6 +364,23 @@ jobs:
           .venv/bin/python -B tools/build_installers.py linux
           .venv/bin/python -B tests/linux_installation_contract.py
           .venv/bin/python -B tools/check_candidate_update.py "outputs/SignalLab-PC-$version-linux-x86_64.run" --from-stable --output work/distribution-audit/update.json
+      - name: Check the packaged updater on Fedora
+        if: runner.os == 'Linux'
+        run: |
+          version=$(.venv/bin/python -B -c 'from signallab_pc import __version__; print(__version__)')
+          portable="SignalLab-PC-$version-linux-x86_64"
+          probe=$(mktemp -d)
+          trap 'rm -rf -- "$probe"' EXIT
+          tar -xzf "outputs/$portable.tar.gz" -C "$probe" "$portable/SignalLab-PC"
+          status=0
+          docker run --rm --volume "$probe:/check" \
+            'fedora:44@sha256:b189269dfee735c54ebcd3b4e43ff2dc0d4a4b07855468970217c9df57968eb0' \
+            "/check/$portable/SignalLab-PC" --self-check-updates /check/fedora-updates.json || status=$?
+          if [[ -f "$probe/fedora-updates.json" ]]; then
+            cp "$probe/fedora-updates.json" work/distribution-audit/fedora-updates.json
+            cat work/distribution-audit/fedora-updates.json
+          fi
+          exit "$status"
       - name: Measure Core on Windows
         if: ${{ !cancelled() && inputs.engineering_baseline && runner.os == 'Windows' }}
         shell: pwsh
@@ -465,8 +482,9 @@ jobs:
         env:
           CANDIDATE_SHA: ${{ github.sha }}
         run: |
+          version=$(python3 -B -c 'from signallab_pc import __version__; print(__version__)')
           status=0
-          python3 -B tools/check_quality_gate_04.py --input work/quality-input --output work/quality-gate --candidate "$CANDIDATE_SHA" || status=$?
+          python3 -B tools/check_quality_gate_04.py --input work/quality-input --output work/quality-gate --candidate "$CANDIDATE_SHA" --version "$version" || status=$?
           cat work/quality-gate/quality-gate-04.md >> "$GITHUB_STEP_SUMMARY"
           exit "$status"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

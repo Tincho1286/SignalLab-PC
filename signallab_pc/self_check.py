@@ -7,6 +7,29 @@ import traceback
 from pathlib import Path
 
 
+def check_update_transport(destination):
+    """Exercise the packaged updater against the public signed channels."""
+    from . import __version__
+    from .installations import platform_tag
+    from .update_download import fetch_release
+    from .update_manifest import UpdateError
+
+    target = platform_tag()
+    report = {'version': __version__, 'target': target, 'frozen': bool(getattr(sys, 'frozen', False))}
+    try:
+        for channel in ('stable', 'preview'):
+            release = fetch_release(channel=channel, target=target)
+            if not release.verified or release.channel != channel or target not in release.assets:
+                raise UpdateError(f'El canal {channel} no ofreció un instalador firmado para {target}.')
+            report[channel] = release.version
+        report['passed'] = True
+    except UpdateError as exc:
+        report['passed'] = False
+        report['error'] = str(exc)
+    Path(destination).write_text(json.dumps(report, indent=2)+'\n', encoding='utf-8')
+    return 0 if report['passed'] else 1
+
+
 def run(destination):
     report = {"frozen": bool(getattr(sys, "frozen", False)),
               "migration_complete": False, "checks": {}}

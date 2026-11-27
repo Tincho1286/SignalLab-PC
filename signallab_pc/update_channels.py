@@ -5,6 +5,7 @@ import time
 import urllib.request
 from .update_manifest import REPOSITORY,FEED_URL,UpdateError,version_tuple,strict_json
 from .update_download import _fetch_manifest,checkpoint,Cancelled
+from .update_tls import certificate_error, https_handler
 
 PER_PAGE=30
 MAX_METADATA=8*1024**2
@@ -23,7 +24,7 @@ def open_metadata(url):
     if not url.startswith(API+'?per_page=30&page=') or not url.removeprefix(API+'?per_page=30&page=').isdecimal():
         raise UpdateError('Dirección del catálogo de versiones no permitida.')
     request=urllib.request.Request(url,headers={'User-Agent':'SignalLab-PC/'+__version__,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'})
-    return urllib.request.build_opener(NoRedirect()).open(request,timeout=15)
+    return urllib.request.build_opener(NoRedirect(), https_handler()).open(request,timeout=15)
 
 
 def read_page(url,opener,cancel,deadline):
@@ -79,8 +80,11 @@ def fetch_including_previews(*,cancel,opener,key,now,target=None,metadata_opener
             except Cancelled:raise
             except UpdateError:notices.append('La preliminar '+version+' no tiene un manifiesto válido y no se ofrece para instalar.')
     except Cancelled:raise
-    except (UpdateError,OSError,TimeoutError,http.client.HTTPException):
-        notices.append('No se pudo completar la consulta de preliminares. Se conserva la versión firmada que pudo verificarse.')
+    except (UpdateError,OSError,TimeoutError,http.client.HTTPException) as exc:
+        if certificate_error(exc):
+            notices.append('No se pudo verificar el certificado de la API de GitHub con los certificados del sistema.')
+        else:
+            notices.append('No se pudo completar la consulta de preliminares. Se conserva la versión firmada que pudo verificarse.')
     if best is None:raise stable_error or UpdateError('No hay una versión compatible con un manifiesto firmado válido.')
     if unsigned:notices.append('Las preliminares sin manifiesto firmado compatible quedan fuera de la actualización automática.')
     return replace(best,notices=tuple(dict.fromkeys(notices)))

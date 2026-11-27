@@ -6,6 +6,7 @@ import io
 import json
 import os
 from pathlib import Path
+import ssl
 import sys
 import tempfile
 from threading import Event
@@ -15,6 +16,7 @@ from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from signallab_pc.update_manifest import (verify_manifest, UpdateError, FEED_URL,
     FILENAMES, REPOSITORY, version_tuple, timestamp)
 from signallab_pc.update_download import download, Cancelled, fetch_release
+from signallab_pc import update_tls
 from signallab_pc.installations import installed, receipt, MARKER, start_update
 
 
@@ -53,6 +55,31 @@ class UpdateContracts(unittest.TestCase):
         self.assertTrue(release.newer_than('1.9.99')); self.assertFalse(release.newer_than('2.0.0'))
         self.assertFalse(release.newer_than('2.0.1')); self.assertEqual(set(release.assets), set(FILENAMES))
         self.assertEqual(release.notes, self.payload['notes'])
+
+    def test_linux_https_context_uses_host_bundle_and_honors_explicit_overrides(self):
+        with tempfile.TemporaryDirectory() as folder:
+            bundle = Path(folder) / 'tls-ca-bundle.pem'
+            bundle.touch()
+            paths = (Path(folder) / 'missing', bundle)
+            with (patch.object(update_tls.sys, 'platform', 'linux'),
+                  patch.object(update_tls, 'LINUX_CA_BUNDLES', paths),
+                  patch.object(update_tls.os, 'environ', {}),
+                  patch.object(ssl, 'create_default_context') as default):
+                update_tls.https_handler()
+                default.assert_called_once_with(cafile=bundle)
+                for override in ('SSL_CERT_FILE', 'SSL_CERT_DIR'):
+                    default.reset_mock()
+                    with patch.dict(os.environ, {override: str(bundle)}):
+                        update_tls.https_handler()
+                    default.assert_called_once_with(cafile=None)
+
+    def test_tls_failure_is_reported_distinctly_and_does_not_retry_without_verification(self):
+        from urllib.error import URLError
+
+        opener = Mock(side_effect=URLError(ssl.SSLCertVerificationError('No trusted issuer')))
+        with self.assertRaisesRegex(UpdateError, 'certificado de GitHub'):
+            fetch_release(opener=opener)
+        opener.assert_called_once_with(FEED_URL)
 
     def test_changed_bytes_wrong_key_and_unsigned_payload_cannot_be_used(self):
         other = Ed25519PrivateKey.generate().public_key().public_bytes_raw()

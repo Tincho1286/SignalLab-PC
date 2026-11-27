@@ -26,6 +26,9 @@ def main(argv=None):
     if len(args) == 2 and args[0] == '--self-check':
         from .self_check import run
         return run(args[1])
+    if len(args) == 2 and args[0] == '--self-check-updates':
+        from .self_check import check_update_transport
+        return check_update_transport(args[1])
     if args[:1] == ['--install-linux']:
         from .linux_installer_ui import main as install
         return install(args[1:])

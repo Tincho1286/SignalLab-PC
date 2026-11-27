@@ -11,6 +11,7 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 from matplotlib.figure import Figure
 import numpy as np
 from PySide6.QtCore import QCoreApplication, QDeadlineTimer, QEvent, QPoint, QRect, QSettings, Qt
+from PySide6.QtGui import QScreen
 from PySide6.QtTest import QTest
 from PySide6.QtWidgets import QApplication, QMessageBox, QTabBar, QToolButton
 
@@ -76,6 +77,38 @@ class CommunicationsDesktopTests(unittest.TestCase):
     def calculate(self):
         self.window.calculate_active()
         self.wait()
+
+    def test_clarke_report_and_figures_fit_the_short_work_area(self):
+        area = QRect(0, 0, 683, 360)
+        with patch.object(QScreen, 'availableGeometry', return_value=area):
+            self.window._fit_to_screen()
+            signal = iq_signal(np.ones(2048), SymbolClock(12_000, 8))
+            key = self.window.publish(signal, operation='Entrada de prueba')
+            self.window.send_signal(signal, key, ROUTES['communications', 'fading'])
+            page, panel = self.open('fading')
+            panel.fields['process'].setCurrentIndex(panel.fields['process'].findData('clarke'))
+            panel.fields['max_doppler_hz'].setText('64')
+            self.calculate()
+            self.assertTrue(area.contains(self.window.frameGeometry()))
+            self.assertTrue(self.window.statusBar().isVisible())
+            launcher = page.workspace.results.graph_launcher
+            self.assertFalse(launcher.visibleRegion().isEmpty())
+            for label in ('Distribuciones de envolvente y fase', 'Autocorrelación y PSD Doppler'):
+                with self.subTest(figure=label):
+                    entry = next(item for item in launcher.available() if item[2] == label)
+                    launcher.open_entry(entry)
+                    self.wait()
+                    canvas = entry[0]()
+                    figure = canvas._signallab_window
+                    self.assertTrue(figure.isVisible())
+                    self.assertTrue(area.contains(figure.frameGeometry()))
+                    self.assertEqual(len(canvas.figure.axes), 2)
+                    self.assertTrue(figure.controls_action.isVisible())
+                    figure.controls_action.click()
+                    self.app.processEvents()
+                    self.assertTrue(figure.tools.isVisible())
+                    self.assertTrue(area.contains(figure.frameGeometry()))
+                    figure.hide()
 
     def test_closing_calculated_link_restores_readable_catalog_and_inset_close_buttons(self):
         self.window.resize(700, 540)
