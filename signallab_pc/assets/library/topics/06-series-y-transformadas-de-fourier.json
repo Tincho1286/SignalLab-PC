@@ -396,11 +396,11 @@
         ],
         [
           "Cómo preparar el cálculo",
-          "Cargá la señal y su tasa Fs. Elegí periodograma o Welch y una ventana; para Welch, indicá también el tamaño de segmento y su solapamiento. Quitar la media permite estudiar las fluctuaciones alrededor del promedio."
+          "Cargá la señal y su tasa de muestreo. Welch usa segmentos con una ventana y solape elegido. Bartlett usa segmentos rectangulares disjuntos. Blackman–Tukey limita los retardos de correlación, multitaper combina ventanas DPSS y AR usa un modelo del orden elegido. Para quitar el valor medio, activá la opción correspondiente."
         ],
         [
           "Cómo interpretar la salida",
-          "Welch promedia estimaciones de varios segmentos, lo que reduce sus fluctuaciones a costa de resolución en frecuencia. El informe indica las unidades del eje y la normalización de la densidad bilateral."
+          "Podés superponer Welch para comparar las estimaciones en el mismo eje de frecuencia. Para comparar dos registros alineados, usá espectro cruzado y coherencia. Si las observaciones tienen instantes irregulares, ingresá un tiempo por muestra en Lomb–Scargle. La ordenada de Lomb–Scargle mide variación explicada y es adimensional."
         ],
         [
           "Qué tener en cuenta",

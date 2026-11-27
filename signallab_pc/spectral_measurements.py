@@ -19,7 +19,7 @@ def series_coefficients(source):
 
 
 def supported(source):
-    return (source.domain=='frequency' and source.units in ('rad/s','rad/muestra','Hz') and (source.data_kind!='spectral_lines' or power_lines(source)) and source.data_kind not in ('cross_density','spectral_measurement')) or source.data_kind=='dft_bins' or series_coefficients(source)
+    return (source.domain=='frequency' and source.units in ('rad/s','rad/muestra','Hz') and (source.data_kind!='spectral_lines' or power_lines(source)) and source.data_kind not in ('cross_density','spectral_measurement','irregular_periodogram')) or source.data_kind=='dft_bins' or series_coefficients(source)
 
 
 def quantity(logvalue):

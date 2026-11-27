@@ -231,6 +231,11 @@ class PSDRequest:
     beta: float = 5.0
     remove_mean: bool = False
     sidedness: str = 'two-sided'
+    maximum_lag: int | None = None
+    nfft: int | None = None
+    time_bandwidth: float | None = None
+    tapers: int | None = None
+    ar_order: int | None = None
 
 
 @dataclass(frozen=True, slots=True)
@@ -256,6 +261,24 @@ def estimate_psd(request: PSDRequest, execution: ExecutionContext | None = None)
         raise ValueError('Elegí una PSD unilateral o bilateral.')
     if request.sidedness == 'one-sided' and (request.method == 'legacy' or np.any(source.values.imag)):
         raise ValueError('La PSD unilateral requiere una señal real y una normalización de densidad.')
+    advanced = request.method in ('blackman_tukey','multitaper','ar')
+    if (request.maximum_lag is not None and request.method != 'blackman_tukey'
+            or (request.time_bandwidth is not None or request.tapers is not None) and request.method != 'multitaper'
+            or request.ar_order is not None and request.method != 'ar'
+            or request.nfft is not None and not advanced):
+        raise ValueError('Un parámetro espectral no corresponde al estimador seleccionado.')
+    if advanced:
+        from .statistical_spectra import advanced_density
+        expected = (content_digest(source,ctx.checkpoint),)
+        result = advanced_density(source,method=request.method,rate=rate,nfft=request.nfft,max_lag=request.maximum_lag,
+                                  bandwidth=request.time_bandwidth,tapers=request.tapers,order=request.ar_order,
+                                  remove_mean=request.remove_mean,execution=ctx)
+        if request.sidedness == 'one-sided':
+            result=_fold_density(result)
+        specification={key:result.metadata[key] for key in ('nfft','sample_rate_hz','sidedness','remove_mean',
+            'max_lag','lag_window','time_bandwidth','tapers','ar_order') if key in result.metadata}
+        result.metadata['core_provenance']={'schema':1,'operation':'psd','method':request.method,**specification}
+        return _finish_signal(result,(source,),expected,ctx)
     segmented = request.method in ('welch','bartlett')
     segment = sampling.positive_integer(request.segment, 'Longitud de segmento') if segmented else int(source.values.size)
     expected = (content_digest(source, ctx.checkpoint),)
@@ -264,12 +287,7 @@ def estimate_psd(request: PSDRequest, execution: ExecutionContext | None = None)
         window=request.window, beta=request.beta, remove_mean=request.remove_mean),work_bytes=segment * 256)
     metadata = result.metadata
     if request.sidedness == 'one-sided':
-        bins = np.fft.ifftshift(result.values).real[:segment//2 + 1].copy()
-        bins[1: (None if segment % 2 else -1)] *= 2
-        if not np.isfinite(bins).all():
-            raise FloatingPointError('La PSD unilateral excede el rango finito.')
-        metadata['sidedness'] = 'one-sided, power folded'
-        result = Signal(bins, 0., result.step, result.units, result.name, 'frequency', metadata=metadata)
+        result=_fold_density(result)
     amplitude_units = source.metadata.get('amplitude_units')
     if isinstance(amplitude_units, str) and amplitude_units:
         metadata['density_units'] = f'{amplitude_units}²' + ('/Hz' if request.method != 'legacy' else '')
@@ -278,6 +296,16 @@ def estimate_psd(request: PSDRequest, execution: ExecutionContext | None = None)
                          request.remove_mean, request.sidedness)
     metadata['core_provenance'] = scientific_metadata('psd', spec)
     return _finish_signal(result, (source,), expected, ctx)
+
+
+def _fold_density(result):
+    size=len(result.values)
+    bins=np.fft.ifftshift(result.values).real[:size//2+1].copy()
+    bins[1:(None if size%2 else -1)] *= 2
+    if not np.isfinite(bins).all():
+        raise FloatingPointError('La PSD unilateral excede el rango finito.')
+    result.metadata['sidedness']='one-sided, power folded'
+    return Signal(bins,0.,result.step,result.units,result.name,'frequency',metadata=result.metadata)
 
 
 def stage_signal(project: Project, value: Signal, *, parents=(), execution: ExecutionContext) -> str:

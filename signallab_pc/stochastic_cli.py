@@ -5,10 +5,10 @@ from pathlib import Path
 
 from . import session
 from .cli_session import add_output_arguments, add_session_arguments, load_input, load_signal_file, run_command, timeout_seconds
-from .input_files import decode_finite_json
+from .input_files import decode_finite_json, read_json
 from .project import Project
 from .statistics_results import store_statistics
-from .statistical_spectra import cross_spectra, store_cross_spectra
+from .statistical_spectra import cross_spectra, lomb_periodogram, store_cross_spectra
 from .stochastic_covariance import METHODS, covariance_matrix, ensemble_moments, estimate_correlation
 from .stochastic_noise import NOISES, Noise, generate_noise, noise_spectrum, store_noise
 from .stochastic_processes import PROCESSES, Process, generate_process, process_moments, process_transition, store_processes
@@ -94,6 +94,18 @@ def _spectral_cross(args, context):
     return receipt
 
 
+def _lomb(args, context):
+    project, workspace, source = load_input(args,context)
+    if args.times_file is not None:
+        if args.times_file.resolve() == args.output.resolve():
+            raise ValueError('Elegí una salida distinta del archivo de tiempos.')
+        timestamps=read_json(args.times_file,checkpoint=context.checkpoint)
+    else:
+        timestamps=decode_finite_json(args.times)
+    result=lomb_periodogram(source,timestamps,low=args.low,high=args.high,points=args.points,execution=context)
+    return _save_analysis(args,project,workspace,result,[(source,args.record)],result.name,context)
+
+
 def _ensemble(args, context):
     project, workspace = session.load(args.session, checkpoint=context.checkpoint)
     if len(set(args.records)) != len(args.records):
@@ -167,6 +179,15 @@ def main(argv):
     cross.add_argument('--window',choices=('boxcar','hann','hamming','blackman','kaiser'),default='hann')
     cross.add_argument('--beta',type=float,default=5.)
     cross.add_argument('--center',action='store_true')
+    lomb=commands.add_parser('lomb',help='Calcular Lomb–Scargle normalizado para observaciones irregulares.')
+    add_session_arguments(lomb)
+    time_input=lomb.add_mutually_exclusive_group(required=True)
+    time_input.add_argument('--times',help='Vector JSON de tiempos en segundos.')
+    time_input.add_argument('--times-file',type=Path,help='Archivo JSON con el vector de tiempos en segundos.')
+    lomb.add_argument('--low',type=float,required=True)
+    lomb.add_argument('--high',type=float,required=True)
+    lomb.add_argument('--points',type=int,default=1025)
+    lomb.set_defaults(execute=_lomb)
     matrix = commands.add_parser('matrix', help='Estimar matrices de covarianza de canales.')
     ensemble = commands.add_parser('ensemble', help='Comparar realizaciones independientes en dos posiciones.')
     ensemble.add_argument('--first', type=int, default=0)

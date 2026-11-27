@@ -19,7 +19,7 @@ from signallab_pc.fourier import require_complex_spectrum
 from signallab_pc.model import Signal
 from signallab_pc.project import Project
 from signallab_pc.spectral_measurements import supported
-from signallab_pc.statistical_spectra import cross_spectra, white_noise_confidence
+from signallab_pc.statistical_spectra import advanced_density, cross_spectra, lomb_periodogram, white_noise_confidence
 from signallab_pc.stochastic_cli import main as stochastic
 from signallab_pc.workspaces import ROUTES
 from test_desktop_session import DesktopSessionFixture
@@ -140,6 +140,38 @@ class SpectralConfidenceWorkbenchTests(DesktopSessionFixture):
         self.assertEqual(row['parents'],parents)
         self.assertEqual(window.project.get(row['id'])['values'],[None,None,None,1.])
 
+    def test_additional_estimators_and_welch_reference_stay_in_the_psd_tool(self):
+        window=self.window()
+        route=ROUTES['fourier',7]
+        window.open_tool(route)
+        page=window.pages[route]
+        panel=page.panel
+        source=Signal([1,2,0,-3,1,4,2,-2],metadata={'sample_rate_hz':8})
+        key=window.publish(source,operation='Entrada')
+        page.context.source.set_source(source,key)
+        panel.estimator.setCurrentIndex(panel.estimator.findData('multitaper'))
+        panel.fft_bins.setText('16')
+        panel.bandwidth.setText('1.5')
+        panel.tapers.setText('2')
+        panel.compare_welch.setChecked(True)
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        expected=advanced_density(source,method='multitaper',nfft=16,bandwidth=1.5,tapers=2)
+        np.testing.assert_array_equal(panel.result.values,expected.values)
+        self.assertIn('Trazo discontinuo',panel.report.toPlainText())
+        self.assertTrue(any(line.get_linestyle()=='--' for line in panel.figure.axes[0].lines))
+        panel.estimator.setCurrentIndex(panel.estimator.findData('lomb'))
+        times=[0,.3,.4,.85,1.0,1.5,1.7,2.3]
+        panel.observation_times.setText(', '.join(map(str,times)))
+        panel.minimum_hz.setText('.2')
+        panel.maximum_hz.setText('2')
+        panel.frequency_points.setText('41')
+        window.calculate_active()
+        self.wait_for_calculation(window)
+        self.assertEqual(panel.result.data_kind,'irregular_periodogram')
+        self.assertIsNone(panel.psd_reference)
+        np.testing.assert_array_equal(panel.result.values,lomb_periodogram(source,times,low=.2,high=2,points=41).values)
+
 
 class CrossSpectrumTests(unittest.TestCase):
     def test_welch_cross_spectrum_matches_complex_products_on_the_common_axis(self):
@@ -219,3 +251,104 @@ class CrossSpectrumTests(unittest.TestCase):
             self.assertEqual(reopened.get(receipt['report_id']),expected.coherence)
             cross=reopened.get(receipt['spectrum_ids']['cross'])
             np.testing.assert_array_equal(cross.values,expected.cross.values)
+
+
+class AdvancedSpectralTests(unittest.TestCase):
+    def test_truncated_lag_psd_matches_direct_bartlett_weighted_covariance(self):
+        x=np.array([2+1j,1j,3,2-3j,-1,0,4j],complex)
+        source=Signal(x,metadata={'sample_rate_hz':14})
+        result=estimate_psd(PSDRequest(source,method='blackman_tukey',maximum_lag=2,nfft=9,remove_mean=True))
+        centered=x-x.mean()
+        gammas=[sum(centered[i+k]*centered[i].conjugate() for i in range(len(x)-k))/len(x) for k in range(3)]
+        direct=[(gammas[0].real+2*sum((1-k/3)*(gammas[k]*cmath.exp(-2j*math.pi*f*k/14)).real
+                                      for k in (1,2)))/14 for f in result.axis]
+        np.testing.assert_allclose(result.values,direct,atol=2e-12)
+        self.assertAlmostEqual(result.values.real.sum()*result.step,gammas[0].real)
+        self.assertEqual(result.metadata['covariance_divisor'],'N')
+        white=advanced_density(source,method='blackman_tukey',max_lag=0)
+        np.testing.assert_allclose(white.values,np.mean(abs(x)**2)/14)
+        self.assertTrue(np.all(result.values.real>=0))
+
+    def test_multitaper_matches_eigenvectors_of_independent_concentration_matrix(self):
+        n,nw,k,fs=7,1.5,3,12
+        x=np.array([2,1,-4,3,0,1,-2],float)
+        w=nw/n
+        diffs=np.subtract.outer(np.arange(n),np.arange(n))
+        kernel=2*w*np.sinc(2*w*diffs)
+        eigen,tapers=np.linalg.eigh(kernel)
+        estimate=advanced_density(Signal(x,metadata={'sample_rate_hz':fs}),method='multitaper',
+                                  nfft=8,bandwidth=nw,tapers=k)
+        expected=[sum(abs(sum(x[i]*window[i]*cmath.exp(-2j*math.pi*f*i/fs) for i in range(n)))**2
+                      for window in tapers.T[-k:])/(fs*k) for f in estimate.axis]
+        np.testing.assert_allclose(estimate.values,expected,atol=2e-12)
+        np.testing.assert_allclose(estimate.metadata['spectral_concentration'],eigen[-1:-k-1:-1],atol=2e-12)
+
+    def test_ar_psd_and_folding_retain_white_power_and_actual_order(self):
+        source=Signal([3,0,2,-4,1,-2,2],metadata={'sample_rate_hz':16})
+        variance=float(np.var(source.values.real))
+        result=estimate_psd(PSDRequest(source,method='ar',ar_order=0,nfft=8,sidedness='one-sided'))
+        np.testing.assert_allclose(result.values,(variance/16)*np.asarray([1,2,2,2,1]),rtol=2e-12)
+        self.assertAlmostEqual(result.values.real.sum()*result.step,variance)
+        self.assertEqual(result.metadata['a'],[1.])
+        self.assertTrue(result.metadata['dc_line_excluded'])
+
+    def test_lomb_improvement_matches_explicit_sine_regression_with_floating_mean(self):
+        times=np.array([0,.32,.65,1.07,1.48,1.87,2.55,3.03,3.78])
+        y=7+2.4*np.sin(math.tau*.8*times+.27)
+        source=Signal(y)
+        curve=lomb_periodogram(source,times,low=.2,high=1.4,points=13)
+        residual_null=float(np.sum((y-y.mean())**2))
+        expected=[]
+        for f in curve.axis:
+            angles=math.tau*f*times
+            design=np.column_stack((np.ones(len(y)),np.cos(angles),np.sin(angles)))
+            coefficient=np.linalg.lstsq(design,y,rcond=None)[0]
+            expected.append(1-np.sum((y-design@coefficient)**2)/residual_null)
+        np.testing.assert_allclose(curve.values,expected,atol=2e-12)
+        self.assertAlmostEqual(curve.axis[np.argmax(curve.values.real)],.8)
+        self.assertFalse(supported(curve))
+        with self.assertRaises(ValueError):
+            require_complex_spectrum(curve)
+
+    def test_invalid_advanced_settings_and_timestamps_fail_with_observable_diagnostics(self):
+        source=Signal([1,2,0,-1,4,3],metadata={'sample_rate_hz':6})
+        for method,options in [('unknown',{}),('blackman_tukey',{'max_lag':6}),
+                               ('blackman_tukey',{'max_lag':2,'nfft':4}),('multitaper',{'bandwidth':3}),
+                               ('multitaper',{'tapers':7}),('ar',{'order':5}),('ar',{'rate':-1})]:
+            with self.subTest(method=method,options=options),self.assertRaises(ValueError):
+                advanced_density(source,method=method,**options)
+        for sequence in ([0,1], [0,1,1,2,3,4], [0,1,2,3,4,5j]):
+            with self.assertRaises(ValueError):
+                lomb_periodogram(source,sequence,low=.1,high=.3)
+        with self.assertRaises(ValueError):
+            lomb_periodogram(Signal([1,1,1,1]),[0,1,2,3],low=.1,high=.3)
+        with self.assertRaises(ResourceLimitError):
+            advanced_density(source,method='multitaper',execution=ExecutionContext(max_work_bytes=1))
+        with self.assertRaises(ValueError):
+            estimate_psd(PSDRequest(source,method='blackman_tukey',tapers=2))
+
+    def test_advanced_and_irregular_cli_preserve_scales_and_timestamps(self):
+        source=Signal([1,2,0,-1,4,3],metadata={'sample_rate_hz':6})
+        project=Project();key=project.add(source)
+        times=[0,.1,.4,.7,1.,1.8]
+        with TemporaryDirectory() as directory:
+            base,out,coordinates=(Path(directory)/name for name in ('input.slproj','output.slproj','times.json'))
+            session.save(base,project,session.empty_workspace())
+            coordinates.write_text(json.dumps(times),encoding='utf-8')
+            common=['--session',str(base),'--record',key,'--output',str(out)]
+            for runner,args in [(main,['psd','--method','multitaper','--bandwidth','1.5','--tapers','2','--nfft','8']),
+                                (stochastic,['lomb','--times-file',str(coordinates),'--low','.25','--high','1','--points','13'])]:
+                stdout,stderr=StringIO(),StringIO()
+                with redirect_stdout(stdout),redirect_stderr(stderr):
+                    code=runner([*args,*common])
+                self.assertEqual(code,0,stderr.getvalue())
+                receipt=json.loads(stdout.getvalue())
+                saved,_=session.load(out)
+                result=saved.get(receipt['result_id'])
+                self.assertEqual(saved.headers()[-1]['parents'],[key])
+                if runner is stochastic:
+                    self.assertEqual(result.metadata['timestamps_s'],times)
+                    self.assertEqual(result.data_kind,'irregular_periodogram')
+                else:
+                    self.assertEqual(result.metadata['nfft'],8)
+                    self.assertEqual(result.metadata['tapers'],2)

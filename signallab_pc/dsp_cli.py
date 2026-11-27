@@ -37,7 +37,9 @@ def _execute(args, context):
         result,filter_model = converted.signal,converted.antialias
     else:
         result = estimate_psd(PSDRequest(source,args.rate,args.method,args.segment,args.overlap,
-                                         args.window,args.beta,args.remove_mean,args.sidedness),context)
+                                         args.window,args.beta,args.remove_mean,args.sidedness,
+                                         maximum_lag=args.max_lag,nfft=args.nfft,time_bandwidth=args.bandwidth,
+                                         tapers=args.tapers,ar_order=args.ar_order),context)
     context.checkpoint()
     parent = args.record or project.add(source,operation='Entrada DSP')
     model_id = getattr(args,'filter_record',None)
@@ -78,12 +80,17 @@ def main(argv):
     rate_change.add_argument('--override-clock',action='store_true')
     psd = commands.add_parser('psd')
     psd.add_argument('--rate',type=float)
-    psd.add_argument('--method',choices=('welch','periodogram','legacy','bartlett'),default='welch')
+    psd.add_argument('--method',choices=('welch','periodogram','legacy','bartlett','blackman_tukey','multitaper','ar'),default='welch')
     psd.add_argument('--segment',type=int,default=256)
     psd.add_argument('--overlap',type=int,default=128)
     psd.add_argument('--window',choices=('boxcar','hann','hamming','blackman','kaiser'),default='hann')
     psd.add_argument('--beta',type=float,default=5.0)
     psd.add_argument('--remove-mean',action='store_true')
+    psd.add_argument('--max-lag',type=int,help='Retardo máximo en Blackman–Tukey.')
+    psd.add_argument('--nfft',type=int,help='Bins para Blackman–Tukey, multitaper y AR.')
+    psd.add_argument('--bandwidth',type=float,help='Producto tiempo-ancho de banda NW en multitaper.')
+    psd.add_argument('--tapers',type=int,help='Cantidad de ventanas DPSS en multitaper.')
+    psd.add_argument('--ar-order',type=int,help='Orden del estimador autorregresivo.')
     psd.add_argument('--sidedness',choices=('one-sided','two-sided'),default='two-sided')
     psd.add_argument('--white-confidence',choices=('real_gaussian_white','proper_complex_gaussian_white'),
                      help='Modelo gaussiano blanco de media cero para intervalos por bin.')

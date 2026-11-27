@@ -123,3 +123,14 @@ python -m signallab_pc stochastic spectral-cross --session par.slproj --record I
 ```
 
 Usá una sesión con dos registros discretos y reloj compatible. En Python podés usar `cross_spectra` de `signallab_pc.statistical_spectra`. [Convención y condiciones](MATHEMATICAL_FOUNDATIONS.md#espectro-cruzado-y-coherencia)
+
+### Elegir un estimador espectral
+
+En **Densidad de potencia**, Blackman–Tukey controla cuántos retardos de autocovarianza intervienen. Multitaper promedia espectros de ventanas DPSS ortogonales y registra su concentración. AR (Burg) estima un modelo autorregresivo de orden elegido y muestra la densidad de ese modelo. Podés superponer una referencia Welch en las mismas unidades y eje de frecuencia. Cada estimador conserva su propia separación de bins.
+
+```sh
+python -m signallab_pc dsp psd --session registros.slproj --record ID_REALIZACION --method multitaper --bandwidth 3 --tapers 5 --output multitaper.slproj
+python -m signallab_pc stochastic lomb --session registros.slproj --record ID_REALIZACION --times-file instantes.json --low 0.5 --high 12 --points 256 --output irregular.slproj
+```
+
+Lomb–Scargle usa un tiempo en segundos por observación real, en orden estrictamente creciente. La salida normalizada mide la fracción de variación explicada por una sinusoide ajustada a cada frecuencia. Para Python, usá `estimate_psd` con `PSDRequest` y `lomb_periodogram` de `signallab_pc.statistical_spectra`. [Escalas y supuestos](MATHEMATICAL_FOUNDATIONS.md#estimación-espectral-avanzada)
