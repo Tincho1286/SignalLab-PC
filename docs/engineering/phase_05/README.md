@@ -7,6 +7,7 @@ La fase está autorizada en `develop` y parte de la integración aprobada de 2.2
 - [Contratos científicos](SCIENTIFIC_CONTRACTS.md)
 - [Arquitectura](ARCHITECTURE.md) y [fundamentos de probabilidad](MATHEMATICAL_FOUNDATIONS.md)
 - [Oráculos y protocolo estadístico](STATISTICAL_VALIDATION_PROTOCOL.md)
+- [Evidencia y matriz de validación](VALIDATION_MATRIX.md)
 - [Criterios del Quality Gate](QUALITY_GATE_CRITERIA.md)
 - [Trazabilidad](TRACEABILITY_MATRIX.md), [decisiones](DECISION_LOG.md) y [registro de implementación](IMPLEMENTATION_LOG.md)
 - [Auditoría y modernización](AUDIT_AND_SCOPE_REPORT.md), [rendimiento](PERFORMANCE_REPORT.md) y [seguridad y riesgos](SECURITY_REVIEW.md)

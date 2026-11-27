@@ -17,7 +17,7 @@ import numpy as np
 from signallab_pc.execution import ExecutionContext, ResourcePool
 from signallab_pc.jobs import OperationCancelled
 from signallab_pc.multivariate_probability import (
-    Gaussian, Multinomial, gaussian_condition, gaussian_density, gaussian_marginal, gaussian_transform,
+    Gaussian, Multinomial, array_from_parts, gaussian_condition, gaussian_density, gaussian_marginal, gaussian_transform,
     generate_gaussian, generate_multinomial,
 )
 from signallab_pc.probability import (
@@ -274,6 +274,24 @@ class JointProbabilityTests(unittest.TestCase):
         with self.assertRaises(ResourceLimitError):
             generate_gaussian(singular, 100, 0, execution=ExecutionContext(pool=ResourcePool(80)))
 
+    def test_multivariate_dimensions_are_checked_before_likelihood_or_transformation(self):
+        proper=Gaussian([1j,2.],[[2.,0.],[0.,1.]],True)
+        with self.assertRaisesRegex(ValueError,'mismas dimensiones'):
+            array_from_parts({'real':[[1,0],[0,1]],'imag':[[0]]})
+        with self.assertRaisesRegex(ValueError,'partes real e imag'):
+            array_from_parts({'real':[1,2]})
+        with self.assertRaisesRegex(ValueError,'misma forma'):
+            Gaussian([1j,2.],[[2.,0.],[0.,1.]],True,[[0.]])
+        with self.assertRaisesRegex(ValueError,'observación debe coincidir'):
+            gaussian_density(proper,[1j])
+        with self.assertRaisesRegex(ValueError,'columna por componente'):
+            gaussian_transform(proper,[[1.,0.,0.]])
+        with self.assertRaisesRegex(ValueError,'dimensión de salida'):
+            gaussian_transform(proper,[[1.,1.]],[0.,1.])
+        result=gaussian_transform(proper,[[1.,1.]],[0.])
+        np.testing.assert_allclose(result.mean,[2.+1j])
+        np.testing.assert_allclose(result.covariance,[[3.]])
+
     def test_multinomial_population_marginal_condition_and_observations(self):
         model = Multinomial(4, (.25, .25, .5))
         self.assertAlmostEqual(model.mass([1, 1, 2])['mass']['value'], 12 * .25**2 * .5**2)
@@ -289,6 +307,10 @@ class JointProbabilityTests(unittest.TestCase):
             model.condition([1, 2], [3, 3])
         with self.assertRaises(ValueError):
             Multinomial(1, (0, 1)).condition([0], [1])
+        with self.assertRaisesRegex(ValueError,'categoría por estimar'):
+            model.condition([0,1,2],[1,1,2])
+        with self.assertRaisesRegex(ValueError,'recuento por categoría'):
+            model.mass([1,3])
 
 
 class ProbabilityConsoleTests(unittest.TestCase):

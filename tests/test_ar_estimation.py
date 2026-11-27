@@ -176,7 +176,6 @@ class Interface(unittest.TestCase):
         from test_workflow_contracts import Host
         from signallab_pc.ar_estimation_panel import ARFitPanel
         self.host=Host();self.panel=ARFitPanel(self.host);self.errors=[];self.warning=patch('PySide6.QtWidgets.QMessageBox.warning',side_effect=lambda *a:self.errors.append(str(a[2])));self.warning.start()
-        self.host.register_publication=lambda key,value:None
         self.panel.source.set_source(Signal(np.random.default_rng(30).normal(size=120),metadata={'sample_rate_hz':100.,'time_start_s':2.}))
     def tearDown(self):
         self.warning.stop();self.panel.close();self.panel.deleteLater();self.host.bar.deleteLater();self.app.processEvents()

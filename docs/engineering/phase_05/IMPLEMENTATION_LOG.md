@@ -141,3 +141,7 @@ La CLI valida los destinos de proyecto y CSV antes de crear o reanudar una campa
 ## Comparación gráfica con una distribución conocida
 
 Estadística descriptiva usa los parámetros tipados del catálogo para superponer una referencia continua o marcar los puntos evaluados de una referencia discreta. Se preservaron el selector histórico de la normal y sus campos. El caso de interfaz compara Poisson con media 2 y comprueba un valor de CDF de $3e^{-2}$ en el registro guardado, así como la marca sin conexión en la figura. Comando `python -B -X utf8 -m unittest -q test_probability_desktop`.
+
+## Preflight del candidato 2.3.0
+
+En `d4a38ff` aprobaron 195 pruebas focalizadas de las herramientas estadísticas y sus fronteras. Se comprobó el rechazo de dimensiones incompatibles al transformar o evaluar modelos gaussianos y al usar recuentos multinomiales. Las cinco pruebas multivariadas cubrieron 209/221 líneas y 53/56 ramas de `multivariate_probability.py`. Los recorridos que quedaban en la revisión local terminaron con 13 pruebas aprobadas. La fixture de escritorio reconoce el registro de resultados atómicos de ARMA y la regresión conserva las salidas del modelo cuando fallan las opciones de simulación. [Controles en Windows y Ubuntu](https://github.com/Tincho1286/SignalLab-PC/actions/runs/46054912708) · [Matriz de validación](VALIDATION_MATRIX.md)

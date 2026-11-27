@@ -20,9 +20,10 @@ SOURCE='sin(0.3*pi*(n-4))/(pi*(n-4))'
 
 
 class Host:
-    def __init__(self):self.project=Project();self.pages={};self._workers=[];self.current_operation=None;self.bar=QStatusBar()
+    def __init__(self):self.project=Project();self.pages={};self._workers=[];self.current_operation=None;self.bar=QStatusBar();self.publications={}
     def statusBar(self):return self.bar
     def publish(self,value,**options):return self.project.add(value,**options)
+    def register_publication(self,key,value):self.publications[key]=value
     def _run_operation(self,label,compute,accept):accept(compute())
     def open_tool(self,route):
         self.current_operation=tuple(route)
