@@ -1,5 +1,22 @@
 # Registro de riesgos
 
+## Situación posterior a Fase 05
+
+Las condiciones vigentes se cotejaron con los artefactos de 2.3.1 y los expedientes de aceptación. Cada modificación de alcance se evalúa con su propia evidencia y aprobación cuando corresponda. [Línea base auditada](STRATEGIC_REVIEW_POST_PHASE_05.md) · [Excepciones de Core](phase_02c/validation/EXCEPTION_APPROVAL_REGISTER.md) · [Seguridad de Fase 05](phase_05/SECURITY_REVIEW.md)
+
+| Riesgo actual | Evidencia y límite | Próxima comprobación y responsable |
+| --- | --- | --- |
+| Dependencias nativas y origen · R02/R03 | E-01 se resolvió con Qt 6.12.1 y Pillow empaquetado sin OpenJPEG. CPython, OpenSSL del portátil, el vínculo de `cryptography` y los componentes del anfitrión tienen alcances distintos. | Distribución verifica SBOM, avisos, versiones y carga efectiva por candidato. Registrar el cambio de ruedas y sus hashes antes de aceptarlo. [Dependencias](DEPENDENCY_AUDIT.md#línea-base-de-la-entrega-231) |
+| MAT/HDF5 · E-02 | Aprobado para archivos confiables y selección explícita. El lector separado aplica límites. | El responsable de entrada reevalúa exposición y componentes nativos. Abrir otro alcance exige mediciones, pruebas y aprobación. |
+| Recursos · E-03 y R07 | Los perfiles probados tienen aprobación. El Core usa reservas estimadas y cancelación cooperativa. Una llamada nativa puede retener el control hasta terminar. | Cada motor amplía su envolvente solo con tamaños, memoria, plazos, cancelación y recuperación medidos en ambos sistemas. [Rendimiento](phase_05/PERFORMANCE_REPORT.md) |
+| Integridad y escritor concurrente · R08/R13/R14 | Se verificaron esquemas históricos y campaña transaccional con bloqueo nativo en disco local. Las garantías dependen del almacenamiento y el tipo de sesión. | **09** mide cargas multidisciplinarias, archivo grande y recuperación. Cualquier uso en unidades compartidas requiere evidencia de la semántica del sistema de archivos. |
+| Escritorio y visualización · R06/R09 | Hay regresiones de escritorio en ambos sistemas, correcciones de gráfico verificadas y aceptación funcional de 2.3.1. Los escalados concretos se usan como diagnóstico. | Workbench supervisa los cinco tramos de latencia y memoria y reproduce defectos observados en la plataforma afectada. [Protocolo](UX_DESIGN_PRINCIPLES.md#medir-el-rendimiento-por-tramo) |
+| Authenticode y canal · E-04 | Authenticode sigue abierto como seguimiento de Windows. El manifiesto Ed25519, hashes y elección de canal sí tienen evidencia pública. | Distribución conserva el gate de integridad y firma del manifiesto. Cualquier cambio de claves o política se decide aparte. [Política](RELEASE_POLICY.md) |
+| Dominio estadístico | Intervalo Bartlett y bootstrap dependen de modelo e independencia. Kalman acreditado es lineal discreto. | Mantener hipótesis visibles y evaluar nueva calibración si la fase autorizada lo requiere. [Alcance](phase_05/TECHNICAL_DEBT_REGISTER.md) |
+| Redes RF y formatos · R11/R12 | Riesgo futuro de Z₀ por puerto, definiciones de onda, orientación, matrices mal condicionadas y archivos fuera de perfil. | **06**, tras autorización, fija contratos, singularidades y límites de Touchstone antes de implementar y acreditar. [Dictamen](STRATEGIC_REVIEW_POST_PHASE_05.md#dictamen-de-preparación-para-fase-06) |
+
+## Riesgos y seguimientos históricos
+
 **Estado** describe la evidencia. Una versión de dependencia afectada prueba el riesgo de ese componente. La exposición de la aplicación depende del formato, el binario y su ruta observable. Los enlaces de verificación se desarrollan en los informes vinculados.
 
 | ID | Prioridad | Estado | Efecto | Reducción propuesta |

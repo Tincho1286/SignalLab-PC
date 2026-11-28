@@ -12,6 +12,17 @@ Las ramas oficiales son `main` y `develop`. `main` contiene el último estado in
 
 La autorización de inicio habilita el trabajo de esa fase. Si el alcance cambia sustancialmente, el propietario decide antes de implementar. La aceptación funcional de una Preview se registra por separado del permiso para integrarla en `main`. [Quality Gate permanente](VALIDATION_MATRIX.md#criterios-vigentes) · [Roadmap](ROADMAP.md)
 
+### Ciclo de una fase
+
+1. Registrar la autorización de inicio y auditar capacidades, motores y rutas existentes.
+2. Fijar requisitos científicos, oráculos, tolerancias, recursos y componentes críticos.
+3. Implementar en `develop`, probar la matemática y la interfaz aplicable y mantener las regresiones acumuladas.
+4. Calificar un candidato limpio. Ejecutar la matriz de Windows y Linux para ese SHA y conservar los resultados.
+5. Empaquetar, cotejar procedencia e integridad, verificar el manifiesto y publicar la Preview calificada.
+6. Recibir la revisión funcional del propietario y tramitar cada corrección autorizada con causa, prueba de regresión, nuevo SHA y nueva Preview.
+7. Registrar la aceptación funcional y la autorización expresa de merge como decisiones independientes.
+8. Integrar en `main`, verificar el árbol y los controles posteriores, y registrar el cierre. La siguiente fase comienza con su propia autorización.
+
 ## Publicar Preview
 
 Codex tiene autorización permanente para publicar las Preview de fases autorizadas una vez aprobada la calificación técnica. Esa autorización cubre la publicación y su **nueva etiqueta numérica** en el SHA calificado. Cada corrección se publica bajo un número nuevo dentro de la familia y revalida el candidato. Las Preview son acumulativas.
@@ -21,6 +32,8 @@ Antes de publicar, reunir el informe aprobado y comprobantes del mismo SHA, port
 Si firmar o publicar requiere una acción del propietario, pedir únicamente esa intervención y usar los controles existentes. La rotación o modificación de claves de producción, las etiquetas históricas, las excepciones de riesgo y cualquier cambio de criterios de calidad requieren aprobación específica. La autorización permanente se limita al canal Preview de fases autorizadas.
 
 Las pruebas funcionales automatizadas de interfaz permanecen en ambas plataformas. DPI, escalados y escritorio manual se usan como diagnóstico y seguimiento. Un defecto funcional conocido o una regresión automatizada se trata según su severidad y los criterios del Quality Gate. [Reglas de validación](VALIDATION_MATRIX.md#criterios-vigentes)
+
+Calificar la Preview con el workflow de la familia sobre el candidato exacto. Un fallo de infraestructura se reintenta en el trabajo fallido del mismo SHA cuando el entorno lo permite. Un cambio de código requiere un nuevo candidato. Las correcciones reciben números incrementales de la familia, por ejemplo 2.4.1 y 2.4.2 en Fase 06. Las publicaciones previas conservan su etiqueta y sus artefactos. [Guía de distribución](../development/releases.md)
 
 ## Stable/LTS y Preview
 

@@ -1,5 +1,20 @@
 # Deuda técnica priorizada
 
+## Prioridades activas posteriores a Fase 05
+
+Los expedientes históricos conservan sus recuentos. Para el estado vigente se utilizan la matriz y el grafo del código integrado. Este registro asigna a cada fase el trabajo que modifica su propio contrato y deja Fase 11 para la calificación del conjunto. [Auditoría de arquitectura](ARCHITECTURE_AS_IS.md#línea-base-posterior-a-fase-05) · [Riesgos vigentes](RISK_REGISTER.md#situación-posterior-a-fase-05)
+
+| Área | Evidencia y efecto | Tratamiento y salida |
+| --- | --- | --- |
+| Fronteras y carga diferida · D01/D02 | Las rutas científicas headless comprobadas coexisten con un componente diferido de 274 módulos y controladores de herramientas históricos. | Extraer una frontera por operación al modernizarla. **06** mantiene el motor RF separado de Qt y **09** amplía paridad entre disciplinas. Cotejar grafo, ejecución sin Qt y resultados antes/después. |
+| Ejes, metadatos y representación · D04/D06 | `Signal`, transferencias, estados y comunicaciones registran relojes con contratos específicos. Las figuras tienen vistas y escalas propias. | **06** fija frecuencia y referencia por puerto. **08–09** preservan reloj y procedencia al conectar flujos. Contrastar datos de exportación, medidas y figuras con los mismos ejes. |
+| Catálogo y alias · D05 | Se observaron 51 herramientas y 25 rutas internas o de compatibilidad fuera de las canónicas. El rótulo de identificación AR cubre ahora MA/ARMA/ARIMA. | **09** alinea rótulos y navegación con métodos reales. Conservar sesiones, destinos y favoritos. Probar búsqueda y reapertura antes de retirar un alias. |
+| Recursos y persistencia · D08 | Los límites aplican al perfil medido. La recuperación de campaña entre procesos está acreditada en almacenamiento local. | **06** dimensiona lectura Touchstone. **09** califica archivos y proyectos multidisciplinarios. Criterios de aceptación sobre memoria, rechazo temprano, recuperación y cancelación. |
+| Condiciones de inferencia | Intervalos avanzados de PSD, kernels gaussianos adicionales y estimadores no lineales requieren evidencia propia. | Preservar alcance y documentación. Una ampliación exige hipótesis, oráculos y calibración específicos en su fase autorizada. [Deuda de Fase 05](phase_05/TECHNICAL_DEBT_REGISTER.md) |
+| Calificación y distribución · D10 | Gate acumulado 2.3.x aprobado. Los contratos de versiones futuras y el objetivo terminal aún requieren instrumentación por fase. | **06** planifica el gate de 2.4.x. Cada fase resuelve sus brechas antes de cerrar. **11** califica líneas, ramas y funciones con denominadores auditables. [Validación](VALIDATION_MATRIX.md) |
+
+## Auditoría histórica
+
 La auditoría separa evidencia observada de cambios propuestos. Los identificadores coinciden con [BACKLOG](BACKLOG.md) y [RISK_REGISTER](RISK_REGISTER.md).
 
 | Deuda | Prioridad | Evidencia y efecto | Tratamiento propuesto |

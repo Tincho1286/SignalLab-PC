@@ -1,10 +1,14 @@
 # Estado de SignalLab Engineering
 
+## Estado vigente
+
+La última fase cerrada es **Fase 05**. El propietario aceptó 2.3.1 Preview y la integración `9474626` aprobó los controles posteriores en Windows y Ubuntu. **2.0.0** sigue en Stable/LTS. RF & Microwave es la siguiente fase del roadmap y su apertura requiere autorización específica. [Cierre](phase_05/PHASE_05_INTEGRATION.md) · [Descargas 2.3.1](../releases/v2.3.1.md) · [Auditoría posterior a Fase 05](STRATEGIC_REVIEW_POST_PHASE_05.md) · [Roadmap](ROADMAP.md)
+
+## Expedientes anteriores
+
 **Fase 04 cerrada e integrada en `main` el 27 de noviembre de 2026.** La integración aprobada es `0c9e3bc`. Contiene el código del release 2.2.1 Preview, construido y validado en Windows y Ubuntu desde `08cd1bc`. Los controles posteriores al merge también aprobaron en ambos sistemas. [Expediente de cierre](phase_04/PHASE_04_CLOSEOUT.md) · [Matriz del candidato](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45923696053/attempts/2) · [Controles del merge](https://github.com/Tincho1286/SignalLab-PC/actions/runs/45994467778)
 
 La regresión al 200 % con escala de Qt y la conexión del portable a GitHub en Fedora 44 se verificaron. El DPI nativo de Windows al 150 % y 200 % y la revisión interactiva en Fedora Plasma se conservan como seguimiento histórico de Fase 04. La política vigente usa las pruebas específicas de escalado como evidencia diagnóstica. [Riesgos residuales de Fase 04](phase_04/RESIDUAL_RISK_REGISTER.md) · [Criterios vigentes](VALIDATION_MATRIX.md#criterios-vigentes)
-
-La **Fase 05, Probability, Statistics & Stochastic Processes**, quedó cerrada e integrada en `main` el 27 de noviembre de 2026. El cierre incorpora la **2.3.1 Preview** aceptada y la verificación posterior del merge `9474626`. **2.0.0** es la LTS vigente. [Cierre e integración de Fase 05](phase_05/PHASE_05_INTEGRATION.md) · [Descargas 2.3.1](../releases/v2.3.1.md) · [Roadmap](ROADMAP.md)
 
 ## Línea base histórica de Fase 01
 

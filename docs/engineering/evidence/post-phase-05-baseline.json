@@ -1,0 +1,272 @@
+{
+  "audited_commit": "10fe3f218de2cdf183a4cc282ebd54aed403a981",
+  "local_branches": {
+    "main": "10fe3f218de2cdf183a4cc282ebd54aed403a981",
+    "develop": "10fe3f218de2cdf183a4cc282ebd54aed403a981"
+  },
+  "remote_branches": {
+    "refs/heads/develop": "10fe3f218de2cdf183a4cc282ebd54aed403a981",
+    "refs/heads/main": "10fe3f218de2cdf183a4cc282ebd54aed403a981"
+  },
+  "candidate": "1311df1f0f954f06eaf5f20c33f645d15748660a",
+  "merge": "9474626bd79b0131c2fd7d584a2f4fe2c44f48c8",
+  "candidate_workflow": 46070995974,
+  "merge_workflow": 46076665338,
+  "verified_public_asset_count": 17,
+  "signed_release_channels": {
+    "stable": "2.0.0",
+    "preview": "2.3.1"
+  },
+  "platforms": {
+    "windows-2022": {
+      "integral_tests": 1437,
+      "preventive_cases": 150,
+      "statistical_contrasts": 384,
+      "coverage": {
+        "lines": {
+          "goal": 85,
+          "covered": 49261,
+          "total": 54699,
+          "state": "pass",
+          "additional_required": 0
+        },
+        "branches": {
+          "goal": 75,
+          "covered": 15563,
+          "total": 20026,
+          "state": "pass",
+          "additional_required": 0
+        }
+      },
+      "peak_rss_bytes": 138919936,
+      "offscreen_heartbeat_max_seconds": 0.07651980000014191,
+      "cooperative_cancellation_max_seconds": 0.0005690999998932966,
+      "native_inventory_file_count": 218,
+      "runtime": {
+        "qt": {
+          "file": "PySide6\\Qt6Core.dll",
+          "version": "6.12.1"
+        },
+        "qt_svg": {
+          "file": "PySide6\\Qt6Svg.dll"
+        },
+        "python": {
+          "file": "python314.dll",
+          "version": "3.14.10"
+        },
+        "cryptography_openssl": {
+          "version_text": "OpenSSL 4.0.3 29 Sep 2026",
+          "matched_file": "cryptography\\hazmat\\bindings\\_rust.pyd",
+          "sha256": "1d4332a447cab13dec8e3a533ad579e0e562b79e40822c931f33769758fc7156"
+        }
+      },
+      "isolated_upgrade": {
+        "from": "2.0.0",
+        "to": "2.3.1",
+        "stable_sha256": "261dbd5ffd82adcf61cd33305532b37498e5cfdb673d3082b0c8b8638abfa487",
+        "candidate_sha256": "a2e443c1870c2aadc1ea8b514856632670d22106b9930d40e050e4bd5a76ff05",
+        "session_preserved": true,
+        "corrupt_download_rejected": true,
+        "native_handoff": true,
+        "in_place": true
+      }
+    },
+    "ubuntu-22.04": {
+      "integral_tests": 1437,
+      "preventive_cases": 150,
+      "statistical_contrasts": 384,
+      "coverage": {
+        "lines": {
+          "goal": 85,
+          "covered": 49235,
+          "total": 54699,
+          "state": "pass",
+          "additional_required": 0
+        },
+        "branches": {
+          "goal": 75,
+          "covered": 15561,
+          "total": 20026,
+          "state": "pass",
+          "additional_required": 0
+        }
+      },
+      "peak_rss_bytes": 159703040,
+      "offscreen_heartbeat_max_seconds": 0.09844577899957585,
+      "cooperative_cancellation_max_seconds": 0.0008076959998106759,
+      "native_inventory_file_count": 385,
+      "runtime": {
+        "qt": {
+          "file": "PySide6/Qt/lib/libQt6Core.so.6",
+          "version": "6.12.1"
+        },
+        "qt_svg": {
+          "file": "PySide6/Qt/lib/libQt6Svg.so.6"
+        },
+        "python": {
+          "file": "libpython3.14.so.1.0",
+          "version": "3.14.10"
+        },
+        "cryptography_openssl": {
+          "version_text": "OpenSSL 4.0.3 29 Sep 2026",
+          "matched_file": "cryptography/hazmat/bindings/_rust.abi3.so",
+          "sha256": "1e5d23fa66915204b9b67202a46993844d81cda56f6ad52cead2def37617ee29"
+        }
+      },
+      "isolated_upgrade": {
+        "from": "2.0.0",
+        "to": "2.3.1",
+        "stable_sha256": "a3fa8ce6ed4a5d559d8b8eb007c595dc680bc2070da92298d20f69f8f983f3c4",
+        "candidate_sha256": "b8aa86be318f89ad1fd8b07cc3e3e97990b55c2f89d4b78b08d578e419bbc356",
+        "session_preserved": true,
+        "corrupt_download_rejected": true,
+        "native_handoff": true,
+        "in_place": true
+      },
+      "fedora_update_check_before_publication": {
+        "version": "2.3.1",
+        "target": "linux-x86_64",
+        "frozen": true,
+        "stable": "2.0.0",
+        "preview": "2.3.0",
+        "passed": true
+      }
+    }
+  },
+  "critical_components": [
+    "adaptive_filter.py",
+    "ar_estimation.py",
+    "campaign_files.py",
+    "cas_worksheet.py",
+    "cli_session.py",
+    "communications_channel.py",
+    "communications_cli.py",
+    "communications_data.py",
+    "communications_doppler.py",
+    "communications_experiment.py",
+    "communications_fading.py",
+    "communications_fading_distributions.py",
+    "communications_impairments.py",
+    "communications_interference.py",
+    "communications_metrics.py",
+    "communications_modulation.py",
+    "communications_pipeline.py",
+    "communications_propagation.py",
+    "communications_pulses.py",
+    "communications_receiver.py",
+    "communications_storage.py",
+    "communications_sweep.py",
+    "descriptive_statistics.py",
+    "dft_application.py",
+    "dsp_application.py",
+    "dsp_pipeline.py",
+    "execution.py",
+    "fourier.py",
+    "kalman_filter.py",
+    "monte_carlo.py",
+    "monte_carlo_bootstrap.py",
+    "multivariate_probability.py",
+    "operation_provenance.py",
+    "optimal_estimation.py",
+    "probability.py",
+    "probability_cli.py",
+    "project.py",
+    "project_archive.py",
+    "random_models.py",
+    "realization_batch.py",
+    "sampling.py",
+    "scientific_storage.py",
+    "session_desktop.py",
+    "statistical_inference.py",
+    "statistical_spectra.py",
+    "statistics_cli.py",
+    "statistics_results.py",
+    "stochastic_cli.py",
+    "stochastic_covariance.py",
+    "stochastic_noise.py",
+    "stochastic_processes.py",
+    "time_series_identification.py",
+    "wiener_filter.py"
+  ],
+  "native_combined_coverage": {
+    "campaign_files.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 26,
+        "total": 26,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 4,
+        "total": 4,
+        "state": "pass",
+        "additional_required": 0
+      }
+    }
+  },
+  "catalog": {
+    "areas": {
+      "signals": 7,
+      "systems": 3,
+      "filters": 4,
+      "spectra": 6,
+      "sampling": 5,
+      "transforms": 3,
+      "random": 8,
+      "communications": 15
+    },
+    "tools": 51,
+    "canonical_routes": 105,
+    "workbench_routes": 130,
+    "internal_containers": 14,
+    "retired_aliases": 11
+  },
+  "architecture_ast": {
+    "sha": "10fe3f218de2cdf183a4cc282ebd54aed403a981",
+    "application_files": 438,
+    "lines": 66953,
+    "edges": 2573,
+    "top_level_edges": 1419,
+    "qt_direct_imports": 185,
+    "cyclic_component_sizes": [
+      274,
+      2,
+      2,
+      2,
+      2
+    ],
+    "top_level_cycles": 0
+  },
+  "headless_probe": {
+    "imports": [
+      "dft_cli",
+      "dft_application",
+      "dsp_application",
+      "dsp_pipeline",
+      "communications_cli",
+      "probability_cli",
+      "statistics_cli",
+      "stochastic_cli",
+      "probability",
+      "multivariate_probability",
+      "stochastic_processes",
+      "stochastic_noise",
+      "statistical_spectra",
+      "statistical_inference",
+      "time_series_identification",
+      "optimal_estimation",
+      "wiener_filter",
+      "kalman_filter",
+      "adaptive_filter",
+      "monte_carlo",
+      "monte_carlo_bootstrap",
+      "dsp_cli",
+      "dsp_pipeline_cli"
+    ],
+    "dft_source_origin": -2,
+    "dft_max_absolute_difference": 9.930136612989092e-16,
+    "idft_restored_origin": -2
+  }
+}

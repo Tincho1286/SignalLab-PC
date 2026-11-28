@@ -21,13 +21,52 @@ SignalLab amplía sus dominios científicos y moderniza las herramientas de señ
 
 La Fase 02A corresponde al piloto DFT que el expediente histórico identifica como Fase 02. Las fases 03, 04 y 05 están cerradas e integradas. Stable/LTS 2.0.x conserva su línea de mantenimiento desde `v2.0.0`. [Piloto DFT](PHASE_02_DFT_PILOT.md) · [Cierre de Fase 02C](phase_02c/validation/QUALITY_GATE_REPORT.md) · [Cierre de Fase 03](phase_03/PHASE_03_CLOSEOUT.md) · [Cierre de Fase 04](phase_04/PHASE_04_CLOSEOUT.md) · [Cierre de Fase 05](phase_05/PHASE_05_INTEGRATION.md)
 
+Las fases 06 a 11 expresan alcance estratégico por verificar. Fase 06 está preparada para solicitar autorización. Los requisitos, la implementación y la calificación de cada fase comienzan con su autorización específica. Las fases cerradas conservan su evidencia. Una regresión concreta se trata en el ciclo de corrección que corresponda. [Dictamen](STRATEGIC_REVIEW_POST_PHASE_05.md#dictamen-de-preparación-para-fase-06)
+
+## Dependencias científicas entre fases
+
+```mermaid
+flowchart LR
+    CORE[00–02C · Base y Core] --> COM[03 · Comunicaciones]
+    COM --> CH[04 · Canales]
+    CH --> STATS[05 · Estadística]
+    CORE --> RF[06 · RF analítica]
+    CH --> RF
+    STATS --> RF
+    RF --> FIXED[07 · Punto fijo y DSP]
+    CORE --> FIXED
+    FIXED --> SIM[08 · Simulación y métodos numéricos]
+    STATS --> SIM
+    SIM --> PLATFORM[09 · Plataforma integrada]
+    CORE --> PLATFORM
+    COM --> SDR[10 · SDR e instrumentación]
+    CH --> SDR
+    STATS --> SDR
+    RF --> SDR
+    FIXED --> SDR
+    SIM --> SDR
+    PLATFORM --> SDR
+    SDR --> FINAL[11 · Consolidación y calificación]
+```
+
+| Fase receptora | Activos que reutiliza | Condición para compartirlos |
+| --- | --- | --- |
+| 06 · RF | Ejes y frecuencia del Core, `Transfer`, PSD/ventanas, pérdida de propagación, potencias de comunicaciones e incertidumbre de Fase 05. | Conservar unidades y reloj. Definir ondas, puertos e impedancias de referencia en un contrato de red. |
+| 07 · Punto fijo | Muestreo, `Encoding`, aritmética, FIR/SOS, cambio de tasa y medidas de filtros y espectros. | Declarar reglas de bits, acumulador y estados. Acreditar los resultados contra vectores enteros independientes. |
+| 08 · Simulación | `StateModel`, realizaciones, CAS, reloj, operadores lineales, estimación y análisis por fases. | Conservar supuestos, puertos y condiciones al extender los modelos. Medir convergencia, estabilidad y condicionamiento. |
+| 09 · Plataforma | Proyectos, biblioteca, ejecución y procedencia desde Core, y experimentos y contratos de las disciplinas implementadas. | Reusar identidades y hechos de procedencia. Validar lectura histórica y proyectos multidisciplinarios. |
+| 10 · SDR | RF, I/Q, pulso, reloj, canales, PSD, estadística, DSP por bloques, punto fijo y simulación. | El núcleo permanece funcional sin hardware. La compatibilidad depende de las combinaciones de dispositivos y plataformas ensayadas. |
+| 11 · Calificación | Contratos, oráculos, pruebas, pilotos de rendimiento, almacenamiento y distribución desde 00–10. | Consolidar y reacreditar el alcance implementado con los objetivos terminales y evidencia verificable. |
+
+[Referencias y modalidades](INTEGRATION_CATALOG.md) · [Capacidades actuales](SCIENTIFIC_ENGINE_INVENTORY.md)
+
 ## Cómo se define una fase
 
 Al comenzar una fase autorizada, contrastar cada propuesta con el catálogo, los motores y las pruebas existentes. Registrar las limitaciones, requisitos, oráculos y presupuestos antes de implementar. Priorizar la ampliación de las herramientas relacionadas, la conexión con Engineering Core y las regresiones que prueban su uso original. Los cambios sustanciales de alcance requieren aprobación del propietario. [Plan de modernización](TOOL_MODERNIZATION_PLAN.md) · [Arquitectura objetivo](ARCHITECTURE_TO_BE.md) · [Validación](VALIDATION_MATRIX.md#criterios-vigentes)
 
 ## Fase 05 · Probabilidad, estadística y procesos estocásticos
 
-Construir una base probabilística reutilizable por los demás laboratorios. Usar las herramientas de señales aleatorias como piloto de complejidad progresiva en el Workbench.
+La fase está cerrada. Estos objetivos guiaron el desarrollo de la base probabilística reutilizable y el piloto de complejidad progresiva. El inventario posterior describe el alcance efectivo de cada método. [Herramientas de señales aleatorias](TOOL_INVENTORY.md#señales-aleatorias--8)
 
 - **Probabilidad.** Distribuciones continuas, discretas, multivariadas y complejas. PDF, PMF, CDF, CCDF, cuantiles, momentos, distribuciones conjuntas, marginales y condicionales, generación correlacionada y matrices de covarianza. Evaluar uniforme, Bernoulli, binomial, Poisson, geométrica, normal real y compleja, exponencial, gamma, beta, Rayleigh, Rician, Nakagami, Weibull, lognormal, χ², Student t, F, Laplace y Cauchy.
 - **Inferencia.** Estadística descriptiva y momentos superiores, asimetría, curtosis, intervalos de confianza, máxima verosimilitud, método de momentos, ajuste, pruebas de hipótesis y de bondad de ajuste. Ampliar el histograma con CDF empírica, Q-Q y boxplots.
@@ -37,7 +76,7 @@ Construir una base probabilística reutilizable por los demás laboratorios. Usa
 - **Estimación y filtrado óptimo.** Evaluar ML, MAP, MMSE, LMMSE, Wiener, Kalman, LMS, NLMS y RLS. Reutilizar convenciones de estados, relojes y observación.
 - **Monte Carlo.** Generalizar réplicas, semillas y subflujos, convergencia, bootstrap, incertidumbre, sensibilidad, estimación de probabilidades y comparación de modelos.
 
-**Salida estratégica.** Comparar los resultados experimentales con las propiedades teóricas bajo criterios estadísticos fijados antes de medir. Comprobar reproducibilidad, estabilidad numérica y oráculos independientes. Reutilizar las referencias de fading, la aritmética de estadísticas de registros y los barridos existentes. [Plan de Fase 05](TOOL_MODERNIZATION_PLAN.md#fase-05--probabilidad-y-estadística)
+**Salida acreditada.** 2.3.1 quedó aceptada e integrada. Los cinco demostradores y la matriz acumulativa acreditaron el alcance ejecutado en Windows y Ubuntu. Los límites de cada familia, incluidos los intervalos Bartlett y el Kalman lineal discreto, permanecen documentados. [Modernización de Fase 05](TOOL_MODERNIZATION_PLAN.md#fase-05--probabilidad-y-estadística) · [Cierre](phase_05/PHASE_05_INTEGRATION.md)
 
 ## Fase 06 · RF y microondas
 
@@ -45,7 +84,7 @@ Construir una base probabilística reutilizable por los demás laboratorios. Usa
 - **Enlace y dispositivos.** Presupuesto de enlace, figura de ruido, sensibilidad y modelos analíticos de compresión e intermodulación.
 - **Herramientas originales.** Ampliar el diseñador analógico con Bessel y familias complementarias. Reutilizar transferencia, respuesta frecuencial y retardo de grupo. Extender el análisis con chirp-Z, Zoom FFT, detección e interpolación de picos y ventanas Tukey, Flat top, Nuttall, DPSS y Dolph–Chebyshev. Conservar las medidas de ENBW, ganancia coherente y pérdida entre bins, e incorporar sensibilidad paramétrica.
 
-**Salida estratégica.** Contrastar redes de referencia, conversiones, impedancias de puerto, adaptación e intercambio Touchstone con referencias independientes. Los cálculos analíticos funcionan sin hardware. [Plan de Fase 06](TOOL_MODERNIZATION_PLAN.md#fase-06--rf-y-microondas)
+**Salida estratégica.** Contrastar redes de referencia, conversiones, impedancias de puerto, adaptación e intercambio Touchstone con fórmulas analíticas y comparadores independientes. Evaluar scikit-rf, SciPy y una referencia de circuito externa. Acreditar cálculo, importación, guardado y validación sin hardware RF. [Plan de Fase 06](TOOL_MODERNIZATION_PLAN.md#fase-06--rf-y-microondas) · [Evaluación de referencias](INTEGRATION_CATALOG.md#referencias-y-modalidades-de-integración)
 
 ## Fase 07 · Punto fijo y DSP embebido
 
@@ -69,7 +108,7 @@ Construir una base probabilística reutilizable por los demás laboratorios. Usa
 
 - **Proyectos y experimentos.** Organización de señales, modelos y corridas, flujos reutilizables, automatización con Python y CLI, notebooks, informes, exportación, barridos, comparación, recuperación, reanudación, procedencia, interoperabilidad y biblioteca de fundamentos y ejemplos.
 - **Workbench.** Homogeneizar interacción, unidades, convenciones, metadatos e intercambio de resultados. Ampliar el acceso por búsqueda, favoritos y herramientas recientes. Integrar motores pendientes en Engineering Core y resolver redundancias entre disciplinas.
-- **Límites.** Mantener Qt y evolucionar el Workbench por mejoras verificadas. Los adaptadores externos son opcionales. Las arquitecturas de plugins, los servicios distribuidos, un rediseño general o nuevas interfaces requieren una necesidad demostrada.
+- **Límites.** Mantener Qt y evolucionar el Workbench por mejoras verificadas. Los adaptadores externos son opcionales. Los sistemas generales de plugins, arquitecturas distribuidas, interfaces web y rediseños generales requieren una necesidad demostrada y aprobación de alcance.
 
 **Salida estratégica.** Guardar, reproducir, automatizar, comparar y documentar un proyecto multidisciplinario con sus datos y metadatos científicos intactos. [Plan de Fase 09](TOOL_MODERNIZATION_PLAN.md#fase-09--plataforma-integrada)
 
@@ -86,7 +125,7 @@ Es la última fase de expansión funcional. Reutiliza comunicaciones, canales, e
 
 ## Fase 11 · Consolidación y calificación definitiva
 
-Aplica el enfoque de Fase 02C a toda la plataforma. La fase califica y consolida lo desarrollado. Cada fase anterior sigue siendo responsable de su deuda técnica.
+Aplica el enfoque de Fase 02C a toda la plataforma. Su alcance se limita a consolidar, optimizar y calificar las capacidades ya desarrolladas para mantenimiento a largo plazo. Cada fase anterior sigue siendo responsable de resolver la deuda que le corresponda o elevar una excepción explícita.
 
 | Paquete | Alcance |
 | --- | --- |

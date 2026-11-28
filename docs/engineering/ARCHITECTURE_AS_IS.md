@@ -1,5 +1,39 @@
 # Arquitectura actual de SignalLab PC
 
+## Línea base posterior a Fase 05
+
+Se inspeccionó el árbol limpio `10fe3f218de2cdf183a4cc282ebd54aed403a981`, que integra el código de 2.3.1 Preview. Mediante `python -B tools/audit_dependencies.py --report work/strategy-post-05/import-graph.json` se midieron 438 archivos de aplicación y 66 953 líneas físicas. El AST registra 2 573 pares de importación interna, 1 419 al nivel superior y 185 módulos con importación directa de Qt o su backend. El grafo de declaraciones de nivel superior es acíclico. Al incluir las importaciones anidadas aparece un conjunto de cinco componentes cíclicos, con 274 módulos en el mayor. La métrica distingue estructura observada de ejecución efectiva. [Comprobante](evidence/post-phase-05-baseline.json) · [Reproductor](../../tools/audit_dependencies.py)
+
+```mermaid
+flowchart LR
+    ENTRY[__main__] --> GUI[Workbench Qt]
+    ENTRY --> CLI[CLI de DSP, comunicaciones y estadística]
+    ENTRY --> WORKERS[Procesos simbólico y MATLAB]
+    GUI --> SERVICES[Servicios de aplicación]
+    CLI --> SERVICES
+    GUI --> LEGACY[Motores históricos mediante paneles]
+    SERVICES --> CORE[Signal, Transfer, StateModel y contratos por dominio]
+    SERVICES --> EXEC[ExecutionContext y jobs]
+    SERVICES --> DATA[Project, JSON, SLPROJ y SLBIN]
+    SERVICES --> SCIENCE[Motores numéricos, simbólicos y estadísticos]
+    LEGACY --> SCIENCE
+    WORKERS --> SCIENCE
+    WORKERS --> DATA
+    GUI --> DATA
+```
+
+| Frontera observada | Responsabilidad y brecha |
+| --- | --- |
+| Entrada y Workbench | `__main__` despacha siete familias CLI, workers y GUI. `tool_catalog`, `workflow_catalog`, `navigation` y `workspaces` resuelven herramientas y alias. `toolbox`, los paneles y el controlador de sesiones todavía reúnen operaciones históricas con rutas específicas. |
+| Cálculo sin Qt | `dft_application`, `dsp_application`, `dsp_pipeline` y servicios de comunicaciones y estadística resuelven contratos desde Python. La auditoría probó 23 módulos representativos con Qt bloqueado. La paridad se acredita por operación. |
+| Ejecución | `ExecutionContext`, `jobs` y reservas compartidas aportan admisión y cancelación cooperativa. `symbolic_process` y `matlab_process` usan procesos dedicados. La garantía de cuota del lector MAT corresponde al perfil probado. |
+| Almacenamiento | `project`, `session`, `project_archive` y `scientific_storage` implementan JSON, SLPROJ y SLBIN. `operation_provenance` verifica huellas. Los servicios registran transacciones y las campañas persistidas usan bloqueo y huellas por bloque. La hoja CAS activa tiene esquema propio en `session`. |
+| Figuras y navegación | El Workbench prepara el documento incorporado y conserva borradores. Los gráficos cerrados difieren el dibujo. Las vistas de 2.3.1 actualizan la disponibilidad al mostrar una nueva figura de resultado. |
+
+La frontera estadística reutiliza `Signal`, `Transfer`, `StateModel`, recursos y almacenamiento. Los métodos de GUI o CLI con una semántica propia se conectan mediante sus adaptadores. La evidencia del candidato cubre los recorridos definidos, incluidas cancelación y reapertura. [Motores y componentes críticos](SCIENTIFIC_ENGINE_INVENTORY.md) · [Arquitectura de Fase 05](phase_05/ARCHITECTURE.md) · [Evolución prevista](ARCHITECTURE_TO_BE.md)
+
+## Línea base histórica de Fase 00
+
 **Fase 00 · 24 de noviembre de 2026.** Línea base `16ffcbaee8356e41de6ed1e5e3410b607afe480f`. El rediseño local se inventarió aparte. Los límites que siguen describen las dependencias reales del código.
 
 ## Inventario y punto de entrada

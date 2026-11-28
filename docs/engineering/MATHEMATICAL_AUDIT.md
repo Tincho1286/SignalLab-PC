@@ -1,5 +1,19 @@
 # Auditoría matemática
 
+## Evidencia posterior a Fase 05
+
+La matriz de `1311df1` integra oráculos de Fourier y muestreo, contratos del Core, comunicaciones y canales, e inferencia y experimentos de Fase 05. Aprobó en los dos sistemas. La verificación posterior a la integración aprobó en `9474626`. Se conservan los informes de origen, semillas, tolerancias y resultados por candidato. [Quality Gate 2.3.1](phase_05/CORRECTIVE_PREVIEW_2_3_1.md) · [Controles de integración](phase_05/PHASE_05_INTEGRATION.md)
+
+| Grupo de validación | Referencias y aspectos cubiertos |
+| --- | --- |
+| Core y señales | DFT por suma directa, Parseval, índices, fase, escalas, inversión, orígenes de muestreo, aliasing, ROC y validación de trayectorias de persistencia. [Catálogo de oráculos](phase_02c/mathematics/INDEPENDENT_ORACLE_CATALOG.md) |
+| Comunicaciones y canales | Mapeo, pulso, ruido, BER/SER de referencia, alineación I/Q, canal multitrayecto y soporte de los modelos de fading, Doppler e interferencia. [Fase 03](phase_03/MATHEMATICAL_AUDIT.md) · [Fase 04](phase_04/MATHEMATICAL_AUDIT.md) |
+| Estadística y estimación | Distribuciones y campañas de cobertura, identificación con parámetros conocidos, estimación/filtros lineales, recuperación Monte Carlo y registros de canal. Cinco demostradores, 384 contrastes por sistema en 2.3.1. [Protocolo](phase_05/STATISTICAL_VALIDATION_PROTOCOL.md) · [Fundamentos](phase_05/MATHEMATICAL_FOUNDATIONS.md) |
+
+Al autorizar RF se fijarán los oráculos antes de implementar. Casos base propuestos son unión directa de dos puertos, carga adaptada, abierto/cortocircuito, línea de longitud conocida, cascadas recíprocas y referencias por puerto. Una operación con matriz singular debe producir un diagnóstico de dominio. Para DSP asociado, usar DFT de suma directa, análisis de lóbulos sobre la ventana declarada y derivada de fase de un modelo analítico. Los comparadores externos ayudan a localizar diferencias de convención y cada caso de aceptación debe tener una referencia verificable propia. [Dictamen de preparación](STRATEGIC_REVIEW_POST_PHASE_05.md#dictamen-de-preparación-para-fase-06)
+
+## Auditoría histórica de Fase 00
+
 **Fase 00 · 24 de noviembre de 2026.** Python 3.12.10, NumPy 2.5.0, SciPy 1.18.0 y SymPy 1.14.0 sobre Windows x64. Las pruebas y los contraejemplos verifican convenciones y clases de entradas declaradas. La validez general de un algoritmo requiere justificar los supuestos de cada familia.
 
 ## Evidencia ejecutada

@@ -8,6 +8,7 @@ El Quality Gate de expansión rige las fases autorizadas hasta la 10. Cada fase 
 | --- | --- |
 | Cobertura global | ≥85 % de líneas y ≥75 % de ramas en cada plataforma. |
 | Componentes críticos | ≥90 % de líneas y ≥85 % de ramas por componente crítico. Inventariar los componentes antes de medir y justificar exclusiones. |
+| Pruebas obligatorias | 100 % de aprobación. Un fallo se investiga y su evidencia se conserva. Una excepción aplicable requiere justificación y autorización expresa. |
 | Defectos y regresiones | Cero P0 y cero P1 internos sin resolver. Pruebas con resultados observables en motores y recorridos viejos y nuevos. |
 | Validación matemática | Oráculos independientes y tolerancias fijadas antes de medir. Identidades, casos límite, errores y contraste simbólico, numérico o estadístico según el dominio. |
 | Compatibilidad e integridad | Carga histórica, conservación de unidades/reloj/condiciones, procedencia, integridad, atomicidad y recuperación. |
@@ -18,6 +19,16 @@ El Quality Gate de expansión rige las fases autorizadas hasta la 10. Cada fase 
 | Documentación | Requisitos, contratos, causas de defectos, casos, resultados, riesgos y SHA. Registrar por separado el dictamen técnico, la aceptación funcional y el permiso de integración. |
 
 Las comprobaciones específicas a 100 %, 125 %, 150 % y 200 %, las matrices DPI, resoluciones físicas, monitores múltiples y los escritorios Linux manuales pasan a ser evidencia diagnóstica y de seguimiento. Los fallos funcionales conocidos y las regresiones automatizadas conservan su tratamiento por severidad. La aceptación funcional corresponde al propietario después de publicar la Preview. [Gates A, B y C](RELEASE_POLICY.md#de-una-fase-autorizada-a-su-cierre) · [Protocolo de interfaz](UX_DESIGN_PRINCIPLES.md#comprobar-el-recorrido)
+
+### Contrato científico por motor
+
+Los mismos requisitos se aplican a motores históricos, nuevos y modernizados. Cada ficha identifica dominio, hipótesis, unidades, escalas, normalización y condiciones de validez. Debe incluir una referencia analítica o independiente, fronteras de entrada, errores y estabilidad numérica. Los ensayos conservan entradas, versión, parámetros y procedencia. Los métodos estocásticos añaden semilla, subflujos e incertidumbre. Se mide admisión, concurrencia y cancelación cuando correspondan. [Inventario crítico](SCIENTIFIC_ENGINE_INVENTORY.md) · [Auditoría matemática](MATHEMATICAL_AUDIT.md)
+
+Para las operaciones compartidas se prueba cálculo sin importar Qt y equivalencia entre las interfaces aplicables. Los motores nuevos se integran a los contratos comunes antes de acreditar su paridad. La cobertura mide recorridos ejecutados y los oráculos juzgan si los resultados son correctos. Los oráculos deben usar una identidad, caso analítico, certificado de error o cálculo independiente. Los denominadores, exclusiones, tolerancias y clasificación crítica se fijan y registran antes de medir. Cambiar un criterio exige justificación y aprobación cuando corresponda.
+
+### Referencia acumulada de 2.3.1
+
+El candidato `1311df1` aprobó en Windows y Ubuntu con **1 437 pruebas integrales**, **150 casos preventivos** y **384 contrastes científicos por plataforma**. Windows alcanzó 90,06 % de líneas y 77,71 % de ramas. Ubuntu alcanzó 90,01 % y 77,70 %. Los 53 componentes críticos cumplen el criterio documentado, incluido el bloqueo nativo combinado de campañas con prueba entre procesos en ambos sistemas. Los cinco controles posteriores a la integración aprobaron en `9474626`. [Validación de 2.3.1](phase_05/CORRECTIVE_PREVIEW_2_3_1.md) · [Registro de críticos](SCIENTIFIC_ENGINE_INVENTORY.md#registro-de-componentes-que-mide-el-quality-gate-de-231) · [Integración](phase_05/PHASE_05_INTEGRATION.md)
 
 ## Calificación de Fase 11
 

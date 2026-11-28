@@ -16,7 +16,7 @@ Para mantenimiento LTS, trabajá desde la última etiqueta estable en un checkou
 
 El [flujo de distribuciones](../../.github/workflows/portable.yml) recibe el canal, el SHA completo y las plataformas. Preview se ejecuta sobre `develop` y comprueba que el SHA elegido esté en su historial. Así podés identificar el candidato aunque haya commits posteriores de documentación. Stable/LTS admite el SHA exacto de `main` cuando contiene código de esa familia o de una etiqueta LTS coincidente con el código. Un candidato LTS desacoplado que todavía no tiene etiqueta se compila y valida desde ese mismo commit en cada sistema. Usá `request_signing=false` mientras no haya un servicio Authenticode aprobado.
 
-Los Quality Gates de Fases 03 y 04 producen los adjuntos del candidato para ambos sistemas. Guardá `candidate-windows.json` y `candidate-linux.json` con sus paquetes y el informe de la misma ejecución. Esto vincula la entrega a lo evaluado. Los artefactos de Actions tienen retención temporal. [Adaptaciones pendientes para fases nuevas](#adaptaciones-pendientes-del-flujo)
+Los Quality Gates de Fases 03, 04 y 05 producen los adjuntos del candidato para ambos sistemas. Guardá `candidate-windows.json` y `candidate-linux.json` con sus paquetes y el informe de la misma ejecución. Esto vincula la entrega a lo evaluado. Los artefactos de Actions tienen retención temporal. [Adaptaciones pendientes para fases nuevas](#adaptaciones-pendientes-del-flujo)
 
 Para construir localmente un portable Windows con el entorno preparado:
 
@@ -76,6 +76,8 @@ El publicador ya admite versiones numéricas Preview desde 2.1.0. Valida canal, 
 La matriz de Actions dispone de un selector `phase_05`. Verifica la fuente Preview 2.3.x, ejecuta los controles acumulados y conserva los paquetes y recibos del mismo SHA en Windows y Linux. Los controles estadísticos generan los informes de calificación, los demostradores y los perfiles de memoria, cancelación y recuperación. El verificador exige estas evidencias de cada plataforma. [Matriz](../../.github/workflows/mathematics.yml) · [Verificador](../../tools/check_quality_gate_05.py)
 
 Para 2.3.x, el publicador comprueba que el Quality Gate corresponda a Fase 05 y a la misma versión. El control general sigue separando 2.0.x de las versiones Preview desde 2.1.0. Las pruebas de escritorio automatizadas se mantienen dentro del Quality Gate. El escalado específico se usa como diagnóstico. [Criterios](../engineering/phase_05/QUALITY_GATE_CRITERIA.md)
+
+La familia 2.4.x requiere un contrato de calificación propio una vez autorizada Fase 06. La planificación se apoya en la matriz acumulada de 2.3.1. Los recibos, criterios científicos nuevos y validación de familia se deben fijar antes de preparar el candidato RF. [Calificación de 2.3.1](../engineering/phase_05/CORRECTIVE_PREVIEW_2_3_1.md) · [Preparación de RF](../engineering/STRATEGIC_REVIEW_POST_PHASE_05.md#dictamen-de-preparación-para-fase-06)
 
 ## Mantener las notas y el historial
 

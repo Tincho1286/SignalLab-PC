@@ -4,10 +4,10 @@
 
 | Momento | Trabajo de planificación o seguimiento | Evidencia esperada |
 | --- | --- | --- |
-| Fase 05 en desarrollo | Completar los paquetes de identificación, estimación espectral, filtrado y Monte Carlo. | Oráculos, campañas, paridad entre interfaces y regresiones trazadas. [Seguimiento de Fase 05](phase_05/TRACEABILITY_MATRIX.md) |
-| Antes de calificar la primera 2.3.x | Completar la evidencia de ciencia y recursos en el Quality Gate acumulativo y ejecutar la matriz sobre el candidato. | Evidencia Windows y Linux sobre un mismo SHA, paquetes verificados y manifiesto firmado. [Criterios](phase_05/QUALITY_GATE_CRITERIA.md) |
+| Decisión pendiente | Autorizar el inicio de Fase 06 en `develop`. La preparación técnica se apoya en los motores ya acreditados. | Aprobación expresa. El dictamen propone empezar por contratos de red, oráculos y requisitos de interoperabilidad. [Dictamen](STRATEGIC_REVIEW_POST_PHASE_05.md#dictamen-de-preparación-para-fase-06) |
+| Al iniciar Fase 06 con autorización | Delimitar puertos, ondas, impedancia, formatos Touchstone, casos analíticos y presupuesto de recursos. Inventariar componentes críticos y preparar el Quality Gate de 2.4.x. | ADR de red, casos independientes de conversiones y cascadas, recursos y controles acumulados para un mismo SHA. [Plan](TOOL_MODERNIZATION_PLAN.md#fase-06--rf-y-microondas) |
 | Durante fases autorizadas | Revisar solapamientos, rendimientos y riesgos del dominio antes de añadir métodos, motores o dependencias. | Trazabilidad, reutilización o justificación de una herramienta independiente, y validación con oráculos. [Roadmap](ROADMAP.md) · [Catálogo de integración](INTEGRATION_CATALOG.md) |
-| Seguimiento | Preservar E-04 y los pendientes nativos de Fase 04. Las pruebas específicas de escalado sirven de diagnóstico. | Alcance de cada comprobación y registro de defectos reproducibles. [Estado vigente](PROJECT_STATE.md) · [Riesgos de Fase 04](phase_04/RESIDUAL_RISK_REGISTER.md) |
+| Seguimiento | MAT confiable, perfiles operativos medidos, dependencias nativas, Authenticode y límites científicos de Fase 05. | Registro de condiciones vigentes, evidencia por artefacto y criterios de resolución. [Riesgos actuales](RISK_REGISTER.md#situación-posterior-a-fase-05) · [Deuda técnica](TECHNICAL_DEBT.md#prioridades-activas-posteriores-a-fase-05) |
 
 ## Registros históricos
 

@@ -1,5 +1,20 @@
 # Dependencias, licencias y referencias externas
 
+## Línea base de la entrega 2.3.1
+
+El lock fija NumPy 2.5.5, SciPy 1.18.1, SymPy 1.14.0, Matplotlib 3.11.2 y h5py 3.16.0. CPython empaquetado es 3.14.10. Los inventarios de la Preview confirman Qt Essentials 6.12.1 y Expat 2.9.0 en ambos sistemas. El diagnóstico de Pillow confirma que JPEG 2000 está deshabilitado en ambos empaquetados. [Lock](../../requirements-lock.txt) · [Código y procedencia](phase_05/evidence/candidate-1311df1/verified-build.json)
+
+| Plataforma | Archivos nativos en el inventario | Verificación de OpenSSL |
+| --- | ---: | --- |
+| Windows x64 | 218 | El runtime CPython informa OpenSSL 3.5.9. El inventario identifica por separado el vínculo de `cryptography`. [Inventario Windows](https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.3.1/windows-native-inventory.json) |
+| Linux x86_64 | 385 | `libssl.so.3` y `libcrypto.so.3` se cotejaron con `libssl3:amd64` de Ubuntu `3.0.2-0ubuntu1.30`. El runtime base se informa aparte del vínculo de `cryptography`. [Inventario Linux](https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.3.1/linux-native-inventory.json) |
+
+Los adjuntos incluyen SBOM CycloneDX y comprobantes de las dos construcciones. La evidencia resuelve E-01 en el alcance de los portables indicado en su expediente. El lector MAT conserva E-02 y su política de archivos confiables, con mitigaciones y seguimiento de HDF5. La vigilancia de avisos, componentes del anfitrión y el paso de ruedas Qt fijadas a ruedas de distribución regular se evalúan por candidato y plataforma. [SBOM Windows](https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.3.1/windows-native.cdx.json) · [SBOM Linux](https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.3.1/linux-native.cdx.json) · [Alcance de excepciones](phase_02c/validation/EXCEPTION_APPROVAL_REGISTER.md)
+
+La política para las fases futuras distingue dependencias directas, adaptadores, formatos, procesos y referencias. SciPy se reutiliza dentro del lock. Las referencias de RF se evalúan primero mediante fórmulas, intercambio y programas de contraste. Cualquier adopción exige comprobar licencia, mantenimiento, seguridad, compatibilidad con el CPython fijado y ambos sistemas, precisión, alternativas y coste de distribución y soporte. [Modalidades y fuentes](INTEGRATION_CATALOG.md#referencias-y-modalidades-de-integración)
+
+## Inventario histórico de Fase 00
+
 **Fase 00 · 24 de noviembre de 2026.** Entorno observado: Windows x64, CPython 3.12.10. Las versiones de Linux se declaran en el mismo lock con marcadores de plataforma. Para verificar una publicación hace falta el inventario del artefacto correspondiente.
 
 ## Inventario instalado y declarado

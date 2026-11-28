@@ -1,6 +1,6 @@
 # Arquitectura
 
-La referencia para futuras fases es la evolución incremental del monolito modular. [Arquitectura objetivo](../engineering/ARCHITECTURE_TO_BE.md) · [Decisión de arquitectura](../engineering/ADR-004-INCREMENTAL-ENGINEERING.md)
+La referencia para futuras fases es la evolución incremental del monolito modular. [Arquitectura observada](../engineering/ARCHITECTURE_AS_IS.md#línea-base-posterior-a-fase-05) · [Arquitectura objetivo](../engineering/ARCHITECTURE_TO_BE.md) · [Decisión de arquitectura](../engineering/ADR-004-INCREMENTAL-ENGINEERING.md)
 
 [← Desarrollo](README.md)
 
@@ -12,8 +12,9 @@ SignalLab PC separa la definición de entrada, el modelo matemático, el cálcul
 | Entradas | `expression_editor.py`, `numeric_input.py`, `coefficient_editor.py`, `data_import.py`, `system_import.py` | Fórmulas, tramos, coeficientes, archivos y validación. |
 | Modelos | `model.py`, `filters.py`, `state_space.py` | Señales, transferencias y estados con metadatos explícitos. |
 | Cálculo | `operations.py`, `fourier.py`, `course_tools.py` y módulos especializados | Algoritmos numéricos, transformadas, filtros y procesos. |
+| Servicios y recursos | `dft_application.py`, `dsp_application.py`, `dsp_pipeline.py`, servicios por dominio y `execution.py` | Solicitudes, resultados, reservas estimadas, progreso y cancelación cooperativa. Los adaptadores conectan GUI, Python y CLI según operación. |
 | Álgebra | Analizadores de expresiones, `symbolic_process.py`, `cas_engine.py` | Gramática restringida, valores exactos y trabajo simbólico aislado. |
-| Resultados | `project.py`, `result_journal.py`, `result_expressions.py` | Registros, procedencia y reutilización compatible. |
+| Resultados y sesiones | `project.py`, `session.py`, `project_archive.py`, `scientific_storage.py`, `operation_provenance.py` y adaptadores de escritorio | Registros, integridad, guardado, restauración y reutilización en JSON, SLPROJ y SLBIN. |
 | Presentación | `report_view.py`, `signal_plot.py`, `plot_view.py` y ayudas | Fórmulas, tablas, figuras externas y explicaciones. |
 | Actualizaciones | `update_manifest.py`, `update_download.py`, `installations.py`, `update_ui.py` | Verificación del canal, descarga e inicio del instalador. |
 
