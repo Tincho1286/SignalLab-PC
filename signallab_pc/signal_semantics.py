@@ -6,13 +6,14 @@ def signal_kind(domain, units, metadata):
     if operation=='spectral_fraction':return 'spectral_measurement'
     if domain=='frequency' and metadata.get('distribution'):return 'spectral_lines'
     if operation=='cross_spectral_density':return 'cross_density'
+    if operation=='chirp_z':return 'z_samples'
     if operation=='irregular_periodogram':return 'irregular_periodogram'
     if operation in {'energy_density','spectral_density','welch','periodogram'}:return 'density'
     if domain=='discrete' and (units=='bin k' or operation=='DFT'):return 'dft_bins'
     if units=='k' or operation in {'continuous_fourier_series','discrete_fourier_series'}:return 'harmonics'
     if domain!='frequency':return 'temporal'
     if operation in {'frequency_filter','frequency_response','state_space_frequency'}:return 'frequency_response'
-    if operation in {'DFT','DTFT','CTFT_rectangle','stft'}:return 'spectrum'
+    if operation in {'DFT','DTFT','CTFT_rectangle','stft','zoom_fft'}:return 'spectrum'
     return 'frequency_values'
 
 

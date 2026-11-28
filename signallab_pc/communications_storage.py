@@ -1,7 +1,6 @@
 """Store typed communication records in the existing Project and session formats."""
 
 import base64
-import binascii
 from dataclasses import asdict, dataclass
 from hashlib import sha256
 from pathlib import Path
@@ -16,6 +15,7 @@ from .communications_pipeline import decode_pipeline_spec, load_channel_pipeline
 from .communications_pulses import PulseSpec
 from .communications_receiver import SynchronizationSpec
 from .execution import ExecutionContext
+from .input_files import decode_base64_exact
 from .operation_provenance import content_digest, encoded_digest, settings_digest
 from .project import Project
 
@@ -59,16 +59,7 @@ def _payload(document, kind):
 
 
 def _encoded_bytes(document, size):
-    text = document.get('data_base64')
-    if not isinstance(text, str) or len(text) != 4*((size+2)//3):
-        raise ValueError('La longitud codificada del registro no coincide con el encabezado.')
-    try:
-        raw = base64.b64decode(text, validate=True)
-    except (binascii.Error, ValueError) as exc:
-        raise ValueError('El registro contiene Base64 inválido.') from exc
-    if len(raw) != size or base64.b64encode(raw).decode('ascii') != text:
-        raise ValueError('La codificación binaria del registro es inconsistente.')
-    return raw
+    return decode_base64_exact(document.get('data_base64'), size)
 
 
 def decode_bits(document, execution: ExecutionContext | None = None) -> BitSequence:

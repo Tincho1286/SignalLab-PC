@@ -29,7 +29,7 @@ TITLES['bandpass_sampling']='Tasas de muestreo pasabanda'
 GUIDES['bandpass_sampling']='Definí la banda positiva de una señal real y consultá las tasas que evitan solapamiento.'
 
 TITLES['analog']='Filtro analógico por especificaciones'
-GUIDES['analog']='Definí bandas en rad/s y tolerancias de amplitud. Diseñá una familia o compará las cuatro con los mismos requisitos.'
+GUIDES['analog']='Diseñá por bandas y tolerancias o elegí un prototipo Bessel por orden y frecuencias características en rad/s.'
 
 class CourseToolsPanel(QWidget):
     def __init__(self,window,action):
@@ -128,7 +128,48 @@ class CourseToolsPanel(QWidget):
                 choice('method','Método',[('Butterworth digital','butter'),('Chebyshev I digital','cheby1'),('Chebyshev II digital','cheby2'),('Elíptico (Cauer) digital','ellip'),('Comparar las cuatro familias digitales','compare'),('Butterworth + bilineal con predeformación','bilinear'),('Butterworth + invarianza al impulso','impulse')]);field('period','T de la transformación (s)','1')
                 if action=='analog':
                     self.fields['method'].clear()
-                    for title,value in [('Butterworth analógico','butter'),('Chebyshev I analógico','cheby1'),('Chebyshev II analógico','cheby2'),('Elíptico analógico','ellip'),('Comparar familias analógicas','compare')]:self.fields['method'].addItem(title,value)
+                    from .analog_design import BESSEL_NORMALIZATIONS, FAMILIES
+                    for key, title in FAMILIES.items():
+                        self.fields['method'].addItem(title, key)
+                    self.fields['method'].addItem('Bessel por bandas y tolerancias', 'bessel')
+                    self.fields['method'].addItem('Bessel por orden y frecuencia', 'bessel_prototype')
+                    self.fields['method'].addItem('Comparar familias, incluido Bessel', 'compare_rf')
+                    self.fields['method'].addItem('Comparar las cuatro familias clásicas', 'compare')
+                    taken = form.takeRow(self.fields['method'])
+                    form.insertRow(0, taken.labelItem.widget(), self.fields['method'])
+                    choice('bessel_kind','Tipo de filtro',[('Pasabajos','lowpass'),('Pasaaltos','highpass'),
+                                                           ('Pasabanda','bandpass'),('Rechazabanda','bandstop')])
+                    choice('bessel_norm','Normalización',[('Fase','phase'),('Retardo','delay'),('Magnitud','mag')])
+                    field('bessel_order','Orden del prototipo','2')
+                    field('bessel_low','Frecuencia característica (rad/s)','1')
+                    field('bessel_high','Frecuencia superior (rad/s)','3')
+
+                    def show_analog_inputs(*_):
+                        fixed = self.fields['method'].currentData() == 'bessel_prototype'
+                        two_edges = self.fields['bessel_kind'].currentData() in ('bandpass', 'bandstop')
+                        form.setRowVisible(self.band_edges, not fixed)
+                        self.band_edges.setProperty('calculationInput', not fixed)
+                        form.setRowVisible(self.amplitude_note, not fixed)
+                        if fixed:
+                            form.setRowVisible(self.fields['amplitude_high'], False)
+                            self.fields['amplitude_high'].setProperty('calculationInput', False)
+                        else:
+                            update_amplitudes()
+                        for key in ('amplitude_low', 'tolerance_units', 'dp', 'ds'):
+                            form.setRowVisible(self.fields[key], not fixed)
+                            self.fields[key].setProperty('calculationInput', not fixed)
+                        for key in ('bessel_kind', 'bessel_norm', 'bessel_order', 'bessel_low', 'bessel_high'):
+                            visible = fixed and (key != 'bessel_high' or two_edges)
+                            form.setRowVisible(self.fields[key], visible)
+                            self.fields[key].setProperty('calculationInput', visible)
+                        form.labelForField(self.fields['bessel_low']).setText(
+                            'Frecuencia inferior (rad/s)' if two_edges else 'Frecuencia característica (rad/s)')
+                        if hasattr(self, 'band_preview'):
+                            self._update_band_preview(self.width())
+
+                    self.fields['method'].currentIndexChanged.connect(show_analog_inputs)
+                    self.fields['bessel_kind'].currentIndexChanged.connect(show_analog_inputs)
+                    show_analog_inputs()
                 self.fields['method'].currentIndexChanged.connect(lambda *_:form.setRowVisible(self.fields['period'],self.fields['method'].currentData() in ('bilinear','impulse')));form.setRowVisible(self.fields['period'],False)
                 self.family_note=QLabel();self.family_note.setWordWrap(True);form.addRow(self.family_note)
                 def explain_family(*_):
@@ -138,8 +179,19 @@ class CourseToolsPanel(QWidget):
                         'ellip':'Elíptico: ondulación en ambas bandas. Compará también la fase y la respuesta temporal.',
                         'bilinear':'Prototipo Butterworth con bordes predeformados; conserva el prototipo analógico.',
                         'impulse':'Prototipo Butterworth por invarianza al impulso; el aliasing puede alterar las tolerancias digitales.'}
-                    self.family_note.setText(descriptions[self.fields['method'].currentData()].replace('digitales','analógicas' if action=='analog' else 'digitales')+' Los límites de amplitud se muestran para cada banda.')
+                    method = self.fields['method'].currentData()
+                    if method == 'bessel_prototype':
+                        explanation = BESSEL_NORMALIZATIONS[self.fields['bessel_norm'].currentData()]
+                    elif method == 'bessel':
+                        explanation = 'Bessel: retardo plano cerca de Ω = 0 en el prototipo pasabajos. Se busca un orden compatible con ambas tolerancias.'
+                    elif method == 'compare_rf':
+                        explanation = 'Compara las cuatro familias clásicas y Bessel si cumple ambas tolerancias con el mapeo de paso.'
+                    else:
+                        explanation = descriptions[method].replace('digitales','analógicas' if action=='analog' else 'digitales')
+                    self.family_note.setText(explanation)
                 self.fields['method'].currentIndexChanged.connect(explain_family);explain_family()
+                if action == 'analog':
+                    self.fields['bessel_norm'].currentIndexChanged.connect(explain_family)
 
         elif action=='bandpass_sampling':
             field('low','Borde inferior ΩL (rad/s)','');field('high','Borde superior ΩH (rad/s)','')
@@ -315,11 +367,15 @@ class CourseToolsPanel(QWidget):
     def resizeEvent(self,event):
         super().resizeEvent(event)
         if hasattr(self,'band_preview'):
-            external=self.width()>=870
-            if external!=self._band_preview_external:
-                self._band_preview_external=external
-                self.band_edges.place_diagram(self.band_preview_layout if external else None)
-                self.band_preview.setVisible(external)
+            self._update_band_preview(self.width())
+
+    def _update_band_preview(self, width):
+        fixed = self.action == 'analog' and self.fields['method'].currentData() == 'bessel_prototype'
+        external = width >= 870 and not fixed
+        if external != self._band_preview_external:
+            self._band_preview_external = external
+            self.band_edges.place_diagram(self.band_preview_layout if external else None)
+            self.band_preview.setVisible(external)
 
     def calculate(self):
         try:
@@ -340,9 +396,20 @@ class CourseToolsPanel(QWidget):
                 from .bandpass_sampling import analyze
                 args=(self.scalar('low'),self.scalar('high'),self.scalar('candidate') if self.fields['candidate'].text().strip() else None);job=lambda:analyze(*args)
             elif action=='analog':
-                from .amplitude_design import design
-                wp,ws=self.band_edges.bands();amplitudes=[self.scalar('amplitude_low')]+([self.scalar('amplitude_high')] if self.band_edges.kind.currentData()=='bandstop' else []);units=self.fields['tolerance_units'].currentData()
-                args=(wp,ws,self.scalar('dp'),self.scalar('ds'),self.fields['method'].currentData());job=lambda:design(*args,amplitudes=amplitudes,units=units,analog=True)
+                method = self.fields['method'].currentData()
+                if method == 'bessel_prototype':
+                    from .analog_design import bessel_prototype
+                    kind = self.fields['bessel_kind'].currentData()
+                    norm = self.fields['bessel_norm'].currentData()
+                    edge = [self.scalar('bessel_low')]
+                    if kind in ('bandpass', 'bandstop'):
+                        edge.append(self.scalar('bessel_high'))
+                    order = self.integer('bessel_order')
+                    job = lambda: bessel_prototype(order, edge, kind=kind, normalization=norm)
+                else:
+                    from .amplitude_design import design
+                    wp,ws=self.band_edges.bands();amplitudes=[self.scalar('amplitude_low')]+([self.scalar('amplitude_high')] if self.band_edges.kind.currentData()=='bandstop' else []);units=self.fields['tolerance_units'].currentData()
+                    args=(wp,ws,self.scalar('dp'),self.scalar('ds'),method);job=lambda:design(*args,amplitudes=amplitudes,units=units,analog=True)
             elif action in ('fir','iir'):
                 wp,ws=self.band_edges.bands()
                 amplitudes=[self.scalar('amplitude_low')]+([self.scalar('amplitude_high')] if self.band_edges.kind.currentData()=='bandstop' else []);units=self.fields['tolerance_units'].currentData()

@@ -181,5 +181,6 @@ def design(wp,ws,dp,ds,method,period=1,taps=0,window='kaiser',search=0,*,amplitu
         if system.domain!=('analog' if analog else 'digital'):continue
         status,report=evaluate_spec(system,spec);reports.append(system.name+'\nOrden del denominador: '+str(len(system.a)-1)+'\n'+report);accepted.append(status)
     output['report']='Diseño por bandas y tolerancias\n\nMétodo: '+method+'\nAmplitudes deseadas: '+', '.join(f'{v:.12g}' for v in amplitudes)+'\nLos límites de cada banda se aplican al módulo. La ganancia del prototipo se ajusta al límite superior permitido.\n\n'+'\n\n'.join(reports)
+    if output.get('design_notes'):output['report']+='\n\n'+'\n'.join(output['design_notes'])
     if method=='impulse':output['report']+='\nLa conversión por invarianza al impulso puede introducir aliasing; se evalúa el resultado digital y no se presume que conserve las tolerancias del prototipo.'
     output['specification_met']=all(accepted);return output

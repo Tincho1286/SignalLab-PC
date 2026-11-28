@@ -31,7 +31,7 @@ class WindowSpectrumView(QWidget):
             with np.errstate(divide='ignore'):values=20*np.log10(magnitude)
         else:values=magnitude
         from .visible_curve import VisibleCurve
-        self.curve=VisibleCurve(axis,frequency,values,label='Ventana / |W(0)|' if data['metrics']['normalizable'] else 'Ventana nula')
+        self.curve=VisibleCurve(axis,frequency,values,label='Ventana / |W(0)|' if data['metrics']['normalizable'] else 'Ventana sin referencia en continua')
         cutoff=data['metrics']['half_power_frequency']
         if cutoff is not None:
             for artist in (axis.axvline(cutoff,color='#edc27d',ls='--',lw=.8,label='Media potencia'),axis.axhline(-10*np.log10(2) if db else 1/np.sqrt(2),color='#edc27d',ls=':',lw=.7)):

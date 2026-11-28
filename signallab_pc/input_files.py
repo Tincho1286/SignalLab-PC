@@ -1,6 +1,8 @@
 """Bounded UTF-8 and JSON reads for user-selected documents."""
 
 from contextlib import contextmanager
+import base64
+import binascii
 import json
 import math
 import os
@@ -12,6 +14,18 @@ from .jobs import checkpoint as check_job
 from .resources import ensure_working_set
 
 _READ_BLOCK = 1024**2
+
+
+def decode_base64_exact(text, size):
+    if not isinstance(text, str) or len(text) != 4*((size+2)//3):
+        raise ValueError('La longitud codificada del registro no coincide con el encabezado.')
+    try:
+        raw = base64.b64decode(text, validate=True)
+    except (binascii.Error, ValueError) as exc:
+        raise ValueError('El registro contiene Base64 inválido.') from exc
+    if len(raw) != size or base64.b64encode(raw).decode('ascii') != text:
+        raise ValueError('La codificación binaria del registro es inconsistente.')
+    return raw
 
 
 @contextmanager

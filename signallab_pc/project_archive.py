@@ -1,5 +1,6 @@
-"""Optional transactional project or session with binary signal records."""
+"""Optional transactional project or session with binary signals and RF networks."""
 
+import base64
 from hashlib import sha256
 from hmac import compare_digest
 import json
@@ -11,17 +12,33 @@ import numpy as np
 
 from .atomic_file import atomic_binary_file
 from .execution import ExecutionContext
-from .input_files import decode_finite_json, regular_binary_file
+from .input_files import decode_base64_exact, decode_finite_json, regular_binary_file
 from .jobs import checkpoint as check_job
 from .project import Project, _record_without_samples
 from .resources import ResourceLimitError, ensure_working_set
+from .rf_storage import is_rf_data, payload_size
 
 
 MAGIC = b'SLPROJ\x00\x01'
+MAGIC_RF = b'SLPROJ\x00\x02'
 _MAX_HEADER = 16 * 1024**2
 _MAX_RECORDS = 10000
 _CHUNK = 1024**2
 _DTYPE = np.dtype('<c16')
+
+
+def _stored_rf(row):
+    return row.get('kind') == 'calculation' and is_rf_data(row.get('data'))
+
+
+def _manifest_record(row):
+    if not _stored_rf(row):
+        return _record_without_samples(row)
+    return {**row, 'data':{key:value for key,value in row['data'].items() if key != 'data_base64'}}
+
+
+def _stored_bytes(row, count):
+    return count * _DTYPE.itemsize if row.get('kind')=='signal' else count
 
 
 def save(path, project, workspace=None, *, before_commit=None, checkpoint=None):
@@ -30,16 +47,27 @@ def save(path, project, workspace=None, *, before_commit=None, checkpoint=None):
     records = project._stable_records()
     if len(records) > _MAX_RECORDS:
         raise ResourceLimitError('El proyecto científico supera 10 000 registros.')
-    counts = [len(row['data']['values']) if row['kind'] == 'signal' else 0 for row in records]
+    counts=[]
+    largest_rf=0
+    for row in records:
+        check()
+        if row['kind']=='signal':
+            counts.append(len(row['data']['values']))
+        elif _stored_rf(row):
+            count=payload_size(row['data'])
+            largest_rf=max(largest_rf,count)
+            counts.append(count)
+        else:
+            counts.append(0)
     header = json.dumps({
         'project': {'format': 'signallab-project', 'schema_version': 2,
-                    'records': [_record_without_samples(row) for row in records]},
+                    'records': [_manifest_record(row) for row in records]},
         'workspace': workspace, 'counts': counts,
     }, ensure_ascii=False, allow_nan=False, separators=(',', ':')).encode('utf-8')
     if len(header) > _MAX_HEADER:
         raise ResourceLimitError('Los metadatos del proyecto científico superan 16 MiB.')
-    prefix = MAGIC + struct.pack('<I', len(header))
-    size = len(prefix) + len(header) + _DTYPE.itemsize * sum(counts) + 32
+    prefix = (MAGIC_RF if largest_rf else MAGIC) + struct.pack('<I', len(header))
+    size = len(prefix) + len(header) + sum(_stored_bytes(row,count) for row,count in zip(records,counts,strict=True)) + 32
     if size > disk_usage(Path(path).parent).free:
         raise ResourceLimitError('El proyecto científico requiere más espacio disponible en disco.')
 
@@ -49,12 +77,15 @@ def save(path, project, workspace=None, *, before_commit=None, checkpoint=None):
             before_commit()
 
     digest = sha256(prefix + header)
-    with ExecutionContext().reserve(8*len(header) + _CHUNK), atomic_binary_file(path, before_commit=commit_check) as file:
+    with ExecutionContext().reserve(8*len(header) + _CHUNK + 5*largest_rf), atomic_binary_file(path, before_commit=commit_check) as file:
         file.write(prefix)
         file.write(header)
         for row, count in zip(records, counts, strict=True):
             if count:
-                values = memoryview(np.asarray(row['data']['values'], dtype=_DTYPE)).cast('B')
+                if row['kind']=='signal':
+                    values = memoryview(np.asarray(row['data']['values'], dtype=_DTYPE)).cast('B')
+                else:
+                    values = memoryview(decode_base64_exact(row['data'].get('data_base64'),count))
                 for offset in range(0, len(values), _CHUNK):
                     check()
                     block = values[offset:offset+_CHUNK]
@@ -65,7 +96,7 @@ def save(path, project, workspace=None, *, before_commit=None, checkpoint=None):
 
 def _read_manifest(file, size):
     prefix = file.read(len(MAGIC) + 4)
-    if len(prefix) != len(MAGIC) + 4 or not prefix.startswith(MAGIC):
+    if len(prefix) != len(MAGIC) + 4 or not prefix.startswith((MAGIC,MAGIC_RF)):
         raise ValueError('Formato de proyecto científico desconocido.')
     length = struct.unpack('<I', prefix[len(MAGIC):])[0]
     if not 0 < length <= _MAX_HEADER or len(prefix) + length + 32 > size:
@@ -89,9 +120,12 @@ def _read_manifest(file, size):
         if row.get('kind') == 'signal':
             if not count or not isinstance(row.get('data'), dict) or 'values' in row['data']:
                 raise ValueError('La señal requiere una referencia binaria no vacía.')
+        elif prefix.startswith(MAGIC_RF) and _stored_rf(row):
+            if payload_size(row['data'])!=count or 'data_base64' in row['data']:
+                raise ValueError('La red RF requiere una referencia binaria válida.')
         elif count:
             raise ValueError('Sólo los registros de señal admiten referencias binarias.')
-    data_bytes = _DTYPE.itemsize * sum(counts)
+    data_bytes = sum(_stored_bytes(row,count) for row,count in zip(records,counts,strict=True))
     if len(prefix) + length + data_bytes + 32 != size:
         raise ValueError('El tamaño de las muestras no coincide con el manifiesto.')
     return document, workspace, counts, sha256(prefix + header), 3*data_bytes + 8*length
@@ -102,7 +136,8 @@ def _read_samples(file, document, counts, digest, check):
         if not count:
             continue
         check()
-        data = np.empty(count, dtype=_DTYPE)
+        signal = row['kind']=='signal'
+        data = np.empty(count, dtype=_DTYPE if signal else np.uint8)
         payload = memoryview(data).cast('B')
         for offset in range(0, len(payload), _CHUNK):
             check()
@@ -110,7 +145,10 @@ def _read_samples(file, document, counts, digest, check):
             if file.readinto(block) != len(block):
                 raise ValueError('Muestras incompletas en el proyecto científico.')
             digest.update(block)
-        row['data']['values'] = data
+        if signal:
+            row['data']['values'] = data
+        else:
+            row['data']['data_base64'] = base64.b64encode(payload).decode('ascii')
     if not compare_digest(file.read(32), digest.digest()) or file.read(1):
         raise ValueError('Falló la integridad del proyecto científico.')
 
