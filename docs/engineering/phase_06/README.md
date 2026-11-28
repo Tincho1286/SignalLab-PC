@@ -6,5 +6,8 @@ Fase autorizada en `develop` para la familia 2.4.x. La entrega prevista es 2.4.0
 - [Arquitectura](ARCHITECTURE.md) · [Contratos científicos](SCIENTIFIC_CONTRACTS.md)
 - [Validación matemática](MATHEMATICAL_VALIDATION_PROTOCOL.md) · [Trazabilidad](TRACEABILITY_MATRIX.md)
 - [Criterios del Quality Gate](QUALITY_GATE_CRITERIA.md) · [Registro de implementación](IMPLEMENTATION_LOG.md)
+- [Matriz de validación](VALIDATION_MATRIX.md) · [Perfiles y rendimiento](PERFORMANCE_REPORT.md)
+- [Interfaces y referencias](INTEGRATION_CATALOG.md) · [Ejemplos de Python y consola](RF_API_EXAMPLES.md)
+- [Seguridad de archivos](SECURITY_REVIEW.md) · [Límites y seguimiento](TECHNICAL_DEBT_REGISTER.md)
 
 La fase califica la implementación y publica el candidato en Preview. La aceptación funcional, la integración y la autorización de Fase 07 son decisiones posteriores del propietario. [Política de entregas](../RELEASE_POLICY.md)

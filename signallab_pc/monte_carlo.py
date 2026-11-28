@@ -3,6 +3,7 @@
 import csv
 from dataclasses import dataclass
 import io
+import json
 import math
 from pathlib import Path
 import sys
@@ -15,7 +16,7 @@ from .atomic_file import atomic_binary_file, write_json
 from .campaign_files import campaign_writer, safe_file
 from .communications_data import MAX_SEED, integer, real
 from .execution import ExecutionContext
-from .input_files import read_json
+from .input_files import decode_finite_json, read_json
 from .operation_provenance import settings_digest
 from .probability import Distribution, _MAX_EXACT_INTEGER, _moment_status, interval_probability, population
 from .spectral_scaling import restore_scalar
@@ -56,6 +57,7 @@ class CampaignSpec:
     common_random_numbers: bool = False
     target_half_width: float | None = None
     minimum_replicas: int = 2
+    scientific_context: str | None = None
 
     def __post_init__(self):
         scenarios = tuple(self.scenarios)
@@ -91,6 +93,14 @@ class CampaignSpec:
                 raise ValueError(f'El intervalo requiere un momento poblacional finito de orden {order}.')
         if self.target_half_width is not None:
             object.__setattr__(self,'target_half_width',real(self.target_half_width,'Semiancho objetivo',positive=True))
+        if self.scientific_context is not None:
+            if not isinstance(self.scientific_context,str) or len(self.scientific_context)>65536:
+                raise ValueError('El contexto científico requiere un objeto JSON acotado.')
+            document=decode_finite_json(self.scientific_context)
+            if not isinstance(document,dict):
+                raise ValueError('El contexto científico de campaña debe ser un objeto.')
+            object.__setattr__(self,'scientific_context',json.dumps(document,sort_keys=True,allow_nan=False,
+                                                                    separators=(',',':')))
         for key,value in (('scenarios',scenarios),('seed',integer(self.seed,'Semilla maestra',minimum=0,maximum=MAX_SEED)),
                           ('samples',samples),('replicas',replicas),('batch',batch),('minimum_replicas',lower),
                           ('confidence',confidence)):
@@ -99,9 +109,12 @@ class CampaignSpec:
     def document(self):
         names = ('metric','seed','samples','replicas','batch','confidence','low','high','common_random_numbers',
                  'target_half_width','minimum_replicas')
-        return {**{key:getattr(self,key) for key in names},
-                'scenarios':[{'name':row.name,'family':row.distribution.family,
-                              'parameters':dict(row.distribution.parameters)} for row in self.scenarios]}
+        document={**{key:getattr(self,key) for key in names},
+                  'scenarios':[{'name':row.name,'family':row.distribution.family,
+                                'parameters':dict(row.distribution.parameters)} for row in self.scenarios]}
+        if self.scientific_context is not None:
+            document['scientific_context']=self.scientific_context
+        return document
 
 
 def campaign_spec(document):

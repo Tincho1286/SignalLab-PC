@@ -165,8 +165,8 @@ def native_lock_coverage(measurements):
     return within_threshold(totals,90,85)
 
 
-def evaluate(folder, candidate, version):
-    if not phase_five_version(version):
+def evaluate(folder, candidate, version, *, cumulative=False):
+    if not cumulative and not phase_five_version(version):
         raise ValueError('Fase 05 requiere una versión Preview 2.3.x.')
     if not isinstance(candidate, str) or not re.fullmatch(r'[0-9a-f]{40}', candidate):
         raise ValueError('Indicá el SHA completo del candidato.')

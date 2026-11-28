@@ -42,6 +42,8 @@ class ZoomSpectrum:
     nominal_dft_spacing: float
     duration_s: float | None
     peaks: tuple[SpectralPeak, ...]
+    dft_bins: np.ndarray | None
+    dft_values: np.ndarray | None
 
 
 @dataclass(frozen=True, slots=True)
@@ -124,13 +126,15 @@ def _peaks(values, axis, angular, origin, weights, interpolants, limit, ctx):
 
 
 def zoom_fft(source: Signal, start, stop, count=1025, *, units='rad/muestra', rate_hz=None,
-             window='boxcar', window_options=None, complex_tone_peaks=0, context=None):
+             window='boxcar', window_options=None, complex_tone_peaks=0, compare_dft=False, context=None):
     """Evaluate the DTFT on a closed grid. Peak amplitudes assume isolated complex tones."""
     ctx = context if context is not None else ExecutionContext()
     ctx.checkpoint()
     origin = _checked_signal(source)
     count = integer(count, 'Puntos de Zoom FFT', minimum=2, maximum=MAX_CONTOUR_SAMPLES)
     peak_count = integer(complex_tone_peaks, 'Cantidad de picos', minimum=0, maximum=50)
+    if type(compare_dft) is not bool:
+        raise ValueError('Indicá si querés superponer los bins de la DFT.')
     low, high = real(start, 'Inicio de banda'), real(stop, 'Fin de banda')
     rate = _sample_rate(source, rate_hz)
     if units not in ('rad/muestra', 'Hz') or (units == 'Hz' and rate is None):
@@ -139,7 +143,7 @@ def zoom_fft(source: Signal, start, stop, count=1025, *, units='rad/muestra', ra
     if (not isinstance(window_options, (dict, type(None)))
             or set(window_options or {}) - {'symmetric', 'beta', 'alpha', 'nw', 'attenuation_db'}):
         raise ValueError('Parámetros de ventana espectral no reconocidos.')
-    work = 160 * next_fast_len(length + count - 1) + 72 * (length + count)
+    work = 160 * next_fast_len(length + count - 1) + 72 * (length + count) + (144*length if compare_dft else 0)
     with ctx.reserve(work):
         axis = grid(low, high, count)
         angular = axis if units == 'rad/muestra' else (axis / rate)*math.tau
@@ -150,6 +154,16 @@ def zoom_fft(source: Signal, start, stop, count=1025, *, units='rad/muestra', ra
         values = _finite_output(source.values * weights, 'La señal enventanada')
         transformed = _zoom_values(values, angular, ctx, origin)
         peaks = _peaks(values, axis, angular, origin, weights, transformed, peak_count, ctx) if peak_count else ()
+        bins=coefficients=None
+        if compare_dft:
+            from .fourier_phase import bin_frequency, bin_range, dft_values
+            first,last=bin_range(float(angular[0]),float(angular[-1]),length)
+            indices=np.arange(first,last+1,dtype=np.int64)
+            bins=bin_frequency(indices,length)
+            coefficients=dft_values(values,length,origin)[indices%length]
+            if units=='Hz':
+                bins=(bins/math.tau)*rate
+            ctx.checkpoint()
         step = (high-low)/(count-1)
         spacing = (math.tau if units == 'rad/muestra' else rate)/length
         elapsed = real(length/rate, 'Duración del registro en s', positive=True) if rate else None
@@ -163,7 +177,7 @@ def zoom_fft(source: Signal, start, stop, count=1025, *, units='rad/muestra', ra
                     'convention':'Sum x[n] w[n] exp(-j*w*n). Closed grid; finer spacing does not improve physical resolution.'}
         spectrum = Signal(transformed, low, step, units, 'Zoom FFT · '+source.name, 'frequency', metadata=metadata)
     ctx.checkpoint()
-    return ZoomSpectrum(spectrum, int(length), step, spacing, elapsed, peaks)
+    return ZoomSpectrum(spectrum, int(length), step, spacing, elapsed, peaks, bins, coefficients)
 
 
 def chirp_z(source: Signal, count, *, initial_radius=1, initial_angle_rad=0, radius_ratio=1,

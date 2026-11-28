@@ -51,6 +51,12 @@ MENUS['Señales'] += [(title,'time_transform',index,'continuous') for index,titl
 MENUS['Filtros y sistemas'].insert(1,('Conectar sistemas','interconnection',0,None))
 
 MENUS['Fourier'] += [('Ventanas, FFT y resolución espectral','course_tools','fft','discrete'),('Energía espectral por banda','course_tools','band','frequency'),('Potencia periódica y líneas espectrales','course_tools','lines','discrete')]
+MENUS['Fourier'].append(('Zoom FFT y Chirp-Z','rf','spectral','discrete'))
+MENUS['RF y microondas']=[
+    ('Redes multipuerto','rf','network',None),
+    ('Líneas y adaptación','rf','line',None),
+    ('Enlace, ruido y dispositivos','rf','link',None),
+]
 MENUS['Filtros y sistemas'] += [('FIR por especificaciones','course_tools','fir',None),('IIR por especificaciones','course_tools','iir',None),('Convertir sistema analógico / digital','course_tools','convert',None),('Normalizar ganancia','course_tools','gain',None),('Fase mínima y fase lineal','course_tools','phase',None)]
 MENUS['Transformadas'] += [('Z inversa con región de convergencia','course_tools','inverse_z',None)]
 MENUS['Muestreo'] += [('Mapeo de frecuencias y período','course_tools','mapping',None)]

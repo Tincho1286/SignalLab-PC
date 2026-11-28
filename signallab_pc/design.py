@@ -49,6 +49,7 @@ def icon(kind, color=None):
         'wave':'M2 12h3l3-8 5 16 3-8h6',
         'chart':'M3 3v18h18 M6 15l4-6 4 3 6-8',
         'constellation':'M12 3v18 M3 12h18 M6 5h2v2H6z M16 5h2v2h-2z M6 17h2v2H6z M16 17h2v2h-2z',
+        'rf':'M7 4a7 7 0 0 0 0 10 M17 4a7 7 0 0 1 0 10 M9 6a4 4 0 0 0 0 6 M15 6a4 4 0 0 1 0 6 M12 8a1 1 0 1 0 0 2a1 1 0 1 0 0-2z M12 11v10 M8 21h8',
         'table':'M3 4h18v16H3z M3 9h18 M9 4v16 M15 4v16',
         'filter':'M3 5h18 M6 12h12 M10 19h4 M7 3v4 M16 10v4 M12 17v4',
         'sample':'M3 19V9 M9 19V4 M15 19V12 M21 19V7',

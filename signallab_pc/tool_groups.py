@@ -11,7 +11,7 @@ GROUPS={
 'correlation':('Sistemas','Correlación y autocorrelación','correlation',[
  ('Correlación', [('Discreta',('correlation',0)),('Continua y periódica',('correlation',1)),('Continua algebraica',('correlation_algebra',0))])]),
 'fourier':('Espectros','Fourier y FFT','spectrum',[
- ('Discreta', [('DTFT y comparación con DFT',('fourier',0)),('DFT',('basic','dft')),('DFT inversa',('basic','idft')),('FFT, ventanas y resolución',('course_tools','fft')),('DTFT algebraica',('dtft_symbolic',0)),('DTFT inversa numérica',('inverse_dtft',0)),('DTFT inversa algebraica',('dtft_symbolic',1))]),
+ ('Discreta', [('DTFT y comparación con DFT',('fourier',0)),('DFT',('basic','dft')),('DFT inversa',('basic','idft')),('FFT, ventanas y resolución',('course_tools','fft')),('Zoom FFT y Chirp-Z',('rf','spectral')),('DTFT algebraica',('dtft_symbolic',0)),('DTFT inversa numérica',('inverse_dtft',0)),('DTFT inversa algebraica',('dtft_symbolic',1))]),
  ('Continua', [('Transformada numérica',('fourier',1)),('Inversa numérica',('fourier',3)),('Transformada algebraica',('fourier_symbolic',0)),('Inversa algebraica',('fourier_symbolic',1))])]),
 'series':('Espectros','Series de Fourier','harmonics',[
  ('Series', [('Continua',('fourier',4)),('Discreta',('fourier',5)),('Potencia y líneas espectrales',('course_tools','lines'))])]),

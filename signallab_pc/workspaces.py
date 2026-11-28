@@ -7,7 +7,9 @@ STATIONS += [('Sistemas','Filtros','design',[FILTER_ROUTE[1:3]]),('Sistemas','Co
 # Keep categories together in the explorer and the menu bar.
 STATIONS.append(('Comunicaciones', 'Comunicaciones digitales', 'constellation',
                  [item[1:3] for item in MENUS['Comunicaciones']]))
-_order=['Señales','Sistemas','Espectros','Muestreo','Transformadas','Aleatorias','Comunicaciones']
+STATIONS.append(('RF y microondas', 'RF y microondas', 'rf',
+                 [item[1:3] for item in MENUS['RF y microondas']]))
+_order=['Señales','Sistemas','Espectros','Muestreo','Transformadas','Aleatorias','Comunicaciones','RF y microondas']
 STATIONS.sort(key=lambda station:_order.index(station[0]))
 STATION_FOR={key:index for index,(_,_,_,keys) in enumerate(STATIONS) for key in keys}
 for key,route in GROUP_FOR.items():STATION_FOR[key]=STATION_FOR[route[1:3]]

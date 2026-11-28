@@ -84,7 +84,11 @@ DETAILS[('dsp_extensions','hilbert')]='Señal real → Hilbert, señal analític
 DETAILS[('dsp_extensions','stft')]='Ventanas de una señal → espectrograma y espectros locales exportables.'
 DETAILS[('dsp_extensions','blocks')]='Secuencias x[n] y h[n] → convolución completa por overlap-add u overlap-save.'
 
-DETAILS[('course_tools','analog')]='Bandas en rad/s → Butterworth, Chebyshev o elíptico analógicos, comparables y reutilizables.'
+DETAILS[('course_tools','analog')]='Diseñá por bandas o elegí el orden y la normalización de un filtro Bessel. Reutilizá H(s) para análisis temporal y en frecuencia.'
+DETAILS[('rf','network')]='Analizá matrices RF, cambiá referencias, conectá puertos e intercambiá archivos Touchstone.'
+DETAILS[('rf','line')]='Evaluá líneas uniformes y RLGC o diseñá la adaptación. Consultá la reflexión y la impedancia en la carta de Smith.'
+DETAILS[('rf','link')]='Calculá potencias del enlace, sensibilidad del receptor y límites de la aproximación cúbica.'
+DETAILS[('rf','spectral')]='Evaluá una banda de Fourier o un contorno en z con el reloj y el origen de la secuencia.'
 
 DETAILS['course_tools','bandpass_sampling']='Banda en rad/s → intervalos de muestreo admisibles y evaluación de una tasa elegida.'
 

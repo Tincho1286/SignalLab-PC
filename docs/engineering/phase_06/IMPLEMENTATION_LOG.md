@@ -23,3 +23,11 @@ python -B -X utf8 -m unittest test_rf_link_bessel test_window_convolution_analys
 ```
 
 Los controles de funciones y ventanas se ejecutaron con Qt fuera de pantalla. El candidato acumulado y los perfiles por plataforma quedan para la calificación del mismo SHA.
+
+## Experimentos e interfaces
+
+El barrido de adaptación mantiene fijos los componentes y evalúa cambios de carga o de elementos en toda la banda. La sensibilidad Bessel se estimó con diferencias centrales y se contrastó con derivadas cerradas. La incertidumbre de enlace convierte perturbaciones aditivas gaussianas en dB en escenarios del motor de campañas existente. La prueba interrumpe una campaña tras ocho réplicas y verifica que la reanudación reproduce las muestras y la huella de una ejecución independiente.
+
+Se añadieron tres documentos RF y una variante de Fourier. Las rutas de redes importan o reutilizan matrices, muestran sus parámetros y permiten examinar Γ en la carta de Smith. El diseñador Bessel permanece en el diseñador analógico. Los resultados conservan las entradas y productos en el proyecto. La consola y el escritorio utilizan el mismo contrato de solicitud. [Ejemplos](RF_API_EXAMPLES.md)
+
+El ensayo local de los demostradores A a F completó 32 comparaciones numéricas independientes. Se amplió la ejecución acumulativa de GitHub para retener sus evidencias y perfiles, verificar portables e instaladores y vincular el Quality Gate con el SHA de la publicación. [Validación](VALIDATION_MATRIX.md)

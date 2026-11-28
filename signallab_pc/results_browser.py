@@ -29,12 +29,12 @@ RESULT_TYPES = {
     'expression': ('Expresión', 'math', 'purple'),
 }
 SPECTRAL_KINDS = {'dft_bins', 'harmonics', 'spectrum', 'density', 'frequency_values',
-                  'frequency_response', 'spectral_lines', 'spectral_measurement'}
+                  'frequency_response', 'spectral_lines', 'spectral_measurement','z_samples'}
 SIGNAL_KINDS = {
     'dft_bins': 'Coeficientes DFT', 'harmonics': 'Armónicos', 'spectrum': 'Espectro',
     'density': 'Densidad espectral', 'frequency_values': 'Datos de frecuencia',
     'frequency_response': 'Respuesta en frecuencia', 'spectral_lines': 'Líneas espectrales',
-    'spectral_measurement': 'Medición espectral',
+    'spectral_measurement': 'Medición espectral', 'z_samples':'Contorno de Chirp-Z',
 }
 RECORD_KIND = Qt.ItemDataRole.UserRole + 2
 
@@ -62,6 +62,8 @@ def record_description(record, info, *, compact=False):
         return ('Sistema H(z)' if info['domain'] == 'digital' else 'Sistema H(s)'), ''
     if record['kind'] == 'state_space':
         return ('Estados discretos' if info['domain'] == 'discrete' else 'Estados continuos'), ''
+    if info.get('data_kind')=='rf_network':
+        return 'Red RF',f"{info['parameters']} · {info['ports']} puertos · {info['count']} frecuencias"
     if info.get('expression'):
         variable = info.get('variable')
         return 'Expresión', f'Variable {variable}' if variable else ''

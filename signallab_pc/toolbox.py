@@ -731,6 +731,9 @@ class ToolPage(QWidget):
         if kind=='communications':
             from .communications_panel import CommunicationsPanel
             self.panel=CommunicationsPanel(window,index);root.addWidget(self.panel);return
+        if kind=='rf':
+            from .rf_panel import RFPanel
+            self.panel=RFPanel(window,index);root.addWidget(self.panel);return
         if kind=='systems' and index==9:
             from .temporal_panel import TemporalPanel
             self.panel=TemporalPanel(window);root.addWidget(self.panel);return
@@ -1492,10 +1495,17 @@ class ToolboxWindow(SignalLabWindow):
         value=cached if cached is not None else self.project.get(record['id'])
         self.result_browser.set_value(value)
         from .cas_transfer import can_send
+        from .rf_storage import is_rf_data
         transferable=can_send(value)
         if hasattr(self,'cas_selection'):self.cas_selection.setEnabled(transferable)
-        self.reuse_selection.setEnabled(transferable or isinstance(value,(Signal,Transfer,StateModel)) or self.result_browser.record_info[record['id']].get('expression',False))
+        self.reuse_selection.setEnabled(transferable or is_rf_data(value) or isinstance(value,(Signal,Transfer,StateModel)) or self.result_browser.record_info[record['id']].get('expression',False))
         if cached is not None:return
+        if is_rf_data(value):
+            from .result_summary import Summary,Section
+            self.project_details.set_readable(Summary(record['title'],[Section('Red RF',rows=[
+                ('Representación',str(value.get('representation',''))),('Puertos',str(value.get('ports',''))),
+                ('Frecuencias en Hz',str(value.get('frequencies',''))),('Huella de matrices',str(value.get('data_sha256','')))])]))
+            return
         if isinstance(value,dict) and 'cas_answer' in value:
             from .library_result_view import show_cas_result
             show_cas_result(self.project_details,value);return
@@ -1529,8 +1539,8 @@ class ToolboxWindow(SignalLabWindow):
                 viewer=ResultView();layout.addWidget(viewer,1);viewer.show_result(source);viewer.result_ids=[record['id']]
             else:
                 report=ReportView();layout.addWidget(report_panel(report),1)
-                content=source['report'] if isinstance(source,dict) and isinstance(source.get('report'),str) else json.dumps(source,ensure_ascii=False,indent=2) if isinstance(source,dict) else ''
                 from .result_summary import calculation_summary
+                from .rf_storage import is_rf_data
                 if isinstance(source,Transfer):
                     from .result_summary import transfer_summary
                     report.set_readable(transfer_summary(source))
@@ -1538,10 +1548,17 @@ class ToolboxWindow(SignalLabWindow):
                 elif isinstance(source,dict) and 'cas_answer' in source:
                     from .library_result_view import show_cas_result
                     show_cas_result(report,source)
+                elif is_rf_data(source):
+                    from .result_summary import Summary,Section
+                    report.set_readable(Summary(record['title'],[Section('Red RF',rows=[
+                        ('Representación',str(source.get('representation',''))),('Puertos',str(source.get('ports',''))),
+                        ('Frecuencias en Hz',str(source.get('frequencies','')))])]))
                 else:
                     summary=calculation_summary(source)
                     if summary is not None:report.set_readable(summary)
-                    else:report.setPlainText(record['title']+'\n\n'+content)
+                    else:
+                        content=source['report'] if isinstance(source,dict) and isinstance(source.get('report'),str) else json.dumps(source,ensure_ascii=False,indent=2) if isinstance(source,dict) else ''
+                        report.setPlainText(record['title']+'\n\n'+content)
         self.category='Proyecto';self.title.setText(record['title']);self.subtitle.setText('Consultá el resultado guardado sin repetir el cálculo. Las señales pueden exportarse y reutilizarse; los informes pueden copiarse o guardarse con formato.')
         self.back.setText('← Volver a Resultados');self.back.show();self.stack.setCurrentWidget(self.pages[key])
         self.statusBar().showMessage('Vista del resultado almacenado; no se generó un cálculo nuevo.')
@@ -1551,6 +1568,15 @@ class ToolboxWindow(SignalLabWindow):
         row=self.project_list.currentRow()
         if not 0<=row<len(self.visible_records):return
         key=self.visible_records[row]['id'];value=self.project.get(key)
+        from .rf_storage import is_rf_data
+        if is_rf_data(value):
+            from .rf_panel import MODES
+            submenu=self.reuse_menu.addMenu('Redes multipuerto')
+            for label,operation in MODES['network']:
+                if operation=='define':continue
+                self.reuse_actions.append(submenu.addAction(label,
+                    lambda checked=False,operation=operation:self.send_rf_network(key,operation)))
+            return
         from .tool_catalog import compact_destinations,AREA_BY_ID,destination_label
         items=[item for entries in MENUS.values() for item in entries]
         expression=self.project.expression(key)
@@ -1588,6 +1614,16 @@ class ToolboxWindow(SignalLabWindow):
                 for destination,labels in variants:
                     self.reuse_actions.append(submenu.addAction(' · '.join(labels),lambda checked=False,destination=destination,send=send:send(destination=destination)))
             else:self.reuse_actions.append(groups[area].addAction(destination_label(entry,item),send))
+
+    def send_rf_network(self,key,operation='analyze'):
+        from .workspaces import ROUTES
+        item=ROUTES['rf','network']
+        self.open_tool(item)
+        panel=self.pages[item].panel
+        panel.mode.setCurrentIndex(panel.mode.findData(operation))
+        panel._set_input(0,self.project.get(key).get('name') or 'Red RF',key)
+        self.statusBar().showMessage('Red RF cargada. Revisá la operación y calculá.')
+        return panel
 
     def export_selected(self):
         from pathlib import Path

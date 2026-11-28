@@ -100,7 +100,8 @@ class ProjectArchiveTests(unittest.TestCase):
             row['data'].pop('values')
             body = struct.pack('<dd', 2, 3)
             read_cases = [
-                (b'SLPROJ\x00\x02' + b'\0'*40, 'Formato'),
+                (b'SLPROJ\x00\x03' + b'\0'*40, 'Formato'),
+                (b'SLPROJ\x00\x02' + b'\0'*40, 'Tamaño de manifiesto'),
                 (self.archive(b'{"project":{},"project":{},"workspace":null,"counts":[]}'), 'claves repetidas'),
                 (self.archive(b'{"project":{},"workspace":{"a":NaN},"counts":[]}'), 'Constante JSON'),
                 (self.archive(b'{"project":{},"workspace":{"a":1e99999},"counts":[]}'), 'números finitos'),

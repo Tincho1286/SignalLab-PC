@@ -14,7 +14,7 @@ AREA_COLORS = {
     'signals':COLORS['green'], 'systems':COLORS['blue'],
     'filters':COLORS['purple'], 'spectra':COLORS['amber'],
     'sampling':COLORS['cyan'], 'transforms':COLORS['accent'],
-    'random':COLORS['red'], 'communications':COLORS['amber'],
+    'random':COLORS['red'], 'communications':COLORS['amber'], 'rf':COLORS['cyan'],
 }
 
 

@@ -2,7 +2,7 @@
 from pathlib import Path
 import json,re,unicodedata
 
-CATEGORIES=('Fundamentos de señales','Señales continuas y discretas','Operaciones y transformaciones de señales','Sistemas LTI','Convolución y correlación','Series y transformadas de Fourier','Transformadas de Laplace y Z','Muestreo y reconstrucción','Análisis de sistemas','Diseño de filtros FIR e IIR','Ecuaciones diferenciales y en diferencias','Procesamiento digital de señales','Señales aleatorias','Herramientas matemáticas complementarias')
+CATEGORIES=('Fundamentos de señales','Señales continuas y discretas','Operaciones y transformaciones de señales','Sistemas LTI','Convolución y correlación','Series y transformadas de Fourier','Transformadas de Laplace y Z','Muestreo y reconstrucción','Análisis de sistemas','Diseño de filtros FIR e IIR','Ecuaciones diferenciales y en diferencias','Procesamiento digital de señales','Señales aleatorias','Herramientas matemáticas complementarias','RF y microondas')
 
 from .library_content import data_root
 
@@ -34,6 +34,7 @@ def category(section):
         if task in ('bandpass_sampling','mapping'):return CATEGORIES[7]
         return CATEGORIES[5]
     if kind=='dsp_extensions':return CATEGORIES[4] if task=='blocks' else CATEGORIES[5]
+    if kind=='rf':return CATEGORIES[5] if task=='spectral' else 'RF y microondas'
     if kind=='difference_equation' or kind=='symbolic' and task==4:return CATEGORIES[10]
     if kind in ('transform_lab','symbolic'):return CATEGORIES[6]
     if kind in ('random','random_correlation','random_model'):return CATEGORIES[12]

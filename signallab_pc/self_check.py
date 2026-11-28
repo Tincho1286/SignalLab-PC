@@ -170,6 +170,29 @@ def run(destination):
                 actual = reloaded.get(key)
                 np.testing.assert_array_equal(actual.values, expected.values)
                 assert actual.metadata == expected.metadata
+            from .rf_application import RFRequest, run_rf, store_rf
+            from .rf_storage import load_network
+            from .touchstone import read_touchstone, write_touchstone
+            rf_file=Path(directory)/'sample.s2p'
+            rf_file.write_text('# MHz S RI R 50\n5 0 0 0.75 0 0.1 0 0 0\n',encoding='ascii')
+            source=read_touchstone(rf_file)
+            checked=run_rf(RFRequest('analyze'),(source,))
+            np.testing.assert_array_equal(checked.data.scattering.values[0],[[0,.1],[.75,0]])
+            interchanged=Path(directory)/'reopened.ts'
+            write_touchstone(interchanged,source)
+            np.testing.assert_array_equal(read_touchstone(interchanged).values,source.values)
+            rf_project=Project()
+            keys=store_rf(rf_project,checked)
+            session.save(archive,rf_project,session.empty_workspace())
+            reopened,_=session.load(archive)
+            np.testing.assert_array_equal(load_network(reopened,keys['product_id']).values,source.values)
+            zoom=run_rf(RFRequest('zoom',{'start':-1,'stop':1,'count':5}),(Signal([1,2],-1),))
+            np.testing.assert_allclose(zoom.signal.values,2+np.exp(1j*zoom.signal.axis),atol=1e-14)
+            report['checks']['packaged_rf_network_and_project']=True
+        rf_item=ROUTES['rf','network']
+        window.open_tool(rf_item)
+        assert window.pages[rf_item].panel.mode.findData('renormalize')>=0
+        report['checks']['packaged_rf_workbench']=True
         probability_item = ROUTES['random', 'generate']
         window.open_tool(probability_item)
         app.processEvents()

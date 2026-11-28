@@ -10,12 +10,13 @@ AREAS=[
  ('transforms','Laplace y Z','Expresiones, inversas y ecuaciones diferenciales.','zplane'),
  ('random','Señales aleatorias','Estadística, correlación y modelos AR/MA/ARMA.','random'),
  ('communications','Comunicaciones digitales','Modulación, pulsos, ruido, recepción y métricas.','constellation'),
+ ('rf','RF y microondas','Redes multipuerto, adaptación, líneas y enlaces.','rf'),
 ]
 ENTRIES=[]
 def add(area,section,key,title,summary,tags=''):
     ENTRIES.append(dict(area=area,section=section,key=key,route=ROUTES[key],title=title,summary=summary,tags=tags))
 add('signals','Crear y editar',('basic','generate'),'Crear una señal','Fórmula, muestras o archivo; gráfico y tabla.','generar graficar impulso escalon seno coseno tramos matlab')
-add('signals','Crear y editar',('window_signal',0),'Generar ventanas','Rectangular, Hann, Hamming, Blackman, Bartlett o Kaiser como secuencia independiente.','ventana window longitud L M kaiser beta transformada fourier z fft enventanar')
+add('signals','Crear y editar',('window_signal',0),'Generar ventanas','Ventanas simétricas para FIR y periódicas para Fourier, con métricas de su espectro.','ventana window longitud L M kaiser beta transformada fourier z fft enventanar tukey flattop nuttall dpss chebyshev')
 add('signals','Crear y editar',('signal_editor',0),'Editar muestras','Editar valores y eje; exportar o reutilizar la salida.','tabla datos continuo discreto')
 for key,title,summary in [
  ('shift','Desplazar','Trasladar una secuencia en índices enteros.'),('reverse','Invertir','Reflejar una secuencia respecto de n = 0.'),('scale','Ajustar amplitud discreta','Escala y desplazamiento vertical de una secuencia.'),('parity','Partes par e impar','Separar las dos componentes de una secuencia.'),('sum','Sumar señales','Sumar dos señales discretas o continuas sobre su intervalo conjunto.')]:add('signals','Transformar',('basic',key),title,summary)
@@ -63,6 +64,7 @@ for key,title,summary in [
  (('basic','dft'),'DFT','Transformar una secuencia finita.'),
  (('basic','idft'),'DFT inversa','Recuperar la secuencia desde X[k].'),
  (('course_tools','fft'),'FFT y ventanas','Longitud observada, resolución y comparación espectral.'),
+ (('rf','spectral'),'Zoom FFT y Chirp-Z','Evaluá una banda o un contorno en z. Medí picos de tonos complejos.'),
  (('dtft_symbolic',0),'DTFT algebraica','Expresión de la secuencia y soporte de suma.')]:add('spectra','Fourier discreta',key,title,summary,'transformada frecuencia')
 for key,title,summary in [
  (('fourier',1),'Fourier continua numérica','Transformar un registro temporal.'),
@@ -127,6 +129,9 @@ for mode, group, title, description in (
     ('measure','Recepción','Medir BER, SER y EVM','Compará etiquetas y observaciones I/Q alineadas.'),
 ):
     add('communications',group,('communications',mode),title,description,'comunicaciones digital qpsk iq bpsk')
+add('rf','Redes',('rf','network'),'Redes multipuerto','Importá Touchstone o definí matrices. Convertí, conectá o medí parámetros.','S Z Y ABCD referencia impedancia cascada aislamiento')
+add('rf','Líneas',('rf','line'),'Líneas y adaptación','Líneas uniformes y RLGC, VSWR, adaptadores y carta de Smith.','transmision smith stub impedancia cuarto de onda')
+add('rf','Enlace',('rf','link'),'Enlace, ruido y dispositivos','Potencia, sensibilidad, ruido en cascada y distorsión de tercer orden.','friis EIRP IIP3 OIP3 IM3 p1db sfdr')
 # Operations have one canonical home, regardless of their historical routes.
 for entry in ENTRIES:
     if entry['key'] in (('basic','sum'),('signal_product',0)):entry['section']='Combinar y comparar'

@@ -1,0 +1,89 @@
+{
+  "version": 1,
+  "category": "RF y microondas",
+  "articles": [
+    {
+      "key": ["rf", "network"],
+      "blocks": [
+        ["De las ondas a la matriz", "Sᵢⱼ mide la onda que sale por i cuando excitás el puerto j y adaptás los demás puertos. La diagonal describe reflexión y las demás entradas describen transmisión."],
+        ["Cómo cargar la red", "Abrí un archivo Touchstone, recuperá una red guardada o definí las matrices. Ingresá una frecuencia en Hz por matriz. Para dos puertos escribí los valores 11, 12, 21 y 22 en ese orden, separados por comas. Usá un punto y coma entre matrices."],
+        ["Referencias y conexiones", "Las referencias se expresan en ohmios positivos y pueden diferir por puerto. Igualá las referencias internas al conectar dos redes en cascada. Para terminar una red, elegí los puertos a conservar y escribí la carga en ohmios, matched, open o short."],
+        ["Cómo leer las medidas", "Una reflexión de −20 dB tiene una pérdida de retorno de 20 dB. El retardo mide la pendiente de la fase y queda indefinido en los nulos de transmisión. En la carta de Smith hacé clic cerca de la curva para inspeccionar la frecuencia y los valores normalizados."],
+        ["Formatos de archivo", "Se admiten Touchstone 1.0 y 2.0 con matrices S, Z o Y, codificadas como RI, MA o DB. Touchstone no transporta una referencia que cambia con la frecuencia. SLPROJ conserva esa información junto a las frecuencias, los puertos y la procedencia."]
+      ]
+    },
+    {
+      "key": ["rf", "line"],
+      "blocks": [
+        ["Qué calcula la línea", "La impedancia de entrada depende de la carga, la frecuencia y la longitud. Con una línea sin pérdidas de cuarto de onda y una carga resistiva se obtiene la relación Zentrada = Zc² / Rcarga."],
+        ["Parámetros y unidades", "En línea uniforme, escribí la longitud en metros, Zc en ohmios, el factor de velocidad de 0 a 1 sin incluir 0 y la atenuación en dB por metro. RLGC usa resistencia e inductancia serie y conductancia y capacitancia transversal, todas por metro. Su frecuencia inicial debe ser positiva."],
+        ["Adaptar una carga", "Para redes L, cuarto de onda y stub, elegí la frecuencia donde querés reducir la reflexión y cargá la impedancia. Si aparecen varias soluciones, seleccioná una en el gráfico. El barrido mantiene fijos los elementos de cada diseño."],
+        ["Interpretar el gráfico", "El centro de Smith indica adaptación a la referencia de entrada. La excursión de la curva al alejarte de la frecuencia de diseño muestra cuánto se desadapta el circuito dentro de la banda. Las pérdidas del adaptador ideal provienen de la desadaptación."]
+      ]
+    },
+    {
+      "key": ["rf", "link"],
+      "blocks": [
+        ["De TX a RX", "La EIRP suma la potencia transmitida y la ganancia de la antena TX, descontando las pérdidas previas. El balance aplica además la pérdida de propagación y la ganancia de la antena RX."],
+        ["Cómo cargar potencias", "Usá dBm para niveles absolutos, dB para pérdidas o ganancias y dBi para antenas. Ingresá las pérdidas de cable o conectores como valores positivos. La temperatura de fuente se expresa en kelvin y el ancho equivalente de ruido, en Hz."],
+        ["Qué indica cada medida", "El ruido integrado y la SNR requerida fijan la sensibilidad. El margen es la potencia de entrada del receptor menos la sensibilidad. En cascada, la contribución de las etapas posteriores depende de la ganancia que las precede."],
+        ["Compresión y distorsión", "Calibrá la aproximación cúbica con IIP3 o P1dB de entrada. Con dos tonos la potencia se expresa por tono. El modelo se limita a 1 dB de compresión de la fundamental y reporta un SFDR si el cruce con el ruido cae dentro de ese dominio."]
+      ]
+    },
+    {
+      "key": ["rf", "spectral"],
+      "blocks": [
+        ["Zoom FFT", "Calcula la DTFT en un intervalo cerrado del eje. Elegí los límites, los puntos y la ventana. Hz requiere conocer Fs. La fase usa los índices n de la secuencia."],
+        ["Chirp-Z", "Evalúa X(z) sobre un contorno. El radio se multiplica por la razón de radios en cada paso y el ángulo suma el paso indicado. En el círculo unidad el resultado coincide con la DTFT en los ángulos evaluados."],
+        ["Picos y ventanas", "Podés refinar picos de tonos complejos aislados. La amplitud y la fase se estiman al evaluar la transformada en el máximo y corregir la ganancia de la ventana. Los extremos de la banda pueden quedar fuera de la detección."],
+        ["Resolución física", "Aumentar los puntos mejora la lectura de la curva. Separar dos tonos depende de cuánto dura el registro, de la ventana y de la distancia entre los tonos."]
+      ]
+    }
+  ],
+  "guides": [
+    {
+      "key": ["rf", "network"],
+      "flow": ["Red, frecuencias y referencias", "Analizar, convertir o conectar", "Medidas y red reutilizable"],
+      "parameters": [
+        ["S, Z, Y, ABCD", "S es adimensional, Z se expresa en Ω e Y en siemens. ABCD requiere dos puertos."],
+        ["Matriz", "El primer subíndice es salida y el segundo es entrada. La posición 21 es transmisión de 1 hacia 2."],
+        ["Puertos retenidos", "El orden elegido se conserva. Los demás se terminan en la carga indicada."],
+        ["Rejilla", "Las frecuencias se ingresan en Hz. En una cascada deben coincidir punto a punto."]
+      ],
+      "reading": "Compará módulo, fase y retardo en el mismo par de puertos. La carta de Smith usa la reflexión del puerto de entrada seleccionado."
+    },
+    {
+      "key": ["rf", "line"],
+      "flow": ["Longitud, carga y banda", "Propagación o síntesis de adaptación", "Reflexión, VSWR y carta de Smith"],
+      "parameters": [
+        ["Factor de velocidad", "Es la velocidad de fase del modelo uniforme dividida por la velocidad de la luz."],
+        ["Carga", "Se escribe como impedancia, por ejemplo una resistencia más una reactancia, o como una terminación ideal."],
+        ["Frecuencia de adaptación", "Frecuencia de diseño puntual. La banda del gráfico se fija por separado."],
+        ["Carta de Smith", "El mismo Γ sirve para leer impedancia y admitancia. Se elige la cuadrícula que se quiere inspeccionar."]
+      ],
+      "reading": "En el centro de la carta Γ = 0 y VSWR = 1. En circuito abierto o corto ideal, el VSWR vale infinito."
+    },
+    {
+      "key": ["rf", "link"],
+      "flow": ["Potencias y ganancias por etapa", "Propagación, ruido o cubo", "Margen, sensibilidad o distorsión"],
+      "parameters": [
+        ["Ancho equivalente de ruido", "Banda en Hz utilizada para integrar la densidad de ruido de entrada."],
+        ["Figura de ruido", "Relación de degradación de SNR a la temperatura de referencia de 290 K, expresada en dB."],
+        ["IIP3 y P1dB", "El primero es un punto extrapolado de cruce; el segundo es el nivel donde la ganancia cae un decibelio."],
+        ["Nivel por tono", "Potencia individual en dBm. Con dos tonos, la potencia total de entrada es 3,0103 dB mayor."]
+      ],
+      "reading": "Un margen positivo indica que la potencia recibida supera la sensibilidad estimada bajo el modelo elegido."
+    },
+    {
+      "key": ["rf", "spectral"],
+      "flow": ["Secuencia, ventana o contorno", "Zoom FFT o Chirp-Z", "Espectro, contorno y picos"],
+      "parameters": [
+        ["Intervalo", "En Zoom FFT se incluyen ambos extremos. El intervalo admite hasta un período de la DTFT."],
+        ["Radio inicial y razón", "El radio k es el inicial multiplicado por razón elevada a k."],
+        ["Ángulo inicial y paso", "Los ángulos se expresan en radianes. Vacío usa un paso de 2π dividido por la cantidad de puntos."],
+        ["Malla de ventana", "Periódica para análisis DFT o simétrica para generar las mismas muestras de una ventana FIR."]
+      ],
+      "reading": "El eje de un contorno Chirp-Z muestra su índice k. El panel de contorno indica qué punto de z corresponde a cada evaluación."
+    }
+  ]
+}

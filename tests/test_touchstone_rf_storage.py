@@ -139,6 +139,38 @@ class TouchstoneTests(unittest.TestCase):
         self.assertEqual(destination.read_text(), '# old\n')
         self.assertEqual(len(tuple(self.folder.iterdir())), 1)
 
+    def test_text_normalization_and_validation_reject_data_loss(self):
+        cases=(
+            ('# Hz S RI R 0\n1 1 0','positiva'),
+            ('# Hz S RI\n1 1e309 0','representables'),
+            ('# Hz S RI\n1 1e-340 0','representables'),
+            ('# Hz S DB\n1 -7000 0','rango lineal'),
+            ('# Hz Z RI R 100\n1 1e308 0','normalización'),
+            ('# Hz S RI\n1 0 0 1 0','más datos'),
+            ('[Version] 2.0\n# Hz\n[Reference] 50','primera sección'),
+            ('[Version] 2.0\n# Hz\n[Number of Ports] 1\n[Number of Frequencies] 1\n'
+             '[Reference] -50\n[Network Data]\n1 1 0\n[End]','positiva'),
+            ('[Version] 2.0\n# Hz\n[Number of Ports] 1\n[Number of Frequencies] 1\n'
+             '[Number of Frequencies] 1\n[Network Data]\n1 1 0\n[End]','repetida'),
+            ('[Version] 2.0\n# Hz\n[Number of Ports] 1\n[Number of Frequencies] 1\n'
+             '[Network Data]\n1 1 0\n2 1 0\n[End]','excede'),
+            ('[Version] 2.0\n# Hz\n[Number of Ports] 1\n[Number of Frequencies] 1','Falta'),
+        )
+        for index,(content,reason) in enumerate(cases):
+            with self.subTest(index=index),self.assertRaisesRegex((ValueError,ResourceLimitError),reason):
+                read_touchstone(self.create(f'bad-{index}.s1p',content))
+        material=self.folder/'encoded.s1p'
+        material.write_bytes(b'# Hz S RI\n1 \xff 0')
+        with self.assertRaisesRegex(ValueError,'ASCII'):
+            read_touchstone(material)
+        for document, path, version in (
+            (RFNetwork([1],[[[1]]]),self.folder/'bad.s2p','1.0'),
+            (RFNetwork([1],[[[1]]]),self.folder/'bad.ts','3.0'),
+            (RFNetwork([1],[[[1e308]]],representation='Y'),self.folder/'bad.s1p','1.0'),
+        ):
+            with self.assertRaises(ValueError):
+                write_touchstone(path,document,version=version)
+
 
 class RFStorageTests(unittest.TestCase):
     def test_json_and_binary_project_preserve_rf_lineage_and_signal(self):
@@ -190,6 +222,18 @@ class RFStorageTests(unittest.TestCase):
             load_network(project,project.add(document))
         with self.assertRaisesRegex(ValueError,'Origen'):
             store_network(project,net,parents=['missing'])
+
+    def test_binary_rf_archive_validates_size_and_checksum(self):
+        project=Project()
+        store_network(project,RFNetwork([1e6],[[[.2]]]))
+        with TemporaryDirectory() as folder:
+            path=Path(folder)/'calibration.slproj'
+            save(path,project,empty_workspace())
+            content=path.read_bytes()
+            for corrupted in (content[:-2],content[:-1]+bytes([content[-1] ^ 1])):
+                path.write_bytes(corrupted)
+                with self.assertRaisesRegex(ValueError,'tamaño|integridad'):
+                    load(path)
 
 
 if __name__=='__main__':

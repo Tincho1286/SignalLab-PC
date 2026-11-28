@@ -28,7 +28,7 @@ FAMILIES=[
  (('course_tools','gain'),('Ganancia',)),(('course_tools','phase'),('Fase y compensación',))]),
  ('Transformada de Fourier','DFT/FFT, DTFT y Fourier continua; elegir transformada, dirección y cálculo.',('Transformada','Dirección','Cálculo'),[
  (('fourier',0),('DTFT','Directa','Numérico')),(('dtft_symbolic',0),('DTFT','Directa','Algebraico')),(('inverse_dtft',0),('DTFT','Inversa','Numérico')),(('dtft_symbolic',1),('DTFT','Inversa','Algebraico')),
- (('basic','dft'),('DFT / FFT','Directa','Transformada')),(('course_tools','fft'),('DFT / FFT','Directa','Ventanas y resolución')),(('basic','idft'),('DFT / FFT','Inversa','Numérico')),
+ (('basic','dft'),('DFT / FFT','Directa','Transformada')),(('course_tools','fft'),('DFT / FFT','Directa','Ventanas y resolución')),(('rf','spectral'),('DFT / FFT','Directa','Zoom FFT y Chirp-Z')),(('basic','idft'),('DFT / FFT','Inversa','Numérico')),
  (('fourier',1),('Fourier continua','Directa','Numérico')),(('fourier_symbolic',0),('Fourier continua','Directa','Algebraico')),(('fourier',3),('Fourier continua','Inversa','Numérico')),(('fourier_symbolic',1),('Fourier continua','Inversa','Algebraico'))]),
  ('Series de Fourier y líneas espectrales','Coeficientes, síntesis periódica y potencia en armónicos.',('Estudio','Dominio'),[
  (('fourier',4),('Serie','Continua')),(('fourier',5),('Serie','Discreta')),(('course_tools','lines'),('Líneas de potencia','Continua'))]),

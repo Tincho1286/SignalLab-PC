@@ -1,5 +1,5 @@
 """Short editorial titles and subject groups; identifiers and search aliases stay stable."""
-TOPICS=('Primeros pasos','Señales','Convolución y correlación','Sistemas','Filtros','Fourier y espectros','Laplace y Z','Muestreo','Ecuaciones','Señales aleatorias','Matemática y CAS')
+TOPICS=('Primeros pasos','Señales','Convolución y correlación','Sistemas','Filtros','Fourier y espectros','Laplace y Z','Muestreo','Ecuaciones','Señales aleatorias','Matemática y CAS','RF y microondas')
 CONCEPT_CATEGORIES={
  'Interfaz de trabajo':0,
  'Gráficos y cursores':0,
@@ -66,7 +66,7 @@ SHORT={
 
 def topic(category):
     from .library_catalog import CATEGORIES
-    return TOPICS[(0,1,1,3,2,5,6,7,3,4,8,5,9,10)[CATEGORIES.index(category)]]
+    return TOPICS[(0,1,1,3,2,5,6,7,3,4,8,5,9,10,11)[CATEGORIES.index(category)]]
 
 
 def apply(sections):

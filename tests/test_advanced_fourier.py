@@ -49,6 +49,20 @@ class AdvancedFourierTests(unittest.TestCase):
         self.assertGreater(abs(peak.sampled_frequency - f), 1e-5)
         self.assertEqual(zoom_fft(Signal([0,0]), -1, 1, 10, complex_tone_peaks=4).peaks, ())
 
+    def test_optional_dft_is_on_its_original_bins_with_same_window_and_phase(self):
+        values=np.array([.5+.7j,1,2-1j,-1,.1,2,3j,-4])
+        source=Signal(values,-3,metadata={'sample_rate_hz':64})
+        result=zoom_fft(source,-20.,30.,107,units='Hz',window='hann',compare_dft=True,
+                        window_options={'symmetric':False})
+        assert_array_equal(result.dft_bins,[-16,-8,0,8,16,24])
+        weights=.5-.5*np.cos(2*np.pi*np.arange(8)/8)
+        expected=np.exp(-2j*np.pi*np.outer(result.dft_bins/64,source.axis)) @ (values*weights)
+        assert_allclose(result.dft_values,expected,atol=3e-15)
+        plain=zoom_fft(source,1,2,41)
+        self.assertIsNone(plain.dft_bins)
+        with self.assertRaises(ValueError):
+            zoom_fft(source,-1,1,21,compare_dft=1)
+
     def test_chirp_z_matches_laurent_polynomial_including_negative_origin(self):
         x = Signal([.5+1j, 1, -2j, 3, -1], -2)
         result = chirp_z(x, 137, initial_radius=.8, initial_angle_rad=-.4, radius_ratio=1.003,
@@ -155,6 +169,18 @@ class AdvancedWindowTests(unittest.TestCase):
                               ('dpss',{'nw':10}), ('chebwin',{'attenuation_db':25}),('kaiser',{'beta':-1})):
             with self.subTest(kind=kind), self.assertRaises(ValueError):
                 window_samples(kind, 20, **options)
+
+    def test_sidelobe_at_nyquist_and_spectrum_without_a_half_power_crossing(self):
+        from signallab_pc.window_spectrum import measure_section
+        short=analyze(generate_window('boxcar',3))['metrics']
+        self.assertAlmostEqual(short['peak_sidelobe_db'],20*np.log10(1/3))
+        flat=analyze(Signal([1,0]))
+        self.assertIsNone(flat['metrics']['half_power_frequency'])
+        self.assertTrue(any('No se alcanza media potencia' in paragraph for paragraph in measure_section(flat).paragraphs))
+        cancellation=analyze(Signal([1,-1]))
+        self.assertTrue(any('componente en ω=0' in paragraph for paragraph in measure_section(cancellation).paragraphs))
+        with self.assertRaisesRegex(ValueError,'real'):
+            analyze(Signal([1j,1j]))
 
 
 if __name__ == '__main__':

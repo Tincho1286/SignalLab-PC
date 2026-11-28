@@ -32,8 +32,9 @@ def _numbers(tokens):
         if len(token)>80 or not _NUMBER.fullmatch(token):
             raise ValueError(f'Touchstone requiere números decimales válidos: {token[:25]}.')
         value = float(token)
-        if not math.isfinite(value):
-            raise ValueError('Touchstone requiere números finitos.')
+        mantissa=token.lower().split('e',1)[0]
+        if not math.isfinite(value) or (value==0 and any(char in '123456789' for char in mantissa)):
+            raise ValueError('Touchstone requiere números representables en doble precisión.')
         result.append(value)
     return result
 
@@ -157,7 +158,20 @@ def _complex_values(flat, encoding):
         raise ValueError('Una magnitud Touchstone en MA debe ser no negativa.')
     with np.errstate(over='ignore',under='ignore',invalid='ignore'):
         magnitude = np.power(10.,first/20) if encoding=='DB' else first
+        if encoding=='DB' and np.any((magnitude==0) | ~np.isfinite(magnitude)):
+            raise ValueError('El módulo Touchstone en dB queda fuera del rango lineal representable.')
         return magnitude * np.exp(1j*np.deg2rad(np.remainder(second,360)))
+
+
+def _rescale(values,reference,parameters,*,export=False):
+    if parameters=='S':
+        return values
+    with np.errstate(over='ignore',under='ignore',invalid='ignore',divide='ignore'):
+        converted=values*reference if (parameters=='Z')!=export else values/reference
+    if (not np.isfinite(converted).all() or np.any((values.real!=0)&(converted.real==0))
+            or np.any((values.imag!=0)&(converted.imag==0))):
+        raise ValueError('La normalización Touchstone 1.0 excede el rango numérico.')
+    return converted
 
 
 def _parse_rows(lines, frequency, matrices, settings, context):
@@ -242,9 +256,7 @@ def read_touchstone(path, *, context=None):
                 actual=_parse_rows(lines,frequency,matrices,settings,ctx)
                 values=matrices[:actual]
                 if version=='1.0':
-                    with np.errstate(over='ignore',invalid='ignore'):
-                        if parameters=='Z':values *= reference
-                        elif parameters=='Y':values /= reference
+                    values=_rescale(values,reference,parameters)
                 return RFNetwork(frequency[:actual],values,representation=parameters,reference_ohm=reference_values,
                                  name=path.stem,context=ctx,metadata={'touchstone_version':version,
                                      'source_file':path.name,'source_sha256':digest.hexdigest(),
@@ -283,13 +295,7 @@ def write_touchstone(path, network: RFNetwork, *, version='2.0', context=None):
         for frequency,values in zip(network.frequencies_hz,network.values,strict=True):
             ctx.checkpoint()
             if legacy:
-                with np.errstate(over='ignore',under='ignore',invalid='ignore',divide='ignore'):
-                    converted = values/reference[0] if network.representation=='Z' else (
-                        values*reference[0] if network.representation=='Y' else values)
-                if not np.isfinite(converted).all() or np.any((values.real!=0)&(converted.real==0)) or (
-                        np.any((values.imag!=0)&(converted.imag==0))):
-                    raise ValueError('La normalización Touchstone 1.0 excede el rango numérico.')
-                values=converted
+                values=_rescale(values,reference[0],network.representation,export=True)
             if legacy and ports==2:
                 values=values.T
             if ports <= 2:

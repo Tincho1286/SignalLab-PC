@@ -4,6 +4,13 @@ on:
   push:
     branches: [main, develop]
     paths:
+      - 'tests/test_rf_*.py'
+      - 'tests/test_advanced_fourier.py'
+      - 'tests/test_touchstone_rf_storage.py'
+      - 'tools/check_quality_gate_06.py'
+      - 'tools/measure_rf.py'
+      - 'tools/qualify_rf.py'
+      - 'tools/rf_demonstrators.py'
       - 'signallab_pc/**.py'
       - 'main.py'
       - 'tests/test_math_*.py'
@@ -66,6 +73,13 @@ on:
       - '.github/workflows/mathematics.yml'
   pull_request:
     paths:
+      - 'tests/test_rf_*.py'
+      - 'tests/test_advanced_fourier.py'
+      - 'tests/test_touchstone_rf_storage.py'
+      - 'tools/check_quality_gate_06.py'
+      - 'tools/measure_rf.py'
+      - 'tools/qualify_rf.py'
+      - 'tools/rf_demonstrators.py'
       - 'signallab_pc/**.py'
       - 'main.py'
       - 'tests/test_math_*.py'
@@ -119,6 +133,10 @@ on:
         description: Run the cumulative matrix and qualify a 2.3.x Preview candidate without publishing
         type: boolean
         default: false
+      phase_06:
+        description: Run the cumulative RF matrix and qualify a 2.4.x Preview candidate without publishing
+        type: boolean
+        default: false
       desktop_regressions:
         description: Run a focused set of desktop regressions
         type: boolean
@@ -142,7 +160,7 @@ concurrency:
 
 jobs:
   core-mathematics:
-    if: ${{ !inputs.engineering_baseline && !inputs.phase_05 && !inputs.desktop_regressions && !inputs.native_packaging }}
+    if: ${{ !inputs.engineering_baseline && !(inputs.phase_05 || inputs.phase_06) && !inputs.desktop_regressions && !inputs.native_packaging }}
     strategy:
       fail-fast: false
       matrix:
@@ -177,7 +195,7 @@ jobs:
           retention-days: 7
 
   workflow-integration:
-    if: ${{ !inputs.engineering_baseline && !inputs.phase_05 && !inputs.desktop_regressions && !inputs.native_packaging && github.ref != 'refs/heads/develop' }}
+    if: ${{ !inputs.engineering_baseline && !(inputs.phase_05 || inputs.phase_06) && !inputs.desktop_regressions && !inputs.native_packaging && github.ref != 'refs/heads/develop' }}
     strategy:
       fail-fast: false
       matrix:
@@ -211,7 +229,7 @@ jobs:
           retention-days: 7
 
   static-actions:
-    if: ${{ !inputs.engineering_baseline && !inputs.phase_05 && !inputs.desktop_regressions && !inputs.native_packaging }}
+    if: ${{ !inputs.engineering_baseline && !(inputs.phase_05 || inputs.phase_06) && !inputs.desktop_regressions && !inputs.native_packaging }}
     runs-on: ubuntu-22.04
     timeout-minutes: 3
     steps:
@@ -232,7 +250,7 @@ jobs:
           retention-days: 7
 
   desktop-regressions:
-    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/develop' && inputs.desktop_regressions && !inputs.engineering_baseline && !inputs.phase_05 && !inputs.native_packaging }}
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/develop' && inputs.desktop_regressions && !inputs.engineering_baseline && !(inputs.phase_05 || inputs.phase_06) && !inputs.native_packaging }}
     runs-on: ${{ inputs.desktop_platform }}
     timeout-minutes: 8
     env:
@@ -265,32 +283,38 @@ jobs:
           python -u -B -X utf8 -m coverage run --rcfile=tools/engineering.coveragerc -m unittest -v test_communications_desktop
 
   phase-05-source:
-    if: ${{ github.event_name == 'workflow_dispatch' && inputs.phase_05 }}
+    if: ${{ github.event_name == 'workflow_dispatch' && (inputs.phase_05 || inputs.phase_06) }}
     runs-on: ubuntu-22.04
     timeout-minutes: 3
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           persist-credentials: false
-      - name: Validate the Phase 05 Preview source
+      - name: Validate the selected Preview source
         env:
           PYTHONPATH: tools
+          RF_PHASE: ${{ inputs.phase_06 }}
+          STATISTICAL_PHASE: ${{ inputs.phase_05 }}
         run: |
           if [[ "$GITHUB_REF" != refs/heads/develop ]]; then
-            echo "A Phase 05 candidate must be on develop." >&2
+            echo "The selected Preview candidate must be on develop." >&2
             exit 1
           fi
-          python3 -B -c 'from signallab_pc import __version__, __release_channel__; from check_quality_gate_05 import phase_five_version; import sys; sys.exit(0 if __release_channel__ == "preview" and phase_five_version(__version__) else "Phase 05 requires a 2.3.x Preview source.")'
+          if [[ "$RF_PHASE" == true && "$STATISTICAL_PHASE" == true ]]; then
+            echo "Choose a single Preview qualification." >&2
+            exit 1
+          fi
+          python3 -B -c 'import os, sys; from signallab_pc import __version__, __release_channel__; from check_quality_gate_05 import phase_five_version; from check_quality_gate_06 import phase_six_version; suitable = phase_six_version if os.getenv("RF_PHASE") == "true" else phase_five_version; sys.exit(0 if __release_channel__ == "preview" and suitable(__version__) else "The selected phase requires its corresponding Preview version.")'
 
   engineering-baseline:
-    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && (inputs.engineering_baseline || inputs.phase_05) && (!inputs.phase_05 || needs['phase-05-source'].result == 'success') }}
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && (inputs.engineering_baseline || (inputs.phase_05 || inputs.phase_06)) && (!(inputs.phase_05 || inputs.phase_06) || needs['phase-05-source'].result == 'success') }}
     needs: [phase-05-source]
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-22.04, windows-2022]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: ${{ inputs.phase_05 && matrix.os == 'windows-2022' && 65 || 45 }}
+    timeout-minutes: ${{ (inputs.phase_05 || inputs.phase_06) && matrix.os == 'windows-2022' && 65 || 45 }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -316,8 +340,11 @@ jobs:
       - name: Verify the clean revision and measure coverage
         run: python -B -X utf8 tools/check_engineering_baseline.py --output work/engineering-baseline
       - name: Verify Phase 05 independent examples and interface parity
-        if: ${{ inputs.phase_05 }}
+        if: ${{ (inputs.phase_05 || inputs.phase_06) }}
         run: python -B -X utf8 tools/qualify_statistics.py --output work/engineering-baseline --defects docs/engineering/phase_05/tracked-findings.json
+      - name: Verify Phase 06 RF examples and interface parity
+        if: ${{ inputs.phase_06 }}
+        run: python -B -X utf8 tools/qualify_rf.py --output work/engineering-baseline --defects docs/engineering/phase_06/tracked-findings.json
       - name: Verify a disposable portable with the fixed Qt runtime
         if: ${{ !cancelled() }}
         run: python -B -X utf8 tools/check_engineering_package.py --output work/engineering-baseline/packaged-smoke.json
@@ -329,11 +356,12 @@ jobs:
             work/engineering-baseline/*.json
             work/engineering-baseline/*.log
             work/engineering-baseline/demonstrators/
+            work/engineering-baseline/rf-demonstrators/
           if-no-files-found: error
           retention-days: 14
 
   engineering-distribution:
-    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && (inputs.engineering_baseline || inputs.native_packaging || inputs.phase_05) && github.ref == 'refs/heads/develop' && (!inputs.phase_05 || needs['phase-05-source'].result == 'success') }}
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && (inputs.engineering_baseline || inputs.native_packaging || (inputs.phase_05 || inputs.phase_06)) && github.ref == 'refs/heads/develop' && (!(inputs.phase_05 || inputs.phase_06) || needs['phase-05-source'].result == 'success') }}
     needs: [phase-05-source]
     strategy:
       fail-fast: false
@@ -389,7 +417,7 @@ jobs:
       - name: Audit candidate Linux distribution
         if: runner.os == 'Linux'
         env:
-          STATISTICAL_PHASE: ${{ inputs.phase_05 }}
+          STATISTICAL_PHASE: ${{ (inputs.phase_05 || inputs.phase_06) }}
         run: |
           python -m venv .venv
           .venv/bin/python -m pip install --only-binary=:all: -r requirements-lock.txt -r requirements-quality.txt
@@ -421,7 +449,7 @@ jobs:
           fi
           exit "$status"
       - name: Measure Core on Windows
-        if: ${{ !cancelled() && (inputs.engineering_baseline || inputs.phase_05) && runner.os == 'Windows' }}
+        if: ${{ !cancelled() && (inputs.engineering_baseline || (inputs.phase_05 || inputs.phase_06)) && runner.os == 'Windows' }}
         shell: pwsh
         run: |
           & '.\.venv\Scripts\python.exe' -B -X utf8 tools/measure_core_hardening.py --output work/distribution-audit/core-performance.json
@@ -430,18 +458,18 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & '.\.venv\Scripts\python.exe' -B -X utf8 tools/measure_recovery_responsiveness.py --output work/distribution-audit/recovery-responsiveness.json
       - name: Capture Windows audit views
-        if: ${{ !cancelled() && inputs.engineering_baseline && !inputs.phase_05 && runner.os == 'Windows' }}
+        if: ${{ !cancelled() && inputs.engineering_baseline && !(inputs.phase_05 || inputs.phase_06) && runner.os == 'Windows' }}
         shell: pwsh
         run: |
           & '.\.venv\Scripts\python.exe' -B -X utf8 tools/capture_candidate_ui.py --output work/distribution-audit/ui
       - name: Measure Core on Linux
-        if: ${{ !cancelled() && (inputs.engineering_baseline || inputs.phase_05) && runner.os == 'Linux' }}
+        if: ${{ !cancelled() && (inputs.engineering_baseline || (inputs.phase_05 || inputs.phase_06)) && runner.os == 'Linux' }}
         run: |
           .venv/bin/python -B -X utf8 tools/measure_core_hardening.py --output work/distribution-audit/core-performance.json
           .venv/bin/python -B -X utf8 tools/measure_scientific_campaign.py --output work/distribution-audit/scientific-campaign.json
           .venv/bin/python -B -X utf8 tools/measure_recovery_responsiveness.py --output work/distribution-audit/recovery-responsiveness.json
       - name: Measure communications and prepare the Windows candidate
-        if: ${{ (inputs.phase_05 || (inputs.engineering_baseline && (inputs.phase_03 || inputs.phase_04))) && runner.os == 'Windows' }}
+        if: ${{ ((inputs.phase_05 || inputs.phase_06) || (inputs.engineering_baseline && (inputs.phase_03 || inputs.phase_04))) && runner.os == 'Windows' }}
         shell: pwsh
         run: |
           $python = '.\.venv\Scripts\python.exe'
@@ -449,30 +477,39 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & $python -B -X utf8 tools/candidate_bundle.py --platform windows --source-archive --report work/distribution-audit/candidate-bundle.json
       - name: Measure communications and prepare the Linux candidate
-        if: ${{ (inputs.phase_05 || (inputs.engineering_baseline && (inputs.phase_03 || inputs.phase_04))) && runner.os == 'Linux' }}
+        if: ${{ ((inputs.phase_05 || inputs.phase_06) || (inputs.engineering_baseline && (inputs.phase_03 || inputs.phase_04))) && runner.os == 'Linux' }}
         run: |
           .venv/bin/python -B -X utf8 tools/measure_communications.py --output work/distribution-audit/communications-performance.json
           .venv/bin/python -B -X utf8 tools/candidate_bundle.py --platform linux --report work/distribution-audit/candidate-bundle.json
       - name: Measure the channel laboratory on Windows
-        if: ${{ (inputs.phase_05 || (inputs.engineering_baseline && inputs.phase_04)) && runner.os == 'Windows' }}
+        if: ${{ ((inputs.phase_05 || inputs.phase_06) || (inputs.engineering_baseline && inputs.phase_04)) && runner.os == 'Windows' }}
         shell: pwsh
         run: |
           & '.\.venv\Scripts\python.exe' -B -X utf8 tools/measure_channel_modeling.py --output work/distribution-audit/channel-modeling-performance.json
       - name: Measure the channel laboratory on Linux
-        if: ${{ (inputs.phase_05 || (inputs.engineering_baseline && inputs.phase_04)) && runner.os == 'Linux' }}
+        if: ${{ ((inputs.phase_05 || inputs.phase_06) || (inputs.engineering_baseline && inputs.phase_04)) && runner.os == 'Linux' }}
         run: |
           .venv/bin/python -B -X utf8 tools/measure_channel_modeling.py --output work/distribution-audit/channel-modeling-performance.json
       - name: Measure statistics and campaign recovery on Windows
-        if: ${{ inputs.phase_05 && runner.os == 'Windows' }}
+        if: ${{ (inputs.phase_05 || inputs.phase_06) && runner.os == 'Windows' }}
         shell: pwsh
         run: |
           & '.\.venv\Scripts\python.exe' -B -X utf8 tools/measure_statistics.py --output work/distribution-audit/statistical-performance.json
       - name: Measure statistics and campaign recovery on Linux
-        if: ${{ inputs.phase_05 && runner.os == 'Linux' }}
+        if: ${{ (inputs.phase_05 || inputs.phase_06) && runner.os == 'Linux' }}
         run: |
           .venv/bin/python -B -X utf8 tools/measure_statistics.py --output work/distribution-audit/statistical-performance.json
+      - name: Measure RF operations on Windows
+        if: ${{ inputs.phase_06 && runner.os == 'Windows' }}
+        shell: pwsh
+        run: |
+          & '.\.venv\Scripts\python.exe' -B -X utf8 tools/measure_rf.py --output work/distribution-audit/rf-performance.json
+      - name: Measure RF operations on Linux
+        if: ${{ inputs.phase_06 && runner.os == 'Linux' }}
+        run: |
+          .venv/bin/python -B -X utf8 tools/measure_rf.py --output work/distribution-audit/rf-performance.json
       - name: Retain candidate packages for the approval review
-        if: ${{ inputs.phase_05 || (inputs.engineering_baseline && (inputs.phase_03 || inputs.phase_04)) }}
+        if: ${{ (inputs.phase_05 || inputs.phase_06) || (inputs.engineering_baseline && (inputs.phase_03 || inputs.phase_04)) }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: phase-candidate-${{ matrix.os }}-${{ github.run_id }}
@@ -498,7 +535,7 @@ jobs:
           retention-days: 14
 
   engineering-quality-gate:
-    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && (inputs.engineering_baseline || inputs.phase_05) && github.ref == 'refs/heads/develop' && (!inputs.phase_05 || needs['phase-05-source'].result == 'success') }}
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && (inputs.engineering_baseline || (inputs.phase_05 || inputs.phase_06)) && github.ref == 'refs/heads/develop' && (!(inputs.phase_05 || inputs.phase_06) || needs['phase-05-source'].result == 'success') }}
     needs: [phase-05-source, engineering-baseline, engineering-distribution]
     runs-on: ubuntu-22.04
     timeout-minutes: 8
@@ -517,7 +554,7 @@ jobs:
           python3 -B tools/check_quality_gate_02c.py --input work/quality-input --output work/quality-gate --candidate "$CANDIDATE_SHA"
           cat work/quality-gate/quality-gate.md >> "$GITHUB_STEP_SUMMARY"
       - name: Evaluate Phase 03 math, resources and release isolation
-        if: ${{ inputs.phase_03 && !inputs.phase_05 }}
+        if: ${{ inputs.phase_03 && !(inputs.phase_05 || inputs.phase_06) }}
         env:
           CANDIDATE_SHA: ${{ github.sha }}
         run: |
@@ -526,7 +563,7 @@ jobs:
           cat work/quality-gate/quality-gate-03.md >> "$GITHUB_STEP_SUMMARY"
           exit "$status"
       - name: Evaluate Phase 04 channel science, resources and Preview packages
-        if: ${{ !cancelled() && inputs.phase_04 && !inputs.phase_05 }}
+        if: ${{ !cancelled() && inputs.phase_04 && !(inputs.phase_05 || inputs.phase_06) }}
         env:
           CANDIDATE_SHA: ${{ github.sha }}
         run: |
@@ -536,7 +573,7 @@ jobs:
           cat work/quality-gate/quality-gate-04.md >> "$GITHUB_STEP_SUMMARY"
           exit "$status"
       - name: Evaluate Phase 05 probability, statistical qualification and Preview packages
-        if: ${{ !cancelled() && inputs.phase_05 }}
+        if: ${{ !cancelled() && inputs.phase_05 && !inputs.phase_06 }}
         env:
           CANDIDATE_SHA: ${{ github.sha }}
         run: |
@@ -544,6 +581,16 @@ jobs:
           status=0
           python3 -B tools/check_quality_gate_05.py --input work/quality-input --output work/quality-gate --candidate "$CANDIDATE_SHA" --version "$version" || status=$?
           cat work/quality-gate/quality-gate-05.md >> "$GITHUB_STEP_SUMMARY"
+          exit "$status"
+      - name: Evaluate Phase 06 RF engineering and Preview packages
+        if: ${{ !cancelled() && inputs.phase_06 }}
+        env:
+          CANDIDATE_SHA: ${{ github.sha }}
+        run: |
+          version=$(python3 -B -c 'from signallab_pc import __version__; print(__version__)')
+          status=0
+          python3 -B tools/check_quality_gate_06.py --input work/quality-input --output work/quality-gate --candidate "$CANDIDATE_SHA" --version "$version" || status=$?
+          cat work/quality-gate/quality-gate-06.md >> "$GITHUB_STEP_SUMMARY"
           exit "$status"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: ${{ !cancelled() }}

@@ -145,6 +145,10 @@ def illustrated_diagrams(section):
     from PySide6.QtCore import QPointF
     from PySide6.QtGui import QPainterPath
     route=section['route'];kind=route[1];task=route[2]
+    if kind=='rf':
+        from .rf_guide_images import diagram
+        return [diagram(task),('Recorrido de esta herramienta',flow_image(route,section['purpose']),
+                               GUIDES[kind,task]['reading'])]
     if route[1:3]==('course_tools','band'):
         from .spectral_measurements_help import image
         return [('Bandas, distribución y picos',image(),'Azul: peso integrado, que depende del tipo de entrada. Ámbar: banda seleccionada. Verde: fracción acumulada. X mide energía; una PSD mide potencia; H se interpreta como un área de respuesta, sin confundirla con energía de una señal.')]

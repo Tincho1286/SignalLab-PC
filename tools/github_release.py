@@ -30,6 +30,9 @@ def validate_publication_files(tag, target, channel, paths, gate):
     if version_numbers[:2] == (2, 3) or gate.get('phase') == '05':
         if version_numbers[:2] != (2, 3) or gate.get('phase') != '05' or gate.get('version') != version:
             raise ValueError('La versión Preview 2.3.x requiere su Quality Gate de Fase 05.')
+    if version_numbers[:2] == (2, 4) or gate.get('phase') == '06':
+        if version_numbers[:2] != (2, 4) or gate.get('phase') != '06' or gate.get('version') != version:
+            raise ValueError('La versión Preview 2.4.x requiere su Quality Gate de Fase 06.')
     platforms = gate.get('platforms', {})
     runners = {'windows': 'windows-2022', 'linux': 'ubuntu-22.04'}
     if not isinstance(platforms, dict) or not set(runners.values()) <= platforms.keys():

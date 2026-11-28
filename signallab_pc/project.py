@@ -178,6 +178,10 @@ class Project:
                                       and metadata.get('dft_order')=='centered'))
         if record['kind']=='system':return {'kind':'system','domain':data['domain'],'name':data['name'],'advance':data.get('advance',0)}
         if record['kind']=='state_space':return {'kind':'state_space','domain':'continuous' if data.get('dt') is None else 'discrete'}
+        from .rf_storage import is_rf_data
+        if is_rf_data(data):
+            return {'kind':'calculation','data_kind':'rf_network','parameters':data.get('representation'),
+                    'ports':data.get('ports'),'count':data.get('frequencies')}
         expression=self.expression(key)
         info={'kind':record['kind'],'expression':expression is not None,'variable':expression.variable if expression else None,'units':expression.units if expression else ''}
         result=data.get('result',{});request=data.get('request',{})

@@ -180,6 +180,37 @@ class BesselDesignTests(unittest.TestCase):
             with self.subTest(order=order, frequencies=frequencies, options=options), self.assertRaises(ValueError):
                 bessel_prototype(order, frequencies, **options)
 
+    def test_analog_edges_and_frequencies_respect_numeric_envelope(self):
+        cases=(
+            ([0],[1],.1,.01,'bessel','positivos'),
+            ([1],[1],.1,.01,'bessel','ordenadas'),
+            ([1,3],[2,4],.1,.01,'bessel','ordenadas'),
+            ([1,3],[2],.1,.01,'bessel','positivos'),
+            ([1],[3],1,.01,'bessel','δp'),
+            ([1],[3],.1,.99,'bessel','δs'),
+            ([1],[3],.1,.01,'no_filter','Familia'),
+            ([1e-322],[1e308],.1,.01,'bessel','rango numérico'),
+            ([1],[3],1e-16,.01,'bessel','resolución'),
+        )
+        with np.errstate(over='ignore'):
+            for wp,ws,dp,ds,method,reason in cases:
+                with self.subTest(wp=wp,ws=ws,method=method),self.assertRaisesRegex(ValueError,reason):
+                    design(wp,ws,dp,ds,method)
+            with self.assertRaisesRegex(ValueError,'rango numérico'):
+                bessel_prototype(6,1e308)
+        with self.assertRaisesRegex(ValueError,'escalado'):
+            bessel_prototype(8,1e100)
+
+    def test_representation_guard_distinguishes_a_true_pole_from_lost_precision(self):
+        from signallab_pc.analog_design import _checked_transfer
+        with np.errstate(all='ignore'):
+            with self.assertRaisesRegex(ValueError,'Respuesta no finita'):
+                _checked_transfer(([],[1j,-1j],1),'Oscilador sin amortiguación',[1])
+            poles=np.asarray([-1e-4+1j]*8+[-1e-4-1j]*8)
+            gain=(2e-4)**8
+            with self.assertRaisesRegex(ValueError,'pierden precisión'):
+                _checked_transfer(([],poles,gain),'Resonadores casi coincidentes',[.99,1,1.01])
+
 
 if __name__ == '__main__':
     unittest.main()
