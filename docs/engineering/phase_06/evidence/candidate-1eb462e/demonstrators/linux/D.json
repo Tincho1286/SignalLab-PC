@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "demonstrator": "D",
+  "checks": [
+    {
+      "name": "EIRP de balance manual",
+      "actual": 24.0,
+      "reference": 24.0,
+      "absolute_tolerance": 1e-13
+    },
+    {
+      "name": "Potencia de espacio libre",
+      "actual": -46.468383135162995,
+      "reference": -46.468383135162995,
+      "absolute_tolerance": 1e-12
+    },
+    {
+      "name": "Friis de atenuador físico y LNA",
+      "actual": -109.97518719422808,
+      "reference": -109.975187194228,
+      "absolute_tolerance": 1e-11
+    },
+    {
+      "name": "Sensibilidad y margen",
+      "actual": 53.50680405906509,
+      "reference": 53.506804059065004,
+      "absolute_tolerance": 1e-11
+    }
+  ]
+}

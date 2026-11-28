@@ -1,0 +1,376 @@
+{
+  "platform": "windows-2022",
+  "baseline": "1311df1f0f954f06eaf5f20c33f645d15748660a",
+  "global": {
+    "previous": {
+      "lines": 90.0583,
+      "branches": 77.714
+    },
+    "current": {
+      "lines": 90.2783,
+      "branches": 78.3422
+    }
+  },
+  "modules": {
+    "signallab_pc/__init__.py": {
+      "previous": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "current": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/__main__.py": {
+      "previous": {
+        "lines": 74.4186,
+        "branches": 73.0769
+      },
+      "current": {
+        "lines": 76.087,
+        "branches": 75.0
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/amplitude_design.py": {
+      "previous": {
+        "lines": 92.2078,
+        "branches": 74.3902
+      },
+      "current": {
+        "lines": 92.2581,
+        "branches": 74.3902
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/analog_design.py": {
+      "previous": {
+        "lines": 92.1053,
+        "branches": 45.0
+      },
+      "current": {
+        "lines": 97.1831,
+        "branches": 85.1852
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/communications_storage.py": {
+      "previous": {
+        "lines": 97.8142,
+        "branches": 92.8571
+      },
+      "current": {
+        "lines": 97.7011,
+        "branches": 92.3077
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/course_tools_panel.py": {
+      "previous": {
+        "lines": 93.0818,
+        "branches": 82.8704
+      },
+      "current": {
+        "lines": 93.2374,
+        "branches": 83.6134
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/design.py": {
+      "previous": {
+        "lines": 98.7013,
+        "branches": 96.1538
+      },
+      "current": {
+        "lines": 98.7013,
+        "branches": 96.1538
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/input_files.py": {
+      "previous": {
+        "lines": 94.3662,
+        "branches": 81.25
+      },
+      "current": {
+        "lines": 95.1807,
+        "branches": 85.0
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/library_catalog.py": {
+      "previous": {
+        "lines": 98.9691,
+        "branches": 90.5405
+      },
+      "current": {
+        "lines": 98.9796,
+        "branches": 90.7895
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/library_titles.py": {
+      "previous": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "current": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/monte_carlo.py": {
+      "previous": {
+        "lines": 98.0831,
+        "branches": 95.4545
+      },
+      "current": {
+        "lines": 97.5385,
+        "branches": 94.0678
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/navigation.py": {
+      "previous": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "current": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/project.py": {
+      "previous": {
+        "lines": 96.6555,
+        "branches": 87.6712
+      },
+      "current": {
+        "lines": 96.6887,
+        "branches": 87.8378
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/project_archive.py": {
+      "previous": {
+        "lines": 95.3271,
+        "branches": 89.1304
+      },
+      "current": {
+        "lines": 96.3235,
+        "branches": 91.9355
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/results_browser.py": {
+      "previous": {
+        "lines": 91.2718,
+        "branches": 73.8636
+      },
+      "current": {
+        "lines": 91.3151,
+        "branches": 74.4444
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/self_check.py": {
+      "previous": {
+        "lines": 0.0,
+        "branches": 0.0
+      },
+      "current": {
+        "lines": 0.0,
+        "branches": 0.0
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/signal_semantics.py": {
+      "previous": {
+        "lines": 94.7368,
+        "branches": 95.8333
+      },
+      "current": {
+        "lines": 95.0,
+        "branches": 96.1538
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/theme_tokens.py": {
+      "previous": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "current": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/tool_catalog.py": {
+      "previous": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "current": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/tool_descriptions.py": {
+      "previous": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "current": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/tool_groups.py": {
+      "previous": {
+        "lines": 100.0,
+        "branches": 50.0
+      },
+      "current": {
+        "lines": 100.0,
+        "branches": 50.0
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/tool_search.py": {
+      "previous": {
+        "lines": 97.0297,
+        "branches": 94.6429
+      },
+      "current": {
+        "lines": 97.0297,
+        "branches": 94.6429
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/toolbox.py": {
+      "previous": {
+        "lines": 84.1623,
+        "branches": 73.3096
+      },
+      "current": {
+        "lines": 84.3288,
+        "branches": 73.6934
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/visual_help.py": {
+      "previous": {
+        "lines": 86.6109,
+        "branches": 89.4737
+      },
+      "current": {
+        "lines": 86.7769,
+        "branches": 89.6552
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/window_signal_panel.py": {
+      "previous": {
+        "lines": 96.6102,
+        "branches": 50.0
+      },
+      "current": {
+        "lines": 97.1831,
+        "branches": 87.5
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/window_signals.py": {
+      "previous": {
+        "lines": 100.0,
+        "branches": 68.75
+      },
+      "current": {
+        "lines": 98.9691,
+        "branches": 89.5833
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/window_spectrum.py": {
+      "previous": {
+        "lines": 100.0,
+        "branches": 70.0
+      },
+      "current": {
+        "lines": 100.0,
+        "branches": 94.4444
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/window_spectrum_view.py": {
+      "previous": {
+        "lines": 100.0,
+        "branches": 92.8571
+      },
+      "current": {
+        "lines": 100.0,
+        "branches": 92.8571
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/workflow_catalog.py": {
+      "previous": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "current": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    },
+    "signallab_pc/workspaces.py": {
+      "previous": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "current": {
+        "lines": 100.0,
+        "branches": 100.0
+      },
+      "uncovered_retained_lines": [],
+      "uncovered_retained_branches": []
+    }
+  }
+}

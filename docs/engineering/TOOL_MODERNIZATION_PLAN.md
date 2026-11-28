@@ -1,6 +1,6 @@
 # Plan de modernización de herramientas
 
-**Línea base posterior a Fase 05** sobre `10fe3f218de2cdf183a4cc282ebd54aed403a981`, con el código validado y publicado como 2.3.1 Preview. Las prioridades de las fases 06 a 11 son propuestas. Cada fase autorizada delimitará el alcance con requisitos, convenciones, tolerancias y presupuestos antes de implementar. [Estado auditado](STRATEGIC_REVIEW_POST_PHASE_05.md)
+**Línea base posterior a Fase 05** sobre `10fe3f218de2cdf183a4cc282ebd54aed403a981`, con el código validado y publicado como 2.3.1 Preview. Fase 06 ya tiene una entrega técnica en 2.4.0 Preview. Las prioridades de las fases 07 a 11 son propuestas. Cada fase autorizada delimitará el alcance con requisitos, convenciones, tolerancias y presupuestos antes de implementar. [Estado auditado](STRATEGIC_REVIEW_POST_PHASE_05.md) [Entrega de Fase 06](phase_06/PHASE_06_CLOSEOUT.md)
 
 ## Inventario de partida
 
@@ -29,6 +29,8 @@ Se inventariaron **51 herramientas en 8 áreas** y **105 rutas canónicas**. Las
 [Cierre aprobado](phase_05/PHASE_05_INTEGRATION.md) · [Evidencia científica y límites](phase_05/CORRECTIVE_PREVIEW_2_3_1.md) · [Deuda técnica de Fase 05](phase_05/TECHNICAL_DEBT_REGISTER.md)
 
 ## Fase 06 · RF y microondas
+
+**Alcance ejecutado.** La red RF tiene contrato multipuerto propio y se intercambia por Touchstone. Bessel se incorporó al diseñador escalar. El estudio espectral añade Zoom FFT, Chirp-Z y ventanas con métricas. El presupuesto de enlace conserva el motor de propagación. El cuadro siguiente registra los puntos de partida y las metas que guiaron el trabajo. [Implementación](phase_06/IMPLEMENTATION_LOG.md) · [Dictamen](phase_06/PHASE_06_CLOSEOUT.md)
 
 | Herramienta y capacidad actual | Límite identificado | Mejora estratégica y prioridad | Reutilización y dependencias | Interfaz y compatibilidad | Validación pendiente |
 | --- | --- | --- | --- | --- | --- |

@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "demonstrator": "A",
+  "checks": [
+    {
+      "name": "Transmisión por divisor de tensión y ondas de potencia",
+      "actual": 2.2247786310271853e-16,
+      "reference": 0.0,
+      "absolute_tolerance": 6e-16
+    },
+    {
+      "name": "Reflexión desde la impedancia vista por el puerto",
+      "actual": 5.551115123125783e-17,
+      "reference": 0.0,
+      "absolute_tolerance": 1e-15
+    },
+    {
+      "name": "Pérdida de inserción",
+      "actual": 2.220446049250313e-15,
+      "reference": 0.0,
+      "absolute_tolerance": 4e-14
+    },
+    {
+      "name": "Reconstrucción de impedancia serie",
+      "actual": 1.9539925233402755e-14,
+      "reference": 0.0,
+      "absolute_tolerance": 1e-13
+    },
+    {
+      "name": "Reciprocidad",
+      "actual": 1.0,
+      "reference": 1.0,
+      "absolute_tolerance": 0.0
+    },
+    {
+      "name": "Pasividad",
+      "actual": 1.0,
+      "reference": 1.0,
+      "absolute_tolerance": 0.0
+    }
+  ]
+}

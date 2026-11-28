@@ -1,0 +1,640 @@
+{
+  "run_id": 46094545163,
+  "commit": "1eb462e24034a9c7f41183b4da4654334460d07c",
+  "version": "2.4.0",
+  "channel": "preview",
+  "url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163",
+  "conclusion": "success",
+  "attempt": 1,
+  "verified_at": "2026-11-28T02:29:30.810805+00:00",
+  "reports": {
+    "quality-gate-46094545163": {
+      "artifact": {
+        "id": 15244800694,
+        "name": "quality-gate-46094545163",
+        "size_in_bytes": 21462,
+        "digest": "sha256:553fac6aec398c22025a08e206d4edeae393ddb5598a82dc5f34fd90b19eeab7",
+        "expires_at": "2026-12-12T02:28:47Z"
+      },
+      "files": {
+        "quality-gate-06.json": {
+          "sha256": "57eec12b8c838ad0a1b042f3dd3a2b57e574e14d9394d661a0dde01343691dc6",
+          "size": 167262
+        },
+        "quality-gate-06.md": {
+          "sha256": "18c316e9423ee972b94cdd915d3258b9b24ec59f3a6d4c08e7e2630c8eb0b3fb",
+          "size": 1302
+        },
+        "quality-gate.json": {
+          "sha256": "510ecd4af9dce955196684adb249c1acf1b7db1dbc39e2f805939cefb68c1256",
+          "size": 19335
+        },
+        "quality-gate.md": {
+          "sha256": "3682bc0e57bccf237f4ac5a2efcddb992d9bae1a36834d2fa5906975f712131a",
+          "size": 5208
+        }
+      }
+    },
+    "engineering-distribution-windows-2022-46094545163": {
+      "artifact": {
+        "id": 15243149225,
+        "name": "engineering-distribution-windows-2022-46094545163",
+        "size_in_bytes": 47718,
+        "digest": "sha256:4c108bd81497c0a7a81e8db200ebf1142f3af2112a87678a4dc1040e00e5a1f6",
+        "expires_at": "2026-12-12T02:16:19Z"
+      },
+      "files": {
+        "candidate-bundle.json": {
+          "sha256": "f8b0aec8e8d043c4c69c7f13d368b86d7c86952bf8ac1c6aeedfc9c3790feffc",
+          "size": 1054
+        },
+        "communications-performance.json": {
+          "sha256": "3e48c389ad23201a741af328bedbd38b290d46ddeed46b8c05a49b038a0ac5e5",
+          "size": 4061
+        },
+        "channel-modeling-performance.json": {
+          "sha256": "8ff10bff07526fd1a27960692c08d09dfbaa769bf631222386bd89114282d186",
+          "size": 14391
+        },
+        "core-performance.json": {
+          "sha256": "b34e263b020033782d1b48ca1b0e823170f74469f6d24c6c030528ad9872edd8",
+          "size": 51582
+        },
+        "native-inventory.json": {
+          "sha256": "4b479cff61ac6c503e092ae10acd5cff2efb33300c6acdf5fee6b0d2e75bdb59",
+          "size": 81403
+        },
+        "native.cdx.json": {
+          "sha256": "40226135060a4e75b44f6882b09ef1ae2b39afca738cc7ef68de976cf8b91396",
+          "size": 115235
+        },
+        "recovery-responsiveness.json": {
+          "sha256": "a45a929531197a47ec8b475444dac9e300efe59e710126c76651fa7f1d94c188",
+          "size": 2402
+        },
+        "resources.json": {
+          "sha256": "dcd6df40dda72aca505384b11ccd16b3efd48c7003689c1a979fe03fe7132fbc",
+          "size": 2201
+        },
+        "rf-performance.json": {
+          "sha256": "703a5191cb3a1af1827aaf59d332087af34613a9c86809724c67ea53fdd9bf9a",
+          "size": 5258
+        },
+        "statistical-performance.json": {
+          "sha256": "7a01df16cf4359d15570f95a06864a1757ab1b9d9eb4b2d2eea686dd2bcffbaa",
+          "size": 7307
+        },
+        "scientific-campaign.json": {
+          "sha256": "4d434ae7dca2ad3af15345f362cd9c656b3a8bd6cfff11e000874c05982614e6",
+          "size": 26182
+        },
+        "update.json": {
+          "sha256": "11f92d30230a39e77518810dfc1a829573b062609f473a1b08bcb30ae50c825f",
+          "size": 2361
+        },
+        "workflow-checks.json": {
+          "sha256": "77c997f720e7aa1e800101e3cebd0beb5311c7b4936b7670eec7e84098b9cfef",
+          "size": 2058
+        }
+      }
+    },
+    "engineering-baseline-windows-2022-46094545163": {
+      "artifact": {
+        "id": 15244451683,
+        "name": "engineering-baseline-windows-2022-46094545163",
+        "size_in_bytes": 658376,
+        "digest": "sha256:2ada114788f05b967c5462dbe288adde9e274cdb69bdb9a474a7c469a74d14e8",
+        "expires_at": "2026-12-12T02:28:35Z"
+      },
+      "files": {
+        "baseline.json": {
+          "sha256": "9daf912e1709b7af2e1b5a1a07e375ef7ed2ef61bfd138abbdec27422c9803fc",
+          "size": 10337
+        },
+        "coverage.json": {
+          "sha256": "fccef40e446ab442ab0ee4e62dc0ddad0e7887a3463062da051a20972f1750b3",
+          "size": 4919723
+        },
+        "demonstrators/A/report.json": {
+          "sha256": "8c9c5dbe64c7be7cd8aaa6bf6dd3418519fce97c16928bf061a619f798598509",
+          "size": 59413
+        },
+        "demonstrators/C/report.json": {
+          "sha256": "3404a8b39bd92186c203bd722516ecf8f027dd5d7864d9c490e8647d48283f7b",
+          "size": 1965
+        },
+        "demonstrators/B/report.json": {
+          "sha256": "0f8d6b95f996f06b6cb5287130b0f84e6450cb21fd367f47b8ab422cc47a94b2",
+          "size": 5503
+        },
+        "demonstrators/D/monte-carlo.slproj": {
+          "sha256": "023c975c39444c98546c6a2e3c6906aa39f13d5e46bcbc72cfc29c2efca7f543",
+          "size": 3612
+        },
+        "demonstrators/D/report.json": {
+          "sha256": "30c5f10cf114602ce99043bfdcc4dcf549b3713f1cb942c9d987bc1bc3165a5d",
+          "size": 11582
+        },
+        "demonstrators/E/canales.slproj": {
+          "sha256": "7f1d07a50dbf060b40ad76b3d64f794122e365c068c862874d5716d9c2c64a46",
+          "size": 332337
+        },
+        "demonstrators/E/report.json": {
+          "sha256": "2e64c471530ad8d7c6d2cc62cafd1b4a5cfe54884be28541f1f9d6f8dc57f510",
+          "size": 17147
+        },
+        "integral-checks-preventive.json": {
+          "sha256": "63b01d059b14c576aac19192f27c95c543f99b948678cbdd82461ab88b87762d",
+          "size": 64304
+        },
+        "integral-checks.json": {
+          "sha256": "c63de3fff033eda844946809fc37d1f1ee1df7e4aff2cd1fc6843a2576f499ad",
+          "size": 277733
+        },
+        "integral.log": {
+          "sha256": "0e593d9bbb0638afddbcf280427ded7db35017b392447642b1df1a16923a3a3d",
+          "size": 260462
+        },
+        "packaged-smoke.json": {
+          "sha256": "271992e6c4a5efcd685362d504fe019bada4dc465f9e6d84b66ba569e454099c",
+          "size": 1664
+        },
+        "rf-demonstrators/A/report.json": {
+          "sha256": "9d44ee8849787a06d42db34d8502111de2133e0ab2dcb42e123a764df90224a1",
+          "size": 1013
+        },
+        "rf-demonstrators/B/report.json": {
+          "sha256": "f0714e98582005bf372cd737731ebb69d5a4690126b2d902756aeb9b90a6ad55",
+          "size": 720
+        },
+        "rf-demonstrators/C/report.json": {
+          "sha256": "84f8e63cd3dfa16e1dff06d7ac349eac0d19ce5877bdff753b834b751b7398da",
+          "size": 1045
+        },
+        "rf-demonstrators/D/report.json": {
+          "sha256": "90827b51d9be1cec2d7861681a144001fa6d90a8a9c39202b809728c9fc91ea5",
+          "size": 720
+        },
+        "rf-demonstrators/E/report.json": {
+          "sha256": "6f97fdbac2bd7d92305f859453797b238de3e7bdc570b515d7cd6bf05fe0da00",
+          "size": 1237
+        },
+        "rf-demonstrators/F/asymmetry.s2p": {
+          "sha256": "719f01c666080cf6427cbf2fc52e82ab598291cb23f89f886a7e3a0ec9323741",
+          "size": 70
+        },
+        "rf-qualification.json": {
+          "sha256": "530648092b227df5ea3fc409bd38264b0ddde94b5186b039d6db4e54aae3ee59",
+          "size": 2705
+        },
+        "rf-demonstrators/F/experiment.slproj": {
+          "sha256": "ef68a67d69a44ab57ff7555f3cf211b5349a35a7eeefcad4e64c5ca83c828bd5",
+          "size": 2067
+        },
+        "rf-demonstrators/F/report.json": {
+          "sha256": "3ae7db6ade419b7ab8893ceafb2d3b8f2c8e59c7986cec62c49cc7b7cd9a9914",
+          "size": 838
+        },
+        "statistical-qualification.json": {
+          "sha256": "e7b2a91482f79d5f9a7b68538c56075554d3c8621d75dc9c49f675712134b3b1",
+          "size": 3138
+        }
+      }
+    },
+    "engineering-distribution-ubuntu-22.04-46094545163": {
+      "artifact": {
+        "id": 15243219774,
+        "name": "engineering-distribution-ubuntu-22.04-46094545163",
+        "size_in_bytes": 69522,
+        "digest": "sha256:fd75ec7a4ae41cf2551c2d081da98be2ec0f0e60a491ad9eaf0d7c8b7ae6ba2c",
+        "expires_at": "2026-12-12T02:07:26Z"
+      },
+      "files": {
+        "candidate-bundle.json": {
+          "sha256": "b1a168e7188269af7fb1a0c5fbd1304360f04cd0d31b97f2a721dd688d4ec07c",
+          "size": 893
+        },
+        "channel-modeling-performance.json": {
+          "sha256": "ce1b6892417429abee228691c6facc914ac7ff2412b22b52dc9b8eef3c739192",
+          "size": 13909
+        },
+        "communications-performance.json": {
+          "sha256": "727ca9ef77c017def29a6ea2eb8148669e0e9754933a66e631795e7c97712775",
+          "size": 3939
+        },
+        "core-performance.json": {
+          "sha256": "bbb511020905bc0427fb4d887892097b74a6a0b70cd2f206e3f675cd8f9ae970",
+          "size": 53889
+        },
+        "fedora-updates.json": {
+          "sha256": "cb78893d290f0ed60cdab4ffd5fbbe550cafffa20e0c401174421a0ed2f289f2",
+          "size": 132
+        },
+        "native.cdx.json": {
+          "sha256": "acf0fa03db1fcf6a84b0aff694d2863bc4f562c99471252edccd49f70fab4f28",
+          "size": 201522
+        },
+        "native-inventory.json": {
+          "sha256": "c0971b752d9b1d7528ae6977cf81b9a37738b7e712495e496537406951cc771b",
+          "size": 141745
+        },
+        "recovery-responsiveness.json": {
+          "sha256": "169b2546d42073f03c03283dd37ab4427f6170396f65d0bfe51b1bc3ae082d64",
+          "size": 2337
+        },
+        "resources.json": {
+          "sha256": "bafc0c0e77c65682572451a793f5c0b848ceda37bf185a164ce620fb6aecf7ca",
+          "size": 2139
+        },
+        "rf-performance.json": {
+          "sha256": "699ebdc36c3962d1c4c9eb6bb7f8319203fc353c38be30313e1b17a592612a03",
+          "size": 5070
+        },
+        "scientific-campaign.json": {
+          "sha256": "ba95efd9f27add7fdd3f89f2a14cda1ca75081c343dc5dd0bd0ed6e9bd039fde",
+          "size": 25397
+        },
+        "statistical-performance.json": {
+          "sha256": "feab8d67638a0a3ec0b35210bd29e672a140446d2ad12d78c85ceb3cfc43b184",
+          "size": 7262
+        },
+        "update.json": {
+          "sha256": "0c43e9c17a481fbc59d1008afff5793ed69808d0188980e9f40672cfd9a4162c",
+          "size": 2214
+        },
+        "workflow-checks.json": {
+          "sha256": "8b394c3c486477a6f84eddc65b6c44a7ad27e82d39ea93fe34b916141786ccfb",
+          "size": 1989
+        }
+      }
+    },
+    "engineering-baseline-ubuntu-22.04-46094545163": {
+      "artifact": {
+        "id": 15243901923,
+        "name": "engineering-baseline-ubuntu-22.04-46094545163",
+        "size_in_bytes": 658294,
+        "digest": "sha256:bf36393b5fc60dc305d03c7ba5a2e5c639ae3033c58a5348284a0b300ceb5fd2",
+        "expires_at": "2026-12-12T02:19:14Z"
+      },
+      "files": {
+        "baseline.json": {
+          "sha256": "77b7e83b657982b9315de97c389960db50365c36ce04b370962dc47ec18f03a9",
+          "size": 9996
+        },
+        "coverage.json": {
+          "sha256": "e6fff1bcfedf28df1f527f157ce1a82f55de5e408e833b0d19fc3ad77cf4a6d9",
+          "size": 4919201
+        },
+        "demonstrators/A/report.json": {
+          "sha256": "6645213595f8079dacd38aac5153dff2a49850056e1e11bde6d7577e05fb6c4b",
+          "size": 57515
+        },
+        "demonstrators/B/report.json": {
+          "sha256": "04189d790b53e397242d8d79a6a3e95491078f88e429426191ac68e41d47fa4f",
+          "size": 5279
+        },
+        "demonstrators/C/report.json": {
+          "sha256": "1bf2f932fc438160468c35f74c3f79b79b8a85bc099df0f6741d5ec0de054e3b",
+          "size": 1892
+        },
+        "demonstrators/D/monte-carlo.slproj": {
+          "sha256": "734813f34c312608d5cbeb8f98f25c72ca66b86845988d33573923d7021e4acb",
+          "size": 3613
+        },
+        "demonstrators/E/canales.slproj": {
+          "sha256": "f064c754b4abbff99528293c9bad53a4be22252856e4e3baba1c40e288e1efa2",
+          "size": 332293
+        },
+        "demonstrators/D/report.json": {
+          "sha256": "54c2e13e470839812cc31e9c4fb643c7c24345aec024e13e4cf507414c485123",
+          "size": 11043
+        },
+        "demonstrators/E/report.json": {
+          "sha256": "5b588c9a661422a487ceb9f3c3d20ad6ce719da479252ff05a58e4b119ffae46",
+          "size": 16578
+        },
+        "integral-checks-preventive.json": {
+          "sha256": "00b0c3198844cbbca9a226e41d2c3f3954334e333f4d7c8c2d517f8ac046a500",
+          "size": 61847
+        },
+        "integral-checks.json": {
+          "sha256": "b283fbeb9993b3d61f6cb9e7cdb6dd8a0f789acb2a459af4b746fed6ed1b6db7",
+          "size": 269913
+        },
+        "integral.log": {
+          "sha256": "9cc19792dd8d2670564b5b47ad731ef127995597d547611c2600efd4603cdb53",
+          "size": 271200
+        },
+        "rf-demonstrators/A/report.json": {
+          "sha256": "52f24521a90c78c8b512c61c045978c1118ea6d68225cc6fae0009f5d7c38b40",
+          "size": 972
+        },
+        "packaged-smoke.json": {
+          "sha256": "34db7e2c7193dcea4a88ef6d5ffdb4401038cbe4e00ef452cd71eb0e4e1568c4",
+          "size": 1635
+        },
+        "rf-demonstrators/B/report.json": {
+          "sha256": "54956f466bd305ce800161e7cf8517882b4fbd3ad163ed6093df7e8cffbeec0d",
+          "size": 691
+        },
+        "rf-demonstrators/C/report.json": {
+          "sha256": "a0d5dd0a792868050ec98249591235354585ec57ae7191318ce556de67e4e3fe",
+          "size": 1004
+        },
+        "rf-demonstrators/D/report.json": {
+          "sha256": "96ccc43d2bcc06881db7749bb388931370c5df373c8962dae50f092d3a3fd526",
+          "size": 691
+        },
+        "rf-demonstrators/E/report.json": {
+          "sha256": "4659d3912c4678012d9da98dbc61fa77f9f541c30fb4ca47278b5d9a316ab752",
+          "size": 1191
+        },
+        "rf-demonstrators/F/asymmetry.s2p": {
+          "sha256": "d407263480f0ba04f29df1b7b2d54f2a443072b00706cc1e1ddd04bdf6f5847e",
+          "size": 67
+        },
+        "rf-demonstrators/F/experiment.slproj": {
+          "sha256": "e37c01b5c77b73460d60b2d630caee18767f2add179b5e0ca74ccc9843e66ca5",
+          "size": 2067
+        },
+        "rf-demonstrators/F/report.json": {
+          "sha256": "17f8e1630da7ae38684f2db1b19025a25d4b29e8740043694df18a69baefecd1",
+          "size": 803
+        },
+        "rf-qualification.json": {
+          "sha256": "28048a08f17ce8514abca3e1ae2c9b6071222ceaf31060209731a0c00d977b3d",
+          "size": 2595
+        },
+        "statistical-qualification.json": {
+          "sha256": "9aee69ef4a5ed4c375922cf27767bc5c919e59e48239e5032ceb30c7a95f24d0",
+          "size": 3014
+        }
+      }
+    }
+  },
+  "packages": {
+    "windows-2022": {
+      "artifact": {
+        "id": 15243099154,
+        "name": "phase-candidate-windows-2022-46094545163",
+        "size_in_bytes": 234794055,
+        "digest": "sha256:f8628aea6af3118bc019290872ceb784884140ecae4d3b71c299e5835edd4cdc",
+        "expires_at": "2026-12-05T02:16:14Z"
+      },
+      "bundle": {
+        "schema": 1,
+        "commit": "1eb462e24034a9c7f41183b4da4654334460d07c",
+        "version": "2.4.0",
+        "channel": "preview",
+        "source_fingerprint": "d22c42f67716739a565af92c375f1a0d3cd46d863166fd5996679d5e2fb4fceb",
+        "platform": "windows",
+        "files": {
+          "SignalLab-PC-2.4.0.exe": {
+            "sha256": "3e9769306e6e9cf50c61215ff2cce290f3431893d4060b102b0c55c47cc2ee54",
+            "size": 113891189
+          },
+          "SignalLab-PC-2.4.0-setup.exe": {
+            "sha256": "b4ddc01a1ecb83c840e7b08056f9f583f6af8c7ff6064f448c8d63676fabedfd",
+            "size": 115091090
+          },
+          "installer-windows.json": {
+            "sha256": "0ece7f74ceebee1e6ccc2d1b650197248d97b4ed0dd629581060bb0b4f82c059",
+            "size": 402
+          },
+          "SignalLab-PC-2.4.0-source.zip": {
+            "sha256": "bbd58a33d5bf0b76dcf23b363645a354355a188be695d476919d61f14347383a",
+            "size": 5809592
+          }
+        },
+        "installer_sha256": "b4ddc01a1ecb83c840e7b08056f9f583f6af8c7ff6064f448c8d63676fabedfd",
+        "portable_sha256": "3e9769306e6e9cf50c61215ff2cce290f3431893d4060b102b0c55c47cc2ee54"
+      },
+      "files": {
+        "candidate-windows.json": {
+          "sha256": "f8b0aec8e8d043c4c69c7f13d368b86d7c86952bf8ac1c6aeedfc9c3790feffc",
+          "size": 1054
+        },
+        "SignalLab-PC-2.4.0.exe": {
+          "sha256": "3e9769306e6e9cf50c61215ff2cce290f3431893d4060b102b0c55c47cc2ee54",
+          "size": 113891189
+        },
+        "SignalLab-PC-2.4.0-setup.exe": {
+          "sha256": "b4ddc01a1ecb83c840e7b08056f9f583f6af8c7ff6064f448c8d63676fabedfd",
+          "size": 115091090
+        },
+        "installer-windows.json": {
+          "sha256": "0ece7f74ceebee1e6ccc2d1b650197248d97b4ed0dd629581060bb0b4f82c059",
+          "size": 402
+        },
+        "SignalLab-PC-2.4.0-source.zip": {
+          "sha256": "bbd58a33d5bf0b76dcf23b363645a354355a188be695d476919d61f14347383a",
+          "size": 5809592
+        }
+      }
+    },
+    "ubuntu-22.04": {
+      "artifact": {
+        "id": 15242894998,
+        "name": "phase-candidate-ubuntu-22.04-46094545163",
+        "size_in_bytes": 322338455,
+        "digest": "sha256:fd0eb0217e3b7ef7dd8a8a7d1abd5537536643d328788211deca8236740fcd41",
+        "expires_at": "2026-12-05T02:07:23Z"
+      },
+      "bundle": {
+        "schema": 1,
+        "commit": "1eb462e24034a9c7f41183b4da4654334460d07c",
+        "version": "2.4.0",
+        "channel": "preview",
+        "source_fingerprint": "d22c42f67716739a565af92c375f1a0d3cd46d863166fd5996679d5e2fb4fceb",
+        "platform": "linux",
+        "files": {
+          "SignalLab-PC-2.4.0-linux-x86_64.tar.gz": {
+            "sha256": "badbb32b85de5f4a05836863578d6dab791202746a637f56ed4c0c0c0513bcc5",
+            "size": 161193465
+          },
+          "SignalLab-PC-2.4.0-linux-x86_64.run": {
+            "sha256": "d8307eee51a3bcfb6a7bade6bd876e911903563e22d0844bba543f16e1838390",
+            "size": 161143085
+          },
+          "installer-linux.json": {
+            "sha256": "b18809745b91b51016fb7e3cb7fdcf91bc1740eed253934c084c8249c2501879",
+            "size": 396
+          }
+        },
+        "installer_sha256": "d8307eee51a3bcfb6a7bade6bd876e911903563e22d0844bba543f16e1838390",
+        "portable_sha256": "badbb32b85de5f4a05836863578d6dab791202746a637f56ed4c0c0c0513bcc5"
+      },
+      "files": {
+        "candidate-linux.json": {
+          "sha256": "b1a168e7188269af7fb1a0c5fbd1304360f04cd0d31b97f2a721dd688d4ec07c",
+          "size": 893
+        },
+        "SignalLab-PC-2.4.0-linux-x86_64.tar.gz": {
+          "sha256": "badbb32b85de5f4a05836863578d6dab791202746a637f56ed4c0c0c0513bcc5",
+          "size": 161193465
+        },
+        "SignalLab-PC-2.4.0-linux-x86_64.run": {
+          "sha256": "d8307eee51a3bcfb6a7bade6bd876e911903563e22d0844bba543f16e1838390",
+          "size": 161143085
+        },
+        "installer-linux.json": {
+          "sha256": "b18809745b91b51016fb7e3cb7fdcf91bc1740eed253934c084c8249c2501879",
+          "size": 396
+        }
+      }
+    }
+  },
+  "native": {
+    "windows-2022": {
+      "files": 218,
+      "symlinks": 0,
+      "python": "3.14.10",
+      "qt": "6.12.1",
+      "cryptography_openssl": "OpenSSL 4.0.3 29 Sep 2026",
+      "portable_sha256": "3e9769306e6e9cf50c61215ff2cce290f3431893d4060b102b0c55c47cc2ee54"
+    },
+    "ubuntu-22.04": {
+      "files": 385,
+      "symlinks": 28,
+      "python": "3.14.10",
+      "qt": "6.12.1",
+      "cryptography_openssl": "OpenSSL 4.0.3 29 Sep 2026",
+      "portable_sha256": "badbb32b85de5f4a05836863578d6dab791202746a637f56ed4c0c0c0513bcc5"
+    }
+  },
+  "updates": {
+    "windows-2022": {
+      "upgrade_from_stable": {
+        "from": "2.0.0",
+        "to": "2.4.0",
+        "stable_sha256": "261dbd5ffd82adcf61cd33305532b37498e5cfdb673d3082b0c8b8638abfa487",
+        "candidate_sha256": "b4ddc01a1ecb83c840e7b08056f9f583f6af8c7ff6064f448c8d63676fabedfd",
+        "session_preserved": true,
+        "corrupt_download_rejected": true,
+        "native_handoff": true,
+        "in_place": true
+      },
+      "native_checks": [
+        "native_upgrade_same_installation",
+        "per_user_registration",
+        "uninstall_preserves_untracked_files",
+        "real_installed_application_self_check",
+        "native_downgrade_rejected"
+      ],
+      "runtime": {
+        "python": "3.14.10",
+        "openssl": "OpenSSL 3.5.9 29 Sep 2026",
+        "expat": "expat_2.9.0",
+        "qt": "6.12.1",
+        "pillow_jpeg2000": false
+      }
+    },
+    "ubuntu-22.04": {
+      "upgrade_from_stable": {
+        "from": "2.0.0",
+        "to": "2.4.0",
+        "stable_sha256": "a3fa8ce6ed4a5d559d8b8eb007c595dc680bc2070da92298d20f69f8f983f3c4",
+        "candidate_sha256": "d8307eee51a3bcfb6a7bade6bd876e911903563e22d0844bba543f16e1838390",
+        "session_preserved": true,
+        "corrupt_download_rejected": true,
+        "native_handoff": true,
+        "in_place": true
+      },
+      "native_checks": [
+        "real_run_payload",
+        "installed_packaged_self_check",
+        "repair_in_place",
+        "uninstall_preserves_data"
+      ],
+      "runtime": {
+        "python": "3.14.10",
+        "openssl": "OpenSSL 3.0.2 15 Mar 2022",
+        "expat": "expat_2.9.0",
+        "qt": "6.12.1",
+        "pillow_jpeg2000": false
+      }
+    }
+  },
+  "jobs": [
+    {
+      "id": 140825261959,
+      "name": "phase-05-source",
+      "conclusion": "success",
+      "started_at": "2026-11-28T01:53:16Z",
+      "completed_at": "2026-11-28T01:53:21Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163/job/140825261959"
+    },
+    {
+      "id": 140825262970,
+      "name": "workflow-integration",
+      "conclusion": "skipped",
+      "started_at": "2026-11-28T01:53:14Z",
+      "completed_at": "2026-11-28T01:53:14Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163/job/140825262970"
+    },
+    {
+      "id": 140825263013,
+      "name": "static-actions",
+      "conclusion": "skipped",
+      "started_at": "2026-11-28T01:53:14Z",
+      "completed_at": "2026-11-28T01:53:14Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163/job/140825263013"
+    },
+    {
+      "id": 140825263092,
+      "name": "desktop-regressions",
+      "conclusion": "skipped",
+      "started_at": "2026-11-28T01:53:14Z",
+      "completed_at": "2026-11-28T01:53:14Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163/job/140825263092"
+    },
+    {
+      "id": 140825263096,
+      "name": "core-mathematics",
+      "conclusion": "skipped",
+      "started_at": "2026-11-28T01:53:14Z",
+      "completed_at": "2026-11-28T01:53:14Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163/job/140825263096"
+    },
+    {
+      "id": 140825290891,
+      "name": "engineering-distribution (windows-2022)",
+      "conclusion": "success",
+      "started_at": "2026-11-28T01:53:24Z",
+      "completed_at": "2026-11-28T02:16:24Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163/job/140825290891"
+    },
+    {
+      "id": 140825290905,
+      "name": "engineering-baseline (windows-2022)",
+      "conclusion": "success",
+      "started_at": "2026-11-28T01:53:24Z",
+      "completed_at": "2026-11-28T02:28:39Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163/job/140825290905"
+    },
+    {
+      "id": 140825290924,
+      "name": "engineering-distribution (ubuntu-22.04)",
+      "conclusion": "success",
+      "started_at": "2026-11-28T01:53:24Z",
+      "completed_at": "2026-11-28T02:07:30Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163/job/140825290924"
+    },
+    {
+      "id": 140825290939,
+      "name": "engineering-baseline (ubuntu-22.04)",
+      "conclusion": "success",
+      "started_at": "2026-11-28T01:53:24Z",
+      "completed_at": "2026-11-28T02:19:22Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163/job/140825290939"
+    },
+    {
+      "id": 140834551378,
+      "name": "engineering-quality-gate",
+      "conclusion": "success",
+      "started_at": "2026-11-28T02:28:42Z",
+      "completed_at": "2026-11-28T02:28:50Z",
+      "html_url": "https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163/job/140834551378"
+    }
+  ]
+}

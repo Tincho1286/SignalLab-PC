@@ -30,6 +30,10 @@ Para las operaciones compartidas se prueba cálculo sin importar Qt y equivalenc
 
 El candidato `1311df1` aprobó en Windows y Ubuntu con **1 437 pruebas integrales**, **150 casos preventivos** y **384 contrastes científicos por plataforma**. Windows alcanzó 90,06 % de líneas y 77,71 % de ramas. Ubuntu alcanzó 90,01 % y 77,70 %. Los 53 componentes críticos cumplen el criterio documentado, incluido el bloqueo nativo combinado de campañas con prueba entre procesos en ambos sistemas. Los cinco controles posteriores a la integración aprobaron en `9474626`. [Validación de 2.3.1](phase_05/CORRECTIVE_PREVIEW_2_3_1.md) · [Registro de críticos](SCIENTIFIC_ENGINE_INVENTORY.md#registro-de-componentes-que-mide-el-quality-gate-de-231) · [Integración](phase_05/PHASE_05_INTEGRATION.md)
 
+### Referencia acumulada de 2.4.0 Preview
+
+Windows Server 2022 y Ubuntu 22.04 acreditaron el mismo SHA, los seis demostradores RF, el conjunto crítico y los controles de recursos y distribución. El expediente conserva los números por plataforma y los resultados de paridad con Qt fuera de pantalla. La revisión funcional del propietario tiene su propio protocolo. [Quality Gate](phase_06/QUALITY_GATE_REPORT.md) · [Protocolo](phase_06/FUNCTIONAL_ACCEPTANCE.md)
+
 ## Calificación de Fase 11
 
 La calificación definitiva eleva a ≥99 % las líneas, ramas y funciones globales, y las líneas y ramas de componentes críticos. El protocolo fija el inventario de funciones, denominadores, exclusiones justificadas y reconciliación por plataforma antes de medir. La cobertura complementa oráculos independientes y pruebas que comprueban resultados. Mantener métricas auditables y resolver en cada fase los defectos que le corresponden. [Paquetes y dictámenes de Fase 11](ROADMAP.md#fase-11--consolidación-y-calificación-definitiva)

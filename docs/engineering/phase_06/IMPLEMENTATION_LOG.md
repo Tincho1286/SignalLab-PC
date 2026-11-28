@@ -35,3 +35,9 @@ El ensayo local de los demostradores A a F completó 32 comparaciones numéricas
 ## Búsqueda de herramientas
 
 La auditoría de distribución de `79901ce` detectó que la consulta «Z» también devolvía Chirp-Z. El índice consideraba una palabra de una letra como coincidencia parcial de un título. Se acotaron esos atajos a nombres y alias exactos. La prueba de búsqueda verifica «Z», «Z inversa», «Chirp-Z» y «CZT» desde el mismo índice que usa el Workbench. [Incidencia RF-05](tracked-findings.json) · [Ejecución del primer candidato](https://github.com/Tincho1286/SignalLab-PC/actions/runs/46093246209)
+
+## Calificación y entrega
+
+El candidato `1eb462e24034a9c7f41183b4da4654334460d07c` pasó la matriz acumulada de Windows y Ubuntu. La publicación verificó los instaladores, portables, código fuente, hashes e inventarios del mismo árbol, y el manifiesto firmado resolvió ambos instaladores del canal Preview. [Matriz](https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163) · [Informe](QUALITY_GATE_REPORT.md) · [Entrega](PHASE_06_CLOSEOUT.md)
+
+La ejecución local instrumentada con Qt 6.12.0 registró fallos en recorridos de CAS y reutilización. Los dos casos de CAS pasaron al repetirlos de forma aislada. La calificación de la versión corresponde a la matriz con el entorno fijado en Qt 6.12.1, donde estos recorridos aprobaron en ambos sistemas.

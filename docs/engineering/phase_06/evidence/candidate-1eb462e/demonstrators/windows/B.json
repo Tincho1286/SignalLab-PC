@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "demonstrator": "B",
+  "checks": [
+    {
+      "name": "Reflexión de carga de 100 Ω",
+      "actual": 0.0,
+      "reference": 0.0,
+      "absolute_tolerance": 5e-16
+    },
+    {
+      "name": "Carta de Smith en carga resistiva",
+      "actual": 4.440892098500626e-16,
+      "reference": 0.0,
+      "absolute_tolerance": 2e-15
+    },
+    {
+      "name": "Adaptador de cuarto de onda en banda",
+      "actual": 1.6235090081578564e-14,
+      "reference": 0.0,
+      "absolute_tolerance": 3e-13
+    },
+    {
+      "name": "Potencia entregada en frecuencia de diseño",
+      "actual": 1.0000000000000002,
+      "reference": 1.0,
+      "absolute_tolerance": 2e-15
+    }
+  ]
+}

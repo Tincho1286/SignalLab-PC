@@ -1,0 +1,164 @@
+{
+  "id": 461244471,
+  "tag_name": "v2.4.0",
+  "html_url": "https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.4.0",
+  "name": "SignalLab PC 2.4.0 Preview · RF y microondas",
+  "published_at": "2026-11-28T02:35:03Z",
+  "prerelease": true,
+  "draft": false,
+  "commit": "1eb462e24034a9c7f41183b4da4654334460d07c",
+  "main": "10fe3f218de2cdf183a4cc282ebd54aed403a981",
+  "branches": [
+    "develop",
+    "main"
+  ],
+  "stable": "2.0.0",
+  "stable_commit": "adfad5c093a236b0565f00f5e97845acf040ec96",
+  "stable_packages": {
+    "linux-x86_64": {
+      "name": "SignalLab-PC-2.0.0-linux-x86_64.run",
+      "sha256": "a3fa8ce6ed4a5d559d8b8eb007c595dc680bc2070da92298d20f69f8f983f3c4",
+      "size": 167004078
+    },
+    "windows-x86_64": {
+      "name": "SignalLab-PC-2.0.0-setup.exe",
+      "sha256": "261dbd5ffd82adcf61cd33305532b37498e5cfdb673d3082b0c8b8638abfa487",
+      "size": 124729612
+    }
+  },
+  "stable_packages_before": {
+    "linux-x86_64": {
+      "name": "SignalLab-PC-2.0.0-linux-x86_64.run",
+      "sha256": "a3fa8ce6ed4a5d559d8b8eb007c595dc680bc2070da92298d20f69f8f983f3c4",
+      "size": 167004078
+    },
+    "windows-x86_64": {
+      "name": "SignalLab-PC-2.0.0-setup.exe",
+      "sha256": "261dbd5ffd82adcf61cd33305532b37498e5cfdb673d3082b0c8b8638abfa487",
+      "size": 124729612
+    }
+  },
+  "preview_manifest": "sha256:0547d1bda5842b23d1fa45f3210be913c10c1eadd7d39f68439a53b33078bdac",
+  "verified_at": "2026-11-28T02:35:35.389966+00:00",
+  "assets": [
+    {
+      "id": 802902920,
+      "name": "SHA256SUMS-2.4.0.txt",
+      "size": 1485,
+      "digest": "sha256:6fb4706d2b2f53eaa5b27b7b3266baea348d713518b1290ef880148c7d96e074",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/SHA256SUMS-2.4.0.txt"
+    },
+    {
+      "id": 802903141,
+      "name": "SignalLab-PC-2.4.0-linux-x86_64.run",
+      "size": 161143085,
+      "digest": "sha256:d8307eee51a3bcfb6a7bade6bd876e911903563e22d0844bba543f16e1838390",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/SignalLab-PC-2.4.0-linux-x86_64.run"
+    },
+    {
+      "id": 802906590,
+      "name": "SignalLab-PC-2.4.0-linux-x86_64.tar.gz",
+      "size": 161193465,
+      "digest": "sha256:badbb32b85de5f4a05836863578d6dab791202746a637f56ed4c0c0c0513bcc5",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/SignalLab-PC-2.4.0-linux-x86_64.tar.gz"
+    },
+    {
+      "id": 802909324,
+      "name": "SignalLab-PC-2.4.0-setup.exe",
+      "size": 115091090,
+      "digest": "sha256:b4ddc01a1ecb83c840e7b08056f9f583f6af8c7ff6064f448c8d63676fabedfd",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/SignalLab-PC-2.4.0-setup.exe"
+    },
+    {
+      "id": 802912060,
+      "name": "SignalLab-PC-2.4.0-source.zip",
+      "size": 5809592,
+      "digest": "sha256:bbd58a33d5bf0b76dcf23b363645a354355a188be695d476919d61f14347383a",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/SignalLab-PC-2.4.0-source.zip"
+    },
+    {
+      "id": 802912165,
+      "name": "SignalLab-PC-2.4.0.exe",
+      "size": 113891189,
+      "digest": "sha256:3e9769306e6e9cf50c61215ff2cce290f3431893d4060b102b0c55c47cc2ee54",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/SignalLab-PC-2.4.0.exe"
+    },
+    {
+      "id": 802914467,
+      "name": "SignalLab-updates.json",
+      "size": 1302,
+      "digest": "sha256:0547d1bda5842b23d1fa45f3210be913c10c1eadd7d39f68439a53b33078bdac",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/SignalLab-updates.json"
+    },
+    {
+      "id": 802902057,
+      "name": "candidate-linux.json",
+      "size": 893,
+      "digest": "sha256:b1a168e7188269af7fb1a0c5fbd1304360f04cd0d31b97f2a721dd688d4ec07c",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/candidate-linux.json"
+    },
+    {
+      "id": 802902186,
+      "name": "candidate-windows.json",
+      "size": 1054,
+      "digest": "sha256:f8b0aec8e8d043c4c69c7f13d368b86d7c86952bf8ac1c6aeedfc9c3790feffc",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/candidate-windows.json"
+    },
+    {
+      "id": 802902311,
+      "name": "installer-linux.json",
+      "size": 396,
+      "digest": "sha256:b18809745b91b51016fb7e3cb7fdcf91bc1740eed253934c084c8249c2501879",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/installer-linux.json"
+    },
+    {
+      "id": 802902437,
+      "name": "installer-windows.json",
+      "size": 402,
+      "digest": "sha256:0ece7f74ceebee1e6ccc2d1b650197248d97b4ed0dd629581060bb0b4f82c059",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/installer-windows.json"
+    },
+    {
+      "id": 802902553,
+      "name": "linux-native-inventory.json",
+      "size": 141745,
+      "digest": "sha256:c0971b752d9b1d7528ae6977cf81b9a37738b7e712495e496537406951cc771b",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/linux-native-inventory.json"
+    },
+    {
+      "id": 802902669,
+      "name": "linux-native.cdx.json",
+      "size": 201522,
+      "digest": "sha256:acf0fa03db1fcf6a84b0aff694d2863bc4f562c99471252edccd49f70fab4f28",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/linux-native.cdx.json"
+    },
+    {
+      "id": 802902769,
+      "name": "quality-gate-06.json",
+      "size": 167262,
+      "digest": "sha256:57eec12b8c838ad0a1b042f3dd3a2b57e574e14d9394d661a0dde01343691dc6",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/quality-gate-06.json"
+    },
+    {
+      "id": 802914538,
+      "name": "verified-build.json",
+      "size": 24996,
+      "digest": "sha256:9b24dc656b39e5c86f89493573b82a3f9f0e495fb12d8b822113de87c1bf81d1",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/verified-build.json"
+    },
+    {
+      "id": 802914643,
+      "name": "windows-native-inventory.json",
+      "size": 81403,
+      "digest": "sha256:4b479cff61ac6c503e092ae10acd5cff2efb33300c6acdf5fee6b0d2e75bdb59",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/windows-native-inventory.json"
+    },
+    {
+      "id": 802914717,
+      "name": "windows-native.cdx.json",
+      "size": 115235,
+      "digest": "sha256:40226135060a4e75b44f6882b09ef1ae2b39afca738cc7ef68de976cf8b91396",
+      "browser_download_url": "https://github.com/Tincho1286/SignalLab-PC/releases/download/v2.4.0/windows-native.cdx.json"
+    }
+  ]
+}

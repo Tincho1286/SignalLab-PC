@@ -1,5 +1,9 @@
 # Arquitectura actual de SignalLab PC
 
+## RF y microondas en 2.4.0 Preview
+
+El candidato `1eb462e24034a9c7f41183b4da4654334460d07c` agrega `RFNetwork` como instantánea multipuerto, con frecuencia en Hz y referencias reales de onda de potencia. `rf_application` media entre Workbench, Python y CLI, y registra solicitudes y resultados en `Project`. Los formatos JSON y SLPROJ conservan matrices, referencias y procedencia. `Transfer` conserva la semántica escalar de filtros analógicos y `Signal` las convenciones espectrales. La incertidumbre RF reutiliza las campañas del motor de Monte Carlo. [Arquitectura y dependencias](phase_06/ARCHITECTURE.md) · [Decisión RF](phase_06/ADR-006-RF-NETWORK.md)
+
 ## Línea base posterior a Fase 05
 
 Se inspeccionó el árbol limpio `10fe3f218de2cdf183a4cc282ebd54aed403a981`, que integra el código de 2.3.1 Preview. Mediante `python -B tools/audit_dependencies.py --report work/strategy-post-05/import-graph.json` se midieron 438 archivos de aplicación y 66 953 líneas físicas. El AST registra 2 573 pares de importación interna, 1 419 al nivel superior y 185 módulos con importación directa de Qt o su backend. El grafo de declaraciones de nivel superior es acíclico. Al incluir las importaciones anidadas aparece un conjunto de cinco componentes cíclicos, con 274 módulos en el mayor. La métrica distingue estructura observada de ejecución efectiva. [Comprobante](evidence/post-phase-05-baseline.json) · [Reproductor](../../tools/audit_dependencies.py)

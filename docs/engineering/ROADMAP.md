@@ -21,7 +21,7 @@ SignalLab amplía sus dominios científicos y moderniza las herramientas de señ
 
 La Fase 02A corresponde al piloto DFT que el expediente histórico identifica como Fase 02. Las fases 03, 04 y 05 están cerradas e integradas. Stable/LTS 2.0.x conserva su línea de mantenimiento desde `v2.0.0`. [Piloto DFT](PHASE_02_DFT_PILOT.md) · [Cierre de Fase 02C](phase_02c/validation/QUALITY_GATE_REPORT.md) · [Cierre de Fase 03](phase_03/PHASE_03_CLOSEOUT.md) · [Cierre de Fase 04](phase_04/PHASE_04_CLOSEOUT.md) · [Cierre de Fase 05](phase_05/PHASE_05_INTEGRATION.md)
 
-Las fases 06 a 11 expresan alcance estratégico por verificar. Fase 06 está preparada para solicitar autorización. Los requisitos, la implementación y la calificación de cada fase comienzan con su autorización específica. Las fases cerradas conservan su evidencia. Una regresión concreta se trata en el ciclo de corrección que corresponda. [Dictamen](STRATEGIC_REVIEW_POST_PHASE_05.md#dictamen-de-preparación-para-fase-06)
+La Fase 06 está calificada en 2.4.0 Preview. La aceptación funcional y la integración en `main` siguen pendientes. Las fases 07 a 11 mantienen su alcance estratégico sujeto a autorización. [Entrega de Fase 06](phase_06/PHASE_06_CLOSEOUT.md) Los requisitos, la implementación y la calificación de cada fase comienzan con su autorización específica. Las fases cerradas conservan su evidencia. Una regresión concreta se trata en el ciclo de corrección que corresponda. [Dictamen](STRATEGIC_REVIEW_POST_PHASE_05.md#dictamen-de-preparación-para-fase-06)
 
 ## Dependencias científicas entre fases
 
@@ -85,6 +85,8 @@ La fase está cerrada. Estos objetivos guiaron el desarrollo de la base probabil
 - **Herramientas originales.** Ampliar el diseñador analógico con Bessel y familias complementarias. Reutilizar transferencia, respuesta frecuencial y retardo de grupo. Extender el análisis con chirp-Z, Zoom FFT, detección e interpolación de picos y ventanas Tukey, Flat top, Nuttall, DPSS y Dolph–Chebyshev. Conservar las medidas de ENBW, ganancia coherente y pérdida entre bins, e incorporar sensibilidad paramétrica.
 
 **Salida estratégica.** Contrastar redes de referencia, conversiones, impedancias de puerto, adaptación e intercambio Touchstone con fórmulas analíticas y comparadores independientes. Evaluar scikit-rf, SciPy y una referencia de circuito externa. Acreditar cálculo, importación, guardado y validación sin hardware RF. [Plan de Fase 06](TOOL_MODERNIZATION_PLAN.md#fase-06--rf-y-microondas) · [Evaluación de referencias](INTEGRATION_CATALOG.md#referencias-y-modalidades-de-integración)
+
+**Estado de entrega.** La Preview acredita redes, líneas, adaptación, Bessel, enlace, espectros e interoperabilidad sin hardware. Los límites de modelos y formatos acompañan el expediente. [Quality Gate](phase_06/QUALITY_GATE_REPORT.md) · [Límites](phase_06/TECHNICAL_DEBT_REGISTER.md)
 
 ## Fase 07 · Punto fijo y DSP embebido
 

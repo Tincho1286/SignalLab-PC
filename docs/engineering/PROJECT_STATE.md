@@ -2,7 +2,9 @@
 
 ## Estado vigente
 
-La última fase cerrada es **Fase 05**. El propietario aceptó 2.3.1 Preview y la integración `9474626` aprobó los controles posteriores en Windows y Ubuntu. **2.0.0** sigue en Stable/LTS. RF & Microwave es la siguiente fase del roadmap y su apertura requiere autorización específica. [Cierre](phase_05/PHASE_05_INTEGRATION.md) · [Descargas 2.3.1](../releases/v2.3.1.md) · [Auditoría posterior a Fase 05](STRATEGIC_REVIEW_POST_PHASE_05.md) · [Roadmap](ROADMAP.md)
+**Fase 06** quedó calificada y publicada en 2.4.0 Preview desde `develop`. La aceptación funcional y la autorización de integración siguen pendientes. [Entrega](phase_06/PHASE_06_CLOSEOUT.md) · [Quality Gate](phase_06/QUALITY_GATE_REPORT.md)
+
+**Fase 05** es la última fase aceptada e integrada. La revisión `9474626` aprobó los controles en Windows y Ubuntu tras integrar 2.3.1 Preview. La línea Stable/LTS conserva 2.0.0. [Cierre de Fase 05](phase_05/PHASE_05_INTEGRATION.md) · [Roadmap](ROADMAP.md)
 
 ## Expedientes anteriores
 

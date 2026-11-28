@@ -1,6 +1,21 @@
 {
   "releases": [
     {
+      "tag": "v2.4.0",
+      "title": "RF y microondas",
+      "channel": "preview",
+      "summary": "Análisis multipuerto, líneas y adaptación, presupuesto de enlace y Fourier avanzadas.",
+      "changes": [
+        "Redes S/Z/Y/ABCD y Touchstone",
+        "Bessel, Zoom FFT y Chirp-Z",
+        "Ruido, compresión y campañas reanudables"
+      ],
+      "limits": [
+        "La versión estable de mantenimiento es 2.0.0."
+      ],
+      "notes": "docs/releases/v2.4.0.md"
+    },
+    {
       "tag": "v2.3.1",
       "title": "Gráficos de estadística y recepción",
       "channel": "preview",

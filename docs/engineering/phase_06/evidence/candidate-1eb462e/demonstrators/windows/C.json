@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "demonstrator": "C",
+  "checks": [
+    {
+      "name": "Módulo del polinomio de Bessel",
+      "actual": 3.3306690738754696e-16,
+      "reference": 0.0,
+      "absolute_tolerance": 1e-14
+    },
+    {
+      "name": "Fase del prototipo",
+      "actual": 4.440892098500626e-16,
+      "reference": 0.0,
+      "absolute_tolerance": 1e-14
+    },
+    {
+      "name": "Retardo por derivada del argumento",
+      "actual": 1.1102230246251565e-16,
+      "reference": 0.0,
+      "absolute_tolerance": 1e-14
+    },
+    {
+      "name": "Impulso del sistema de segundo orden",
+      "actual": 1.7763568394002505e-15,
+      "reference": 0.0,
+      "absolute_tolerance": 1e-13
+    },
+    {
+      "name": "Escalón del sistema de segundo orden",
+      "actual": 6.661338147750939e-16,
+      "reference": 0.0,
+      "absolute_tolerance": 1e-13
+    },
+    {
+      "name": "Familias disponibles en la comparación",
+      "actual": 5.0,
+      "reference": 5.0,
+      "absolute_tolerance": 0.0
+    }
+  ]
+}

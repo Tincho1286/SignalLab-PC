@@ -2,6 +2,12 @@
 
 La versión LTS es la [2.0.0](https://github.com/Tincho1286/SignalLab-PC/releases/tag/v2.0.0). Los objetivos pendientes se consultan en la [hoja de ruta](docs/roadmap.md).
 
+## 2.4.0 · Preview
+
+El laboratorio RF permite analizar redes multipuerto, líneas, adaptación, ruido de recepción y dispositivos con un modelo cúbico. La versión integra Touchstone con proyectos, añade filtros Bessel al diseñador analógico y amplía Fourier con Zoom FFT, Chirp-Z y ventanas parametrizadas.
+
+[Novedades y descargas](docs/releases/v2.4.0.md)
+
 ## 2.3.1 · Preview
 
 La cabecera de resultados habilita los gráficos de Monte Carlo, bootstrap y las herramientas de filtrado estadístico cuando hay datos. Medir BER, SER y EVM muestra las tasas acumuladas y los vectores de error I/Q del tramo alineado.

@@ -1,0 +1,36 @@
+{
+  "schema": 1,
+  "demonstrator": "F",
+  "checks": [
+    {
+      "name": "Orden S21 no recíproco al importar",
+      "actual": 0.0,
+      "reference": 0.0,
+      "absolute_tolerance": 0.0
+    },
+    {
+      "name": "Huella de entrada retenida",
+      "actual": 1.0,
+      "reference": 1.0,
+      "absolute_tolerance": 0.0
+    },
+    {
+      "name": "Solicitud y medición guardadas",
+      "actual": 1.0,
+      "reference": 1.0,
+      "absolute_tolerance": 0.0
+    },
+    {
+      "name": "Barrido de impedancia a cuarto de onda",
+      "actual": 1.1311333509432094e-16,
+      "reference": 0.0,
+      "absolute_tolerance": 9e-16
+    },
+    {
+      "name": "Barrido de impedancia a media onda",
+      "actual": 7.908724432694906e-17,
+      "reference": 0.0,
+      "absolute_tolerance": 9e-16
+    }
+  ]
+}

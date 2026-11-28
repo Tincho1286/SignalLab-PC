@@ -1,0 +1,585 @@
+{
+  "commit": "1eb462e24034a9c7f41183b4da4654334460d07c",
+  "run": 46094545163,
+  "platform": "windows-2022",
+  "checks": {
+    "cumulative_phase_05": true,
+    "rf_critical_coverage": true,
+    "global_coverage": true,
+    "packaged_rf": true,
+    "rf_candidate_integrity": true,
+    "rf_science_and_regressions": true,
+    "rf_interface_parity": true,
+    "rf_open_defects": true,
+    "rf_demonstrators": true,
+    "rf_profiles": true,
+    "rf_cancellation": true,
+    "rf_desktop_profiles": true
+  },
+  "tests": 1508,
+  "preventive_cases": 150,
+  "analysis": {
+    "requirements": {
+      "RF-01": {
+        "passed": true,
+        "reference_cases": 12,
+        "suites": [
+          "test_rf_network"
+        ]
+      },
+      "RF-02": {
+        "passed": true,
+        "reference_cases": 12,
+        "suites": [
+          "test_rf_network"
+        ]
+      },
+      "RF-03": {
+        "passed": true,
+        "reference_cases": 11,
+        "suites": [
+          "test_rf_line_matching"
+        ]
+      },
+      "RF-04": {
+        "passed": true,
+        "reference_cases": 32,
+        "suites": [
+          "test_rf_link_bessel",
+          "test_math_lti_workflows"
+        ]
+      },
+      "RF-05": {
+        "passed": true,
+        "reference_cases": 10,
+        "suites": [
+          "test_rf_link_bessel"
+        ]
+      },
+      "RF-06": {
+        "passed": true,
+        "reference_cases": 11,
+        "suites": [
+          "test_advanced_fourier"
+        ]
+      },
+      "RF-07": {
+        "passed": true,
+        "reference_cases": 5,
+        "suites": [
+          "test_rf_experiments"
+        ]
+      },
+      "RF-08": {
+        "passed": true,
+        "reference_cases": 22,
+        "suites": [
+          "test_touchstone_rf_storage",
+          "test_rf_application",
+          "test_rf_workbench"
+        ]
+      }
+    },
+    "demonstrators": {
+      "A": {
+        "passed": true,
+        "reference_cases": 6,
+        "report": "A/report.json",
+        "sha256": "9d44ee8849787a06d42db34d8502111de2133e0ab2dcb42e123a764df90224a1"
+      },
+      "B": {
+        "passed": true,
+        "reference_cases": 4,
+        "report": "B/report.json",
+        "sha256": "f0714e98582005bf372cd737731ebb69d5a4690126b2d902756aeb9b90a6ad55"
+      },
+      "C": {
+        "passed": true,
+        "reference_cases": 6,
+        "report": "C/report.json",
+        "sha256": "84f8e63cd3dfa16e1dff06d7ac349eac0d19ce5877bdff753b834b751b7398da"
+      },
+      "D": {
+        "passed": true,
+        "reference_cases": 4,
+        "report": "D/report.json",
+        "sha256": "90827b51d9be1cec2d7861681a144001fa6d90a8a9c39202b809728c9fc91ea5"
+      },
+      "E": {
+        "passed": true,
+        "reference_cases": 7,
+        "report": "E/report.json",
+        "sha256": "6f97fdbac2bd7d92305f859453797b238de3e7bdc570b515d7cd6bf05fe0da00"
+      },
+      "F": {
+        "passed": true,
+        "reference_cases": 5,
+        "report": "F/report.json",
+        "sha256": "3ae7db6ade419b7ab8893ceafb2d3b8f2c8e59c7986cec62c49cc7b7cd9a9914"
+      }
+    },
+    "p0_open": 0,
+    "p1_internal_open": 0
+  },
+  "global_coverage": {
+    "lines": {
+      "goal": 85,
+      "covered": 51975,
+      "total": 57572,
+      "state": "pass",
+      "additional_required": 0
+    },
+    "branches": {
+      "goal": 75,
+      "covered": 16455,
+      "total": 21004,
+      "state": "pass",
+      "additional_required": 0
+    }
+  },
+  "critical": {
+    "rf_network.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 197,
+        "total": 197,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 62,
+        "total": 62,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "rf_analysis.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 180,
+        "total": 181,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 49,
+        "total": 50,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "rf_line.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 146,
+        "total": 149,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 33,
+        "total": 36,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "rf_matching.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 163,
+        "total": 169,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 63,
+        "total": 70,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "rf_link.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 143,
+        "total": 147,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 30,
+        "total": 30,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "rf_experiments.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 135,
+        "total": 135,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 38,
+        "total": 38,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "rf_storage.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 67,
+        "total": 68,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 11,
+        "total": 12,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "rf_application.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 244,
+        "total": 249,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 115,
+        "total": 120,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "rf_cli.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 47,
+        "total": 47,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 12,
+        "total": 12,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "touchstone.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 262,
+        "total": 271,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 130,
+        "total": 140,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "advanced_fourier.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 183,
+        "total": 187,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 42,
+        "total": 48,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "analog_design.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 138,
+        "total": 142,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 46,
+        "total": 54,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "window_signals.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 96,
+        "total": 97,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 43,
+        "total": 48,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "window_spectrum.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 58,
+        "total": 58,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 17,
+        "total": 18,
+        "state": "pass",
+        "additional_required": 0
+      }
+    },
+    "project_archive.py": {
+      "lines": {
+        "goal": 90,
+        "covered": 131,
+        "total": 136,
+        "state": "pass",
+        "additional_required": 0
+      },
+      "branches": {
+        "goal": 85,
+        "covered": 57,
+        "total": 62,
+        "state": "pass",
+        "additional_required": 0
+      }
+    }
+  },
+  "resources": {
+    "schema": 1,
+    "phase": "06",
+    "commit": "1eb462e24034a9c7f41183b4da4654334460d07c",
+    "clean_checkout": true,
+    "platform": "Windows-2022Server-10.0.20348-SP0",
+    "threads": 1,
+    "profiles": {
+      "multiport": [
+        {
+          "verified": true,
+          "scale": 1,
+          "seconds": 0.013821200000165845,
+          "peak_rss_bytes": 107061248,
+          "max_observed_reservation_bytes": 4587520,
+          "parameters": {
+            "points": 2048,
+            "ports": 4
+          }
+        },
+        {
+          "verified": true,
+          "scale": 2,
+          "seconds": 0.023287600000003295,
+          "peak_rss_bytes": 111591424,
+          "max_observed_reservation_bytes": 8847360,
+          "parameters": {
+            "points": 4096,
+            "ports": 4
+          }
+        }
+      ],
+      "cascade": [
+        {
+          "verified": true,
+          "scale": 1,
+          "seconds": 0.013168700000051103,
+          "peak_rss_bytes": 109187072,
+          "max_observed_reservation_bytes": 3440640,
+          "parameters": {
+            "points": 8192,
+            "stages": 2
+          }
+        },
+        {
+          "verified": true,
+          "scale": 2,
+          "seconds": 0.025848500000165586,
+          "peak_rss_bytes": 114151424,
+          "max_observed_reservation_bytes": 6881280,
+          "parameters": {
+            "points": 16384,
+            "stages": 2
+          }
+        }
+      ],
+      "touchstone": [
+        {
+          "verified": true,
+          "scale": 1,
+          "seconds": 0.2466274999999314,
+          "peak_rss_bytes": 106459136,
+          "max_observed_reservation_bytes": 2097152,
+          "parameters": {
+            "points": 4096,
+            "transfer_bytes": 773530
+          }
+        },
+        {
+          "verified": true,
+          "scale": 2,
+          "seconds": 0.2597932999999557,
+          "peak_rss_bytes": 108785664,
+          "max_observed_reservation_bytes": 2949120,
+          "parameters": {
+            "points": 8192,
+            "transfer_bytes": 1547916
+          }
+        }
+      ],
+      "filter": [
+        {
+          "verified": true,
+          "scale": 1,
+          "seconds": 0.0065171000001100765,
+          "peak_rss_bytes": 105009152,
+          "max_observed_reservation_bytes": 1966560,
+          "parameters": {
+            "points": 8192,
+            "order": 8
+          }
+        },
+        {
+          "verified": true,
+          "scale": 2,
+          "seconds": 0.007202900000038426,
+          "peak_rss_bytes": 105488384,
+          "max_observed_reservation_bytes": 3277280,
+          "parameters": {
+            "points": 16384,
+            "order": 8
+          }
+        }
+      ],
+      "spectral": [
+        {
+          "verified": true,
+          "scale": 1,
+          "seconds": 0.027841000000080385,
+          "peak_rss_bytes": 105455616,
+          "max_observed_reservation_bytes": 2375752,
+          "parameters": {
+            "samples": 8192,
+            "zoom_points": 2049,
+            "contour_points": 1025
+          }
+        },
+        {
+          "verified": true,
+          "scale": 2,
+          "seconds": 0.054251199999953315,
+          "peak_rss_bytes": 106962944,
+          "max_observed_reservation_bytes": 4751432,
+          "parameters": {
+            "samples": 16384,
+            "zoom_points": 4097,
+            "contour_points": 2050
+          }
+        }
+      ],
+      "uncertainty": [
+        {
+          "verified": true,
+          "scale": 1,
+          "seconds": 0.09361390000003667,
+          "peak_rss_bytes": 105451520,
+          "max_observed_reservation_bytes": 409800,
+          "parameters": {
+            "sweep_values": 16,
+            "frequencies": 257,
+            "replicas": 24
+          }
+        },
+        {
+          "verified": true,
+          "scale": 2,
+          "seconds": 0.09547919999999976,
+          "peak_rss_bytes": 105226240,
+          "max_observed_reservation_bytes": 409800,
+          "parameters": {
+            "sweep_values": 32,
+            "frequencies": 257,
+            "replicas": 48
+          }
+        }
+      ],
+      "archive": [
+        {
+          "verified": true,
+          "scale": 1,
+          "seconds": 0.0964376000001721,
+          "peak_rss_bytes": 116097024,
+          "max_observed_reservation_bytes": 8650752,
+          "parameters": {
+            "points": 16384,
+            "file_bytes": 1442610
+          }
+        },
+        {
+          "verified": true,
+          "scale": 2,
+          "seconds": 0.18548150000015085,
+          "peak_rss_bytes": 125931520,
+          "max_observed_reservation_bytes": 17301504,
+          "parameters": {
+            "points": 32768,
+            "file_bytes": 2884402
+          }
+        }
+      ]
+    },
+    "cancellation": {
+      "discarded": true,
+      "operation": "touchstone_import",
+      "seconds_after_request": 0.00010749999978543201,
+      "retry": true
+    },
+    "desktop": {
+      "seconds_startup": 0.21284309999987272,
+      "cold_open_seconds": {
+        "network": 0.15389470000013716,
+        "line": 0.11007359999985056,
+        "link": 0.11528840000005403,
+        "spectral": 0.23667249999994056
+      },
+      "warm_navigation_median_seconds": 0.0213173500000039,
+      "warm_navigation_max_seconds": 0.13109669999994367,
+      "seconds_render": 0.06241600000021208,
+      "peak_rss_bytes": 298004480,
+      "platform_plugin": "offscreen",
+      "verified": true
+    }
+  }
+}

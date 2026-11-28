@@ -1,5 +1,9 @@
 # Registro de riesgos
 
+## Actualización de Fase 06
+
+Las referencias RF reales positivas, la orientación de puertos y las conversiones mal condicionadas tienen contratos y pruebas independientes. Touchstone está acotado al perfil S/Z/Y de 1.0 y 2.0. Se midió el límite de los perfiles RF y la cancelación antes de persistir. La memoria reservada es una estimación y las operaciones nativas conservan cancelación cooperativa. Quedan vigentes las decisiones previas de MAT y distribución. [Límites de Fase 06](phase_06/TECHNICAL_DEBT_REGISTER.md) · [Seguridad](phase_06/SECURITY_REVIEW.md) · [Recursos](phase_06/PERFORMANCE_REPORT.md)
+
 ## Situación posterior a Fase 05
 
 Las condiciones vigentes se cotejaron con los artefactos de 2.3.1 y los expedientes de aceptación. Cada modificación de alcance se evalúa con su propia evidencia y aprobación cuando corresponda. [Línea base auditada](STRATEGIC_REVIEW_POST_PHASE_05.md) · [Excepciones de Core](phase_02c/validation/EXCEPTION_APPROVAL_REGISTER.md) · [Seguridad de Fase 05](phase_05/SECURITY_REVIEW.md)

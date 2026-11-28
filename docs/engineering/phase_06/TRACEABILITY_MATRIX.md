@@ -1,6 +1,8 @@
 # Trazabilidad de requisitos de Fase 06
 
-| Paquete | Requisito trazado | Evidencia prevista |
+El candidato `1eb462e24034a9c7f41183b4da4654334460d07c` concentra los ensayos de ambos sistemas. [Quality Gate](QUALITY_GATE_REPORT.md) · [Matriz en GitHub](https://github.com/Tincho1286/SignalLab-PC/actions/runs/46094545163)
+
+| Paquete | Requisito trazado | Evidencia acreditada |
 | --- | --- | --- |
 | WP-00 | Ramas, candidato aceptado, LTS, informes y referencias | Línea base, auditoría y plan. |
 | WP-01 | Matrices, convenios de red, escalas, puertos y referencias | Contratos, `RFNetwork` y casos de forma, propiedad y entradas inválidas. |
