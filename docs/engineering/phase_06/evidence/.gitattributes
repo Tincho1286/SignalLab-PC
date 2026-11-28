@@ -1,0 +1,3 @@
+# Preserve the exact bytes collected from the runners and public release.
+*.json -text
+*.s2p -text
