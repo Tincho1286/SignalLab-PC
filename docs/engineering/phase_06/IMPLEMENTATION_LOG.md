@@ -31,3 +31,7 @@ El barrido de adaptación mantiene fijos los componentes y evalúa cambios de ca
 Se añadieron tres documentos RF y una variante de Fourier. Las rutas de redes importan o reutilizan matrices, muestran sus parámetros y permiten examinar Γ en la carta de Smith. El diseñador Bessel permanece en el diseñador analógico. Los resultados conservan las entradas y productos en el proyecto. La consola y el escritorio utilizan el mismo contrato de solicitud. [Ejemplos](RF_API_EXAMPLES.md)
 
 El ensayo local de los demostradores A a F completó 32 comparaciones numéricas independientes. Se amplió la ejecución acumulativa de GitHub para retener sus evidencias y perfiles, verificar portables e instaladores y vincular el Quality Gate con el SHA de la publicación. [Validación](VALIDATION_MATRIX.md)
+
+## Búsqueda de herramientas
+
+La auditoría de distribución de `79901ce` detectó que la consulta «Z» también devolvía Chirp-Z. El índice consideraba una palabra de una letra como coincidencia parcial de un título. Se acotaron esos atajos a nombres y alias exactos. La prueba de búsqueda verifica «Z», «Z inversa», «Chirp-Z» y «CZT» desde el mismo índice que usa el Workbench. [Incidencia RF-05](tracked-findings.json) · [Ejecución del primer candidato](https://github.com/Tincho1286/SignalLab-PC/actions/runs/46093246209)

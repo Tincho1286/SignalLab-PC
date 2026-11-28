@@ -41,6 +41,9 @@ def rank(query, titles, keywords=()):
         return (0, 0, 0)
     if query in titles[1:]:
         return (1, 0, 0)
+    # A single letter is a shortcut only when the name or alias explicitly opts in.
+    if len(query) == 1 and len(query[0]) == 1:
+        return None
     exact = set(query)
     for index, title in enumerate(titles):
         if exact == set(title):
@@ -48,8 +51,6 @@ def rank(query, titles, keywords=()):
     strong = [title for title in titles if match_words(query, title)]
     if strong:
         return min((3, sum(word not in title for word in exact), len(set(title) - exact)) for title in strong)
-    if len(query) == 1 and len(query[0]) == 1:
-        return None
     names = set().union(*titles)
     words = names | set(keywords)
     if match_words(query, words):
@@ -81,7 +82,7 @@ ALIASES = {
     ('course_tools', 'fir'): ('FIR Kaiser', 'FIR por bandas', 'FIR con tolerancias', 'diseñar pasabajos por tolerancias',
                               'diseñar pasabanda por tolerancias', 'diseño FIR por especificaciones'),
     ('course_tools', 'iir'): ('diseño digital Butterworth Chebyshev elíptico', 'IIR por bandas'),
-    ('course_tools', 'analog'): ('diseño analógico Butterworth Chebyshev elíptico', 'IIR analógico'),
+    ('course_tools', 'analog'): ('diseño analógico Butterworth Chebyshev elíptico', 'IIR analógico', 'Bessel'),
     ('systems', 0): ('FIR por cortes', 'diseño FIR por longitud'),
     ('fir_window', 0): ('FIR h[n]', 'enventanar h[n]', 'ventana para respuesta al impulso propia', 'FIR respuesta al impulso propia'),
     ('systems', 6): ('diseño por polos y ceros', 'editar polos y ceros', 'dibujar raíces'),
@@ -94,6 +95,7 @@ ALIASES = {
     ('basic', 'dft'): ('FFT', 'transformada discreta de Fourier', 'DFT centrada', 'coeficientes FFT'),
     ('basic', 'idft'): ('IFFT', 'IDFT', 'antitransformada DFT', 'FFT inversa'),
     ('course_tools', 'fft'): ('FFT', 'resolución espectral', 'zero padding', 'relleno con ceros', 'FFT enventanada'),
+    ('rf', 'spectral'): ('Chirp-Z', 'CZT', 'Zoom FFT'),
     ('fourier', 0): ('DFT vs DTFT', 'comparar DFT y DTFT', 'superponer DFT y DTFT', 'DTFT numérica'),
     ('dtft_symbolic', 0): ('DTFT directa simbólica', 'DTFT de una fórmula'),
     ('inverse_dtft', 0): ('IDTFT numérica', 'antitransformada DTFT numérica'),
@@ -115,7 +117,7 @@ ALIASES = {
     ('rational_resampling', 0): ('remuestreo', 'remuestrear con filtro', 'conversión de tasa antialias'),
     ('sampling', 4): ('cuantizar amplitud', 'ruido de cuantización', 'relación señal ruido SNR'),
     ('sampling', 5): ('punto fijo', 'Q15', 'punto flotante', 'desborde saturación redondeo'),
-    ('transform_lab', 'z'): ('transformada en Z', 'Z algebraica'),
+    ('transform_lab', 'z'): ('Z', 'transformada en Z', 'Z algebraica'),
     ('symbolic', 4): ('resolver EDO', 'ecuación diferencial', 'respuesta de una ecuación diferencial'),
     ('difference_equation', 0): ('resolver recurrencia', 'ecuación en diferencias', 'ecuación recursiva'),
 }

@@ -228,6 +228,8 @@ class Frontend(unittest.TestCase):
             ('respuesta al escalón discreta', ('systems',9), {'domain': 1, 'stimulus': 0}),
             ('Bode de H(s)', ('system_analysis',0), {'domain': 0}),
             ('DFT vs. DTFT', ('fourier',0), {}),
+            ('Chirp-Z', ('rf','spectral'), {}),
+            ('CZT', ('rf','spectral'), {}),
             ('enventanar h[n]', ('fir_window',0), {}),
         )
         for query, key, settings in cases:

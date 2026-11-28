@@ -37,6 +37,15 @@
       "cause": "La huella de un registro con ajustes incluye la procedencia de definición además de las matrices.",
       "resolution": "Al reutilizar, verificar el registro y cotejar por separado la huella de su instantánea RF.",
       "regression": "test_rf_application.RFApplicationTests.test_headless_cli_matches_python_and_reopens_existing_network"
+    },
+    {
+      "id": "RF-05",
+      "priority": "P2",
+      "internal": true,
+      "status": "closed",
+      "cause": "Al indexar el nombre Chirp-Z, la coincidencia por palabras admitía una letra aislada como coincidencia parcial de un título.",
+      "resolution": "Exigir un nombre o alias exacto para los atajos de una letra. Registrar Z, Chirp-Z y CZT en sus entradas correspondientes.",
+      "regression": "test_frontend_workspace.Frontend.test_search_distinguishes_transform_and_response_entry_points"
     }
   ]
 }
